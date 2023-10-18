@@ -1,0 +1,9 @@
+{
+	"services/logging": {
+		"title": "Traffic Logging",
+		"index": 110,
+		"view": "services/Ulog",
+		"acls": [ "services/logging" ],
+		"files": [ "/etc/config/ulogd" ]
+	}
+}

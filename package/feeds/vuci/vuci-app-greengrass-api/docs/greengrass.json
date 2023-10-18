@@ -1,0 +1,280 @@
+{
+  "openapi": "3.0.0",
+  "tags": [],
+  "paths": {
+    "/cloud_solutions/greengrass/config/general": {
+      "get": {
+        "tags": [
+          "Greengrass"
+        ],
+        "summary": "Returns Greengrass configuration",
+        "description": "",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Greengrass"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Greengrass"
+        ],
+        "summary": "Updates Greengrass configuration",
+        "description": "",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Greengrass"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/greengrass_single_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Uploads AWS Greengrass configuration compressed file",
+        "operationId": "post-services-awsgreengrass-config-cfg",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "x-examples": {
+                    "example-1": {
+                      "success": true,
+                      "data": {
+                        "path": "/etc/vuci-uploads/cbid.file.id.parameter.file_name.ext"
+                      }
+                    }
+                  },
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "Uploaded file path."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "tags": [
+          "Greengrass"
+        ],
+        "description": "",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "option": {
+                    "type": "string",
+                    "enum": [
+                      "aws_config"
+                    ]
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "option",
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Services",
+          "Cloud Solutions",
+          "Greengrass"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        }
+      }
+    },
+    "/cloud_solutions/greengrass/config": {
+      "get": {
+        "tags": [
+          "Greengrass"
+        ],
+        "summary": "Returns Greengrass configuration in an array",
+        "description": "",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200GreengrassMulti"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Greengrass"
+        ],
+        "summary": "Updates Greengrass configuration in an array",
+        "description": "",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200GreengrassMulti"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "description": "",
+                    "items": {
+                      "$ref": "#/components/schemas/greengrass_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Services",
+          "Cloud Solutions",
+          "Greengrass"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "200Greengrass": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/greengrass_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200GreengrassMulti": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "description": "",
+                  "items": {
+                    "$ref": "#/components/schemas/greengrass_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "greengrass_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Configuration ID"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/greengrass_single_options"
+          }
+        ]
+      },
+      "greengrass_single_options": {
+          "type": "object",
+          "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Enables/disables AWS Greengrass service",
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            }
+          },
+          "aws_config": {
+            "type": "string",
+            "description": "Upload 'AWS Greengrass' configuration compressed file",
+            "format": "path",
+            "x-web": {
+              "pretty": "Config file",
+              "input-type": "input"
+            }
+          }
+        }
+      }
+    }
+  }
+}
