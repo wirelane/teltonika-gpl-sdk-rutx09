@@ -982,17 +982,8 @@
           },
           "host": {
             "type": "string",
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "ipv4host"
-              },
-              {
-                "type": "string",
-                "format": "ipv6host"
-              }
-            ],
             "description": "Hostname or IP address to which the ping requests will be sent. E.g. 1.1.1.1 (or www.host.com if DNS server is configured correctly)",
+            "format": "host",
             "x-web": {
               "pretty": "Host to ping",
               "input-type": "input",
@@ -1032,16 +1023,7 @@
           },
           "host1": {
             "type": "string",
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "ipv4host"
-              },
-              {
-                "type": "string",
-                "format": "ipv6host"
-              }
-            ],
+            "format": "host",
             "description": "Hostname or IP address to which the ping requests will be sent. E.g. 1.1.1.1",
             "x-web": {
               "pretty": "Host to ping from SIM 1",
@@ -1085,17 +1067,8 @@
           },
           "host2": {
             "type": "string",
+            "format": "host",
             "description": "Hostname or IP address to which the ping requests will be sent. E.g. 1.1.1.1",
-            "oneOf": [
-              {
-                "type": "string",
-                "format": "ipv4host"
-              },
-              {
-                "type": "string",
-                "format": "ipv6host"
-              }
-            ],
             "x-web": {
               "pretty": "Host to ping from SIM 2",
               "input-type": "input",
