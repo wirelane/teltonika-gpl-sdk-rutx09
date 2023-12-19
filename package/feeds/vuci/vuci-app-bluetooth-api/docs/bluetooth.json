@@ -18,16 +18,305 @@
     },
     {
       "name": "Pairing"
-    },
-    {
-      "name": "Restart"
     }
   ],
   "servers": [],
   "paths": {
+    "/bluetooth/config": {
+      "x-web": {
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "hidden": true,
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "get": {
+        "summary": "Get bluetooth configurations",
+        "tags": [
+          "Bluetooth general"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_general_multi"
+          }
+        },
+        "description": "Gets bluetooth configurations"
+      },
+      "put": {
+        "summary": "Update bluetooth configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_general_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/req_body_bluetooth_general_multi"
+              }
+            }
+          }
+        },
+        "description": "Updates bluetooth configurations",
+        "tags": [
+          "Bluetooth general"
+        ]
+      },
+      "parameters": []
+    },
+    "/bluetooth/config/{id}": {
+      "x-web": {
+        "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Bluetooth Configuration identifier (ID)"
+        }
+      ],
+      "get": {
+        "summary": "Get bluetooth configuration",
+        "tags": [
+          "Bluetooth general"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_general_one"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "operationId": "get-services-bluetooth-config-id",
+        "description": "Gets bluetooth configurations"
+      },
+      "put": {
+        "summary": "Update bluetooth configuration",
+        "operationId": "put-services-bluetooth-config-id",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_general_one"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "description": "Updates bluetooth configuration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/req_body_bluetooth_general_one"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Bluetooth general"
+        ]
+      }
+    },
+    "/bluetooth/actions/scan": {
+      "x-web": {
+        "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "post": {
+        "summary": "Start bluetooth scan",
+        "operationId": "post-services-bluetooth-actions-scan",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_success"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "description": "Starts bluetooth scan",
+        "tags": [
+          "Scanning"
+        ]
+      },
+      "parameters": []
+    },
+    "/bluetooth/scanning/status": {
+      "x-web": {
+        "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "get": {
+        "summary": "Get bluetooth current scan job status",
+        "tags": [
+          "Scanning"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_scan_status"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "operationId": "get-services-bluetooth-status-scanning",
+        "description": "Gets bluetooth scan status"
+      },
+      "parameters": []
+    },
+    "/bluetooth/result/status": {
+      "x-web": {
+        "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "get": {
+        "summary": "Get bluetooth scanned devices",
+        "tags": [
+          "Scanning"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_scan_results"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "operationId": "get-services-bluetooth-status-results",
+        "description": "Gets bluetooth scan results"
+      },
+      "parameters": []
+    },
+    "/bluetooth/actions/pair": {
+      "x-web": {
+        "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "post": {
+        "summary": "Pair bluetooth devices",
+        "operationId": "post-services-bluetooth-actions-pair",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_success"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "description": "Pairs bluetooth devices",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/req_body_bluetooth_pair"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Pairing"
+        ]
+      },
+      "parameters": []
+    },
+    "/bluetooth/actions/unpair": {
+      "x-web": {
+        "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
+        "menu": [
+          "Services",
+          "Bluetooth",
+          "Bluetooth"
+        ]
+      },
+      "post": {
+        "summary": "Unpair bluetooth devices",
+        "operationId": "post-services-bluetooth-actions-unpair",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200_success"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "description": "Unpairs bluetooth devices",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/req_body_bluetooth_pair"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Unpairing"
+        ]
+      },
+      "parameters": []
+    },
     "/bluetooth/paired/config": {
       "x-web": {
         "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
         "menu": [
           "Services",
           "Bluetooth",
@@ -53,6 +342,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_paired_multi"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "description": "Updates paired devices configurations",
@@ -70,9 +365,12 @@
         ]
       }
     },
-    "/bluetooth/paired/config/{sid}": {
+    "/bluetooth/paired/config/{id}": {
       "x-web": {
         "hidden": true,
+        "hw_tags": {
+          "bluetooth": true
+        },
         "menu": [
           "Services",
           "Bluetooth",
@@ -84,9 +382,10 @@
           "schema": {
             "type": "string"
           },
-          "name": "sid",
+          "name": "id",
           "in": "path",
-          "required": true
+          "required": true,
+          "description": "Bluetooth Configuration identifier (ID)"
         }
       ],
       "get": {
@@ -97,17 +396,26 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_paired_one"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
-        "operationId": "get-services-bluetooth-paired-config-sid",
+        "operationId": "get-services-bluetooth-paired-config-id",
         "description": "Gets paired device"
       },
       "put": {
         "summary": "Update paired device configuration",
-        "operationId": "put-services-bluetooth-paired-config-sid",
+        "operationId": "put-services-bluetooth-paired-config-id",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_paired_one"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "description": "Updates paired device configuration",
@@ -124,269 +432,6 @@
           "Paired devices"
         ]
       }
-    },
-    "/bluetooth/general/config": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "get": {
-        "summary": "Get bluetooth configurations",
-        "tags": [
-          "Bluetooth general"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_general_multi"
-          }
-        },
-        "operationId": "get-services-bluetooth-config",
-        "description": "Gets bluetooth configurations"
-      },
-      "put": {
-        "summary": "Update bluetooth configurations",
-        "operationId": "put-services-bluetooth-config",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_general_multi"
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/req_body_bluetooth_general_multi"
-              }
-            }
-          }
-        },
-        "description": "Updates bluetooth configurations",
-        "tags": [
-          "Bluetooth general"
-        ]
-      },
-      "parameters": []
-    },
-    "/bluetooth/general/config/{sid}": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "parameters": [
-        {
-          "schema": {
-            "type": "string"
-          },
-          "name": "sid",
-          "in": "path",
-          "required": true
-        }
-      ],
-      "get": {
-        "summary": "Get bluetooth configuration",
-        "tags": [
-          "Bluetooth general"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_general_one"
-          }
-        },
-        "operationId": "get-services-bluetooth-config-sid",
-        "description": "Gets bluetooth configurations"
-      },
-      "put": {
-        "summary": "Update bluetooth configuration",
-        "operationId": "put-services-bluetooth-config-sid",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_general_one"
-          }
-        },
-        "description": "Updates bluetooth configuration",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/req_body_bluetooth_general_one"
-              }
-            }
-          }
-        },
-        "tags": [
-          "Bluetooth general"
-        ]
-      }
-    },
-    "/bluetooth/general/actions/scan": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "post": {
-        "summary": "Start bluetooth scan",
-        "operationId": "post-services-bluetooth-actions-scan",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_success"
-          }
-        },
-        "description": "Starts bluetooth scan",
-        "tags": [
-          "Scanning"
-        ]
-      },
-      "parameters": []
-    },
-    "/bluetooth/general/actions/restart": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "post": {
-        "summary": "Restart bluetooth service",
-        "operationId": "post-services-bluetooth-actions-restart",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_success"
-          }
-        },
-        "description": "Restarts bluetooth service",
-        "tags": [
-          "Restart"
-        ]
-      },
-      "parameters": []
-    },
-    "/bluetooth/general/actions/pair": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "post": {
-        "summary": "Pair bluetooth devices",
-        "operationId": "post-services-bluetooth-actions-pair",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_success"
-          }
-        },
-        "description": "Pairs bluetooth devices",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/req_body_bluetooth_pair"
-              }
-            }
-          }
-        },
-        "tags": [
-          "Pairing"
-        ]
-      },
-      "parameters": []
-    },
-    "/bluetooth/general/actions/unpair": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "post": {
-        "summary": "Unpair bluetooth devices",
-        "operationId": "post-services-bluetooth-actions-unpair",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_success"
-          }
-        },
-        "description": "Unpairs bluetooth devices",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/req_body_bluetooth_pair"
-              }
-            }
-          }
-        },
-        "tags": [
-          "Unpairing"
-        ]
-      },
-      "parameters": []
-    },
-    "/bluetooth/general/status/scanning": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "get": {
-        "summary": "Get bluetooth scan status",
-        "tags": [
-          "Scanning"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_scan_status"
-          }
-        },
-        "operationId": "get-services-bluetooth-status-scanning",
-        "description": "Gets bluetooth scan status"
-      },
-      "parameters": []
-    },
-    "/bluetooth/general/status/results": {
-      "x-web": {
-        "hidden": true,
-        "menu": [
-          "Services",
-          "Bluetooth",
-          "Bluetooth"
-        ]
-      },
-      "get": {
-        "summary": "Get bluetooth scan results",
-        "tags": [
-          "Scanning"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200_scan_results"
-          }
-        },
-        "operationId": "get-services-bluetooth-status-results",
-        "description": "Gets bluetooth scan results"
-      },
-      "parameters": []
     }
   },
   "components": {
@@ -408,6 +453,24 @@
         },
         "required": [
           "enabled"
+        ]
+      },
+      "bluetooth_paired_put": {
+        "description": "",
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "store_data": ""
+          }
+        },
+        "properties": {
+          "store_data": {
+            "type": "string",
+            "description": "Set to store data"
+          }
+        },
+        "required": [
+          "store_data"
         ]
       },
       "bluetooth_paired": {
@@ -517,12 +580,13 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Bluetooth Configuration identifier (ID)"
                     }
                   }
                 },
                 {
-                  "$ref": "#/components/schemas/bluetooth_paired"
+                  "$ref": "#/components/schemas/bluetooth_paired_put"
                 }
               ]
             }
@@ -542,7 +606,7 @@
         },
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/bluetooth_paired"
+            "$ref": "#/components/schemas/bluetooth_paired_put"
           }
         },
         "required": [
@@ -589,7 +653,8 @@
                   "type": "object",
                   "properties": {
                     "id": {
-                      "type": "string"
+                      "type": "string",
+                      "description": "Bluetooth Configuration identifier (ID)"
                     }
                   },
                   "required": [
@@ -630,7 +695,8 @@
                 "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "description": "Device addresses"
               }
             }
           }
@@ -665,7 +731,8 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Bluetooth Configuration identifier (ID)"
                         }
                       }
                     },
@@ -715,7 +782,8 @@
                         "type": "object",
                         "properties": {
                           "id": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Bluetooth Configuration identifier (ID)"
                           }
                         },
                         "required": [
@@ -763,7 +831,8 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Bluetooth Configuration identifier (ID)"
                         }
                       },
                       "required": [
@@ -816,7 +885,8 @@
                         "type": "object",
                         "properties": {
                           "id": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Bluetooth Configuration identifier (ID)"
                           }
                         },
                         "required": [

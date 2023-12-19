@@ -2,10 +2,10 @@
 	"services/cloud_solutions/greengrass": {
 		"description": "aws greengrass api",
 		"read": {
-			"api": ["/cloud_solutions/greengrass/*"]
+			"api": ["/greengrass/*"]
 		},
 		"write": {
-			"api": ["/cloud_solutions/greengrass/*"]
+			"api": ["/greengrass/*"]
 		}
 	}
 }

@@ -1,0 +1,304 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/tailscale/config": {
+      "put": {
+        "summary": "Updates the specified Tailscale configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Tailscale"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/tailscale_options_multi"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "put-tailscale-config",
+        "tags": ["General"]
+      },
+      "get": {
+        "summary": "Returns the specified Tailscale configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Tailscale"
+          }
+        },
+        "operationId": "get-tailscale-config",
+        "tags": ["General"]
+      },
+      "x-web": {
+        "menu": ["Services", "VPN", "Tailscale"],
+        "hw_tags": {
+          "is_switch": false,
+          "is_access_point": false,
+          "flash16mb": false
+        }
+      },
+      "parameters": []
+    },
+    "/tailscale/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "get": {
+        "summary": "Your GET endpoint",
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Tailscale"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "operationId": "get-tailscale-config-id"
+      },
+      "put": {
+        "summary": "",
+        "operationId": "put-tailscale-config-id",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Tailscale"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/tailscale_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["General"]
+      },
+      "x-web": {
+        "menu": ["Services", "VPN", "Tailscale"],
+        "hw_tags": {
+          "is_switch": false,
+          "is_access_point": false,
+          "flash16mb": false
+        }
+      }
+    },
+    "/tailscale/status": {
+      "get": {
+        "summary": "Returns Tailscale status",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200Status"
+          }
+        },
+        "operationId": "get-tailscale-status",
+        "tags": ["General"]
+      },
+      "x-web": {
+        "menu": ["Services", "VPN", "Tailscale"],
+        "hw_tags": {
+          "is_switch": false,
+          "is_access_point": false,
+          "flash16mb": false
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "200Tailscale": {
+        "description": "Returns section",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/tailscale_options_multi"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "200Status": {
+        "description": "Returns status",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Authentication status"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Authentication URL link"
+                    },
+                    "ip": {
+                      "type": "array",
+                      "description": "IP address",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "tailscale_options": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "Enable Tailscale service",
+            "format": "is_bool"
+          },
+          "auth_key": {
+            "x-web": {
+              "pretty": "Authentication key",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Provide an auth key to automatically authenticate the node as your user account.",
+            "format": "regex",
+            "pattern": "^[a-zA-Z0-9-]+$",
+            "maxLength": 64,
+            "minLength": 22
+          },
+          "advert_routes": {
+            "x-web": {
+              "pretty": "Advertise routes",
+              "input-type": "input"
+            },
+            "type": "array",
+            "description": "Expose physical subnet routes to your entire Tailscale network.",
+            "items": {
+              "type": "string",
+              "format": "cidr4"
+            }
+          },
+          "accept_routes": {
+            "x-web": {
+              "pretty": "Accept routes",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "Accept subnet routes that other nodes advertise.",
+            "format": "is_bool"
+          },
+          "exit_node": {
+            "x-web": {
+              "pretty": "Exit node",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "Offer to be an exit node for outbound internet traffic from the Tailscale network.",
+            "format": "is_bool"
+          },
+          "auth_type": {
+            "x-web": {
+              "pretty": "Authentication method",
+              "input-type": "select",
+              "enum-pretty": {
+                "key": "Key",
+                "url": "URL"
+              }
+            },
+            "type": "string",
+            "description": "Authentication method can be 'url' or 'key'",
+            "enum": ["key", "url"]
+          }
+        },
+        "required": ["auth_type"]
+      },
+      "tailscale_options_multi": {
+        "title": "tailscale_options_multi",
+        "x-stoplight": {
+          "id": "dbmnqrtwd0fuy"
+        },
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/tailscale_options"
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Tailscale",
+    "version": "1.0",
+    "description": "Tailscale api documentation"
+  },
+  "tags": [
+    {
+      "name": "General"
+    }
+  ]
+}
