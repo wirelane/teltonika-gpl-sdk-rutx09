@@ -4,9 +4,7 @@
   "paths": {
     "/greengrass/config": {
       "get": {
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "summary": "Returns Greengrass configuration in an array",
         "description": "",
         "responses": {
@@ -16,9 +14,7 @@
         }
       },
       "put": {
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "summary": "Updates Greengrass configuration in an array",
         "description": "",
         "responses": {
@@ -53,11 +49,7 @@
         }
       },
       "x-web": {
-        "menu": [
-          "Services",
-          "Cloud Solutions",
-          "Greengrass"
-        ],
+        "menu": ["Services", "Cloud Solutions", "Greengrass"],
         "hw_tags": {
           "is_access_point": false,
           "is_switch": false,
@@ -79,9 +71,7 @@
         }
       ],
       "get": {
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "summary": "Returns Greengrass configuration",
         "description": "",
         "responses": {
@@ -94,9 +84,7 @@
         }
       },
       "put": {
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "summary": "Updates Greengrass configuration",
         "description": "",
         "responses": {
@@ -162,14 +150,9 @@
                 }
               }
             }
-          },
-          "422": {
-            "$ref": "#/components/responses/422response"
           }
         },
-        "tags": [
-          "General"
-        ],
+        "tags": ["General"],
         "description": "",
         "requestBody": {
           "content": {
@@ -179,30 +162,21 @@
                 "properties": {
                   "option": {
                     "type": "string",
-                    "enum": [
-                      "aws_config"
-                    ]
+                    "enum": ["aws_config"]
                   },
                   "file": {
                     "type": "string",
                     "format": "binary"
                   }
                 },
-                "required": [
-                  "option",
-                  "file"
-                ]
+                "required": ["option", "file"]
               }
             }
           }
         }
       },
       "x-web": {
-        "menu": [
-          "Services",
-          "Cloud Solutions",
-          "Greengrass"
-        ],
+        "menu": ["Services", "Cloud Solutions", "Greengrass"],
         "hw_tags": {
           "is_access_point": false,
           "is_switch": false,
@@ -268,9 +242,7 @@
                 "description": "Configuration ID"
               }
             },
-            "required": [
-              "id"
-            ]
+            "required": ["id"]
           },
           {
             "$ref": "#/components/schemas/greengrass_single_options"
@@ -278,30 +250,32 @@
         ]
       },
       "greengrass_single_options": {
-          "type": "object",
-          "properties": {
-            "enabled": {
-              "type": "string",
-              "description": "Enables/disables AWS Greengrass service",
-              "format": "is_bool",
-              "enum": [
-                "0",
-                "1"
-              ],
-              "x-web": {
-                "pretty": "Enable",
-                "input-type": "switch"
-              }
-            },
-            "aws_config": {
-              "type": "string",
-              "description": "Upload 'AWS Greengrass' configuration compressed file",
-              "format": "path",
-              "x-web": {
-                "pretty": "Config file",
-                "input-type": "input"
-              }
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Enables/disables AWS Greengrass service",
+            "format": "is_bool",
+            "enum": ["0", "1"],
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
             }
+          },
+          "aws_config": {
+            "type": "string",
+            "description": "Upload 'AWS Greengrass' configuration compressed file",
+            "format": "file_validation",
+            "x-web": {
+              "pretty": "Config file",
+              "input-type": "input"
+            }
+          },
+          "aws_config:file_size": {
+            "description": "Uploaded file size in bytes.",
+            "type": "number",
+            "readOnly": true
+          }
         }
       }
     }
