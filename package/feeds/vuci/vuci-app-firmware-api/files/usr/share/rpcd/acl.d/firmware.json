@@ -39,10 +39,7 @@
                 "rut_fota": [
                     "get_process"
                 ]
-            },
-            "cgi-io": [
-                "upload"
-            ]
+            }
         }
     }
 }

@@ -1,0 +1,107 @@
+{
+  "openapi": "3.0.0",
+  "tags": [
+    {
+      "name": "DLMS global settings"
+    }
+  ],
+  "paths": {
+    "/dlms/global": {
+      "get": {
+        "tags": [
+          "DLMS global settings"
+        ],
+        "summary": "Returns all DLMS global settings configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200dlmsGlobal"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "DLMS global settings"
+        ],
+        "summary": "Updates specified DLMS global settings configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200dlmsGlobal"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/dlms_global_single_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "name": "DLMS",
+        "menu": [
+          "Services",
+          "DLMS",
+          "DLMS"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "200dlmsGlobal": {
+        "description": "Returns Configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/dlms_global_single_options"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "dlms_global_single_options": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Enables/disables DLMS functionality.",
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            },
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

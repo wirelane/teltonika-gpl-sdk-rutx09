@@ -168,7 +168,6 @@
           "example-1": {
             "enabled": "string",
             "reboot_clear": "string",
-            "enable_mac_filter": "string",
             "max_attempt_count": "string"
           }
         },
@@ -180,6 +179,16 @@
             },
             "type": "string",
             "description": "Enable or disable blocking IP's if they have reached the set amount of failed times.",
+            "format": "is_bool",
+            "enum": ["0", "1"]
+          },
+          "enabled_time_based": {
+            "x-web": {
+              "pretty": "Enable timed blocking",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "Enable or disable time based blocking of IPs, blocking time is based on the number of times the same IP was blocked.",
             "format": "is_bool",
             "enum": ["0", "1"]
           },
@@ -201,7 +210,8 @@
             "type": "string",
             "description": "Enable MAC blocking.",
             "format": "is_bool",
-            "enum": ["0", "1"]
+            "enum": ["0", "1"],
+            "deprecated": true
           },
           "max_attempt_count": {
             "x-web": {
@@ -215,7 +225,7 @@
             "maxLength": 4
           }
         },
-        "required": ["enabled", "reboot_clear", "enable_mac_filter", "max_attempt_count"]
+        "required": ["enabled", "reboot_clear", "max_attempt_count"]
       }
     },
     "requestBodies": {

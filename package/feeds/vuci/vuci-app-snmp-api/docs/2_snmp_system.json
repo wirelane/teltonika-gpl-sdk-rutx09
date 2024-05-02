@@ -216,7 +216,7 @@
           },
           "sysContact": {
             "type": "string",
-            "description": "Contact email. If the field is empty, the option will have read-write permissions. If not, the option will become read-only.",
+            "description": "Contact information. If the field is empty, the option will have read-write permissions. If not, the option will become read-only.",
             "maxLength": 255,
             "format": "string",
             "x-web": {
@@ -227,8 +227,7 @@
           "sysName": {
             "type": "string",
             "description": "Name of the system. If the field is empty, the option will have read-write permissions. If not, the option will become read-only.",
-            "maxLength": 255,
-            "format": "string",
+            "format": "host",
             "x-web": {
               "pretty": "Name",
               "input-type": "input"

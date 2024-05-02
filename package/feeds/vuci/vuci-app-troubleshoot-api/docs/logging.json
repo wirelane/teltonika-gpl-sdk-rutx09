@@ -304,6 +304,7 @@
             "description": "Size (in kibibytes) to keep the log file under. Positive value limits the log file size to that value, negative value specifies how much free storage space to leave."
           },
           "log_ip": {
+            "deprecated": true,
             "x-web": {
               "pretty": "External system log server",
               "input-type": "input"
@@ -313,6 +314,7 @@
             "format": "host"
           },
           "log_port": {
+            "deprecated": true,
             "x-web": {
               "pretty": "External system log server port",
               "input-type": "input"
@@ -322,6 +324,7 @@
             "description": "TCP/UDP port number of the external log server."
           },
           "log_proto": {
+            "deprecated": true,
             "x-web": {
               "pretty": "External system log server protocol",
               "input-type": "select",
@@ -333,6 +336,17 @@
             "type": "string",
             "enum": ["udp", "tcp"],
             "description": "Communication protocol used by the external log server."
+          },
+          "remote_logger": {
+            "x-web": {
+              "pretty": "External system log server list",
+              "input-type": "input"
+            },
+            "type": "array",
+            "description": "Remote logging configuration",
+            "items": {
+              "type": "string"
+            }
           },
           "log_type": {
             "x-web": {

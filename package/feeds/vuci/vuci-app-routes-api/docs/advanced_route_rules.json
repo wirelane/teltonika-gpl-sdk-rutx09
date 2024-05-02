@@ -349,7 +349,7 @@
               "input-type": "input"
             },
             "type": "string",
-            "description": "Specifies the source subnet to match (CIDR notation)."
+            "description": "Specifies the source subnet to match (CIDR notation). e.g 192.168.1.1/24"
           },
           "dest": {
             "x-web": {
@@ -357,15 +357,30 @@
               "input-type": "input"
             },
             "type": "string",
-            "description": "Specifies the destination subnet to match (CIDR notation)."
+            "description": "Specifies the destination subnet to match (CIDR notation) e.g 192.168.1.1/24 ."
           },
           "tos": {
+
+            "type": "string",
+            "description": "Specifies the TOS value in decimal to match in IP headers.",
+            "enum": [
+              "0",
+              "2",
+              "4",
+              "8",
+              "16"
+            ],
             "x-web": {
               "pretty": "TOS Value to Match",
-              "input-type": "input"
-            },
-            "type": "string",
-            "description": "Specifies the TOS value to match in IP headers."
+              "input-type": "select",
+              "enum-pretty": {
+                "0": "Normal-Service (0)",
+                "2": "Minimize-Cost (2)",
+                "4": "Maximize-Reliability (4)",
+                "8": "Maximize-Troughput (8)",
+                "16": "Minimize-Delay (16)"
+              }
+            }
           },
           "mark": {
             "x-web": {
@@ -385,6 +400,11 @@
           },
           "action_group": {
             "type": "string",
+            "enum": [
+              "lookup",
+              "goto",
+              "action"
+            ],
             "x-web": {
               "pretty": "Matched Traffic Action",
               "input-type": "select",

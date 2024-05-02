@@ -126,7 +126,7 @@
           "host": {
             "type": "string",
             "description": "POP3 server",
-            "format": "host",
+            "format": "hostname",
             "x-web": {
               "pretty": "POP3 server",
               "input-type": "input"
@@ -135,7 +135,6 @@
           "port": {
             "type": "string",
             "description": "Server port",
-            "format": "port",
             "x-web": {
               "pretty": "Server port",
               "input-type": "input"
@@ -156,7 +155,6 @@
             "description": "Password for authentication on POP3 server. All characters are allowed except ` and space",
             "format": "credentials_validate",
             "writeOnly": true,
-            "maxLength": 512,
             "x-web": {
               "pretty": "Password",
               "input-type": "input"
@@ -288,7 +286,7 @@
           "host": {
             "type": "string",
             "description": "POP3 server",
-            "format": "host",
+            "format": "hostname",
             "x-web": {
               "pretty": "POP3 server",
               "input-type": "input"
@@ -297,7 +295,6 @@
           "port": {
             "type": "string",
             "description": "Server port",
-            "format": "port",
             "x-web": {
               "pretty": "Server port",
               "input-type": "input"

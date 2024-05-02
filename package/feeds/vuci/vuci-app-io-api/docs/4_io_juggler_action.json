@@ -517,6 +517,21 @@
               ]
             }
           },
+          "client_id": {
+            "type": "string",
+            "description": "Client ID to send with the data. If this field is left empty a random ID will be generated",
+            "format": "fieldvalidation('^[a-zA-Z0-9!@#:%$%%&%*%+%-/=%?%^_`%[%]{|}~%.]+$',0)",
+            "maxLength": 64,
+            "x-web": {
+              "pretty": "Client ID",
+              "input-type": "input",
+              "depends": [
+                {
+                  "type": "mqtt"
+                }
+              ]
+            }
+          },
           "params": {
             "type": "array",
             "items": {
@@ -1143,7 +1158,6 @@
             "type": "string",
             "description": "Password of remote host",
             "format": "credentials_validate",
-            "writeOnly": true,
             "maxLength": 512,
             "x-web": {
               "pretty": "Password",

@@ -400,6 +400,72 @@
         ],
         "description": "Updates email users configuration"
       },
+      "post": {
+        "summary": "Uploads server's CA certificate file",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "x-examples": {
+                    "example-1": {
+                      "success": true,
+                      "data": {
+                        "path": "/etc/vuci-uploads/cbid.file.id.parameter.file_name.ext"
+                      }
+                    }
+                  },
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status."
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string",
+                          "description": "Uploaded file path."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "tags": [
+          "Email users"
+        ],
+        "description": "",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "summary": "Deletes the specified email users configuration",
         "responses": {
@@ -592,7 +658,9 @@
             "senderemail": "",
             "smtp_port": "",
             "password": "",
-            "smtp_ip": ""
+            "smtp_ip": "",
+            "do_not_verify": "",
+            "ca_file": ""
           }
         },
         "properties": {
@@ -693,6 +761,33 @@
             "type": "string",
             "description": "An address that will be used to send your email from.",
             "format": "email"
+          },
+          "do_not_verify": {
+            "x-web": {
+              "pretty": "Do not verify authenticity",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "When enabled, peer's certificate authenticity will not be verified.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ]
+          },
+          "ca_file": {
+            "x-web": {
+              "pretty": "CA file",
+              "input-type": "input",
+              "depends": [
+                {
+                  "do_not_verify": "0"
+                }
+              ]
+            },
+            "type": "string",
+            "description": "Server's CA file",
+            "format": "path"
           }
         },
         "required": [

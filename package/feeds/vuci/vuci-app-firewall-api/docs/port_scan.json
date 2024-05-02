@@ -213,6 +213,7 @@
           "hitcount": {
             "type": "string",
             "description": "Port scan count before packets are rejected. Minimal value is 5",
+            "format": "irange(5, 10000)",
             "x-web": {
               "pretty": "Scan count",
               "input-type": "input"
@@ -221,6 +222,7 @@
           "seconds": {
             "type": "string",
             "description": "Time range in which 'scan count' has to be reached before packets are rejected",
+            "format": "irange(10, 1000)",
             "x-web": {
               "pretty": "Interval",
               "input-type": "input"

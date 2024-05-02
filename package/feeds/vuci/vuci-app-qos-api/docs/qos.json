@@ -525,6 +525,7 @@
           "download": {
             "type": "string",
             "description": "Specify maximal download speed",
+            "format": "irange(100, 4294967)",
             "x-web": {
               "input-type": "input",
               "pretty": "Download speed (kbit/s)"
@@ -533,6 +534,7 @@
           "upload": {
             "type": "string",
             "description": "Specify maximal upload speed",
+            "format": "irange(100, 4294967)",
             "x-web": {
               "input-type": "input",
               "pretty": "Upload speed (kbit/s)"

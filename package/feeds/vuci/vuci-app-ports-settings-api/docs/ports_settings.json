@@ -218,6 +218,7 @@
               }
             },
             "type": "string",
+            "description": "Enable Energy-Efficient Ethernet.",
             "enum": ["0", "1"]
           },
           "_isolated": {
@@ -230,6 +231,7 @@
               }
             },
             "type": "string",
+            "description": "When enabled port will be isolated from other isolated ports. Traffic between isolated ports will dropped. Traffic between isolated and normal ports will be sent as normal.",
             "enum": ["0", "1"]
           },
           "poe_enable": {
@@ -247,6 +249,7 @@
               }
             },
             "type": "string",
+            "description": "Enable Power over Ethernet.",
             "enum": ["0", "1"]
           },
           "enabled": {
@@ -438,7 +441,8 @@
               }
             },
             "type": "string",
-            "enum": ["0", "1", "2"]
+            "enum": ["0", "1", "2"],
+            "description": "Utilizes either CoS, DSCP or both markings equally. "
           },
           "qos_pri_inner": {
             "x-web": {
@@ -460,7 +464,8 @@
               }
             },
             "type": "string",
-            "enum": ["0", "1", "2", "3", "4", "5", "6", "7"]
+            "enum": ["0", "1", "2", "3", "4", "5", "6", "7"],
+            "description": "Port-based priority of the specified port."
           },
           "_ingr_rate": {
             "x-web": {
@@ -472,7 +477,8 @@
               }
             },
             "type": "string",
-            "format": "range(0, 62500)"
+            "format": "range(0, 62500)",
+            "description": "Ingress bandwidth in Kbps units."
           },
           "_egr_rate": {
             "x-web": {
@@ -484,7 +490,8 @@
               }
             },
             "type": "string",
-            "format": "range(0, 62500)"
+            "format": "range(0, 62500)",
+            "description": "Egress bandwidth in Kbps units."
           },
           "_storm_mult_rate": {
             "x-web": {
@@ -496,7 +503,8 @@
               }
             },
             "type": "string",
-            "format": "range(0, 62500)"
+            "format": "range(0, 62500)",
+            "description": "Multicast Storm Filtering Control Rate In Kbps units."
           },
           "_storm_broad_rate": {
             "x-web": {
@@ -508,7 +516,8 @@
               }
             },
             "type": "string",
-            "format": "range(0, 62500)"
+            "format": "range(0, 62500)",
+            "description": "Broadcast Storm Filtering Control Rate In Kbps units."
           },
           "_storm_uni_rate": {
             "x-web": {
@@ -520,7 +529,8 @@
               }
             },
             "type": "string",
-            "format": "range(0, 62500)"
+            "format": "range(0, 62500)",
+            "description": "Unicast Storm Filtering Control Rate In Kbps units."
           }
         }
       },

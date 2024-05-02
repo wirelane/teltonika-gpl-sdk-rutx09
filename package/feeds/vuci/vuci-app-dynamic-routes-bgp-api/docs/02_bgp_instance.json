@@ -7,22 +7,140 @@
         "description": "",
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200BgIn"
+            "$ref": "#/components/responses/200BgInMulti"
           }
         },
-        "tags": [
-          "Instance"
-        ],
+        "tags": ["Instance"],
         "operationId": ""
       },
       "parameters": [],
       "x-web": {
-        "menu": [
-          "Network",
-          "Routing",
-          "Dynamic Routes",
-          "BGP"
-        ],
+        "menu": ["Network", "Routing", "Dynamic Routes", "BGP"],
+        "hw_tags": {
+          "is_switch": false,
+          "is_access_point": false
+        },
+        "name": "BGP"
+      },
+      "put": {
+        "summary": "",
+        "operationId": "put-bgp-instance-config",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200BgInMulti"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/bgp_instance_options"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "tags": ["Instance"]
+      },
+      "post": {
+        "summary": "",
+        "operationId": "post-bgp-instance-config",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/200BgInMulti"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/bgp_instance_options_multi"
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        }
+      },
+      "delete": {
+        "summary": "",
+        "operationId": "delete-bgp-instance-config",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "description": "Array of section objects",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bgp/instance/config/{id}": {
+      "get": {
+        "summary": "Returns all BGP instances",
+        "description": "",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200BgIn"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "tags": ["Instance"],
+        "operationId": ""
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true
+        }
+      ],
+      "x-web": {
+        "menu": ["Network", "Routing", "Dynamic Routes", "BGP"],
         "hw_tags": {
           "is_switch": false,
           "is_access_point": false
@@ -61,9 +179,19 @@
           },
           "description": ""
         },
-        "tags": [
-          "Instance"
-        ]
+        "tags": ["Instance"]
+      },
+      "delete": {
+        "summary": "",
+        "operationId": "delete-bgp-instance-config",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200BgInMulti"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        }
       }
     }
   },
@@ -83,7 +211,28 @@
                 "data": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/bgp_instance_options"
+                    "$ref": "#/components/schemas/bgp_instance_options_multi"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "200BgInMulti": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/bgp_instance_options_multi"
                   }
                 }
               }
@@ -158,10 +307,31 @@
             "type": "string",
             "description": "Enable/Disable eBGP Import or Export policy requirement. Enabled by default as per RFC 8212"
           },
-          "id": {
-            "type": "string"
+          "vrf": {
+            "x-web": {
+              "pretty": "VRF Interface",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Select to which VRF interface this BGP instance will be bound"
           }
         }
+      },
+      "bgp_instance_options_multi": {
+        "title": "bgp_instance_options_multi",
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/bgp_instance_options"
+          }
+        ]
       }
     }
   },

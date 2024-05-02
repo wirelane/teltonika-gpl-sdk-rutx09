@@ -10,7 +10,7 @@
 				"/system/device/status/*",
 				"/hotspot/users/config/*",
 				"/hotspot/groups/config/*",
-				"/modems/status_basic/*",
+				"/modems/status/*",
 				"/wireless/interfaces/status/*",
 				"/dhcp/servers/ipv4/config/*",
 				"/users/config/*",

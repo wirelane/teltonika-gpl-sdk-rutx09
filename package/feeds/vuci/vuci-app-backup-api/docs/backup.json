@@ -306,6 +306,63 @@
           "Backup"
         ]
       }
+    },
+    "/backup/actions/reset_settings": {
+      "post": {
+        "summary": "Resets device configuration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/reset_settings"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "lan_ip": {
+                          "type": "string",
+                          "description": "Default IP address of the device when resetting to user defaults."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "System",
+          "Maintenance",
+          "Backup"
+        ]
+      }
     }
   },
   "components": {
@@ -543,9 +600,6 @@
     "schemas": {
       "req_encrypt_info": {
         "title": "req_encrypt_info",
-        "x-stoplight": {
-          "id": "41mn3l6cgb05n"
-        },
         "type": "object",
         "properties": {
           "encrypt": {
@@ -569,6 +623,26 @@
             "description": "Password for encrypted archive."
           }
         }
+      },
+      "reset_settings": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["system", "factory", "user"],
+            "description": "Type of reset that will happen.",
+            "x-web": {
+              "pretty": "Type",
+              "input-type": "select",
+              "enum-pretty": {
+                "system": "System settings",
+                "factory": "Factory defaults",
+                "user": "User's default configuration"
+              }
+            }
+          }
+        },
+        "required": ["type"]
       }
     }
   }

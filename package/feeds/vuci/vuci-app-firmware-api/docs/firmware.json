@@ -398,6 +398,7 @@
     },
     "/firmware/actions/factory_reset": {
       "post": {
+        "deprecated": true,
         "summary": "Factory resets device configuration",
         "requestBody": {
           "content": {

@@ -325,9 +325,6 @@
       },
       "rip_access_options_multi": {
         "title": "rip_access_options_multi",
-        "x-stoplight": {
-          "id": "k8odio4msat2b"
-        },
         "allOf": [
           {
             "type": "object",

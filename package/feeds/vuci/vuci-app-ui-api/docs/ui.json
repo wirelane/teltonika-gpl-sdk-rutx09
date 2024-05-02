@@ -6832,7 +6832,6 @@
                         {
                           "system/backup": {
                             "read": {
-                              "cgi-io": ["backup"],
                               "ubus": {
                                 "vuci.system.firmware": ["user_defaults"],
                                 "vuci.system.backup": ["default_configuration_date", "get_checksums"]
@@ -6843,8 +6842,7 @@
                               "ubus": {
                                 "vuci.system.firmware": ["factory_reset"],
                                 "vuci.system.backup": ["default_configuration", "generate_backup", "validate_backup", "remove_backup", "apply_backup"]
-                              },
-                              "cgi-io": ["upload"]
+                              }
                             }
                           }
                         },
@@ -7043,8 +7041,7 @@
                             "write": {
                               "ubus": {
                                 "vuci.network.firewall": ["modify_custom_rules"]
-                              },
-                              "cgi-io": ["upload"]
+                              }
                             }
                           }
                         },
@@ -7260,7 +7257,6 @@
                             },
                             "description": "hotspot landing page configuration",
                             "write": {
-                              "cgi-io": ["upload"],
                               "file": {
                                 "/hotspotlogin/themes/*": ["remove", "write"],
                                 "/hotspotlogin/cgi-bin/themes/*": ["remove", "write"],
@@ -7713,10 +7709,14 @@
                         {
                           "services/mqtt/publisher": {
                             "write": {
-                              "api": ["/services/mqtt/publisher/*"]
+                              "api": [
+                                "/services/mqtt/publisher/*"
+                              ]
                             },
                             "read": {
-                              "api": ["/services/mqtt/publisher/*"]
+                              "api": [
+                                "/services/mqtt/publisher/*"
+                              ]
                             }
                           }
                         },
@@ -7989,8 +7989,7 @@
                               "ubus": {
                                 "vuci.system": ["reboot"],
                                 "vuci.services.packages": ["check_uploaded_package", "verify_package", "install_package", "clean_package"]
-                              },
-                              "cgi-io": ["upload"]
+                              }
                             }
                           }
                         },
@@ -8226,7 +8225,6 @@
                         {
                           "services/snmp/snmp_settings": {
                             "read": {
-                              "cgi-io": ["snmp"],
                               "uci": ["snmpd", "firewall"]
                             },
                             "description": "snmp settings",
@@ -8612,12 +8610,10 @@
                         {
                           "system/admin/certificates/manager": {
                             "read": {
-                              "cgi-io": ["certificates"],
                               "api": ["/system/certificates/*"]
                             },
                             "description": "certificate manager",
                             "write": {
-                              "cgi-io": ["upload"],
                               "api": ["/system/certificates/*"]
                             }
                           }
@@ -8636,7 +8632,6 @@
                         {
                           "system/admin/troubleshoot": {
                             "read": {
-                              "cgi-io": ["tcpdump", "troubleshoot"],
                               "file": {
                                 "/usr/lib/opkg/info/tcpdump.control": ["list"]
                               },
@@ -8681,7 +8676,6 @@
                         {
                           "system/flashops/general": {
                             "write": {
-                              "cgi-io": ["upload"],
                               "ubus": {
                                 "rut_fota": ["get_process"],
                                 "rpc-sys": ["upgrade_clean"],
@@ -8722,8 +8716,7 @@
                             "write": {
                               "ubus": {
                                 "vuci.system": ["get_ca", "select_root_ca"]
-                              },
-                              "cgi-io": ["upload"]
+                              }
                             }
                           }
                         },
@@ -8863,8 +8856,7 @@
                             "write": {
                               "ubus": {
                                 "vuci.services.uscripts": ["save_script"]
-                              },
-                              "cgi-io": ["upload"]
+                              }
                             }
                           }
                         },
@@ -9071,7 +9063,6 @@
                             },
                             "description": "Web Filter site blocking",
                             "write": {
-                              "cgi-io": ["upload"],
                               "ubus": {
                                 "vuci.services.webfilter": ["parse_hosts"]
                               },

@@ -449,6 +449,28 @@
                   "type": "string"
                 },
                 "description": "Choose additional the interfaces you want to attach to this hotspot instance."
+              },
+              "mac_blocking": {
+                "type": "string",
+                "x-web": {
+                  "pretty": "Enable MAC blocking",
+                  "input-type": "switch",
+                  "depends": [
+                    {
+                      "mode": "local"
+                    },
+                    {
+                      "mode": "mac_auth"
+                    },
+                    {
+                      "mode": "sms_otp"
+                    }
+                  ],
+                  "group": "General settings Advanced"
+                },
+                "description": "Enables blocking access to MAC addresses that have reached set amount of failed login attempts.",
+                "format": "is_bool",
+                "enum": ["0", "1"]
               }
             }
           },
@@ -536,6 +558,22 @@
               "group": "General settings General"
             },
             "description": "Allows users to sign up to hotspot.",
+            "format": "is_bool",
+            "enum": ["0", "1"]
+          },
+          "macauth": {
+            "type": "string",
+            "x-web": {
+              "pretty": "Enable MAC auth",
+              "input-type": "switch",
+              "depends": [
+                {
+                  "mode": "radius"
+                }
+              ],
+              "group": "General settings General"
+            },
+            "description": "Allows users to sign with MAC address",
             "format": "is_bool",
             "enum": ["0", "1"]
           },

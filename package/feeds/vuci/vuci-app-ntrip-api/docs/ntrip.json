@@ -803,7 +803,7 @@
           },
           "user_nmea": {
             "type": "string",
-            "description": "GPGGA NMEA string to be used to initiate communication with the server.",
+            "description": "GGA NMEA string to be used to initiate communication with the server.",
             "format": "regex",
             "pattern": "^[a-zA-Z0-9%*]+$",
             "x-web": {

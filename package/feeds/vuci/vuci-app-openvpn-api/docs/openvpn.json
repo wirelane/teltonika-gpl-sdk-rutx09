@@ -221,6 +221,64 @@
           "is_access_point": false
         },
         "name": "OpenVPN"
+      },
+      "post": {
+        "summary": "Uploads custom configuration file",
+        "operationId": "",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "path": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "tags": ["General"],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "option": {
+                    "type": "string",
+                    "description": "Parameter to upload the file to.",
+                    "enum": ["config"]
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "File to upload.",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/openvpn/status": {
@@ -1040,6 +1098,7 @@
             "description": "IP address of remote LAN network"
           },
           "network_mask": {
+            "type": "string",
             "x-web": {
               "pretty": "Remote network netmask",
               "input-type": "input",
@@ -1072,8 +1131,8 @@
                 }
               ]
             },
-            "type": "string",
-            "description": "Subnet mask of remote LAN network"
+            "description": "Subnet mask of remote LAN network",
+            "format": "netmask"
           },
           "route_ipv6": {
             "x-web": {
@@ -1174,6 +1233,7 @@
             "description": "IP address used for virtual network"
           },
           "server_netmask": {
+            "type": "string",
             "x-web": {
               "depends": [
                 {
@@ -1222,8 +1282,8 @@
               "pretty": "Virtual network netmask",
               "input-type": "input"
             },
-            "type": "string",
-            "description": "Subnet mask used for virtual network"
+            "description": "Subnet mask used for virtual network",
+            "format": "netmask"
           },
           "server_ipv6": {
             "x-web": {
@@ -1416,49 +1476,12 @@
               },
               "depends": [
                 {
-                  "enable_external": "0",
                   "enable_custom": "0",
-                  "auth_mode": "tls"
+                  "enable_external": "0"
                 },
                 {
-                  "enable_external": "0",
                   "enable_custom": "0",
-                  "auth_mode": "tls/pass"
-                },
-                {
-                  "enable_external": "0",
-                  "enable_custom": "0",
-                  "auth_mode": "pass"
-                },
-                {
-                  "enable_external": "",
-                  "enable_custom": "0",
-                  "auth_mode": "tls"
-                },
-                {
-                  "enable_external": "",
-                  "enable_custom": "0",
-                  "auth_mode": "tls/pass"
-                },
-                {
-                  "enable_external": "",
-                  "enable_custom": "0",
-                  "auth_mode": "pass"
-                },
-                {
-                  "enable_custom": "1",
-                  "upload_files": "1",
-                  "auth_mode": "tls"
-                },
-                {
-                  "enable_custom": "1",
-                  "upload_files": "1",
-                  "auth_mode": "tls/pass"
-                },
-                {
-                  "enable_custom": "1",
-                  "upload_files": "1",
-                  "auth_mode": "pass"
+                  "enable_external": ""
                 }
               ]
             },
@@ -1749,6 +1772,9 @@
                   "upload_files": "0",
                   "tls_security": "tls-auth",
                   "auth_mode": "tls/pass"
+                },
+                {
+                  "enable_external": "1"
                 }
               ]
             },
@@ -1783,6 +1809,9 @@
                   "upload_files": "0",
                   "tls_security": "tls-auth",
                   "auth_mode": "tls/pass"
+                },
+                {
+                  "enable_external": "1"
                 }
               ]
             },
@@ -2117,6 +2146,7 @@
             "description": "File containing usernames and passwords against which the server can authenticate clients. Each username and password pair should be placed on a single line and separated by a space."
           },
           "dh": {
+            "type": "string",
             "x-web": {
               "pretty": "Diffle Hellman parameters",
               "input-type": "input",
@@ -2168,9 +2198,8 @@
                 }
               ]
             },
-            "type": "string",
-            "format": "binary",
-            "description": "Diffie"
+            "description": "Diffie-Hellman key exchange is a specific method of exchanging cryptographic keys",
+            "enum": ["none", "dh_file_path"]
           },
           "crl_verify": {
             "x-web": {
@@ -2335,6 +2364,19 @@
             },
             "type": "string",
             "description": "IPv6 address of virtual remote network interface"
+          },
+          "to_bridge": {
+            "x-web": {
+              "pretty": "Assign a TAP interface to a bridge.",
+              "input-type": "input",
+              "depends": [
+                {
+                  "dev": "tap"
+                }
+              ]
+            },
+            "type": "string",
+            "description": "Assign a TAP interface to a bridge."
           }
         },
         "required": ["type"]

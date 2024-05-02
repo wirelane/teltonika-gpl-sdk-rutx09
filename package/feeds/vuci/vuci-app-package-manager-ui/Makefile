@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-APP_TITLE:=VuCI UI Support for cli
+APP_TITLE:=VuCI UI Support for Package Manager
 
 include ../app.mk
 

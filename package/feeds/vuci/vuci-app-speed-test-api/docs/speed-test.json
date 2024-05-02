@@ -18,7 +18,27 @@
           "200": {
             "$ref": "#/components/responses/200_speedtest_status"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "exclude",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "isp",
+                  "external_ip"
+                ]
+              },
+              "minItems": 1,
+              "maxItems": 2
+            },
+            "description": "Speedtest info to exclude from results"
+          }
+        ]
       },
       "x-web": {
         "menu": [
@@ -261,8 +281,10 @@
                     "avgDownloadSpeed": 0,
                     "serverURL": "",
                     "uploaded": 0,
-					"wan_name": "WAN",
-					"wan_ip": "192.0.2.5"
+                    "wan_name": "WAN",
+                    "wan_ip": "192.0.2.5",
+                    "isp": "Bite Lietuva",
+                    "external_ip": "198.51.100.6"
                   }
                 }
               },
@@ -289,6 +311,14 @@
                     "wan_name": {
                       "type": "string",
                       "description": "Wan interface IP address"
+                    },
+                    "external_ip": {
+                      "type": "string",
+                      "description": "Wan public IP"
+                    },
+                    "isp": {
+                      "type": "string",
+                      "description": "Wan internet service provider name"
                     },
                     "state": {
                       "type": "string",

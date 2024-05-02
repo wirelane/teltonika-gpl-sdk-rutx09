@@ -27,8 +27,8 @@
           "201": {
             "$ref": "#/components/responses/200_l2tpv3_one"
           },
-          "404": {
-            "$ref": "#/components/responses/404response"
+          "422": {
+            "$ref": "#/components/responses/422response"
           }
         },
         "requestBody": {
@@ -558,9 +558,6 @@
       },
       "l2tpv3_options_id": {
         "title": "l2tpv3_options_id",
-        "x-stoplight": {
-          "id": "qvby4tfzp5jb9"
-        },
         "allOf": [
           {
             "type": "object",

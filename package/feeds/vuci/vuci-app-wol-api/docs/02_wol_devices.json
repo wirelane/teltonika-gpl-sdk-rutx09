@@ -2,18 +2,39 @@
   "openapi": "3.0.0",
   "tags": [],
   "paths": {
+    "/wol/options": {
+      "get": {
+        "summary": "Returns valid Wake on LAN interfaces",
+        "tags": ["General"],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200WolOptions"
+          }
+        },
+        "operationId": "get-wol-options"
+      },
+      "x-web": {
+        "menu": [
+          "Services",
+          "Wake on LAN",
+          "Wake on LAN"
+        ],
+        "hw_tags": {
+          "ethernet": true,
+          "is_access_point": false
+        },
+        "name": "Wake on LAN"
+      }
+    },
     "/wol/global": {
       "get": {
         "tags": [
           "General"
         ],
-        "summary": "Returns global wake on lan configuration",
+        "summary": "Returns global Wake on LAN configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200WolSetup"
-          },
-          "422": {
-            "$ref": "#/components/responses/422response"
           }
         },
         "parameters": []
@@ -22,7 +43,7 @@
         "tags": [
           "Setup"
         ],
-        "summary": "Updates global wake on lan configuration",
+        "summary": "Updates global Wake on LAN configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200WolSetup"
@@ -51,13 +72,14 @@
       "x-web": {
         "menu": [
           "Services",
-          "Wake On LAN",
-          "Wake On LAN"
+          "Wake on LAN",
+          "Wake on LAN"
         ],
         "hw_tags": {
+          "ethernet": true,
           "is_access_point": false
         },
-        "name": "Wake On LAN"
+        "name": "Wake on LAN"
       },
       "parameters": []
     },
@@ -66,11 +88,8 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Creates wake on lan device section",
+        "summary": "Creates Wake on LAN device section",
         "responses": {
-          "200": {
-            "$ref": "#/components/responses/200WolDev"
-          },
           "201": {
             "$ref": "#/components/responses/200WolDev"
           },
@@ -98,8 +117,8 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Returns all wake on lan devices configuration sections",
-        "description": "Returns all sections with their parameters form wake on lan devices configuration",
+        "summary": "Returns all Wake on LAN devices configuration sections",
+        "description": "Returns all sections with their parameters from Wake on LAN devices configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200WolDevMulti"
@@ -110,8 +129,11 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Updates specified wake on lan devices configurations",
+        "summary": "Updates specified Wake on LAN devices configurations",
         "responses": {
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
           "200": {
             "$ref": "#/components/responses/200WolDevMulti"
           },
@@ -147,7 +169,7 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Deletes specified wake on lan devices configurations",
+        "summary": "Deletes specified Wake on LAN devices configurations",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200response"
@@ -180,13 +202,14 @@
       "x-web": {
         "menu": [
           "Services",
-          "Wake On LAN",
-          "Wake On LAN"
+          "Wake on LAN",
+          "Wake on LAN"
         ],
         "hw_tags": {
+          "ethernet": true,
           "is_access_point": false
         },
-        "name": "Wake On LAN"
+        "name": "Wake on LAN"
       }
     },
     "/wol/config/{id}": {
@@ -194,7 +217,7 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Returns specified wake on lan device section",
+        "summary": "Returns specified Wake on LAN device section",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200WolDev"
@@ -219,7 +242,7 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Updates specified wake on lan device configuration",
+        "summary": "Updates specified Wake on LAN device configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200WolDev"
@@ -262,7 +285,7 @@
         "tags": [
           "Devices"
         ],
-        "summary": "Deletes specified wake on lan device configuration",
+        "summary": "Deletes specified Wake on LAN device configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200response"
@@ -286,13 +309,14 @@
       "x-web": {
         "menu": [
           "Services",
-          "Wake On LAN",
-          "Wake On LAN"
+          "Wake on LAN",
+          "Wake on LAN"
         ],
         "hw_tags": {
+          "ethernet": true,
           "is_access_point": false
         },
-        "name": "Wake On LAN"
+        "name": "Wake on LAN"
       }
     },
     "/wol/actions/wake_device": {
@@ -351,13 +375,14 @@
       "x-web": {
         "menu": [
           "Services",
-          "Wake On LAN",
-          "Wake On LAN"
+          "Wake on LAN",
+          "Wake on LAN"
         ],
         "hw_tags": {
+          "ethernet": true,
           "is_access_point": false
         },
-        "name": "Wake On LAN"
+        "name": "Wake on LAN"
       }
     },
     "/wol/actions/wake_all_devices": {
@@ -378,13 +403,14 @@
       "x-web": {
         "menu": [
           "Services",
-          "Wake On LAN",
-          "Wake On LAN"
+          "Wake on LAN",
+          "Wake on LAN"
         ],
         "hw_tags": {
+          "ethernet": true,
           "is_access_point": false
         },
-        "name": "Wake On LAN"
+        "name": "Wake on LAN"
       },
       "parameters": []
     }
@@ -468,6 +494,56 @@
                   "description": "Array of section objects",
                   "items": {
                     "$ref": "#/components/schemas/wol_device_options_id"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "200WolOptions": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "interfaces": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              },
+              "x-examples": {
+                "example-1": {
+                  "success": true,
+                  "data": {
+                    "interfaces": [
+                      "br0.1",
+                      "br0.2"
+                    ]
+                  }
+                }
+              }
+            },
+            "examples": {
+              "example-1": {
+                "value": {
+                  "success": true,
+                  "data": {
+                    "interfaces": [
+                      "br0.1",
+                      "br0.2"
+                    ]
                   }
                 }
               }

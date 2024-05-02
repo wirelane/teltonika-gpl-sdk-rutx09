@@ -457,6 +457,7 @@
           "download": {
             "type": "string",
             "description": "Download speed (kbit/s)",
+            "format": "irange(0, 2147483647)",
             "x-web": {
               "pretty": "Download speed (kbit/s)",
               "group": "General setup",
@@ -466,6 +467,7 @@
           "upload": {
             "type": "string",
             "description": "Upload speed (kbit/s)",
+            "format": "irange(0, 2147483647)",
             "x-web": {
               "pretty": "Upload speed (kbit/s)",
               "group": "General setup",

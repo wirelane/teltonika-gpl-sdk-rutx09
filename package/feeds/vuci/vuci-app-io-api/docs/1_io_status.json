@@ -233,26 +233,22 @@
           "custom_add": {
             "type": "string",
             "description": "Only available for 'acl' or 'adc' type pins. Voltage offset. Value of \"b\" in custom_value=a*((raw_value+b)/c)+d.",
-            "format": "float_scientific",
-            "maxLength": 15
+            "format": "float_scientific"
           },
           "custom_mul": {
             "type": "string",
             "description": "Only available for 'acl' or 'adc' type pins. Sensor slope. Value of \"a\" in custom_value=a*((raw_value+b)/c)+d.",
-            "format": "float_scientific",
-            "maxLength": 15
+            "format": "float_scientific"
           },
           "custom_div": {
             "type": "string",
             "description": "Only available for 'acl' or 'adc' type pins. Resistor value. Can not be 0. Value of \"c\" in custom_value=a*((raw_value+b)/c)+d.",
-            "format": "float_scientific",
-            "maxLength": 15
+            "format": "float_scientific"
           },
           "custom_off": {
             "type": "string",
             "description": "Only available for 'acl' or 'adc' type pins. Sensor offset. Value of \"d\" in custom_value=a*((raw_value+b)/c)+d.",
-            "format": "float_scientific",
-            "maxLength": 15
+            "format": "float_scientific"
           }
         }
       },

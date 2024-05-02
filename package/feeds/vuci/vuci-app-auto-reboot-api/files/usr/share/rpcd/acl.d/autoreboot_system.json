@@ -4,7 +4,7 @@
 		"read": {
 			"api": [
 				"/auto_reboot/ping_wget/*",
-				"/modems/status_basic/*"
+				"/modems/status/*"
 			]
 		},
 		"write": {
@@ -16,7 +16,7 @@
 		"read": {
 			"api": [
 				"/auto_reboot/scheduler/*",
-				"/modems/status_basic/*"
+				"/modems/status/*"
 			]
 		},
 		"write": {

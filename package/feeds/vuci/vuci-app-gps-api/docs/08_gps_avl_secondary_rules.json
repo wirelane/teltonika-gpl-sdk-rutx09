@@ -1,0 +1,571 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "AVL Secondary Rules"
+    }
+  ],
+  "paths": {
+    "/gps/avl/secondary_rules/config": {
+      "get": {
+        "summary": "Get GPS AVL Rules configurations",
+        "tags": [
+          "AVL Secondary Rules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_secondary_rule_multi"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create GPS AVL Rules configuration",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/200gps_avl_secondary_rule_multi"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_avl_secondary_rule_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL Secondary Rules"
+        ]
+      },
+      "put": {
+        "summary": "Update GPS AVL Rules configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_secondary_rule_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/gps_avl_secondary_rule_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL Secondary Rules"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS AVL Rules configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/delete_multi"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL Secondary Rules"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "AVL"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/avl/secondary_rules/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "AVL Rules configuration identifier"
+        }
+      ],
+      "get": {
+        "summary": "Get GPS AVL Rules configuration",
+        "tags": [
+          "AVL Secondary Rules"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_secondary_rule"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS AVL Rules configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_secondary_rule"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_avl_secondary_rule_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL Secondary Rules"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS AVL Rules configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "tags": [
+          "AVL Secondary Rules"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "AVL"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_avl_secondary_rule_single_options": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Turns the configuration on or off",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            }
+          },
+          "wan_status": {
+            "type": "string",
+            "description": "Select wan interface for GPS rule",
+            "enum": [
+              "mobile_both",
+              "mobile_home",
+              "mobile_roaming",
+              "wired"
+            ],
+            "x-web": {
+              "unique": true,
+              "pretty": "WAN",
+              "enum-pretty": {
+                "mobile_both": "Mobile both",
+                "mobile_home": "Mobile home",
+                "mobile_roaming": "Mobile roaming",
+                "wired": "Wired",
+                "wifi": "WiFi"
+              },
+              "enum-depends": [
+                {
+                  "hw_tags": {
+                    "wifi": true
+                  },
+                  "values": [
+                    "mobile_both",
+                    "mobile_home",
+                    "mobile_roaming",
+                    "wifi",
+                    "wired"
+                  ]
+                }
+              ],
+              "input-type": "select"
+            }
+          },
+          "ignore": {
+            "type": "string",
+            "description": "Enable to ignore the state of input",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Ignore",
+              "input-type": "switch"
+            }
+          },
+          "din_status": {
+            "type": "string",
+            "description": "Select input state for GPS rule.",
+            "enum": [
+              "low",
+              "high",
+              "both"
+            ],
+            "x-web": {
+              "pretty": "IO level",
+              "enum-pretty": {
+                "low": "Low level",
+                "high": "High level",
+                "both": "Both"
+              },
+              "input-type": "select",
+              "depends": [
+                {
+                  "ignore": "0"
+                }
+              ]
+            }
+          },
+          "io_type": {
+            "type": "string",
+            "description": "Select input/output type",
+            "enum": [
+              "gpio",
+              "adc",
+              "acl"
+            ],
+            "x-web": {
+              "pretty": "IO type",
+              "enum-pretty": {
+                "gpio": "GPIO"
+              },
+              "input-type": "select",
+              "depends": [
+                {
+                  "ignore": "0"
+                }
+              ]
+            }
+          },
+          "io_name": {
+            "type": "string",
+            "description": "Select input/output name",
+            "x-web": {
+              "pretty": "IO name",
+              "enum-depends": [
+                {
+                  "hw_tags": {
+                    "din1": true
+                  },
+                  "values": [
+                    "din1"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "din1": true,
+                    "din2": true,
+                    "iio": true
+                  },
+                  "values": [
+                    "din1",
+                    "din2",
+                    "iio"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "dio1": true,
+                    "dio2": true
+                  },
+                  "values": [
+                    "dio1",
+                    "dio2"
+                  ]
+                }
+              ],
+              "input-type": "select",
+              "depends": [
+                {
+                  "ignore": "0"
+                }
+              ]
+            }
+          },
+          "io_acl": {
+            "type": "string",
+            "description": "Select which property - ampere or percentage the condition listens to.",
+            "enum": [
+              "current",
+              "percent"
+            ],
+            "default": "current",
+            "x-web": {
+              "pretty": "ACL Property",
+              "input-type": "select",
+              "hw_tags": {
+                "acl0": true
+              },
+              "enum-pretty": {
+                "current": "Current",
+                "percent": "Percent"
+              }
+            }
+          },
+          "io_min": {
+            "type": "string",
+            "description": "Minimum range",
+            "x-web": {
+              "pretty": "Min value",
+              "input-type": "input",
+              "hw_tags": {
+                "adc0": true,
+                "acl0": true
+              }
+            }
+          },
+          "io_max": {
+            "type": "string",
+            "description": "Maximum range",
+            "x-web": {
+              "pretty": "Max value",
+              "input-type": "input",
+              "hw_tags": {
+                "adc0": true,
+                "acl0": true
+              }
+            }
+          },
+          "priority": {
+            "type": "string",
+            "description": "The rule's priority. Different priority settings add different flags to event packets, so they can be displayed differently in the receiving system. The router sends data of higher priority first.",
+            "enum": [
+              "low",
+              "high",
+              "panic",
+              "security"
+            ],
+            "x-web": {
+              "pretty": "Priority",
+              "enum-pretty": {
+                "low": "Low",
+                "high": "High",
+                "panic": "Panic",
+                "security": "Security"
+              },
+              "input-type": "select"
+            }
+          },
+          "collect_period": {
+            "type": "string",
+            "description": "Period (in seconds) for data collection",
+            "format": "irange(1,999999)",
+            "default": "5",
+            "x-web": {
+              "pretty": "Collect period",
+              "input-type": "input"
+            }
+          },
+          "distance": {
+            "type": "string",
+            "description": "Minimal distance (in meters) change in saved records to send",
+            "format": "irange(1,999999)",
+            "default": "200",
+            "x-web": {
+              "pretty": "Min distance",
+              "input-type": "input"
+            }
+          },
+          "angle": {
+            "type": "string",
+            "description": "Minimal angle change in Degrees",
+            "format": "irange(1,360)",
+            "default": "30",
+            "x-web": {
+              "pretty": "Min angle",
+              "input-type": "input"
+            }
+          },
+          "saved_records": {
+            "type": "string",
+            "description": "Minimal saved records count to send",
+            "format": "irange(1,32)",
+            "default": "20",
+            "x-web": {
+              "pretty": "Min saved records",
+              "input-type": "input"
+            }
+          },
+          "send_period": {
+            "type": "string",
+            "description": "Send period (in seconds) for data sending",
+            "format": "irange(1,999999)",
+            "default": "50",
+            "x-web": {
+              "pretty": "Send period",
+              "input-type": "input"
+            }
+          },
+          "accuracy": {
+            "type": "string",
+            "description": "Minimum accuracy (in meters) required before saving record. The lower the accuracy value, the better.",
+            "format": "irange(1,999999)",
+            "default": "10",
+            "x-web": {
+              "pretty": "Min accuracy",
+              "input-type": "input"
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "wan_status",
+          "ignore",
+          "din_status",
+          "io_type",
+          "io_name",
+          "priority",
+          "collect_period",
+          "distance",
+          "angle",
+          "saved_records",
+          "send_period",
+          "accuracy"
+        ]
+      },
+      "gps_avl_secondary_rule_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_avl_secondary_rule_single_options"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200gps_avl_secondary_rule": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_avl_secondary_rule_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200gps_avl_secondary_rule_multi": {
+        "description": "Returns configurations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/gps_avl_secondary_rule_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

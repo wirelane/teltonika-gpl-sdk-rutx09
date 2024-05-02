@@ -300,9 +300,6 @@
       },
       "rip_interface_options_multi": {
         "title": "rip_interface_options_multi",
-        "x-stoplight": {
-          "id": "ykqh81hax228r"
-        },
         "allOf": [
           {
             "type": "object",

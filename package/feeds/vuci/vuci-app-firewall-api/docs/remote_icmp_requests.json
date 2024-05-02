@@ -248,6 +248,7 @@
           "limit": {
             "type": "string",
             "description": "Maximum average matching rate",
+            "format": "irange(1, 10000)",
             "x-web": {
               "pretty": "Limit",
               "input-type": "input",
@@ -261,6 +262,7 @@
           "limit_burst": {
             "type": "string",
             "description": "Maximum initial number of packets to match",
+            "format": "irange(1, 10000)",
             "x-web": {
               "pretty": "Limit burst",
               "input-type": "input",

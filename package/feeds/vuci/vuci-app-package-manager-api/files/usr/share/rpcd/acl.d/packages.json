@@ -29,9 +29,6 @@
 					"reboot"
 				]
 			},
-			"cgi-io": [
-				"upload"
-			],
 			"api": ["/package_manager/*", "/system/actions/network_restart/*"]
 		}
 	}

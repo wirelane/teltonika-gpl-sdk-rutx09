@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "tags": [
     {
-      "name": "Static Leases"
+      "name": "Static Leases IPv4"
     },
     {
       "name": "Leases"
@@ -12,9 +12,9 @@
     "/dhcp/static_leases/ipv4/config": {
       "get": {
         "tags": [
-          "Static Leases"
+          "Static Leases IPv4"
         ],
-        "summary": "Returns static leases",
+        "summary": "Returns static IPv4 leases",
         "description": "",
         "operationId": "get-static-leases",
         "responses": {
@@ -30,7 +30,7 @@
                       "description": "Operation status"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/static_leases_options_name_index"
+                      "$ref": "#/components/schemas/static_ipv4_leases_options_name_index"
                     }
                   }
                 }
@@ -41,9 +41,9 @@
       },
       "put": {
         "tags": [
-          "Static Leases"
+          "Static Leases IPv4"
         ],
-        "summary": "Updates static leases",
+        "summary": "Updates static IPv4 leases",
         "responses": {
           "200": {
             "description": "OK",
@@ -57,7 +57,7 @@
                       "description": "Operation status"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/static_leases_options_name_index"
+                      "$ref": "#/components/schemas/static_ipv4_leases_options_name_index"
                     }
                   }
                 }
@@ -82,7 +82,7 @@
                     "type": "array",
                     "description": "array of of section objects",
                     "items": {
-                      "$ref": "#/components/schemas/static_leases_options_name_index"
+                      "$ref": "#/components/schemas/static_ipv4_leases_options_name_index"
                     }
                   }
                 }
@@ -94,9 +94,9 @@
       },
       "post": {
         "tags": [
-          "Static Leases"
+          "Static Leases IPv4"
         ],
-        "summary": "Creates static lease",
+        "summary": "Creates static IPv4 lease",
         "responses": {
           "201": {
             "description": "Created",
@@ -110,7 +110,7 @@
                       "description": "Operation status"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/static_leases_options_name_index"
+                      "$ref": "#/components/schemas/static_ipv4_leases_options_name_index"
                     }
                   }
                 }
@@ -129,7 +129,7 @@
                 "type": "object",
                 "properties": {
                   "data": {
-                    "$ref": "#/components/schemas/static_leases_options_index"
+                    "$ref": "#/components/schemas/static_ipv4_leases_options_index"
                   }
                 }
               }
@@ -140,9 +140,9 @@
       },
       "delete": {
         "tags": [
-          "Static Leases"
+          "Static Leases IPv4"
         ],
-        "summary": "Deletes static leases",
+        "summary": "Deletes static IPv4 leases",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200deleted_multi"
@@ -189,9 +189,9 @@
     "/dhcp/static_leases/ipv4/config/{id}": {
       "get": {
         "tags": [
-          "Static Leases"
+          "Static Leases IPv4"
         ],
-        "summary": "Returns static lease",
+        "summary": "Returns static IPv4 lease",
         "responses": {
           "200": {
             "description": "",
@@ -205,7 +205,7 @@
                       "description": "Operation status"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/static_leases_options_name_index"
+                      "$ref": "#/components/schemas/static_ipv4_leases_options_name_index"
                     }
                   }
                 }
@@ -232,9 +232,9 @@
       },
       "put": {
         "tags": [
-          "Static Leases"
+          "Static Leases IPv4"
         ],
-        "summary": "Updates static lease",
+        "summary": "Updates static IPv4 lease",
         "responses": {
           "200": {
             "description": "OK",
@@ -248,7 +248,7 @@
                       "description": "Operation status"
                     },
                     "data": {
-                      "$ref": "#/components/schemas/static_leases_options_name_index"
+                      "$ref": "#/components/schemas/static_ipv4_leases_options_name_index"
                     }
                   }
                 }
@@ -281,7 +281,7 @@
                 "type": "object",
                 "properties": {
                   "data": {
-                    "$ref": "#/components/schemas/static_leases_options_index"
+                    "$ref": "#/components/schemas/static_ipv4_leases_options_index"
                   }
                 }
               }
@@ -292,7 +292,339 @@
       },
       "delete": {
         "tags": [
+          "Static Leases IPv4"
+        ],
+        "summary": "Deletes static IPv4 lease",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Uci configuration static_leases section indetifier"
+          }
+        ],
+        "description": "",
+        "operationId": "delete-static-leases-id"
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The ID of static lease"
+        }
+      ],
+      "x-web": {
+        "menu": [
+          "Network",
+          "DHCP",
           "Static Leases"
+        ],
+        "hw_tags": {
+          "is_access_point": false
+        },
+        "name": "DHCP Servers"
+      }
+    },
+    "/dhcp/static_leases/ipv6/config": {
+      "get": {
+        "tags": [
+          "Static Leases IPv6"
+        ],
+        "summary": "Returns static IPv6 leases",
+        "description": "",
+        "operationId": "get-static-leases",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/static_ipv6_leases_options_name_index"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Static Leases IPv6"
+        ],
+        "summary": "Updates static IPv6 leases",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/static_ipv6_leases_options_name_index"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "description": "array of of section objects",
+                    "items": {
+                      "$ref": "#/components/schemas/static_ipv6_leases_options_name_index"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "put-static-leases"
+      },
+      "post": {
+        "tags": [
+          "Static Leases IPv6"
+        ],
+        "summary": "Creates static IPv6 lease",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/static_ipv6_leases_options_name_index"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/static_ipv6_leases_options_index"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "post-static-leases"
+      },
+      "delete": {
+        "tags": [
+          "Static Leases IPv6"
+        ],
+        "summary": "Deletes static IPv6 leases",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "description": "Array of of section objects",
+                    "items": {
+                      "type": "string",
+                      "description": "Section id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "delete-static-leases"
+      },
+      "parameters": [],
+      "x-web": {
+        "menu": [
+          "Network",
+          "DHCP",
+          "Static Leases"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        },
+        "name": "DHCP Servers"
+      }
+    },
+    "/dhcp/static_leases/ipv6/config/{id}": {
+      "get": {
+        "tags": [
+          "Static Leases IPv6"
+        ],
+        "summary": "Returns static lease",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/static_ipv6_leases_options_name_index"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Configuration name"
+          }
+        ],
+        "description": "",
+        "operationId": "get-static-leases-id"
+      },
+      "put": {
+        "tags": [
+          "Static Leases IPv6"
+        ],
+        "summary": "Updates static lease",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/static_ipv6_leases_options_name_index"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Configuration name"
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/static_ipv6_leases_options_index"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "put-static-leases-id"
+      },
+      "delete": {
+        "tags": [
+          "Static Leases IPv6"
         ],
         "summary": "Deletes static lease",
         "responses": {
@@ -335,7 +667,8 @@
           "Static Leases"
         ],
         "hw_tags": {
-          "is_access_point": false
+          "is_access_point": false,
+          "is_switch": false
         },
         "name": "DHCP Servers"
       }
@@ -552,7 +885,7 @@
         "menu": [
           "Network",
           "DHCP",
-          "Static Leases"
+          "Server settings"
         ],
         "hw_tags": {
           "is_access_point": false
@@ -699,7 +1032,87 @@
         "menu": [
           "Network",
           "DHCP",
-          "Static Leases"
+          "Server settings"
+        ],
+        "hw_tags": {
+          "is_access_point": false
+        },
+        "name": "DHCP Servers"
+      }
+    },
+    "/dhcp/servers/ipv4/status": {
+      "get": {
+        "summary": "Returns status of DHCPv4 servers",
+        "tags": [
+          "Servers IPv4"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/dhcpv4_status"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": ""
+      },
+      "parameters": [],
+      "x-web": {
+        "menu": [
+          "Status",
+          "Network",
+          "LAN"
+        ],
+        "hw_tags": {
+          "is_access_point": false
+        },
+        "name": "DHCP Servers"
+      }
+    },
+    "/dhcp/servers/ipv4/actions/restart": {
+      "post": {
+        "tags": ["Servers IPv4"],
+        "summary": "Restarts all DHCPv4 servers.",
+        "responses": {
+          "200": {
+            "description": "Restarts all DHCPv4 servers.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Network",
+          "DHCP",
+          "Server settings"
         ],
         "hw_tags": {
           "is_access_point": false
@@ -919,10 +1332,11 @@
         "menu": [
           "Network",
           "DHCP",
-          "Static Leases"
+          "Server settings"
         ],
         "hw_tags": {
-          "is_access_point": false
+          "is_access_point": false,
+          "is_switch": false
         },
         "name": "DHCP Servers"
       }
@@ -1066,17 +1480,64 @@
         "menu": [
           "Network",
           "DHCP",
-          "Static Leases"
+          "Server settings"
         ],
         "hw_tags": {
-          "is_access_point": false
+          "is_access_point": false,
+          "is_switch": false
+        },
+        "name": "DHCP Servers"
+      }
+    },
+    "/dhcp/servers/ipv6/status": {
+      "get": {
+        "summary": "Returns status of DHCPv6 servers",
+        "tags": [
+          "Servers IPv6"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/dhcpv6_status"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": ""
+      },
+      "parameters": [],
+      "x-web": {
+        "menu": [
+          "Status",
+          "Network",
+          "LAN"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
         },
         "name": "DHCP Servers"
       }
     },
     "/dhcp/leases/ipv4/status": {
       "get": {
-        "summary": "Returns active DHCP servers leases",
+        "summary": "Returns active DHCPv4 servers leases",
         "tags": [
           "Leases"
         ],
@@ -1095,7 +1556,7 @@
                     "data": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/dhp_leases"
+                        "$ref": "#/components/schemas/dhcpv4_leases"
                       }
                     }
                   }
@@ -1109,12 +1570,58 @@
       "parameters": [],
       "x-web": {
         "menu": [
+          "Status",
           "Network",
-          "DHCP",
-          "Static Leases"
+          "LAN"
         ],
         "hw_tags": {
           "is_access_point": false
+        },
+        "name": "DHCP Servers"
+      }
+    },
+    "/dhcp/leases/ipv6/status": {
+      "get": {
+        "summary": "Returns active DHCPv6 servers leases",
+        "tags": [
+          "Leases"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/dhcpv6_leases"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": ""
+      },
+      "parameters": [],
+      "x-web": {
+        "menu": [
+          "Status",
+          "Network",
+          "LAN"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
         },
         "name": "DHCP Servers"
       }
@@ -1123,7 +1630,7 @@
   "components": {
     "responses": {},
     "schemas": {
-      "static_leases_options_name_index": {
+      "static_ipv4_leases_options_name_index": {
         "type": "object",
         "properties": {
           "id": {
@@ -1156,14 +1663,15 @@
               "input-type": "input"
             },
             "type": "string",
-            "description": "IP address. This defines the IP address that you want to associate to a specific device."
+            "description": "IP address. This defines the IP address that you want to associate to a specific device.",
+            "format": "ip4addr"
           }
         },
         "required": [
           "id"
         ]
       },
-      "static_leases_options_index": {
+      "static_ipv4_leases_options_index": {
         "type": "object",
         "title": "",
         "properties": {
@@ -1189,7 +1697,78 @@
               "input-type": "input"
             },
             "type": "string",
-            "description": "IP address. This defines the IP address that you want to associate to a specific device."
+            "description": "IP address. This defines the IP address that you want to associate to a specific device.",
+            "format": "ip4addr"
+          }
+        }
+      },
+      "static_ipv6_leases_options_name_index": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "x-web": {
+              "pretty": "Interface name",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "The ID of static lease"
+          },
+          "name": {
+            "x-web": {
+              "pretty": "Description",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Name of the static lease"
+          },
+          "duid": {
+            "x-web": {
+              "pretty": "Duid",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Duid. This defines the duid of the device"
+          },
+          "hostid": {
+            "x-web": {
+              "pretty": "Hostid",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Host ID. This defines the Host ID of the device"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "static_ipv6_leases_options_index": {
+        "type": "object",
+        "title": "",
+        "properties": {
+          "name": {
+            "x-web": {
+              "pretty": "Description",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Name of the static lease"
+          },
+          "duid": {
+            "x-web": {
+              "pretty": "Duid",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Duid. This defines the duid of the device"
+          },
+          "hostid": {
+            "x-web": {
+              "pretty": "Hostid",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Host ID. This defines the Host ID of the device"
           }
         }
       },
@@ -1200,9 +1779,9 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Interface name",
+            "description": "The ID of the interface configuration",
             "x-web": {
-              "pretty": "Interface name",
+              "pretty": "The ID of the interface configuration",
               "input-type": "input"
             }
           },
@@ -1210,7 +1789,7 @@
             "type": "string",
             "x-web": {
               "input-type": "switch",
-              "pretty": "Enable DHCPv4",
+              "pretty": "Enable",
               "group": "General Setup"
             },
             "enum": [
@@ -1394,6 +1973,18 @@
               "input-type": "input"
             }
           },
+          "enable_dhcpv6": {
+            "type": "string",
+            "x-web": {
+              "input-type": "switch",
+              "pretty": "Enable",
+              "group": "General Setup"
+            },
+            "enum": [
+              "0",
+              "1"
+            ]
+          },
           "leasetime": {
             "x-web": {
               "input-type": "input",
@@ -1406,7 +1997,8 @@
               ]
             },
             "type": "string",
-            "description": "Lease time. Expiry time of leased addresses."
+            "description": "Lease time. Expiry time of leased addresses.",
+            "format": "irange(1, 999999)"
           },
           "dynamicdhcp": {
             "x-web": {
@@ -1455,9 +2047,6 @@
                 "server": "Server mode",
                 "relay": "Relay mode",
                 "hybrid": "Hybrid mode"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1479,9 +2068,6 @@
                 "server": "Server mode",
                 "relay": "Relay mode",
                 "hybrid": "Hybrid mode"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1502,9 +2088,6 @@
                 "": "Disabled",
                 "relay": "Relay mode",
                 "hybrid": "Hybrid mode"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1532,9 +2115,6 @@
                 "0": "Stateless",
                 "1": "Stateless + stateful",
                 "2": "Stateful-only"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1557,10 +2137,7 @@
                 {
                   "ra": "hybrid"
                 }
-              ],
-              "hw_tags": {
-                "is_switch": false
-              }
+              ]
             },
             "type": "string",
             "enum": [
@@ -1573,10 +2150,7 @@
             "x-web": {
               "input-type": "input",
               "pretty": "Announced DNS servers",
-              "group": "IPv6 Settings",
-              "hw_tags": {
-                "is_switch": false
-              }
+              "group": "IPv6 Settings"
             },
             "type": "array",
             "description": "Announced DNS servers",
@@ -1588,10 +2162,7 @@
             "x-web": {
               "input-type": "input",
               "pretty": "Announced DNS domains",
-              "group": "IPv6 Settings",
-              "hw_tags": {
-                "is_switch": false
-              }
+              "group": "IPv6 Settings"
             },
             "type": "array",
             "description": "Announced DNS domains",
@@ -1613,7 +2184,7 @@
             "type": "string",
             "x-web": {
               "input-type": "switch",
-              "pretty": "Enable DHCPv4",
+              "pretty": "Enable",
               "group": "General Setup"
             },
             "enum": [
@@ -1790,6 +2361,18 @@
         "type": "object",
         "description": "DHCP IPv6 configuration section",
         "properties": {
+          "enable_dhcpv6": {
+            "type": "string",
+            "x-web": {
+              "input-type": "switch",
+              "pretty": "Enable",
+              "group": "General Setup"
+            },
+            "enum": [
+              "0",
+              "1"
+            ]
+          },
           "leasetime": {
             "x-web": {
               "input-type": "input",
@@ -1851,9 +2434,6 @@
                 "server": "Server mode",
                 "relay": "Relay mode",
                 "hybrid": "Hybrid mode"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1875,9 +2455,6 @@
                 "server": "Server mode",
                 "relay": "Relay mode",
                 "hybrid": "Hybrid mode"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1898,9 +2475,6 @@
                 "": "Disabled",
                 "relay": "Relay mode",
                 "hybrid": "Hybrid mode"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1928,9 +2502,6 @@
                 "0": "Stateless",
                 "1": "Stateless + stateful",
                 "2": "Stateful-only"
-              },
-              "hw_tags": {
-                "is_switch": false
               }
             },
             "type": "string",
@@ -1953,10 +2524,7 @@
                 {
                   "ra": "hybrid"
                 }
-              ],
-              "hw_tags": {
-                "is_switch": false
-              }
+              ]
             },
             "type": "string",
             "enum": [
@@ -1969,10 +2537,7 @@
             "x-web": {
               "input-type": "input",
               "pretty": "Announced DNS servers",
-              "group": "IPv6 Settings",
-              "hw_tags": {
-                "is_switch": false
-              }
+              "group": "IPv6 Settings"
             },
             "type": "array",
             "description": "Announced DNS servers",
@@ -1984,10 +2549,7 @@
             "x-web": {
               "input-type": "input",
               "pretty": "Announced DNS domains",
-              "group": "IPv6 Settings",
-              "hw_tags": {
-                "is_switch": false
-              }
+              "group": "IPv6 Settings"
             },
             "type": "array",
             "description": "Announced DNS domains",
@@ -1997,11 +2559,11 @@
           }
         }
       },
-      "dhp_leases": {
+      "dhcpv4_leases": {
         "type": "object",
         "properties": {
           "expires": {
-            "type": "string",
+            "type": "integer",
             "description": "Amount of time left for DHCP lease to expire."
           },
           "macaddr": {
@@ -2015,6 +2577,126 @@
           "hostname": {
             "type": "string",
             "description": "Host name of DHCP lease."
+          },
+          "interface": {
+            "type": "string",
+            "description": "Interface name the lease belongs to"
+          }
+        }
+      },
+      "dhcpv6_leases": {
+        "type": "object",
+        "properties": {
+          "expires": {
+            "type": "integer",
+            "description": "Amount of time left for DHCP lease to expire."
+          },
+          "duid": {
+            "type": "string",
+            "description": "Duid of the device."
+          },
+          "ipv6addr": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "IPv6 address"
+            }
+          },
+          "ipv6prefix": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "description": "IPv6 prefix"
+                },
+                "prefix_length" : {
+                  "type": "integer",
+                  "description": "The length of the prefix"
+                }
+              }
+            }
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Host name of DHCP lease."
+          },
+          "interface": {
+            "type": "string",
+            "description": "Interface name the lease belongs to"
+          }
+        }
+      },
+      "dhcpv4_status": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of DHCPv4 server."
+          },
+          "running": {
+            "type": "boolean",
+            "description": "Status of DHCPv4 server."
+          },
+          "interface": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Interface name the DCHPv4 server is created on."
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "integer",
+                  "description": "Error code."
+                },
+                "error_message" : {
+                  "type": "string",
+                  "description": "Error message."
+                }
+              }
+            }
+          }
+        }
+      },
+      "dhcpv6_status": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The ID of DHCPv6 server."
+          },
+          "running": {
+            "type": "boolean",
+            "description": "Status of DHCPv6 server."
+          },
+          "interface": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Interface name the DCHPvv6 server is created on."
+            }
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "integer",
+                  "description": "Error code."
+                },
+                "error_message" : {
+                  "type": "string",
+                  "description": "Error message."
+                }
+              }
+            }
           }
         }
       }

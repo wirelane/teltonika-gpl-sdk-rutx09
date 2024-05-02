@@ -409,9 +409,6 @@
       },
       "sstp_options_multi": {
         "title": "sstp_options_multi",
-        "x-stoplight": {
-          "id": "irfs5kox699o9"
-        },
         "allOf": [
           {
             "type": "object",

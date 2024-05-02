@@ -1,0 +1,352 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "Geofencing"
+    }
+  ],
+  "paths": {
+    "/gps/geofencing/config": {
+      "get": {
+        "summary": "Get GPS Geofencing configurations",
+        "tags": [
+          "Geofencing"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_geofencing_multi"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create GPS Geofencing configuration",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/200gps_geofencing"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_geofencing_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Geofencing"
+        ]
+      },
+      "put": {
+        "summary": "Update GPS Geofencing configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_geofencing_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/gps_geofencing_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Geofencing"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS Geofencing configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/delete_multi"
+              }
+            }
+          }
+        },
+        "tags": [
+          "Geofencing"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "Geofencing"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/geofencing/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Geofencing configuration identifier"
+        }
+      ],
+      "get": {
+        "summary": "Get GPS Geofencing configuration",
+        "tags": [
+          "Geofencing"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_geofencing"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS Geofencing configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_geofencing"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_geofencing_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Geofencing"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS Geofencing configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "tags": [
+          "Geofencing"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "Geofencing"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_geofencing_single_options": {
+        "description": "This section is used to configure the geofence area. Scroll your mouse pointer over field names in order to see helpful hints.",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Turns the geofence instance on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enabled",
+              "input-type": "switch"
+            }
+          },
+          "longitude": {
+            "type": "string",
+            "description": "East-west position of a point on the Earth's surface. Combining this and the Latitude information will produce a point on the world map that will serve as the center of the geofence area.",
+            "x-web": {
+              "pretty": "Longtitude (X)",
+              "input-type": "input"
+            }
+          },
+          "latitude": {
+            "type": "string",
+            "description": "North-south position of a point on the Earth's surface. Combining this and the Longitude information will produce a point on the world map that will serve as the center of the geofence area",
+            "x-web": {
+              "pretty": "Latitude (X)",
+              "input-type": "input"
+            }
+          },
+          "radius": {
+            "type": "string",
+            "description": "Radius (in meters) of this geofence area.",
+            "format": "irange(1,9999999)",
+            "default": "200",
+            "x-web": {
+              "pretty": "Radius",
+              "input-type": "input"
+            }
+          },
+          "generate_event": {
+            "type": "string",
+            "description": "Specifies whether the rule should be triggered when the device enters the geofence area, leaves it or on both events.",
+            "enum": [
+              "on_exit",
+              "on_enter",
+              "on_both"
+            ],
+            "x-web": {
+              "pretty": "Generate event on",
+              "enum-pretty": {
+                "on_exit": "Exit",
+                "on_enter": "Enter",
+                "on_both": "Enter/exit"
+              },
+              "input-type": "select"
+            }
+          },
+          "switch_profile": {
+            "type": "string",
+            "description": "Select a profile to switch to on this geofencing event",
+            "x-web": {
+              "pretty": "Switch profile",
+              "input-type": "input"
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "longitude",
+          "latitude",
+          "radius",
+          "generate_event"
+        ]
+      },
+      "gps_geofencing_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_geofencing_single_options"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200gps_geofencing": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_geofencing_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200gps_geofencing_multi": {
+        "description": "Returns configurations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/gps_geofencing_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

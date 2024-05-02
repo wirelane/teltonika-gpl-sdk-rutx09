@@ -429,7 +429,7 @@
                     },
                     "data_fail": {
                         "type": "string",
-                        "description": "Method. '1",
+                        "description": "Failure determination method",
                         "enum": [
                             "1",
                             "2"
@@ -737,7 +737,7 @@
                     },
                     "data_fail": {
                         "type": "string",
-                        "description": "Method",
+                        "description": "Failure determination method",
                         "enum": [
                             "1",
                             "2"

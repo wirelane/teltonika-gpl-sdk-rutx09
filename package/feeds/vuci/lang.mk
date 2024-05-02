@@ -4,6 +4,7 @@ APP_CATEGORY?=VuCI
 
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=$(VERSION)
+PKG_LICENSE?=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -42,10 +43,6 @@ if [ "$$(uci get vuci.main.set_main_language)" = '1' ]; then
 	uci set vuci.main.lang="$(LANGUAGE)"
 	uci delete vuci.main.set_main_language
 fi
-uci batch <<-EOF
-	set vuci.languages.$(LANGUAGE)="$(LANGUAGE_STRING)"
-	commit vuci
-EOF
 exit 0
 endef
 
@@ -54,10 +51,6 @@ define Package/$(PKG_NAME)/prerm
 	if [ "$$(uci get vuci.main.lang)" = '$(LANGUAGE)' ]; then
 		uci set vuci.main.lang='en'
 	fi
-	uci batch <<-EOF
-	delete vuci.languages.$(LANGUAGE)
-	commit vuci
-EOF
 exit 0
 endef
 

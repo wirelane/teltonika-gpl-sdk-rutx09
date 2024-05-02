@@ -336,9 +336,6 @@
       },
       "tinc_host_option_net": {
         "title": "tinc_host_option_net",
-        "x-stoplight": {
-          "id": "zfvx1bnr5dhd7"
-        },
         "allOf": [
           {
             "type": "object",

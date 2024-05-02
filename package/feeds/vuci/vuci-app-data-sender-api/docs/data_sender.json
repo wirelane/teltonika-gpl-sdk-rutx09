@@ -856,7 +856,7 @@
               "input-type": "select",
               "enum-pretty": {
                 "custom": "Custom",
-                "json": "Json"
+                "json": "JSON"
               }
             }
           },
@@ -1058,7 +1058,7 @@
               "input-type": "select",
               "enum-pretty": {
                 "custom": "Custom",
-                "json": "Json"
+                "json": "JSON"
               }
             }
           },
@@ -1901,7 +1901,7 @@
           },
           "mqtt_in_qos": {
             "type": "string",
-            "description": "Quality of Service to be used for the message",
+            "description": "MQTT Quality of Service. Allowed values: 0 - when we prefer that the message will not arrive at all rather than arrive twice, 1 - when we want the message to arrive at least once but don't care if it arrives twice or more, 2 - when we want the message to arrive exactly once. A higher QoS value means a slower transfer.",
             "format": "string",
             "enum": ["0", "1", "2"],
             "x-web": {
@@ -2434,7 +2434,7 @@
           },
           "mqtt_qos": {
             "type": "string",
-            "description": "MQTT Quality of Service. Allowed values:\n0 - when we prefer that the message will not arrive at all rather than arrive twice\n1 - when we want the message to arrive at least once but 't care if it arrives twice (or more)\n2 - when we want the message to arrive exactly once. A higher QoS value means a slower transfer.",
+            "description": "MQTT Quality of Service. Allowed values: 0 - when we prefer that the message will not arrive at all rather than arrive twice, 1 - when we want the message to arrive at least once but don't care if it arrives twice or more, 2 - when we want the message to arrive exactly once. A higher QoS value means a slower transfer.",
             "enum": ["0", "1", "2"],
             "x-web": {
               "pretty": "QoS",

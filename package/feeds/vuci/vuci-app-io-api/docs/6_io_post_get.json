@@ -185,7 +185,7 @@
             "description": "Accessible methods. All methods are allowed if a list is empty.",
             "items": {
               "type": "string",
-              "enum": ["io_state", "io_type", "io_value"]
+              "enum": ["io_state", "io_type", "io_value", "io_invert"]
             },
             "x-web": {
               "pretty": "Access",

@@ -231,7 +231,7 @@
           "url": {
             "type": "string",
             "description": "TR-069 server's URL to send data to",
-            "format": "url",
+            "format": "protourl",
             "maxLength": 128,
             "default": "http://192.168.1.110:8080/openacs/acs",
             "x-web": {
@@ -304,7 +304,7 @@
           "url": {
             "type": "string",
             "description": "TR-069 server's URL to send data to",
-            "format": "url",
+            "format": "protourl",
             "maxLength": 128,
             "default": "http://192.168.1.110:8080/openacs/acs",
             "x-web": {

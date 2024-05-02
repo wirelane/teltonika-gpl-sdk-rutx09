@@ -35,7 +35,10 @@
                 "type": "object",
                 "properties": {
                   "data": {
-                    "$ref": "#/components/schemas/syn_flood_protection_options"
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/syn_flood_protection_options"
+                    }
                   }
                 }
               }
@@ -209,6 +212,7 @@
           "synflood_rate": {
             "type": "string",
             "description": "Set rate limit (packets/second) for SYN packets above which the traffic is considered a flood",
+            "format": "irange(1, 10000)",
             "x-web": {
               "pretty": "SYN flood rate",
               "input-type": "input"
@@ -217,6 +221,7 @@
           "synflood_burst": {
             "type": "string",
             "description": "Set burst limit for SYN packets above which the traffic is considered a flood if it exceeds the allowed rate",
+            "format": "irange(1, 10000)",
             "x-web": {
               "pretty": "SYN flood burst",
               "input-type": "input"

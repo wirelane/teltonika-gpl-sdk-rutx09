@@ -4,6 +4,8 @@ PKG_NAME:=vuci-app-landingpage
 PKG_VERSION:=2021-02-19
 PKG_RELEASE:=1
 GPL_INCLUDE_SRC:=1
+# there's a few files with custom licenses in here, but most of them are Apache v2.
+PKG_LICENSE:=Apache-2.0
  
 include $(INCLUDE_DIR)/package.mk
  

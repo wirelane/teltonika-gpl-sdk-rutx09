@@ -1,0 +1,371 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "HTTPS TAVL"
+    }
+  ],
+  "paths": {
+    "/gps/https/tavl_rules/config": {
+      "get": {
+        "summary": "Get GPS HTTP configurations",
+        "tags": [
+          "HTTPS TAVL"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_https_tavl_multi"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create GPS HTTP configuration",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/200gps_https_tavl"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_https_tavl_single_writable_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "HTTPS TAVL"
+        ]
+      },
+      "put": {
+        "summary": "Update GPS HTTP configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_https_tavl_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/gps_https_tavl_writable_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "HTTPS TAVL"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS HTTP configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/delete_multi"
+              }
+            }
+          }
+        },
+        "tags": [
+          "HTTPS TAVL"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "HTTPS"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/https/tavl_rules/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "HTTP configuration identifier"
+        }
+      ],
+      "get": {
+        "summary": "Get GPS HTTP configuration",
+        "tags": [
+          "HTTPS TAVL"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_https_tavl"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS HTTP configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_https_tavl"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_https_tavl_single_writable_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "HTTPS TAVL"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS HTTP configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "tags": [
+          "HTTPS TAVL"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "HTTPS"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_https_tavl_single_readonly_options": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of Tavl rule",
+            "readOnly": true,
+            "x-web": {
+              "pretty": "Type",
+              "input-type": "input"
+            }
+          }
+        }
+      },
+      "gps_https_tavl_single_writable_options": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of Tavl rule",
+            "x-web": {
+              "pretty": "Name",
+              "input-type": "input"
+            }
+          },
+          "enabled": {
+            "type": "string",
+            "description": "Set to enable rule.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            }
+          },
+          "acl": {
+            "type": "string",
+            "description": "Select which property to use",
+            "enum": [
+              "percent",
+              "current"
+            ],
+            "x-web": {
+              "pretty": "ACL property",
+              "input-type": "select",
+              "enum-pretty": {
+                "percent": "Percent",
+                "current": "Current"
+              },
+              "enum-depends": [
+                {
+                  "type": "acl"
+                }
+              ],
+              "hw_tags": {
+                "acl0": true
+              }
+            }
+          }
+        },
+        "required": [
+          "name",
+          "enabled"
+        ]
+      },
+      "gps_https_tavl_single_readable_options": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/gps_https_tavl_single_readonly_options"
+          },
+          {
+            "$ref": "#/components/schemas/gps_https_tavl_single_writable_options"
+          }
+        ]
+      },
+      "gps_https_tavl_readable_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_https_tavl_single_readable_options"
+          }
+        ]
+      },
+      "gps_https_tavl_writable_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_https_tavl_single_writable_options"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200gps_https_tavl": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_https_tavl_readable_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200gps_https_tavl_multi": {
+        "description": "Returns configurations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/gps_https_tavl_readable_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

@@ -299,6 +299,20 @@
               ]
             }
           },
+          "persistent": {
+            "type": "string",
+            "format": "is_bool",
+            "description": "Open TCP connection once and reuse it between requests",
+            "x-web": {
+              "pretty": "Persistent",
+              "input-type": "switch",
+              "depends": [
+                {
+                  "connection_type": "0"
+                }
+              ]
+            }
+          },
           "connection_type": {
             "type": "string",
             "description": "DLMS connection type",

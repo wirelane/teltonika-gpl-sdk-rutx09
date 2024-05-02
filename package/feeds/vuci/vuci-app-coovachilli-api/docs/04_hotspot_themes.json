@@ -67,6 +67,21 @@
           }
         }
       },
+      "delete": {
+        "tags": ["Themes"],
+        "summary": "Deletes uploaded custom Hotspot theme",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "$ref": "#/components/requestBodies/delete_multi"
+        }
+      },
       "parameters": [],
       "x-web": {
         "menu": ["Services", "Hotspot", "Landing page"],
@@ -83,8 +98,8 @@
           "200": {
             "$ref": "#/components/responses/200Themes"
           },
-          "422": {
-            "$ref": "#/components/responses/422response"
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "parameters": [
@@ -104,10 +119,10 @@
         "summary": "Deletes uploaded custom Hotspot theme",
         "responses": {
           "200": {
-            "$ref": "#/components/responses/200ThemeFileResponse"
+            "$ref": "#/components/responses/200deleted"
           },
-          "422": {
-            "$ref": "#/components/responses/422response"
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "parameters": [

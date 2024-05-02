@@ -276,7 +276,7 @@
             "format": "port",
             "default": "1883",
             "x-web": {
-              "pretty": "Hostname",
+              "pretty": "Port",
               "input-type": "input"
             }
           },
@@ -536,7 +536,7 @@
             "format": "port",
             "default": "1883",
             "x-web": {
-              "pretty": "Hostname",
+              "pretty": "Port",
               "input-type": "input"
             }
           },

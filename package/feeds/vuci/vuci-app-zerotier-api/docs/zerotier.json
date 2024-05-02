@@ -203,7 +203,7 @@
                   "description": "Operation status"
                 },
                 "data": {
-                  "$ref": "#/components/schemas/zerotier_single_options"
+                  "$ref": "#/components/schemas/zerotier_single_options_node"
                 }
               }
             }
@@ -225,7 +225,7 @@
                   "type": "array",
                   "description": "Array of section objects",
                   "items": {
-                    "$ref": "#/components/schemas/zerotier_options"
+                    "$ref": "#/components/schemas/zerotier_options_node"
                   }
                 }
               }
@@ -236,6 +236,30 @@
     },
     "schemas": {
       "zerotier_single_options": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "x-web": {
+              "pretty": "Enabled",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "Turn this zerotier interface on/off",
+            "format": "is_bool"
+          },
+          "name": {
+            "x-web": {
+              "pretty": "Zerotier name",
+              "unique": true,
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Name of the configuration",
+            "format": "uciname"
+          }
+        }
+      },
+      "zerotier_single_options_node": {
         "type": "object",
         "properties": {
           "enabled": {
@@ -286,6 +310,26 @@
           },
           {
             "$ref": "#/components/schemas/zerotier_single_options"
+          }
+        ]
+      },
+      "zerotier_options_node": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "x-web": {
+                  "pretty": "Configuration name",
+                  "input-type": "input"
+                },
+                "type": "string",
+                "description": "Zerotier Configuration identifier (ID)."
+              }
+            }
+          },
+          {
+            "$ref": "#/components/schemas/zerotier_single_options_node"
           }
         ]
       }

@@ -148,20 +148,6 @@
             "schema": {
               "description": "",
               "type": "object",
-              "properties": {
-                "success": {
-                  "type": "boolean",
-                  "description": "Operation status"
-                },
-                "data": {
-                  "type": "object",
-                  "properties": {
-                    "devices": {
-                      "$ref": "#/components/schemas/networkmap_devices"
-                    }
-                  }
-                }
-              },
               "x-examples": {
                 "example-1": {
                   "success": true,
@@ -176,6 +162,23 @@
                         "ip": "192.168.81.114"
                       }
                     ]
+                  }
+                }
+              },
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "devices": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/networkmap_devices"
+                      }
+                    }
                   }
                 }
               }

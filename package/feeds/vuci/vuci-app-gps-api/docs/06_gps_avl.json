@@ -1,0 +1,321 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "AVL"
+    }
+  ],
+  "paths": {
+    "/gps/avl/config": {
+      "get": {
+        "summary": "Get GPS AVL General configurations",
+        "tags": [
+          "AVL"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_multi"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS AVL General configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/gps_avl_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "AVL"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/avl/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "GPS AVL identifier (ID)"
+        }
+      ],
+      "get": {
+        "summary": "Get GPS AVL General configuration",
+        "tags": [
+          "AVL"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS AVL General configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_avl_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "AVL"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_avl_single_options": {
+        "description": "This section is used to configure the main data sending parameters to an AVL server.",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Turns data sending to an AVL server on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            }
+          },
+          "send_retry": {
+            "type": "string",
+            "description": "In case of a failed attempt, retry to send the same data to server later (Retry until successful)",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Retry on fail",
+              "input-type": "switch"
+            }
+          },
+          "host_info": {
+            "type": "array",
+            "description": "Specify host info, Array of addresses, ports and protocols is accepted for host configuration. E.g 192.168.1.1;80;tcp.",
+            "items": {
+              "type": "string"
+            },
+            "x-web": {
+              "pretty": "Host info",
+              "input-type": "input"
+            }
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Hostname of the remote server",
+            "deprecated": true,
+            "x-web": {
+              "pretty": "Hostname",
+              "input-type": "input"
+            }
+          },
+          "proto": {
+            "type": "string",
+            "description": "Protocol to be used for sending AVL to the remote server",
+            "deprecated": true,
+            "enum": [
+              "tcp",
+              "udp"
+            ],
+            "x-web": {
+              "pretty": "Protocol",
+              "enum-pretty": {
+                "tcp": "TCP",
+                "udp": "UDP"
+              },
+              "input-type": "select"
+            }
+          },
+          "port": {
+            "type": "string",
+            "description": "Port of the remote server",
+            "deprecated": true,
+            "x-web": {
+              "pretty": "Port",
+              "input-type": "input"
+            }
+          },
+          "con_cont": {
+            "type": "string",
+            "description": "Set to handle each AVL packet iteration as a new connection",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Don't contain connection",
+              "input-type": "switch"
+            }
+          },
+          "static_navigation": {
+            "type": "string",
+            "description": "Set to stop collecting NMEA data if object is stationary.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Static navigation",
+              "input-type": "switch"
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "send_retry",
+          "hostname",
+          "proto",
+          "port",
+          "con_cont",
+          "static_navigation"
+        ]
+      },
+      "gps_avl_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_avl_single_options"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200gps_avl": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_avl_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200gps_avl_multi": {
+        "description": "Returns configurations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/gps_avl_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

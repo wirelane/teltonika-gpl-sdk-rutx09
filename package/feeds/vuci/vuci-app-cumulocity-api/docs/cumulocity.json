@@ -74,9 +74,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200Cumulocity"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           }
         }
       },
@@ -86,9 +83,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200Cumulocity"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"
@@ -138,6 +132,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200Cumulocity"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
           }
         },
         "description": "Used to reset saved internal Authentication data"
@@ -169,8 +166,7 @@
                 "data": {
                   "$ref": "#/components/schemas/cumulocity_options"
                 }
-              },
-              "required": ["success", "data"]
+              }
             }
           }
         }
@@ -193,8 +189,7 @@
                     "$ref": "#/components/schemas/cumulocity_options"
                   }
                 }
-              },
-              "required": ["success", "data"]
+              }
             }
           }
         }

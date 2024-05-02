@@ -413,6 +413,22 @@
             ],
             "description": "Select what kind of characters to use for flow control"
           },
+          "server_addr_type": {
+            "type": "string",
+            "description": "Select 'Default' for server address or 'Serial Number' for addressing by a specific serial number.",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "default": "0",
+            "x-web": {
+              "pretty": "Server address type",
+              "enum-pretty": {
+                "0": "Default",
+                "1": "Serial Number"
+              }
+            }
+          },
           "server_addr": {
             "type": "string",
             "description": "Devices server address",
@@ -524,6 +540,23 @@
               "pretty": "Name",
               "input-type": "input",
               "unique": true
+            }
+          },
+          "server_addr_type": {
+            "type": "string",
+            "description": "Select 'Default' for server address or 'Serial Number' for addressing by a specific serial number.",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "default": "0",
+            "x-web": {
+              "pretty": "Server address type",
+              "input-type": "select",
+              "enum-pretty": {
+                "0": "Default",
+                "1": "Serial Number"
+              }
             }
           },
           "server_addr": {

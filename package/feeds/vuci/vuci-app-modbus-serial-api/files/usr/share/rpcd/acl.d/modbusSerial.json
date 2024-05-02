@@ -3,7 +3,7 @@
 		"description": "modbus tcl client configuration",
 		"read": {
 			"api": [
-				"/modbus/client/serial/*",
+				"/modbus/client/*",
 				"/io/*",
 				"/modems/*",
 				"/serial/*",
@@ -12,7 +12,7 @@
 		},
 		"write": {
 			"api": [
-				"/modbus/client/serial/*"
+				"/modbus/client/*"
 			]
 		}
 	}

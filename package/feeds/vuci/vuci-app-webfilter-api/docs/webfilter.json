@@ -604,9 +604,6 @@
       },
       "webfilter_hostname_options_id": {
         "title": "webfilter_hostname_options_multi",
-        "x-stoplight": {
-          "id": "lmez7x90xfl3p"
-        },
         "allOf": [
           {
             "type": "object",

@@ -106,17 +106,6 @@
                 }
               }
             },
-            "cgi-io": {
-              "type": "object",
-              "properties": {
-                "string": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                }
-              }
-            },
             "access-group": {
               "type": "object",
               "properties": {

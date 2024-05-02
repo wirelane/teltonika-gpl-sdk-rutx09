@@ -24,9 +24,6 @@
           "200": {
             "$ref": "#/components/responses/200stunnel_global"
           },
-          "404": {
-            "$ref": "#/components/responses/404response"
-          },
           "422": {
             "$ref": "#/components/responses/422response"
           }

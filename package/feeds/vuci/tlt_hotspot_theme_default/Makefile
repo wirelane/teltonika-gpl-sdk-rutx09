@@ -4,6 +4,7 @@ THEME_NAME=default
 PKG_NAME:=hs_theme_$(THEME_NAME)
 PKG_VERSION:=2022-07-27
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_LICENSE:=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
 

@@ -6,7 +6,7 @@
 				"/modem_control/*",
 				"/system/device/status/*",
 				"/serial/status/*",
-				"/modems/status_basic/*"
+				"/modems/status/*"
 			]
 		},
 		"write": {

@@ -321,6 +321,11 @@
       "dlms_test_options": {
         "type": "object",
         "properties": {
+          "pretty": {
+            "type": "string",
+            "format": "is_bool",
+            "description": "Pretty display for test result, if option is set result is returned as JSON."
+          },
           "object": {
             "type": "array",
             "description": "DLMS device IP address for TCP connection",
@@ -438,6 +443,8 @@
           "interval": {
             "type": "string",
             "description": "Interval for OBIS code reading (in seconds)",
+            "format": "irange(1, 4294967295)",
+            "default": "60",
             "x-web": {
               "pretty": "Interval",
               "input-type": "input"

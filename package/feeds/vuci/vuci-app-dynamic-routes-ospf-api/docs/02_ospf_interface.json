@@ -397,9 +397,6 @@
       },
       "ospf_interface_options_multi": {
         "title": "ospf_interface_options_multi",
-        "x-stoplight": {
-          "id": "51r8phxbamlqd"
-        },
         "allOf": [
           {
             "type": "object",

@@ -373,9 +373,6 @@
       },
       "nhrp_interface_options_multi": {
         "title": "nhrp_interface_options_multi",
-        "x-stoplight": {
-          "id": "3l7owr4a8tb7z"
-        },
         "allOf": [
           {
             "type": "object",

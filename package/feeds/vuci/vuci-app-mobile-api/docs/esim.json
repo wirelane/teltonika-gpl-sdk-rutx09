@@ -11,7 +11,7 @@
   "paths": {
     "/esim/status": {
       "get": {
-        "summary": "Returns eSIM status",
+        "summary": "Returns multiple eSIM statuses",
         "tags": [
           "eSIM configuration"
         ],
@@ -83,7 +83,7 @@
     },
     "/esim/config": {
       "get": {
-        "summary": "Get eSIM configurations",
+        "summary": "Returns multiple eSIM configurations",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_esim_multiple"
@@ -94,7 +94,7 @@
         ]
       },
       "put": {
-        "summary": "Update eSIM configurations",
+        "summary": "Updates multiple eSIM configurations",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_esim_multiple"
@@ -128,7 +128,7 @@
         ]
       },
       "delete": {
-        "summary": "Delete eSIM configurations",
+        "summary": "Deletes multiple eSIM configurations",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200deleted_multi"
@@ -175,7 +175,7 @@
         }
       ],
       "get": {
-        "summary": "Get eSIM configuration",
+        "summary": "Returns specified eSIM configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_esim_one"
@@ -189,7 +189,7 @@
         ]
       },
       "put": {
-        "summary": "Update eSIM configuration",
+        "summary": "Updates specified eSIM configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200_esim_one"
@@ -220,7 +220,7 @@
         ]
       },
       "delete": {
-        "summary": "Delete eSIM configuration",
+        "summary": "Deletes specified eSIM configuration",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200deleted"

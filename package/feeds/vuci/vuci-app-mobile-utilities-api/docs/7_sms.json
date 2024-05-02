@@ -56,6 +56,9 @@
               }
             }
           },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
           "422": {
             "$ref": "#/components/responses/422response"
           }
@@ -84,7 +87,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -98,25 +106,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_read_multi"
-          }
-        },
-        "description": ""
-      },
-      "delete": {
-        "summary": "Deletes the selected SMS Messages",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200deleted_multi"
           },
           "404": {
             "$ref": "#/components/responses/404response"
           }
         },
-        "requestBody": {
-          "$ref": "#/components/requestBodies/delete_multi"
-        },
-        "description": "",
-        "tags": ["Read Messages"]
+        "description": ""
       },
       "x-web": {
         "menu": ["Services", "Mobile Utilities", "Messages", "Read Messages"],
@@ -132,7 +127,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -141,7 +141,12 @@
         },
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/simcard_select"
+              }
+            }
           },
           "name": "sms_id",
           "in": "path",
@@ -155,22 +160,12 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_read_single"
-          }
-        },
-        "description": ""
-      },
-      "delete": {
-        "summary": "Deletes the selected SMS message",
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/200deleted"
           },
           "404": {
             "$ref": "#/components/responses/404response"
           }
         },
-        "description": "",
-        "tags": ["Read Messages"]
+        "description": ""
       },
       "x-web": {
         "menu": ["Services", "Mobile Utilities", "Messages", "Read Messages"],

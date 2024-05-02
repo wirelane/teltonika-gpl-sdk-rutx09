@@ -1,0 +1,377 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "NMEA"
+    }
+  ],
+  "paths": {
+    "/gps/nmea/config": {
+      "get": {
+        "summary": "Get GPS NMEA configurations",
+        "tags": [
+          "NMEA"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_nmea_multi"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS NMEA configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_nmea_multi"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/gps_nmea_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "NMEA"
+        ]
+      },
+      "parameters": [],
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "NMEA"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/nmea/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "GPS NMEA identifier (ID)"
+        }
+      ],
+      "get": {
+        "summary": "Get GPS NMEA configuration",
+        "tags": [
+          "NMEA"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_nmea"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS NMEA configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_nmea"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_nmea_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "NMEA"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "NMEA"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_nmea_single_options": {
+        "description": "This section is used to configure NMEA forwarding settings",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Turns NMEA forwarding on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enabled",
+              "input-type": "switch"
+            }
+          },
+          "host_info": {
+            "type": "array",
+            "description": "Specify host info, Array of addresses, ports and protocols is accepted for host configuration. E.g 192.168.1.1;80;tcp.",
+            "items": {
+              "type": "string"
+            },
+            "x-web": {
+              "pretty": "Host info",
+              "input-type": "input"
+            }
+          },
+          "hostname": {
+            "type": "string",
+            "description": "IP address or hostname of the server to which NMEA data will be forwarded.",
+            "format": "host",
+            "deprecated": true,
+            "x-web": {
+              "pretty": "Hostname",
+              "input-type": "input"
+            }
+          },
+          "proto": {
+            "type": "string",
+            "description": "Communication protocol used for NMEA sentence forwarding.",
+            "deprecated": true,
+            "enum": [
+              "tcp",
+              "udp"
+            ],
+            "x-web": {
+              "pretty": "Protocol",
+              "enum-pretty": {
+                "tcp": "TCP",
+                "udp": "UDP"
+              },
+              "input-type": "input"
+            }
+          },
+          "port": {
+            "type": "string",
+            "description": "TCP/UDP port number of the server.",
+            "format": "port",
+            "deprecated": true,
+            "x-web": {
+              "pretty": "Port",
+              "input-type": "input"
+            }
+          },
+          "con_contain": {
+            "type": "string",
+            "description": "Contain active session with a remote server",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Contain connection",
+              "input-type": "switch"
+            }
+          },
+          "send_prefix": {
+            "type": "string",
+            "description": "Prefix is added to the NMEA sentence before it is transmitted. Example: 0012345567_$GPRMC....",
+            "maxLength": 64,
+            "x-web": {
+              "pretty": "Select prefix",
+              "input-type": "input"
+            }
+          },
+          "type": {
+            "type": "string",
+            "description": "Set which type of memory will be used for storing NMEA forwarding cache.",
+            "enum": [
+              "ram",
+              "flash"
+            ],
+            "x-web": {
+              "pretty": "Save cache in",
+              "enum-pretty": {
+                "ram": "RAM memory",
+                "flash": "Flash memory"
+              },
+              "input-type": "select"
+            }
+          },
+          "sentences_max": {
+            "type": "string",
+            "description": "Maximum amount of NMEA sentences that will be saved in the cache before older entries are replaced by new ones.",
+            "format": "uinteger",
+            "x-web": {
+              "pretty": "Maximum sentences",
+              "input-type": "input"
+            }
+          },
+          "location": {
+            "type": "string",
+            "description": "Location of the file where NMEA forwarding cache information will be stored.",
+            "format": "regex",
+            "pattern": "^[a-zA-Z0-9-_\\.]+$",
+            "x-web": {
+              "pretty": "File",
+              "input-type": "input",
+              "depends": [
+                {
+                  "type": "flash"
+                }
+              ]
+            }
+          },
+          "collecting_enabled": {
+            "type": "string",
+            "description": "Turns NMEA sentence collecting on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enabled",
+              "input-type": "switch"
+            }
+          },
+          "collecting_location": {
+            "type": "string",
+            "description": "Location of the file where collected NMEA sentences will be stored.",
+            "maxlength": 128,
+            "x-web": {
+              "pretty": "File",
+              "input-type": "input",
+              "depends": [
+                {
+                  "collecting_enabled": "1"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "hostname",
+          "proto",
+          "port",
+          "con_contain",
+          "type",
+          "sentences_max",
+          "location",
+          "collecting_enabled",
+          "collecting_location"
+        ]
+      },
+      "gps_nmea_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_nmea_single_options"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200gps_nmea": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_nmea_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200gps_nmea_multi": {
+        "description": "Returns configurations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/gps_nmea_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

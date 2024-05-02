@@ -155,6 +155,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/file_response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
           }
         },
         "parameters": [

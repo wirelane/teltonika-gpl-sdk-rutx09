@@ -5,6 +5,7 @@ APP_CATEGORY?=VuCI
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
 PLUGIN_DIR:=$(BUILD_DIR)/.vuci-build-plugin/.plugin/
+PKG_LICENSE?=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -18,6 +19,15 @@ ifndef NO_API_DEPEND
 	DEPENDS:=$(APP_DEPENDS) +vuci-ui-core +$(patsubst %-ui,%,$(APP_NAME))-api
 else
 	DEPENDS:=$(APP_DEPENDS) +vuci-ui-core 
+endif
+ifdef APP_TLT_NAME
+	PKG_TLT_NAME:=$(APP_TLT_NAME)
+endif
+ifdef APP_ROUTER
+	PKG_ROUTER:=$(APP_ROUTER)
+endif
+ifdef APP_APP_NAME
+	PKG_APP_NAME:=$(APP_APP_NAME)
 endif
 endef
 

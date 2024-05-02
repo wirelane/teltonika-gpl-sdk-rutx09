@@ -97,7 +97,12 @@
         },
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "modem_id",
           "in": "path",
@@ -106,7 +111,7 @@
         }
       ],
       "get": {
-        "summary": "Returns SIM card usage data for specified interval and SIM card",
+        "summary": "Returns SIM card usage data for specified interval and modem",
         "tags": [
           "Data usage"
         ],
@@ -181,7 +186,12 @@
         },
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "modem_id",
           "in": "path",
@@ -191,10 +201,11 @@
         {
           "schema": {
             "type": "string",
-            "enum": [
-              "1",
-              "2"
-            ]
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/simcard_select"
+              }
+            }
           },
           "name": "sim_id",
           "in": "path",
@@ -203,7 +214,7 @@
         }
       ],
       "get": {
-        "summary": "Returns data usage for specified modem and SIM card",
+        "summary": "Returns SIM card usage data for specified interval, modem and SIM card",
         "tags": [
           "Data usage"
         ],

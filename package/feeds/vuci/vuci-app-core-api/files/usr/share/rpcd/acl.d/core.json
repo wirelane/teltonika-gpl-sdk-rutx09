@@ -26,7 +26,9 @@
 				"/ui/config/*",
 				"/interfaces/config/*",
 				"/modems/*",
-				"/system/actions/change_password_firstlogin/*"
+				"/system/actions/change_password_firstlogin/*",
+				"/profiles/status/*",
+				"/users/acls/options/*"
 			],
 			"uci": [
 				"vuci",

@@ -391,6 +391,7 @@
             "type": "string",
             "description": "Time duration between data retrievals (s).",
             "format": "irange(1, 86400)",
+            "default": "60",
             "x-web": {
               "pretty": "Period",
               "input-type": "input"

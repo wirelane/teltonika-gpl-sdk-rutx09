@@ -1,8 +1,5 @@
 {
   "openapi": "3.0.0",
-  "x-stoplight": {
-    "id": "eusly9r8iceh6"
-  },
   "info": {
     "title": "igmp_proxy",
     "version": "1.0"
@@ -422,9 +419,6 @@
       },
       "igmp_req_body_multi": {
         "title": "igmp_req_body_multi",
-        "x-stoplight": {
-          "id": "bimakpmygnpep"
-        },
         "type": "object",
         "properties": {
           "data": {

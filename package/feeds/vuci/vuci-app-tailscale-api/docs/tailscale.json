@@ -25,7 +25,7 @@
                   "data": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/tailscale_options_multi"
+                      "$ref": "#/components/schemas/tailscale_options"
                     }
                   }
                 }
@@ -51,7 +51,8 @@
         "hw_tags": {
           "is_switch": false,
           "is_access_point": false,
-          "flash16mb": false
+          "flash16mb": false,
+          "is_trb1": false
         }
       },
       "parameters": []
@@ -266,15 +267,40 @@
             "type": "string",
             "description": "Authentication method can be 'url' or 'key'",
             "enum": ["key", "url"]
+          },
+          "default_route": {
+            "x-web": {
+              "pretty": "Default route",
+              "input-type": "switch"
+            },
+            "type": "string",
+            "description": "Route traffic through another exit node.",
+            "enum": ["0", "1"],
+            "format": "is_bool"
+          },
+          "exit_node_ip": {
+            "x-web": {
+              "pretty": "Exit node IP",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "IP address of the exit node.",
+            "format": "ipv4/ipv6"
+          },
+          "login_server": {
+            "type": "string",
+            "x-web": {
+              "pretty": "Login server",
+              "input-type": "input"
+            },
+            "description": "Provide the base URL of a control server instead of https://controlplane.tailscale.com. If you are using Headscale for your control server, use your Headscale instance’s URL.",
+            "format": "protourl"
           }
         },
         "required": ["auth_type"]
       },
       "tailscale_options_multi": {
-        "title": "tailscale_options_multi",
-        "x-stoplight": {
-          "id": "dbmnqrtwd0fuy"
-        },
+        "title": "",
         "allOf": [
           {
             "type": "object",

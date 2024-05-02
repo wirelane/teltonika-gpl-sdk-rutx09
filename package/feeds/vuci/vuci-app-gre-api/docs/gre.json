@@ -212,6 +212,9 @@
           },
           "404": {
             "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
           }
         },
         "operationId": "delete-gre-cfg",
@@ -435,9 +438,6 @@
                 }
               }
             }
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"

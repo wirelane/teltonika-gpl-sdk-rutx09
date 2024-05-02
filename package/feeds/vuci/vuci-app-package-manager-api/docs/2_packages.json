@@ -164,8 +164,7 @@
         "hw_tags": {
           "is_switch": false,
           "is_access_point": false
-        },
-        "hidden": true
+        }
       }
     },
     "/package_manager/actions/install_package": {
@@ -201,8 +200,7 @@
         "hw_tags": {
           "is_access_point": false,
           "is_switch": false
-        },
-        "hidden": true
+        }
       }
     },
     "/package_manager/actions/update_package": {
@@ -274,7 +272,10 @@
       },
       "x-web": {
         "menu": ["System", "Package Manager", "Package Manager"],
-        "hidden": true
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        }
       }
     },
     "/package_manager/actions/delete_install_files": {

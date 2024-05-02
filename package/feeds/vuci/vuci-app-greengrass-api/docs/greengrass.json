@@ -150,6 +150,9 @@
                 }
               }
             }
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
           }
         },
         "tags": ["General"],
@@ -265,7 +268,7 @@
           "aws_config": {
             "type": "string",
             "description": "Upload 'AWS Greengrass' configuration compressed file",
-            "format": "file_validation",
+            "format": "path",
             "x-web": {
               "pretty": "Config file",
               "input-type": "input"

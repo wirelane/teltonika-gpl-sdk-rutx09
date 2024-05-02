@@ -1,0 +1,106 @@
+{
+  "openapi": "3.0.0",
+  "tags": [
+    {
+      "name": "Modbus client global settings"
+    }
+  ],
+  "paths": {
+    "/modbus/client/global": {
+      "get": {
+        "tags": [
+          "Modbus client global settings"
+        ],
+        "summary": "Returns all Modbus client global settings configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200modbusGlobal"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Modbus client global settings"
+        ],
+        "summary": "Updates specified Modbus client global settings configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200modbusGlobal"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/modbus_global_single_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Services",
+          "Modbus",
+          "TCP Client"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "200modbusGlobal": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/modbus_global_single_options"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "modbus_global_single_options": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Enables/disables Modbus client functionality.",
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            },
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

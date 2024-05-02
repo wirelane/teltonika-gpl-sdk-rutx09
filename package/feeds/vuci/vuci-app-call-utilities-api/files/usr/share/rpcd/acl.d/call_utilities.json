@@ -1,0 +1,18 @@
+
+{
+	"services/mobile_utilities/call_utilities": {
+		"description": "call utilities configuration",
+		"read": {
+			"api": [
+				"/recipients/phone_groups/*",
+				"/call_utilities/*",
+				"/modems/status*"
+			]
+		},
+		"write": {
+			"api": [
+				"/call_utilities/*"
+			]
+		}
+	}
+}

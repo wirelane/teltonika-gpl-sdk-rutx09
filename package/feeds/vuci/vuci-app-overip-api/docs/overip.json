@@ -272,7 +272,7 @@
           "name": {
             "type": "string",
             "maxLength": 200,
-            "description": "Name of serial device",
+            "description": "Name of serial device used for Over IP communication",
             "x-web": {
               "pretty": "Name",
               "input-type": "input",
@@ -1102,9 +1102,28 @@
               ]
             }
           },
+          "keepalive_enabled": {
+            "type": "string",
+            "description": "Enable keep alive",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Keep alive",
+              "input-type": "switch",
+              "group": "Over IP configuration",
+              "depends": [
+                {
+                  "protocol": "0"
+                }
+              ]
+            }
+          },
           "keepalive_time": {
             "type": "string",
-            "description": "The interval between last data packet sent",
+            "description": "Duration until the first probe will be sent",
             "format": "irange(0, 32000)",
             "x-web": {
               "pretty": "Keep alive time",
@@ -1119,7 +1138,7 @@
           },
           "keepalive_interval": {
             "type": "string",
-            "description": "The interval between subsequential keepalive probes",
+            "description": "The interval between subsequent keepalive probes",
             "format": "irange(0, 32000)",
             "x-web": {
               "pretty": "Keep alive interval",
@@ -1134,7 +1153,7 @@
           },
           "keepalive_probes": {
             "type": "string",
-            "description": "The number of unacknowledged probes",
+            "description": "The number of unacknowledged probes needed to consider the connection lost",
             "format": "irange(0, 32000)",
             "x-web": {
               "pretty": "Keep alive probes",

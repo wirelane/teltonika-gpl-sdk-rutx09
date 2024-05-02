@@ -6,9 +6,14 @@ local util_tlt = require "vuci.util_tlt"
 local tpl = require "luci.template"
 local uci = require "uci".cursor()
 local fs = require "nixio.fs"
-local theme = uci:get("landingpage", "general", "theme") or "default"
+local conf = uci:get("landingpage", "general", "theme") or "default"
 local auth_proto = uci:get("landingpage", "general", "auth_proto") or "chap"
 local uamsecret = uci:get("chilli", "@chilli[0]", "uamsecret") or ""
+local theme = "default"
+
+if fs.access("/hotspotlogin/themes/"..conf) then
+    theme = conf
+end
 
 local function urldecode(s)
     s = s:gsub('+', ' '):gsub('%%(%x%x)', function(h)

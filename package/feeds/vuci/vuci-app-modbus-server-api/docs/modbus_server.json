@@ -332,7 +332,7 @@
           },
           "md_data_type": {
             "type": "string",
-            "description": "Selects mobile data unit representation type (bytes/kilobytes/megabytes).",
+            "description": "Selects mobile data unit representation type.",
             "enum": [
               "0",
               "1",

@@ -8,6 +8,9 @@
           "201": {
             "$ref": "#/components/responses/200WirePeer"
           },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
           "422": {
             "$ref": "#/components/responses/422response"
           }
@@ -357,6 +360,17 @@
             },
             "type": "string",
             "description": "Defines which routing table to use for this peer's routes, not necessary to configure for most setups."
+          },
+          "tunlink": {
+            "x-web": {
+              "pretty": "Tunnel source",
+              "input-type": "input",
+              "group": "Advanced Settings"
+            },
+            "type": "string",
+            "format": "uciname",
+            "maxLength": 16,
+            "description": "Bind this instance to specific interface"
           }
         },
         "required": ["public_key", "allowed_ips"]

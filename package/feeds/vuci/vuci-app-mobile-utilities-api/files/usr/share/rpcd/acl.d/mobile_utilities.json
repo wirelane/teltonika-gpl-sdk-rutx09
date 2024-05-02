@@ -85,34 +85,16 @@
 			"api": ["/sms_gateway/email_to_sms/*"]
 		}
 	},
-	"services/mobile_utilities/call_utilities": {
-		"description": "call utilities configuration",
-		"read": {
-			"ubus": {
-				"vuci.network.mobile": ["get_all_modems"]
-			},
-			"api": [
-				"/recipients/phone_groups/*",
-				"/call_utilities/*",
-				"/modems/status*"
-			]
-		},
-		"write": {
-			"api": [
-				"/call_utilities/*"
-			]
-		}
-	},
 	"services/mobile_utilities/sms_messages/read": {
 		"description": "read messages configuration",
 		"read": {
 			"ubus": {
 				"vuci.network.mobile": ["get_all_modems"]
 			},
-			"api": ["/modems/status*", "/messages/status/*", "/messages/modem/*"]
+			"api": ["/modems/status*", "/messages/status*"]
 		},
 		"write": {
-			"api": ["/messages/actions/*", "/messages/modem/*"]
+			"api": ["/messages/actions/remove_messages*"]
 		}
 	},
 	"services/mobile_utilities/sms_messages/send": {

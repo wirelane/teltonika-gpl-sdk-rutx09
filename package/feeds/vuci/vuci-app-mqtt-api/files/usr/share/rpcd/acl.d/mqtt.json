@@ -1,7 +1,7 @@
 {
 	"services/mqtt/publisher": {
 		"read": {
-			"api": ["/mqtt/publisher/*", "/certificates/config/*", "/modems/status_basic/*"]
+			"api": ["/mqtt/publisher/*", "/certificates/config/*", "/modems/status/*"]
 		},
 		"write": {
 			"api": ["/mqtt/publisher/*"]

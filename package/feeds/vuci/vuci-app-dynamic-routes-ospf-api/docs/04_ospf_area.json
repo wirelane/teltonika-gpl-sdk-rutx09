@@ -299,9 +299,6 @@
       },
       "ospf_area_options_multi": {
         "title": "ospf_area_options_multi",
-        "x-stoplight": {
-          "id": "g76t65sfqr0kr"
-        },
         "allOf": [
           {
             "type": "object",

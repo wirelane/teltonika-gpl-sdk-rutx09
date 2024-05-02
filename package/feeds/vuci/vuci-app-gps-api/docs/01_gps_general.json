@@ -1,0 +1,459 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "General"
+    }
+  ],
+  "paths": {
+    "/gps/global": {
+      "get": {
+        "summary": "Get GPS General configuration",
+        "tags": [
+          "General"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_global"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update GPS General configuration",
+        "tags": [
+          "General"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_global"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_global_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "GPS"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/status": {
+      "get": {
+        "summary": "Get GPS General function status",
+        "tags": [
+          "General"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_status"
+          }
+        }
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "GPS"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    },
+    "/gps/position/status": {
+      "get": {
+        "summary": "Get GPS position",
+        "tags": [
+          "General"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_position"
+          }
+        }
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "GPS"
+        ],
+        "hw_tags": {
+          "gps": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_position_options": {
+        "type": "object",
+        "properties": {
+          "accuracy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fix_status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "altitude": {
+            "type": "string",
+            "minLength": 1
+          },
+          "speed": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string",
+            "minLength": 1
+          },
+          "satellites": {
+            "type": "string",
+            "minLength": 1
+          },
+          "longitude": {
+            "type": "string",
+            "minLength": 1
+          },
+          "latitude": {
+            "type": "string",
+            "minLength": 1
+          },
+          "angle": {
+            "type": "string",
+            "minLength": 1
+          },
+          "utc_timestamp": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "accuracy",
+          "fix_status",
+          "altitude",
+          "speed",
+          "timestamp",
+          "satellites",
+          "longitude",
+          "latitude",
+          "angle",
+          "utc_timestamp"
+        ]
+      },
+      "gps_global_options": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Turns the GPS service on or off. This field has to be enabled in order to use any GPS related functions.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enabled",
+              "input-type": "switch"
+            }
+          },
+          "galileo_sup": {
+            "type": "string",
+            "description": "Turns support for Galileo satellites on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "!modems": [
+                "SLM770-A",
+                "BG95-M4"
+              ],
+              "pretty": "Galileo NMEA support",
+              "input-type": "switch"
+            }
+          },
+          "glonass_sup": {
+            "type": "string",
+            "description": "Turns support for Glonass satellites on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "!modems": [
+                "SLM770-A",
+                "BG95-M4"
+              ],
+              "pretty": "Glonass NMEA support",
+              "input-type": "switch"
+            }
+          },
+          "beidou_sup": {
+            "type": "string",
+            "description": "Turns support for BeiDou satellites on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "!modems": [
+                "SLM770-A",
+                "BG95-M4"
+              ],
+              "pretty": "BeiDou NMEA support",
+              "input-type": "switch"
+            }
+          },
+          "dpo_enabled": {
+            "type": "string",
+            "description": "Turns DPO mode on or off.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "modems": [
+                "EC25-EC",
+                "EC25-E",
+                "EC25-EU",
+                "EC25-EUX",
+                "EC25-AUTL",
+                "EC25-AUT",
+                "EC25-AUX",
+                "EC25-AFX",
+                "EC25-AFF",
+                "EC25-AF",
+                "EC25-AU",
+                "EC25-A",
+                "EC25-V",
+                "EC25-J",
+                "EC20-CE",
+                "EC200A-EU",
+                "EC200A-AU",
+                "EC200A-CN",
+                "EC21-EC",
+                "EC21-EU",
+                "EC21-E",
+                "EC21-AUV",
+                "EC21-AUX",
+                "EC21-AUT",
+                "EC21-AU",
+                "EC21-A",
+                "EC21-V",
+                "EC21-J",
+                "EG06-E",
+                "EG06-A",
+                "EG12-EA",
+                "EG25-G",
+                "BG96",
+                "BG95-M3",
+                "BG95-M4",
+                "RG500Q-EU",
+                "RG500Q-EA",
+                "RG500U-EA",
+                "RG500U-EB",
+                "RG501Q-EU",
+                "RG501Q-EA",
+                "RG520N-NA",
+                "RG520N-EU",
+                "UC20-A",
+                "UC20-E",
+                "UC20-G"
+              ],
+              "pretty": "DPO enabled",
+              "input-type": "switch"
+            }
+          },
+          "mode": {
+            "type": "string",
+            "description": "WWAN and GNSS coexistance mode",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "modems": [
+                  "BG95-M3",
+                  "BG95-M4"
+              ],
+              "pretty": "Mode",
+              "enum-pretty": {
+                "0": "GNSS Only",
+                "1": "WWAN + GNSS"
+              },
+              "input-type": "select"
+            }
+          },
+          "interval": {
+            "type": "string",
+            "description": "How frequently should GNSS be activated (seconds)",
+            "format": "irange(60,86400)",
+            "x-web": {
+              "input-type": "input",
+              "pretty": "Interval",
+              "depends": [
+                {
+                  "mode": "1"
+                }
+              ]
+            }
+          },
+          "timeout": {
+            "type": "string",
+            "description": "Maximum GNSS position fix waiting time (seconds)",
+            "format": "irange(30,999)",
+            "x-web": {
+              "input-type": "input",
+              "pretty": "Timeout",
+              "depends": [
+                {
+                  "mode": "1"
+                }
+              ]
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "galileo_sup",
+          "glonass_sup",
+          "beidou_sup"
+        ]
+      },
+      "gps_status_options": {
+        "description": "GPS supported functionality list",
+        "type": "object",
+        "properties": {
+          "dpo_support": {
+            "type": "boolean",
+            "description": "Enable dynamic power optimization (requires modem reboot)."
+          }
+        }
+      }
+    },
+    "responses": {
+      "200gps_global": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_global_options"
+                }
+              },
+              "required": [
+                "success",
+                "data"
+              ]
+            }
+          }
+        }
+      },
+      "200gps_status": {
+        "description": "OK",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "string",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_status_options"
+                }
+              },
+              "required": [
+                "success",
+                "data"
+              ]
+            }
+          }
+        }
+      },
+      "200gps_position": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_position_options"
+                }
+              },
+              "required": [
+                "success",
+                "data"
+              ],
+              "x-examples": {
+                "example-1": {
+                  "success": true,
+                  "data": {
+                    "accuracy": "0",
+                    "fix_status": "0",
+                    "altitude": "0",
+                    "speed": "0",
+                    "timestamp": "0",
+                    "satellites": "0",
+                    "longitude": "0",
+                    "latitude": "0",
+                    "angle": "0",
+                    "utc_timestamp": "0"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

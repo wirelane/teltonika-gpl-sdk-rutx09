@@ -3,18 +3,12 @@
 		"description": "dlms configuration",
 		"read": {
 			"api": [
-				"/dlms/client*",
-				"/dlms/connections/*",
-				"/dlms/cosem_group/*",
-				"/dlms/devices/*"
+				"/dlms/*"
 			]
 		},
 		"write": {
 			"api": [
-				"/dlms/client*",
-				"/dlms/connections/*",
-				"/dlms/cosem_group/*",
-				"/dlms/devices/*"
+				"/dlms/*"
 			]
 		}
 	}

@@ -291,6 +291,7 @@
             "type": "string",
             "description": "Interval for sending requests to this device.",
             "format": "irange(1, 99999)",
+            "default": "60",
             "x-web": {
               "pretty": "Period",
               "input-type": "input",
@@ -367,9 +368,6 @@
       },
       "modbus_serial_client_server_options": {
         "title": "modbus_serial_client_server_options",
-        "x-stoplight": {
-          "id": "qj5pi2g1p85xp"
-        },
         "allOf": [
           {
             "type": "object",

@@ -49,9 +49,6 @@
                     "validate_uhttpd_cert"
                 ]
             },
-            "cgi-io": [
-                "upload"
-            ],
             "api": [
 				"/access_control/ssh/*",
 				"/access_control/cli/*",

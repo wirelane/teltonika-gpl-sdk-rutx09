@@ -1,83 +1,58 @@
 {
-	"network/lan": {
-		"description": "",
-		"read": {
-			"api": [
-				"/interfaces/*",
-				"/openvpn/config/*",
-				"/mobile/*",
-				"/system/device/status/*",
-				"/dhcp/servers/*",
-				"/firewall/zones/*",
-				"/wireless/interfaces/*",
-				"/interface_based_vlan/*",
-				"/network/devices/status/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/interfaces/*",
-				"/dhcp/servers/*"
-			]
-		}
-	},
-	"network/wan": {
-		"description": "",
-		"read": {
-			"api": [
-				"/interfaces/*",
-				"/openvpn/config/*",
-				"/mobile/*",
-				"/system/device/status/*",
-				"/dhcp/servers/*",
-				"/firewall/zones/*",
-				"/wireless/interfaces/*",
-				"/interface_based_vlan/*",
-				"/failover/interfaces/config/*",
-				"/failover/mode/config/globals/*",
-				"/network/devices/status/*",
-				"/data_limit/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/interfaces/*",
-				"/dhcp/servers/*",
-				"/data_limit/*"
-			]
-		}
-	},
-	"status/network/mobile": {
-		"description": "mobile network status",
-		"read": {
-			"api": [
-				"/modems/*",
-				"/data_limit/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/modems/*",
-				"/data_limit/*"
-			]
-		}
-	},
-	"status/network/lan": {
-		"description": "lan network status",
-		"read": {
-			"api": [
-				"/interfaces/status/*",
-				"/dhcp/leases/ipv4/status/*",
-				"/dhcp/static_leases/ipv4/config/*"
-			]
-		}
-	},
-	"status/wireless/interfaces": {
-		"description": "wireless network status",
-		"read": {
-			"api": [
-				"/wireless/*"
-			]
-		}
-	}
+  "network/lan": {
+    "description": "",
+    "read": {
+      "api": [
+        "/interfaces/*",
+        "/openvpn/config/*",
+        "/mobile/*",
+        "/system/device/status/*",
+        "/dhcp/servers/*",
+        "/firewall/zones/*",
+        "/wireless/interfaces/*",
+        "/interface_based_vlan/*",
+        "/network/devices/status/*"
+      ]
+    },
+    "write": {
+      "api": ["/interfaces/*", "/dhcp/servers/*"]
+    }
+  },
+  "network/wan": {
+    "description": "",
+    "read": {
+      "api": [
+        "/interfaces/*",
+        "/openvpn/config/*",
+        "/mobile/*",
+        "/system/device/status/*",
+        "/dhcp/servers/*",
+        "/firewall/zones/*",
+        "/wireless/interfaces/*",
+        "/interface_based_vlan/*",
+        "/failover/interfaces/config/*",
+        "/failover/mode/config/globals/*",
+        "/network/devices/status/*",
+        "/data_limit/*"
+      ]
+    },
+    "write": {
+      "api": ["/interfaces/*", "/dhcp/servers/*", "/data_limit/*"]
+    }
+  },
+  "status/network/mobile": {
+    "description": "mobile network status",
+    "read": {
+      "api": ["/modems/*", "/data_limit/*"]
+    },
+    "write": {
+      "api": ["/modems/*", "/data_limit/*"]
+    }
+  },
+  "status/wireless/interfaces": {
+    "description": "wireless network status",
+    "read": {
+      "api": ["/wireless/*"]
+    }
+  }
 }

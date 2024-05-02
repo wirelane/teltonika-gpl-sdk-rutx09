@@ -2307,9 +2307,6 @@
       },
       "network_interface_opts": {
         "title": "network_interface_opts",
-        "x-stoplight": {
-          "id": "ln0e69d706aoo"
-        },
         "type": "object",
         "properties": {
           "name": {
@@ -2504,7 +2501,7 @@
           },
           "netmask": {
             "x-web": {
-              "input-type": "select",
+              "input-type": "input",
               "pretty": "IPv4 netmask",
               "group": "General Settings",
               "depends": [
@@ -2528,11 +2525,6 @@
                 }
               ]
             },
-            "enum": [
-              "255.255.255.0",
-              "255.255.0.0",
-              "255.0.0.0"
-            ],
             "type": "string",
             "format": "ipv4",
             "description": "IPv4 netmask. Netmask defines how 'large' a network is"
@@ -2918,6 +2910,7 @@
                 "3-1": "Primary",
                 "1-1": "Primary",
                 "2-1": "Primary",
+                "2-1.1": "Primary",
                 "1-1.4": "Primary",
                 "1-1.2": "Secondary"
               },
@@ -2954,6 +2947,22 @@
                   },
                   "values": [
                     "2-1"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "modem2-1.1": true
+                  },
+                  "values": [
+                    "2-1.1"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "modem2-1.2": true
+                  },
+                  "values": [
+                    "2-1.2"
                   ]
                 },
                 {
@@ -3112,6 +3121,24 @@
               "0"
             ],
             "description": "Disable DHCP"
+          },
+          "framed_routing": {
+            "x-web": {
+              "input-type": "switch",
+              "pretty": "Enable framed routing",
+              "group": "Advanced Settings",
+              "modems": [
+                "RG500U-EA",
+                "RG500U-EB",
+                "RG501Q-EU",
+                "RG501Q-EA",
+                "RG520N-NA",
+                "RG520N-EU",
+                "RG520N-EB"
+              ]
+            },
+            "type": "string",
+            "description": "Enables framed routing on mobile interfaces"
           },
           "leasetime": {
             "x-web": {
@@ -3563,7 +3590,8 @@
               }
             },
             "type": "string",
-            "description": "IPv6 assignment length. Assign a part of given length of every public IPv6"
+            "description": "IPv6 assignment length. Assign a part of given length of every public IPv6",
+            "format": "irange(0, 64)"
           },
           "ip6hint": {
             "x-web": {
@@ -3821,7 +3849,8 @@
               }
             },
             "type": "string",
-            "description": "VLAN tag value."
+            "description": "VLAN tag value.",
+            "format": "irange(0, 4095)"
           },
           "priority": {
             "x-web": {
@@ -3839,7 +3868,8 @@
               }
             },
             "type": "string",
-            "description": "VLAN priority."
+            "description": "VLAN priority.",
+            "format": "irange(0, 7)"
           },
           "fwzone": {
             "x-web": {
@@ -3905,6 +3935,18 @@
             "type": "string",
             "description": "Management VLAN"
           },
+          "device": {
+            "x-web": {
+              "input-type": "input",
+              "pretty": "Device",
+              "hw_tags": {
+                "is_access_point": true,
+                "mesh_support": true
+              }
+            },
+            "type": "string",
+            "description": "Device that will be used on the interface."
+          },
           "vlan_id": {
             "type": "string",
             "description": "VLAN",
@@ -3920,9 +3962,6 @@
       },
       "network_interface_opts_without_area_type": {
         "title": "network_interface_opts",
-        "x-stoplight": {
-          "id": "ln0e69d706aoo"
-        },
         "type": "object",
         "properties": {
           "name": {
@@ -4076,7 +4115,7 @@
           },
           "netmask": {
             "x-web": {
-              "input-type": "select",
+              "input-type": "input",
               "pretty": "IPv4 netmask",
               "group": "General Settings",
               "depends": [
@@ -4091,11 +4130,6 @@
                 }
               ]
             },
-            "enum": [
-              "255.255.255.0",
-              "255.255.0.0",
-              "255.0.0.0"
-            ],
             "type": "string",
             "format": "ipv4",
             "description": "IPv4 netmask. Netmask defines how 'large' a network is"
@@ -4467,6 +4501,7 @@
                 "3-1": "Primary",
                 "1-1": "Primary",
                 "2-1": "Primary",
+                "2-1.1": "Primary",
                 "1-1.4": "Primary",
                 "1-1.2": "Secondary"
               },
@@ -4503,6 +4538,22 @@
                   },
                   "values": [
                     "2-1"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "modem2-1.1": true
+                  },
+                  "values": [
+                    "2-1.1"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "modem2-1.2": true
+                  },
+                  "values": [
+                    "2-1.2"
                   ]
                 },
                 {
@@ -4661,6 +4712,24 @@
               "0"
             ],
             "description": "Disable DHCP"
+          },
+          "framed_routing": {
+            "x-web": {
+              "input-type": "switch",
+              "pretty": "Enable framed routing",
+              "group": "Advanced Settings",
+              "modems": [
+                "RG500U-EA",
+                "RG500U-EB",
+                "RG501Q-EU",
+                "RG501Q-EA",
+                "RG520N-NA",
+                "RG520N-EU",
+                "RG520N-EB"
+              ]
+            },
+            "type": "string",
+            "description": "Enables framed routing on mobile interfaces"
           },
           "leasetime": {
             "x-web": {
@@ -5112,7 +5181,8 @@
               }
             },
             "type": "string",
-            "description": "IPv6 assignment length. Assign a part of given length of every public IPv6"
+            "description": "IPv6 assignment length. Assign a part of given length of every public IPv6",
+            "format": "irange(0, 64)"
           },
           "ip6hint": {
             "x-web": {
@@ -5370,7 +5440,8 @@
               }
             },
             "type": "string",
-            "description": "VLAN tag value."
+            "description": "VLAN tag value.",
+            "format": "irange(0, 4095)"
           },
           "priority": {
             "x-web": {
@@ -5388,7 +5459,8 @@
               }
             },
             "type": "string",
-            "description": "VLAN priority."
+            "description": "VLAN priority.",
+            "format": "irange(0, 7)"
           },
           "fwzone": {
             "x-web": {

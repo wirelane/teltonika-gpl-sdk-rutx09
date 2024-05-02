@@ -180,6 +180,34 @@
         ]
       }
     },
+    "/auto_reboot/ping_wget/options": {
+      "get": {
+        "summary": "Returns Ping/Wget Reboot options",
+        "tags": ["Ping/Wget Reboot"],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/ping_wget_options"
+          }
+        },
+        "description": ""
+      },
+      "x-web": {
+        "menu-depends": [
+          {
+            "hw_tags": {
+              "is_access_point": false
+            },
+            "values": ["System", "Maintenance", "Auto Reboot", "Ping/Wget Reboot"]
+          },
+          {
+            "hw_tags": {
+              "is_access_point": true
+            },
+            "values": ["System", "Auto Reboot", "Ping/Wget Reboot"]
+          }
+        ]
+      }
+    },
     "/auto_reboot/ping_wget/config": {
       "get": {
         "summary": "Returns all Ping/Wget Reboot configurations",
@@ -566,16 +594,31 @@
             "x-web": {
               "pretty": "Type",
               "input-type": "select",
+              "enum-depends": [
+                {
+                  "hw_tags": {
+                    "poe": true
+                  },
+                  "values": ["ping", "wget", "port"]
+                },
+                {
+                  "hw_tags": {
+                    "poe": false
+                  },
+                  "values": ["ping", "wget"]
+                }
+              ],
               "enum-pretty": {
                 "ping": "Ping",
-                "wget": "Wget"
+                "wget": "Wget",
+                "port": "Port"
               }
             }
           },
           "action": {
             "type": "string",
             "description": "Action that will be executed if there is no response after the specified amount of retries",
-            "enum": ["1", "2", "3", "4", "5", "6"],
+            "enum": ["1", "2", "3", "4", "5", "6", "7"],
             "x-web": {
               "pretty": "Action if no echo is received",
               "input-type": "select",
@@ -591,6 +634,24 @@
                     "mobile": false
                   },
                   "values": ["1", "3"]
+                },
+                {
+                  "hw_tags": {
+                    "poe": true
+                  },
+                  "depends": {
+                    "type": "port"
+                  },
+                  "values": ["3", "7"]
+                },
+                {
+                  "hw_tags": {
+                    "poe": true
+                  },
+                  "depends": {
+                    "type": ["ping", "wget"]
+                  },
+                  "values": ["1", "3"]
                 }
               ],
               "enum-pretty": {
@@ -599,7 +660,8 @@
                 "3": "None",
                 "4": "(Re)register",
                 "5": "Restart mobile connection",
-                "6": "Send SMS"
+                "6": "Send SMS",
+                "7": "Restart Port"
               },
               "unique": true
             }
@@ -705,7 +767,7 @@
           },
           "retry": {
             "type": "string",
-            "format": "irange(1, 9999)",
+            "format": "integer",
             "minimum": 1,
             "maximum": 9999,
             "description": "Number of failed to receive responses before selected action is executed. Range [1 - 9999]",
@@ -716,7 +778,7 @@
           },
           "time_out": {
             "type": "string",
-            "format": "irange(1, 9999)",
+            "format": "integer",
             "minimum": 1,
             "maximum": 9999,
             "description": "Time interval (in seconds) to wait for a response. Range [1 - 9999]",
@@ -727,7 +789,7 @@
           },
           "packet_size": {
             "type": "string",
-            "format": "irange(0, 1000)",
+            "format": "integer",
             "minimum": 0,
             "maximum": 1000,
             "description": "ICMP packet size in bytes.",
@@ -792,6 +854,27 @@
               ]
             }
           },
+          "ping_port_type": {
+            "type": "string",
+            "description": "Ping IP's by Port or by IP. E.g. ping_port, ping_ip",
+            "enum": ["ping_port", "ping_ip"],
+            "x-web": {
+              "hw_tags": {
+                "poe": true
+              },
+              "input-type": "select",
+              "pretty": "Ping by",
+              "enum-pretty": {
+                "ping_port": "Port",
+                "ping_ip": "IP"
+              },
+              "depends": [
+                {
+                  "type": "port"
+                }
+              ]
+            }
+          },
           "host": {
             "type": "string",
             "description": "Hostname or IP address to which the ping requests will be sent. E.g. 1.1.1.1 (or www.host.com if DNS server is configured correctly)",
@@ -803,6 +886,28 @@
                 {
                   "type": "ping",
                   "interface": "1"
+                },
+                {
+                  "type": "port",
+                  "ping_port_type": "ping_ip"
+                }
+              ],
+              "unique": true
+            }
+          },
+          "port_host": {
+            "type": "string",
+            "description": "Port to which IP addresses the ping requests will be sent and the amount of IP's to ping. E.g. port1=2",
+            "x-web": {
+              "hw_tags": {
+                "poe": true
+              },
+              "pretty": "Port to ping",
+              "input-type": "input",
+              "depends": [
+                {
+                  "type": "port",
+                  "ping_port_type": "ping_port"
                 }
               ],
               "unique": true
@@ -919,6 +1024,7 @@
           "data": {
             "type": "array",
             "uniqueItems": true,
+            "minItems": 1,
             "items": {
               "allOf": [
                 {
@@ -927,13 +1033,13 @@
                     "id": {
                       "type": "string"
                     }
-                  }
+                  },
+                  "required": ["id"]
                 },
                 {
                   "$ref": "#/components/schemas/ping_reboot"
                 }
-              ],
-              "required": ["id"]
+              ]
             }
           }
         },
@@ -1105,6 +1211,35 @@
                         "$ref": "#/components/schemas/ping_reboot"
                       }
                     ]
+                  }
+                }
+              },
+              "required": ["success", "data"]
+            }
+          }
+        }
+      },
+      "ping_wget_options": {
+        "description": "",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "available_ports": {
+                      "description": "A list of available device port identifiers.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               },

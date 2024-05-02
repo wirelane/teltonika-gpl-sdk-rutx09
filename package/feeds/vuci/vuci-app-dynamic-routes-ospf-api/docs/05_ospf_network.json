@@ -299,9 +299,6 @@
       },
       "ospf_network_options_multi": {
         "title": "ospf_network_options_multi",
-        "x-stoplight": {
-          "id": "hkaj7o7d6g0gs"
-        },
         "allOf": [
           {
             "type": "object",

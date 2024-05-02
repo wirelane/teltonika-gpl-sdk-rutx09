@@ -1,0 +1,11 @@
+{
+  "network/internet_status": {
+    "description": "Internet status configuration",
+    "read": {
+      "api": ["/internet_connection/*"]
+    },
+    "write": {
+      "api": ["/internet_connection/*"]
+    }
+  }
+}

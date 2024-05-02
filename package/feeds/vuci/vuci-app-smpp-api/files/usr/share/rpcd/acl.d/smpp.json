@@ -4,7 +4,7 @@
 		"description": "smpp configuration",
 		"read": {
 			"uci": ["smpp"],
-			"api": ["/smpp/*", "/modems/status_basic/*"]
+			"api": ["/smpp/*", "/modems/status/*"]
 		},
 		"write": {
 			"uci": ["smpp"],

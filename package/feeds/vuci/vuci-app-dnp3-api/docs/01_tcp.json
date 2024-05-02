@@ -451,6 +451,7 @@
             "type": "string",
             "description": "Period for sending data requests",
             "format": "irange(1, 60)",
+            "default": "60",
             "x-web": {
               "pretty": "Period",
               "input-type": "input"

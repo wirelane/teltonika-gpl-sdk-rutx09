@@ -5,7 +5,7 @@
 			"api": [
 				"/azure_iot_hub/*",
 				"/interfaces/*",
-				"/modems/status_basic/*"
+				"/modems/status/*"
 			]
 		},
 		"write": {

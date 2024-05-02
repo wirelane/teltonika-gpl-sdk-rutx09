@@ -35,7 +35,7 @@
       },
       "put": {
         "tags": ["Themes"],
-        "summary": "Deletes specified Hotspot theme images",
+        "summary": "Updates specified Hotspot theme images",
         "responses": {
           "200": {
             "$ref": "#/components/responses/200ThemeImagesGETMulti"

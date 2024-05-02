@@ -51,7 +51,7 @@
       "api": [
         "/snmp/trap/*",
         "/io/*",
-        "/modems/status_basic/*",
+        "/modems/status/*",
         "/events_reporting/options/*"
       ]
     },

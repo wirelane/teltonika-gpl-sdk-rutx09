@@ -6,7 +6,8 @@
         "/system/config/*",
         "/system/led/config/*",
         "/system/buttons/config/*",
-        "/package_manager/language_packages/*"
+        "/package_manager/language_packages/*",
+        "/system/languages/*"
       ],
       "uci": [
         "system",

@@ -252,7 +252,8 @@
           "Mobile"
         ],
         "hw_tags": {
-          "mobile": true
+          "mobile": true,
+          "modem_low_power": false
         }
       }
     },
@@ -403,7 +404,8 @@
           "Mobile"
         ],
         "hw_tags": {
-          "mobile": true
+          "mobile": true,
+          "modem_low_power": false
         }
       }
     },
@@ -556,7 +558,7 @@
         "tags": [
           "SIM configuration"
         ],
-        "summary": "Updates multiple SIM card configurations",
+        "summary": "Updates specified SIM card configuration",
         "responses": {
           "200": {
             "description": "OK",
@@ -729,7 +731,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -770,7 +777,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -932,7 +944,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1063,7 +1080,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1105,7 +1127,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1175,7 +1202,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1231,18 +1263,6 @@
           "SIM configuration"
         ],
         "summary": "Returns multiple modem SIM card configurations",
-        "description": "",
-        "parameters": [
-          {
-            "name": "modem_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Modem ID"
-          }
-        ],
         "operationId": "mobile10",
         "responses": {
           "200": {
@@ -1331,7 +1351,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1436,7 +1461,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1445,7 +1475,12 @@
         },
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/simcard_select"
+              }
+            }
           },
           "name": "sim_id",
           "in": "path",
@@ -1458,7 +1493,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1514,7 +1554,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -1566,9 +1611,9 @@
         }
       }
     },
-    "/modems/countries": {
+    "/modems/countries/status": {
       "get": {
-        "summary": "Returns multiple APN MCCs and countries",
+        "summary": "Returns MCC and country values",
         "tags": [
           "Modem status"
         ],
@@ -1587,9 +1632,102 @@
         ],
         "hw_tags": {
           "mobile": true
+        }
+      }
+    },
+    "/dfota/config": {
+      "get": {
+        "summary": "Returns multiple DFOTA configurations",
+        "tags": [
+          "DFOTA configuration"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/dfota200_multi"
+          }
         },
-        "hidden": true,
-        "hidden_documentation_page": true
+        "operationId": "get-mobile-dfota-config"
+      },
+      "put": {
+        "summary": "Updates multiple DFOTA configurations",
+        "tags": [
+          "DFOTA configuration"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/dfota_multi"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/dfota200_multi"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Network",
+          "Mobile",
+          "Mobile"
+        ],
+        "hw_tags": {
+          "mobile": true
+        },
+        "name": "DFOTA"
+      }
+    },
+    "/dfota/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Configuration ID"
+        }
+      ],
+      "get": {
+        "summary": "Returns DFOTA configuration",
+        "tags": [
+          "DFOTA configuration"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/dfota200"
+          }
+        },
+        "operationId": "get-mobile-dfota-config"
+      },
+      "put": {
+        "summary": "Updates DFOTA configuration",
+        "tags": [
+          "DFOTA configuration"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/dfota_single"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/dfota200"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Network",
+          "Mobile",
+          "Mobile"
+        ],
+        "hw_tags": {
+          "mobile": true
+        },
+        "name": "DFOTA"
       }
     }
   },
@@ -3210,7 +3348,7 @@
           },
           "enable_sms_limit": {
             "type": "string",
-            "description": "Enable SMS limit",
+            "description": "Disables SMS sending when the limit for the current period is reached",
             "enum": [
               "0",
               "1"
@@ -3235,7 +3373,7 @@
           },
           "sms_limit": {
             "type": "string",
-            "description": "Period for which SMS limiting should apply (day, week or month)",
+            "description": "Interval for resetting SMS limit (day, week or month)",
             "enum": [
               "day",
               "week",
@@ -3258,7 +3396,7 @@
           },
           "period": {
             "type": "string",
-            "description": "Start day/weekday/hour. A starting day/weekday/hour for mobile data limiting period",
+            "description": "Start day/weekday/hour. Specify the day/weekday/hour (in 24-hour format) when the SMS limit reset occurs",
             "x-web": {
               "pretty": "Start limiting",
               "input-type": "input",
@@ -4952,7 +5090,7 @@
           },
           "enable_sms_limit": {
             "type": "string",
-            "description": "Enable SMS limit",
+            "description": "Disables SMS sending when the limit for the current period is reached",
             "enum": [
               "0",
               "1"
@@ -4977,7 +5115,7 @@
           },
           "sms_limit": {
             "type": "string",
-            "description": "Period for which SMS limiting should apply (day, week or month)",
+            "description": "Interval for resetting SMS limit (day, week or month)",
             "enum": [
               "day",
               "week",
@@ -5000,7 +5138,7 @@
           },
           "period": {
             "type": "string",
-            "description": "Start day/weekday/hour. A starting day/weekday/hour for mobile data limiting period",
+            "description": "Start day/weekday/hour. Specify the day/weekday/hour (in 24-hour format) when the SMS limit reset occurs",
             "x-web": {
               "pretty": "Start limiting",
               "input-type": "input",
@@ -5300,6 +5438,24 @@
             "description": "SMS limit count"
           }
         }
+      },
+      "dfota": {
+        "type": "object",
+        "properties": {
+          "notify": {
+            "type": "string",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "default": "1",
+            "description": "Enable WebUI DFOTA update notification",
+            "x-web": {
+              "pretty": "Enable WebUI DFOTA notifications",
+              "input-type": "switch"
+            }
+          }
+        }
       }
     },
     "responses": {
@@ -5512,6 +5668,133 @@
                   "description": "Operation status"
                 }
               }
+            }
+          }
+        }
+      },
+      "dfota200": {
+        "description": "Returns DFOTA global configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/dfota"
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Configuration ID",
+                          "x-web": {
+                            "pretty": "Configuration ID",
+                            "input-type": "input"
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "dfota200_multi": {
+        "description": "Returns DFOTA global configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/dfota"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Configuration ID",
+                            "x-web": {
+                              "pretty": "Configuration ID",
+                              "input-type": "input"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "dfota_multi": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/dfota"
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Configuration ID",
+                            "x-web": {
+                              "pretty": "Configuration ID",
+                              "input-type": "input"
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              "required": ["data"]
+            }
+          }
+        }
+      },
+      "dfota_single": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/components/schemas/dfota"
+                }
+              },
+              "required": ["data"]
             }
           }
         }

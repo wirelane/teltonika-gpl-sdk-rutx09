@@ -317,6 +317,7 @@
           "vid": {
             "type": "string",
             "description": "802.1 tag",
+            "format": "irange(1, 4094)",
             "x-web": {
               "pretty": "Tag",
               "input-type": "input"
@@ -355,6 +356,7 @@
           "vid": {
             "type": "string",
             "description": "802.1 tag",
+            "format": "irange(1, 4094)",
             "x-web": {
               "pretty": "Tag",
               "input-type": "input"
@@ -399,6 +401,7 @@
           "vid": {
             "type": "string",
             "description": "802.1 tag",
+            "format": "irange(1, 4094)",
             "x-web": {
               "pretty": "802.1 tag",
               "input-type": "input"

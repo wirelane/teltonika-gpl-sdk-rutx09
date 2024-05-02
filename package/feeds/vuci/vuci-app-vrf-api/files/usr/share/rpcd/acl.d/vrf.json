@@ -1,0 +1,11 @@
+{
+  "network/vrf": {
+    "description": "vrf configuration",
+    "read": {
+      "api": ["/vrf/*", "/network/devices/status/*"]
+    },
+    "write": {
+      "api": ["/vrf/*"]
+    }
+  }
+}

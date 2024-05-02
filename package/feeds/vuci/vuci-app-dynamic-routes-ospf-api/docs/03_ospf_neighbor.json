@@ -63,7 +63,7 @@
                     "type": "array",
                     "description": "Array of section objects",
                     "items": {
-                      "$ref": "#/components/schemas/ospf_neighbor_options"
+                      "$ref": "#/components/schemas/ospf_neighbor_options_multi"
                     }
                   }
                 }
@@ -309,9 +309,6 @@
       },
       "ospf_neighbor_options_multi": {
         "title": "ospf_neighbor_options_multi",
-        "x-stoplight": {
-          "id": "87aj9nvgyc2ro"
-        },
         "allOf": [
           {
             "type": "object",

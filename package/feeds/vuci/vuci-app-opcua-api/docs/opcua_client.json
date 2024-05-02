@@ -1,0 +1,106 @@
+{
+  "openapi": "3.0.0",
+  "tags": [
+    {
+      "name": "OPC UA Client Global Settings"
+    }
+  ],
+  "paths": {
+    "/opcua/global": {
+      "get": {
+        "tags": [
+          "OPC UA Client Global Settings"
+        ],
+        "summary": "Returns all OPC UA Client Global Settings configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200opcuaGlobal"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "OPC UA Client Global Settings"
+        ],
+        "summary": "Updates specified OPC UA Client Global Settings configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200opcuaGlobal"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/opcua_global_single_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "x-web": {
+        "menu": [
+          "Services",
+          "OPC UA",
+          "OPC UA"
+        ],
+        "hw_tags": {
+          "is_access_point": false,
+          "is_switch": false
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "200opcuaGlobal": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/opcua_global_single_options"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "opcua_global_single_options": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Enables/disables OPC UA client functionality,",
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            },
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

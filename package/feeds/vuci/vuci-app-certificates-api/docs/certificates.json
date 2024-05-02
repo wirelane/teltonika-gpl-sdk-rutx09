@@ -21,7 +21,19 @@
         "summary": "Uploads certificate",
         "responses": {
           "200": {
-            "$ref": "#/components/responses/file_response"
+            "description": "Returns success when certificate is successfully uploaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
           },
           "422": {
             "$ref": "#/components/responses/422response"
@@ -523,6 +535,10 @@
             "type": "string",
             "description": "Name of generated certificate."
           },
+          "host": {
+            "type": "string",
+            "description": "Certificate's alt hostname"
+          },
           "cert_type": {
             "type": "string",
             "description": "Certificate type.",
@@ -564,6 +580,14 @@
             "type": "string",
             "description": "Type of file to be generated Select option 'Simple' to generate ca, server & client certificates & keys.",
             "enum": ["ca", "client", "server", "simple", "dh"]
+          },
+          "host": {
+            "x-web": {
+              "pretty": "Host address",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Certificate's alt hostname"
           },
           "days": {
             "x-web": {
@@ -681,6 +705,14 @@
             },
             "type": "string",
             "description": "Common name and file name of the certificate."
+          },
+          "host": {
+            "x-web": {
+              "pretty": "Host address",
+              "input-type": "input"
+            },
+            "type": "string",
+            "description": "Certificate's alt hostname"
           },
           "req_file": {
             "x-web": {

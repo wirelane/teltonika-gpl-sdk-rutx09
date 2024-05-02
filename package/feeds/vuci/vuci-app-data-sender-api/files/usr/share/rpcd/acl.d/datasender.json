@@ -6,7 +6,7 @@
 				"/data_to_server/*",
 				"/certificates/config/*",
 				"/sim_cards/config/*",
-				"/modems/status_basic/*",
+				"/modems/status/*",
 				"/io/*",
 				"/ulog/available_interfaces/*",
 				"/events_reporting/options/*"

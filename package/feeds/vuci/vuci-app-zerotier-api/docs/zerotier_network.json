@@ -8,6 +8,9 @@
           "201": {
             "$ref": "#/components/responses/200ZerotierNetwork"
           },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
           "422": {
             "$ref": "#/components/responses/422response"
           }

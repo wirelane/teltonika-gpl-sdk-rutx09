@@ -8,6 +8,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200NhMaMulti"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "parameters": [
@@ -341,9 +344,6 @@
       },
       "nhrp_mapping_options_multi": {
         "title": "nhrp_mapping_options_multi",
-        "x-stoplight": {
-          "id": "c805x90wxfs0m"
-        },
         "allOf": [
           {
             "type": "object",

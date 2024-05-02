@@ -6,6 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=api-core
 PKG_RELEASE:=1
+PKG_LICENSE:=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -17,7 +18,7 @@ define Package/api-core
   DEPENDS:=+rpcd +WIFI_SUPPORT:rpcd-mod-iwinfo +rpcd-mod-file +rpcd-mod-rpcsys +uhttpd \
 		+uhttpd-mod-ubus +lua +libubox-lua +libubus-lua \
 		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
-		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto \
+		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto +lua_extra_validators \
 		+libubus +luasocket +lsqlite3 +lrexlib
 endef
 
@@ -38,7 +39,7 @@ endef
 ifndef CONFIG_GPL_INCLUDE_WEB_SOURCES
 ifeq ("$(wildcard $(PKG_BUILD_DIR)/files)","")
 GPL_FILES_DIR := ./files
-else	
+else
 GPL_FILES_DIR := $(PKG_BUILD_DIR)/files
 endif
 else
@@ -130,14 +131,14 @@ define Package/api-core/install
 	$(if $(or $(CONFIG_IO_SUPPORT),\
 	     $(CONFIG_GPS_SUPPORT),\
 	     $(CONFIG_MOBILE_UTILS_SUPPORT),\
-	     $(CONFIG_SERIAL),\
+	     $(CONFIG_SERIAL_SUPPORT),\
 	     $(CONFIG_SNMP_SUPPORT)),,\
 		$(RM) $(1)/usr/lib/lua/vuci/io.lua; \
 	)
 	$(if $(CONFIG_IO_MODBUS_SUPPORT),,\
 		$(RM) $(1)/usr/lib/lua/vuci/modbus_utils.lua; \
 	)
-	$(if $(or $(CONFIG_SERIAL),\
+	$(if $(or $(CONFIG_SERIAL_SUPPORT),\
 	     $(CONFIG_IO_MODBUS_SUPPORT),\
 	     $(CONFIG_NTRIP_SUPPORT),\
 	     $(CONFIG_MBUS),\

@@ -63,9 +63,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/auto_reply"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           }
         },
         "description": ""
@@ -76,9 +73,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/auto_reply"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"
@@ -189,7 +183,7 @@
             "description": "A recipient's phone number users group",
             "x-web": {
               "pretty": "Phone group",
-              "input-type": "input",
+              "input-type": "select",
               "depends": [
                 {
                   "mode": "user_group"
@@ -200,10 +194,14 @@
           "msg": {
             "type": "string",
             "description": "Message to be sent",
-            "maxLength": 459,
             "x-web": {
               "pretty": "Message text",
-              "input-type": "input"
+              "input-type": "select",
+              "depends": [
+                {
+                  "enabled": "1"
+                }
+              ]
             }
           }
         }

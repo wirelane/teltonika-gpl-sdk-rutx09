@@ -11,72 +11,6 @@
     }
   ],
   "paths": {
-    "/modems/status_basic": {
-      "get": {
-        "summary": "Returns basic status for multiple modems",
-        "tags": [
-          "Modem status"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/mobile_status_basic_multiple"
-          }
-        },
-        "operationId": "get-network-mobile-modems-status_basic"
-      },
-      "x-web": {
-        "menu": [
-          "Network",
-          "Mobile",
-          "Mobile"
-        ],
-        "hw_tags": {
-          "mobile": true
-        },
-        "hidden": true,
-        "hidden_documentation_page": true
-      }
-    },
-    "/modems/status_basic/{id}": {
-      "parameters": [
-        {
-          "schema": {
-            "type": "string"
-          },
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "description": "Modem ID"
-        }
-      ],
-      "get": {
-        "summary": "Returns basic status for specfied modem",
-        "tags": [
-          "Modem status"
-        ],
-        "responses": {
-          "200": {
-            "$ref": "#/components/responses/mobile_status_basic_one"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
-          }
-        },
-        "operationId": "get-network-mobile-modems-status_basic-id"
-      },
-      "x-web": {
-        "menu": [
-          "Network",
-          "Mobile",
-          "Mobile"
-        ],
-        "hw_tags": {
-          "mobile": true
-        },
-        "hidden": true,
-        "hidden_documentation_page": true
-      }
-    },
     "/modems/status": {
       "get": {
         "summary": "Returns full status for multiple modems",
@@ -105,7 +39,12 @@
       "parameters": [
         {
           "schema": {
-            "type": "string"
+            "type": "string",
+            "x-web": {
+              "enum-depends": {
+                "$ref": "#/x-schemas/modem_select"
+              }
+            }
           },
           "name": "id",
           "in": "path",
@@ -142,8 +81,8 @@
   },
   "components": {
     "schemas": {
-      "status_basic": {
-        "title": "status_basic",
+      "status_full": {
+        "title": "status_full",
         "type": "object",
         "properties": {
           "id": {
@@ -171,6 +110,9 @@
                 "type": "string"
               },
               "lac": {
+                "type": "string"
+              },
+              "tac": {
                 "type": "string"
               },
               "pcid": {
@@ -241,6 +183,10 @@
             "type": "string",
             "description": "The Location Area Code is a unique number given to each location area within the network. The served area of a cellular radio access network is usually divided into location areas, consisting of one or several radio cells."
           },
+          "tac": {
+            "type": "string",
+            "description": "The Tracking Area Code is a unique number given to each location area within the network. The served area of a cellular radio access network is usually divided into location areas, consisting of one or several radio cells."
+          },
           "name": {
             "type": "string",
             "enum": [
@@ -251,36 +197,6 @@
               "Unknown modem"
             ]
           },
-          "ca_signal": {
-            "type": "array",
-            "description": "Carrier aggregation signal values",
-            "items": {
-              "type": "object",
-              "properties": {
-                "band": {
-                  "type": "string"
-                },
-                "bandwidth": {
-                  "type": "string"
-                },
-                "sinr": {
-                  "type": "number"
-                },
-                "rsrq": {
-                  "type": "number"
-                },
-                "rsrp": {
-                  "type": "number"
-                },
-                "pcid": {
-                  "type": "number"
-                },
-                "frequency": {
-                  "type": "string"
-                }
-              }
-            }
-          },
           "index": {
             "type": "number"
           },
@@ -288,6 +204,9 @@
             "type": "number"
           },
           "version": {
+            "type": "string"
+          },
+          "manufacturer": {
             "type": "string"
           },
           "builtin": {
@@ -314,25 +233,22 @@
           "volte_supported": {
             "type": "boolean"
           },
+          "auto_3g_bands": {
+            "type": "boolean"
+          },
           "operators_scan": {
             "type": "boolean"
-          }
-        },
-        "required": [
-          "imei",
-          "model",
-          "active_sim",
-          "name",
-          "sim_count",
-          "version",
-          "builtin",
-          "primary"
-        ]
-      },
-      "status_full": {
-        "title": "status_full",
-        "type": "object",
-        "properties": {
+          },
+          "mobile_dfota": {
+            "type": "boolean"
+          },
+          "framed_routing": {
+            "type": "boolean"
+          },
+          "active_sim": {
+            "type": "number",
+            "description": "Currently active SIM card."
+          },
           "conntype": {
             "type": "string"
           },
@@ -350,7 +266,7 @@
               1
             ]
           },
-          "state": {
+          "data_conn_state": {
             "type": "string",
             "enum": [
               "Connected",
@@ -358,7 +274,26 @@
               "Unknown"
             ]
           },
+          "state": {
+            "deprecated": true,
+            "type": "string",
+            "enum": [
+              "Connected",
+              "Disconnected",
+              "Unknown"
+            ]
+          },
+          "data_conn_state_id": {
+            "type": "number",
+            "minLength": 1,
+            "enum": [
+              0,
+              1,
+              2
+            ]
+          },
           "state_id": {
+            "deprecated": true,
             "type": "number",
             "minLength": 1,
             "enum": [
@@ -378,10 +313,6 @@
           },
           "is_busy": {
             "type": "number"
-          },
-          "active_sim": {
-            "type": "number",
-            "description": "Currently active SIM card."
           },
           "data_off": {
             "type": "boolean",
@@ -421,7 +352,7 @@
               15
             ]
           },
-          "netstate": {
+          "operator_state": {
             "type": "string",
             "enum": [
               "Not registered",
@@ -432,7 +363,19 @@
               "Roaming"
             ]
           },
-          "netstate_id": {
+          "netstate": {
+            "deprecated": true,
+            "type": "string",
+            "enum": [
+              "Not registered",
+              "Registered, home",
+              "Searching",
+              "Denied",
+              "Unknown",
+              "Roaming"
+            ]
+          },
+          "operator_state_id": {
             "type": "number",
             "minLength": 1,
             "enum": [
@@ -444,10 +387,31 @@
               5
             ]
           },
-          "signal": {
+          "netstate_id": {
+            "deprecated": true,
+            "type": "number",
+            "minLength": 1,
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          },
+          "rssi": {
             "type": "number"
           },
+          "signal": {
+            "deprecated": true,
+            "type": "number"
+          },
+          "operator": {
+            "type": "string"
+          },
           "oper": {
+            "deprecated": true,
             "type": "string"
           },
           "provider": {
@@ -578,33 +542,7 @@
               }
             }
           }
-        },
-        "required": [
-          "pinstate",
-          "state",
-          "txbytes",
-          "rxbytes",
-          "baudrate",
-          "is_busy",
-          "busy_state",
-          "busy_state_id",
-          "simstate",
-          "netstate",
-          "signal",
-          "oper",
-          "provider",
-          "ntype",
-          "imsi",
-          "iccid",
-          "cellid",
-          "rscp",
-          "ecio",
-          "rsrp",
-          "rsrq",
-          "sinr",
-          "pinleft",
-          "volte"
-        ]
+        }
       },
       "status_offline": {
         "title": "status_offline",
@@ -675,71 +613,10 @@
           "volte": {
             "type": "boolean"
           }
-        },
-        "required": [
-          "id",
-          "name",
-          "offline",
-          "builtin",
-          "primary",
-          "sim_count",
-          "mode",
-          "multi_apn",
-          "operators_scan",
-          "dynamic_mtu",
-          "ipv6",
-          "volte"
-        ]
+        }
       }
     },
     "responses": {
-      "mobile_status_basic_one": {
-        "description": "Example response",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/status_basic"
-                    },
-                    {
-                      "$ref": "#/components/schemas/status_offline"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      },
-      "mobile_status_basic_multiple": {
-        "description": "Example response",
-        "content": {
-          "application/json": {
-            "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
-                  "items": {
-                    "anyOf": [
-                      {
-                        "$ref": "#/components/schemas/status_basic"
-                      },
-                      {
-                        "$ref": "#/components/schemas/status_offline"
-                      }
-                    ]
-                  },
-                  "type": "array"
-                }
-              }
-            }
-          }
-        }
-      },
       "mobile_status_full_multiple": {
         "description": "Example response",
         "content": {
@@ -751,14 +628,7 @@
                   "items": {
                     "anyOf": [
                       {
-                        "allOf": [
-                          {
-                            "$ref": "#/components/schemas/status_basic"
-                          },
-                          {
-                            "$ref": "#/components/schemas/status_full"
-                          }
-                        ]
+                        "$ref": "#/components/schemas/status_full"
                       },
                       {
                         "$ref": "#/components/schemas/status_offline"
@@ -782,14 +652,7 @@
                 "data": {
                   "anyOf": [
                     {
-                      "allOf": [
-                        {
-                          "$ref": "#/components/schemas/status_basic"
-                        },
-                        {
-                          "$ref": "#/components/schemas/status_full"
-                        }
-                      ]
+                      "$ref": "#/components/schemas/status_full"
                     },
                     {
                       "$ref": "#/components/schemas/status_offline"

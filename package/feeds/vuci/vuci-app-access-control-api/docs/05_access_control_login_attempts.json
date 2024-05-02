@@ -14,7 +14,54 @@
           "200": {
             "$ref": "#/components/responses/200_login_attempts"
           }
-        }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Limit number of items returned"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number"
+            },
+            "description": "Number of items to skip from the beginning"
+          },
+          {
+            "name": "sortby",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Field to sort by. One of the following values [id, ip, mac, destination_ip, port, proto, counter, iteration_count, blocked_time]"
+          },
+          {
+            "name": "orderby",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Specify sorting order. One of the following values [asc, desc]"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search in every field"
+          }
+        ]
       },
       "delete": {
         "summary": "Deletes specified login attempts",
@@ -274,6 +321,22 @@
             "readOnly": true,
             "type": "string",
             "description": "Protocol"
+          },
+          "iteration_count": {
+            "x-web": {
+              "pretty": "Iteration count"
+            },
+            "readOnly": true,
+            "type": "string",
+            "description": "Iteration count for time based blocking"
+          },
+          "blocked_time": {
+            "x-web": {
+              "pretty": "Blocked time"
+            },
+            "readOnly": true,
+            "type": "string",
+            "description": "Unix timestamp of when the blocking happened"
           }
         }
       }

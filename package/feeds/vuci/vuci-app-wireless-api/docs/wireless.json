@@ -143,7 +143,7 @@
             "schema": {
               "type": "string"
             },
-            "description": "The ID of the wireless interface configuration"
+            "description": "The ID of the wireless device configuration"
           }
         ],
         "operationId": "get-network-wireless-devices-id"
@@ -1767,10 +1767,164 @@
         }
       }
     },
+    "/wireless/actions/reconnect": {
+      "parameters": [],
+      "post": {
+        "summary": "Sends a signal to try to reconnect to wireless AP",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sta_action_options"
+              },
+              "required": ["sta_id"]
+            }
+          }
+        },
+        "tags": ["General"]
+      },
+      "x-web": {
+        "menu": ["Network", "Wireless", "SSIDs"],
+        "hw_tags": {
+          "wifi": true,
+          "is_access_point": false
+        }
+      }          
+    },
+    "/wireless/actions/disconnect": {
+      "parameters": [],
+      "post": {
+        "summary": "Sends a signal to disconnect from wireless AP",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "description": "",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sta_action_options"
+              },
+              "required": ["sta_id"]
+            }
+          }
+        },
+        "tags": ["General"]
+      },
+      "x-web": {
+        "menu": ["Network", "Wireless", "SSIDs"],
+        "hw_tags": {
+          "wifi": true,
+          "is_access_point": false
+        }
+      }          
+    },
     "/wireless/devices/status": {
       "get": {
         "tags": ["Devices"],
         "summary": "Returns wireless device statuses",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status."
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/wireless_device_status"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-wireless-dev-status-basic",
+        "description": ""
+      },
+      "parameters": [],
+      "x-web": {
+        "menu": ["Network", "Wireless", "Radio"],
+        "hw_tags": {
+          "wifi": true
+        }
+      }
+    },
+    "/wireless/devices/status/{id}": {
+      "get": {
+        "tags": ["Devices"],
+        "summary": "Returns wireless device status",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/wireless_device_status"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "operationId": "get-wireless-dev-status-basic-id",
+        "description": ""
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the wireless device configuration ('radio0', 'radio1' ...)"
+        }
+      ],
+      "x-web": {
+        "menu": ["Network", "Wireless", "Radio"],
+        "hw_tags": {
+          "wifi": true
+        }
+      }
+    },
+    "/wireless/devices/basic/status": {
+      "get": {
+        "tags": ["Devices"],
+        "summary": "Returns basic wireless device statuses",
         "responses": {
           "200": {
             "description": "OK",
@@ -1803,13 +1957,15 @@
         "menu": ["Network", "Wireless", "Radio"],
         "hw_tags": {
           "wifi": true
-        }
+        },
+        "hidden": true,
+        "hidden_documentation_page": true
       }
     },
-    "/wireless/devices/status/{id}": {
+    "/wireless/devices/basic/status/{id}": {
       "get": {
         "tags": ["Devices"],
-        "summary": "Returns wireless device status",
+        "summary": "Returns basic wireless device status",
         "responses": {
           "200": {
             "description": "OK",
@@ -1852,7 +2008,9 @@
         "menu": ["Network", "Wireless", "Radio"],
         "hw_tags": {
           "wifi": true
-        }
+        },
+        "hidden": true,
+        "hidden_documentation_page": true
       }
     },
     "/wireless/devices/options": {
@@ -2231,42 +2389,7 @@
       }
     },
     "/wireless/interfaces/status": {
-      "parameters": [
-        {
-          "schema": {
-            "type": "string"
-          },
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "description": "Wireless device name",
-          "x-web": {
-            "pretty": "Wireless device",
-            "enum-depends": [
-              {
-                "hw_tags": {
-                  "wifi": true,
-                  "wifi5Ghz": true,
-                  "is_access_point": false
-                },
-                "values": ["radio0", "radio1"]
-              },
-              {
-                "hw_tags": {
-                  "wifi": true,
-                  "wifi5Ghz": false,
-                  "is_access_point": false
-                },
-                "values": ["radio0"]
-              }
-            ],
-            "enum-pretty": {
-              "radio0": "2.4 GHz",
-              "radio1": "5 GHz"
-            }
-          }
-        }
-      ],
+      "parameters": [],
       "get": {
         "summary": "Returns wireless interfaces status",
         "tags": ["Interfaces"],
@@ -2313,41 +2436,10 @@
           "name": "id",
           "in": "path",
           "required": true,
-          "description": "Wireless device name",
+          "description": "The ID of the wireless interface configuration",
           "x-web": {
-            "pretty": "Wireless device",
-            "enum-depends": [
-              {
-                "hw_tags": {
-                  "wifi": true,
-                  "wifi5Ghz": true,
-                  "is_access_point": false
-                },
-                "values": ["radio0", "radio1"]
-              },
-              {
-                "hw_tags": {
-                  "wifi": true,
-                  "wifi5Ghz": false,
-                  "is_access_point": false
-                },
-                "values": ["radio0"]
-              }
-            ],
-            "enum-pretty": {
-              "radio0": "2.4 GHz",
-              "radio1": "5 GHz"
-            }
+            "pretty": "Wireless interface"
           }
-        },
-        {
-          "schema": {
-            "type": "string"
-          },
-          "name": "id_interface",
-          "in": "path",
-          "required": true,
-          "description": "Wireless interface name"
         }
       ],
       "get": {
@@ -2385,6 +2477,101 @@
           "wifi": true,
           "is_access_point": false
         }
+      }
+    },
+    "/wireless/interfaces/basic/status": {
+      "parameters": [],
+      "get": {
+        "summary": "Returns basic wireless interfaces status",
+        "tags": ["Interfaces"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status."
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/wireless_interface_status_basic"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-network-wireless-devices-dev_cfg-interfaces-status"
+      },
+      "x-web": {
+        "menu": ["Network", "Wireless", "SSIDs"],
+        "hw_tags": {
+          "wifi": true,
+          "is_access_point": false
+        },
+        "hidden": true,
+        "hidden_documentation_page": true
+      }
+    },
+    "/wireless/interfaces/basic/status/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "The ID of the wireless interface configuration",
+          "x-web": {
+            "pretty": "Wireless interface"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Returns basic wireless interface status",
+        "tags": ["Interfaces"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "description": "Operation status."
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/wireless_interface_status_basic"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "operationId": "get-network-wireless-devices-dev_cfg-interfaces-status-id"
+      },
+      "x-web": {
+        "menu": ["Network", "Wireless", "SSIDs"],
+        "hw_tags": {
+          "wifi": true,
+          "is_access_point": false
+        },
+        "hidden": true,
+        "hidden_documentation_page": true
       }
     }
   },
@@ -2487,7 +2674,7 @@
           "hwmode": {
             "type": "string",
             "description": "Mode. Selects the wireless protocol to use. Available values depending on the wireless device: '' - Legacy, 'n' - N, 'ac' - AC",
-            "enum": ["", "n", "ac"],
+            "enum": ["", "n", "ac", "ax"],
             "x-web": {
               "pretty": "Mode",
               "group": "General Setup",
@@ -2495,20 +2682,45 @@
               "enum-pretty": {
                 "": "Legacy",
                 "n": "N",
-                "ac": "AC"
+                "ac": "AC",
+                "ax": "AX"
               },
               "enum-depends": [
                 {
                   "query-depends": {
                     "id": "radio0"
                   },
+                  "hw_tags": {
+                    "wifi_ax": false
+                  },
                   "values": ["", "n"]
+                },
+                {
+                  "query-depends": {
+                    "id": "radio0"
+                  },
+                  "hw_tags": {
+                    "wifi_ax": true
+                  },
+                  "values": ["", "n", "ax"]
                 },
                 {
                   "query-depends": {
                     "id": "radio1"
                   },
+                  "hw_tags": {
+                    "wifi_ax": false
+                  },
                   "values": ["n", "ac"]
+                },
+                {
+                  "query-depends": {
+                    "id": "radio1"
+                  },
+                  "hw_tags": {
+                    "wifi_ax": true
+                  },
+                  "values": ["n", "ac", "ax"]
                 }
               ]
             }
@@ -2535,7 +2747,7 @@
                 },
                 {
                   "depends": {
-                    "hwmode": "ac"
+                    "hwmode": ["ac", "ax"]
                   },
                   "values": [
                     "auto",
@@ -2620,7 +2832,12 @@
                 "HT40": "40 Mhz",
                 "VHT20": "20 Mhz",
                 "VHT40": "40 Mhz",
-                "VHT80": "80 Mhz"
+                "VHT80": "80 Mhz",
+                "VHT160": "160 Mhz",
+                "HE20": "20 Mhz",
+                "HE40": "40 Mhz",
+                "HE80": "80 Mhz",
+                "HE160": "160 Mhz"
               },
               "enum-depends": [
                 {
@@ -2633,7 +2850,25 @@
                   "depends": {
                     "hwmode": "ac"
                   },
+                  "hw_tags": {
+                    "wifi_ax": false
+                  },
                   "values": ["VHT20", "VHT40", "VHT80"]
+                },
+                {
+                  "depends": {
+                    "hwmode": "ac"
+                  },
+                  "hw_tags": {
+                    "wifi_ax": true
+                  },
+                  "values": ["VHT20", "VHT40", "VHT80", "VHT160"]
+                },
+                {
+                  "depends": {
+                    "hwmode": "ax"
+                  },
+                  "values": ["HE20", "HE40", "HE80", "HE160"]
                 }
               ]
             }
@@ -3208,6 +3443,7 @@
           "distance": {
             "type": "string",
             "description": "Distance Optimization. Distance to farthest network member in meters.",
+            "format": "irange(0, 65535)",
             "x-web": {
               "pretty": "Distance Optimization",
               "group": "Advanced Settings",
@@ -3217,6 +3453,7 @@
           "frag": {
             "type": "string",
             "description": "Fragmentation Threshold. The smallest packet size that can be fragmented and transmitted by multiple frames. In areas where interference is a problem, setting a lower fragment threshold might help reduce the probability of unsuccessful packet transfers and increase speed",
+            "format": "irange(256, 2346)",
             "x-web": {
               "pretty": "Fragmentation Threshold",
               "group": "Advanced Settings",
@@ -3226,6 +3463,7 @@
           "rts": {
             "type": "string",
             "description": "RTS/CTS Threshold. RTS/CTS (Request to Send/Clear to Send) are mechanisms used to reduce frame collisions introduced by the hidden node problem. It can help resolve problems that arise when several access points are in the same area and contend with each other",
+            "format": "irange(0, 2347)",
             "x-web": {
               "pretty": "RTS/CTS Threshold",
               "group": "Advanced Settings",
@@ -3245,6 +3483,7 @@
           "beacon_int": {
             "type": "string",
             "description": "Beacon Interval. Beacon signal interval in seconds",
+            "format": "irange(15, 65535)",
             "x-web": {
               "pretty": "Beacon Interval",
               "group": "Advanced Settings",
@@ -3319,8 +3558,22 @@
                 "mesh": "Mesh",
                 "multi_ap": "Multi AP"
               },
+              "enum-depends": [
+                {
+                  "hw_tags": {
+                    "is_access_point": true
+                  },
+                  "values": ["ap", "mesh"]
+                },
+                {
+                  "hw_tags": {
+                    "is_access_point": false
+                  },
+                  "values": ["ap", "sta", "mesh", "multi_ap"]
+                }
+              ],
               "hw_tags": {
-                "is_access_point": false
+                "mesh_support": true
               }
             }
           },
@@ -3356,10 +3609,7 @@
                 {
                   "mode": "mesh"
                 }
-              ],
-              "hw_tags": {
-                "is_access_point": false
-              }
+              ]
             }
           },
           "ssid": {
@@ -3403,13 +3653,15 @@
               "group": "General Setup",
               "input-type": "input",
               "hw_tags": {
-                "is_access_point": false
+                "mesh_support": true
               }
             }
           },
           "vlan_id": {
             "type": "string",
             "description": "Use tagged VLAN from the network as untagged VLAN on the SSID.",
+            "format": "irange(1, 4094)",
+            "deprecated": true,
             "x-web": {
               "pretty": "VLAN ID",
               "group": "General Setup",
@@ -3458,6 +3710,7 @@
           "mesh_rssi_threshold": {
             "type": "string",
             "description": "RSSI threshold for joining. 0 (default) = not using RSSI threshold, 1 = do not change driver default",
+            "format": "irange(-255, 1)",
             "x-web": {
               "pretty": "RSSI threshold for joining",
               "group": "Additional Settings",
@@ -3471,7 +3724,7 @@
           },
           "hidden": {
             "type": "string",
-            "description": "Hide SSID. Hide Service Set Identifier",
+            "description": "If enabled, when connecting to this access point SSID will need to be entered manually because it will not be shown during a scan.",
             "enum": ["0", "1"],
             "x-web": {
               "pretty": "Hide SSID",
@@ -3890,6 +4143,7 @@
           "reassociation_deadline": {
             "type": "string",
             "description": "Reassociation Deadline. Time units (TUs / 1.024 ms) [1000-65535]",
+            "format": "irange(1000, 65535)",
             "x-web": {
               "pretty": "Reassociation Deadline",
               "group": "Fast Transition",
@@ -3945,11 +4199,62 @@
               ]
             }
           },
+          "use_pkcs": {
+            "type": "string",
+            "enum": ["0", "1"],
+            "description": "Use PKCS#12 file format for client certificate",
+            "x-web": {
+              "pretty": "Use PKCS#12 format",
+              "group": "Wireless Security",
+              "input-type": "switch",
+              "depends": [
+                {
+                  "mode": "sta",
+                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"],
+                  "eap_type": "tls"
+                }
+              ]
+            }
+          },
+          "pkcs_cert": {
+            "type": "string",
+            "format": "path",
+            "pattern": "^/etc/(vuci-uploads|certificates)/",
+            "x-web": {
+              "pretty": "PKCS#12 client certificate file",
+              "group": "Wireless Security",
+              "input-type": "input",
+              "depends": [
+                {
+                  "mode": "sta",
+                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"],
+                  "eap_type": "tls",
+                  "use_pkcs": "1"
+                }
+              ]
+            }
+          },
+          "pkcs_passwd": {
+            "type": "string",
+            "x-web": {
+              "pretty": "PKCS#12 passphrase",
+              "group": "Wireless Security",
+              "input-type": "input",
+              "depends": [
+                {
+                  "mode": "sta",
+                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"],
+                  "eap_type": "tls",
+                  "use_pkcs": "1"
+                }
+              ]
+            }
+          },
           "ca_cert": {
             "type": "string",
             "format": "path",
             "pattern": "^/etc/(vuci-uploads|certificates)/",
-            "description": "CA-Certificate",
+            "description": "This file can have one or more trusted CA certificates. If CA-Certificate is not included, server certificate will not be verified. This is insecure and a trusted CA-Certificate should always be configured when using EAP-TLS/TTLS/PEAP.",
             "x-web": {
               "pretty": "CA-Certificate",
               "group": "Wireless Security",
@@ -3975,7 +4280,8 @@
                 {
                   "mode": "sta",
                   "eap_type": "tls",
-                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"]
+                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"],
+                  "use_pkcs": ["", "0"]
                 }
               ]
             }
@@ -3993,7 +4299,8 @@
                 {
                   "mode": "sta",
                   "eap_type": "tls",
-                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"]
+                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"],
+                  "use_pkcs": ["", "0"]
                 }
               ]
             }
@@ -4009,7 +4316,8 @@
                 {
                   "mode": "sta",
                   "eap_type": "tls",
-                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"]
+                  "encryption": ["wpa", "wpa2", "wpa3", "wpa3-mixed"],
+                  "use_pkcs": ["", "0"]
                 }
               ]
             }
@@ -4229,6 +4537,7 @@
           "dtim_period": {
             "type": "string",
             "description": "DTIM Interval. Delivery Traffic Indication Message Interval",
+            "format": "irange(1, 255)",
             "x-web": {
               "pretty": "DTIM Interval",
               "group": "Advanced Settings",
@@ -4238,6 +4547,7 @@
           "wpa_group_rekey": {
             "type": "string",
             "description": "Time interval for rekeying GTK. Period of time in between automatic changes of the group key, which all devices on the network share.",
+            "format": "irange(0, 65535)",
             "x-web": {
               "pretty": "Time interval for rekeying GTK",
               "group": "Advanced Settings",
@@ -4257,6 +4567,7 @@
           "max_inactivity": {
             "type": "string",
             "description": "Station inactivity limit. Station inactivity limit in seconds: If a station/client does not send anything in a set time frame, an empty data frame is sent to it in order to verify whether it is still in range. If this frame is not acknowledged, the station will be disassociated and then deauthenticated.",
+            "format": "irange(0, 65535)",
             "x-web": {
               "pretty": "Station inactivity limit",
               "group": "Advanced Settings",
@@ -4266,6 +4577,7 @@
           "max_listen_interval": {
             "type": "string",
             "description": "Maximum allowed Listen Interval. Association will be refused if a client/station attempts to associate with a listen interval greater than this value.",
+            "format": "irange(0, 65535)",
             "x-web": {
               "pretty": "Maximum allowed Listen Interval",
               "group": "Advanced Settings",
@@ -4413,6 +4725,21 @@
               "hw_tags": {
                 "is_access_point": false
               }
+            }
+          },
+          "auto_reconnect": {
+            "type": "string",
+            "description": "Enable auto reconnect",
+            "enum": ["0", "1"],
+            "x-web": {
+              "pretty": "Auto reconnect",
+              "group": "General Setup",
+              "input-type": "switch",
+              "depends": [
+                {
+                  "mode": "sta"
+                }
+              ]
             }
           }
         }
@@ -4948,6 +5275,13 @@
             "type": "string",
             "minLength": 1
           },
+          "disconnect_reason":{
+            "type": "number"
+          },
+          "wpa_state":{
+            "type": "string",
+            "minLength": 1
+          },
           "clients": {
             "type": "array",
             "uniqueItems": true,
@@ -4982,6 +5316,10 @@
                   "type": "number"
                 },
                 "signal": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "interface":{
                   "type": "string",
                   "minLength": 1
                 }
@@ -5026,88 +5364,86 @@
           },
           "assoclist": {
             "type": "object",
-            "properties": {
-              "24:92:0E:71:03:42": {
-                "type": "object",
-                "properties": {
-                  "rx_vht": {
-                    "type": "boolean"
-                  },
-                  "rx_mhz": {
-                    "type": "number"
-                  },
-                  "tx_short_gi": {
-                    "type": "boolean"
-                  },
-                  "tx_packets": {
-                    "type": "number"
-                  },
-                  "rx_he": {
-                    "type": "boolean"
-                  },
-                  "rx_packets": {
-                    "type": "number"
-                  },
-                  "tx_he": {
-                    "type": "boolean"
-                  },
-                  "rx_ht": {
-                    "type": "boolean"
-                  },
-                  "tx_mcs": {
-                    "type": "number"
-                  },
-                  "noise": {
-                    "type": "number"
-                  },
-                  "tx_rate": {
-                    "type": "number"
-                  },
-                  "inactive": {
-                    "type": "number"
-                  },
-                  "tx_40mhz": {
-                    "type": "boolean"
-                  },
-                  "tx_mhz": {
-                    "type": "number"
-                  },
-                  "tx_vht": {
-                    "type": "boolean"
-                  },
-                  "tx_ht": {
-                    "type": "boolean"
-                  },
-                  "rx_rate": {
-                    "type": "number"
-                  },
-                  "signal": {
-                    "type": "number"
-                  }
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "rx_vht": {
+                  "type": "boolean"
                 },
-                "required": [
-                  "rx_vht",
-                  "rx_mhz",
-                  "tx_short_gi",
-                  "tx_packets",
-                  "rx_he",
-                  "rx_packets",
-                  "tx_he",
-                  "rx_ht",
-                  "tx_mcs",
-                  "noise",
-                  "tx_rate",
-                  "inactive",
-                  "tx_40mhz",
-                  "tx_mhz",
-                  "tx_vht",
-                  "tx_ht",
-                  "rx_rate",
-                  "signal"
-                ]
-              }
-            },
-            "required": ["24:92:0E:71:03:42"]
+                "rx_mhz": {
+                  "type": "number"
+                },
+                "tx_short_gi": {
+                  "type": "boolean"
+                },
+                "tx_packets": {
+                  "type": "number"
+                },
+                "rx_he": {
+                  "type": "boolean"
+                },
+                "rx_packets": {
+                  "type": "number"
+                },
+                "tx_he": {
+                  "type": "boolean"
+                },
+                "rx_ht": {
+                  "type": "boolean"
+                },
+                "tx_mcs": {
+                  "type": "number"
+                },
+                "noise": {
+                  "type": "number"
+                },
+                "tx_rate": {
+                  "type": "number"
+                },
+                "inactive": {
+                  "type": "number"
+                },
+                "tx_40mhz": {
+                  "type": "boolean"
+                },
+                "tx_mhz": {
+                  "type": "number"
+                },
+                "tx_vht": {
+                  "type": "boolean"
+                },
+                "tx_ht": {
+                  "type": "boolean"
+                },
+                "rx_rate": {
+                  "type": "number"
+                },
+                "signal": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "rx_vht",
+                "rx_mhz",
+                "tx_short_gi",
+                "tx_packets",
+                "rx_he",
+                "rx_packets",
+                "tx_he",
+                "rx_ht",
+                "tx_mcs",
+                "noise",
+                "tx_rate",
+                "inactive",
+                "tx_40mhz",
+                "tx_mhz",
+                "tx_vht",
+                "tx_ht",
+                "rx_rate",
+                "signal"
+              ],
+              "additionalProperties": false
+            }
           },
           "device": {
             "type": "object",
@@ -5167,6 +5503,44 @@
           "frequency": {
             "type": "string",
             "minLength": 1
+          },
+          "op_class": {
+            "type": "number"
+          },
+          "rrm":{
+            "type": "object",
+            "properties": {
+              "neighbor_report_tx": {
+                "type": "number"
+              }
+            }
+          },
+          "bss_color":{
+            "type": "number"
+          },
+          "wnm":{
+            "type": "object",
+            "properties": {
+              "bss_transition_request_tx": {
+                "type": "number"
+              },
+              "bss_transition_response_rx": {
+                "type": "number"
+              },
+              "bss_transition_query_rx": {
+                "type": "number"
+              }
+            }
+          },
+          "beacon_interval": {
+            "type": "number"
+          },
+          "conf_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "auth_status": {
+            "type": "number"
           }
         },
         "required": [
@@ -5284,7 +5658,285 @@
           }
         }
       },
-      "wireless_device_status_basic": {
+      "wireless_interface_status_basic": {
+        "description": "",
+        "type": "object",
+        "properties": {
+          "wifi_id": {
+            "type": "string",
+            "minLength": 1,
+            "readOnly": true
+          },
+          "ifname": {
+            "type": "string",
+            "minLength": 1
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "encryption": {
+            "type": "string",
+            "minLength": 1
+          },
+          "bssid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "num_assoc": {
+            "type": "number"
+          },
+          "assoclist": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "rx_vht": {
+                  "type": "boolean"
+                },
+                "rx_mhz": {
+                  "type": "number"
+                },
+                "tx_short_gi": {
+                  "type": "boolean"
+                },
+                "tx_packets": {
+                  "type": "number"
+                },
+                "rx_he": {
+                  "type": "boolean"
+                },
+                "rx_packets": {
+                  "type": "number"
+                },
+                "tx_he": {
+                  "type": "boolean"
+                },
+                "rx_ht": {
+                  "type": "boolean"
+                },
+                "tx_mcs": {
+                  "type": "number"
+                },
+                "noise": {
+                  "type": "number"
+                },
+                "tx_rate": {
+                  "type": "number"
+                },
+                "inactive": {
+                  "type": "number"
+                },
+                "tx_40mhz": {
+                  "type": "boolean"
+                },
+                "tx_mhz": {
+                  "type": "number"
+                },
+                "tx_vht": {
+                  "type": "boolean"
+                },
+                "tx_ht": {
+                  "type": "boolean"
+                },
+                "rx_rate": {
+                  "type": "number"
+                },
+                "signal": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "rx_vht",
+                "rx_mhz",
+                "tx_short_gi",
+                "tx_packets",
+                "rx_he",
+                "rx_packets",
+                "tx_he",
+                "rx_ht",
+                "tx_mcs",
+                "noise",
+                "tx_rate",
+                "inactive",
+                "tx_40mhz",
+                "tx_mhz",
+                "tx_vht",
+                "tx_ht",
+                "rx_rate",
+                "signal"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "clients": {
+            "type": "array",
+            "uniqueItems": true,
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["expires", "band", "ipaddr", "hostname", "tx_rate", "macaddr", "rx_rate", "signal"],
+              "properties": {
+                "expires": {
+                  "type": "number"
+                },
+                "band": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "ipaddr": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "hostname": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "tx_rate": {
+                  "type": "number"
+                },
+                "macaddr": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "rx_rate": {
+                  "type": "number"
+                },
+                "signal": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          "mode": {
+            "type": "string",
+            "minLength": 1
+          },
+          "quality": {
+            "type": "number"
+          },
+          "band": {
+            "type": "string",
+            "minLength": 1
+          },
+          "noise": {
+            "type": "number"
+          },
+          "ssid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "link": {
+            "type": "string",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "device": {
+            "type": "object",
+            "properties": {
+              "device": {
+                "type": "string",
+                "minLength": 1
+              },
+              "pending": {
+                "type": "boolean"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "up": {
+                "type": "boolean"
+              }
+            },
+            "required": ["device", "pending", "name", "up"]
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "channel": {
+            "type": "number"
+          },
+          "signal": {
+            "type": "number"
+          },
+          "up": {
+            "type": "boolean"
+          },
+          "disconnect_reason":{
+            "type": "number"
+          },
+          "wpa_state":{
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "wifi_id",
+          "ifname",
+          "disabled",
+          "encryption",
+          "bssid",
+          "num_assoc",
+          "clients",
+          "mode",
+          "quality",
+          "band",
+          "noise",
+          "ssid",
+          "link",
+          "device",
+          "name",
+          "channel",
+          "signal",
+          "up"
+        ],
+        "x-examples": {
+          "example-1": {
+            "ifname": "wlan0",
+            "disabled": false,
+            "encryption": "WPA2 PSK (TKIP, CCMP)",
+            "bssid": "00:1E:42:4F:95:64",
+            "num_assoc": 1,
+            "clients": [
+              {
+                "expires": 43147,
+                "band": "2.4GHz",
+                "ipaddr": "192.168.1.200",
+                "hostname": "Galaxy-A5-2017",
+                "tx_rate": 72200,
+                "macaddr": "24:92:0E:71:03:42",
+                "rx_rate": 6000,
+                "signal": "-37 dBm"
+              }
+            ],
+            "mode": "ap",
+            "quality": 100,
+            "band": "2.4GHz",
+            "noise": -110,
+            "ssid": "RUT_9564_2G",
+            "link": "radio0.network1",
+            "id": "default_radio0",
+            "device": {
+              "name": "Qualcomm Atheros IPQ4019 802.11bgn Wireless Controller (radio0)"
+            },
+            "name": "0 \"RUT_9564_2G\"",
+            "channel": 11,
+            "signal": -37,
+            "up": true
+          }
+        }
+      },
+      "wireless_device_status": {
         "description": "",
         "type": "object",
         "x-examples": {
@@ -5421,6 +6073,77 @@
           "up",
           "noise",
           "frequency"
+        ]
+      },
+      "sta_action_options": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "sta_id": {
+                "type": "string",
+                "description": "Wireless station id"
+              }
+            }
+          }
+        }
+      },
+      "wireless_device_status_basic": {
+        "description": "",
+        "type": "object",
+        "x-examples": {
+          "example-1": {
+            "band" : "2.4GHz",
+            "id": "radio0",
+            "disabled": false,
+            "standard": "802.11bgn",
+            "pending": false,
+            "channel": 11,
+            "up": true,
+            "frequency": 2462
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "disabled": {
+            "type": "boolean"
+          },
+          "standard": {
+            "type": "string",
+            "minLength": 1
+          },
+          "pending": {
+            "type": "boolean"
+          },
+          "channel": {
+            "type": "number"
+          },
+          "up": {
+            "type": "boolean"
+          },
+          "frequency": {
+            "type": "number"
+          },
+          "band": {
+            "type": "string",
+            "enum": [
+              "2.4GHz",
+              "5GHz"
+            ]
+          }
+        },
+        "required": [
+            "id",
+            "disabled",
+            "standard",
+            "pending",
+            "channel",
+            "up",
+            "frequency"
         ]
       }
     },

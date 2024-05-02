@@ -17,7 +17,7 @@
 		"read": {
 			"api": [
 				"/date_time/ntp/*",
-				"/modems/status_basic/*",
+				"/modems/status/*",
 				"/date_time/ntpd/config/general/*"
 			]
 		},

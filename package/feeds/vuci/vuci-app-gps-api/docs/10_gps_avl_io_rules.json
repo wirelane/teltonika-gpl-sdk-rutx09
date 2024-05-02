@@ -1,0 +1,440 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "GPS Documentation",
+    "version": "1.0",
+    "contact": {},
+    "description": "GPS Api documentation"
+  },
+  "tags": [
+    {
+      "name": "AVL IO"
+    }
+  ],
+  "paths": {
+    "/gps/avl/io_rules/config": {
+      "get": {
+        "summary": "Get GPS AVL IO configurations",
+        "tags": [
+          "AVL IO"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_io_multi"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create GPS AVL IO configuration",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/200gps_avl_io"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "description": "Parameter section",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_avl_io_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL IO"
+        ]
+      },
+      "put": {
+        "summary": "Update GPS AVL IO configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_io_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/gps_avl_io_options"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL IO"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS AVL IO configurations",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted_multi"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/delete_multi"
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL IO"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "AVL"
+        ],
+        "hw_tags": {
+          "gps": true,
+          "ios": true
+        }
+      }
+    },
+    "/gps/avl/io_rules/config/{id}": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "AVL IO configuration identifier"
+        }
+      ],
+      "get": {
+        "summary": "Get GPS AVL IO configuration",
+        "tags": [
+          "AVL IO"
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_io"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "description": "Gets GPS AVL IO configuration"
+      },
+      "put": {
+        "summary": "Update GPS AVL IO configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200gps_avl_io"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          },
+          "422": {
+            "$ref": "#/components/responses/422response"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/gps_avl_io_single_options"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "AVL IO"
+        ]
+      },
+      "delete": {
+        "summary": "Delete GPS AVL IO configuration",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200deleted"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
+          }
+        },
+        "description": "Deletes GPS AVL IO configuration",
+        "tags": [
+          "AVL IO"
+        ]
+      },
+      "x-web": {
+        "name": "GPS",
+        "menu": [
+          "Services",
+          "GPS",
+          "AVL"
+        ],
+        "hw_tags": {
+          "gps": true,
+          "ios": true
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "gps_avl_io_single_options": {
+        "description": "AVL Input Rule Data Configuration",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "string",
+            "description": "Set to enable input configuration.",
+            "format": "is_bool",
+            "enum": [
+              "0",
+              "1"
+            ],
+            "x-web": {
+              "pretty": "Enable",
+              "input-type": "switch"
+            }
+          },
+          "io_name": {
+            "type": "string",
+            "description": "Select type on your own intended configuration.",
+            "x-web": {
+              "enum-depends": [
+                {
+                  "hw_tags": {
+                    "din1": true
+                  },
+                  "values": [
+                    "din1"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "din1": true,
+                    "din2": true,
+                    "iio": true,
+                    "adc0": true,
+                    "acl0": true
+                  },
+                  "values": [
+                    "din1",
+                    "din2",
+                    "iio",
+                    "adc0",
+                    "acl0"
+                  ]
+                },
+                {
+                  "hw_tags": {
+                    "dio1": true,
+                    "dio2": true,
+                    "adc0": true,
+                    "acl0": true
+                  },
+                  "values": [
+                    "adc0",
+                    "dio1",
+                    "dio2",
+                    "acl0"
+                  ]
+                }
+              ],
+              "pretty": "Input type",
+              "unique": true,
+              "input-type": "select"
+            }
+          },
+          "acl": {
+            "type": "string",
+            "description": "Select which property - ampere or percentage the condition listens to.",
+            "enum": [
+              "current",
+              "percent"
+            ],
+            "default": "current",
+            "x-web": {
+              "pretty": "ACL Property",
+              "input-type": "select",
+              "hw_tags": {
+                "acl0": true
+              },
+              "enum-pretty": {
+                "current": "Current",
+                "percent": "Percent"
+              }
+            }
+          },
+          "min": {
+            "type": "string",
+            "description": "Minimum range",
+            "x-web": {
+              "pretty": "Min value",
+              "input-type": "input",
+              "hw_tags": {
+                "adc0": true,
+                "acl0": true
+              }
+            }
+          },
+          "max": {
+            "type": "string",
+            "description": "Maximum range",
+            "x-web": {
+              "pretty": "Max value",
+              "input-type": "input",
+              "hw_tags": {
+                "adc0": true,
+                "acl0": true
+              }
+            }
+          },
+          "event": {
+            "type": "string",
+            "description": "Set trigger event.",
+            "enum": [
+              "no",
+              "nc",
+              "both",
+              "in",
+              "out"
+            ],
+            "x-web": {
+              "pretty": "Trigger",
+              "enum-pretty": {
+                "no": "Input active",
+                "nc": "Input low",
+                "both": "Both",
+                "in": "Inside range",
+                "out": "Outside range"
+              },
+              "input-type": "select"
+            }
+          },
+          "priority": {
+            "type": "string",
+            "description": "Set priority.",
+            "enum": [
+              "low",
+              "high",
+              "panic",
+              "security"
+            ],
+            "x-web": {
+              "pretty": "Priority",
+              "enum-pretty": {
+                "low": "Low",
+                "high": "High",
+                "panic": "Panic",
+                "security": "Security"
+              },
+              "input-type": "select"
+            }
+          }
+        },
+        "required": [
+          "enabled",
+          "io_name",
+          "min",
+          "max",
+          "event",
+          "priority"
+        ]
+      },
+      "gps_avl_io_options": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ]
+          },
+          {
+            "$ref": "#/components/schemas/gps_avl_io_single_options"
+          }
+        ]
+      }
+    },
+    "responses": {
+      "200gps_avl_io": {
+        "description": "Returns configuration",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/gps_avl_io_options"
+                }
+              }
+            }
+          }
+        }
+      },
+      "200gps_avl_io_multi": {
+        "description": "Returns configurations",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "description": "Operation status"
+                },
+                "data": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/gps_avl_io_options"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

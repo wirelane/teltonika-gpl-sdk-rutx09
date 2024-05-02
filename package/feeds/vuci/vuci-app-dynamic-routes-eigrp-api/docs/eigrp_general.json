@@ -19,6 +19,9 @@
           },
           "422": {
             "$ref": "#/components/responses/422response"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "requestBody": {
@@ -430,9 +433,6 @@
       },
       "eigrp_general_options_multi": {
         "title": "eigrp_general_options_multi",
-        "x-stoplight": {
-          "id": "qjivicre9jvxl"
-        },
         "allOf": [
           {
             "type": "object",

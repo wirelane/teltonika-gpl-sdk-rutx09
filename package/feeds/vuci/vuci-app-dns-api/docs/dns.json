@@ -280,6 +280,20 @@
             "format": "url",
             "maxItems": 256
           },
+          "address": {
+            "x-web": {
+              "pretty": "Addresses",
+              "input-type": "input",
+              "group": "General Settings"
+            },
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of IP addresses for queried domains. See the dnsmasq -A option man page for syntax details.",
+            "format": "url",
+            "maxItems": 256
+          },
           "rebind_protection": {
             "x-web": {
               "pretty": "Rebind protection",
@@ -379,7 +393,7 @@
             },
             "type": "string",
             "description": "Number of cached DNS entries (max is 10000, 0 is no caching).",
-            "format": "range(0, 10000)",
+            "format": "irange(0, 10000)",
             "minLength": 1,
             "maxLength": 5
           }

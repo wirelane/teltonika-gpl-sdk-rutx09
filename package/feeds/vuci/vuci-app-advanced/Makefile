@@ -3,6 +3,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=vuci-advanced-mode
 PKG_RELEASE:=1
 GPL_INCLUDE_SRC:=1
+PKG_LICENSE:=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
 

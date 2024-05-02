@@ -1,0 +1,8 @@
+{
+  "network/vrf": {
+    "title": "VRF",
+    "index": 130,
+    "view": "network/VRF",
+    "acls": ["network/vrf"]
+  }
+}

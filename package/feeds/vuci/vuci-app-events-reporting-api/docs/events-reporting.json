@@ -346,7 +346,7 @@
             "type": "string",
             "description": "Subject of an email. Allowed characters (a-zA-Z0-9!@#$%&*+-/=?^_`{|}~. )",
             "format": "regex",
-            "pattern": "^[a-zA-Z0-9!@#$%&*+/=?^_`{|}~. -]+$",
+            "pattern": "^[a-zA-Z0-9!@#$%%&*+/=?^_`{|}~. -]+$",
             "maxLength": 256,
             "x-web": {
               "pretty": "Subject",

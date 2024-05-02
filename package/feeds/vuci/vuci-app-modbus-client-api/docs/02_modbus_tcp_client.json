@@ -340,6 +340,7 @@
             "type": "string",
             "description": "Interval for sending requests to this device.",
             "format": "irange(1, 99999)",
+            "default": "60",
             "x-web": {
               "pretty": "Period",
               "input-type": "input",

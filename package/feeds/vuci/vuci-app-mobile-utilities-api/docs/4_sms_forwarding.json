@@ -62,9 +62,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_forwarding_to_http"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           }
         }
       },
@@ -74,9 +71,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_forwarding_to_http"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"
@@ -152,9 +146,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_forwarding_to_sms"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           }
         }
       },
@@ -164,9 +155,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_forwarding_to_sms"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"
@@ -242,9 +230,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_forwarding_to_smtp"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           }
         }
       },
@@ -254,9 +239,6 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/sms_forwarding_to_smtp"
-          },
-          "404": {
-            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"
@@ -327,7 +309,6 @@
             "type": "string",
             "description": "Sender phone number codename for query string name/value pair",
             "maxLength": 16,
-            "format": "default_validation",
             "x-web": {
               "pretty": "Number value name",
               "input-type": "input",
@@ -402,7 +383,7 @@
               "pretty": "HTTPS certificate verification",
               "input-type": "select",
               "enum-pretty": {
-                "ignore": "Ignore",
+                "ignore": "ignore",
                 "verify": "Verify"
               }
             }
@@ -427,7 +408,12 @@
             "format": "url",
             "x-web": {
               "pretty": "URL",
-              "input-type": "input"
+              "input-type": "input",
+              "depends": [
+                {
+                  "enabled": "1"
+                }
+              ]
             }
           },
           "message_name": {
@@ -436,14 +422,18 @@
             "maxLength": 16,
             "x-web": {
               "pretty": "Message value name",
-              "input-type": "input"
+              "input-type": "input",
+              "depends": [
+                {
+                  "enabled": "1"
+                }
+              ]
             }
           },
           "extra_name1": {
             "type": "string",
             "description": "Extra html query name.",
             "maxLength": 64,
-            "format": "default_validation",
             "x-web": {
               "pretty": "Extra name 1",
               "input-type": "input"
@@ -453,7 +443,6 @@
             "type": "string",
             "description": "Extra html query value.",
             "maxLength": 64,
-            "format": "default_validation",
             "x-web": {
               "pretty": "Extra value 1",
               "input-type": "input"
@@ -463,7 +452,6 @@
             "type": "string",
             "description": "Extra html query name.",
             "maxLength": 64,
-            "format": "default_validation",
             "x-web": {
               "pretty": "Extra name 2",
               "input-type": "input"
@@ -473,7 +461,6 @@
             "type": "string",
             "description": "Extra html query value.",
             "maxLength": 64,
-            "format": "default_validation",
             "x-web": {
               "pretty": "Extra value 2",
               "input-type": "input"
@@ -569,7 +556,8 @@
               "input-type": "input",
               "depends": [
                 {
-                  "mode": "list_number"
+                  "mode": "list_number",
+                  "enabled": "1"
                 }
               ]
             }
@@ -596,7 +584,12 @@
             },
             "x-web": {
               "pretty": "Recipients phone numbers",
-              "input-type": "input"
+              "input-type": "input",
+              "depends": [
+                {
+                  "enabled": "1"
+                }
+              ]
             }
           }
         }
@@ -649,8 +642,7 @@
             "type": "string",
             "description": "Subject of an email. Allowed characters (a-zA-Z0-9!@#$%&*+-/=?^_`{|}~. )",
             "maxLength": 255,
-            "format": "regex",
-            "pattern": "^[a-zA-Z0-9!@#$%&*+/=?^_`{|}~. -]+$",
+            "format": "subject_rule",
             "x-web": {
               "pretty": "Subject",
               "input-type": "input"
@@ -661,19 +653,24 @@
             "description": "Sender's email configuration",
             "x-web": {
               "pretty": "Sender's email",
-              "input-type": "input"
+              "input-type": "select"
             }
           },
           "recipemail": {
             "type": "array",
-            "description": "For whom you want to send an email to",
+            "description": "For whom you want to send an email to. Allowed characters (a-zA-Z0-9._%+-)",
             "items": {
               "type": "string",
               "format": "email"
             },
             "x-web": {
               "pretty": "Recipient's email address",
-              "input-type": "input"
+              "input-type": "input",
+              "depends": [
+                {
+                  "enabled": "1"
+                }
+              ]
             }
           },
           "mode": {
@@ -703,7 +700,8 @@
               "input-type": "input",
               "depends": [
                 {
-                  "mode": "list_number"
+                  "mode": "list_number",
+                  "enabled": "1"
                 }
               ]
             }

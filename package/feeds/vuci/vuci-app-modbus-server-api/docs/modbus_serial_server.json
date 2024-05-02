@@ -358,7 +358,7 @@
           },
           "device_id": {
             "type": "string",
-            "description": "Modbus server ID that this device will respond to (1-255, set 0 to respond to any ID).",
+            "description": "Modbus server ID that this device will respond to (0-255).",
             "format": "irange(0, 255)",
             "default": "1",
             "x-web": {
@@ -807,6 +807,24 @@
                   "clientregs": "1"
                 }
               ]
+            }
+          },
+          "md_data_type": {
+            "type": "string",
+            "description": "Selects mobile data unit representation type.",
+            "enum": [
+              "0",
+              "1",
+              "2"
+            ],
+            "x-web": {
+              "pretty": "Mobile data type",
+              "input-type": "select",
+              "enum-pretty": {
+                "0": "Bytes",
+                "1": "Kilobytes",
+                "2": "Megabytes"
+              }
             }
           }
         },

@@ -363,6 +363,7 @@
             "type": "string",
             "description": "Server timeout (ms).",
             "format": "irange(10, 3600000)",
+            "default": "5000",
             "x-web": {
               "pretty": "Timeout",
               "input-type": "input"

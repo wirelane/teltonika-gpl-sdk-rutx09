@@ -3,6 +3,13 @@ include $(TOPDIR)/rules.mk
 APP_TITLE:=VuCI API Support for Wireless
 APP_DEPENDS:=+libiwinfo-lua +luci-bwc
 
+CUSTOM_INSTALL=1
 include ../api.mk
 
+define Package/$(PKG_NAME)/install
+	$(call Package/$(PKG_NAME)/install/Default,$(1))
+	$(INSTALL_BIN) ./files/usr/lib/lua/api/network/supplicant_control.lua $(1)/usr/lib/lua/api/network/supplicant_control.lua
+endef
+
 # call BuildPackage - OpenWrt buildroot signature
+$(eval $(call BuildPackage,$(PKG_NAME)))
