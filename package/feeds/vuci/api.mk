@@ -18,6 +18,15 @@ define Package/$(PKG_NAME)
 	SUBMENU:=Applications/API
 	TITLE:=$(if $(APP_TITLE),$(APP_TITLE),$(APP_NAME))
 	DEPENDS:=$(APP_DEPENDS) +api-core
+ifdef APP_TLT_NAME
+	PKG_TLT_NAME:=$(APP_TLT_NAME)
+endif
+ifdef APP_ROUTER
+	PKG_ROUTER:=$(APP_ROUTER)
+endif
+ifdef APP_APP_NAME
+	PKG_APP_NAME:=$(APP_APP_NAME)
+endif
 endef
 
 define Build/Prepare

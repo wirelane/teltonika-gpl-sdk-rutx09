@@ -131,6 +131,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200rms"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           }
         },
         "tags": [
@@ -142,6 +145,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/200rms"
+          },
+          "404": {
+            "$ref": "#/components/responses/404response"
           },
           "422": {
             "$ref": "#/components/responses/422response"
