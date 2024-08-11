@@ -22,11 +22,6 @@ menu "Configuration"
 			bool "Host Node"
 			help
 				This option select host installled node compile vuejs 
-		
-		config VUCI_USE_VUCI_NODE
-			bool "VuCI node"
-			help
-				Select this option will be use VuCI node version for compile VUE code
 
 	endchoice
 

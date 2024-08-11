@@ -9,5 +9,12 @@
 		"view": "services/OverIP",
 		"acls": [ "services/serial_utilities/overip" ],
 		"files": [ "/etc/config/rs_overip" ]
+	},
+	"services/mbus/gateway": {
+		"title": "Gateway",
+		"index": 20,
+		"view": "services/MBusGateway",
+		"acls": [ "services/mbus" ],
+		"files": [ "/etc/config/mbus_client" ]
 	}
 }

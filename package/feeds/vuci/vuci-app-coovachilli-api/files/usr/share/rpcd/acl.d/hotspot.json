@@ -1,91 +1,66 @@
 {
-	"services/hotspot/general": {
-		"read": {
-			"api": [
-				"/hotspot/config/*",
-				"/hotspot/options/*",
-				"/hotspot/status/*",
-				"/interfaces/status/*",
-				"/certificates/config/*",
-				"/system/device/status/*",
-				"/hotspot/users/config/*",
-				"/hotspot/groups/config/*",
-				"/modems/status/*",
-				"/wireless/interfaces/status/*",
-				"/dhcp/servers/ipv4/config/*",
-				"/users/config/*",
-				"/wireless/interfaces/config/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/hotspot/config/*",
-				"/hotspot/options/*",
-				"/hotspot/status/*"
-			]
-		}
-	},
-	"services/hotspot/users": {
-		"description": "hotspot users configuration",
-		"read": {
-			"api": [
-				"/hotspot/groups/config/*",
-				"/hotspot/users/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/hotspot/users/*"
-			]
-		}
-	},
-	"services/hotspot/groups": {
-		"description": "hotspot groups configuration",
-		"read": {
-			"api": [
-				"/hotspot/groups/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/hotspot/groups/*"
-			]
-		}
-	},
-	"services/hotspot/landing": {
-		"description": "hotspot landing page configuration",
-		"read": {
-			"api": [
-				"/hotspot/themes/*",
-				"/hotspot/images/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/hotspot/themes/*",
-				"/hotspot/images/*"
-			]
-		}
-	},
-	"services/hotspot/user_management": {
-		"description": "hotspot users management",
-		"read": {
-			"api": [
-				"/hotspot/user_management/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/hotspot/user_management/*"
-			]
-		}
-	},
-	"system/maintenance/hotspot": {
-		"description": "hotspot logs",
-		"read": {
-			"api": [
-				"/hotspot/logs/*"
-			]
-		}
-	}
+  "services/hotspot/general": {
+    "read": {
+      "api": [
+        "/hotspot/config/*",
+        "/hotspot/options/*",
+        "/hotspot/status/*",
+        "/interfaces/basic/status/*",
+        "/certificates/config/*",
+        "/system/device/status/*",
+        "/hotspot/users/config/*",
+        "/hotspot/groups/config/*",
+        "/modems/status/*",
+        "/wireless/interfaces/basic/status/*",
+        "/dhcp/servers/ipv4/config/*",
+        "/users/config/*",
+        "/wireless/interfaces/config/*"
+      ]
+    },
+    "write": {
+      "api": ["/hotspot/config/*", "/hotspot/options/*", "/hotspot/status/*"]
+    }
+  },
+  "services/hotspot/users": {
+    "description": "hotspot users configuration",
+    "read": {
+      "api": ["/hotspot/groups/config/*", "/hotspot/users/*"]
+    },
+    "write": {
+      "api": ["/hotspot/users/*"]
+    }
+  },
+  "services/hotspot/groups": {
+    "description": "hotspot groups configuration",
+    "read": {
+      "api": ["/hotspot/groups/*"]
+    },
+    "write": {
+      "api": ["/hotspot/groups/*"]
+    }
+  },
+  "services/hotspot/landing": {
+    "description": "hotspot landing page configuration",
+    "read": {
+      "api": ["/hotspot/themes/*", "/hotspot/images/*"]
+    },
+    "write": {
+      "api": ["/hotspot/themes/*", "/hotspot/images/*"]
+    }
+  },
+  "services/hotspot/user_management": {
+    "description": "hotspot users management",
+    "read": {
+      "api": ["/hotspot/user_management/*"]
+    },
+    "write": {
+      "api": ["/hotspot/user_management/*"]
+    }
+  },
+  "system/maintenance/hotspot": {
+    "description": "hotspot logs",
+    "read": {
+      "api": ["/hotspot/logs/*"]
+    }
+  }
 }

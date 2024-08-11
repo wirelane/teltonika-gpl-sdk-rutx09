@@ -1,8 +1,4 @@
 {
-  "simcard": {
-    "sim": ["band", "gsm", "umts", "lte"]
-  },
-
   "wireless": {
     "wifi-device": ["advanced"],
 

@@ -1,18 +1,11 @@
 {
-	"services/modbus/modbus_client": {
-		"description": "modbus tcp client configuration",
-		"read": {
-			"api": [
-				"/modbus/client/*",
-				"/modems/*",
-				"/io/*",
-				"/network/devices/status/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/modbus/client/*"
-			]
-		}
-	}
+  "services/modbus/modbus_client": {
+    "description": "modbus tcp client configuration",
+    "read": {
+      "api": ["/modbus/client/*", "/modems/*", "/io/*", "/basic/network/devices/status/*"]
+    },
+    "write": {
+      "api": ["/modbus/client/*"]
+    }
+  }
 }

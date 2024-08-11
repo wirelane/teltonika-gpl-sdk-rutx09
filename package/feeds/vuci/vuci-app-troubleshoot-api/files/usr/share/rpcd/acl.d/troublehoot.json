@@ -2,22 +2,10 @@
   "system/maintenance/troubleshoot": {
     "description": "troubleshoot",
     "read": {
-      "api": [
-        "/logging/*",
-        "/troubleshoot/*",
-        "/diagnostics/*",
-        "/usb_tools/mount/options/*",
-        "/interfaces/status/*",
-        "/modems/*"
-      ]
+      "api": ["/logging/*", "/troubleshoot/*", "/diagnostics/*", "/usb_tools/mount/options/*", "/interfaces/basic/status/*", "/modems/*"]
     },
     "write": {
-      "api": [
-        "/logging/*",
-        "/troubleshoot/*",
-        "/diagnostics/*",
-        "/modems/*"
-      ]
+      "api": ["/logging/*", "/troubleshoot/*", "/diagnostics/*", "/modems/*"]
     }
   }
 }

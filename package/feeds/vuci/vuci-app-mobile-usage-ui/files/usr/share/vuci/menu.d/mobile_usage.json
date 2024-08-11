@@ -1,1 +1,12 @@
-{}
+{
+  "status/realtime/mobile_usage": {
+    "view": "status/MobileUsage",
+    "main_page": true
+  },
+  "status/realtime/mobile_usage/all": {
+    "view": "status/MobileUsage"
+  },
+  "status/realtime/mobile_usage/:id": {
+    "view": "status/MobileUsage"
+  }
+}

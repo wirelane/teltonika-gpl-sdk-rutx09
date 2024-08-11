@@ -1,0 +1,6 @@
+{
+  "network/wireless/relayd": {
+    "view": "network/Relayd",
+    "main_page": true
+  }
+}

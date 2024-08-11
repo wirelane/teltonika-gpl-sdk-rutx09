@@ -2,18 +2,15 @@
 	"services/vpn/openvpn": {
 		"description": "openvpn configuration",
 		"read": {
-			"uci": [
-				"openvpn",
-				"firewall"
-			],
 			"api": [
 				"/openvpn/*",
 				"/interfaces/config/*",
-				"/certificates/config/*"
+				"/certificates/config/*",
+				"/network/devices/config/*",
+				"/interfaces/basic/status/*"
 			]
 		},
 		"write": {
-			"uci": ["openvpn", "firewall"],
 			"api": ["/openvpn/*"]
 		}
 	}

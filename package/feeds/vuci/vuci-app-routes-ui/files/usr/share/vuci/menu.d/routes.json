@@ -8,7 +8,8 @@
     "index": 10,
     "view": "network/StaticRoutes",
     "acls": ["network/routes/static_routes"],
-    "files": ["/etc/config/network"]
+    "files": ["/etc/config/network"],
+    "main_page": true
   },
   "network/routes/advanced_routing": {
     "title": "Policy based routing",

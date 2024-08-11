@@ -4,12 +4,15 @@
 		"read": {
 			"api": [
 				"/azure_iot_hub/*",
-				"/interfaces/*",
-				"/modems/status/*"
+				"/azure/iot_hub/*",
+				"/data_to_server/*"
 			]
 		},
 		"write": {
-			"api": ["/azure_iot_hub/*"]
+			"api": [
+				"/azure_iot_hub/*",
+				"/azure/iot_hub/*"
+			]
 		}
 	}
 }

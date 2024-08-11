@@ -6,9 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=lua_extra_validators
 PKG_VERSION:=2021-12-28
-GPL_INCLUDE_SRC:=1
-
-PKG_LICENSE:=MIT
+PKG_LICENSE:=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -18,6 +16,7 @@ define Package/lua_extra_validators
 	TITLE:=A library for providing string validators which you cant do in Lua
 	DEPENDS:=+liblua +lua +libc
 endef
+
 
 define Package/lua_extra_validators/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua

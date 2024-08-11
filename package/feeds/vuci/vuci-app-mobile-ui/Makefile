@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_LICENSE:=Teltonika-closed
+PKG_LICENSE:=Teltonika-nda-source
 
 APP_TITLE:=VuCI UI Support for Mobile
 

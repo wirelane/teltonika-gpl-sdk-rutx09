@@ -2,7 +2,7 @@
 	"services/cloud_solutions/greengrass": {
 		"title": "Greengrass",
 		"index": 20,
-		"view": "services/Greengrass_aeaafe",
+		"view": "services/Greengrass",
 		"acls": [ "services/cloud_solutions/greengrass" ],
 		"files": [ "/etc/config/greengrass" ]
 	}

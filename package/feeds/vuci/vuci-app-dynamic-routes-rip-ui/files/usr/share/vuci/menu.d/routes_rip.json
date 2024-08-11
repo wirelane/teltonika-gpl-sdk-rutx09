@@ -17,7 +17,8 @@
 				"view": "network/ProtoRip",
 				"acls": [ "network/routes/dynamic_routes/proto_rip" ],
 				"files": [ "/etc/config/rip" ],
-				"orfiles": [ "/usr/lib/opkg/info/frr5-ripd.control", "/usr/lib/opkg/info/frr-ripd.control" ]
+				"orfiles": [ "/usr/lib/opkg/info/frr5-ripd.control", "/usr/lib/opkg/info/frr-ripd.control" ],
+				"main_page": true
 			},
 	"status/routes": {
 		"title": "Routes",

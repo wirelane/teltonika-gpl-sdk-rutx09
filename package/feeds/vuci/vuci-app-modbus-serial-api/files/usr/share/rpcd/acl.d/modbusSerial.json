@@ -1,19 +1,11 @@
 {
-	"services/modbus/modbus_serial_client": {
-		"description": "modbus tcl client configuration",
-		"read": {
-			"api": [
-				"/modbus/client/*",
-				"/io/*",
-				"/modems/*",
-				"/serial/*",
-				"/network/devices/status/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/modbus/client/*"
-			]
-		}
-	}
+  "services/modbus/modbus_serial_client": {
+    "description": "modbus tcl client configuration",
+    "read": {
+      "api": ["/modbus/client/*", "/io/*", "/modems/*", "/serial/*", "/basic/network/devices/status/*"]
+    },
+    "write": {
+      "api": ["/modbus/client/*"]
+    }
+  }
 }

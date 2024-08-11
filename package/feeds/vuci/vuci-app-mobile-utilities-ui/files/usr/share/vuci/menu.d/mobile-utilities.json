@@ -1,0 +1,36 @@
+{
+  "services/mobile_utilities": {
+    "title": "Mobile Utilities"
+  },
+  "services/mobile_utilities/sms_utilities": {
+    "view": "services/SMSUtilities",
+    "main_page": true
+  },
+  "services/mobile_utilities/sms_gateway": {
+    "title": "SMS Gateway"
+  },
+  "services/mobile_utilities/sms_gateway/post_get": {
+    "view": "services/PostGet"
+  },
+  "services/mobile_utilities/sms_gateway/auto_reply": {
+    "view": "services/AutoReply"
+  },
+  "services/mobile_utilities/sms_gateway/sms_forwarding": {
+    "view": "services/SMSForwarding"
+  },
+  "services/mobile_utilities/sms_gateway/email_to_sms": {
+    "view": "services/EmailToSMS"
+  },
+  "services/mobile_utilities/sms_messages": {
+    "title": "Messages"
+  },
+  "services/mobile_utilities/sms_messages/read": {
+    "view": "services/ReadMessages"
+  },
+  "services/mobile_utilities/sms_messages/send": {
+    "view": "services/SendMessages"
+  },
+  "services/mobile_utilities/sms_messages/storage": {
+    "view": "services/Storage"
+  }
+}

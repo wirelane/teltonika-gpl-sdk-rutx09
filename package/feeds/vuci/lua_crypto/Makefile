@@ -22,10 +22,6 @@ define Package/lua_crypto/description
 	A simple lib that exposes OpenSSL cryptographic function for use in LUA.
 endef
 
-ifeq ($(CONFIG_GPL_INCLUDE_WEB_SOURCES), y)
-GPL_INCLUDE_SRC=1
-else
-endif
 
 define Package/lua_crypto/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/

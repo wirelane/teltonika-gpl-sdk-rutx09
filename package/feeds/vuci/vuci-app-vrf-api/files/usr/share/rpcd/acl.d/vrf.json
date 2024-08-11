@@ -2,7 +2,9 @@
   "network/vrf": {
     "description": "vrf configuration",
     "read": {
-      "api": ["/vrf/*", "/network/devices/status/*"]
+      "api": ["/vrf/*",
+              "/basic/network/devices/status/*",
+              "/bgp/instance/config/*"]
     },
     "write": {
       "api": ["/vrf/*"]

@@ -1,10 +1,12 @@
 APP_NAME?=$(notdir ${CURDIR})
 APP_SECTION?=vuci
 APP_CATEGORY?=VuCI
-
+VUCI_CORE_VERSION:=$(shell git --git-dir=$(CURDIR)/../../../.git log -1 --pretty="%ci %h" | awk '{ print $$1 "-" $$4 }')
+VUCI_CORE_DIR=$(BUILD_DIR)/vuci-ui-core-$(VUCI_CORE_VERSION)
+APP_NAME_ONLY=$(patsubst %-ui,%,$(APP_NAME))
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
-PLUGIN_DIR:=$(BUILD_DIR)/.vuci-build-plugin/.plugin/
+PLUGIN_DIR:=$(VUCI_CORE_DIR)/.plugin
 PKG_LICENSE?=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
@@ -31,8 +33,6 @@ ifdef APP_APP_NAME
 endif
 endef
 
-define Build/Configure
-endef
 
 packed_src :=
 ifneq ($(CONFIG_GPL_BUILD), y)
@@ -51,8 +51,7 @@ define Build/Compile
 		$(if $(findstring m,$(CONFIG_PACKAGE_$(PKG_NAME))), \
 			$(INSTALL_DIR) $(PLUGIN_DIR)/$(PKG_NAME); \
 			$(CP) $(PKG_BUILD_DIR)/* $(PLUGIN_DIR)/$(PKG_NAME); \
-			compileFolder=$(PKG_NAME) $(MAKE) -C $(BUILD_DIR)/.vuci-build-plugin/ plugin; \
-			$(CP) $(BUILD_DIR)/.vuci-build-plugin/.plugin/dest/$(PKG_NAME) $(PKG_BUILD_DIR)/dest; \
+			$(CP) $(VUCI_CORE_DIR)/vuci-ui-core/src/dist/applications/$(APP_NAME_ONLY) $(PKG_BUILD_DIR)/dest; \
 		) \
 	, \
 		$(Build/Compile/Default) \
@@ -65,6 +64,15 @@ define Build/Prepare
 		if [[ -d ./src ]] && [[ ! `ls -1 ./src | wc -l` = 0 ]]; then $(CP) ./src/* $(PKG_BUILD_DIR)/src; fi \
 	)
 endef
+
+define Package/$(PKG_NAME)/install/Default
+	if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then $(CP) $(PKG_BUILD_DIR)/files/* $(1) ; fi
+	if [[ -d "$(PKG_BUILD_DIR)/dest" ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/dest)" ]]; then \
+		$(INSTALL_DIR) $(1)/www/assets; \
+		$(CP) $(PKG_BUILD_DIR)/dest/* $(1)/www/assets; \
+	fi
+	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
+endef
 else
 define Build/Compile
 	$(MAKE) -C $(PKG_BUILD_DIR)/src CC="$(HOSTCC)" CXX="$(HOSTCXX)"
@@ -76,23 +84,10 @@ define Build/Prepare
 	if [[ -d ./src ]] && [[ ! `ls -1 ./src | wc -l` = 0 ]]; then \
 		$(CP) ./src/* $(PKG_BUILD_DIR)/src; \
 		$(CP) ../compile-app-gpl.sh $(PKG_BUILD_DIR)/src; \
+		$(CP) ../gpl.vite.config.js $(PKG_BUILD_DIR)/src; \
+		$(CP) ../gpl.package.json $(PKG_BUILD_DIR)/src/package.json; \
 	fi
 	if [[ -d ./files ]]; then $(CP) ./files/ $(PKG_BUILD_DIR)/ ; fi
-endef
-endif
-
-define Build/InstallGPL
-	$(if $(CONFIG_GPL_INCLUDE_WEB_SOURCES), \
-		$(Build/InstallGPL/Default) , \
-		$(INSTALL_DIR) $(PKG_GPL_BUILD_DIR)/files; \
-		if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then \
-			$(CP) $(PKG_BUILD_DIR)/files/* $(PKG_GPL_BUILD_DIR)/files ;\
-		fi ; \
-		$(if $(findstring m,$(CONFIG_PACKAGE_$(PKG_NAME))), \
-			$(INSTALL_DIR) $(1)/dest; \
-			$(CP) $(PKG_BUILD_DIR)/dest/* $(1)/dest || true; \
-		) \
-	)
 endef
 
 define Package/$(PKG_NAME)/install/Default
@@ -102,6 +97,25 @@ define Package/$(PKG_NAME)/install/Default
 		$(CP) $(PKG_BUILD_DIR)/dest/* $(1)/www/views; \
 	fi
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
+endef
+endif
+
+define Build/InstallGPL
+	if [ ! -f "$(VUCI_CORE_DIR)/gpl_install" ]; then \
+		$(MAKE) -C $(TOPDIR) package/vuci-ui-core/gpl-install V=s; \
+	fi; \
+	$(if $(CONFIG_GPL_INCLUDE_WEB_SOURCES), \
+		$(Build/InstallGPL/Default) , \
+		$(INSTALL_DIR) $(PKG_GPL_BUILD_DIR)/files; \
+		if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then \
+			$(CP) $(PKG_BUILD_DIR)/files/* $(PKG_GPL_BUILD_DIR)/files ;\
+		fi ; \
+		$(if $(findstring m,$(CONFIG_PACKAGE_$(PKG_NAME))), \
+			$(INSTALL_DIR) $(1)/dest; \
+			$(CP) $(VUCI_CORE_DIR)/vuci-ui-core/src/dist/applications/$(APP_NAME_ONLY)/* $(1)/dest || \
+				$(CP) $(PKG_BUILD_DIR)/dest/* $(1)/dest || true; \
+		) \
+	)
 endef
 
 ifndef Package/$(PKG_NAME)/install

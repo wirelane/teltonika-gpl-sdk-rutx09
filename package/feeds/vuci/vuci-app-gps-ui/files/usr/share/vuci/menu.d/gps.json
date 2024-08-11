@@ -1,0 +1,26 @@
+{
+  "services/gps": {
+    "title": "GPS"
+  },
+  "services/gps/general": {
+    "view": "services/General"
+  },
+  "services/gps/map": {
+    "view": "services/Map"
+  },
+  "services/gps/nmea": {
+    "view": "services/NMEA"
+  },
+  "services/gps/https": {
+    "view": "services/HTTPS"
+  },
+  "services/gps/avl": {
+    "view": "services/AVL"
+  },
+  "services/gps/input": {
+    "view": "services/AvlInput"
+  },
+  "services/gps/geofencing": {
+    "view": "services/GPSGeofencing"
+  }
+}

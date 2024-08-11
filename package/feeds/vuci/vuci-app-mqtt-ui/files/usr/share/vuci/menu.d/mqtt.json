@@ -8,7 +8,8 @@
         "index": 1,
         "view": "services/MqttBroker",
         "acls": [ "services/mqtt/broker" ],
-        "files": [ "/etc/config/mosquitto" ]
+        "files": [ "/etc/config/mosquitto" ],
+        "main_page": true
     },
     "services/mqtt/publisher": {
         "title": "Publisher",

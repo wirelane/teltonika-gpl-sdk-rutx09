@@ -1,8 +1,5 @@
 {
     "network": {
-        "mobile": {
-            "operators": true
-        },
         "vlan": true,
         "firewall": {
             "zones": true,

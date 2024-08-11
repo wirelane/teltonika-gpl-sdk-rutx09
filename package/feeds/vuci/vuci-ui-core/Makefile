@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2024-06-17-f8e8f2e959
+PKG_VERSION:=2024-08-08-c49f55bee3
 PKG_RELEASE:=2
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -13,12 +13,13 @@ PKG_BUILD_PARALLEL:=1
 VUCI_APPS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=y $(TOPDIR)/.config | cut -d'=' -f1 | cut -d'_' -f3 | sed ':a;N;$!ba;s/\n/ /g')
 VUCI_PLUGINS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=m $(TOPDIR)/.config | cut -d'=' -f1 | cut -d'_' -f3 | sed ':a;N;$!ba;s/\n/ /g')
 
-# PKG_BUILD_DEPENDS:=VUCI_USE_VUCI_NODE:vuci-node/host VUCI_USE_OW_NODE:node/host
-
-PKG_CONFIG_DEPENDS:=CONFIG_VUCI_USE_HOST_NODE CONFIG_VUCI_BUILD_DEV #CONFIG_VUCI_USE_VUCI_NODE
+PKG_CONFIG_DEPENDS:=CONFIG_VUCI_USE_HOST_NODE CONFIG_VUCI_BUILD_DEV
 
 # used for GPL app file path modification
 APP_DIR=$(1)
+APP_DIR_2=$(subst -ui,,$(1))
+CORE_DIR=$(PKG_BUILD_DIR)/vuci-ui-core/src
+FW_APP_DIR=$(1)
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -41,56 +42,54 @@ endef
 define Package/vuci-ui-core/conffiles
 /etc/config/widget
 endef
-
+# FIXME needs update, since .vue files remains in applications dir now.
 define install_closed_gpl
 	rm -rf ~/.npm/
-	mv $(PKG_BUILD_DIR)/src/views/system/FwVerify.vue \
-		$(PKG_BUILD_DIR)/src/views/system/FwVerify_temp.vue
+	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue \
+		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify_temp.vue
 
-	mv $(PKG_BUILD_DIR)/src/views/system/FwVerifyGPL.vue \
-		$(PKG_BUILD_DIR)/src/views/system/FwVerify.vue
+	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerifyGPL.vue \
+		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue
 
-	mv $(PKG_BUILD_DIR)/ui-core/plugins/brand/index.js \
-		$(PKG_BUILD_DIR)/ui-core/plugins/brand/index_temp.js
+	mv $(CORE_DIR)/ui-core/plugins/brand/index.js \
+		$(CORE_DIR)/ui-core/plugins/brand/index_temp.js
 
-	mv $(PKG_BUILD_DIR)/ui-core/plugins/brand/index_gpl.js \
-		$(PKG_BUILD_DIR)/ui-core/plugins/brand/index.js
+	mv $(CORE_DIR)/ui-core/plugins/brand/index_gpl.js \
+		$(CORE_DIR)/ui-core/plugins/brand/index.js
 
-	$(CP) "$(PKG_BUILD_DIR)/ui-core/plugins/brand/brand.json" \
-		"$(PKG_BUILD_DIR)/public/brand"
+	$(CP) "$(CORE_DIR)/ui-core/plugins/brand/brand.json" \
+		"$(CORE_DIR)/public/brand"
 
-	$(CP) "$(PKG_BUILD_DIR)/ui-core/plugins/brand/brand.json" \
-		"$(PKG_BUILD_DIR)/dist/brand"
+	$(CP) "$(CORE_DIR)/ui-core/plugins/brand/brand.json" \
+		"$(CORE_DIR)/dist/www/brand"
 
 	$(MAKE) -C $(PKG_BUILD_DIR)
 
-	mv $(PKG_BUILD_DIR)/src/views/system/FwVerify.vue \
-		$(PKG_BUILD_DIR)/src/views/system/FwVerifyGPL.vue
+	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue \
+		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerifyGPL.vue
 
-	mv $(PKG_BUILD_DIR)/src/views/system/FwVerify_temp.vue \
-		$(PKG_BUILD_DIR)/src/views/system/FwVerify.vue
+	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify_temp.vue \
+		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue
 
-	$(CP) -rf ./files $(PKG_GPL_BUILD_DIR)
-	$(CP) -rf "$(PKG_BUILD_DIR)/dist" $(1)
+	$(INSTALL_DIR) $(1)/vuci-ui-core/src/dist
 
-	mv $(PKG_BUILD_DIR)/ui-core/plugins/brand/index.js \
-		$(PKG_BUILD_DIR)/ui-core/plugins/brand/index_gpl.js
+	$(CP) "$(CORE_DIR)/dist/www" $(1)/vuci-ui-core/src/dist/
 
-	mv $(PKG_BUILD_DIR)/ui-core/plugins/brand/index_temp.js \
-		$(PKG_BUILD_DIR)/ui-core/plugins/brand/index.js
+	mv $(CORE_DIR)/ui-core/plugins/brand/index.js \
+		$(CORE_DIR)/ui-core/plugins/brand/index_gpl.js
 
-	rm "$(PKG_BUILD_DIR)/public/brand/brand.json"
+	mv $(CORE_DIR)/ui-core/plugins/brand/index_temp.js \
+		$(CORE_DIR)/ui-core/plugins/brand/index.js
 
-	rm "$(PKG_BUILD_DIR)/dist/brand/brand.json"
+	rm "$(CORE_DIR)/public/brand/brand.json"
+
+	rm "$(CORE_DIR)/dist/www/brand/brand.json"
 
 	$(CP) ../compile-app-gpl.sh "$(GPL_BUILD_DIR)/package/feeds/vuci/"
+	$(CP) ../gpl.vite.config.js "$(GPL_BUILD_DIR)/package/feeds/vuci/"
+	$(CP) ../gpl.package.json "$(GPL_BUILD_DIR)/package/feeds/vuci/"
 endef
 
-
-define Build/Clean
-	@$(shell [ -d $(BUILD_DIR)/.vuci-build-plugin ] && rm -r $(BUILD_DIR)/.vuci-build-plugin)
-	@$(shell [ -L $(BUILD_DIR)/.vuci-build-plugin ] && rm $(BUILD_DIR)/.vuci-build-plugin)
-endef
 
 
 
@@ -118,39 +117,11 @@ endif
 
 define Package/vuci-ui-core/install
 	$(INSTALL_DIR) $(1)/www
-	$(CP) $(PKG_BUILD_DIR)/dist/* $(1)/www/
+	$(CP) $(PKG_BUILD_DIR)/vuci-ui-core/src/dist/www/* $(1)/www/
 	if [ ! -z "$$$$(ls ./modem-icons/$(TLT_PLATFORM_NAME)*)" ]; then \
-		$(CP) ./modem-icons/$(TLT_PLATFORM_NAME)* $(1)/www/tlt-icons/modem-icons/; \
+		$(CP) ./modem-icons/$(TLT_PLATFORM_NAME)* $(1)/www/icons/modem-icons/; \
 	fi
-	$(CP) ./files/* $(1)/
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
-
-	$(if $(CONFIG_DUAL_SIM_SUPPORT),, \
-		$(RM) $(1)/www/tlt-icons/modem-icons/simcard-secondary.svg.gz; \
-	)
-	$(if $(CONFIG_MOBILE_SUPPORT),, \
-		$(RM) -r $(1)/www/tlt-icons/modem-icons; \
-		$(RM) $(1)/www/tlt-icons/mobile.svg.gz; \
-		$(RM) $(1)/www/tlt-icons/side-sim.svg.gz; \
-		$(RM) $(1)/www/tlt-icons/signal*.png; \
-		$(RM) $(1)/www/tlt-icons/sim-*.svg.gz; \
-	)
-	$(if $(CONFIG_BLUETOOTH_SUPPORT),, \
-		$(RM) $(1)/www/tlt-icons/side-bluetooth.svg.gz; \
-	)
-	$(if $(CONFIG_WIFI_SUPPORT),, \
-		$(RM) $(1)/www/tlt-icons/side-navbar/wireless.svg.gz; \
-		$(RM) $(1)/www/tlt-icons/side-wifi.svg.gz; \
-		$(RM) $(1)/www/tlt-icons/wifi*.png; \
-		$(RM) $(1)/www/tlt-icons/wifi*.svg.gz; \
-	)
-	$(if $(CONFIG_SPEEDTEST_SUPPORT),, \
-		$(RM) $(1)/www/tlt-icons/speedtest_*.svg.gz; \
-	)
-	$(if $(TLT_PLATFORM_TSW2), \
-		$(RM) -r $(1)/www/tlt-icons/signal-bars; \
-		$(RM) $(1)/www/tlt-icons/connection-big-*.svg.gz; \
-	)
 
 endef
 

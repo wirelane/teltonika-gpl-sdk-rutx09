@@ -13,7 +13,8 @@
             "system/admin/certificates/generation"
         ],
         "view": "system/CertGeneration",
-        "index": 10
+        "index": 10,
+        "main_page": true
     },
     "system/admin/certificates/manager": {
         "title": "Certificates Manager",

@@ -2,7 +2,6 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-advanced-mode
 PKG_RELEASE:=1
-GPL_INCLUDE_SRC:=1
 PKG_LICENSE:=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
@@ -15,9 +14,6 @@ define Package/vuci-advanced-mode
     DEPENDS:= +vuci-ui-core
 endef
 
-define Build/Compile
-    true
-endef
 
 define Package/vuci-advanced-mode/install
 	$(CP) ./files/* $(1)

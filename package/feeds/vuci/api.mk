@@ -6,8 +6,6 @@ PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
 PKG_LICENSE?=Teltonika-nda-source
 
-GPL_INCLUDE_SRC?=1
-
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
 
@@ -49,9 +47,14 @@ define Package/$(PKG_NAME)/install/Default
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 endef
 
+define install_closed_gpl
+	$(INSTALL_DIR) $(PKG_GPL_BUILD_DIR)/files
+	$(CP) $(PKG_BUILD_DIR)/files/* $(PKG_GPL_BUILD_DIR)/files
+endef
+
 define Build/InstallGPL
-	$(Build/InstallGPL/Default)
-	if [[ -z "$(CONFIG_GPL_INCLUDE_WEB_SOURCES)" ]] && [[ -d $(PKG_BUILD_DIR)/files ]]; then $(INSTALL_DIR) $(1); rm -rf $(1)/files $(1)/tests ; $(CP) -R $(PKG_BUILD_DIR)/files $(1); fi
+	$(if $(CONFIG_GPL_INCLUDE_WEB_SOURCES), \
+		$(Build/InstallGPL/Default),$(install_closed_gpl))
 endef
 
 ifndef Package/$(PKG_NAME)/install

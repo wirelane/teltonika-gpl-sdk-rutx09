@@ -1,6 +1,7 @@
 APP_NAME?=$(notdir ${CURDIR})
 APP_SECTION?=vuci
 APP_CATEGORY?=VuCI
+unique_id:=$(shell echo $$RANDOM | md5sum | cut -c1-6)
 
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=$(VERSION)
@@ -24,9 +25,9 @@ endef
 
 define Package/$(PKG_NAME)/install
 	mkdir -p $(1)/www/i18n
-	$(CP) ./$(LANG_LONG_NAME).json $(1)/www/i18n/$(LANGUAGE).json
+	$(CP) ./$(LANG_LONG_NAME).json $(1)/www/i18n/$(LANGUAGE)_$(unique_id).json
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
-	gzip -f $(1)/www/i18n/$(LANGUAGE).json
+	gzip -f $(1)/www/i18n/$(LANGUAGE)_$(unique_id).json
 endef
 
 define Build/InstallGPL

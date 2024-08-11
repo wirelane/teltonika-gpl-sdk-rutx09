@@ -1,3 +1,53 @@
 {
-    
+  "network/mobile": {
+    "title": "Mobile"
+  },
+  "network/mobile/general": {
+    "view": "network/MobileGeneral"
+  },
+  "network/mobile/general/:id": {
+    "view": "network/MobileGeneral"
+  },
+  "network/mobile/connection": {
+    "view": "network/MobileConnection"
+  },
+  "network/mobile/connection/:id": {
+    "view": "network/MobileConnection"
+  },
+  "network/mobile/esim_profiles": {
+    "view": "network/MobileProfiles"
+  },
+  "network/mobile/esim_profiles/:id": {
+    "view": "network/MobileProfiles"
+  },
+  "network/mobile/limits/data": {
+    "view": "network/MobileLimits"
+  },
+  "network/mobile/limits/sms": {
+    "view": "network/MobileLimits"
+  },
+  "network/mobile/sim_switch": {
+    "view": "network/MobileSimSwitch"
+  },
+  "network/mobile/sim_switch/:id": {
+    "view": "network/MobileSimSwitch"
+  },
+  "network/mobile/sim_idle_protection": {
+    "title": "Sim Idle Protection"
+  },
+  "network/mobile/sim_idle_protection/:id": {
+    "title": "Sim Idle Protection"
+  },
+  "network/mobile/operators/scan": {
+    "view": "network/MobileOperators"
+  },
+  "network/mobile/operators/list": {
+    "view": "network/MobileOperatorsList"
+  },
+  "network/mobile/utilities": {
+    "view": "network/MobileUtilities"
+  },
+  "network/mobile/utilities/:id": {
+    "view": "network/MobileUtilities"
+  }
 }

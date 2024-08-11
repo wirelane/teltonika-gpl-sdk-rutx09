@@ -2,7 +2,7 @@
 	"services/mobile_utilities/smpp": {
 		"title": "SMPP",
 		"index": 5,
-		"view": "services/Smpp_aeaafe",
+		"view": "services/Smpp",
 		"acls": [ "services/mobile_utilities/smpp" ],
 		"files": [ "/etc/config/smpp" ]
 	}

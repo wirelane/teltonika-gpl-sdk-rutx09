@@ -1,38 +1,36 @@
 {
-	"status/overview": {
-		"description": "overview page",
-		"read": {
-			"api": [
-				"/system/device/usage/*",
-				"/modems/status/*",
-				"/sim_cards/status/*",
-				"/modems/apns/*",
-				"/interfaces/status/*",
-				"/interfaces/config/*",
-				"/interfaces/stats/*",
-				"/data_limit/*",
-				"/failover/interfaces/config/*",
-				"/failover/status/*",
-				"/failover/members/config/*",
-				"/port_based_vlan/config/*",
-				"/interface_based_vlan/*",
-				"/rms/status/*",
-				"/access_control/webui/status/*",
-				"/hotspot/status/*",
-				"/vrrp/status/*",
-				"/vrrp/config/*",
-				"/openvpn/status/*",
-				"/wireless/interfaces/*",
-				"/events_log/config/system/*",
-				"/events_log/config/network/*",
-				"/internet_connection/*",
-				"/overview/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/overview/*"
-			]
-		}
-	}
+  "status/overview": {
+    "description": "overview page",
+    "read": {
+      "api": [
+        "/system/device/usage/*",
+        "/modems/status/*",
+        "/sim_cards/status/*",
+        "/modems/apns/*",
+        "/interfaces/basic/status/*",
+        "/interfaces/config/*",
+        "/interfaces/stats/*",
+        "/data_limit/*",
+        "/failover/interfaces/config/*",
+        "/failover/basic/status/*",
+        "/failover/members/config/*",
+        "/port_based_vlan/config/*",
+        "/interface_based_vlan/*",
+        "/rms/status/*",
+        "/access_control/webui/status/*",
+        "/hotspot/status/*",
+        "/vrrp/status/*",
+        "/vrrp/config/*",
+        "/openvpn/status/*",
+        "/wireless/interfaces/*",
+        "/events_log/config/system/*",
+        "/events_log/config/network/*",
+        "/internet_connection/*",
+        "/overview/*"
+      ]
+    },
+    "write": {
+      "api": ["/overview/*"]
+    }
+  }
 }

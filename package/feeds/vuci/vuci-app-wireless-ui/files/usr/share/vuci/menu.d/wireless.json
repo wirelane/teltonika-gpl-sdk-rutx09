@@ -1,0 +1,8 @@
+{
+  "network/wireless/ssids": {
+    "view": "network/WirelessInterface"
+  },
+  "network/wireless/radio": {
+    "view": "network/WirelessDevice"
+  }
+}

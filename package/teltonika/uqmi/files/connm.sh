@@ -52,32 +52,29 @@ proto_connm_setup() {
 	json_get_vars device modem pdptype sim delay method mtu dhcp dhcpv6 ip4table ip6table \
 	leasetime mac $PROTO_DEFAULT_OPTIONS
 
+	# wait for shutdown to complete
+	wait_for_shutdown_complete "$interface"
+
 	pdp=$(get_pdp "$interface")
 
 	[ -n "$delay" ] || [ "$pdp" = "1" ] && delay=0 || delay=3
 	sleep "$delay"
 
-	[ -z "$sim" ] && sim=$(get_config_sim "$interface")
-
-#~ Parameters part------------------------------------------------------
-
-	service_name="wds"
-
-	get_simcard_parameters() {
-		local section="$1"
-		local mdm
-		config_get position "$section" position
-		config_get mdm "$section" modem
-
-		[ "$modem" = "$mdm" ] && \
-		[ "$position" = "$active_sim" ] && {
-			config_get deny_roaming "$section" deny_roaming "0"
-		}
+	local gsm_modem="$(find_mdm_ubus_obj "$modem")"
+	[ -z "$gsm_modem" ] && {
+			echo "Failed to find gsm modem ubus object, exiting."
+			return 1
 	}
 
-	config_load simcard
-	config_foreach get_simcard_parameters "sim"
-
+#~ Parameters part------------------------------------------------------
+	[ -z "$sim" ] && sim=$(get_config_sim "$interface")
+	active_sim=$(get_active_sim "$interface" "$old_cb" "$gsm_modem")
+	esim_profile_index=$(get_active_esim_profile_index "$modem")
+	# verify active sim by return value(non zero means that the check failed)
+	verify_active_sim "$sim" "$active_sim" "$interface" || return
+	# verify active esim profile index by return value(non zero means that the check failed)
+	verify_active_esim "$esim_profile_index" "$interface" || return
+	deny_roaming=$(get_deny_roaming "$active_sim" "$modem" "$esim_profile_index")
 #~ ---------------------------------------------------------------------
 
 	device="/dev/cdc-wdm0"
@@ -271,7 +268,7 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 	proto_export "IFACE4=$IFACE4"
 	proto_export "IFACE6=$IFACE6"
 	proto_export "OPTIONS=$options"
-	proto_run_command "$interface" qmuxtrack "$device" "$cid_4" "$cid_6"
+	proto_run_command "$interface" qmuxtrack "$device" "$modem" "$cid_4" "$cid_6"
 }
 
 proto_connm_teardown() {
@@ -291,10 +288,9 @@ proto_connm_teardown() {
 		bridge_ipaddr=$(get_braddr_var bridge_ipaddr "$interface")
 	}
 
-	clear_connection_values $interface $device "4" $conn_proto
-	ubus call network.interface down "{\"interface\":\"${interface}_4\"}"
+	background_clear_conn_values "$interface" "$device" "$conn_proto" &
 
-	clear_connection_values $interface $device "6" $conn_proto
+	ubus call network.interface down "{\"interface\":\"${interface}_4\"}"
 	ubus call network.interface down "{\"interface\":\"${interface}_6\"}"
 
 	[ "$method" = "bridge" ] || [ "$method" = "passthrough" ] && {

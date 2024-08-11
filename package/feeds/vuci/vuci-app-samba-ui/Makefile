@@ -9,7 +9,7 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-samba-ui))
 endif
 
 define Package/vuci-app-samba-ui/teltonika_rut9m
-  PKG_ROUTER:=RUT956 RUT906
+  PKG_ROUTER:=RUT956 RUT906 RUT976
 endef
 
 include ../app.mk

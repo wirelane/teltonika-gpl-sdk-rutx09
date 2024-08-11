@@ -8,7 +8,8 @@
 			"index": 10,
 			"view": "services/HotspotOverview",
 			"acls": [ "services/hotspot/general" ],
-			"files": [ "/etc/config/chilli" ]
+			"files": [ "/etc/config/chilli" ],
+			"main_page": true
 		},
 		"services/hotspot/users": {
 			"title": "Local Users",
@@ -36,7 +37,7 @@
 			"index": 50
 		},
 			"services/hotspot/user_management/current": {
-				"title": "Current Users",
+				"title": "User sessions",
 				"index": 10,
 				"view": "services/HotspotCurrentUsers",
 				"acls": [ "services/hotspot/user_management" ],

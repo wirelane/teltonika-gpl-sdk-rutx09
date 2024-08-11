@@ -1,0 +1,5 @@
+{
+  "services/usb_tools/p910nd": {
+    "view": "services/P910nd"
+  }
+}

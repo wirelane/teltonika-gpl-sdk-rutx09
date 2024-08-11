@@ -13,27 +13,27 @@ build_files()
 
 	type_name="${file_path##*/src/views/}"
 	app_type="${type_name%%/*}"
-
-	touch ".env.plugin${app_name}"
-	echo "VITE_PLUGIN_ENTRY=${file_path}" >> ".env.plugin${app_name}"
-	echo "VITE_PLUGIN_NAME=${app_type}/${app_name}_js" >> ".env.plugin${app_name}"
-	echo "VITE_PLUGIN_FILENAME=plugin" >> ".env.plugin${app_name}"
-	vite build --outDir ./.plugin/temp --config plugin.vite.config.js --mode "plugin${app_name}"
+	env_file=".env.plugin${app_name}"
+	touch $env_file
+	echo "VITE_PLUGIN_ENTRY=${file_path}" >> $env_file
+	echo "VITE_PLUGIN_FILENAME=plugin" >> $env_file
+	vite build --outDir ./.plugin/temp --config gpl.vite.config.js --mode "plugin${app_name}"
 	status=$(echo $?)
-	rm ".env.plugin${app_name}"
+	rm $env_file
 	[ $status -ne 0 ] && {
 		cat package.json
 		exit $status
 	}
-	md5=$(md5sum .plugin/temp/* | cut -d ' ' -f1)
+	md5=$(md5sum .plugin/temp/plugin.* | cut -d ' ' -f1)
 	md5_sub=${md5:0:6}
-
 	mkdir -p "../dest/$app_type"
 	app_target="../dest/$app_type/${app_name}_${md5_sub}"
-	if [ -f .plugin/temp/plugin.umd.js.gz ]; then
-		cp .plugin/temp/plugin.umd.js.gz "$app_target.js.gz"
-	elif [ -f .plugin/temp/plugin.umd.js ]; then
-		cp .plugin/temp/plugin.umd.js "$app_target.js"
+	if [ -f .plugin/temp/plugin.js.gz ]; then
+		cp .plugin/temp/plugin.js.gz "$app_target.js.gz"
+	elif [ -f .plugin/temp/plugin.mjs.gz ]; then
+		cp .plugin/temp/plugin.mjs.gz "$app_target.js.gz"
+	elif [ -f .plugin/temp/plugin.js ]; then
+		cp .plugin/temp/plugin.js "$app_target.js"
 	fi
 
 	if [ -f .plugin/temp/style.css.gz ]; then

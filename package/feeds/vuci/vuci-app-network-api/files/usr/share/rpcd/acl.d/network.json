@@ -11,7 +11,9 @@
         "/firewall/zones/*",
         "/wireless/interfaces/*",
         "/interface_based_vlan/*",
-        "/network/devices/status/*"
+        "/network/devices/status/*",
+        "/basic/network/devices/status/*",
+		"/hotspot/config/*"
       ]
     },
     "write": {
@@ -33,7 +35,9 @@
         "/failover/interfaces/config/*",
         "/failover/mode/config/globals/*",
         "/network/devices/status/*",
-        "/data_limit/*"
+        "/basic/network/devices/status/*",
+        "/data_limit/*",
+		"/hotspot/config/*"
       ]
     },
     "write": {

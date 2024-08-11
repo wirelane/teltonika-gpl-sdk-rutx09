@@ -7,7 +7,7 @@ APP_ROUTER:=$(TLT_PLATFORM_NAME)
 APP_APP_NAME:=tlt-minidlna
 
 define Package/vuci-app-minidlna-ui/teltonika_rut9m
-  PKG_ROUTER:=RUT956 RUT906
+  PKG_ROUTER:=RUT956 RUT906 RUT976
 endef
 
 include ../app.mk

@@ -1,35 +1,11 @@
 {
-	"system/packages/packages": {
-		"description": "Package Manager",
-		"read": {
-			"uci": ["rut_fota"],
-			"api": [
-				"/package_manager/*"
-			]
-		},
-		"write": {
-			"uci": ["rut_fota"],
-			"ubus": {
-				"vuci.system": [
-					"reboot"
-				]
-			},
-			"api": ["/package_manager/*"]
-		}
-	},
-
-	"system/packages/upload": {
-		"description": "package manager upload",
-		"read": {
-			"uci": [" "]
-		},
-		"write": {
-			"ubus": {
-				"vuci.system": [
-					"reboot"
-				]
-			},
-			"api": ["/package_manager/*", "/system/actions/network_restart/*"]
-		}
-	}
+  "system/package_manager": {
+    "description": "package manager",
+    "read": {
+      "api": ["/package_manager/*"]
+    },
+    "write": {
+      "api": ["/package_manager/*", "/system/actions/network_restart/*"]
+    }
+  }
 }

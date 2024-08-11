@@ -62,56 +62,44 @@ proto_qmux_setup() {
 	json_get_vars pdp device modem pdptype sim delay method mtu dhcp dhcpv6 ip4table ip6table \
 	leasetime mac $PROTO_DEFAULT_OPTIONS
 
-        local gsm_modem="$(find_mdm_ubus_obj "$modem")"
+	# wait for shutdown to complete
+	wait_for_shutdown_complete "$interface"
 
-        [ -z "$gsm_modem" ] && {
-                echo "Failed to find gsm modem ubus object, exiting."
-                return 1
-        }
+	local gsm_modem="$(find_mdm_ubus_obj "$modem")"
+
+	[ -z "$gsm_modem" ] && {
+			echo "Failed to find gsm modem ubus object, exiting."
+			return 1
+	}
 
 	pdp=$(get_pdp "$interface")
 
 	[ -n "$delay" ] || [ "$pdp" = "1" ] && delay=0 || delay=3
 	sleep "$delay"
 
+#~ Parameters part------------------------------------------------------
 	[ -z "$sim" ] && sim=$(get_config_sim "$interface")
+	active_sim=$(get_active_sim "$interface" "$old_cb" "$gsm_modem")
+	esim_profile_index=$(get_active_esim_profile_index "$modem")
+	# verify active sim by return value(non zero means that the check failed)
+	verify_active_sim "$sim" "$active_sim" "$interface" || return
+	# verify active esim profile index by return value(non zero means that the check failed)
+	verify_active_esim "$esim_profile_index" "$interface" || return
+	deny_roaming=$(get_deny_roaming "$active_sim" "$modem" "$esim_profile_index")
+#~ ---------------------------------------------------------------------
 
-#~ SIM Parameters part------------------------------------------------------
+	gsm_info=$(ubus call $gsm_modem info)
+	red_cap=$(jsonfilter -s "$gsm_info" -e '@.red_cap')
 
-	echo "Quering active sim position"
-	json_set_namespace gobinet old_cb
-	json_load "$(ubus call $gsm_modem get_sim_slot)"
-	json_get_var active_sim index
-	json_set_namespace $old_cb
-
-# 	Restart if check failed
-	if [ "$active_sim" -lt 1 ] || [ "$active_sim" -gt 2 ]; then
-		echo "Bad active sim: $active_sim."
-		return
+	if [ "$red_cap" = "true" ] && [ "$deny_roaming" = "1" ]; then
+		reg_stat_str=$(jsonfilter -s "$gsm_info" -e '@.cache.reg_stat_str')
+		if [ "$reg_stat_str" = "Roaming" ]; then
+			echo "Roaming detected. Stopping connection"
+			proto_notify_error "$interface" "Roaming detected"
+			proto_block_restart "$interface"
+			return
+		fi
 	fi
-
-	# check if current sim and interface sim match
-	[ "$active_sim" = "$sim" ] || {
-		echo "Active sim: $active_sim. \
-		This interface uses different simcard: $sim."
-		proto_notify_error "$interface" WRONG_SIM
-		proto_block_restart "$interface"
-		return
-	}
-
-	get_simcard_parameters() {
-		local section="$1"
-		local mdm
-		config_get position "$section" position
-		config_get mdm "$section" modem
-
-		[ "$modem" = "$mdm" ] && \
-		[ "$position" = "$active_sim" ] && {
-			config_get deny_roaming "$section" deny_roaming "0"
-		}
-	}
-	config_load simcard
-	config_foreach get_simcard_parameters "sim"
 
 	get_qmimux_by_id() {
 		local interface
@@ -135,8 +123,7 @@ proto_qmux_setup() {
 		let "ifid++"
 	}
 
-#~ Network part ---------------------------------------------------------------------
-
+#~ ---------------------------------------------------------------------
 	[ -n "$ctl_device" ] && device="$ctl_device"
 	[ -z "$timeout" ] && timeout="30"
 	[ -z "$metric" ] && metric="1"
@@ -204,17 +191,22 @@ required driver attribute: /sys/class/net/$ifname/qmi/raw_ip"
 
 	[ "$deny_roaming" -ne "0" ] && deny_roaming="yes" || deny_roaming="no"
 
-	cid="$(uqmi -d "$device" $options --get-client-id wds)"
-	qmi_error_handle "$cid" "$error_cnt" "$modem" || return 1
+	if [ "$red_cap" != "true" ]; then
+		cid="$(uqmi -d "$device" $options --get-client-id wds)"
+		qmi_error_handle "$cid" "$error_cnt" "$modem" || return 1
 
-#~ Do not add TABS!
-call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
+		call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
 --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag ${deny_roaming}"
+	fi
 
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
 	[ -z "$retry_before_reinit" ] && retry_before_reinit="0"
 
-	wait_for_serving_system || return 1
+	if [ "$red_cap" = "true" ]; then
+		wait_for_serving_system_via_at_commands || return 1
+	else
+		wait_for_serving_system || return 1
+	fi
 
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv4v6" ] && {
 
@@ -237,8 +229,13 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		[ $? -ne 0 ] && return 1
 
 		#~ Start PS call
-		pdh_4=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 \
+		if [ "$red_cap" = "true" ]; then
+			pdh_4=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 \
+--start-network --profile $pdp" "true")
+		else
+			pdh_4=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 \
 --start-network --profile $pdp --ip-family ipv4" "true")
+		fi
 
 		echo "pdh4: $pdh_4"
 
@@ -272,7 +269,6 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		fi
 		echo "cid6: $cid_6"
 
-		#~ Bind context to port
 		call_uqmi_command "uqmi -d $device $options --wds-bind-mux-data-port --mux-id $ifid \
 --ep-iface-number $ep_iface --set-client-id wds,$cid_6"
 
@@ -283,7 +279,7 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 
 		#~ Start PS call
 		pdh_6=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_6 \
---start-network --profile $pdp --ip-family ipv6" "true")
+--start-network --ip-family ipv6 --profile $pdp" "true")
 
 		echo "pdh6: $pdh_6"
 
@@ -382,9 +378,10 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 
 	proto_export "IFACE4=$IFACE4"
 	proto_export "IFACE6=$IFACE6"
-	proto_run_command "$interface" qmuxtrack "$device" "$cid_4" "$cid_6"
+	proto_run_command "$interface" qmuxtrack "$device" "$modem" "$cid_4" "$cid_6"
 }
 #~ ---------------------------------------------------------------------
+
 proto_qmux_teardown() {
 	#~ netifd has 15 seconds timeout to finish this function
 	#~ it is killed if not finished
@@ -412,10 +409,9 @@ proto_qmux_teardown() {
 
 	rm -f "/var/run/${conn_proto}/${interface}.up" 2> /dev/null
 
-	clear_connection_values "$interface" "$device" 4 "$conn_proto"
-	ubus call network.interface down "{\"interface\":\"${interface}_4\"}"
+	background_clear_conn_values "$interface" "$device" "$conn_proto" &
 
-	clear_connection_values "$interface" "$device" 6 "$conn_proto"
+	ubus call network.interface down "{\"interface\":\"${interface}_4\"}"
 	ubus call network.interface down "{\"interface\":\"${interface}_6\"}"
 
 	[ "$method" = "bridge" ] || [ "$method" = "passthrough" ] && {

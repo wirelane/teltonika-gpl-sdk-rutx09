@@ -8,7 +8,8 @@
 			"index": 10,
 			"view": "services/NtpGeneral",
 			"acls": [ "system/admin/datetime/general" ],
-			"files": [ "/etc/config/ntpclient" ]
+			"files": [ "/etc/config/ntpclient" ],
+			"main_page": true
 		},
 		"system/admin/datetime/ntp": {
 			"title": "NTP",

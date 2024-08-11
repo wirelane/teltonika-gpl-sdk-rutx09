@@ -3,7 +3,8 @@
 		"description": "dynamic routes bgp configuration",
 		"read": {
 			"api": [
-				"/bgp/*"
+				"/bgp/*",
+				"/vrf/config/*"
 			]
 		},
 		"write": {

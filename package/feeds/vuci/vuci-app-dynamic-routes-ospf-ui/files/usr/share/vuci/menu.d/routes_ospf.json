@@ -17,7 +17,8 @@
 				"view": "network/ProtoOspf",
 				"acls": [ "network/routes/dynamic_routes/proto_ospf"],
 				"files": [ "/etc/config/ospf" ],
-				"orfiles": [ "/usr/lib/opkg/info/frr5-ospfd.control", "/usr/lib/opkg/info/frr-ospfd.control" ]
+				"orfiles": [ "/usr/lib/opkg/info/frr5-ospfd.control", "/usr/lib/opkg/info/frr-ospfd.control" ],
+				"main_page": true
 			},
 	"status/routes": {
 		"title": "Routes",

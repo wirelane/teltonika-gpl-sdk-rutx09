@@ -1,32 +1,8 @@
 {
-	"status/system": {
-		"description": "system status",
-		"read": {
-			"api": [
-				"/system/device/*",
-				"/network/devices/*",
-				"/modems/*"
-			],
-			"uci": [
-				"system"
-			],
-			"ubus": {
-				"gsmd": [
-					"get_modems"
-				],
-				"mnfinfo": [
-					"get"
-				],
-				"system": [
-					"info",
-					"board"
-				],
-				"vuci.system": [
-					"version",
-					"df",
-					"get_networks_devices"
-				]
-			}
-		}
-	}
+  "status/system": {
+    "description": "system status",
+    "read": {
+      "api": ["/system/device/*", "/wireless/devices/*", "/modems/*"]
+    }
+  }
 }

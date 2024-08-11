@@ -1,32 +1,20 @@
 {
-	"network/vlan/interface_based": {
-		"description": "vlan configuration",
-		"read": {
-			"api": [
-				"/interface_based_vlan/*",
-				"/network/devices/status/*",
-				"/l2tpv3/config/*",
-				"/port_based_vlan/config/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/interface_based_vlan/*"
-			]
-		}
-	},
-	"network/vlan/port_based": {
-		"description": "vlan configuration",
-		"read": {
-			"api": [
-				"/port_based_vlan/*",
-				"/interfaces/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/port_based_vlan/*"
-			]
-		}
-	}
+  "network/vlan/interface_based": {
+    "description": "vlan configuration",
+    "read": {
+      "api": ["/interface_based_vlan/*", "/basic/network/devices/status/*", "/basic/network/devices/*", "/l2tpv3/config/*", "/port_based_vlan/config/*"]
+    },
+    "write": {
+      "api": ["/interface_based_vlan/*"]
+    }
+  },
+  "network/vlan/port_based": {
+    "description": "vlan configuration",
+    "read": {
+      "api": ["/port_based_vlan/*", "/interfaces/*"]
+    },
+    "write": {
+      "api": ["/port_based_vlan/*"]
+    }
+  }
 }

@@ -2,7 +2,12 @@
   "network/dhcp_servers/static_leases": {
     "description": "",
     "read": {
-      "api": ["/dhcp/static_leases/*"]
+      "api": ["/dhcp/static_leases/*",
+			  "/dhcp/servers/ipv4/config/*",
+			  "/dhcp/leases/ipv4/status/*",
+			  "/dhcp/leases/ipv6/status/*",
+			  "/interfaces/basic/status/*",
+			  "/routes/status/*"]
     },
     "write": {
       "api": ["/dhcp/static_leases/*"]
@@ -11,7 +16,7 @@
   "network/dhcp_servers/general": {
     "description": "",
     "read": {
-      "api": ["/dhcp/servers/*", "/interfaces/config/*"]
+      "api": ["/dhcp/servers/*", "/interfaces/config/*", "/interfaces/basic/status/*"]
     },
     "write": {
       "api": ["/dhcp/servers/*"]
@@ -29,7 +34,7 @@
   "status/network/lan": {
     "description": "lan network status",
     "read": {
-      "api": ["/interfaces/status/*", "/dhcp/*"]
+      "api": ["/interfaces/basic/status/*", "/dhcp/*"]
     }
   }
 }

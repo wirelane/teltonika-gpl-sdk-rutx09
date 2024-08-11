@@ -12,7 +12,8 @@
 				"/l2tpv3/*",
 				"/pptp/client/*",
 				"/sstp/*",
-				"/wireguard/*"
+				"/wireguard/*",
+				"/vrf/config/*"
 			]
 		},
 		"write": {

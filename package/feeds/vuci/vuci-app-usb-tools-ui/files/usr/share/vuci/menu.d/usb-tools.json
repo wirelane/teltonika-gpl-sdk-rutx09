@@ -1,0 +1,11 @@
+{
+  "services/usb_tools": {
+    "title": "USB Tools"
+  },
+  "services/usb_tools/general": {
+    "view": "services/UsbGeneral"
+  },
+  "system/admin/memory_expansion": {
+    "title": "Storage Memory Expansion"
+  }
+}

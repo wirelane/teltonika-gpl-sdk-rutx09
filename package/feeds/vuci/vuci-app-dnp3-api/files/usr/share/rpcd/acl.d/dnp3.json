@@ -3,12 +3,14 @@
 		"description": "dnp3 tcp client",
 		"read": {
 			"api": [
-				"/dnp3/tcp/*"
+				"/dnp3/tcp/*",
+				"/dnp3/global/*"
 			]
 		},
 		"write": {
 			"api": [
-				"/dnp3/tcp/*"
+				"/dnp3/tcp/*",
+				"/dnp3/global/*"
 			]
 		}
 	},
@@ -17,13 +19,15 @@
 		"read": {
 			"api": [
 				"/dnp3/serial/*",
+				"/dnp3/global/*",
 				"/serial/*",
 				"/system/device/*"
 			]
 		},
 		"write": {
 			"api": [
-				"/dnp3/serial/*"
+				"/dnp3/serial/*",
+				"/dnp3/global/*"
 			]
 		}
 	},

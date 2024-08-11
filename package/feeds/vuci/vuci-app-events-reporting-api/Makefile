@@ -8,7 +8,6 @@ CUSTOM_INSTALL=1
 include ../api.mk
 
 ifneq ($(CONFIG_GPL_INCLUDE_WEB_SOURCES), y)
-GPL_INCLUDE_SRC=0
 endif
 
 define Package/$(PKG_NAME)/install

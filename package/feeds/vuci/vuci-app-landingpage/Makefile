@@ -3,7 +3,6 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=vuci-app-landingpage
 PKG_VERSION:=2021-02-19
 PKG_RELEASE:=1
-GPL_INCLUDE_SRC:=1
 # there's a few files with custom licenses in here, but most of them are Apache v2.
 PKG_LICENSE:=Apache-2.0
  
@@ -23,7 +22,7 @@ endef
  
 define Package/vuci-app-landingpage/install
 	$(CP) ./files/* $(1)
-	$(INSTALL_BIN) ./files/hotspotlogin/cgi-bin/hotspot $(1)/hotspotlogin/cgi-bin/hotspot
+	$(INSTALL_BIN) ./files/etc/chilli/hotspotlogin/cgi-bin/hotspot $(1)/etc/chilli/hotspotlogin/cgi-bin/hotspot
 	$(INSTALL_DIR) $(1)/usr/lib/lua/luci/template
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/parser.so $(1)/usr/lib/lua/luci/template/parser.so
 endef

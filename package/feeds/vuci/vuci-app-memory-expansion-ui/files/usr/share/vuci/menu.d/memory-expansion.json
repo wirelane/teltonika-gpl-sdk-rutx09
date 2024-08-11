@@ -1,0 +1,5 @@
+{
+  "system/admin/memory_expansion/usb": {
+    "view": "services/MemoryExpansion"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "network/mobile/sim_idle_protection": {
+    "view": "network/SimIdleProtection",
+    "main_page": true
+  },
+  "network/mobile/sim_idle_protection/:id": {
+    "view": "network/SimIdleProtection"
+  }
+}

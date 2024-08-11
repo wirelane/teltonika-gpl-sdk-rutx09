@@ -1,26 +1,18 @@
 {
-	"network/routes/dynamic_routes/proto_nhrp": {
-		"description": "dynamic NHRP routes configuration",
-		"read": {
-			"api": [
-				"/nhrp/*",
-				"/network/devices/status/*",
-				"/ipsec/config/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/nhrp/*"
-			]
-		}
-	},
-	
-	"status/routes/dynamic/nhrp": {
-		"description": "NHRP routes",
-		"read": {
-			"api": [
-				"/nhrp/*"
-			]
-		}
-	}
+  "network/routes/dynamic_routes/proto_nhrp": {
+    "description": "dynamic NHRP routes configuration",
+    "read": {
+      "api": ["/nhrp/*", "/interfaces/*", "/ipsec/config/*"]
+    },
+    "write": {
+      "api": ["/nhrp/*"]
+    }
+  },
+
+  "status/routes/dynamic/nhrp": {
+    "description": "NHRP routes",
+    "read": {
+      "api": ["/nhrp/*"]
+    }
+  }
 }

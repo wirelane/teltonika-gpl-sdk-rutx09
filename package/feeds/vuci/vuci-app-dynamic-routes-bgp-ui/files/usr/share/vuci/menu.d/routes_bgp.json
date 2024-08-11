@@ -17,7 +17,8 @@
 				"view": "network/ProtoBgp",
 				"acls": [ "network/routes/dynamic_routes/proto_bgp" ],
 				"files": [ "/etc/config/bgp" ],
-				"orfiles": [ "/usr/lib/opkg/info/frr5-bgpd.control", "/usr/lib/opkg/info/frr-bgpd.control"]
+				"orfiles": [ "/usr/lib/opkg/info/frr5-bgpd.control", "/usr/lib/opkg/info/frr-bgpd.control"],
+				"main_page": true
 			},
 	"status/routes": {
 		"title": "Routes",

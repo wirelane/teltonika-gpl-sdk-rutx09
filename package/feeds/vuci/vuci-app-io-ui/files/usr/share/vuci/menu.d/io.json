@@ -1,0 +1,26 @@
+{
+  "services/io": {
+    "title": "Input/Output"
+  },
+  "services/io/general": {
+    "view": "services/IoStatus"
+  },
+  "services/io/post_get": {
+    "view": "services/IoPostGet"
+  },
+  "services/io/scheduler": {
+    "view": "services/IoScheduler"
+  },
+  "services/io/juggler": {
+    "title": "I/O Juggler"
+  },
+  "services/io/juggler/input": {
+    "view": "services/IoJugglerGeneral"
+  },
+  "services/io/juggler/action": {
+    "view": "services/IoJugglerActions"
+  },
+  "services/io/juggler/condition": {
+    "view": "services/IoJugglerConditions"
+  }
+}

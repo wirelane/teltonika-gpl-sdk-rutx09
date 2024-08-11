@@ -13,7 +13,8 @@
 			"system/maintenance/eventlog/all"
 		],
 		"view": "status/EventsLog",
-		"index": 11
+		"index": 11,
+		"main_page": true
 	},
 	"system/maintenance/eventlog/general": {
 		"title": "General Events",

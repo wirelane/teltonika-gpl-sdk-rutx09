@@ -1,0 +1,5 @@
+{
+  "services/mobile_utilities/call_utilities": {
+    "view": "services/CallUtilities"
+  }
+}

@@ -2,7 +2,7 @@
 	"services/dlms": {
 		"title": "DLMS",
 		"index": 150,
-		"view": "services/DlmsMain_aeaafe",
+		"view": "services/DlmsMain",
 		"acls": [
 			"services/dlms"
 		],

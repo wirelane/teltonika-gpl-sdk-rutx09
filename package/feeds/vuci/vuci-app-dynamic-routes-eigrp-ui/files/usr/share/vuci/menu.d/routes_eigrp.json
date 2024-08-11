@@ -17,7 +17,8 @@
 				"view": "network/ProtoEigrp",
 				"acls": [ "network/routes/dynamic_routes/proto_eigrp"],
 				"files": [ "/etc/config/eigrp"],
-				"orfiles": [ "/usr/lib/opkg/info/frr5-eigrpd.control", "/usr/lib/opkg/info/frr-eigrpd.control" ]
+				"orfiles": [ "/usr/lib/opkg/info/frr5-eigrpd.control", "/usr/lib/opkg/info/frr-eigrpd.control" ],
+				"main_page": true
 			},
 	"status/routes": {
 		"title": "Routes",

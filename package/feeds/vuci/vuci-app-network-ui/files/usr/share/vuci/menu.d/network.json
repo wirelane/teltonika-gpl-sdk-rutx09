@@ -17,8 +17,17 @@
     "title": "Network",
     "index": 30
   },
+  "status/network/mobile": {
+    "view": "status/Mobile"
+  },
+  "status/network/mobile/:id": {
+    "view": "status/Mobile"
+  },
   "status/wireless": {
     "title": "Wireless",
-    "index": 35
+    "index": 40
+  },
+  "status/wireless/interfaces": {
+    "view": "status/Wireless"
   }
 }

@@ -1,14 +1,30 @@
 {
-	"status/realtime": {
-		"title": "Realtime Data",
-		"index": 50
-	},
-	"status/realtime/load": {
-		"title": "Load",
-		"acls": [
-			"status/realtime/load"
-		],
-		"index": 10,
-		"view": "status/LoadRealtime"
-	}
+  "status/realtime": {
+    "title": "Realtime Data",
+    "index": 50
+  },
+  "status/realtime/load": {
+    "title": "Load",
+    "acls": ["status/realtime/load"],
+    "index": 10,
+    "view": "status/LoadRealtime"
+  },
+  "status/realtime/bandwidth/:id": {
+    "view": "status/TrafficRealtime"
+  },
+  "status/realtime/bandwidth": {
+    "view": "status/TrafficRealtime"
+  },
+  "status/realtime/connections": {
+    "view": "status/ConnectionsRealtime"
+  },
+  "status/realtime/wireless": {
+    "view": "status/WirelessRealtime"
+  },
+  "status/realtime/wireless/:id": {
+    "view": "status/WirelessRealtime"
+  },
+  "status/realtime/mobile": {
+    "view": "status/MobileRealtime"
+  }
 }

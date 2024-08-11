@@ -8,7 +8,8 @@
 			"index": 10,
 			"view": "services/ModbusServer",
 			"acls": [ "services/modbus/modbus_server" ],
-			"files": [ "/etc/config/modbus_server" ]
+			"files": [ "/etc/config/modbus_server" ],
+			"main_page": true
 		},
 		"services/modbus/modbus_serial_server": {
 			"title": "Modbus Serial Server",

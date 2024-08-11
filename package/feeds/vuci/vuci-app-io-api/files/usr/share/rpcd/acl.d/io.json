@@ -1,146 +1,73 @@
 {
-	"services/io/general": {
-		"description": "input/output status configuration",
-		"read": {
-			"ubus": {
-				"ioman.*.*": [
-					"status"
-				]
-			},
-			"api": ["/io/*"]
-		},
-		"write": {
-			"ubus": {
-				"ioman.*.*": [
-					"update"
-				]
-			},
-			"api": ["/io/*"]
-		}
-	},
+  "services/io/general": {
+    "description": "input/output status configuration",
+    "read": {
+      "api": ["/io/*"]
+    },
+    "write": {
+      "api": ["/io/*"]
+    }
+  },
 
-	"services/io/post_get": {
-		"description": "input.output post/get configuration",
-		"read": {
-			"uci": ["ioman"],
-			"api": ["/io/post_get/*"]
-		},
-		"write": {
-			"uci": ["ioman"],
-			"api": ["/io/post_get/*"]
-		}
-	},
+  "services/io/post_get": {
+    "description": "input.output post/get configuration",
+    "read": {
+      "api": ["/io/post_get/*"]
+    },
+    "write": {
+      "api": ["/io/post_get/*"]
+    }
+  },
 
-	"services/io/scheduler": {
-		"description": "input.output scheduler configuration",
-		"read": {
-			"uci": ["ioman"],
-			"api": [
-				"/io/scheduler/*",
-				"/io/*",
-				"/io/juggler/operations/config/*",
-				"/io/juggler/inputs/config/*",
-				"/sms_utilities/rules/config/*",
-				"/call_utilities/rules/config/*"
-			]
-		},
-		"write": {
-			"uci": ["ioman"],
-			"api": ["/io/scheduler/*"]
-		}
-	},
+  "services/io/scheduler": {
+    "description": "input.output scheduler configuration",
+    "read": {
+      "api": ["/io/scheduler/*", "/io/*", "/io/juggler/operations/config/*", "/io/juggler/inputs/config/*", "/sms_utilities/rules/config/*", "/call_utilities/rules/config/*"]
+    },
+    "write": {
+      "api": ["/io/scheduler/*"]
+    }
+  },
 
-	"services/io/juggler/input": {
-		"description": "input.output juggler configuration",
-		"read": {
-			"api": [
-				"/io/juggler/config/*",
-				"/io/*",
-				"/io/scheduler/global/*"
-			],
-			"uci": [
-				"iojuggler"
-			]
-		},
-		"write": {
-			"api": [
-				"/io/juggler/config/*"
-			],
-			"uci": [
-				"iojuggler"
-			]
-		}
-	},
+  "services/io/juggler/input": {
+    "description": "input.output juggler configuration",
+    "read": {
+      "api": ["/io/juggler/config/*", "/io/*", "/io/scheduler/global/*"]
+    },
+    "write": {
+      "api": ["/io/juggler/config/*"]
+    }
+  },
 
-	"services/io/juggler/action": {
-		"description": "input.output juggler actions configuration",
-		"read": {
-			"api": [
-				"/io/juggler/operations/options/*",
-				"/io/juggler/operations/config/*",
-				"/io/juggler/conditions/config/*",
-				"/io/*",
-				"/recipients/email_users/config/*",
-				"/recipients/phone_groups/config/*",
-				"/modems/sim_switch/config/*",
-				"/modems/status*",
-				"/profiles/config/*",
-				"/network/devices/status/*",
-				"/certificates/config/*"
-			],
-			"uci": [
-				"iojuggler",
-				"user_groups",
-				"profiles",
-				"simcard"
-			],
-			"ubus": {
-				"vuci.network.mobile": [
-					"get_all_modems"
-				],
-				"sim": [
-					"get"
-				],
-				"network.device": [
-					"status"
-				],
-				"network.interface": [
-					"dump"
-				],
-				"vuci.network.network": [
-					"get_devices",
-					"network_netlist"
-				]
-			}
-		},
-		"write": {
-			"api": [
-				"/io/juggler/operations/config/*"
-			],
-			"uci": [
-				"iojuggler"
-			]
-		}
-	},
+  "services/io/juggler/action": {
+    "description": "input.output juggler actions configuration",
+    "read": {
+      "api": [
+        "/io/juggler/operations/options/*",
+        "/io/juggler/operations/config/*",
+        "/io/juggler/conditions/config/*",
+        "/io/*",
+        "/recipients/email_users/config/*",
+        "/recipients/phone_groups/config/*",
+        "/modems/sim_switch/config/*",
+        "/modems/status*",
+        "/profiles/config/*",
+        "/basic/network/devices/status/*",
+        "/certificates/config/*"
+      ]
+    },
+    "write": {
+      "api": ["/io/juggler/operations/config/*"]
+    }
+  },
 
-	"services/io/juggler/condition": {
-		"description": "input.output juggler conditions configuration",
-		"read": {
-			"api": [
-				"/io/juggler/conditions/config/*",
-				"/io/*"
-			],
-			"uci": [
-				"iojuggler"
-			]
-		},
-		"write": {
-			"api": [
-				"/io/juggler/conditions/config/*"
-			],
-			"uci": [
-				"iojuggler"
-			]
-		}
-	}
+  "services/io/juggler/condition": {
+    "description": "input.output juggler conditions configuration",
+    "read": {
+      "api": ["/io/juggler/conditions/config/*", "/io/*"]
+    },
+    "write": {
+      "api": ["/io/juggler/conditions/config/*"]
+    }
+  }
 }

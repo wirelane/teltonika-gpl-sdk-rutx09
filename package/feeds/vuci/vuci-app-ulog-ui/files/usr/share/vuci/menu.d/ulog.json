@@ -1,9 +1,13 @@
 {
-	"services/logging": {
-		"title": "Traffic Logging",
-		"index": 110,
-		"view": "services/Ulog",
-		"acls": [ "services/logging" ],
-		"files": [ "/etc/config/ulogd" ]
-	}
+  "services/logging": {
+    "title": "Traffic Logging",
+    "index": 110,
+    "view": "services/Ulog",
+    "acls": ["services/logging"],
+    "files": ["/etc/config/ulogd"],
+    "main_page": true
+  },
+  "system/maintenance/traffic": {
+    "view": "status/TrafficLog"
+  }
 }
