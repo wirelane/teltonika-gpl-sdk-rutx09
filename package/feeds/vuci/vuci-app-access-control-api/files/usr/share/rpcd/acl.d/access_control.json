@@ -7,13 +7,13 @@
                     "list"
                 ]
             },
-            "api": [
-				"/access_control/ssh/*",
-				"/access_control/cli/*",
-				"/access_control/webui/*",
-				"/access_control/telnet/*",
-				"/certificates/config/*"
-			]
+            "api": {
+                "/access_control/ssh/*": ["*"],
+                "/access_control/cli/*": ["*"],
+                "/access_control/webui/*": ["*"],
+                "/access_control/telnet/*": ["*"],
+                "/certificates/config/*": ["fullname", "type", "cert_type"]
+            }
         },
         "write": {
             "api": [
@@ -27,7 +27,9 @@
     "system/admin/access_control/safety": {
         "description": "access control security",
         "read": {
-			"api": ["/access_control/security/*"]
+            "api": {
+                "/access_control/security/*": ["*"]
+            }
         },
         "write": {
 			"api": ["/access_control/security/*"]

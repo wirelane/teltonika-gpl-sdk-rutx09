@@ -2,12 +2,12 @@
   "services/webfilter/site": {
     "description": "Web Filter site blocking",
     "read": {
-      "api": [
-        "/webfilter/global/*",
-        "/webfilter/config/*",
-        "/hotspot/status/*",
-        "/interfaces/config/*"
-      ]
+      "api": {
+        "/webfilter/global/*": ["*"],
+        "/webfilter/config/*": ["*"],
+        "/hotspot/status/*": ["enabled"],
+        "/interfaces/config/*": ["id", "name", "area_type"]
+      }
     },
     "write": {
       "api": [
@@ -19,9 +19,9 @@
   "services/webfilter/proxy": {
     "description": "proxy based content blocker",
     "read": {
-      "api": [
-        "/webfilter/privoxy/*"
-      ]
+      "api": {
+        "/webfilter/privoxy/*": ["*"]
+      }
     },
     "write": {
       "api": [

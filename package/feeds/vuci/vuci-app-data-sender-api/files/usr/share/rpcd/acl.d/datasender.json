@@ -2,15 +2,13 @@
 	"services/data_sender": {
 		"description": "Data Sender configuration",
 		"read": {
-			"api": [
-				"/data_to_server/*",
-				"/certificates/config/*",
-				"/sim_cards/config/*",
-				"/modems/status/*",
-				"/io/*",
-				"/ulog/available_interfaces/*",
-				"/events_reporting/options/*"
-			]
+			"api": {
+				"/data_to_server/*": ["*"],
+				"/certificates/config/*": ["fullname", "cert_type", "type"],
+				"/sim_cards/config/*": ["position"],
+				"/modems/status/*": ["id", "name", "index", "builtin", "operator_state", "operator", "provider", "cell_info"],
+				"/azure/iot_hub/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [

@@ -1,14 +1,15 @@
 {
-    "services/ddns": {
-        "description": "ddns configuration",
-        "read": {
-            "api": [
-                "/ddns/*",
-                "/interfaces/config/*"
-            ]
-        },
-        "write": {
-            "api": ["/ddns/*"]
-        }
-    }
+  "services/ddns": {
+    "description": "ddns configuration",
+    "read": {
+      "api": {
+        "/ddns/*": ["*"],
+        "/interfaces/config/*": ["id"]
+      }
+    },
+    "write": {
+      "api": ["/ddns/*"]
+    },
+    "source": [ "/ddns/*"]
+  }
 }

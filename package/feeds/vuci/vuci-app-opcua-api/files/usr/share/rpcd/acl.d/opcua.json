@@ -1,9 +1,9 @@
 {
     "services/opcua": {
         "read": {
-            "api": [
-                "/opcua/*"
-            ]
+            "api": {
+                "/opcua/*": ["*"]
+            }
         },
         "write": {
             "api": [

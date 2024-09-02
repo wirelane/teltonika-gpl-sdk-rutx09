@@ -2,9 +2,9 @@
 	"services/gps/general": {
 		"description": "gps general configuration",
 		"read": {
-			"api": [
-				"/gps/*"
-			]
+			"api": {
+				"/gps/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [
@@ -15,20 +15,20 @@
 	"services/gps/map": {
 		"description": "gps map configuration",
 		"read": {
-			"api": [
-				"/gps/config/*",
-				"/gps/global",
-				"/gps/position/*"
-			]
+			"api": {
+				"/gps/config/*": ["*"],
+				"/gps/global/*": ["*"],
+				"/gps/position/*": ["*"]
+			}
 		}
 	},
 	"services/gps/nmea": {
 		"description": "gps nmea configuration",
 		"read": {
-			"api": [
-				"/gps/nmea/*",
-				"/gps/nmea/rules/*"
-			]
+			"api": {
+				"/gps/nmea/*": ["*"],
+				"/gps/nmea/rules/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [
@@ -40,11 +40,11 @@
 	"services/gps/https": {
 		"description": "gps https configuration",
 		"read": {
-			"api": [
-				"/io/*",
-				"/gps/https/*",
-				"/gps/https/tavl_rules/*"
-			]
+			"api": {
+				"/io/status/*": ["*"],
+				"/gps/https/*": ["*"],
+				"/gps/https/tavl_rules/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [
@@ -56,13 +56,13 @@
 	"services/gps/avl": {
 		"description": "gps avl configuration",
 		"read": {
-			"api": [
-				"/io/*",
-				"/gps/avl/*",
-				"/gps/avl/main_rules/*",
-				"/gps/avl/secondary_rules/*",
-				"/gps/avl/tavl_rules/*"
-			]
+			"api": {
+				"/io/status/*": ["*"],
+				"/gps/avl/*": ["*"],
+				"/gps/avl/main_rules/*": ["*"],
+				"/gps/avl/secondary_rules/*": ["*"],
+				"/gps/avl/tavl_rules/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [
@@ -76,9 +76,10 @@
 	"services/gps/input": {
 		"description": "gps io configuration",
 		"read": {
-			"api": [
-				"/gps/avl/io_rules/*"
-			]
+			"api": {
+				"/gps/avl/io_rules/*": ["*"],
+				"/io/status/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [
@@ -89,10 +90,11 @@
 	"services/gps/geofencing": {
 		"description": "gps geofencing configuration",
 		"read": {
-			"api": [
-				"/gps/geofencing/*",
-				"/profiles/*"
-			]
+			"api": {
+				"/gps/geofencing/*": ["*"],
+				"/profiles/config/*": ["*"],
+				"/gps/position/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [

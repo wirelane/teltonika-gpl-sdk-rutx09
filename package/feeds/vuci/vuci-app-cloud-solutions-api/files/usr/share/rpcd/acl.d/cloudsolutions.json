@@ -2,10 +2,13 @@
 	"services/cloud_solutions/rms": {
 		"description": "cloud solutions configuration",
 		"read": {
-			"api": ["/rms/*"]
+			"api": {
+				"/rms/*": ["*"]
+			}
 		},
 		"write": {
 			"api": ["/rms/*"]
-		}
+		},
+		"exception": ["/rms/config/*", "/rms/status/*"]
 	}
 }

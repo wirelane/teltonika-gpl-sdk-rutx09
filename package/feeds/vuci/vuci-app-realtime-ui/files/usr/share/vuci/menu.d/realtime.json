@@ -9,22 +9,28 @@
     "index": 10,
     "view": "status/LoadRealtime"
   },
-  "status/realtime/bandwidth/:id": {
-    "view": "status/TrafficRealtime"
-  },
   "status/realtime/bandwidth": {
-    "view": "status/TrafficRealtime"
+    "view": "status/TrafficRealtime",
+    "title": "Traffic",
+    "acls": ["status/realtime/bandwidth"],
+    "index": 20
   },
   "status/realtime/connections": {
-    "view": "status/ConnectionsRealtime"
+    "title": "Connections",
+    "index": 60,
+    "view": "status/ConnectionsRealtime",
+    "acls": ["status/realtime/connections"]
   },
   "status/realtime/wireless": {
-    "view": "status/WirelessRealtime"
-  },
-  "status/realtime/wireless/:id": {
-    "view": "status/WirelessRealtime"
+    "title": "Wireless",
+    "index": 40,
+    "view": "status/WirelessRealtime",
+    "acls": ["status/realtime/wireless"]
   },
   "status/realtime/mobile": {
-    "view": "status/MobileRealtime"
+    "title": "Mobile Signal",
+    "index": 50,
+    "view": "status/MobileRealtime",
+    "acls": ["status/realtime/mobile_signal"]
   }
 }

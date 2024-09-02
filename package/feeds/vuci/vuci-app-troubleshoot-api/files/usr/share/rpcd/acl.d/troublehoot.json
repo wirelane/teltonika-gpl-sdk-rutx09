@@ -2,10 +2,16 @@
   "system/maintenance/troubleshoot": {
     "description": "troubleshoot",
     "read": {
-      "api": ["/logging/*", "/troubleshoot/*", "/diagnostics/*", "/usb_tools/mount/options/*", "/interfaces/basic/status/*", "/modems/*"]
+      "api": {
+        "/logging/*": ["*"],
+        "/modems/status/*": ["id", "name", "index", "builtin", "primary", "offline"],
+        "/troubleshoot/*": ["*"],
+        "/usb_tools/mount/options/*": ["mountpoint"],
+        "/interfaces/basic/status/*": ["id", "name", "interface", "device", "subdevices"]
+      }
     },
     "write": {
-      "api": ["/logging/*", "/troubleshoot/*", "/diagnostics/*", "/modems/*"]
+      "api": ["/logging/*", "/troubleshoot/*", "/diagnostics/actions/*", "/modems/*"]
     }
   }
 }

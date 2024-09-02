@@ -1,7 +1,11 @@
 {
 	"services/mqtt/publisher": {
 		"read": {
-			"api": ["/mqtt/publisher/*", "/certificates/config/*", "/modems/status/*"]
+			"api": {
+				"/mqtt/publisher/*": ["*"],
+				"/certificates/config/*": ["fullname", "type", "cert_type"],
+				"/modems/status/*": ["id", "name", "index", "builtin", "operator_state"]
+			}
 		},
 		"write": {
 			"api": ["/mqtt/publisher/*"]
@@ -10,7 +14,11 @@
 	"services/mqtt/broker": {
 		"description": "mqtt broker configuration",
 		"read": {
-			"api": ["/mqtt/broker/*", "/mqtt/bridge/*", "/certificates/config/*"]
+			"api": {
+				"/mqtt/broker/*": ["*"],
+				"/mqtt/bridge/*": ["*"],
+				"/certificates/config/*": ["fullname", "type", "cert_type"]
+			}
 		},
 		"write": {
 			"api": ["/mqtt/broker/*", "/mqtt/bridge/*"]

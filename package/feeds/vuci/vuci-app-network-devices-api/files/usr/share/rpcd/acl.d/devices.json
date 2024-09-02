@@ -1,0 +1,16 @@
+{
+  "network/devices": {
+    "description": "",
+    "read": {
+      "api": {
+        "/network/devices/*": ["*"],
+        "/interfaces/*": ["*"],
+        "/ports_settings/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/network/devices/*"]
+    },
+    "exception": ["/network/devices/config/*"]
+  }
+}

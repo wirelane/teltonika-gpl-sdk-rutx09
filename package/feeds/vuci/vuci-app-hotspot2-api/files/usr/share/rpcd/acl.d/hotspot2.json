@@ -2,7 +2,10 @@
 	"services/hotspot/hotspot2": {
 		"description": "hotspot 2.0 configuration",
 		"read": {
-			"api": ["/hotspot2/*", "/wireless/interfaces/config/*"]
+			"api": {
+				"/hotspot2/*": ["*"],
+				"/wireless/interfaces/config/*": ["id", "encryption"]
+			}
 		},
 		"write": {
 			"api": ["/hotspot2/*"]

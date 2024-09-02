@@ -2,10 +2,13 @@
     "system/maintenance/speedtest": {
       "description": "speed test",
       "read": {
-        "api": ["/speedtest/*"]
+        "api": {
+            "/speedtest/*": ["*"]
+        }
       },
       "write": {
           "api": ["/speedtest/*"]
-      }
+      },
+      "source": [ "/speedtest/*"]
     }
 }

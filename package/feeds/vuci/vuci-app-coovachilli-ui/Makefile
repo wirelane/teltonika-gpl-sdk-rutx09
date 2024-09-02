@@ -6,11 +6,8 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-coovachilli-ui))
 	APP_TLT_NAME:=Hotspot
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=coova-chilli
+	APP_HW_INFO:=ethernet/wifi
 endif
-
-define Package/vuci-app-coovachilli-ui/mdm9x07
-  PKG_ROUTER:=TRB140 TRB143
-endef
 
 include ../app.mk
 

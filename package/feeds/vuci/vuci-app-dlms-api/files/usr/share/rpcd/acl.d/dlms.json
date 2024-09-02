@@ -1,15 +1,16 @@
 {
-	"services/dlms": {
-		"description": "dlms configuration",
-		"read": {
-			"api": [
-				"/dlms/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/dlms/*"
-			]
-		}
-	}
+  "services/dlms": {
+    "description": "dlms configuration",
+    "read": {
+      "api": {
+        "/dlms/*": ["*"],
+        "/serial/*": ["*"]
+      }
+    },
+    "write": {
+      "api": [
+        "/dlms/*"
+      ]
+    }
+  }
 }

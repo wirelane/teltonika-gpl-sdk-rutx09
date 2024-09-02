@@ -2,27 +2,36 @@
   "network/wireless/ssids": {
     "description": "wireless config",
     "read": {
-      "api": ["/wireless/*", "/interfaces/config/*", "/network/devices/*", "/certificates/config/*", "/firewall/zones/config/*"]
+      "api": {
+        "/wireless/*": ["*"],
+        "/certificates/config/*": ["fullname", "type", "cert_type"],
+        "/hotspot/config/*": ["network"],
+        "/routes/status/mac_hints/*": ["*"],
+        "/interfaces/config/*": ["name", "proto", "bridge", "ifname"]
+      }
     },
     "write": {
-      "api": ["/wireless/*", "/interfaces/config/*", "/network/devices/*"]
-    }
+      "api": ["/wireless/*"]
+    },
+    "source": ["/wireless/interfaces/*"],
+    "exception": ["/wireless/interfaces/config/*", "/wireless/interfaces/basic/status/*"]
   },
   "network/wireless/radio": {
     "description": "wireless device config",
     "read": {
-      "api": ["/wireless/*"]
+      "api": {
+        "/wireless/devices/*": ["*"]
+      }
     },
     "write": {
-      "api": ["/wireless/*"]
-    }
+      "api": ["/wireless/devices/*"]
+    },
+    "source": ["/wireless/devices/*"],
+    "exception": ["/wireless/devices/config/*", "/wireless/devices/basic/status/*"]
   },
   "network/wireless/scan": {
-    "read": {
-      "api": ["/wireless/*"]
-    },
     "write": {
-      "api": ["/wireless/*"]
+      "api": ["/wireless/actions/scan/*", "/wireless/actions/join/*"]
     }
   }
 }

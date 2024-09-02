@@ -2,9 +2,9 @@
 	"services/upnp": {
 		"description": "UPnP",
 		"read": {
-			"api": [
-				"/upnp/*"
-			]
+			"api": {
+				"/upnp/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [

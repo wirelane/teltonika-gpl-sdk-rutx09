@@ -2,14 +2,14 @@
   "services/usb_tools/samba/general": {
     "description": "network share general",
     "read": {
-      "api": [
-        "/samba/global/*",
-        "/samba/shares/*",
-        "/usb_tools/mount/options/*",
-        "/interfaces/config/*",
-        "/samba/users/config/*",
-        "/samba/status/*"
-      ]
+      "api": {
+        "/samba/global/*": ["*"],
+        "/samba/shares/*": ["*"],
+        "/usb_tools/mount/options/*": ["mountpoint"],
+        "/interfaces/config/*": ["id", "name", "area_type"],
+        "/samba/users/config/*": ["username"],
+        "/samba/status/*": ["*"]
+      }
     },
     "write": {
       "api": [
@@ -21,14 +21,16 @@
   "services/usb_tools/samba/users": {
     "description": "network share users",
     "read": {
-      "api": [
-        "/samba/users/*"
-      ]
+      "api": {
+        "/samba/users/*": ["*"]
+      }
     },
     "write": {
       "api": [
         "/samba/users/*"
       ]
-    }
+    },
+	"source": ["/samba/users/*"],
+	"exception": ["/samba/users/config/*"]
   }
 }

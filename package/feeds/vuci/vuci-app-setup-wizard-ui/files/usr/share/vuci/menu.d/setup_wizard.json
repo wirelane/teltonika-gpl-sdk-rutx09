@@ -15,10 +15,10 @@
     "acls": ["system/wizard/step_lan"],
     "index": 20
   },
-  "system/wizard/step_wan": {
-    "view": "system/StepWan"
-  },
   "system/wizard/step_wifi": {
-    "view": "system/StepWifi"
+    "title": "Wireless",
+    "index": 40,
+    "view": "system/StepWifi",
+    "acls": ["system/wizard/step_wifi"]
   }
 }

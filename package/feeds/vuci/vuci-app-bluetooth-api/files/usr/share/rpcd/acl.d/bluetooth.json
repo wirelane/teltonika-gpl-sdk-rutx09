@@ -2,9 +2,9 @@
     "services/bluetooth": {
         "description": "bluetooth configuration",
         "read": {
-            "api": [
-                "/bluetooth/*"
-            ]
+            "api": {
+                "/bluetooth/*": ["*"]
+            }
         },
         "write": {
             "api": [

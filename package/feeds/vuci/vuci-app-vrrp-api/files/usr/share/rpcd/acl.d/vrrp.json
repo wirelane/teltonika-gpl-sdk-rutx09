@@ -1,15 +1,16 @@
 {
-	"network/failover/vrrp": {
-		"description": "vrrp configuration",
-        "read": {
-            "api": [
-                "/vrrp/*",
-                "/interfaces/*"
-            ]
-        },
-        "write": {
-            "api": ["/vrrp/*"]
-        }
-
-	}
+  "network/failover/vrrp": {
+    "description": "vrrp configuration",
+    "read": {
+      "api": {
+        "/vrrp/*": ["*"],
+        "/interfaces/config/*": ["id", "proto", "ifname", "name"]
+      }
+    },
+    "write": {
+      "api": ["/vrrp/*"]
+    },
+    "source": ["/vrrp/*"],
+    "exception": ["/vrrp/status/*", "/vrrp/config/*"]
+  }
 }

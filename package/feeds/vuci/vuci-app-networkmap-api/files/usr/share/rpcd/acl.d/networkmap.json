@@ -2,7 +2,9 @@
   "status/network/topology": {
     "description": "networkmap configuration",
     "read": {
-      "api": ["/topology/*"]
+      "api": {
+        "/topology/*": ["*"]
+      }
     },
     "write": {
       "api": ["/topology/*"]

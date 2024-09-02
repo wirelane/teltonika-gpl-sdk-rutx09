@@ -15,7 +15,7 @@
 			"title": "NTP",
 			"index": 20,
 			"view": "services/Ntp",
-			"acls": [ "system/admin/datetime/ntp" ],
+			"acls": [ "system/admin/datetime/ntp_general" ],
 			"files": [ "/etc/config/ntpclient" ]
 		}
 }

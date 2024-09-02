@@ -1,10 +1,15 @@
 {
 	"services/vpn/wireguard": {
 		"read": {
-			"api": ["/wireguard/*"]
+			"api": {
+				"/wireguard/*": ["*"],
+				"/interfaces/config/*": ["id", "ifname", "proto"]
+			}
 		},
 		"write": {
 			"api": ["/wireguard/*"]
-		}
+		},
+		"source": ["/wireguard/*"],
+		"exception": ["/wireguard/config/*"]
 	}
 }

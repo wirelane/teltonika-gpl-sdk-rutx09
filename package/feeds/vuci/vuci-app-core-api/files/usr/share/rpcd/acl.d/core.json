@@ -2,24 +2,29 @@
 	"unauthenticated": {
 		"description": "Functions allowed for unauthenticated requests",
 		"read": {
-			"api": ["/unauthorized/status/*"]
+			"api": {
+				"/unauthorized/status/*": ["*"]
+			}
 		}
 	},
 	"core": {
 		"description": "Core functions for VuCI",
 		"read": {
-			"api": [
-				"/date_time/ntp/client/config/*",
-				"/system/config/*",
-				"/system/device/*",
-				"/ui/config/*",
-				"/interfaces/config/*",
-				"/modems/*",
-				"/system/actions/change_password_firstlogin/*",
-				"/profiles/status/*",
-				"/users/acls/options/*",
-				"/session/*"
-			]
+			"api": {
+				"/date_time/ntp/client/config/*": ["zoneName"],
+				"/system/config/*": ["*"],
+				"/system/device/*": ["*"],
+				"/ui/config/*": ["*"],
+				"/system/actions/change_password_firstlogin/*": ["*"],
+				"/profiles/status/*": ["*"],
+				"/users/acls/options/*": ["*"],
+				"/session/*": ["*"],
+				"/esim/config/*": ["modem", "enabled"],
+				"/esim/status/*": ["id", "eid"],
+				"/firmware/device/updates/status/*": ["*"],
+				"/firmware/modem/updates/status/*": ["*"],
+				"/firmware/modem/progress/status/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [

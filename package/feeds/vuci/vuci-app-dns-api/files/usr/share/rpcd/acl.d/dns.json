@@ -1,14 +1,16 @@
 {
-    "network/dns": {
-        "description": "dns configuration",
-        "read": {
-            "api": [
-                "/dns/*",
-                "/interfaces/*"
-            ]
-        },
-        "write": {
-            "api": ["/dns/*"]
-        }
+  "network/dns/general": {
+    "description": "dns configuration",
+    "read": {
+      "api": {
+        "/dns/config/*": ["*"],
+        "/interfaces/config/*": ["id", "name"],
+        "/interfaces/basic/status/*": ["id", "name", "dns-server"],
+        "/dns/https_proxy/global/*": ["enabled"]
+      }
+    },
+    "write": {
+      "api": ["/dns/*"]
     }
+  }
 }

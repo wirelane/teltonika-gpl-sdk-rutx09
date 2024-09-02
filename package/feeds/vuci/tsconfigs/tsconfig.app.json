@@ -20,7 +20,7 @@
         "vuci-ui-core/src/ui-core/*"
       ],
       "@root": [
-        "./"
+        "."
       ],
       "@root/*": [
         "./*"

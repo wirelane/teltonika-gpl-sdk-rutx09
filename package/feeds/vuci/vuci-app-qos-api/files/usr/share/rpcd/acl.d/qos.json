@@ -1,17 +1,15 @@
 {
-    "network/traffic_shaping/qos": {
-        "description": "qos configuration",
-        "read": {
-            "api": [
-                "/qos/*",
-                "/interfaces/config/*",
-                "/nat_offloading/*"
-            ]
-        },
-        "write": {
-            "api": [
-                "/qos/*"
-            ]
-        }
+  "network/traffic_shaping/qos": {
+    "description": "qos configuration",
+    "read": {
+      "api": {
+        "/qos/*": ["*"],
+        "/interfaces/config/*": ["id", "name", "proto"],
+        "/nat_offloading/global/*": ["flow_offloading"]
+      }
+    },
+    "write": {
+      "api": ["/qos/*"]
     }
+  }
 }

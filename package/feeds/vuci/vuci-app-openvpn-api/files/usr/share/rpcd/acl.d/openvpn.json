@@ -2,16 +2,18 @@
 	"services/vpn/openvpn": {
 		"description": "openvpn configuration",
 		"read": {
-			"api": [
-				"/openvpn/*",
-				"/interfaces/config/*",
-				"/certificates/config/*",
-				"/network/devices/config/*",
-				"/interfaces/basic/status/*"
-			]
+			"api": {
+				"/openvpn/*": ["*"],
+				"/interfaces/config/*": ["area_type", "name", "id"],
+				"/certificates/config/*": ["fullname", "cert_type", "type"],
+				"/network/devices/config/*": ["type"],
+				"/interfaces/basic/status/*": ["device", "ip6addrs"]
+			}
 		},
 		"write": {
 			"api": ["/openvpn/*"]
-		}
+		},
+		"source": ["/openvpn/*"],
+		"exception": ["openvpn/status/*"]
 	}
 }

@@ -2,9 +2,9 @@
 	"services/vpn/stunnel": {
 		"description": "stunnel configuration",
 		"read": {
-			"api": [
-				"/stunnel/*"
-			]
+			"api": {
+				"/stunnel/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [

@@ -63,7 +63,7 @@ export default function VuCI(pluginOptions: VuciOptions): Plugin {
       order: 'pre',
       async handler() {
         const { views, menus } = await groupMenusToViews()
-        let grouped = groupByApp(menus, views)
+        let grouped = groupByApp(menus, views, target)
           .map(groupRoutes)
           .flat()
           .sort((a, b) => a.app.localeCompare(b.app))
@@ -169,7 +169,7 @@ async function groupMenusToViews() {
   )
 }
 
-const groupByApp = (menus: string[], views: string[]) => {
+const groupByApp = (menus: string[], views: string[], target: string[] | DeviceApp | null) => {
   let viewsCopy = views.slice(0)
   const grouped = menus.map(menu => {
     const appIndex = menu.indexOf('vuci-app-')
@@ -190,6 +190,12 @@ const groupByApp = (menus: string[], views: string[]) => {
     } else sum.push(curr)
     return sum
   }, [])
+  merged.forEach(v => {
+    if (typeof target !== 'string' || !v.menud.some(m => m.includes('.tsw.') || m.includes('.tap.'))) return
+    if (target === 'general') v.menud = v.menud.filter(m => !m.includes('.tsw.') && !m.includes('.tap.'))
+    else if (target === 'tsw') v.menud = v.menud.filter(m => m.includes('.tsw.'))
+    else if (target === 'tap') v.menud = v.menud.filter(m => m.includes('.tap.'))
+  })
   if (viewsCopy.length) {
     console.log(
       '%s of views have not been used (does not have menu.d/*.json file to reference it). Unused views:\n %s\n',

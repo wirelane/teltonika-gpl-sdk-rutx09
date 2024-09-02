@@ -7,7 +7,7 @@
 			"title": "L2TP",
 			"index": 50,
 			"view": "services/L2tp",
-			"acls": [ "services/vpn/l2tp" ],
+			"acls": [ "services/vpn/l2tp_classic" ],
 			"files": [ "/etc/config/xl2tpd" ],
 			"main_page": true
 		},

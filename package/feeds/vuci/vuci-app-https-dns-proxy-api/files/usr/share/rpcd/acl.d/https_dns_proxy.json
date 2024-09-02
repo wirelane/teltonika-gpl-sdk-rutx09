@@ -1,10 +1,10 @@
 {
-	"network/https_dns_proxy": {
+	"network/dns/https_dns_proxy": {
 		"description": "https dns proxy configuration",
 		"read": {
-			"api": [
-				"/dns/https_proxy/*"
-			]
+			"api": {
+				"/dns/https_proxy/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [

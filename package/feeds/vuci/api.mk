@@ -25,6 +25,9 @@ endif
 ifdef APP_APP_NAME
 	PKG_APP_NAME:=$(APP_APP_NAME)
 endif
+ifdef APP_HW_INFO
+	PKG_HW_INFO:=$(APP_HW_INFO)
+endif
 endef
 
 define Build/Prepare
@@ -43,7 +46,16 @@ define Build/Configure
 endef
 
 define Package/$(PKG_NAME)/install/Default
-	if [[ -n "$(CONFIG_VUCI_COMPILE_LUA)" ]] && [[ -d $(PKG_BUILD_DIR)/files ]]; then $(CP) $(PKG_BUILD_DIR)/files/* $(1)/; elif [[ -d ./files ]]; then $(CP) ./files/* $(1)/; fi
+	if [[ -n "$(CONFIG_VUCI_COMPILE_LUA)" ]] && [[ -d $(PKG_BUILD_DIR)/files ]]; then $(CP) $(PKG_BUILD_DIR)/files/* $(1)/; elif [[ -d ./files ]]; then $(CP) ./files/* $(1)/; fi; \
+	if [[ -d $(PKG_BUILD_DIR)/files ]] || [[ -d ./files ]]; then \
+		$(if $(CONFIG_AP_DEVICE), , $(RM) $(1)/usr/share/rpcd/acl.d/*.tap.json;) \
+		$(if $(CONFIG_SWITCH_DEVICE), , $(RM) $(1)/usr/share/rpcd/acl.d/*.tsw.json;) \
+		if [ -n "$(CONFIG_SWITCH_DEVICE)" ] || [ -n "$(CONFIG_AP_DEVICE)" ]; then \
+			if [ ! -z "$$$$(ls $(1)/usr/share/rpcd/acl.d/*.tap.json)" ] || [ ! -z "$$$$(ls $(1)/usr/share/rpcd/acl.d/*.tsw.json)" ]; then \
+				find $(1)/usr/share/rpcd/acl.d/ -type f -not \( -name '*.tap.json' -or -name '*.tsw.json' \) -exec $(RM) {} +; \
+			fi; \
+		fi; \
+	fi
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 endef
 

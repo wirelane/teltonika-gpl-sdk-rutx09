@@ -2,12 +2,11 @@
 	"services/serial_utilities/modem_control": {
 		"description": "Modem configuration",
 		"read": {
-			"api": [
-				"/modem_control/*",
-				"/system/device/status/*",
-				"/serial/status/*",
-				"/modems/status/*"
-			]
+			"api": {
+				"/modem_control/*": ["*"],
+				"/serial/status/*": ["*"],
+				"/modems/status/*": ["id", "name", "index", "builtin", "operator_state"]
+			}
 		},
 		"write": {
 			"api": [

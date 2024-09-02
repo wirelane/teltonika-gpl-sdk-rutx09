@@ -2,6 +2,8 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for Cloud Solutions
 
+APP_DEPENDS:=+rms_mqtt
+
 CUSTOM_INSTALL=1
 include ../api.mk
 

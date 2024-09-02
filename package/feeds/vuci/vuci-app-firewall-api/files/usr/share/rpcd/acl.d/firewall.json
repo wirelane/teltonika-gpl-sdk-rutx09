@@ -1,140 +1,116 @@
 {
-	"network/firewall/zones": {
-		"description": "firewall zones configuration",
-		"read": {
-			"api": [
-				"/nat_offloading/*",
-				"/firewall/*",
-				"/interfaces/*",
-				"/dmvpn/*",
-				"/gre/*",
-				"/l2tp/client/*",
-				"/l2tpv3/*",
-				"/pptp/client/*",
-				"/sstp/*",
-				"/wireguard/*",
-				"/vrf/config/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/nat_offloading/*",
-				"/firewall/*"
-			]
-		}
-	},
+  "network/firewall/zones": {
+    "description": "firewall zones configuration",
+    "read": {
+      "api": {
+        "/nat_offloading/global*": ["*"],
+        "/firewall/zones/config/*": ["*"],
+        "/firewall/global/*": ["*"],
+        "/interfaces/config/*": ["id", "name"],
+        "/dmvpn/config/*": ["id", ".type"],
+        "/gre/config/*": ["id"],
+        "/l2tp/client/*": ["id"],
+        "/l2tpv3/config/*": ["id"],
+        "/pptp/client/*": ["id"],
+        "/sstp/config/*": ["id"],
+        "/wireguard/config/*": ["id"],
+        "/vrf/config/*": ["id"]
+      }
+    },
+    "write": {
+      "api": ["/nat_offloading/*", "/firewall/zones/config/*", "/firewall/global/*"]
+    },
+    "source": ["/firewall/zones/config/*"],
+    "exception": ["/firewall/zones/config/*"]
+  },
 
-	"network/firewall/forwards": {
-		"description": "firewall forwards configuration",
-		"read": {
-			"api": [
-				"/firewall/port_forwards/*",
-				"/firewall/zones/*",
-				"/routes/status/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/firewall/port_forwards/*",
-				"/routes/status/*"
-			]
-		}
-	},
+  "network/firewall/forwards": {
+    "description": "firewall forwards configuration",
+    "read": {
+      "api": {
+        "/firewall/port_forwards/*": ["*"],
+        "/firewall/zones/config/*": ["name", "network"],
+        "/routes/status/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/firewall/port_forwards/*"]
+    }
+  },
 
-	"network/firewall/rules": {
-		"description": "firewall traffic rules configuration",
-		"read": {
-			"api": [
-				"/firewall/traffic_rules/*",
-				"/firewall/zones/*",
-				"/routes/status/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/firewall/traffic_rules/*",
-				"/routes/status/*"
-			]
-		}
-	},
+  "network/firewall/rules": {
+    "description": "firewall traffic rules configuration",
+    "read": {
+      "api": {
+        "/firewall/traffic_rules/*": ["*"],
+        "/firewall/zones/config/*": ["name", "network"],
+        "/routes/status/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/firewall/traffic_rules/*"]
+    }
+  },
 
-	"network/firewall/nat_rules": {
-		"description": "firewall nat rules configuration",
-		"read": {
-			"api": [
-				"/firewall/nat_rules/*",
-				"/firewall/zones/*",
-				"/routes/status/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/firewall/nat_rules/*",
-				"/routes/status/*"
-			]
-		}
-	},
+  "network/firewall/nat_rules": {
+    "description": "firewall nat rules configuration",
+    "read": {
+      "api": {
+        "/firewall/nat_rules/*": ["*"],
+        "/firewall/zones/config/*": ["name", "network"],
+        "/routes/status/ipv4_hints/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/firewall/nat_rules/*"]
+    }
+  },
 
-	"network/firewall/attack_prevention": {
-		"description": "firewall attack prevention configuration",
-		"read": {
-			"api": [
-				"/attack_prevention/*"
-			]
-		},
-		"write": {
-			"api": [
-				"/attack_prevention/*"
-			]
-		}
-	},
+  "network/firewall/attack_prevention": {
+    "description": "firewall attack prevention configuration",
+    "read": {
+      "api": {
+        "/attack_prevention/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/attack_prevention/*"]
+    }
+  },
 
-	"network/firewall/custom": {
-		"description": "firewall custom scripts",
-		"read": {
-			"api": ["/firewall/custom_rules/*"]
-		},
-		"write": {
-			"api": ["/firewall/custom_rules/*"]
-		}
-	},
-	"network/firewall/dmz": {
-		"description": "dmz (demilitarized zone) configuration",
-		"read": {
-			"api": [
-				"/dmz/*",
-				"/routes/status/*"
-			]
-		},
-		"write": {
-			"api": ["/dmz/*"]
-		}
-	},
-	"status/network/firewall": {
-		"description": "Firewall status",
-		"read": {
-			"api": ["/firewall/iptables/*"]
-		},
-		"write": {
-			"api": ["/firewall/iptables/*"]
-		}
-	},
-	"status/network/firewall/ipv4": {
-		"description": "Firewall status",
-		"read": {
-			"api": ["/firewall/iptables/*"]
-		},
-		"write": {
-			"api": ["/firewall/iptables/*"]
-		}
-	},
-	"status/network/firewall/ipv6": {
-		"description": "Firewall status",
-		"read": {
-			"api": ["/firewall/iptables/*"]
-		},
-		"write": {
-			"api": ["/firewall/iptables/*"]
-		}
-	}
+  "network/firewall/custom": {
+    "description": "firewall custom scripts",
+    "read": {
+      "api": {
+        "/firewall/custom_rules/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/firewall/custom_rules/*"]
+    }
+  },
+
+  "network/firewall/dmz": {
+    "description": "dmz (demilitarized zone) configuration",
+    "read": {
+      "api": {
+        "/dmz/*": ["*"],
+        "/routes/status/ipv4_hints/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/dmz/*"]
+    }
+  },
+  "status/network/firewall": {
+    "description": "Firewall status",
+    "read": {
+      "api": {
+        "/firewall/iptables/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/firewall/iptables/*"]
+    }
+  }
 }

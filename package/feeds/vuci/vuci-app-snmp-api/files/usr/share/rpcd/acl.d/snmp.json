@@ -2,11 +2,10 @@
   "services/snmp/snmp_settings": {
     "description": "snmp settings",
     "read": {
-      "api": [
-        "/snmp/agent/*",
-        "/snmp/system/*",
-        "/profinet/status"
-      ]
+      "api": {
+        "/snmp/agent/*": ["*"],
+        "/snmp/system/*": ["*"]
+      }
     },
     "write": {
       "api": [
@@ -18,10 +17,9 @@
   "services/snmp/snmpv3": {
     "description": "snmp v3 users",
     "read": {
-      "api": [
-        "/snmp/users/*",
-        "/profinet/status"
-      ]
+      "api": {
+        "/snmp/users/*": ["*"]
+      }
     },
     "write": {
       "api": [
@@ -32,11 +30,10 @@
   "services/snmp/community": {
     "description": "snmp communities",
     "read": {
-      "api": [
-        "/snmp/communities/*",
-        "/snmp/communities_v6/*",
-        "/profinet/status"
-      ]
+      "api": {
+        "/snmp/communities/*": ["*"],
+        "/snmp/communities_v6/*": ["*"]
+      }
     },
     "write": {
       "api": [
@@ -48,12 +45,12 @@
   "services/snmp/traps": {
     "description": "trap settings",
     "read": {
-      "api": [
-        "/snmp/trap/*",
-        "/io/*",
-        "/modems/status/*",
-        "/events_reporting/options/*"
-      ]
+      "api": {
+        "/snmp/trap/*": ["*"],
+        "/io/status/*": ["id", "name_with_pins", "type"],
+        "/modems/status/*": ["id", "name", "builtin", "index"],
+        "/events_reporting/options/*": ["*"]
+      }
     },
     "write": {
       "api": [

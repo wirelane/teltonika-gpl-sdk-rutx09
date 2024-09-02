@@ -1,7 +1,13 @@
 {
 	"network/ports/dot1x_client": {
 		"description": "802.1x client configuration",
-		"read": { "api": [ "/dot1x/client/*" ] },
-		"write": { "api": [ "/dot1x/client/*" ] }
+		"read": {
+			"api": {
+				"/dot1x/client/*": ["*"]
+			}
+		},
+		"write": {
+			"api": ["/dot1x/client/*"]
+		}
 	}
 }

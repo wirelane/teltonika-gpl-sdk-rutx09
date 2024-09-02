@@ -9,7 +9,6 @@
             "nat_rules": true
         },
         "routes": true,
-        "interfaces": true,
         "dns": true,
         "nat_rules": true
     },

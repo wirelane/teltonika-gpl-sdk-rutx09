@@ -18,16 +18,19 @@
     "index": 30
   },
   "status/network/mobile": {
-    "view": "status/Mobile"
-  },
-  "status/network/mobile/:id": {
-    "view": "status/Mobile"
+    "title": "Mobile",
+    "acls": ["status/network/mobile"],
+    "view": "status/Mobile",
+    "index": 10
   },
   "status/wireless": {
     "title": "Wireless",
     "index": 40
   },
   "status/wireless/interfaces": {
-    "view": "status/Wireless"
+    "title": "Interfaces",
+    "view": "status/Wireless",
+    "acls": ["status/wireless/interfaces"],
+    "index": 10
   }
 }

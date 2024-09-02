@@ -2,7 +2,9 @@
 	"status/services": {
 		"description": "services status",
 		"read": {
-			"api": ["/services/*"]
+			"api": {
+				"/services/*": ["*"]
+			}
 		},
 		"write": {
 			"api": ["/services/*"]

@@ -2,7 +2,9 @@
 	"services/tr069": {
 		"description": "TR-069",
 		"read": {
-			"api": ["/tr069/*"]
+			"api": {
+				"/tr069/*": ["*"]
+			}
 		},
 		"write": {
 			"api": ["/tr069/*"]

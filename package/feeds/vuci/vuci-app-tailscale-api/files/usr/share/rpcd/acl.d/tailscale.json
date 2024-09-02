@@ -2,7 +2,9 @@
   "services/vpn/tailscale": {
     "description": "tailscale configuration",
     "read": {
-      "api": ["/tailscale/*"]
+      "api": {
+        "/tailscale/*": ["*"]
+      }
     },
     "write": {
       "api": ["/tailscale/*"]

@@ -3,6 +3,6 @@
     "title": "HTTPS DNS Proxy",
     "index": 2,
     "view": "network/HttpsDnsProxy",
-    "acls": ["network/https_dns_proxy"]
+    "acls": ["network/dns/https_dns_proxy"]
   }
 }

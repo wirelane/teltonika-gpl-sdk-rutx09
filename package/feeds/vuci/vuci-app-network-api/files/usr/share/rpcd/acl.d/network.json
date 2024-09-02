@@ -2,61 +2,71 @@
   "network/lan": {
     "description": "",
     "read": {
-      "api": [
-        "/interfaces/*",
-        "/openvpn/config/*",
-        "/mobile/*",
-        "/system/device/status/*",
-        "/dhcp/servers/*",
-        "/firewall/zones/*",
-        "/wireless/interfaces/*",
-        "/interface_based_vlan/*",
-        "/network/devices/status/*",
-        "/basic/network/devices/status/*",
-		"/hotspot/config/*"
-      ]
+      "api": {
+        "/interfaces/config/*": ["*"],
+        "/interfaces/basic/status/*": ["*"],
+        "/hotspot/config/*": ["network", "moreif"],
+        "/firewall/zones/config/*": ["name", "network"],
+        "/wireless/interfaces/config/*": ["id", "network", "ssid", "mesh_id"],
+        "/interface_based_vlan/*": ["*"],
+        "/basic/network/devices/status/*": ["*"],
+        "/dhcp/servers/ipv4/config/*": ["*"],
+        "/dhcp/servers/ipv6/config/*": ["*"]
+      }
     },
     "write": {
-      "api": ["/interfaces/*", "/dhcp/servers/*"]
-    }
+      "api": ["/interfaces/config/*", "/dhcp/servers/ipv4/config/*", "/dhcp/servers/ipv6/config/*"]
+    },
+    "source": ["/interfaces/*"],
+    "exception": ["/interfaces/config/*", "/interfaces/basic/status/*", "/interfaces/status/*", "/basic/network/devices/status/*"]
   },
   "network/wan": {
     "description": "",
     "read": {
-      "api": [
-        "/interfaces/*",
-        "/openvpn/config/*",
-        "/mobile/*",
-        "/system/device/status/*",
-        "/dhcp/servers/*",
-        "/firewall/zones/*",
-        "/wireless/interfaces/*",
-        "/interface_based_vlan/*",
-        "/failover/interfaces/config/*",
-        "/failover/mode/config/globals/*",
-        "/network/devices/status/*",
-        "/basic/network/devices/status/*",
-        "/data_limit/*",
-		"/hotspot/config/*"
-      ]
+      "api": {
+        "/interfaces/config/*": ["*"],
+        "/interfaces/basic/status/*": ["*"],
+        "/hotspot/config/*": ["network", "moreif"],
+        "/firewall/zones/config/*": ["name", "network"],
+        "/wireless/interfaces/config/*": ["id", "name", "network"],
+        "/interface_based_vlan/*": ["*"],
+        "/basic/network/devices/status/*": ["*"],
+        "/sim_cards/config/*": ["modem", "position", "deny_roaming"],
+        "/sim_switch/config/*": ["modem", "position", "enabled", "data_limit"],
+        "/modems/status/*": ["id", "name", "index", "builtin", "operator_state", "offline", "multi_apn"],
+        "/modems/apns/status/*": ["*"],
+        "/data_limit/*": ["*"],
+        "/date_time/ntp/client/config/*": ["current_system_time"]
+      }
     },
     "write": {
-      "api": ["/interfaces/*", "/dhcp/servers/*", "/data_limit/*"]
-    }
+      "api": ["/interfaces/config/*", "/data_limit/*"]
+    },
+    "source": ["/interfaces/*"],
+    "exception": ["/interfaces/config/*", "/interfaces/basic/status/*", "/interfaces/status/*", "/basic/network/devices/status/*"]
   },
   "status/network/mobile": {
     "description": "mobile network status",
     "read": {
-      "api": ["/modems/*", "/data_limit/*"]
+      "api": {
+        "/modems/status/*": ["*"],
+        "/data_limit/status/*": ["id", "data_used", "data_limit"],
+        "/sim_cards/status/*": ["modem", "sim", "deny_roaming"],
+        "/interfaces/basic/status/*": ["id", "modem", "up", "network_type", "modem_id", "sim", "is_up", "main", "ipaddrs", "ip6addrs", "data"]
+      }
     },
     "write": {
-      "api": ["/modems/*", "/data_limit/*"]
+      "api": ["/modems/*"]
     }
   },
   "status/wireless/interfaces": {
     "description": "wireless network status",
     "read": {
-      "api": ["/wireless/*"]
+      "api": {
+        "/wireless/interfaces/basic/status/*": ["*"],
+        "/wireless/devices/basic/status/*": ["id", "standard", "channel", "band", "quality"],
+        "/wireless/interfaces/config/*": ["id", "wifi_id", "mode", "ssid", "auto_reconnect"]
+      }
     }
   }
 }

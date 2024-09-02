@@ -2,14 +2,15 @@
 	"services/wol": {
 		"description": "Wake on LAN",
 		"read": {
-			"api": [
-				"/wol/*"
-			]
+			"api": {
+				"/wol/*": ["*"]
+			}
 		},
 		"write": {
 			"api": [
 				"/wol/*"
 			]
-		}
+		},
+		"source": [ "/wol/*"]
 	}
 }

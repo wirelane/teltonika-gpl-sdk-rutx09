@@ -2,16 +2,18 @@
     "services/vpn/ipsec": {
         "description": "ipsec configuration",
         "read": {
-            "api": [
-                "/ipsec/*",
-                "/interfaces/config/*",
-                "/l2tp/client/config/*",
-                "/l2tp/server/config/*",
-                "/gre/config/*"
-            ]
+            "api": {
+                "/ipsec/*": ["*"],
+                "/interfaces/config/*": ["id", "name"],
+                "/l2tp/client/config/*": ["id"],
+                "/l2tp/server/config/*": ["id"],
+                "/gre/config/*": ["id"]
+            }
         },
         "write": {
             "api": ["/ipsec/*"]
-        }
+        },
+		"source": ["/ipsec/*"],
+		"exception": ["/ipsec/config/*"]
     }
 }

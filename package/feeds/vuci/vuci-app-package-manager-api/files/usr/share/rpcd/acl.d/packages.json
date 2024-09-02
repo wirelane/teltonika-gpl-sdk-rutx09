@@ -2,7 +2,9 @@
   "system/package_manager": {
     "description": "package manager",
     "read": {
-      "api": ["/package_manager/*"]
+      "api": {
+        "/package_manager/*": ["*"]
+      }
     },
     "write": {
       "api": ["/package_manager/*", "/system/actions/network_restart/*"]

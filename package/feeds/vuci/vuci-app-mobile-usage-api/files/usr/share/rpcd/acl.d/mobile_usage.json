@@ -2,7 +2,10 @@
   "status/realtime/mobile_usage": {
     "description": "mobile usage",
     "read": {
-      "api": ["/modems/*", "/data_usage/*", "/sim_cards/*"]
+      "api": {
+        "/modems/status/*": ["id", "name", "index", "builtin", "primary", "sim_count"],
+        "/data_usage/*": ["*"]
+      }
     }
   }
 }

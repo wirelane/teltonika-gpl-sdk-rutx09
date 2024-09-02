@@ -43,6 +43,9 @@ define Package/data-sender-api-mod-$(2)
 	CATEGORY:=VuCI
 	SUBMENU:=Applications/API
 	TITLE:=Vuci Data Sender API $(1) module
+	ifneq ($(2), azure)
+		DEPENDS:=+data-sender-mod-$(2)
+	endif
 endef
 
 define Package/data-sender-api-mod-$(2)/install

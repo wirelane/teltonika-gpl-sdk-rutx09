@@ -2,10 +2,10 @@
 	"services/cloud_solutions/thingworx": {
 		"description": "ThingWorx",
 		"read": {
-			"api": [
-				"/thingworx/*",
-				"/interfaces/*"
-			]
+			"api": {
+				"/thingworx/*": ["*"],
+				"/interfaces/config/*": ["name", "proto"]
+			}
 		},
 		"write": {
 			"api": ["/thingworx/*"]

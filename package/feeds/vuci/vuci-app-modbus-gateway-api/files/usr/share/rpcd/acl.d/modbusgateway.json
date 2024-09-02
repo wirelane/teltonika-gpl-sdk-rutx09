@@ -2,13 +2,12 @@
 	"services/modbus/modbus_gateway": {
 		"description": "modbus gateway configuration",
 		"read": {
-			"api": [
-				"/modbus/gateway/*",
-				"/modbus/serial_gateway/*",
-				"/serial/*",
-				"/system/device/*",
-				"/certificates/*"
-			]
+			"api": {
+				"/modbus/gateway/*": ["*"],
+				"/modbus/serial_gateway/*": ["*"],
+				"/serial/status/*": ["*"],
+				"/certificates/config/*": ["fullname", "cert_type", "type"]
+			}
 		},
 		"write": {
 			"api": [

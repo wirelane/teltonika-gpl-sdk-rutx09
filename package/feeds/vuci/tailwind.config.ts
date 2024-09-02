@@ -90,7 +90,8 @@ export default {
           }
         },
         'primary-gray': {
-          100: useOpacity('var(--clr-primary-gray-100)')
+          100: useOpacity('var(--clr-primary-gray-100)'),
+          200: useOpacity('var(--clr-primary-gray-200)')
         },
         light: {
           tlt: {
@@ -122,6 +123,20 @@ export default {
             200: useOpacity('var(--clr-accent-purple-200)'),
             300: useOpacity('var(--clr-accent-purple-300)')
           }
+        }
+      },
+      animation: {
+        wiggle: 'wiggle 1s ease 1'
+      },
+      keyframes: {
+        wiggle: {
+          from: { rotate: '0deg' },
+          '16.667%': { rotate: '15deg' },
+          '33.334%': { rotate: '-15deg' },
+          '50%': { rotate: '15deg' },
+          '66.667%': { rotate: '-15deg' },
+          '83.334%': { rotate: '15deg' },
+          to: { rotate: '0deg' }
         }
       },
       // https://github.com/tailwindlabs/tailwindcss/discussions/8705

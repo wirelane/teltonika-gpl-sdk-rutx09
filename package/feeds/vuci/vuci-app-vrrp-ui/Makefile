@@ -6,11 +6,8 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-vrrp-ui))
 	APP_APP_NAME:=vrrpd
 	APP_TLT_NAME:=VRRP
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
+	APP_HW_INFO:=ethernet
 endif
-
-define Package/vuci-app-vrrp-ui/mdm9x07
-  PKG_ROUTER:=TRB140 TRB143 TRB500
-endef
 
 include ../app.mk
 

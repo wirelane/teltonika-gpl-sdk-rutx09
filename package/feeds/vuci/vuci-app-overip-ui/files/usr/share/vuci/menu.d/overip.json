@@ -14,7 +14,7 @@
 		"title": "Gateway",
 		"index": 20,
 		"view": "services/MBusGateway",
-		"acls": [ "services/mbus" ],
+		"acls": [ "services/mbus/gateway" ],
 		"files": [ "/etc/config/mbus_client" ]
 	}
 }

@@ -2,10 +2,14 @@
   "network/internet_status": {
     "description": "Internet status configuration",
     "read": {
-      "api": ["/internet_connection/*"]
+      "api": {
+        "/internet_connection/*": ["*"]
+      }
     },
     "write": {
       "api": ["/internet_connection/*"]
-    }
+    },
+	"source": ["/internet_connection/*"],
+	"exception": ["/internet_connection/status/*"]
   }
 }

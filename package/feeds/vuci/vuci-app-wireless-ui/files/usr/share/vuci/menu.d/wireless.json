@@ -1,8 +1,18 @@
 {
+  "network/wireless": {
+    "title": "Wireless",
+    "index": 40
+  },
   "network/wireless/ssids": {
-    "view": "network/WirelessInterface"
+    "title": "SSIDs",
+    "index": 10,
+    "view": "network/WirelessInterface",
+    "acls": ["network/wireless/ssids"]
   },
   "network/wireless/radio": {
-    "view": "network/WirelessDevice"
+    "title": "Radio",
+    "index": 20,
+    "view": "network/WirelessDevice",
+    "acls": ["network/wireless/radio"]
   }
 }

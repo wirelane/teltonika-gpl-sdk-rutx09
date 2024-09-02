@@ -6,11 +6,8 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-samba-ui))
 	APP_TLT_NAME:=Network shares
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=samba36-server
+	APP_HW_INFO:=usb/sd_card
 endif
-
-define Package/vuci-app-samba-ui/teltonika_rut9m
-  PKG_ROUTER:=RUT956 RUT906 RUT976
-endef
 
 include ../app.mk
 

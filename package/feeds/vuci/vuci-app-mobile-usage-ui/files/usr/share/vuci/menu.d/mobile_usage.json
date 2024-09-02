@@ -1,12 +1,8 @@
 {
   "status/realtime/mobile_usage": {
+    "title": "Mobile Usage",
+    "index": 60,
     "view": "status/MobileUsage",
-    "main_page": true
-  },
-  "status/realtime/mobile_usage/all": {
-    "view": "status/MobileUsage"
-  },
-  "status/realtime/mobile_usage/:id": {
-    "view": "status/MobileUsage"
+    "acls": ["status/realtime/mobile_usage"]
   }
 }

@@ -2,13 +2,12 @@
   "system/admin/admin": {
     "description": "administration general",
     "read": {
-      "api": [
-        "/system/config/*",
-        "/system/led/config/*",
-        "/system/buttons/config/*",
-        "/package_manager/language_packages/*",
-        "/system/languages/*"
-      ]
+      "api": {
+        "/system/config/*": ["*"],
+        "/system/led/config/*": ["*"],
+        "/system/buttons/config/*": ["*"],
+        "/system/languages/options/*": ["*"]
+      }
     },
     "write": {
       "api": [
@@ -20,9 +19,9 @@
   },
   "system/reboot": {
     "read": {
-      "api": [
-          "/system/actions/reboot/*"
-      ]
+      "api": {
+        "/system/actions/reboot/*": ["*"]
+      }
     },
     "write": {
       "api": [

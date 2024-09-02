@@ -7,6 +7,7 @@ APP_NAME_ONLY=$(patsubst %-ui,%,$(APP_NAME))
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
 PLUGIN_DIR:=$(VUCI_CORE_DIR)/.plugin
+PKG_VERSION?=$(VUCI_CORE_VERSION)
 PKG_LICENSE?=Teltonika-nda-source
 
 include $(INCLUDE_DIR)/package.mk
@@ -30,6 +31,9 @@ ifdef APP_ROUTER
 endif
 ifdef APP_APP_NAME
 	PKG_APP_NAME:=$(APP_APP_NAME)
+endif
+ifdef APP_HW_INFO
+	PKG_HW_INFO:=$(APP_HW_INFO)
 endif
 endef
 
@@ -66,7 +70,16 @@ define Build/Prepare
 endef
 
 define Package/$(PKG_NAME)/install/Default
-	if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then $(CP) $(PKG_BUILD_DIR)/files/* $(1) ; fi
+	if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then \
+		$(if $(CONFIG_AP_DEVICE), , $(RM) $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tap.json;) \
+		$(if $(CONFIG_SWITCH_DEVICE), , $(RM) $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tsw.json;) \
+		if [ -n "$(CONFIG_SWITCH_DEVICE)" ] || [ -n "$(CONFIG_AP_DEVICE)" ]; then \
+			if [ ! -z "$$$$(ls $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tap.json)" ] || [ ! -z "$$$$(ls $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tsw.json)" ]; then \
+				find $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/ -type f -not \( -name '*.tap.json' -or -name '*.tsw.json' \) -exec $(RM) {} +; \
+			fi; \
+		fi; \
+		$(CP) $(PKG_BUILD_DIR)/files/* $(1); \
+	fi; \
 	if [[ -d "$(PKG_BUILD_DIR)/dest" ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/dest)" ]]; then \
 		$(INSTALL_DIR) $(1)/www/assets; \
 		$(CP) $(PKG_BUILD_DIR)/dest/* $(1)/www/assets; \
@@ -91,7 +104,16 @@ define Build/Prepare
 endef
 
 define Package/$(PKG_NAME)/install/Default
-	if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then $(CP) $(PKG_BUILD_DIR)/files/* $(1) ; fi
+	if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then \
+		$(if $(CONFIG_AP_DEVICE), , $(RM) $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tap.json;) \
+		$(if $(CONFIG_SWITCH_DEVICE), , $(RM) $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tsw.json;) \
+		if [ -n "$(CONFIG_SWITCH_DEVICE)" ] || [ -n "$(CONFIG_AP_DEVICE)" ]; then \
+			if [ ! -z "$$$$(ls $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tap.json)" ] || [ ! -z "$$$$(ls $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/*.tsw.json)" ]; then \
+				find $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/ -type f -not \( -name '*.tap.json' -or -name '*.tsw.json' \) -exec $(RM) {} +; \
+			fi; \
+		fi; \
+		$(CP) $(PKG_BUILD_DIR)/files/* $(1); \
+	fi; \
 	if [[ -d "$(PKG_BUILD_DIR)/dest" ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/dest)" ]]; then \
 		$(INSTALL_DIR) $(1)/www/views; \
 		$(CP) $(PKG_BUILD_DIR)/dest/* $(1)/www/views; \

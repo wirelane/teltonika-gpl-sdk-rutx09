@@ -5,10 +5,7 @@ APP_TITLE:=VuCI UI Support for miniDLNA
 APP_TLT_NAME:=DLNA
 APP_ROUTER:=$(TLT_PLATFORM_NAME)
 APP_APP_NAME:=tlt-minidlna
-
-define Package/vuci-app-minidlna-ui/teltonika_rut9m
-  PKG_ROUTER:=RUT956 RUT906 RUT976
-endef
+APP_HW_INFO:=usb/sd_card
 
 include ../app.mk
 
