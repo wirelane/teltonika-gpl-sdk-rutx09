@@ -1,4 +1,17 @@
-# 2024-09-10 00.07.09.1
+# 2024-09-24 00.07.09.3
+
+### Fix
+
+* Multi WAN: fixed ipsets not getting deleted correctly when Multi WAN gets restarted (ID: 20347)
+
+# 2024-09-13 00.07.09.2
+
+### Fix
+
+* Network: fixed incorrect IP lease when using Bridge/Passthrough modes for TRB500 (ID: 20352)
+* Mobile: fixed RM520N modem connection issue after device reboot
+
+# 2024-09-12 00.07.09.1
 
 ### Fix
 

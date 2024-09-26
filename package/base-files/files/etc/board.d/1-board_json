@@ -470,6 +470,16 @@ setup_json() {
 		ucidef_set_network_options "vlans" 4094 "max_mtu" 2030 "readonly_vlans" 1
 		ucidef_set_release_version "7.7"
 		;;
+	RUTM59*)
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
+		ucidef_set_usb_jack "/usb1/1-2/"
+		ucidef_add_static_modem_info "$model" "2-1" "primary" "gps_out"
+		ucidef_set_hwinfo usb ethernet ios mobile dual_sim at_sim dsa hw_nat nat_offloading multi_tag \
+			port_link soft_port_mirror gigabit_port gps
+		ucidef_set_network_options "vlans" 4094 "max_mtu" 2030 "readonly_vlans" 1
+		ucidef_add_dot1x_server_capabilities false false "dsa_isolate"
+		ucidef_set_release_version "7.9.3"
+		;;
 	ATRM50*)
 		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
 		ucidef_set_usb_jack "/usb1/1-2/"

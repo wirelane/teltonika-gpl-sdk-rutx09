@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2021 Teltonika
+# Copyright (C) 2024 Teltonika-Networks
 #
 
 define GPL/Target/Build/Default
@@ -13,10 +13,12 @@ define GPL/Target/Build/Default
 	sub=$(CONFIG_TARGET_SUBTARGET); \
 	sed -i '/^SUBTARGETS:=.*/c\SUBTARGETS:='"$${sub}" "$(1)/Makefile"; \
 	cp "./image/$${sub}.mk" "$(1)/image/$${sub}.mk"; \
-	[ -d "$${sub}" ] && cp -r "$${sub}" "$(1)" || true; \
-	sed -i '/^TARGET_DEVICES +=/d' "$(1)/image/$${sub}.mk"; \
-	echo "TARGET_DEVICES += teltonika_$(call device_shortname)" >> "$(1)/image/$${sub}.mk"
-
+	[ -d "$${sub}" ] && cp -r "$${sub}" "$(1)" || true
+	compat="teltonika_$(call device_shortname)"; \
+	[ -n $(CONFIG_INCLUDED_DEVICES) ] && \
+		compat="$$(echo "$${compat} $(CONFIG_INCLUDED_DEVICES)" | tr ' ' '|')"; \
+	find "$(1)/image" -type f -exec \
+		sed -i -E "/^TARGET_DEVICES[[:space:]]*[\+]*=[[:space:]]*($${compat})/!{/^TARGET_DEVICES[[:space:]]*[\+]*=/d}" {} +
 	sed -i '/target-gpl.mk/d' "$(1)/Makefile"
 	sed -i '/define GPL\/Target\/Build/,/endef/d' "$(1)/Makefile"
 endef

@@ -385,6 +385,12 @@ const char *mnf_info_get_hw_version(void)
 }
 EXPORT_SYMBOL(mnf_info_get_hw_version);
 
+const char *mnf_info_get_branch(void)
+{
+	return get_data_of("branch");
+}
+EXPORT_SYMBOL(mnf_info_get_branch);
+
 const char *mnf_info_get_batch(void)
 {
 	return get_data_of("batch");
@@ -397,7 +403,7 @@ static int parse_prop(struct device_node *node)
 	struct mtd_info *mtd;
 	size_t retlen;
 	int status, size, i, z, di;
-	const char *part, *def, *type, *str, *dev_name;
+	const char *part, *def, *type, *str, *dev_name, *branch;
 	int arr_hwver[2], cur_hwver;
 	const __be32 *list, *min_rlen;
 	phandle phandle;
@@ -433,8 +439,21 @@ devcompat:
 		pr_debug("Property \"%s\" is incompatible with hw v%d\n", node->full_name, cur_hwver);
 		return 0;
 	}
-hvcompat:
 
+hvcompat:
+	di = of_property_count_strings(node, "tlt-mnf,branch");
+	if (di > 0 && (branch = mnf_info_get_branch())) {
+		of_property_read_string_array(node, "tlt-mnf,branch", &str, di);
+		for (i = 0; i < di; i++, str++) {
+			for (z=0; z < strlen(str); z++)
+				if (str[z] != '*' && str[z] != branch[z]) break;
+			if (z == strlen(str)) goto brcompat;
+		}
+		pr_err("Property \"%s\" is incompatible with branch [%s]\n", node->full_name, branch);
+		return 0;
+	}
+
+brcompat:
 	if (e->data) {
 		pr_debug("Data buffer of %s is not empty. Clearing... \n", e->name);
 		kfree(e->data);

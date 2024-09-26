@@ -21,6 +21,7 @@ define Package/travelmate
 	PKGARCH:=all
 	PKG_ROUTER:=$(TLT_PLATFORM_NAME)
 	PKG_TLT_NAME:=TravelMate
+	PKG_HW_INFO:=wifi
 endef
 
 define Package/travelmate/description
