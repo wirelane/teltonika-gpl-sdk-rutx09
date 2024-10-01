@@ -1,5 +1,10 @@
 [
   {
+    "category": "Services",
+    "name": "NTP Client",
+    "depends": []
+  },
+  {
     "category": "System",
     "name": "Package Restore",
     "depends": [

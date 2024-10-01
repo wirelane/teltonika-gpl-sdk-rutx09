@@ -1,3 +1,14 @@
+# 2024-10-01 00.07.09.4
+
+### Improvements
+
+* Kernel: improved LED management with newer hardware for RUTM08, RUTM09, RUTM10, RUTM11 (ID: 20845)
+* NTP Client: changed default NTP servers (ID: 20242)
+
+### Fix
+
+* NTP Client: fixed NTP server usage to work with next in line server if current server does not respond (ID: 20755)
+
 # 2024-09-24 00.07.09.3
 
 ### Fix
