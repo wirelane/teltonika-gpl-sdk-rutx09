@@ -10,7 +10,7 @@
       }
     },
     "write": {
-      "api": ["/sim_cards/config/*", "/interfaces/config/*"]
+      "api": ["/sim_cards/config/*"]
     }
   },
 

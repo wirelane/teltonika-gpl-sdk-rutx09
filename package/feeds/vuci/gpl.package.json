@@ -1,6 +1,7 @@
 {
-  "name": "vuci",
-  "version": "8.5.0_dev",
+  "name": "package",
+  "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "compile": "./compile-app-gpl.sh"
   },
@@ -12,6 +13,7 @@
     "vite": "^5.0.12",
     "vite-plugin-compression2": "^1.0.0",
     "vite-plugin-dynamic-import": "^1.5.0",
+    "vite-plugin-externals": "^0.6.2",
     "vite-plugin-vue-devtools": "^7.0.14"
   },
   "engines": {

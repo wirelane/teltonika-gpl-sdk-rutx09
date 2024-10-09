@@ -119,24 +119,6 @@ apply_port_options() {
 	return 0
 }
 
-apply_soft_port_mirror_options() {
-	json_select hwinfo
-		json_get_vars soft_port_mirror
-	json_select ..
-
-	[ "$soft_port_mirror" = "0" ] && return 0
-
-	uci -q batch <<-EOF
-		add network interface
-		rename network.@interface[-1]='ifmirror'
-		set network.@interface[-1].disabled='1'
-		set network.@interface[-1].proto='mirror'
-		set network.@interface[-1].enable_mirror_tx='0'
-		set network.@interface[-1].enable_mirror_rx='0'
-	EOF
-	return 0
-}
-
 metric=0
 addr_offset=3
 generate_network() {
@@ -821,6 +803,7 @@ add_dhcp() {
 		set dhcp.$1.start='100'
 		set dhcp.$1.limit='150'
 		set dhcp.$1.leasetime='1h'
+		set dhcp.$1.ignore_ipv6='1'
 	EOF
 }
 
@@ -834,7 +817,6 @@ if [ ! -s /etc/config/network ]; then
 	generate_static_network
 	apply_network_options
 	apply_port_options
-	apply_soft_port_mirror_options
 
 	json_get_keys keys network
 	for key in $keys; do

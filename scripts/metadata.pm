@@ -2,7 +2,7 @@ package metadata;
 use base 'Exporter';
 use strict;
 use warnings;
-our @EXPORT = qw(%package %vpackage %srcpackage %category %overrides clear_packages parse_package_metadata parse_target_metadata get_multiline @ignore %usernames %groupnames);
+our @EXPORT = qw(%package %vpackage %srcpackage %category %overrides clear_packages parse_package_metadata parse_package_manifest_metadata parse_target_metadata get_multiline @ignore %usernames %groupnames);
 
 our %package;
 our %vpackage;
@@ -177,6 +177,7 @@ sub parse_target_metadata($) {
 		/^Target-Profile-PoeConfig:\s*(.*)\s*$/ and $profile->{poe_conf} = $1;
 		/^Target-Profile-PoeChip:\s*(.*)\s*$/ and $profile->{poe_chip} = $1;
 		/^Target-Profile-SerialCapabilities:\s*(.*)\s*$/ and $profile->{serial_capabilities} = $1;
+		/^Target-Profile-Dot1xServerCapabilities:\s*(.*)\s*$/ and $profile->{dot1x_server_capabilities} = $1;
 		/^Target-Profile-Priority:\s*(\d+)\s*$/ and do {
 			$profile->{priority} = $1;
 			$target->{sort} = 1;
@@ -284,6 +285,8 @@ sub parse_package_metadata($) {
 		/^License: \s*(.+)\s*$/ and $pkg->{license} = $1;
 		/^LicenseFiles: \s*(.+)\s*$/ and $pkg->{licensefiles} = $1;
 		/^Default: \s*(.+)\s*$/ and $pkg->{default} = $1;
+		/^CPE-ID:\s*(.+)\s*$/ and $pkg->{cpe_id} = $1;
+		/^Upstream:\s*(.+)\s*$/ and $pkg->{upstream_url} = $1;
 		/^Provides: \s*(.+)\s*$/ and do {
 			my @vpkg = split /\s+/, $1;
 			@{$pkg->{provides}} = ($pkg->{name}, @vpkg);
@@ -333,6 +336,45 @@ sub parse_package_metadata($) {
 	}
 	close FILE;
 	return 1;
+}
+
+sub parse_package_manifest_metadata($) {
+	my $file = shift;
+	my $pkg;
+	my %pkgs;
+
+	open FILE, "<$file" or do {
+		warn "Cannot open '$file': $!\n";
+		return undef;
+	};
+
+	while (<FILE>) {
+		chomp;
+		/^Package:\s*(.+?)\s*$/ and do {
+			$pkg = {};
+			$pkg->{name} = $1;
+			$pkg->{depends} = [];
+			$pkgs{$1} = $pkg;
+		};
+		/^Version:\s*(.+)\s*$/ and $pkg->{version} = $1;
+		/^Depends:\s*(.+)\s*$/ and $pkg->{depends} = [ split /\s+/, $1 ];
+		/^Source:\s*(.+)\s*$/ and $pkg->{source} = $1;
+		/^SourceName:\s*(.+)\s*$/ and $pkg->{sourcename} = $1;
+		/^License:\s*(.+)\s*$/ and $pkg->{license} = $1;
+		/^LicenseFiles:\s*(.+)\s*$/ and $pkg->{licensefiles} = $1;
+		/^Section:\s*(.+)\s*$/ and $pkg->{section} = $1;
+		/^SourceDateEpoch: \s*(.+)\s*$/ and $pkg->{sourcedateepoch} = $1;
+		/^CPE-ID:\s*(.+)\s*$/ and $pkg->{cpe_id} = $1;
+		# /^Upstream:\s*(.+)\s*$/ and $pkg->{upstream_url} = $1;
+		/^Architecture:\s*(.+)\s*$/ and $pkg->{architecture} = $1;
+		/^Installed-Size:\s*(.+)\s*$/ and $pkg->{installedsize} = $1;
+		/^Filename:\s*(.+)\s*$/ and $pkg->{filename} = $1;
+		/^Size:\s*(\d+)\s*$/ and $pkg->{size} = $1;
+		/^SHA256sum:\s*(.*)\s*$/ and $pkg->{sha256sum} = $1;
+	}
+
+	close FILE;
+	return %pkgs;
 }
 
 1;

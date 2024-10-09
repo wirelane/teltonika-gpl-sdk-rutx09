@@ -127,6 +127,29 @@ check_modem_id() {
 
 }
 
+get_mnf_sim_pin() {
+	local modem_num mnf_cfg mnf_modem num
+	local sim_pos=0
+	local modem="$1"
+	local position="$2"
+
+	modem_num="$(jsonfilter -i "/etc/board.json" -e "@.modems[@.id=\"$modem\"].num" 2>/dev/null)"
+	[ -z "$modem_num" ] && return
+
+	for num in $(seq 1 4); do
+		mnf_cfg="$(/sbin/mnf_info -C "$num" 2>/dev/null)"
+		[ -z "$mnf_cfg" ] && break
+
+		mnf_modem=${mnf_cfg:1:1}
+		[ $mnf_modem -eq 0 ] && continue # Skip empty
+
+		[ $mnf_modem -eq $modem_num ] && sim_pos=$((sim_pos + 1)) && [ $sim_pos -eq $position ] && {
+			/sbin/mnf_info -S "$num" 2>/dev/null
+			return
+		}
+	done
+}
+
 add_simcard_config(){
 	local pin
 	local device="$1"
@@ -147,21 +170,15 @@ add_simcard_config(){
 
 	[ -z "$position" ] && position=1
 
+	pin="$(get_mnf_sim_pin "$device" "$position")"
+
 	[ -e /etc/config/simcard ] || touch /etc/config/simcard
 	uci_add simcard sim
 	uci_set simcard $CONFIG_SECTION modem "$device"
 	uci_set simcard $CONFIG_SECTION position "$position"
 	uci_set simcard $CONFIG_SECTION volte "$volte"
-
-
 	[ "$primary" -eq 1 ] && uci_set simcard $CONFIG_SECTION primary "$primary"
-
-	[ "$(is_builtin_modem $device)" -eq 2 ] && [ "$(is_dual_modem)" -eq 1 ] && position="$(($position + 2))"
-
-	[ "$builtin" = "1" ] && {
-		pin="$(/sbin/mnf_info --simpin $position)"
-		[ $pin -eq $pin ] && uci_set simcard $CONFIG_SECTION pincode $pin
-	}
+	[ -n "$pin" ] && uci_set simcard $CONFIG_SECTION pincode "$pin"
 	uci_commit simcard
 
 	[ -x "/bin/trigger_vuci_routes_reload" ] && /bin/trigger_vuci_routes_reload

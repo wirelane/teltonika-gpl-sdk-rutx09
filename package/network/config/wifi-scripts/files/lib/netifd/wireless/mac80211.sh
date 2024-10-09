@@ -85,7 +85,7 @@ drv_mac80211_init_iface_config() {
 
 	config_add_string 'macaddr:macaddr' ifname
 
-	config_add_int _device_id
+	config_add_string _device_id
 	config_add_boolean wds powersave enable
 	config_add_string wds_bridge
 	config_add_int maxassoc

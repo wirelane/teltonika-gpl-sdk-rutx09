@@ -21,7 +21,7 @@ PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=lto
 PKG_CHECK_FORMAT_SECURITY:=0
 
-#Busybox use it's own PIE config flag and LDFLAGS are used with ld, not gcc.
+# Busybox use it's own PIE config flag and LDFLAGS are used with ld, not gcc.
 PKG_ASLR_PIE:=0
 
 PKG_LICENSE:=GPL-2.0-only
@@ -58,13 +58,28 @@ define Package/busybox
   VARIANT:=default
 endef
 
+define Package/telnet
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=Telnet server
+  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:libtlt_utils +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd
+endef
+
 define Package/busybox/description
  The Swiss Army Knife of embedded Linux.
  It slices, it dices, it makes Julian Fries.
 endef
 
+define Package/telnet/description
+ This package contains a telnet server.
+endef
+
 define Package/busybox/config
 	source "$(SOURCE)/Config.in"
+endef
+
+define Package/telnet/conffiles
+/etc/config/telnetd
 endef
 
 define Package/busybox/conffiles
@@ -117,6 +132,35 @@ define Build/Compile
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
 		all install \
 	)
+	cd $(PKG_BUILD_DIR) && \
+	sed -i 's/^# CONFIG_TELNET is not set/CONFIG_TELNET=y/' .config || true; \
+	sed -i 's/^# CONFIG_TELNETD is not set/CONFIG_TELNETD=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNET_TTYPE is not set/CONFIG_FEATURE_TELNET_TTYPE=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNET_AUTOLOGIN is not set/CONFIG_FEATURE_TELNET_AUTOLOGIN=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNET_WIDTH is not set/CONFIG_FEATURE_TELNET_WIDTH=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNETD_STANDALONE is not set/CONFIG_FEATURE_TELNETD_STANDALONE=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNETD_INETD_WAIT is not set/CONFIG_FEATURE_TELNETD_INETD_WAIT=y/' .config || true; \
+	cp .config .config.orig && \
+	./make_single_applets.sh TELNETD && \
+	cp busybox_config_TELNETD .config && \
+	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
+	mv busybox busybox_TELNETD; \
+	cp .config.orig .config && \
+	./make_single_applets.sh TELNET && \
+	cp busybox_config_TELNET .config && \
+	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
+	mv busybox busybox_TELNET
+endef
+
+define Package/telnet/install
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/telnetd.conf $(1)/etc/config/telnetd
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/telnetd $(1)/etc/init.d/telnetd
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_TELNETD $(1)/usr/sbin/telnetd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_TELNET $(1)/usr/bin/telnet
 endef
 
 define Package/busybox/install
@@ -124,9 +168,6 @@ define Package/busybox/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/* $(1)/
-	$(if $(CONFIG_TELNET_SUPPORT),\
-		$(INSTALL_BIN) ./files/telnetd $(1)/etc/init.d/telnetd; \
-		$(INSTALL_CONF) ./files/telnetd.conf $(1)/etc/config/telnetd)
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_CROND),)
 	$(INSTALL_BIN) ./files/cron $(1)/etc/init.d/cron
 endif
@@ -142,4 +183,5 @@ endif
 	-rm -rf $(1)/lib64
 endef
 
+$(eval $(call BuildPackage,telnet))
 $(eval $(call BuildPackage,busybox))

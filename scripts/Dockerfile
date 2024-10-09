@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20240530
+FROM ubuntu:jammy-20240808
 
 # Set environment variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -55,6 +55,8 @@ RUN apt update && apt upgrade -y \
 	libssl-dev \
 	libxml-parser-perl \
 	lz4 \
+	liblz4-dev \
+	libzstd-dev \
 	make \
 	ocaml \
 	ocaml-findlib \
@@ -63,9 +65,9 @@ RUN apt update && apt upgrade -y \
 	pkg-config \
 	psmisc \
 	python-is-python3 \
-	python3.9 \
-	python3.9-dev \
-	python3.9-distutils \
+	python3.11 \
+	python3.11-dev \
+	python3-setuptools \
 	python3-yaml \
 	rsync \
 	sharutils \

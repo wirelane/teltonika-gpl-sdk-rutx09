@@ -8,26 +8,27 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=glib2
-PKG_VERSION:=2.66.4
+PKG_VERSION:=2.80.5
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.66.4
+PKG_SOURCE_VERSION:=2.80.5
 PKG_SOURCE:=glib-$(PKG_SOURCE_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNOME/glib/$(basename $(PKG_SOURCE_VERSION))
 
-PKG_HASH:=97df8670e32f9fd4f7392b0980e661dd625012015d58350da1e58e343f4af984
+PKG_HASH:=9f23a9de803c695bbfde7e37d6626b18b9a83869689dd79019bf3ae66c3e6771
 
 PKG_MAINTAINER:=Peter Wagner <tripolar@gmx.at>
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=COPYING
 PKG_CPE_ID:=cpe:/a:gnome:glib
 
-HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/glib-$(PKG_VERSION)
-PKG_BUILD_DEPENDS:=meson/host gettext-full libiconv-full/host
-HOST_BUILD_DEPENDS:=meson/host gettext-full/host libiconv-full/host libffi/host
+PKG_BUILD_DEPENDS:=meson/host
 PKG_CONFIG_DEPENDS:=CONFIG_BUILD_NLS
+PKG_FORTIFY_SOURCE:=0
 PKG_BUILD_FLAGS:=gc-sections
-PKG_INSTALL:=1
+
+HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/glib-$(PKG_VERSION)
+HOST_BUILD_DEPENDS:=meson/host pcre2/host libffi/host libiconv-full/host
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -37,7 +38,7 @@ include ../../devel/meson/meson.mk
 define Package/glib2
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=$(ICONV_DEPENDS) $(INTL_DEPENDS) +zlib +libpthread +libffi +libattr
+  DEPENDS:=$(ICONV_DEPENDS) $(INTL_DEPENDS) +zlib +libpthread +libffi +libattr +libpcre2
   TITLE:=glib 2.0
   URL:=http://www.gtk.org/
 endef
@@ -46,29 +47,31 @@ define Package/glib2/description
   The GLib library of C routines
 endef
 
-HOST_LDFLAGS += -liconv -Wl,-rpath,$(STAGING_DIR_HOSTPKG)/lib
-TARGET_LDFLAGS += $(if $(INTL_FULL),-lintl)
+COMP_ARGS:=
 
-COMP_ARGS= \
-	-Ddefault_library=both \
-	-Dselinux=disabled \
-	-Dlibmount=disabled \
-	-Dinternal_pcre=true \
-	-Dman=false \
-	-Ddtrace=false \
-	-Dsystemtap=false \
-	-Dgtk_doc=false \
-	-Dbsymbolic_functions=true \
-	-Dforce_posix_threads=true \
-	-Dfam=false \
-	-Dinstalled_tests=false \
-	-Dnls=$(if $(CONFIG_BUILD_NLS),en,dis)abled \
-	-Doss_fuzz=disabled \
-	-Dglib_assert=false \
-	-Dglib_checks=false
+# default feature=auto see meson_options.txt
+COMP_ARGS+=-Dglib_debug=disabled
 
-MESON_HOST_ARGS += $(COMP_ARGS) -Dxattr=false
-MESON_ARGS += $(COMP_ARGS) -Dxattr=true -Db_lto=true
+# default feature=auto see meson_options.txt
+COMP_ARGS+=-Dlibmount=disabled
+
+# default feature=auto see meson_options.txt
+COMP_ARGS+=-Dselinux=disabled
+
+# default boolean=true see meson_options.txt
+COMP_ARGS+=-Dglib_assert=false
+
+# default boolean=true see meson_options.txt
+COMP_ARGS+=-Dtests=false
+
+# default feature=auto see meson_options.txt
+COMP_ARGS+=-Dintrospection=disabled
+
+# set runtime dir to /var/run
+COMP_ARGS+=-Druntime_dir=/var/run
+
+MESON_HOST_ARGS += $(COMP_ARGS) -Dxattr=false -Ddefault_library=static -Dnls=disabled
+MESON_ARGS += $(COMP_ARGS) -Dxattr=true -Db_lto=true -Ddefault_library=both -Dnls=$(if $(CONFIG_BUILD_NLS),en,dis)abled
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/bin
@@ -97,13 +100,15 @@ define Build/InstallDev
 		$(1)/usr/lib/
 
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
-ifneq ($(INTL_FULL),)
-	$(SED) '/^Libs:/s/$$$$/ -lintl/' \
-		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/glib-2.0.pc
-endif
 	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/usr/lib/pkgconfig/*.pc \
 		$(1)/usr/lib/pkgconfig
+	$(foreach BIN,glib_genmarshal glib_mkenums,
+		$(SED) 's/^$(BIN)=$$$${bindir}\/\(.*\)/$(BIN)=$$$${prefix_hostpkg}\/bin\/\1/' $(1)/usr/lib/pkgconfig/glib-2.0.pc
+	)
+	$(foreach BIN,glib_compile_resources gdbus_codegen,
+		$(SED) 's/^$(BIN)=$$$${bindir}\/\(.*\)/$(BIN)=$$$${prefix_hostpkg}\/bin\/\1/' $(1)/usr/lib/pkgconfig/gio-2.0.pc
+	)
 
 	$(INSTALL_DIR) $(2)/share/aclocal/
 	$(INSTALL_DATA) \

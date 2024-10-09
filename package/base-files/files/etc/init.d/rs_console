@@ -26,17 +26,17 @@ set_service() {
 
 	set_tty_options "$DEVICE" "$SPEED" "$DBITS" "$PARITY" "$SBITS" "$FCTRL" "$DUPLEX" "$ECHO_ENABLED"
 
-	procd_open_instance
-	procd_set_param file /etc/config/"$CONFIG"
+	procd_open_instance "$section"
+	section_hash=$(uci show "$CONFIG"."$section" | md5sum | head -c 32)
+	procd_set_param data hash=$section_hash
 	procd_set_param term_timeout 0
-	procd_set_param command "$PROGRAM" "$SPEED" "$DEVICE" vt100
+
+	# The $section_hash variable must be appended to the end of the command,
+	# even though is is not used it is required for only restarting processess
+	# for which config changed.
+	procd_set_param command "$PROGRAM" "$SPEED" "$DEVICE" vt100 $section_hash
 	procd_set_param respawn
 	procd_close_instance
-}
-
-reload_service() {
-	stop
-	start
 }
 
 start_service() {

@@ -1,26 +1,47 @@
 {
   "services/io": {
+    "index": 50,
     "title": "Input/Output"
   },
   "services/io/general": {
-    "view": "services/IoStatus"
+    "view": "services/IoStatus",
+    "index": 10,
+    "title": "Status",
+    "acls": ["services/io/general"]
   },
   "services/io/post_get": {
-    "view": "services/IoPostGet"
+    "view": "services/IoPostGet",
+    "index": 20,
+    "title": "Post/Get",
+    "acls": ["services/io/post_get"]
   },
   "services/io/scheduler": {
-    "view": "services/IoScheduler"
+    "view": "services/IoScheduler",
+    "index": 30,
+    "title": "Scheduler",
+    "acls": ["services/io/scheduler"]
   },
+
   "services/io/juggler": {
+    "index": 15,
     "title": "I/O Juggler"
   },
   "services/io/juggler/input": {
-    "view": "services/IoJugglerGeneral"
+    "view": "services/IoJugglerGeneral",
+    "title": "General",
+    "index": 10,
+    "acls": ["services/io/juggler/input"]
   },
   "services/io/juggler/action": {
-    "view": "services/IoJugglerActions"
+    "view": "services/IoJugglerActions",
+    "title": "Actions",
+    "index": 20,
+    "acls": ["services/io/juggler/action"]
   },
   "services/io/juggler/condition": {
-    "view": "services/IoJugglerConditions"
+    "view": "services/IoJugglerConditions",
+    "title": "Conditions",
+    "index": 30,
+    "acls": ["services/io/juggler/condition"]
   }
 }

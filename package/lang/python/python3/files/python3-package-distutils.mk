@@ -8,7 +8,7 @@
 define Package/python3-distutils
 $(call Package/python3/Default)
   TITLE+= distutils module
-  DEPENDS:=+python3-light +python3-email
+  DEPENDS:=+python3-light
 endef
 
 define Package/python3-distutils/description

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iomand
 
-PKG_SOURCE_VERSION:=2.21
+PKG_SOURCE_VERSION:=2.21.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -17,6 +17,7 @@ define Package/iomand
 	CATEGORY:=Base system
 	TITLE:=Daemon providing I/O related functionality.
 	DEPENDS:=+libuci +libubus +libubox +libcgi +libmnfinfo +libtlt-logger +liblog +libgpiod +gpiod-tools
+	ABI_VERSION:=1.0
 endef
 
 define Package/iomand/conffiles

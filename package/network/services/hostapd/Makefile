@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=4
+PKG_RELEASE:=8
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=e5ccbfc69ecf297590341ae8b461edba9d8e964c
@@ -340,7 +340,7 @@ define Package/hostapd-common
   SECTION:=net
   CATEGORY:=Network
   SUBMENU:=WirelessAPD
-  DEPENDS:=+libopenssl
+  DEPENDS:=+libopenssl +ucode
 endef
 
 define Package/hostapd-utils
@@ -443,6 +443,21 @@ define Build/RunMake
 		$(2)
 endef
 
+define Package/radius_test 
+	TITLE:=Radius Tester
+endef
+
+define Build/Compile/radius_test
+	$(CP) ./files/radius_test $(PKG_BUILD_DIR)/
+	CFLAGS="$(TARGET_CPPFLAGS) $(TARGET_CFLAGS)" \
+	$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR)/radius_test \
+		$(TARGET_CONFIGURE_OPTS) \
+		LIBS_c="$(TARGET_LDFLAGS_C)" \
+		AR="$(TARGET_CROSS)gcc-ar" \
+		$(if $(findstring s,$(OPENWRT_VERBOSE)),V=1) \
+		radius_test
+endef
+
 define Build/Compile/wpad
 	echo ` \
 		$(call Build/RunMake,hostapd,-s MULTICALL=1 dump_cflags); \
@@ -495,6 +510,7 @@ endef
 define Build/Compile
 	$(Build/Compile/$(LOCAL_TYPE))
 	$(Build/Compile/$(BUILD_VARIANT))
+	$(Build/Compile/radius_test)
 endef
 
 define Install/hostapd
@@ -509,19 +525,15 @@ define Install/supplicant
 endef
 
 define Package/hostapd-common/install
-	$(INSTALL_DIR) $(1)/etc/capabilities $(1)/etc/rc.button $(1)/etc/hotplug.d/ieee80211 $(1)/etc/init.d $(1)/lib/netifd  $(1)/usr/share/acl.d $(1)/usr/share/hostap $(1)/etc/hotplug.d/iface
+	$(INSTALL_DIR) $(1)/etc/capabilities $(1)/etc/rc.button $(1)/etc/hotplug.d/ieee80211 $(1)/etc/init.d $(1)/lib/netifd  $(1)/usr/share/acl.d $(1)/usr/share/hostap $(1)/etc/hotplug.d/iface $(1)/usr/share/hostap
 	$(INSTALL_BIN) ./files/dhcp-get-server.sh $(1)/lib/netifd/dhcp-get-server.sh
 	$(INSTALL_BIN) ./files/wpad.init $(1)/etc/init.d/wpad
-	$(if $(CONFIG_DOT1X_CLIENT_SUPPORT), \
-		$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/uci-defaults/; \
-		$(if $(CONFIG_DSA_SUPPORT), , $(INSTALL_BIN) ./files/dot1x-client.hotplug $(1)/etc/hotplug.d/iface/96-dot1x-client ;) \
-		$(INSTALL_BIN) ./files/dot1x_client.lua $(1)/usr/bin/dot1x_client; \
-		$(INSTALL_BIN) ./files/dot1x_client.init $(1)/etc/init.d/dot1x_client; \
-		$(INSTALL_BIN) ./files/defaults/dot1x_client $(1)/etc/uci-defaults/99_dot1x_client)
 	$(if $(CONFIG_WPS_SUPPORT),\
 		$(INSTALL_BIN) ./files/wps-hotplug.sh $(1)/etc/rc.button/wps)
 	$(INSTALL_DATA) ./files/wpad_acl.json $(1)/usr/share/acl.d
 	$(INSTALL_DATA) ./files/wpad.json $(1)/etc/capabilities
+	$(INSTALL_BIN) ./files/wdev.uc $(1)/usr/share/hostap
+	$(INSTALL_BIN) ./files/common.uc $(1)/usr/share/hostap
 endef
 
 define Package/hostapd/install
@@ -547,6 +559,12 @@ define Package/wpad/install
 	$(LN) wpad $(1)/usr/sbin/hostapd
 	$(LN) wpad $(1)/usr/sbin/wpa_supplicant
 endef
+
+define Package/radius_test/install
+	$(INSTALL_DIR) $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/radius_test/radius_test $(1)/usr/sbin/
+endef
+
 Package/wpad-basic/install = $(Package/wpad/install)
 Package/wpad-basic-openssl/install = $(Package/wpad/install)
 Package/wpad-mini/install = $(Package/wpad/install)
@@ -608,3 +626,4 @@ $(eval $(call BuildPackage,wpa-cli))
 $(eval $(call BuildPackage,hostapd-utils))
 $(eval $(call BuildPackage,eapol-test))
 $(eval $(call BuildPackage,eapol-test-openssl))
+$(eval $(call BuildPackage,radius_test))

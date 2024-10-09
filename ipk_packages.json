@@ -9,6 +9,11 @@
 		"packages_dep": "libffi",
 		"name": "python3"
 	},
+	"vuci-app-aws-ui": {
+		"vuci_dep": "vuci-app-aws-api",
+		"base_dep": "aws libaws-iot-device-sdk-embedded-C",
+		"name": "aws_iot_core"
+	},
 	"vuci-app-azure-iothub-ui": {
 		"vuci_dep": "vuci-app-azure-iothub-api data-sender-api-mod-azure",
 		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo liblua libtlt_uci libuuid1",
@@ -138,6 +143,11 @@
 		"base_dep": "speedtest",
 		"vuci_dep": "vuci-app-speed-test-api",
 		"name": "speedtest"
+	},
+	"vuci-app-port-mirroring-ui": {
+		"base_dep": "software-port-mirroring",
+		"vuci_dep": "vuci-app-software-port-mirroring-api",
+		"name": "port_mirroring"
 	},
 	"vuci-app-sqm-ui": {
 		"vuci_dep": "vuci-app-sqm-api",
@@ -382,13 +392,13 @@
 		"name": "portuguese_language_support"
 	},
 	"modem_updater": {
-		"base_dep": "libusb-1.0",
+		"base_dep": "libusb-1.0-0",
 		"packages_dep": "libffi libattr",
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_updater"
 	},
 	"modem_logger": {
-		"base_dep": "libusb-1.0",
+		"base_dep": "libusb-1.0-0",
 		"packages_dep": "libffi libattr",
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_logger"
@@ -429,6 +439,7 @@
 		"name": "apn_database_webui"
 	},
 	"vuci-app-telnet-api": {
+		"base_dep": "telnet",
 		"name": "telnet"
 	},
 	"vuci-app-vrf-ui": {
@@ -442,12 +453,13 @@
 		"base_dep": "connchecker",
 		"vuci_dep": "vuci-app-internet-api"
 	},
-	"iperf3":{
+	"iperf3": {
 		"name": "iperf3"
 	},
 	"vxlan": {
 		"name": "vxlan",
-		"kmod_dep": "kmod-vxlan"
+		"kmod_dep": "kmod-vxlan",
+		"vuci_dep": "vuci-app-network-devices-ui"
 	},
 	"jool": {
 		"name": "jool",
@@ -458,5 +470,15 @@
 		"name": "docker",
 		"kmod_dep": "iptables-mod-extra kmod-br-netfilter kmod-ipt-extra kmod-ipt-nat6 kmod-ipt-physdev kmod-nf-ipvs kmod-nf-nat6 kmod-veth",
 		"base_dep": "ca-certificates libseccomp dockerd containerd runc tini"
+	},
+	"vuci-app-port-security-ui":{
+		"name": "802.1x_server",
+		"kmod_dep": "kmod-sched-act-vlan kmod-dummy kmod-sched-flower",
+		"vuci_dep": "vuci-app-port-security-api",
+		"base_dep": "radius_test dsa-dot1x-server tc-tiny hostapd-common libucode20220812 ucode ucode-mod-fs ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uloop wpad-openssl"
+	},
+	"strongswan-pki": {
+		"base_dep": "strongswan-libtls strongswan-mod-pkcs7 strongswan-mod-curl",
+		"name": "scep"
 	}
 }

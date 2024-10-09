@@ -93,15 +93,15 @@ backup-command:
 	             create .tar.gz of files specified in sysupgrade.conf
 	             then exit. Does not flash an image. If file is '-',
 	             i.e. stdout, verbosity is set to 0 (i.e. quiet). If --password flag is used,
-		     file should be provided as <filename>.tar.7z
+		     file should be provided as <filename>.tar.zip
 	-r | --restore-backup <file>
 	             restore a .tar.gz created with sysupgrade -b
 	             then exit. Does not flash an image. If file is '-',
 	             the archive is read from stdin. If --password flag is used,
-		     file should be provided as <filename>.tar.7z
+		     file should be provided as <filename>.tar.zip or <filename>.tar.7z
 	--password <password>
 		     provide password that encrypts backup file with AES 256
-		     encryption and archives it as .tar.7z
+		     encryption and archives it as .tar.zip
 	-l | --list-backup
 	             list the files that would be backed up when calling
 	             sysupgrade -b. Does not create a backup file.
@@ -332,13 +332,13 @@ do_save_conffiles() {
 	if [ -z "$CONF_PASSWORD" ]; then
 		tar c${TAR_V}zf "$conf_tar" -T "$CONFFILES" 2>/dev/null
 	else
-		local conf_tar_trimmed=$(echo "$conf_tar" | sed 's/\.7z$//')
-		tar -cf "$conf_tar_trimmed" -T "$CONFFILES" 2>/dev/null
-		which 7zr >/dev/null || {
-			echo "Could not create $conf_tar - 7zip package is not installed";
+		which minizip >/dev/null || {
+			echo "Could not create $conf_tar - minizip package is not installed";
 			exit 1
 		}
-		7zr a -p"$CONF_PASSWORD" -mhe=on "$conf_tar" "$conf_tar_trimmed" >/dev/null 2>&1
+		local conf_tar_trimmed=$(echo "$conf_tar" | sed 's/\.zip$//')
+		tar -cf "$conf_tar_trimmed" -T "$CONFFILES" 2>/dev/null
+		minizip -s -p "$CONF_PASSWORD" "$conf_tar" "$conf_tar_trimmed" >/dev/null 2>&1
 		rm "$conf_tar_trimmed"
 	fi
 
@@ -517,10 +517,19 @@ apply_backup() {
 }
 
 backup_size_validation() {
+	local file="$1"
+	local password="$2"
 	local free_fmem=$(df -k | grep /overlay | awk '{print $4; exit}')
 
 	# Add aditional 40 KB for reserve
-	local file_size=$(zcat "$1" | wc -c | awk '{print ($1 / 1024) + 40 }')
+	local file_size
+	if [ "${file##*.}" = "zip" ]; then
+		file_size=$(minizip -l -p "$password" "$file" | tail -1 | awk '{print ($2 / 1024) + 40}')
+	elif [ "${file##*.}" = "7z" ]; then
+		file_size=$(7zr l "$file" -p"$password" | tail -1 | awk '{print ($3 / 1024) + 40}')
+	else
+		file_size=$(zcat "$file" | wc -c | awk '{print ($1 / 1024) + 40 }')
+	fi
 
 	local validation=$(echo "$file_size $free_fmem" | awk '{if ($1 < $2) print 0; else print 1}')
 	[ "$validation" -eq 0 ] || return 1
@@ -554,8 +563,17 @@ if [ -n "$CONF_BACKUP" ]; then
 	remove_section_containing_option "network" "device" "macaddr"
 	remove_option "rms_mqtt" "rms_connect_mqtt" "auth_code"
 	do_save_conffiles "$CONF_BACKUP"
+	save_conffile_code=$?
 	restore_configs "network" "rms_mqtt"
-	exit $?
+	[ "$save_conffile_code" -eq 0 ] && {
+		ubus call log write_ext "{
+			\"event\": \"Backup \\\"$(basename "$CONF_BACKUP")\\\" generated from current configuration\",
+			\"sender\": \"Backup\",
+			\"table\": 1,
+			\"write_db\": 1,
+		}"
+	}
+	exit $save_conffile_code
 fi
 
 if [ -n "$CONF_RESTORE" ]; then
@@ -564,7 +582,22 @@ if [ -n "$CONF_RESTORE" ]; then
 		exit 1
 	fi
 
-	backup_size_validation $CONF_RESTORE || exit 1
+	if [ "${CONF_RESTORE##*.}" = "zip" ]; then
+		which minizip >/dev/null || {
+			echo "Can not decrypt backup archive '$CONF_RESTORE' - minizip package is not installed" >&2
+			exit 1
+		}
+	elif [ "${CONF_RESTORE##*.}" = "7z" ]; then
+		which 7zr >/dev/null || {
+			echo "Can not decrypt backup archive '$CONF_RESTORE' - 7zip package is not installed" >&2
+			exit 1
+		}
+	elif [ -n "$CONF_PASSWORD" ]; then
+		echo "Invalid backup format" >&2
+		exit 1
+	fi
+
+	backup_size_validation "$CONF_RESTORE" "$CONF_PASSWORD" || exit 1
 
 	[ "$VERBOSE" -gt 1 ] && TAR_V="v" || TAR_V=""
 
@@ -576,11 +609,16 @@ if [ -n "$CONF_RESTORE" ]; then
 		rm /tmp/exclusions
 	else
 		conf_tar_dirname=$(dirname "$CONF_RESTORE")
-		7zr e -aoa -p"$CONF_PASSWORD" "$CONF_RESTORE" -o"$conf_tar_dirname"
+		if [ "${CONF_RESTORE##*.}" = "zip" ]; then
+			minizip -x -o -s -d "$conf_tar_dirname" -p "$CONF_PASSWORD" "$CONF_RESTORE"
+		elif [ "${CONF_RESTORE##*.}" = "7z" ]; then
+			7zr e -aoa -p"$CONF_PASSWORD" "$CONF_RESTORE" -o"$conf_tar_dirname"
+		fi
+		conf_tar_trimmed=$(echo "$CONF_RESTORE" | sed "s/\.${CONF_RESTORE##*.}$//")
+		tar -C /tmp/new_config_dir -x${TAR_V}f "$conf_tar_trimmed"
 		rm -rf /tmp/new_config_dir/etc/rc.d/*
 		rm -rf /tmp/new_config_dir/etc/profile
-		conf_tar_trimmed=$(echo "$CONF_RESTORE" | sed 's/\.7z$//')
-		tar -C /tmp/new_config_dir -x${TAR_V}f "$conf_tar_trimmed"
+		rm -rf "$conf_tar_trimmed"
 	fi
 	ret=$?
 	[ "$ret" -ne 0 ] && {
@@ -592,8 +630,8 @@ if [ -n "$CONF_RESTORE" ]; then
 	backup_valid=$?
 	#Just validate and exit
 	[ "$CONF_BACKUP_VALIDATE" -eq 1 ] && {
+		rm -rf /tmp/new_config_dir
 		echo "$backup_valid"
-			
 		exit $backup_valid
 	}
 	[ "$backup_valid" -gt 0 ] && {
@@ -610,6 +648,15 @@ if [ -n "$CONF_RESTORE" ]; then
 
 	v "Restoring config files..."
 	apply_backup
+
+	[ "$ret" -eq 0 ] && {
+		ubus call log write_ext "{
+			\"event\": \"Configuration restored from \\\"$(basename "$CONF_RESTORE")\\\" backup\",
+			\"sender\": \"Backup\",
+			\"table\": 1,
+			\"write_db\": 1,
+		}"
+	}
 
 	exit "$ret"
 fi
@@ -737,7 +784,7 @@ else
 
 	ubus call log write_ext "{
 		\"event\": \"$log_msg\",
-		\"sender\": \"sysupgrade\",
+		\"sender\": \"Firmware\",
 		\"table\": 1,
 		\"write_db\": 1,
 	}"

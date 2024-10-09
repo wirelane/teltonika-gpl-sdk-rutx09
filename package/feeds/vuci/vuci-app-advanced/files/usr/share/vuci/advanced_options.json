@@ -1,10 +1,4 @@
 {
-  "wireless": {
-    "wifi-device": ["advanced"],
-
-    "wifi-iface": ["advanced", "80211u", "wmm", "mode", "network", "bssid"]
-  },
-
   "network": {
     "interface": [
       "broadcast",
@@ -39,23 +33,12 @@
       "l2spec_type"
     ]
   },
-
-  "firewall": {
-    "redirect": ["reflection", "proto", "src", "src_mac", "src_ip", "src_port", "src_dip", "extra"],
-    "zone": ["advanced"],
-    "defaults": ["offload_advice", "flow_offloading", "flow_offloading_hw"]
-  },
-
   "chilli": {
     "chilli": ["moreif", "_protocol", "trialusers", "https", "userscripts"]
   },
 
   "fstab": {
     "global": ["*"]
-  },
-
-  "dhcp": {
-    "dhcp": ["advanced"]
   },
 
   "ipsec": {
@@ -77,9 +60,5 @@
 
   "stunnel": {
     "service": ["cipher_type", "protocol"]
-  },
-
-  "mwan3": {
-    "rule": ["*"]
   }
 }

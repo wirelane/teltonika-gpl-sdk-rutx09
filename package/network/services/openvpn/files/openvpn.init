@@ -505,9 +505,6 @@ add_interface_trigger() {
 		br-lan) procd_add_interface_trigger "interface.*.up" "$s_name" /etc/init.d/openvpn restart ;;
 		esac
 	fi
-	if [ "$proto" = "wwan" ] || [ "$proto" = "connm" ]; then
-		procd_add_interface_trigger "interface.*.up" "$s_name" /etc/init.d/openvpn restart
-	fi
 }
 
 service_triggers() {

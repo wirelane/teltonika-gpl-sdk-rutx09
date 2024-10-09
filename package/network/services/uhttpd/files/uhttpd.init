@@ -141,7 +141,8 @@ start_instance()
 	append_bool "$cfg" no_ubusauth "-a" 0
 	append_bool "$cfg" no_symlinks "-S" 0
 	append_bool "$cfg" no_dirlists "-D" 0
-	append_bool "$cfg" rfc1918_filter "-R" 0
+	append_bool "$cfg" rfc1918_filter_http "-R" 0
+	[ -f /lib/libustream-ssl.so ] && append_bool "$cfg" rfc1918_filter_https "-F" 0
 
 	config_get enb_http "$cfg" enable_http "1"
 	[ "$enb_http" = "1" ] && append_arg "$cfg" listen_http "-p"

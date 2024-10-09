@@ -8,7 +8,7 @@ migrate_io() {
 	config_get action "$1" "action"
 	[ "$action" = "send_status" ] || [ "$action" = "io_set" ] || return
 
-	while which iomand && [ -z "$io_list" ]; do
+	while [ -z "$io_list" ]; do
 		io_list=$(ubus list ioman.*)
 		sleep 1
 	done
@@ -64,6 +64,14 @@ migrate_io_set() {
 	uci_set "sms_utils" "$section_id" "io" "$pin"
 	uci_commit "sms_utils"
 }
+
+# Check if fw was uploaded with keep-settings
+[ -e "/tmp/.ksrestored" ] && return
+
+# Check if IO is supported
+ios="$(jsonfilter -i /etc/board.json -e '$.hwinfo.ios')"
+power_ios="$(jsonfilter -i /etc/board.json -e '$.hwinfo.power_ios')"
+[ "$ios" != "true" ] && [ "$power_ios" != "true" ] && return
 
 config_load "sms_utils"
 config_foreach migrate_io "rule"

@@ -15,6 +15,7 @@ export default {
       screens: {
         '3xl': '1660px',
         '4xl': '1920px',
+        '5xl': '2048px',
         xs: '320px'
       },
       containers: {

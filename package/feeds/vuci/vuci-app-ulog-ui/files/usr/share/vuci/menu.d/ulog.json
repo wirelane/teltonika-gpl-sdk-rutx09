@@ -8,6 +8,9 @@
     "main_page": true
   },
   "system/maintenance/traffic": {
-    "view": "status/TrafficLog"
+    "title": "Traffic Log",
+    "index": 50,
+    "view": "status/TrafficLog",
+    "acls": ["system/maintenance/traffic"]
   }
 }

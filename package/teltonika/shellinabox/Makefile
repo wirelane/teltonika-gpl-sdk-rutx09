@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
-PKG_VERSION:=2024-08-02
+PKG_VERSION:=2024-09-30
 PKG_BUILD_DEPENDS:=zlib
 
 PKG_SOURCE_PROTO:=git

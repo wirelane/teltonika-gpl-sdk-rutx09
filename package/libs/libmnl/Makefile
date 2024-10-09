@@ -18,6 +18,7 @@ PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_LICENSE:=LGPL-2.1-or-later
+PKG_CPE_ID:=cpe:/a:netfilter:libmnl
 
 PKG_SOURCE_VERSION:=1.0.4
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2

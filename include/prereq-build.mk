@@ -59,6 +59,16 @@ $(eval $(call TestHostCommand,expat, \
 	echo 'int main(int argc, char **argv) { XML_ParserCreate(NULL); return 0; }' | \
 		gcc -include expat.h -x c -o $(TMP_DIR)/a.out - -lexpat))
 
+$(eval $(call TestHostCommand,lz4, \
+	Please install lz4. (Missing liblz4.so or lz4.h), \
+	echo 'int main(int argc, char **argv) { LZ4_compressBound(32); return 0; }' | \
+		gcc -include lz4.h -x c -o $(TMP_DIR)/a.out - -llz4))
+
+$(eval $(call TestHostCommand,zstd, \
+	Please install zstd. (Missing libzstd.so or zstd.h), \
+	echo 'int main(int argc, char **argv) { ZSTD_compressBound(32); return 0; }' | \
+		gcc -include zstd.h -x c -o $(TMP_DIR)/a.out - -lzstd))
+
 endif # IB
 
 ifeq ($(HOST_OS),Linux)
@@ -158,19 +168,13 @@ $(eval $(call SetupHostCommand,perl,Please install Perl 5.x, \
 
 $(eval $(call CleanupPython2))
 
-$(eval $(call SetupHostCommand,python,Please install Python >= 3.9, \
+$(eval $(call SetupHostCommand,python,Please install Python >= 3.11, \
 	python3.12 -V 2>&1 | grep 'Python 3', \
-	python3.11 -V 2>&1 | grep 'Python 3', \
-	python3.10 -V 2>&1 | grep 'Python 3', \
-	python3.9 -V 2>&1 | grep 'Python 3', \
-	python3 -V 2>&1 | grep -E 'Python 3\.(9|[0-9][0-9])\.?'))
+	python3.11 -V 2>&1 | grep 'Python 3'))
 
-$(eval $(call SetupHostCommand,python3,Please install Python >= 3.9, \
+$(eval $(call SetupHostCommand,python3,Please install Python >= 3.11, \
 	python3.12 -V 2>&1 | grep 'Python 3', \
-	python3.11 -V 2>&1 | grep 'Python 3', \
-	python3.10 -V 2>&1 | grep 'Python 3', \
-	python3.9 -V 2>&1 | grep 'Python 3', \
-	python3 -V 2>&1 | grep -E 'Python 3\.(9|[0-9][0-9])\.?'))
+	python3.11 -V 2>&1 | grep 'Python 3'))
 
 $(eval $(call TestHostCommand,python3-distutils, \
 	Please install the Python3 distutils module (or Python3 setuputils module on Python >= 3.12), \

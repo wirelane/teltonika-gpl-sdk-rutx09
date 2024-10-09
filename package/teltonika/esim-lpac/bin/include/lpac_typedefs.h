@@ -24,7 +24,8 @@ typedef enum  {
 	eNotEnoughBuffer = 7,
 	eNoData = 8,
 	eNoMem = 9,
-	eSimBusy = 10
+	eSimBusy = 10,
+	eConErr = 11
 } ErrCode;
 
 typedef struct {
@@ -79,3 +80,12 @@ typedef struct isdp_aid_s {
 typedef struct iccid_s {
 	byte value[ICCID_SIZE];
 } iccid_t;
+
+typedef enum {
+	EVENT_PROFILE_INSTALL,
+	EVENT_PROFILE_ENABLE,
+	EVENT_PROFILE_DISABLE,
+	EVENT_PROFILE_DELETE,
+	EVENT_PROFILE_PROCESS_NOTIFICATIONS,
+	EVENT_PROFILE_SET_NICKNAME
+} esim_event;

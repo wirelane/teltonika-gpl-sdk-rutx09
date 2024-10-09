@@ -1,7 +1,6 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for SSTP
-PKG_NETWORK_RESTART:=1
 ifeq (m, $(CONFIG_PACKAGE_vuci-app-sstp-ui))
 	APP_APP_NAME:=sstp-client
 	APP_TLT_NAME:=SSTP

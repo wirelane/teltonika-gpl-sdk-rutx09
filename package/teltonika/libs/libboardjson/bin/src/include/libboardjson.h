@@ -130,6 +130,7 @@ struct lbjson_hwinfo {
 	bool ethernet         : 1;
 	bool sfp_switch       : 1;
 	bool rs232            : 1;
+	bool rs232_control    : 1;
 	bool rs485            : 1;
 	bool console          : 1;
 	bool dual_modem       : 1;

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=iojuggler
-PKG_VERSION:=2024-08-21
+PKG_VERSION:=2024-09-27
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.10

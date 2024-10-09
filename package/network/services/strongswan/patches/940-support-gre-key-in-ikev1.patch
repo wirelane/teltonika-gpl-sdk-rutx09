@@ -150,7 +150,7 @@
  	return &this->public;
 --- a/src/libcharon/encoding/payloads/id_payload.h
 +++ b/src/libcharon/encoding/payloads/id_payload.h
-@@ -48,11 +48,11 @@ struct id_payload_t {
+@@ -49,11 +49,11 @@ struct id_payload_t {
  	identification_t *(*get_identification) (id_payload_t *this);
  
  	/**
@@ -164,7 +164,7 @@
  
  	/**
  	 * Get encoded payload without fixed payload header (used for IKEv1).
-@@ -91,6 +91,6 @@ id_payload_t *id_payload_create_from_ide
+@@ -92,6 +92,6 @@ id_payload_t *id_payload_create_from_ide
   * @param ts		traffic selector
   * @return			PLV1_ID id_payload_t object.
   */
@@ -174,7 +174,7 @@
  #endif /** ID_PAYLOAD_H_ @}*/
 --- a/src/libcharon/plugins/kernel_netlink/kernel_netlink_ipsec.c
 +++ b/src/libcharon/plugins/kernel_netlink/kernel_netlink_ipsec.c
-@@ -818,7 +818,18 @@ static struct xfrm_selector ts2selector(
+@@ -874,7 +874,18 @@ static struct xfrm_selector ts2selector(
  	ts2subnet(src, &sel.saddr, &sel.prefixlen_s);
  	ts2ports(dst, &sel.dport, &sel.dport_mask);
  	ts2ports(src, &sel.sport, &sel.sport_mask);
@@ -194,7 +194,7 @@
  		(sel.dport || sel.sport))
  	{
  		/* the kernel expects the ICMP type and code in the source and
-@@ -842,7 +853,7 @@ static traffic_selector_t* selector2ts(s
+@@ -898,7 +909,7 @@ static traffic_selector_t* selector2ts(s
  {
  	u_char *addr;
  	uint8_t prefixlen;
@@ -203,7 +203,7 @@
  	host_t *host = NULL;
  
  	if (src)
-@@ -851,7 +862,7 @@ static traffic_selector_t* selector2ts(s
+@@ -907,7 +918,7 @@ static traffic_selector_t* selector2ts(s
  		prefixlen = sel->prefixlen_s;
  		if (sel->sport_mask)
  		{
@@ -212,7 +212,7 @@
  		}
  	}
  	else
-@@ -860,14 +871,27 @@ static traffic_selector_t* selector2ts(s
+@@ -916,14 +927,27 @@ static traffic_selector_t* selector2ts(s
  		prefixlen = sel->prefixlen_d;
  		if (sel->dport_mask)
  		{
@@ -244,7 +244,7 @@
  	}
  	/* The Linux 2.6 kernel does not set the selector's family field,
  	 * so as a kludge we additionally test the prefix length.
-@@ -884,7 +908,7 @@ static traffic_selector_t* selector2ts(s
+@@ -940,7 +964,7 @@ static traffic_selector_t* selector2ts(s
  	if (host)
  	{
  		return traffic_selector_create_from_subnet(host, prefixlen,
@@ -255,7 +255,7 @@
  }
 --- a/src/libcharon/plugins/stroke/stroke_config.c
 +++ b/src/libcharon/plugins/stroke/stroke_config.c
-@@ -936,6 +936,11 @@ static bool parse_protoport(char *token,
+@@ -937,6 +937,11 @@ static bool parse_protoport(char *token,
  		*from_port = 0xffff;
  		*to_port = 0;
  	}
@@ -269,7 +269,7 @@
  		svc = getservbyname(port, NULL);
 --- a/src/libcharon/plugins/unity/unity_narrow.c
 +++ b/src/libcharon/plugins/unity/unity_narrow.c
-@@ -248,7 +248,7 @@ METHOD(listener_t, message, bool,
+@@ -247,7 +247,7 @@ METHOD(listener_t, message, bool,
  			if (!first)
  			{
  				id_payload = (id_payload_t*)payload;
@@ -280,7 +280,7 @@
  			first = FALSE;
 --- a/src/libcharon/plugins/vici/vici_config.c
 +++ b/src/libcharon/plugins/vici/vici_config.c
-@@ -717,8 +717,13 @@ CALLBACK(parse_ts, bool,
+@@ -720,8 +720,13 @@ CALLBACK(parse_ts, bool,
  		}
  		else if (*port && !streq(port, "any"))
  		{
@@ -298,7 +298,7 @@
  			}
 --- a/src/libcharon/sa/ikev1/tasks/quick_mode.c
 +++ b/src/libcharon/sa/ikev1/tasks/quick_mode.c
-@@ -552,9 +552,9 @@ static void add_ts(private_quick_mode_t
+@@ -553,9 +553,9 @@ static void add_ts(private_quick_mode_t
  {
  	id_payload_t *id_payload;
  
@@ -310,7 +310,7 @@
  	message->add_payload(message, &id_payload->payload_interface);
  }
  
-@@ -565,7 +565,7 @@ static bool get_ts(private_quick_mode_t
+@@ -566,7 +566,7 @@ static bool get_ts(private_quick_mode_t
  {
  	traffic_selector_t *tsi = NULL, *tsr = NULL;
  	enumerator_t *enumerator;
@@ -319,7 +319,7 @@
  	payload_t *payload;
  	host_t *hsi, *hsr;
  	bool first = TRUE;
-@@ -575,20 +575,22 @@ static bool get_ts(private_quick_mode_t
+@@ -576,20 +576,22 @@ static bool get_ts(private_quick_mode_t
  	{
  		if (payload->get_type(payload) == PLV1_ID)
  		{
@@ -348,7 +348,7 @@
  	/* create host2host selectors if ID payloads missing */
 --- a/src/libstrongswan/selectors/traffic_selector.c
 +++ b/src/libstrongswan/selectors/traffic_selector.c
-@@ -199,6 +199,14 @@ static int print_icmp(printf_hook_data_t
+@@ -206,6 +206,14 @@ static int print_icmp(printf_hook_data_t
  }
  
  /**
@@ -363,7 +363,7 @@
   * Described in header.
   */
  int traffic_selector_printf_hook(printf_hook_data_t *data,
-@@ -303,7 +311,11 @@ int traffic_selector_printf_hook(printf_
+@@ -310,7 +318,11 @@ int traffic_selector_printf_hook(printf_
  	{
  		written += print_in_hook(data, "/");
  
@@ -376,7 +376,7 @@
  		{
  			struct servent *serv;
  
-@@ -377,7 +389,24 @@ METHOD(traffic_selector_t, get_subset, t
+@@ -384,7 +396,24 @@ METHOD(traffic_selector_t, get_subset, t
  	/* select protocol, which is not zero */
  	protocol = max(this->protocol, other->protocol);
  
@@ -404,7 +404,7 @@
  	{
 --- a/src/libstrongswan/selectors/traffic_selector.h
 +++ b/src/libstrongswan/selectors/traffic_selector.h
-@@ -120,6 +120,9 @@ struct traffic_selector_t {
+@@ -126,6 +126,9 @@ struct traffic_selector_t {
  	 * 8 bits and the code in the least significant 8 bits.  Use the utility
  	 * functions to extract them.
  	 *
@@ -414,7 +414,7 @@
  	 * @return			port
  	 */
  	uint16_t (*get_from_port)(traffic_selector_t *this);
-@@ -134,6 +137,9 @@ struct traffic_selector_t {
+@@ -140,6 +143,9 @@ struct traffic_selector_t {
  	 * 8 bits and the code in the least significant 8 bits.  Use the utility
  	 * functions to extract them.
  	 *
@@ -424,7 +424,7 @@
  	 * @return			port
  	 */
  	uint16_t (*get_to_port)(traffic_selector_t *this);
-@@ -278,6 +284,31 @@ int traffic_selector_cmp(traffic_selecto
+@@ -284,6 +290,31 @@ int traffic_selector_cmp(traffic_selecto
  						 void *opts);
  
  /**
@@ -458,12 +458,12 @@
   * If protocol is ICMP or ICMPv6 the ports are interpreted as follows:  If they
 --- a/src/libcharon/processing/jobs/initiate_mediation_job.c
 +++ b/src/libcharon/processing/jobs/initiate_mediation_job.c
-@@ -136,7 +136,7 @@ METHOD(job_t, initiate, job_requeue_t,
+@@ -137,7 +137,7 @@ METHOD(job_t, initiate, job_requeue_t,
  		/* we need an additional reference because initiate consumes one */
  		mediation_cfg->get_ref(mediation_cfg);
  
 -		if (charon->controller->initiate(charon->controller, mediation_cfg, NULL,
 +		if (charon->controller->initiate(charon->controller, mediation_cfg, NULL, NULL, NULL,
- 				(controller_cb_t)initiate_callback, this, 0, FALSE) != SUCCESS)
+ 							(controller_cb_t)initiate_callback, this, LEVEL_CTRL,
+ 							0, FALSE) != SUCCESS)
  		{
- 			mediation_cfg->destroy(mediation_cfg);

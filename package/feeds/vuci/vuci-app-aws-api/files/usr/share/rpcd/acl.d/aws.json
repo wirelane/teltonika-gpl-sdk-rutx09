@@ -1,0 +1,15 @@
+{
+  "services/cloud_solutions/aws": {
+    "description": "aws iot core configuration",
+    "read": {
+      "api": {
+        "/aws/*": ["*"]
+      }
+    },
+    "write": {
+      "api": [
+        "/aws/*"
+      ]
+    }
+  }
+}

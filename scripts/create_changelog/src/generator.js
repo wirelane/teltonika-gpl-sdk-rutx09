@@ -29,7 +29,7 @@ function generateChangelogGit(device) {
             .map((depend) => `${depend.name}${depend.type !== 'device' ? ` ${depend.type}` : ''}`)
           // 'for' only shown in global changelog when change has depends
           const forText = !device && parsedDepends?.length > 0 ? ` for ${parsedDepends.join(', ')}` : ''
-          if (type === 'CVE Patches') return `* patched ${change}${forText} (ID: ${caseId})`
+          if (type === 'CVE Patches') return `* ${change}${forText} (ID: ${caseId})`
           if (type === 'Updates') return `* ${topic}: updated version to  ${change}${forText} (ID: ${caseId})`
           return `* ${topic}: ${change}${forText} (ID: ${caseId})`
         })

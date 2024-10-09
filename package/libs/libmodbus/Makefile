@@ -14,6 +14,7 @@ PKG_SOURCE_URL:=https://github.com/stephane/libmodbus.git
 
 PKG_LICENSE:=LGPL-2.1-or-later
 PKG_LICENSE_FILES:=LICENSE COPYING.LESSER
+PKG_CPE_ID:=cpe:/a:libmodbus:libmodbus
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1

@@ -12,7 +12,7 @@
       }
     },
     "write": {
-      "api": ["/interfaces/config/*", "/network/devices/*", "/wireless/interfaces/config/*"]
+      "api": ["/interfaces/config/*", "/network/devices/*", "/wireless/interfaces/config/*", "/wireless/actions/*"]
     },
     "source": ["/wireless/interfaces/*"],
     "exception": ["/wireless/interfaces/config/*", "/wireless/interfaces/basic/status/*"]

@@ -1,0 +1,11 @@
+--- a/conf/options/pki.conf
++++ b/conf/options/pki.conf
+@@ -1,5 +1,8 @@
+ pki {
+     scep {
++		# Some SCEP servers (e.g. openxpki) are incorrectly doing certificate
++		# renewal via messageType PKCSReq (19) instead of RenewalReq (17).
++		renewal_via_pkcs_req = yes
+     }
+ }
+ 

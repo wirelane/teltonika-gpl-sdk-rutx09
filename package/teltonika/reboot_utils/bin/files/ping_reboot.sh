@@ -45,6 +45,7 @@ get_config() {
 	config_get IP_TYPE "$SECTION" ip_type "ipv4"
 	config_get PING_PORT_TYPE "$SECTION" ping_port_type ""
 	config_get PORT "$SECTION" port ""
+	config_get ACTION_WHEN "$SECTION" action_when "all"
 }
 
 get_modem_num() {
@@ -317,6 +318,20 @@ get_position_from_hex() {
 	return "$position"
 }
 
+# adjusts option length (returns 1 for single options and unmodified length for list options)
+adjust_len() {
+	local val="$1"
+	local len="$2"
+
+	if [ "$len" = 0 ]; then
+		if [ -n "$val" ]; then
+			echo 1
+			return
+		fi
+	fi
+	echo "$len"
+}
+
 perform_double_ping() {
 	local ping_cmd="$PINGCMD"
 	local ipv4_ping=0
@@ -344,6 +359,63 @@ perform_double_ping() {
 	else
 		return 0
 	fi
+}
+
+perform_multiple_pings() {
+	local passed_pings=0
+	local failed_pings=0
+	local ping_cmd="$PINGCMD"
+
+	[ "$IP_TYPE" = "ipv6" ] && ping_cmd="$PINGCMDV6"
+
+	config_get len "$SECTION" "host_LENGTH" 0
+	config_get len1 "$SECTION" "host1_LENGTH" 0
+	config_get len2 "$SECTION" "host2_LENGTH" 0
+
+	if [ -z "$len" ] || { [ -z "$len1" ] || [ -z "$len2" ]; } then
+		log "Failed to get host list."
+		return;
+	fi
+
+	config_get host "$SECTION" "host" ""
+	config_get host1 "$SECTION" "host1" ""
+	config_get host2 "$SECTION" "host2" ""
+	len=$(adjust_len "$host" "$len")
+	len1=$(adjust_len "$host1" "$len1")
+	len2=$(adjust_len "$host2" "$len2")
+
+	for element in $HOST; do
+		if $ping_cmd $IF_OPTION -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$element" >/dev/null 2>&1; then
+			passed_pings=$((passed_pings + 1))
+			log "Ping ${element} successful."
+		elif [ "$ACTION_WHEN" = "any" ]; then
+			check_tries "-p" "Host ${element} unreachable" "${TIME} min. until next ping retry"
+			return;
+		else
+			failed_pings=$((failed_pings + 1))
+			log "Ping ${element} failed."
+		fi
+	done
+
+	if
+	( [ "$len" -gt "0" ] && [ "$passed_pings" -ge "$len" ] ) || 
+	( [ "$len1" -gt "0" ] && [ "$passed_pings" -ge "$len1" ] ) || 
+	( [ "$len2" -gt "0" ] && [ "$passed_pings" -ge "$len2" ] )
+	then
+		set_uci_fail_counter 0
+		log "Pings successful."
+		return;
+	elif
+	(
+	( [ "$len" -gt "0" ] && [ "$failed_pings" -ge "$len" ] ) || 
+	( [ "$len1" -gt "0" ] && [ "$failed_pings" -ge "$len1" ] ) || 
+	( [ "$len2" -gt "0" ] && [ "$failed_pings" -ge "$len2" ] )
+	) && [ "$ACTION_WHEN" = "all" ]
+	then
+		check_tries "-p" "" "${TIME} min. until next ping retry"
+		return;
+	fi
+	set_uci_fail_counter 0
 }
 
 perform_ping() {
@@ -504,16 +576,40 @@ perform_port_ping() {
 }
 
 perform_wget() {
-	wget -q -T "$TIMEOUT" "$HOST" -O $FILE >/dev/null 2>&1
+	local failed_wgets=0
+	local passed_wgets=0
+	config_get len "$SECTION" "host_LENGTH" 0
+	len=$(adjust_len "$HOST" "$len")
 
-	if [ ! -s $FILE ]; then
-		check_tries "-g" "Can't wget URL." "Will be retrying wget"
-	else
-		set_uci_fail_counter 0
-		log "Wget URL successful."
+	if [ -z "$len" ]; then
+		log "Failed to get host list."
+		return;
 	fi
 
-	rm $FILE >/dev/null 2>&1
+	for element in $HOST; do
+		wget -q -T "$TIMEOUT" "$element" -O $FILE >/dev/null 2>&1
+
+		if [ "$ACTION_WHEN" = "any" ] && [ ! -s $FILE ]; then
+			check_tries "-g" "Can't wget URL." "Will be retrying wget"
+			return;
+		elif [ "$ACTION_WHEN" = "all" ] && [ ! -s $FILE ]; then
+			failed_wgets=$((failed_wgets + 1))
+			log "Wget ${element} URL failed."
+		else
+			passed_wgets=$((passed_wgets + 1))
+			log "Wget ${element} URL successful."
+		fi
+
+		rm $FILE >/dev/null 2>&1
+	done
+
+	if [ "$passed_wgets" -ge "$len" ]; then
+		set_uci_fail_counter 0
+		log "Wgets URL successful."
+	elif [ "$failed_wgets" -ge "$len" ]; then
+		check_tries "-g" "Can't wget URL." "Will be retrying wget"
+	fi
+	set_uci_fail_counter 0
 }
 config_load ping_reboot
 get_config
@@ -560,7 +656,7 @@ fi
 
 case "$TYPE" in
 "ping")
-	perform_ping
+	perform_multiple_pings
 	;;
 "wget")
 	perform_wget

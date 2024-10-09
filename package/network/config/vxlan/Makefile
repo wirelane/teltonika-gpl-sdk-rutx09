@@ -11,7 +11,7 @@ define Package/vxlan
   CATEGORY:=Network
   MAINTAINER:=Matthias Schiffer <mschiffer@universe-factory.net>
   TITLE:=Virtual eXtensible LAN config support
-  DEPENDS:=+kmod-vxlan
+  DEPENDS:=+kmod-vxlan +CORE_UI_PACKAGES:vuci-app-network-devices-ui
   PKGARCH:=all
   ifeq (m, $(CONFIG_PACKAGE_vxlan))
     PKG_TLT_NAME:=VXLAN

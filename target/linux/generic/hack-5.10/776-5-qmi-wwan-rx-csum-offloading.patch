@@ -61,7 +61,7 @@
  		case 0x40:
  			ipv6 = false;
  			break;
-@@ -483,7 +505,7 @@ static int qmimux_rx_fixup(struct usbnet
+@@ -484,7 +506,7 @@ static int qmimux_rx_fixup(struct usbnet
  		hdr_len = ipv6? 72 : 52;
  
  		skbn = usbnet_clone_zerocopy(
@@ -70,7 +70,7 @@
  
  		/* packet doesn't have mac header
  		 * so reset its offset */
-@@ -494,6 +516,10 @@ static int qmimux_rx_fixup(struct usbnet
+@@ -495,6 +517,10 @@ static int qmimux_rx_fixup(struct usbnet
  		else
  		 	skbn->protocol = htons(ETH_P_IP);
  
@@ -81,7 +81,7 @@
  		if (usbnet_napi_rx(dev, skbn) != NET_RX_SUCCESS) {
  			net->stats.rx_errors++;
  			return 0;
-@@ -509,7 +535,7 @@ static int qmimux_rx_fixup(struct usbnet
+@@ -510,7 +536,7 @@ static int qmimux_rx_fixup(struct usbnet
  		}
  
  skip:

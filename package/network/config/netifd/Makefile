@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netifd
-PKG_RELEASE:=5
+PKG_RELEASE:=8
 
 PKG_SOURCE_DATE:=2024-01-04
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
@@ -47,8 +47,6 @@ define Package/netifd/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netifd $(1)/sbin/
 	$(CP) ./files/* $(1)/
-	$(if $(CONFIG_USES_SOFT_PORT_MIRROR),, \
-		$(RM) $(1)/lib/netifd/proto/mirror.sh)
 	$(INSTALL_DIR) $(1)/etc/udhcpc.user.d/
 	$(CP) $(PKG_BUILD_DIR)/scripts/* $(1)/lib/netifd/
 
@@ -56,7 +54,7 @@ define Package/netifd/install
 		$(RM) $(1)/etc/hotplug.d/net/20-smp-packet-steering)
 
 	$(if $(and $(CONFIG_MOBILE_SUPPORT),$(CONFIG_HAS_SINGLE_ETH_PORT)),,\
-    	rm $(1)/etc/hotplug.d/iface/29-setup-mobile-gateway-passthrough-bridge)
+    	$(RM) $(1)/etc/hotplug.d/iface/29-setup-mobile-gateway-passthrough-bridge)
 
 	$(if $(CONFIG_ADVANCED_NETWORK),,\
 		$(RM) $(1)/lib/netifd/proto/l2tpv3.sh)

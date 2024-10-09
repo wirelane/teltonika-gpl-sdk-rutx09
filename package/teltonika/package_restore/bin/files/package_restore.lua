@@ -15,6 +15,7 @@ local TLT_PACKAGES = "/var/opkg-lists/tlt_packages"
 local TIME_OF_SLEEP = 10
 local PKG_REBOOT = false
 local PKG_NET_RESTART = false
+local ERROR_SENT = false
 
 local qt = util.shellquote
 
@@ -81,7 +82,8 @@ end
 if #app_names == 0 and #third_party_pkg_names == 0 then os.exit(0) end
 
 while true do
-	opkg_cmd("opkg -f /etc/tlt_opkg.conf update")
+	opkg_cmd("opkg -f /etc/tlt_opkg.conf update" .. (ERROR_SENT and " 2> /dev/null" or ""))
+	ERROR_SENT = true
 	if fs.access(TLT_PACKAGES) then
 		local tlt_packages_stat = fs.stat(TLT_PACKAGES)
 		local size = tlt_packages_stat and tlt_packages_stat.size or 0

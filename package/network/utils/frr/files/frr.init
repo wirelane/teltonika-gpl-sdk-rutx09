@@ -428,7 +428,7 @@ bgp_parse_access_list() {
 		xappend "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "prefix-list" "$prefl" "$direction"
 	fi
 
-	xappend_to_var "prefix_list" "ip prefix-list" "$prefl" "seq 5" "$action" "$net"
+	xappend_to_var "prefix_list" "ip prefix-list" "$prefl" "$action" "$net"
 }
 
 bgp_parse_route_maps() {

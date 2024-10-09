@@ -20,6 +20,7 @@ HOST_BUILD_DIR:=$(BUILD_DIR_TOOLCHAIN)/$(GDB_DIR)
 HOST_BUILD_PARALLEL:=1
 
 PKG_LICENSE:=GPL-3.0-or-later
+PKG_CPE_ID:=cpe:/a:gnu:gdb
 
 include $(INCLUDE_DIR)/toolchain-build.mk
 

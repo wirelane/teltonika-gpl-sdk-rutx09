@@ -17,6 +17,7 @@ PKG_SOURCE_URL:=http://alpha.gnu.org/gnu/bc \
 PKG_HASH:=7ee4abbcfac03d8a6e1a8a3440558a3d239d6b858585063e745c760957725ecc
 
 PKG_LICENSE:=GPL-3.0-or-later
+PKG_CPE_ID:=cpe:/a:gnu:bc
 
 PKG_FIXUP := autoreconf
 

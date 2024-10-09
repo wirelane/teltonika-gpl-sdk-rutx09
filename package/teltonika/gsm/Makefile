@@ -7,8 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=1.6
-
+PKG_SOURCE_VERSION:=7.10
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \
@@ -21,7 +20,7 @@ define Package/gsmd
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Simple server to route AT commands to modem
-	DEPENDS:= +libusb-1.0 +libubus +libubox +libuci +libblobmsg-json +modems +kmod-usb-serial-option +libmnfinfo
+	DEPENDS:= +libubus +libubox +libuci +libblobmsg-json +modems +kmod-usb-serial-option +libmnfinfo
 endef
 
 define Package/gsmctl
@@ -98,7 +97,7 @@ define Package/libgsm/install
 endef
 
 define Package/gsmd/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config/ $(1)/etc/init.d/ $(1)/usr/share/usb/ \
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/usr/local $(1)/etc/config/ $(1)/etc/init.d/ $(1)/usr/share/usb/ \
 		$(1)/usr/share/iface/ $(1)/usr/share/gsm/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gsmd/gsmd $(1)/usr/sbin/gsmd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsmd.init $(1)/etc/init.d/gsmd

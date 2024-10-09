@@ -1,0 +1,11 @@
+{
+	"network/ports/port_security/general": {
+		"title": "General",
+		"view": "network/PortSecurity",
+		"main_page": true
+	},
+	"network/ports/port_security/radius": {
+		"title": "Radius",
+		"view": "network/Radius"
+	}
+}

@@ -23,12 +23,12 @@ for image in "${TOP_DIR}"/**/*_WEBUI.bin; do
 
 	# run same operation as build root does for signing
 	cp "$BUILD_KEY.ucert" "$image.ucert"
-	/usr/bin/chmod u+w "$image.ucert"
+	chmod u+w "$image.ucert"
 	usign -S -m "$image" -s "$BUILD_KEY" -x "$image.sig"
 	ucert -A -c "$image.ucert" -x "$image.sig"
 	fwtool -S "$image.ucert" "$image"
 
-	/usr/bin/rm "$image.sig" "$image.ucert"
+	rm "$image.sig" "$image.ucert"
 done
 
 # find all Packages files in TOP_PKG_DIR

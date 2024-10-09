@@ -42,6 +42,9 @@ boot() {
 
 	uci_apply_defaults
 
+	# Remove indication if firmware was uploaded with keep-settings
+	rm /tmp/.ksrestored &> /dev/null
+
 	type boot_target_post_uci_defaults &> /dev/null && \
 		boot_target_post_uci_defaults
 

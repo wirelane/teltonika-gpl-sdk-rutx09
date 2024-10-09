@@ -6,8 +6,8 @@ set -e
 	exit 1
 }
 
-usign=$PWD/staging_dir/host/bin/usign
-key="$PWD/key-build"
+usign=$(which usign 2>/dev/null) || usign=${STAGING_DIR_HOST:-$PWD/staging_dir/host}/bin/usign
+key="${BUILD_KEY:-$PWD/key-build}"
 
 while read -r file; do
 	"$usign" -S -m "$file" -s "$key" -x "${file%.*}.sig"

@@ -33,6 +33,7 @@ platform="$(cat /proc/device-tree/platform)" 2>/dev/null
 board_config_update
 setup_json
 ucidef_set_board_platform "$platform"
+ucidef_check_esim
 board_config_flush
 
 exit 0

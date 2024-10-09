@@ -88,22 +88,23 @@ extern int yydebug;
     T_RANGE = 289,                 /* T_RANGE  */
     T_RESET = 290,                 /* T_RESET  */
     T_MAINTAINER = 291,            /* T_MAINTAINER  */
-    T_SELECT = 292,                /* T_SELECT  */
-    T_SOURCE = 293,                /* T_SOURCE  */
-    T_STRING = 294,                /* T_STRING  */
-    T_TRISTATE = 295,              /* T_TRISTATE  */
-    T_VISIBLE = 296,               /* T_VISIBLE  */
-    T_EOL = 297,                   /* T_EOL  */
-    T_ASSIGN_VAL = 298,            /* T_ASSIGN_VAL  */
-    T_OR = 299,                    /* T_OR  */
-    T_AND = 300,                   /* T_AND  */
-    T_EQUAL = 301,                 /* T_EQUAL  */
-    T_UNEQUAL = 302,               /* T_UNEQUAL  */
-    T_LESS = 303,                  /* T_LESS  */
-    T_LESS_EQUAL = 304,            /* T_LESS_EQUAL  */
-    T_GREATER = 305,               /* T_GREATER  */
-    T_GREATER_EQUAL = 306,         /* T_GREATER_EQUAL  */
-    T_NOT = 307                    /* T_NOT  */
+    T_LABEL = 292,                 /* T_LABEL  */
+    T_SELECT = 293,                /* T_SELECT  */
+    T_SOURCE = 294,                /* T_SOURCE  */
+    T_STRING = 295,                /* T_STRING  */
+    T_TRISTATE = 296,              /* T_TRISTATE  */
+    T_VISIBLE = 297,               /* T_VISIBLE  */
+    T_EOL = 298,                   /* T_EOL  */
+    T_ASSIGN_VAL = 299,            /* T_ASSIGN_VAL  */
+    T_OR = 300,                    /* T_OR  */
+    T_AND = 301,                   /* T_AND  */
+    T_EQUAL = 302,                 /* T_EQUAL  */
+    T_UNEQUAL = 303,               /* T_UNEQUAL  */
+    T_LESS = 304,                  /* T_LESS  */
+    T_LESS_EQUAL = 305,            /* T_LESS_EQUAL  */
+    T_GREATER = 306,               /* T_GREATER  */
+    T_GREATER_EQUAL = 307,         /* T_GREATER_EQUAL  */
+    T_NOT = 308                    /* T_NOT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif

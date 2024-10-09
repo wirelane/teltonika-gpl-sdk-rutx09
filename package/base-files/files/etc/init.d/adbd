@@ -52,6 +52,9 @@ boot() {
 	echo "$pid" > "$p/idProduct"
 	echo "0x02" > "$p/bDeviceClass"
 
+	# set device revision number
+	echo "0x0101" > "$p/bcdDevice"
+
 	local router_serial=$(/sbin/mnf_info --sn 2>/dev/null)
 
 	# write Windows OS specific descriptors

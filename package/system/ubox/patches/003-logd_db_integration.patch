@@ -1,7 +1,5 @@
-Index: ubox-2020-10-25-9ef88681/log/logdb.h
-===================================================================
 --- /dev/null
-+++ ubox-2020-10-25-9ef88681/log/logdb.h
++++ b/log/logdb.h
 @@ -0,0 +1,36 @@
 +#ifndef LOGDB_H
 +#define LOGDB_H
@@ -39,11 +37,9 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.h
 +	ACTION_SELECT
 +};
 +#endif
-Index: ubox-2020-10-25-9ef88681/log/logdb.c
-===================================================================
 --- /dev/null
-+++ ubox-2020-10-25-9ef88681/log/logdb.c
-@@ -0,0 +1,510 @@
++++ b/log/logdb.c
+@@ -0,0 +1,533 @@
 +#define _GNU_SOURCE
 +
 +#include <stdio.h>
@@ -51,12 +47,18 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.c
 +#include <unistd.h>
 +#include <string.h>
 +#include <syslog.h>
++#include <sys/stat.h>
++#include <errno.h>
++#include <fcntl.h> 
 +#include <libubox/uloop.h>
 +
 +#include "logdb.h"
 +
 +#define DB_BUFF_128 128
 +#define ROW_THRESHOLD 100
++
++#define NOTIFY_VUCI_DIR "/tmp/vuci"
++#define NOTIFY_LOG_DB_FILE "/tmp/vuci/log_db"
 +
 +#ifndef ARRAY_SIZE
 +#define ARRAY_SIZE(arr) sizeof(arr) / sizeof(arr[0])
@@ -87,6 +89,20 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.c
 +static sqlite3 *conn;
 +
 +static void open_bk_db(struct uloop_process *proc, int ret);
++
++static void notify_webui(const char *message) {
++	if (mkdir(NOTIFY_VUCI_DIR, 0755) != 0 && errno != EEXIST) {
++		return;
++	}
++
++	int fd = open(NOTIFY_LOG_DB_FILE, O_WRONLY | O_CREAT | O_TRUNC, 0644);
++	if (fd == -1) {
++		return;
++	}
++
++	write(fd, message, strlen(message));
++	close(fd);
++}
 +
 +static int check_column_exists(sqlite3 *con, const char *table, const char *column)
 +{
@@ -423,6 +439,7 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.c
 +	if (sqlite3_close(conn) != SQLITE_OK) {
 +		syslog(LOG_ERR, "Failed to close db: %s\n", sqlite3_errmsg(conn));
 +		syslog(LOG_INFO, "Unable to optimize database size\n");
++		notify_webui(sqlite3_errmsg(conn));
 +		g_vc_running = false;
 +		return false;
 +	}
@@ -475,6 +492,7 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.c
 +		}
 +	} else if (output != SQLITE_DONE) {
 +		syslog(LOG_ERR, "failed to step through query. Error '%s'\n",sqlite3_errmsg(conn));
++		notify_webui(sqlite3_errmsg(conn));
 +		// attempt to recover full database
 +		perform_cleanup(stmt, true);
 +		return SQLITE_ERROR;
@@ -523,6 +541,7 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.c
 +	sqlite3_stmt *stmt = NULL;
 +	if (sqlite3_prepare_v2(conn, query, -1, &stmt, NULL) != SQLITE_OK) {
 +		syslog(LOG_ERR, "sqlite3_prepare_v2 failure: %s\n", sqlite3_errmsg(conn));
++		notify_webui(sqlite3_errmsg(conn));
 +		// attempt to recover full database
 +		perform_cleanup(&stmt, true);
 +		return NULL;

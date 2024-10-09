@@ -135,6 +135,9 @@ config HAS_IO
 config HAS_DOT1X_CLIENT
 	bool
 
+config HAS_DOT1X_SERVER
+	bool
+
 config HAS_POWER_CONTROL
 	bool
 
@@ -148,6 +151,9 @@ config SMP_SUPPORT
 	bool
 
 config DSA_SUPPORT
+	bool
+
+config HAS_PORT_MIRRORING
 	bool
 
 config USES_SOFT_PORT_MIRROR

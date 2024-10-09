@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=pam-radius
-PKG_VERSION:=2024-08-06
+PKG_VERSION:=2024-09-30
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git

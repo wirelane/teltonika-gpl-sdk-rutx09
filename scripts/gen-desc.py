@@ -223,7 +223,7 @@ class Profile:
         self.features = []
 
         for f in list_features:
-            if not f.name in self.conf:
+            if not f.name in self.conf or self.conf[f.name] is False:
                 continue
 
             new_detail = []
@@ -231,7 +231,7 @@ class Profile:
             for d in f.detail:
                 new_item = {'key': d['key'], 'value': d['value']}
 
-                if not d['expr']:
+                if not 'expr' in d or not d['expr']:
                     new_detail.append(new_item)
                     continue
 
@@ -337,6 +337,7 @@ class Feature:
         self.name = empty_none_value(name)
         self.title = ''
         self.maintainer = ''
+        self.label = 'Other'
         self.external = False
         self.packages = []
         self.desc = ''
@@ -407,6 +408,10 @@ class Feature:
                 help_parse = False
                 detail_parse = False
                 self.maintainer = l[13:-2]
+            elif is_match('^\tlabel ', l):
+                help_parse = False
+                detail_parse = False
+                self.label = l[8:-2]
             elif is_match('^\tdepends on ', l):
                 help_parse = False
                 detail_parse = False
@@ -473,9 +478,14 @@ def initialize_features():
         f.close()
 
 def dump_features(data, descriptions_only=False):
-    features = []
+    features = {}
 
     for f in data:
+        label = f.label
+
+        if label not in features:
+            features[label] = []
+
         info = {
             "title": f.title,
             "description": f.desc,
@@ -484,7 +494,7 @@ def dump_features(data, descriptions_only=False):
 
         if descriptions_only:
             if f.title:
-                features.append(info)
+                features[label].append(info)
             continue
 
         info["name"] = f.name
@@ -508,7 +518,7 @@ def dump_features(data, descriptions_only=False):
             }
             info["packages"].append(info2)
 
-        features.append(info)
+        features[label].append(info)
 
     return features
 

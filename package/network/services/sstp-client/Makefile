@@ -56,8 +56,6 @@ define Package/sstp-client/install
 
 	$(INSTALL_DIR) $(1)/etc
 	$(CP) files/etc $(1)
-	$(INSTALL_DIR) $(1)/lib/netifd/proto
-	$(LN) /lib/netifd/proto/ppp.sh $(1)/lib/netifd/proto/sstp.sh
 endef
 
 define Package/sstp-client/prerm

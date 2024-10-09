@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
 
+#shellcheck disable=2028
+c() {
+	case "$1" in
+	none) echo "\x1B[0m" ;;
+	black) echo "\x1B[30m" ;;
+	red) echo "\x1B[31m" ;;
+	green) echo "\x1B[32m" ;;
+	yellow) echo "\x1B[33m" ;;
+	blue) echo "\x1B[34m" ;;
+	magenta) echo "\x1B[35m" ;;
+	cyan) echo "\x1B[36m" ;;
+	white) echo "\x1B[37m" ;;
+	esac
+}
+
 unpack=false
 IGNORE_NOT_FOUND=false
 declare -A dirs
@@ -10,12 +25,12 @@ while getopts "u:pih" opt; do
 	case $opt in
 	u)
 		SIGN_FILE_LIST=$OPTARG
-		error_str_fmt="Encountered %d error(s) while unpacking %s"
+		error_str_fmt="$(c red)Encountered %d error(s) while unpacking $(c blue)%s$(c none)"
 		unpack=true
 		trap 'find "${dirs[tmp_pm]}" -maxdepth 1 ! -type d ! -name ".*" -exec rm {} \;' EXIT
 		;;
 	p)
-		error_str_fmt="Encountered %d error(s) while packaging %s"
+		error_str_fmt="$(c red)Encountered %d error(s) while packaging $(c blue)%s$(c none)"
 		trap 'rm -fr "${dirs[tmp_pm]}"' EXIT
 		;;
 	i) IGNORE_NOT_FOUND=true ;;
@@ -54,7 +69,8 @@ mkdir -p "${dirs[tmp_pm]}"
 
 $unpack && {
 	[[ -z $SIGN_FILE_LIST ]] && {
-		err 'SIGN_FILE_LIST is required when unpacking'
+		#shellcheck disable=2059
+		printf "$(c red)SIGN_FILE_LIST is required when unpacking$(c none)\n"
 		exit 1
 	}
 	# Always use absolute path
@@ -66,29 +82,23 @@ $unpack && {
 # Kill child processes and cleanup on interrupts
 trap 'kill -TERM "${pids[@]}"; rm -fr "${dirs[tmp_pm]}"; exit 1' HUP INT TERM
 
-err() {
-	local fmt=$1
-	shift 1
-	# shellcheck disable=2059
-	echo -e "\x1B[31m$(printf "$fmt" "$@")\x1B[0m" >&2
-}
+prepare_info_f() {
+	local control_tar=$1
+	local info_f=$2
+	local ipk_name=$3
+	local dep_list=$4
+	local sign_file_list=$5
 
-prepare_control_f() {
-	local ipk_name=$1
-	local pm_name="$2"
-	local package_name=$3
+	tar -xzf "$control_tar" "./control" --to-stdout |
+		grep -E 'Firmware|tlt_name|Router|Package|Version|AppName|HWInfo' >"$info_f"
+	printf 'ipk_file: %s\nipk_deps:%s\n' "$ipk_name" "$dep_list" >>"$info_f"
 
-	mkdir -p "${dirs[tmp_pm]}/$package_name"
+	[[ $CI ]] && $CI && info_f=${info_f#"$TOPDIR/"}
+	echo "$info_f" >>"$sign_file_list"
 
-	main_f="${dirs[tmp_pm]}/$package_name/main"
-	touch "$main_f"
-
-	tar -xf "$ipk_name" --get "./control.tar.gz" --to-stdout |
-		tar -xzf - --get "./control" --to-stdout |
-		grep -E 'Firmware|tlt_name|Router|Package|Version|pkg_reboot|pkg_network_restart|AppName|HWInfo' >"$main_f" &&
-		tar -uf "${dirs[zipped_packages]}/$pm_name.tar" -C "${dirs[tmp_pm]}/$package_name" "./main"
-
-	rm -r "${dirs[tmp_pm]:?}/$package_name"
+	printf "\nDependencies of %s in archive:\n" "$ipk_name"
+	#shellcheck disable=2086
+	printf "%s\n" ${dep_list:-<none>}
 }
 
 unpack_ipk() {
@@ -96,8 +106,8 @@ unpack_ipk() {
 	local dest=$2
 
 	mkdir -p "$dest/CONTROL"
-	tar -xzf "$pkg" --get "./control.tar.gz" --to-stdout | tar -xzf - -C "$dest/CONTROL" || return $?
-	tar -xzf "$pkg" --get "./data.tar.gz" --to-stdout | tar -xzf - -C "$dest" || return $?
+	tar -xzf "$pkg" "./control.tar.gz" --to-stdout | tar -xzf - -C "$dest/CONTROL" || return $?
+	tar -xzf "$pkg" "./data.tar.gz" --to-stdout | tar -xzf - -C "$dest" || return $?
 }
 
 unpack_and_prepare() {
@@ -117,13 +127,13 @@ unpack_and_prepare() {
 	ls -A1q "$tmp_pkg_dir/CONTROL" 2>/dev/null | grep -q . || {
 		mkdir -p "$tmp_pkg_dir" # no need to rm, will be cleaned up by exit trap if necessary
 		unpack_ipk "$pkg" "$tmp_pkg_dir" || {
-			err "unpack_ipk exited with code %d" $?
+			printf "$(c red)unpack_ipk exited with code %d$(c none)\n" $?
 			return 1
 		}
 	}
 
 	"$top_dir/scripts/ipkg-build" -u "$SIGN_FILE_LIST" -m "" "$tmp_pkg_dir" "$dest" || {
-		err "ipkg-build exited with code %d" $?
+		printf "$(c red)ipkg-build exited with code %d$(c none)\n" $?
 		rm -fr "$tmp_pkg_dir"
 		return 1
 	}
@@ -142,7 +152,7 @@ pack() {
 		printf "Reused an already packaged %s\n" "$d_fullname"
 	else
 		"$top_dir/scripts/ipkg-build" -p -m "" "${dirs[tmp_pm]}/$d" "$dest_path" || {
-			err "ipkg-build exited with code %d" $?
+			printf "$(c red)ipkg-build exited with code %d$(c none)\n" $?
 			return 1
 		}
 	fi
@@ -151,7 +161,7 @@ pack() {
 
 	# If package already exists in archive, find_ipk most likely failed and returned a wrong package at some point
 	tar -tf "$tar_path" ./"$d_fullname" &>/dev/null && {
-		err "Error: Duplicate file '%s' in archive %s, either a duplicate dependency or a package search failure" "$d_fullname" "$tar_path"
+		printf "$(c red)Error: Duplicate file $(c blue)%s$(c red) in archive $(c none)%s$(c red), either a duplicate dependency or a package search failure\n" "$d_fullname" "$tar_path"
 		return 1
 	}
 	tar -uf "$tar_path" ./"$d_fullname"
@@ -202,13 +212,17 @@ find_dep_fullname() {
 
 	# If package exists but is not selected, only print a warning
 	if $IGNORE_NOT_FOUND || check_config "$d" "n"; then
-		err "%-33s: Warning: package is not compiled (=n), skipping" "$d"
+		printf "%-33s: $(c yellow)Warning: package is not compiled (=n), skipping$(c none)\n" "$d"
 		return 0
 	else
-		err "%-33s: package not found" "$d"
+		printf "%-33s: $(c red)package not found$(c none)\n" "$d"
 	fi
 
 	return 1
+}
+
+calc_shasum() {
+	sha256sum "$1"/control+data.tmp | awk '{print $1}' | tr -d '\n'
 }
 
 process_deps() {
@@ -241,14 +255,19 @@ process_deps() {
 		}
 
 		if [[ $pkg_dep_type != "$dep_type" ]]; then
-			err "Warning: dependency '%s' for '%s' specified as '%s' but found in '%s'. Please fix" "$d" "$pkg" "$dep_type" "$pkg_dep_type"
+			printf "$(c yellow)Warning: dependency $(c magenta)%s$(c yellow) for $(c blue)%s$(c yellow) specified as '%s' but found in '%s'. $(c red)Please fix$(c none)\n" "$d" "$pkg" "$dep_type" "$pkg_dep_type"
 		fi
-		$unpack && d_fullname=${dirs[$pkg_dep_type]}/$d_fullname
+
+		$unpack && {
+			d_fullname=${dirs[$pkg_dep_type]}/$d_fullname
+		}
 
 		$cmd "$d" "$d_fullname" "$dest_path" "$tar_path" || {
 			ret=$((ret + $?))
 			continue
 		}
+
+		$unpack && echo -n " $(basename "$d_fullname"):$(calc_shasum "${dest_path}/${d}")" >&3
 	done
 
 	return $ret
@@ -261,6 +280,7 @@ process_package() {
 	local ret=0
 	local name
 	local tar_name
+	local p_fullpath
 
 	[[ -n $out ]] && exec &>"$out"
 
@@ -273,7 +293,7 @@ process_package() {
 	p_fullpath=$(find_ipk "$p" "${dirs[$source_dir]}")
 
 	if $unpack; then
-		printf "\nPrepared %s and its dependencies for signing:\n" "$p"
+		printf "\n\nPrepared $(c blue)%s$(c none) and its dependencies for signing:\n" "$p"
 		unpack_and_prepare "$p" "${dirs[$source_dir]}/$p_fullpath" "${dirs[pm_packages]}" 2>/dev/null || return $?
 	else
 		name=$(jq -r ".\"$p\".name" "$json_file")
@@ -284,15 +304,26 @@ process_package() {
 		pack "$p" "$p_fullpath" "${dirs[pm_packages]}"
 
 		tar -cf "$tar_name" ./"$p_fullpath"
-		prepare_control_f "$p_fullpath" "$name" "$p"
 	fi
 
+	local dep_list_f="${p}_dep_list"
 	for dep_type in $original_pkg_dirs; do
 		process_deps "$unpack" "$p" "$dep_type" "${dirs[pm_packages]}" "$tar_name"
 		ret=$((ret + $?))
-	done
+	done 3>"$dep_list_f"
 
-	$unpack || gzip "$tar_name"
+	#shellcheck disable=2155
+	local dep_list=$(cat "$dep_list_f")
+	rm "$dep_list_f"
+
+	$unpack && {
+		prepare_info_f "${dirs[pm_packages]}/$p/control.tar.gz" "${dirs[tmp_pm]}/$p/main" "$p_fullpath:$(calc_shasum "${dirs[pm_packages]}/$p")" "$dep_list" "$SIGN_FILE_LIST"
+		return $ret
+	}
+
+	tar -uf "$tar_name" -C "${dirs[tmp_pm]}/$p" main main.sig
+	rm -r "${dirs[tmp_pm]:?}/$p"
+	gzip "$tar_name"
 
 	return $ret
 }
@@ -338,7 +369,7 @@ echo "${pids[@]}" >>childs.pid
 while [[ -n $log_list ]] || pgrep --parent "$$" --pidfile childs.pid >/dev/null; do
 	log_list=$(get_list_of_finished_logs)
 	# shellcheck disable=2086 # splitting is intended here
-	[[ -n $log_list ]] && cat $log_list && rm $log_list
+	[[ -n $log_list ]] && cat $log_list | sed "s,${TOPDIR//,/\\,}/,,g" && rm $log_list
 done
 
 rm childs.pid
@@ -350,7 +381,8 @@ for ret_f in "${dirs[tmp_pm]}"/*"$code_f_postfix"; do
 	ret_pkg=$(cat "$ret_f")
 	[[ $ret_pkg == 0 ]] && continue
 
-	err "$error_str_fmt" "$ret_pkg" "$(basename "$ret_f" "$code_f_postfix")"
+	#shellcheck disable=2059
+	printf "$error_str_fmt\n" "$ret_pkg" "$(basename "$ret_f" "$code_f_postfix")"
 	ret_total=$((ret_total + ret_pkg))
 done
 echo

@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 PKG_NAME:=frr
 PKG_VERSION:=8.4.2
-PKG_RELEASE:=1
+PKG_RELEASE:=4
 PKG_SOURCE_DATE:=2023-02-17
 
 PKG_SOURCE_PROTO:=git
@@ -300,6 +300,8 @@ endef
 define Package/frr-zebra/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/zebra $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/etc/frr
+	$(INSTALL_DATA) ./files/zebra.conf $(1)/etc/frr/
 endef
 
 define Package/frr-libfrr/install

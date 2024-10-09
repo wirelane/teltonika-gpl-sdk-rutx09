@@ -77,6 +77,7 @@ struct menu *current_menu, *current_entry;
 %token T_RANGE
 %token T_RESET
 %token T_MAINTAINER
+%token T_LABEL
 %token T_SELECT
 %token T_SOURCE
 %token T_STRING
@@ -231,6 +232,11 @@ config_option: T_MODULES T_EOL
 config_option: T_MAINTAINER T_WORD_QUOTE T_EOL
 {
 	printd(DEBUG_PARSE, "%s:%d:maintainer(%s)\n", zconf_curname(), zconf_lineno(), $2);
+};
+
+config_option: T_LABEL T_WORD_QUOTE T_EOL
+{
+	printd(DEBUG_PARSE, "%s:%d:label(%s)\n", zconf_curname(), zconf_lineno(), $2);
 };
 
 /* choice entry */

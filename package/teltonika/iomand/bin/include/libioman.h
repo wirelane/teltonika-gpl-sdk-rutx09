@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <libubus.h>
 
+#define NAME_BUF_LEN 16
+
 typedef enum {
 	LIOMAN_STATUS_OK,
 	LIOMAN_STATUS_ERROR,
@@ -51,7 +53,6 @@ struct lioman_location {
 };
 
 struct lioman_adcc { //custom analog input
-	char cname[16];
 	char cunit[16];
 	float cvalue;
 	float cmul;
@@ -64,6 +65,8 @@ struct lioman_io {
 	struct lioman_io_meta meta; // set by lioman_get_*
 	struct lioman_location location;
 	bool save_conf; // whether to save state changes via lioman_set* functions to the iomand conf
+	char cname[NAME_BUF_LEN];
+	char hr_state[NAME_BUF_LEN];
 
 	union {
 		struct {
@@ -71,11 +74,15 @@ struct lioman_io {
 			bool in : 1; // in or out
 			bool inverted_input : 1;
 			bool bidirectional : 1;
+			char hr_state_low[NAME_BUF_LEN];
+			char hr_state_high[NAME_BUF_LEN];
 		} dio;
 
 		struct {
 			bool closed : 1; // must remain the 1st
 			bool latching : 1; // latching or basic
+			char hr_state_open[NAME_BUF_LEN];
+			char hr_state_closed[NAME_BUF_LEN];
 		} relay;
 
 		struct {
@@ -101,6 +108,10 @@ struct lioman_io {
 			bool high : 1; // must remain the 1st
 			bool dry : 1; // dry or wet
 			bool inverted_input : 1;
+			char hr_state_low[NAME_BUF_LEN];
+			char hr_state_high[NAME_BUF_LEN];
+			char hr_state_open[NAME_BUF_LEN];
+			char hr_state_shorted[NAME_BUF_LEN];
 		} dwi;
 	};
 
@@ -119,6 +130,7 @@ struct lioman_io_array {
 
 struct lioman_description {
 	const char *type;
+	const char *name;
 	const char *state;
 };
 

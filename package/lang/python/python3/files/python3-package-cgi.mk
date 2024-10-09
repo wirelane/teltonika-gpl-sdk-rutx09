@@ -8,13 +8,13 @@
 define Package/python3-cgi
 $(call Package/python3/Default)
   TITLE+= cgi module
-  DEPENDS:=+python3-light +python3-email
+  DEPENDS:=+python3-light
 endef
 
 define Package/python3-cgitb
 $(call Package/python3/Default)
   TITLE+= cgitb module
-  DEPENDS:=+python3-light +python3-cgi +python3-pydoc
+  DEPENDS:=+python3-light
 endef
 
 define Package/python3-cgi/description

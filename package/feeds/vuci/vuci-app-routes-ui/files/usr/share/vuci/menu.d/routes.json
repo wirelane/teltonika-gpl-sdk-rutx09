@@ -4,7 +4,7 @@
     "index": 80
   },
   "network/routes/static_routes": {
-    "title": "Static routes",
+    "title": "Static Routes",
     "index": 10,
     "view": "network/StaticRoutes",
     "acls": ["network/routes/static_routes"],
@@ -12,7 +12,7 @@
     "main_page": true
   },
   "network/routes/advanced_routing": {
-    "title": "Policy based routing",
+    "title": "Policy Based Routing",
     "index": 20,
     "view": "network/AdvancedRoutes",
     "acls": ["network/routes/advanced_routing"],

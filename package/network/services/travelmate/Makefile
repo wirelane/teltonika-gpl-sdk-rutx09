@@ -19,9 +19,11 @@ define Package/travelmate
 	TITLE:=A wlan connection manager for travel router
 	DEPENDS:=+iwinfo +jshn +jsonfilter +curl +ca-bundle
 	PKGARCH:=all
-	PKG_ROUTER:=$(TLT_PLATFORM_NAME)
-	PKG_TLT_NAME:=TravelMate
-	PKG_HW_INFO:=wifi
+	ifeq (m, $(CONFIG_PACKAGE_travelmate))
+		PKG_ROUTER:=$(TLT_PLATFORM_NAME)
+		PKG_TLT_NAME:=TravelMate
+		PKG_HW_INFO:=wifi
+	endif
 endef
 
 define Package/travelmate/description

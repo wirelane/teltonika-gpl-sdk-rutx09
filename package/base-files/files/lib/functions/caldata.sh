@@ -23,11 +23,12 @@ caldata_extract() {
 	local offset=$(($2))
 	local count=$(($3))
 	local mtd
+	local dst="${4:-/lib/firmware/$FIRMWARE}"
 
 	mtd=$(find_mtd_chardev $part)
 	[ -n "$mtd" ] || caldata_die "no mtd device found for partition $part"
 
-	caldata_dd $mtd /lib/firmware/$FIRMWARE $count $offset || \
+	caldata_dd $mtd "$dst" $count $offset || \
 		caldata_die "failed to extract calibration data from $mtd"
 }
 

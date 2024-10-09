@@ -86,6 +86,15 @@ ifeq ($(CONFIG_SQUASHFS_XZ),y)
   SQUASHFSCOMP := xz $(LZMA_XZ_OPTIONS) $(BCJ_FILTER)
 endif
 
+ifeq ($(CONFIG_SQUASHFS_LZ4),y)
+  SQUASHFSCOMP := lz4
+endif
+
+ifeq ($(CONFIG_SQUASHFS_ZSTD),y)
+  ZSTD_OPTIONS := -Xcompression-level 22
+  SQUASHFSCOMP := zstd $(ZSTD_OPTIONS)
+endif
+
 JFFS2_BLOCKSIZE ?= 64k 128k
 
 fs-types-$(CONFIG_TARGET_ROOTFS_SQUASHFS) += squashfs
@@ -277,6 +286,18 @@ endef
 define Image/Manifest
 	$(call opkg,$(TARGET_DIR_ORIG)) list-installed > \
 		$(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED)).manifest
+ifneq ($(CONFIG_JSON_CYCLONEDX_SBOM),)
+	LIBGCC_VERSION=$(if $(LIBGCC_VERSION),$(LIBGCC_VERSION),$(GCC_VERSION)) $(SCRIPT_DIR)/package-metadata.pl imgcyclonedxsbom \
+		$(if $(IB),$(TOPDIR)/.packageinfo, $(TMP_DIR)/.packageinfo) \
+		$(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED)).manifest \
+		$(TOPDIR)/.config > \
+		$(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED)).bom.cdx.json
+	LIBGCC_VERSION=$(if $(LIBGCC_VERSION),$(LIBGCC_VERSION),$(GCC_VERSION)) $(SCRIPT_DIR)/package-metadata.pl imgcyclonedxsbom_extended \
+		$(if $(IB),$(TOPDIR)/.packageinfo, $(TMP_DIR)/.packageinfo) \
+		$(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED)).manifest \
+		$(TOPDIR)/.config > \
+		$(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED)).bom.cdx_ex.json
+endif
 endef
 
 define Image/gzip-ext4-padded-squashfs
@@ -459,6 +480,7 @@ define Device/InitProfile
   DEVICE_POE_CONF :=
   DEVICE_POE_CHIP :=
   DEVICE_SERIAL_CAPABILITIES :=
+  DEVICE_DOT1X_SERVER_CAPABILITIES :=
   $$(foreach var,$$(DEVICE_HARDWARE_VARS),$$(eval $$(var):=))
 endef
 
@@ -539,6 +561,7 @@ DEFAULT_DEVICE_VARS := \
   DEVICE_LAN_OPTION DEVICE_WAN_OPTION DEVICE_SWITCH_CONF \
   DEVICE_INTERFACE_CONF DEVICE_NET_CONF DEVICE_POE_CONF \
   DEVICE_POE_CHIP DEVICE_SERIAL_CAPABILITIES \
+  DEVICE_DOT1X_SERVER_CAPABILITIES \
   $(DEVICE_HARDWARE_VARS)
 
 define Device/ExportVar
@@ -644,6 +667,7 @@ define Device/Build/initramfs
 	DEVICE_POE_CONF="$$(DEVICE_POE_CONF)" \
 	DEVICE_POE_CHIP="$$(DEVICE_POE_CHIP)" \
 	DEVICE_SERIAL_CAPABILITIES="$$(DEVICE_SERIAL_CAPABILITIES)" \
+	DEVICE_DOT1X_SERVER_CAPABILITIES="$$(DEVICE_DOT1X_SERVER_CAPABILITIES)" \
 	$(TOPDIR)/scripts/json_add_image_info.py $$@
 endef
 endif
@@ -770,6 +794,7 @@ define Device/Build/image
 	DEVICE_POE_CONF="$(DEVICE_POE_CONF)" \
 	DEVICE_POE_CHIP="$(DEVICE_POE_CHIP)" \
 	DEVICE_SERIAL_CAPABILITIES="$(DEVICE_SERIAL_CAPABILITIES)" \
+	DEVICE_DOT1X_SERVER_CAPABILITIES="$$(DEVICE_DOT1X_SERVER_CAPABILITIES)" \
 	$(TOPDIR)/scripts/json_add_image_info.py $$@
 
 endef
@@ -830,6 +855,7 @@ Target-Profile-NetworkConfig: $(DEVICE_NET_CONF)
 Target-Profile-PoeConfig: $(DEVICE_POE_CONF)
 Target-Profile-PoeChip: $(DEVICE_POE_CHIP)
 Target-Profile-SerialCapabilities: $(DEVICE_SERIAL_CAPABILITIES)
+Target-Profile-Dot1xServerCapabilities: $(DEVICE_DOT1X_SERVER_CAPABILITIES)
 $(if $(BROKEN),Target-Profile-Broken: $(BROKEN))
 $(if $(DEFAULT),Target-Profile-Default: $(DEFAULT))
 $(TARGET_PROFILE_VARS)

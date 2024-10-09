@@ -38,6 +38,8 @@ do_mount_root() {
 		missing_lines /tmp/group /etc/group >> /etc/group
 		missing_lines /tmp/shadow /etc/shadow >> /etc/shadow
 		rm /tmp/passwd /tmp/group /tmp/shadow
+		# Indicate that firmware was uploaded with keep-settings
+		touch /tmp/.ksrestored
 		# Prevent configuration corruption on a power loss
 		sync
 		sme.sh --preboot || echo "- sme.sh failed with code $? -"

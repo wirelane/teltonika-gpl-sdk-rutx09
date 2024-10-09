@@ -4,7 +4,7 @@
 		"index": 130
 	},
 		"services/dnp3/tcp_client": {
-			"title": "TCP Client",
+			"title": "DNP3 TCP Client",
 			"index": 10,
 			"view": "services/DNP3TcpClient",
 			"acls": [ "services/dnp3/tcp_client" ],
@@ -12,7 +12,7 @@
 			"main_page": true
 		},
 		"services/dnp3/serial_client": {
-			"title": "Serial Client",
+			"title": "DNP3 Serial Client",
 			"index": 20,
 			"view": "services/DNP3SerialClient",
 			"acls": [ "services/dnp3/serial_client" ],

@@ -189,7 +189,7 @@ started_logging(){
     }
     [ "$FORCE_COREDUMP_LOG" != "" ] && return 0
     [ $LOG_DIR != "9000" ] && {
-        local OPEN_FILES=$(ls -l "/proc/$PID/fd" 2>/dev/null | grep -Ei ".*(\.qmdl.*|\.sdl|\.logel)$")
+        local OPEN_FILES=$(ls -l "/proc/$PID/fd" 2>/dev/null | grep -Ei ".*(\.qmdl.*|\.sdl|\.logel|\.bin)$")
         [ "$OPEN_FILES" != "" ] && return 0
         return 1
     }

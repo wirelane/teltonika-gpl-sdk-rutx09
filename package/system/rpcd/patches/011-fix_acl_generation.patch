@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/session.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/session.c
-+++ rpcd-2021-03-11-ccb75178/session.c
+--- a/session.c
++++ b/session.c
 @@ -28,6 +28,7 @@
  #include <uci.h>
  #include <limits.h>
@@ -209,7 +207,7 @@ Index: rpcd-2021-03-11-ccb75178/session.c
  				rpc_session_grant(ses, blobmsg_name(acl_scope),
  				                       blobmsg_name(acl_obj),
 -				                       blobmsg_data(acl_func));
-+				                       blobmsg_name(acl_perm));
++				                       strcmp(blobmsg_name(acl_scope), "api") == 0 ? blobmsg_name(acl_perm) : blobmsg_data(acl_func));
  			}
  		}
  	}
@@ -415,10 +413,8 @@ Index: rpcd-2021-03-11-ccb75178/session.c
  	uci_free_context(uci);
  }
 +
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/session.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/session.h
+--- a/include/rpcd/session.h
++++ b/include/rpcd/session.h
 @@ -83,6 +83,13 @@ struct rpc_session_acl {
  	int sort_len;
  };

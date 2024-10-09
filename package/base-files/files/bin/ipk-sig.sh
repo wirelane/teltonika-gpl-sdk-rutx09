@@ -1,17 +1,18 @@
 #!/bin/sh
 
-sig="/tmp/.$(cat /proc/sys/kernel/random/uuid).sig"
+rnd=$(cat /proc/sys/kernel/random/uuid)
+sig="/tmp/.$rnd.sig"
+check_f=/tmp/.$rnd.control+data
+# shellcheck disable=2064
+trap "rm -f $sig $check_f" INT TERM EXIT
 
-check() {
-	local ipk="$1"
-	[ -z "$ipk" ] && return 1
+ipk=$1
+shasum=$2
 
-	tar -xzOf "$ipk" ./control+data.sig > $sig || return 2
+[ -z "$ipk" ] && exit 1
 
-	tar -xzOf "$ipk" ./control.tar.gz ./data.tar.gz | usign -V -m - -P /etc/opkg/keys -x $sig || return 3
-}
+tar -xzOf "$ipk" ./control+data.sig >"$sig" || exit 2
 
-check $1
-status=$?
-rm -f $sig
-return $status
+OK=$(tar -xzOf "$ipk" ./control.tar.gz ./data.tar.gz | tee "$check_f" | usign -V -m - -P /etc/opkg/keys -x "$sig" 2>&1) || exit 3
+[ -z "$shasum" ] || echo "$shasum  $check_f" | sha256sum -c >/dev/null || exit 4
+[ -z "$OK" ] || echo "$OK" >&2

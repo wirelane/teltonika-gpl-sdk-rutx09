@@ -15,7 +15,7 @@
       }
     },
     "write": {
-      "api": ["/interfaces/config/*", "/dhcp/servers/ipv4/config/*", "/dhcp/servers/ipv6/config/*"]
+      "api": ["/interfaces/config/*", "/interfaces/actions/*", "/dhcp/servers/ipv4/config/*", "/dhcp/servers/ipv6/config/*"]
     },
     "source": ["/interfaces/*"],
     "exception": ["/interfaces/config/*", "/interfaces/basic/status/*", "/interfaces/status/*", "/basic/network/devices/status/*"]
@@ -40,7 +40,7 @@
       }
     },
     "write": {
-      "api": ["/interfaces/config/*", "/data_limit/*"]
+      "api": ["/interfaces/config/*", "/interfaces/actions/*", "/data_limit/*"]
     },
     "source": ["/interfaces/*"],
     "exception": ["/interfaces/config/*", "/interfaces/basic/status/*", "/interfaces/status/*", "/basic/network/devices/status/*"]

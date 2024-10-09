@@ -8,7 +8,7 @@
 define Package/python3-xml
 $(call Package/python3/Default)
   TITLE+= XML modules
-  DEPENDS:=+python3-light +python3-urllib
+  DEPENDS:=+python3-light
 endef
 
 define Package/python3-xml/description

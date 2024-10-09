@@ -1,0 +1,9 @@
+{
+	"services/cloud_solutions/aws": {
+		"title": "AWS",
+		"index": 25,
+		"view": "services/AWSJobs",
+		"acls": [ "services/cloud_solutions/aws" ],
+		"files": [ "/etc/config/aws_jobs" ]
+	}
+}

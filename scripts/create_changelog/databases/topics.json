@@ -1,27 +1,67 @@
 [
   {
+    "category": "Network",
+    "name": "Interfaces",
+    "depends": []
+  },
+  {
+    "category": "System",
+    "name": "JSON-RPC",
+    "depends": []
+  },
+  {
     "category": "Services",
     "name": "NTP Client",
     "depends": []
   },
   {
-    "category": "System",
-    "name": "Package Restore",
-    "depends": [
-      {
-        "type": "family",
-        "name": "Router"
-      }
-    ]
+    "category": "Services",
+    "name": "AWS IoT Core",
+    "depends": []
   },
   {
     "category": "System",
-    "name": "User Settings",
+    "name": "Auto Reboot",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Console",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Modbus TCP over Serial Gateway",
     "depends": []
   },
   {
     "category": "Services",
     "name": "Python3",
+    "depends": []
+  },
+  {
+    "category": "System",
+    "name": "CLI",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "L2TPv3",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Console",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Tinc",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Wireguard",
     "depends": []
   },
   {

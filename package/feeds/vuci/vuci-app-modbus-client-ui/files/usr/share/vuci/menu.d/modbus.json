@@ -1,7 +1,7 @@
 {
 	"services/modbus": {
 		"title": "Modbus",
-		"index": 90
+		"index": 120
 	},
 		"services/modbus/modbus_client": {
 			"title": "Modbus TCP Client",

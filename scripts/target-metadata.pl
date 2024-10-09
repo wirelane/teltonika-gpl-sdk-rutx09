@@ -58,6 +58,7 @@ sub target_config_features(@) {
 		/^modbus$/ and $ret .= "\tselect HAS_MODBUS\n";
 		/^io$/ and $ret .= "\tselect HAS_IO\n";
 		/^dot1x-client$/ and $ret .= "\tselect HAS_DOT1X_CLIENT\n";
+		/^dot1x-server$/ and $ret .= "\tselect HAS_DOT1X_SERVER\n";
 		/^power-control$/ and $ret .= "\tselect HAS_POWER_CONTROL\n";
 		/^single-port$/ and $ret .= "\tselect HAS_SINGLE_ETH_PORT\n";
 		/^wifi$/ and $ret .= "\tselect WIFI_SUPPORT\n";
@@ -69,7 +70,7 @@ sub target_config_features(@) {
 		/^rndis$/ and $ret .= "\tselect RNDIS_SUPPORT\n";
 		/^ncm$/ and $ret .= "\tselect USB_NCM_SUPPORT\n";
 		/^poe$/ and $ret .= "\tselect POE_SUPPORT\n";
-		/^port-mirror$/ and $ret .= "\tselect PORT_MIRRORING_SUPPORT\n";
+		/^port-mirror$/ and $ret .= "\tselect HAS_PORT_MIRRORING\n";
 		/^usb-port$/ and $ret .= "\tselect USB_SUPPORT_EXTERNAL\n";
 		/^smp$/ and $ret .= "\tselect SMP_SUPPORT\n";
 		/^dsa$/ and $ret .= "\tselect DSA_SUPPORT\n";

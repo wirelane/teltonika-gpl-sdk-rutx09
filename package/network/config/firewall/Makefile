@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 
 PKG_SOURCE_DATE:=2022-02-17
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>

@@ -223,6 +223,7 @@ proto_wireguard_setup() {
 			peer_config="$(cat "$DEFAULT_STATUS" | sed '1q;d' | awk -v col="$iter" '{print $col}')"
 			config_get peer "$peer_config" endpoint_host
 			config_get tunlink "$peer_config" tunlink
+			config_get force_tunlink "$peer_config" force_tunlink 0
 			defaults="$(ip route show default | grep -v tata | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
 			for dev in ${defaults}; do
 				metric="$(ip route show default dev $dev | awk -F"metric " '{print $2}' | sed 's/\s.*$//')"
@@ -234,6 +235,9 @@ proto_wireguard_setup() {
 						tunlink_gw="$(ip route show default dev $tunlink_dev | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
 						if ip route add "$ip" ${tunlink_gw:+via "$tunlink_gw"} dev "$tunlink_dev" metric "1" &>/dev/null; then
 							echo "ip route del "$ip" dev "$tunlink_dev" metric 1" >> "$DEFAULT_STATUS"
+						elif [ "$force_tunlink" = "1" ] && [ -z $(ip route show "$ip") ]; then
+							ip route add blackhole "$ip"
+							echo "ip route del blackhole $ip" >> "$DEFAULT_STATUS"
 						fi
 						continue
 					fi

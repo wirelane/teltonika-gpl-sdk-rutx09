@@ -478,7 +478,7 @@ EOF
 			set wireless.default_radio${devidx}.mode=ap
 			set wireless.default_radio${devidx}.ssid=${ssid}
 			set wireless.default_radio${devidx}.wifi_id=wifi${wifi_id}
-			set wireless.default_radio${devidx}._device_id=1
+			set wireless.default_radio${devidx}._device_id='1'
 		${wifi_auth_lines}
 EOF
 		wifi_id="$((wifi_id + 1))"

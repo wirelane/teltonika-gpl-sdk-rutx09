@@ -34,7 +34,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
 ===================================================================
 --- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ubus.c	2023-11-06 11:30:59.971637063 +0200
 +++ hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c	2023-11-06 11:30:59.971637063 +0200
-@@ -1958,10 +1958,10 @@
+@@ -1978,10 +1978,10 @@
  	ubus_notify(ctx, &hapd->ubus.obj, "beacon-report", b.head, -1);
  }
  
@@ -47,7 +47,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
  	int i			   = 0;
  
  	while (mac[i]) {
-@@ -1970,9 +1970,9 @@
+@@ -1990,9 +1990,9 @@
  	}
  
  	if (ident) {

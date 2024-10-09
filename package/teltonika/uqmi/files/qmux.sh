@@ -124,6 +124,25 @@ proto_qmux_setup() {
 		let "ifid++"
 	}
 
+	manage_qmimux_interface() {
+		local fd=1000
+		flock -n $fd &> /dev/null
+		if [ "$?" != "0" ]; then
+			exec 1000>"/var/lock/qmimux.lock"
+			flock $fd
+			if [ "$?" != "0" ]; then
+				echo "$interface Lock failed"
+				return 0
+			fi
+			#Create new qmimux interface
+			get_last_mux_id
+			echo "$ifid" > "/sys/class/net/${ifname}/qmi/add_mux" 2>/dev/null
+			get_qmimux_by_id "$ifid"
+			flock -u $fd
+		fi
+		return 1
+	}
+
 #~ ---------------------------------------------------------------------
 	[ -n "$ctl_device" ] && device="$ctl_device"
 	[ -z "$timeout" ] && timeout="30"
@@ -149,13 +168,23 @@ proto_qmux_setup() {
 		return 1
 	}
 
-	echo "$ul_max_size" > "/sys/class/net/${ifname}/qmi/tx_max_size_mux" 2>/dev/null
-	echo "$ul_max_datagrams" > "/sys/class/net/${ifname}/qmi/tx_max_datagrams_mux" 2>/dev/null
+	set_package_aggregation() {
+		local path="$1"
+		local value="$2"
+		local curr_value
 
-	#Create new qmimux interface
-	get_last_mux_id
-	echo "$ifid" > "/sys/class/net/${ifname}/qmi/add_mux" 2>/dev/null
-	get_qmimux_by_id "$ifid"
+		curr_value=$(cat "$path")
+
+		if [ "$curr_value" != "$value" ]; then
+			echo "$value" > "$path" 2>/dev/null
+		fi
+	}
+
+	set_package_aggregation "/sys/class/net/${ifname}/qmi/tx_max_size_mux" "$ul_max_size"
+	set_package_aggregation "/sys/class/net/${ifname}/qmi/tx_max_datagrams_mux" "$ul_max_datagrams"
+
+
+	manage_qmimux_interface && return 1
 
 #~ Connectivity part----------------------------------------------------
 	echo "Calculated qmimux ifname: $qmimux"

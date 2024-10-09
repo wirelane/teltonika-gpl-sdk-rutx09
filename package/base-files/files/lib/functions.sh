@@ -491,4 +491,25 @@ ucidef_check_dual_sim() {
 	json_select ..
 }
 
+control_mobile_interfaces() {
+	local modem="$1"
+	local action="$2"
+
+	[ -z "$modem" ] && return 1
+	[ -z "$action" ] && return 1
+
+	# List all interfaces in the network configuration
+	for interface in $(uci show network | grep '=interface' | cut -d'.' -f2 | cut -d'=' -f1); do
+		# Get the modem ID for the current interface
+		local modem_id=$(uci get network.$interface.modem 2>/dev/null)
+		# Check modem ID
+		if [ "$modem_id" = "$modem" ]; then
+			# Bring down the interface
+			$action $interface
+			echo "Performing $action $interface for modem ID $modem_id"
+		fi
+	done
+}
+
+
 [ -z "$IPKG_INSTROOT" ] && [ -f /lib/config/uci.sh ] && . /lib/config/uci.sh

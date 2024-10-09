@@ -47,6 +47,7 @@ BUGURL=http://bugs.openwrt.org/
 PKGVERSION=OpenWrt GCC $(PKG_VERSION) $(REVISION)
 
 PKG_LICENSE:=GPL-3.0-with-GCC-exception
+PKG_CPE_ID:=cpe:/a:gnu:gcc
 
 HOST_BUILD_PARALLEL:=1
 

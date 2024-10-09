@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sodog-tlt
-PKG_VERSION:=2024-08-01
-PKG_SOURCE_VERSION:=7.9
+PKG_VERSION:=2024-10-02
+PKG_SOURCE_VERSION:=7.10-1
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -13,8 +13,8 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=SOdog establishes multiple bidirectional byte streams and transfers data between them by Teltonika.
 	DEPENDS:=+kmod-usb-serial +libubox +libuci +libtlt_uci +libubus +libpthread \
-		 +MOBILE_SUPPORT:libgsm +MOBILE_SUPPORT:libmctl +libopenssl +@OPENSSL_WITH_DTLS +libmnfinfo +libtlt_termios \
-		 +libgpiod
+		 +MOBILE_SUPPORT:libgsm +MOBILE_SUPPORT:libmctl +libopenssl +@OPENSSL_WITH_DTLS +libmnfinfo \
+		 +libtlt_termios +libboardjson +libgpiod
 endef
 
 define Package/$(PKG_NAME)/description

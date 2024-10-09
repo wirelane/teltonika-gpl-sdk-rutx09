@@ -40,6 +40,7 @@ FILES_DIR :=
 PATCH_DIR := ./patches$(if $(wildcard ./patches-$(LINUX_VERSION)),-$(LINUX_VERSION))
 
 PKG_LICENSE:=GPL-2.0
+PKG_CPE_ID:=cpe:/o:linux:linux_kernel
 
 include $(INCLUDE_DIR)/toolchain-build.mk
 include $(INCLUDE_DIR)/kernel-defaults.mk

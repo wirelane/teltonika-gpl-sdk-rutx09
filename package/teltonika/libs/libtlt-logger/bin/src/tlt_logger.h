@@ -41,6 +41,7 @@ typedef struct log_count {
 } log_counter;
 
 int logger_init(log_level_type _min_level, int logger_type, const char *prog_name);
+int log_get_level(void);
 
 void _log(log_level_type level, const char *fmt, ...)
 	__attribute__((format (printf, 2, 3)));

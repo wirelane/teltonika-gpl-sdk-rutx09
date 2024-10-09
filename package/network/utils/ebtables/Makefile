@@ -17,6 +17,7 @@ PKG_SOURCE_URL:=https://git.netfilter.org/ebtables
 
 
 PKG_LICENSE:=GPL-2.0-or-later
+PKG_CPE_ID:=cpe:/a:netfilter:ebtables
 
 include $(INCLUDE_DIR)/package.mk
 

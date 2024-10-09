@@ -1,6 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for Backup
+APP_DEPENDS:=+minizip
 
 include ../api.mk
 

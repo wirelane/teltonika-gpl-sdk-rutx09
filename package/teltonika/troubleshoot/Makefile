@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=troubleshoot
-PKG_VERSION:=1.1
+PKG_VERSION:=1.2
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -29,7 +29,7 @@ define Package/troubleshoot/install
 	$(CP) ./files/troubleshoot/network.sh $(1)/lib/troubleshoot
 
 	$(if $(CONFIG_MOBILE_SUPPORT),\
-		$(CP) ./files/troubleshoot/modem.sh $(1)/lib/troubleshoot)
+		$(CP) ./files/troubleshoot/modem.sh ./files/troubleshoot/esim.sh $(1)/lib/troubleshoot)
 endef
 
 $(eval $(call BuildPackage,troubleshoot))

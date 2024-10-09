@@ -8,10 +8,19 @@
 json_load "$DATA"
 json_get_var PIN_STATE pin_state
 
-# Only NOT inserted event
+path="/tmp/mobile/sim_state_flag_$MODEM_ID"
+
+# PIN_STATE_NOT_INSERTED          PIN_STATE_NOT_READY
 if [ "$PIN_STATE" != "10" ] && [ "$PIN_STATE" != "2" ]; then
+	#    PIN_STATE_UNKNOWN         PIN_STATE_SIM_FAILURE
+	if [ "$PIN_STATE" != "0" ] || [ "$PIN_STATE" = "13" ]; then
+		[ -e "$path" ] && rm "$path"
+	fi
     exit 0
 fi
+
+[ -e "$path" ] && return
+touch "$path"
 
 ubus call log write_ext "{
 	\"event\": \"SIM state changed to not inserted ($(get_modem_type "$MODEM_ID") modem)\",

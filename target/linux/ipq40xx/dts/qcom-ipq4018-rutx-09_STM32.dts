@@ -90,6 +90,14 @@
 				linux,default-trigger = "timer";
 			};
 		};
+
+		wifi@a000000 {
+			status = "disabled";
+		};
+
+		wifi@a800000 {
+			status = "disabled";
+		};
 	};
 
 	tlt_gpios { // Modify according to wiki page "DTS syntax with Libgpiod changes"

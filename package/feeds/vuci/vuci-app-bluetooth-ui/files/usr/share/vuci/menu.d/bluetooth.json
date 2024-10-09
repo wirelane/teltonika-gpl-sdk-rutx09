@@ -1,5 +1,10 @@
 {
   "services/bluetooth": {
-    "view": "services/Bluetooth"
+    "title": "Bluetooth",
+    "index": 60,
+    "view": "services/Bluetooth",
+    "acls": [
+      "services/bluetooth"
+    ]
   }
 }

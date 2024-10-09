@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mqtt-modbus-gateway
-PKG_VERSION:=2024-08-01
-PKG_SOURCE_VERSION:=7.9
+PKG_VERSION:=2024-09-30
+PKG_SOURCE_VERSION:=7.10
 PKG_LICENSE:=Teltonika-closed
 
 # TARGET_CFLAGS += -ggdb3 -O0
@@ -15,7 +15,7 @@ define Package/mqtt-modbus-gateway
 		CATEGORY:=Network
 		TITLE:=MQTT Modbus Gateway
 		DEPENDS:=+libmosquitto +libmodbus +libmnfinfo +libtlt_uci +libtlt_termios +libuci \
-			 +libubox +libblobmsg-json +libjson-c
+			 +libubox +libubus +libblobmsg-json +libjson-c
 endef
 
 define Package/mqtt-modbus-gateway/description

@@ -25,6 +25,8 @@ define Host/Compile
 	$(MAKE) -C $(HOST_BUILD_DIR)/squashfs-tools \
 		XZ_SUPPORT=1 \
 		LZMA_XZ_SUPPORT=1 \
+		LZ4_SUPPORT=1 \
+		ZSTD_SUPPORT=1 \
 		XATTR_SUPPORT=1 \
 		LZMA_LIB="$(STAGING_DIR_HOST)/lib/liblzma.a" \
 		EXTRA_CFLAGS="-I$(STAGING_DIR_HOST)/include" \

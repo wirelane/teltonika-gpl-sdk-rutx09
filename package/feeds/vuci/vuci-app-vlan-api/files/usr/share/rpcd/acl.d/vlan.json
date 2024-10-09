@@ -23,6 +23,7 @@
     },
     "write": {
       "api": ["/port_based_vlan/*"]
-    }
+    },
+    "exception": ["/port_based_vlan/config/*"]
   }
 }

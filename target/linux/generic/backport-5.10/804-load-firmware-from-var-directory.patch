@@ -1,0 +1,13 @@
+--- a/drivers/base/firmware_loader/main.c	2024-08-01 07:56:33.602449909 +0300
++++ b/drivers/base/firmware_loader/main.c	2024-08-01 07:57:11.438373877 +0300
+@@ -469,7 +469,9 @@
+ 	"/lib/firmware/updates/" UTS_RELEASE,
+ 	"/lib/firmware/updates",
+ 	"/lib/firmware/" UTS_RELEASE,
+-	"/lib/firmware"
++	"/lib/firmware",
++	"/var/" UTS_RELEASE,
++	"/var"
+ };
+ 
+ /*

@@ -1,9 +1,13 @@
 {
-    "services/usb_tools/minidlna": {
-      "title": "DLNA",
-      "index": 40,
-      "acls": ["services/usb_tools/minidlna"],
-      "view": "services/DLNA",
-      "files": ["/etc/config/minidlna"]
-    }
+  "services/usb_tools": {
+    "title": "USB Tools",
+    "index": 70
+  },
+  "services/usb_tools/minidlna": {
+    "title": "DLNA",
+    "index": 40,
+    "acls": ["services/usb_tools/minidlna"],
+    "view": "services/DLNA",
+    "files": ["/etc/config/minidlna"]
+  }
 }

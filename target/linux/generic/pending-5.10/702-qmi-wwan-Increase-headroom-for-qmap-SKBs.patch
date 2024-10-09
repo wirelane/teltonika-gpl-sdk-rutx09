@@ -9,7 +9,7 @@
  		if (!skbn)
  			return 0;
  		/* packet doesn't have mac header
-@@ -223,6 +223,7 @@ static int qmimux_rx_fixup(struct usbnet
+@@ -224,6 +224,7 @@ static int qmimux_rx_fixup(struct usbnet
  			goto skip;
  		}
  

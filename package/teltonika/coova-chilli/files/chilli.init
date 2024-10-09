@@ -169,15 +169,21 @@ set_chilli() {
 				port=444
 				set_conf_bool "uamuissl" 1
 
+				local sslca=$(uci -q get chilli."${CONFIG_SECTION}"._device_sslcafile)
 				local sslcert=$(uci -q get chilli."${CONFIG_SECTION}"._device_sslcertfile)
 				local sslkey=$(uci -q get chilli."${CONFIG_SECTION}"._device_sslkeyfile)
-				[ -z "$sslcert" ] && [ -z "$sslkey" ] && {
-					sslcert=$(uci -q get chilli."${CONFIG_SECTION}".sslcertfile)
-					sslkey=$(uci -q get chilli."${CONFIG_SECTION}".sslkeyfile)
-				}
+				[ -z "$sslca" ] && sslca=$(uci -q get chilli."${CONFIG_SECTION}".sslcafile)
+				[ -z "$sslcert" ] && sslcert=$(uci -q get chilli."${CONFIG_SECTION}".sslcertfile)
+				[ -z "$sslkey" ] && sslkey=$(uci -q get chilli."${CONFIG_SECTION}".sslkeyfile)
 
 				[ -n "$sslcert" ] && [ -n "$sslkey" ] && {
-					uci -q set uhttpd.hotspot.cert="$sslcert"
+					[ -n "$sslca" ] && {
+						local fullchain="/var/run/chilli_${CONFIG_SECTION}_cert.pem"
+						cat "$sslcert" "$sslca" > "$fullchain"
+						uci -q set uhttpd.hotspot.cert="$fullchain"
+					} || {
+						uci -q set uhttpd.hotspot.cert="$sslcert"
+					}
 					uci -q set uhttpd.hotspot.key="$sslkey"
 				}
 				uci -q set uhttpd.hotspot.enable_https="1"
@@ -222,6 +228,9 @@ set_chilli() {
 		;;
 	_device_sslkeyfile)
 		set_conf "sslkeyfile" "$2"
+		;;
+	_device_sslcafile)
+		set_conf "sslcafile" "$2"
 		;;
 	subdomain)
 		set_conf "uamhostname" "$2"

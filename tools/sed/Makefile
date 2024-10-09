@@ -15,6 +15,7 @@ PKG_HASH:=f79b0cfea71b37a8eeec8490db6c5f7ae7719c35587f21edb0617f370eeff633
 export SED:=
 
 PKG_LICENSE:=GPL-3.0-or-later
+PKG_CPE_ID:=cpe:/a:gnu:sed
 
 HOST_BUILD_PARALLEL:=1
 

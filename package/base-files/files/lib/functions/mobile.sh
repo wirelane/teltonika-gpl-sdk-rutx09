@@ -167,6 +167,13 @@ qmi_error_handle() {
 		return 1
 	}
 
+	echo "$error" | grep -qi "Invalid arguments given" && {
+		logger -t "mobile.sh" "Got QMI WDS core error. Restarting the WDS service"
+		uqmi -d "$device" --reset-wds
+		sleep 5
+		return 1
+	}
+
 	return 0
 }
 

@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2024-08-19
+PKG_VERSION:=2024-10-01
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.9-1
+PKG_SOURCE_VERSION:=7.10
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -91,6 +91,9 @@ define Package/gpsd/install
 	elif [ $(TLT_PLATFORM_ATRM50) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_ATRM50.conf $(1)/etc/config/gps; \
 	fi;
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.10/
+	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.10/01_gps_add_nmea_rules $(1)/etc/uci-defaults/7.10/
 endef
 
 define Package/gpsctl/install

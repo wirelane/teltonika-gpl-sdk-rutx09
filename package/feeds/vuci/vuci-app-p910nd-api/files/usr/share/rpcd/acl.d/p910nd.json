@@ -3,8 +3,7 @@
 		"description": "printer service configuration",
 		"read": {
 			"api": [
-				"/usb_tools/p910nd/*",
-				"/usb_tools/devices/*"
+				"/usb_tools/p910nd/*"
 			]
 		},
 		"write": {

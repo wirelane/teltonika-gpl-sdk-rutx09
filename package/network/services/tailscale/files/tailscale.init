@@ -11,6 +11,7 @@ log() {
 	local type="$1"
 	local msg="$2"
 	logger -t "tailscaled" -p daemon."${type}" "$msg"
+	[ "$type" = "err" ] && echo "$msg" >> /tmp/state/tailscale/err
 }
 
 change_dns() {
@@ -72,14 +73,14 @@ connect() {
 		else
 			answ=$(/usr/sbin/tailscale up $param --reset --timeout 5s 2>&1) || type="err"
 		fi
-		[ -n "$answ" ] && log "$type" "$answ"
+		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
 
 	if [ "$auth_type" = "key" ] && [ -n "$auth_key" ]; then
 		/usr/sbin/tailscale logout 1>/dev/null 2>&1
 		log "info" "Trying to connect using 'KEY' mode $flags"
 		answ=$(/usr/sbin/tailscale up --auth-key $auth_key $param --reset --timeout 5s 2>&1) || type="err"
-		[ -n "$answ" ] && log "$type" "$answ"
+		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
 
 	[ "$default_route" -eq 1 ] && [ -e "/etc/resolv.pre-tailscale-backup.conf" ] && change_dns
@@ -125,6 +126,7 @@ start_service() {
 
 	procd_close_instance
 	log "info" "Service started"
+	[ -e "/tmp/state/tailscale" ] && : >/tmp/state/tailscale/err
 
 	#Connect the device when tailscale service started
 	connect "$auth_type" "$auth_key" "$exit_node" "$accept_routes" "$advert_routes" "$default_route" "$exit_node_ip" "$login_server" &

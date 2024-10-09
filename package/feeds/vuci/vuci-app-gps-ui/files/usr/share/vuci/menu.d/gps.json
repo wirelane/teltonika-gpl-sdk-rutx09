@@ -1,26 +1,62 @@
 {
   "services/gps": {
-    "title": "GPS"
+    "title": "GPS",
+    "index": 80
   },
   "services/gps/general": {
-    "view": "services/General"
+    "title": "General",
+    "index": 1,
+    "view": "services/General",
+    "acls": [
+      "services/gps/general"
+    ]
   },
   "services/gps/map": {
-    "view": "services/Map"
+    "title": "Map",
+    "index": 2,
+    "view": "services/Map",
+    "acls": [
+      "services/gps/map"
+    ]
   },
   "services/gps/nmea": {
-    "view": "services/NMEA"
+    "title": "NMEA",
+    "index": 3,
+    "view": "services/NMEA",
+    "acls": [
+      "services/gps/nmea"
+    ]
   },
   "services/gps/https": {
-    "view": "services/HTTPS"
+    "title": "HTTPS",
+    "index": 4,
+    "view": "services/HTTPS",
+    "acls": [
+      "services/gps/https"
+    ]
   },
   "services/gps/avl": {
-    "view": "services/AVL"
+    "title": "AVL",
+    "index": 5,
+    "view": "services/AVL",
+    "acls": [
+      "services/gps/avl"
+    ]
   },
   "services/gps/input": {
-    "view": "services/AvlInput"
+    "title": "AVL I/O",
+    "index": 6,
+    "view": "services/AvlInput",
+    "acls": [
+      "services/gps/input"
+    ]
   },
   "services/gps/geofencing": {
-    "view": "services/GPSGeofencing"
+    "title": "GPS Geofencing",
+    "index": 7,
+    "view": "services/GPSGeofencing",
+    "acls": [
+      "services/gps/geofencing"
+    ]
   }
 }

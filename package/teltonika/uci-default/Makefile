@@ -26,6 +26,8 @@ endef
 
 define Package/uci-default/install
 	$(call install_migrations,files,$(1))
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/zz_menu_generate $(1)/etc/uci-defaults/
 endef
 
 $(eval $(call BuildPackage,uci-default))

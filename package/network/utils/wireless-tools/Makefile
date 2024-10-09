@@ -22,6 +22,7 @@ TAR_OPTIONS += || true
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=COPYING
+PKG_CPE_ID:=cpe:/a:wireless_tools_project:wireless_tools
 
 include $(INCLUDE_DIR)/package.mk
 

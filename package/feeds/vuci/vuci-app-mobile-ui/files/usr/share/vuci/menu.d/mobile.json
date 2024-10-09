@@ -1,6 +1,7 @@
 {
   "network/mobile": {
-    "title": "Mobile"
+    "title": "Mobile",
+    "index": 10
   },
   "network/mobile/general": {
     "view": "network/MobileGeneral"

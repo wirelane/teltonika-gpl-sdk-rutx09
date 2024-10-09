@@ -186,6 +186,7 @@ enum prop_type {
 	P_SYMBOL,     /* where a symbol is defined */
 	P_RESET,      /* reset to defaults condition */
 	P_MAINTAINER, /* maintainer information */
+	P_LABEL,      /* label information */
 };
 
 struct property {

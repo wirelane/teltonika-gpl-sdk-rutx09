@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=liblog
-PKG_VERSION:=2024-08-02
+PKG_VERSION:=2024-09-30
 PJG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.4

@@ -123,15 +123,18 @@
 -
 --- a/conf/options/charon-nm.conf
 +++ b/conf/options/charon-nm.conf
-@@ -1,8 +1,2 @@
+@@ -1,11 +1,3 @@
  charon-nm {
 -
 -    # Directory from which to load CA certificates if no certificate is
 -    # configured.
 -    # ca_dir = <default>
 -
- }
+-    # MTU for XFRM interfaces created by the NM plugin.
+-    # mtu = 1400
 -
+ }
+ 
 --- a/conf/options/charon-systemd.conf
 +++ b/conf/options/charon-systemd.conf
 @@ -1,16 +1,4 @@
@@ -146,423 +149,6 @@
 -
 -        # Default loglevel.
 -        # default = 1
--
-     }
--
- }
--
---- a/conf/options/charon.conf
-+++ b/conf/options/charon.conf
-@@ -1,414 +1,20 @@
--# Options for the charon IKE daemon.
- charon {
--
--    # Deliberately violate the IKE standard's requirement and allow the use of
--    # private algorithm identifiers, even if the peer implementation is unknown.
--    # accept_private_algs = no
--
--    # Accept unencrypted ID and HASH payloads in IKEv1 Main Mode.
--    # accept_unencrypted_mainmode_messages = no
--
--    # Maximum number of half-open IKE_SAs (including unprocessed IKE_SA_INITs)
--    # for a single peer IP.
--    # block_threshold = 5
--
--    # Whether Certificate Revocation Lists (CRLs) fetched via HTTP or LDAP
--    # should be saved under a unique file name derived from the public key of
--    # the Certification Authority (CA) to /etc/ipsec.d/crls (stroke) or
--    # /etc/swanctl/x509crl (vici), respectively.
--    # cache_crls = no
--
--    # Whether relations in validated certificate chains should be cached in
--    # memory.
--    # cert_cache = yes
--
--    # Whether to use DPD to check if the current path still works after any
--    # changes to interfaces/addresses.
--    # check_current_path = no
--
--    # Send the Cisco FlexVPN vendor ID payload (IKEv2 only).
--    # cisco_flexvpn = no
--
--    # Send Cisco Unity vendor ID payload (IKEv1 only).
--    # cisco_unity = no
--
--    # Close the IKE_SA if setup of the CHILD_SA along with IKE_AUTH failed.
--    # close_ike_on_child_failure = no
--
--    # Number of half-open IKE_SAs (including unprocessed IKE_SA_INITs) that
--    # activate the cookie mechanism.
--    # cookie_threshold = 30
--
--    # Number of half-open IKE_SAs (including unprocessed IKE_SA_INITs) for a
--    # single peer IP that activate the cookie  mechanism.
--    # cookie_threshold_ip = 3
--
--    # Delete CHILD_SAs right after they got successfully rekeyed (IKEv1 only).
--    # delete_rekeyed = no
--
--    # Delay in seconds until inbound IPsec SAs are deleted after rekeyings
--    # (IKEv2 only).
--    # delete_rekeyed_delay = 5
--
--    # Use ANSI X9.42 DH exponent size or optimum size matched to cryptographic
--    # strength.
--    # dh_exponent_ansi_x9_42 = yes
--
--    # Use RTLD_NOW with dlopen when loading plugins and IMV/IMCs to reveal
--    # missing symbols immediately.
--    # dlopen_use_rtld_now = no
--
--    # DNS server assigned to peer via configuration payload (CP).
--    # dns1 =
--
--    # DNS server assigned to peer via configuration payload (CP).
--    # dns2 =
--
--    # Enable Denial of Service protection using cookies and aggressiveness
--    # checks.
--    # dos_protection = yes
--
--    # Free objects during authentication (might conflict with plugins).
--    # flush_auth_cfg = no
--
--    # Whether to follow IKEv2 redirects (RFC 5685).
--    # follow_redirects = yes
--
--    # Violate RFC 5998 and use EAP-only authentication even if the peer did not
--    # send an EAP_ONLY_AUTHENTICATION notify during IKE_AUTH.
--    # force_eap_only_authentication = no
--
--    # Maximum size (complete IP datagram size in bytes) of a sent IKE fragment
--    # when using proprietary IKEv1 or standardized IKEv2 fragmentation, defaults
--    # to 1280 (use 0 for address family specific default values, which uses a
--    # lower value for IPv4).  If specified this limit is used for both IPv4 and
--    # IPv6.
--    # fragment_size = 1280
--
--    # Name of the group the daemon changes to after startup.
--    # group =
--
--    # Timeout in seconds for connecting IKE_SAs (also see IKE_SA_INIT DROPPING).
--    # half_open_timeout = 30
--
--    # Enable hash and URL support.
--    # hash_and_url = no
--
--    # Allow IKEv1 Aggressive Mode with pre-shared keys as responder.
--    # i_dont_care_about_security_and_use_aggressive_mode_psk = no
--
--    # Whether to ignore the traffic selectors from the kernel's acquire events
--    # for IKEv2 connections (they are not used for IKEv1).
--    # ignore_acquire_ts = no
--
--    # A space-separated list of routing tables to be excluded from route
--    # lookups.
--    # ignore_routing_tables =
--
--    # Maximum number of IKE_SAs that can be established at the same time before
--    # new connection attempts are blocked.
--    # ikesa_limit = 0
--
--    # Number of exclusively locked segments in the hash table.
--    # ikesa_table_segments = 1
--
--    # Size of the IKE_SA hash table.
--    # ikesa_table_size = 1
--
--    # Whether to close IKE_SA if the only CHILD_SA closed due to inactivity.
--    # inactivity_close_ike = no
--
--    # Limit new connections based on the current number of half open IKE_SAs,
--    # see IKE_SA_INIT DROPPING in strongswan.conf(5).
--    # init_limit_half_open = 0
--
--    # Limit new connections based on the number of queued jobs.
--    # init_limit_job_load = 0
--
--    # Causes charon daemon to ignore IKE initiation requests.
--    # initiator_only = no
--
--    # Install routes into a separate routing table for established IPsec
--    # tunnels.
--    # install_routes = yes
--
--    # Install virtual IP addresses.
--    # install_virtual_ip = yes
--
--    # The name of the interface on which virtual IP addresses should be
--    # installed.
--    # install_virtual_ip_on =
--
--    # Check daemon, libstrongswan and plugin integrity at startup.
--    # integrity_test = no
--
--    # A comma-separated list of network interfaces that should be ignored, if
--    # interfaces_use is specified this option has no effect.
--    # interfaces_ignore =
--
--    # A comma-separated list of network interfaces that should be used by
--    # charon. All other interfaces are ignored.
--    # interfaces_use =
--
--    # NAT keep alive interval.
--    # keep_alive = 20s
--
--    # Number of seconds the keep alive interval may be exceeded before a DPD is
--    # sent instead of a NAT keep alive (0 to disable).  This is only useful if a
--    # clock is used that includes time spent suspended (e.g. CLOCK_BOOTTIME).
--    # keep_alive_dpd_margin = 0s
--
--    # Plugins to load in the IKE daemon charon.
--    # load =
--
--    # Determine plugins to load via each plugin's load option.
--    # load_modular = no
--
--    # Initiate IKEv2 reauthentication with a make-before-break scheme.
--    # make_before_break = no
--
--    # Maximum number of IKEv1 phase 2 exchanges per IKE_SA to keep state about
--    # and track concurrently.
--    # max_ikev1_exchanges = 3
--
--    # Maximum packet size accepted by charon.
--    # max_packet = 10000
--
--    # Enable multiple authentication exchanges (RFC 4739).
--    # multiple_authentication = yes
--
--    # WINS servers assigned to peer via configuration payload (CP).
--    # nbns1 =
--
--    # WINS servers assigned to peer via configuration payload (CP).
--    # nbns2 =
--
--    # UDP port used locally. If set to 0 a random port will be allocated.
--    # port = 500
--
--    # UDP port used locally in case of NAT-T. If set to 0 a random port will be
--    # allocated.  Has to be different from charon.port, otherwise a random port
--    # will be allocated.
--    # port_nat_t = 4500
--
--    # Whether to prefer updating SAs to the path with the best route.
--    # prefer_best_path = no
--
--    # Prefer locally configured proposals for IKE/IPsec over supplied ones as
--    # responder (disabling this can avoid keying retries due to
--    # INVALID_KE_PAYLOAD notifies).
--    # prefer_configured_proposals = yes
--
--    # Controls whether permanent or temporary IPv6 addresses are used as source,
--    # or announced as additional addresses if MOBIKE is used.
--    # prefer_temporary_addrs = no
--
--    # Process RTM_NEWROUTE and RTM_DELROUTE events.
--    # process_route = yes
--
--    # How RDNs in subject DNs of certificates are matched against configured
--    # identities (strict, reordered, or relaxed).
--    # rdn_matching = strict
--
--    # Delay in ms for receiving packets, to simulate larger RTT.
--    # receive_delay = 0
--
--    # Delay request messages.
--    # receive_delay_request = yes
--
--    # Delay response messages.
--    # receive_delay_response = yes
--
--    # Specific IKEv2 message type to delay, 0 for any.
--    # receive_delay_type = 0
--
--    # Size of the AH/ESP replay window, in packets.
--    # replay_window = 32
--
--    # Base to use for calculating exponential back off, see IKEv2 RETRANSMISSION
--    # in strongswan.conf(5).
--    # retransmit_base = 1.8
--
--    # Maximum jitter in percent to apply randomly to calculated retransmission
--    # timeout (0 to disable).
--    # retransmit_jitter = 0
--
--    # Upper limit in seconds for calculated retransmission timeout (0 to
--    # disable).
--    # retransmit_limit = 0
--
--    # Timeout in seconds before sending first retransmit.
--    # retransmit_timeout = 4.0
--
--    # Number of times to retransmit a packet before giving up.
--    # retransmit_tries = 5
--
--    # Interval in seconds to use when retrying to initiate an IKE_SA (e.g. if
--    # DNS resolution failed), 0 to disable retries.
--    # retry_initiate_interval = 0
--
--    # Initiate CHILD_SA within existing IKE_SAs (always enabled for IKEv1).
--    # reuse_ikesa = yes
--
--    # Numerical routing table to install routes to.
--    # routing_table =
--
--    # Priority of the routing table.
--    # routing_table_prio =
--
--    # Whether to use RSA with PSS padding instead of PKCS#1 padding by default.
--    # rsa_pss = no
--
--    # Delay in ms for sending packets, to simulate larger RTT.
--    # send_delay = 0
--
--    # Delay request messages.
--    # send_delay_request = yes
--
--    # Delay response messages.
--    # send_delay_response = yes
--
--    # Specific IKEv2 message type to delay, 0 for any.
--    # send_delay_type = 0
--
--    # Send strongSwan vendor ID payload
--    # send_vendor_id = no
--
--    # Whether to enable Signature Authentication as per RFC 7427.
--    # signature_authentication = yes
--
--    # Whether to enable constraints against IKEv2 signature schemes.
--    # signature_authentication_constraints = yes
--
--    # Value mixed into the local IKE SPIs after applying spi_mask.
--    # spi_label = 0x0000000000000000
--
--    # Mask applied to local IKE SPIs before mixing in spi_label (bits set will
--    # be replaced with spi_label).
--    # spi_mask = 0x0000000000000000
--
--    # The upper limit for SPIs requested from the kernel for IPsec SAs.
--    # spi_max = 0xcfffffff
--
--    # The lower limit for SPIs requested from the kernel for IPsec SAs.
--    # spi_min = 0xc0000000
--
--    # Number of worker threads in charon.
--    # threads = 16
--
--    # Name of the user the daemon changes to after startup.
--    # user =
--
-     crypto_test {
--
--        # Benchmark crypto algorithms and order them by efficiency.
--        # bench = no
--
--        # Buffer size used for crypto benchmark.
--        # bench_size = 1024
--
--        # Time in ms during which crypto algorithm performance is measured.
--        # bench_time = 50
--
--        # Test crypto algorithms during registration (requires test vectors
--        # provided by the test-vectors plugin).
--        # on_add = no
--
--        # Test crypto algorithms on each crypto primitive instantiation.
--        # on_create = no
--
--        # Strictly require at least one test vector to enable an algorithm.
--        # required = no
--
--        # Whether to test RNG with TRUE quality; requires a lot of entropy.
--        # rng_true = no
--
-     }
--
-     host_resolver {
--
--        # Maximum number of concurrent resolver threads (they are terminated if
--        # unused).
--        # max_threads = 3
--
--        # Minimum number of resolver threads to keep around.
--        # min_threads = 0
--
-     }
--
-     leak_detective {
--
--        # Includes source file names and line numbers in leak detective output.
--        # detailed = yes
--
--        # Threshold in bytes for leaks to be reported (0 to report all).
--        # usage_threshold = 10240
--
--        # Threshold in number of allocations for leaks to be reported (0 to
--        # report all).
--        # usage_threshold_count = 0
--
-     }
--
-     processor {
--
--        # Section to configure the number of reserved threads per priority class
--        # see JOB PRIORITY MANAGEMENT in strongswan.conf(5).
-         priority_threads {
--
-         }
--
-     }
--
--    # Section containing a list of scripts (name = path) that are executed when
--    # the daemon is started.
-     start-scripts {
--
-     }
--
--    # Section containing a list of scripts (name = path) that are executed when
--    # the daemon is terminated.
-     stop-scripts {
--
-     }
--
-     tls {
--
--        # List of TLS encryption ciphers.
--        # cipher =
--
--        # List of TLS key exchange groups.
--        # ke_group =
--
--        # List of TLS key exchange methods.
--        # key_exchange =
--
--        # List of TLS MAC algorithms.
--        # mac =
--
--        # Whether to include CAs in a server's CertificateRequest message.
--        # send_certreq_authorities = yes
--
--        # List of TLS signature schemes.
--        # signature =
--
--        # List of TLS cipher suites.
--        # suites =
--
--        # Maximum TLS version to negotiate.
--        # version_max = 1.2
--
--        # Minimum TLS version to negotiate.
--        # version_min = 1.2
--
-     }
--
-     x509 {
--
--        # Discard certificates with unsupported or unknown critical extensions.
--        # enforce_critical = yes
 -
      }
 -
@@ -716,16 +302,6 @@
 -
  }
 -
---- a/conf/options/pki.conf
-+++ b/conf/options/pki.conf
-@@ -1,7 +1,2 @@
- pki {
--
--    # Plugins to load in ipsec pki tool.
--    # load =
--
- }
--
 --- a/conf/options/pool.conf
 +++ b/conf/options/pool.conf
 @@ -1,12 +1,2 @@
@@ -737,16 +313,6 @@
 -    # database =
 -
 -    # Plugins to load in ipsec pool tool.
--    # load =
--
- }
--
---- a/conf/options/scepclient.conf
-+++ b/conf/options/scepclient.conf
-@@ -1,7 +1,2 @@
- scepclient {
--
--    # Plugins to load in ipsec scepclient tool.
 -    # load =
 -
  }
@@ -1050,21 +616,6 @@
 -
  }
 -
---- a/conf/plugins/curl.conf
-+++ b/conf/plugins/curl.conf
-@@ -1,12 +1,3 @@
- curl {
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
--    # Maximum number of redirects followed by the plugin, set to 0 to disable
--    # following redirects, set to -1 for no limit.
--    # redir = -1
--
- }
--
 --- a/conf/plugins/dhcp.conf
 +++ b/conf/plugins/dhcp.conf
 @@ -1,25 +1,3 @@
@@ -1210,153 +761,6 @@
 -    # Whether to load the plugin. Can also be an integer to increase the
 -    # priority of this plugin.
      load = yes
--
- }
--
---- a/conf/plugins/eap-peap.conf
-+++ b/conf/plugins/eap-peap.conf
-@@ -1,30 +1,3 @@
- eap-peap {
--
--    # Maximum size of an EAP-PEAP packet.
--    # fragment_size = 1024
--
--    # Include length in non-fragmented EAP-PEAP packets.
--    # include_length = no
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
--    # Maximum number of processed EAP-PEAP packets (0 = no limit).
--    # max_message_count = 32
--
--    # Phase2 EAP client authentication method.
--    # phase2_method = mschapv2
--
--    # Phase2 EAP Identity request piggybacked by server onto TLS Finished
--    # message.
--    # phase2_piggyback = no
--
--    # Start phase2 EAP TNC protocol after successful client authentication.
--    # phase2_tnc = no
--
--    # Request peer authentication based on a client certificate.
--    # request_peer_auth = no
--
- }
--
---- a/conf/plugins/eap-radius.conf
-+++ b/conf/plugins/eap-radius.conf
-@@ -1,111 +1,11 @@
- eap-radius {
--
--    # Send RADIUS accounting information to RADIUS servers.
--    # accounting = no
--
--    # Close the IKE_SA if there is a timeout during interim RADIUS accounting
--    # updates.
--    # accounting_close_on_timeout = yes
--
--    # Interval in seconds for interim RADIUS accounting updates, if not
--    # specified by the RADIUS server in the Access-Accept message.
--    # accounting_interval = 0
--
--    # If enabled, accounting is disabled unless an IKE_SA has at least one
--    # virtual IP. Only for IKEv2, for IKEv1 a virtual IP is strictly necessary.
--    # accounting_requires_vip = no
--
--    # If enabled, adds the Class attributes received in Access-Accept message to
--    # the RADIUS accounting messages.
--    # accounting_send_class = no
--
--    # Use class attributes in Access-Accept messages as group membership
--    # information.
--    # class_group = no
--
--    # Closes all IKE_SAs if communication with the RADIUS server times out. If
--    # it is not set only the current IKE_SA is closed.
--    # close_all_on_timeout = no
--
--    # Send EAP-Start instead of EAP-Identity to start RADIUS conversation.
--    # eap_start = no
--
--    # Use filter_id attribute as group membership information.
--    # filter_id = no
--
--    # Prefix to EAP-Identity, some AAA servers use a IMSI prefix to select the
--    # EAP method.
--    # id_prefix =
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
--    # NAS-Identifier to include in RADIUS messages.
--    # nas_identifier = strongSwan
--
--    # Port of RADIUS server (authentication).
--    # port = 1812
--
--    # Base to use for calculating exponential back off.
--    # retransmit_base = 1.4
--
--    # Timeout in seconds before sending first retransmit.
--    # retransmit_timeout = 2.0
--
--    # Number of times to retransmit a packet before giving up.
--    # retransmit_tries = 4
--
--    # Shared secret between RADIUS and NAS. If set, make sure to adjust the
--    # permissions of the config file accordingly.
--    # secret =
--
--    # IP/Hostname of RADIUS server.
--    # server =
--
--    # Number of sockets (ports) to use, increase for high load.
--    # sockets = 1
--
--    # Whether to include the UDP port in the Called- and Calling-Station-Id
--    # RADIUS attributes.
--    # station_id_with_port = yes
--
-     dae {
--
--        # Enables support for the Dynamic Authorization Extension (RFC 5176).
--        # enable = no
--
--        # Address to listen for DAE messages from the RADIUS server.
--        # listen = 0.0.0.0
--
--        # Port to listen for DAE requests.
--        # port = 3799
--
--        # Shared secret used to verify/sign DAE messages. If set, make sure to
--        # adjust the permissions of the config file accordingly.
--        # secret =
--
-     }
--
-     forward {
--
--        # RADIUS attributes to be forwarded from IKEv2 to RADIUS.
--        # ike_to_radius =
--
--        # Same as ike_to_radius but from RADIUS to IKEv2.
--        # radius_to_ike =
--
-     }
--
--    # Section to specify multiple RADIUS servers.
-     servers {
--
-     }
--
--    # Section to configure multiple XAuth authentication rounds via RADIUS.
-     xauth {
--
-     }
 -
  }
 -
@@ -1697,113 +1101,6 @@
 -
  }
 -
---- a/conf/plugins/kernel-libipsec.conf
-+++ b/conf/plugins/kernel-libipsec.conf
-@@ -1,11 +1,3 @@
- kernel-libipsec {
--
--    # Allow that the remote traffic selector equals the IKE peer.
--    # allow_peer_ts = no
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
- }
--
---- a/conf/plugins/kernel-netlink.conf
-+++ b/conf/plugins/kernel-netlink.conf
-@@ -1,90 +1,9 @@
- kernel-netlink {
--
--    # Buffer size for received Netlink messages.
--    # buflen = <min(PAGE_SIZE, 8192)>
--
--    # Force maximum Netlink receive buffer on Netlink socket.
--    # force_receive_buffer_size = no
--
--    # Firewall mark to set on the routing rule that directs traffic to our
--    # routing table.
--    # fwmark =
--
--    # Interface to be used to find hardware offload feature flag on.
--    # hw_offload_feature_interface = lo
--
--    # Whether to ignore errors potentially resulting from a retransmission.
--    # ignore_retransmit_errors = no
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
--    # MSS to set on installed routes, 0 to disable.
--    # mss = 0
--
--    # MTU to set on installed routes, 0 to disable.
--    # mtu = 0
--
--    # Whether to perform concurrent Netlink ROUTE queries on a single socket.
--    # parallel_route = no
--
--    # Whether to perform concurrent Netlink XFRM queries on a single socket.
--    # parallel_xfrm = no
--
--    # Whether to always use XFRM_MSG_UPDPOLICY to install policies.
--    # policy_update = no
--
--    # Whether to use port or socket based IKE XFRM bypass policies.
--    # port_bypass = no
--
--    # Whether to process changes in routing rules to trigger roam events.
--    # process_rules = no
--
--    # Maximum Netlink socket receive buffer in bytes.
--    # receive_buffer_size = 0
--
--    # Number of Netlink message retransmissions to send on timeout.
--    # retries = 0
--
--    # Whether to trigger roam events when interfaces, addresses or routes
--    # change.
--    # roam_events = yes
--
--    # Whether to set protocol and ports in the selector installed on transport
--    # mode IPsec SAs in the kernel.
--    # set_proto_port_transport_sa = no
--
--    # Netlink message retransmission timeout, 0 to disable retransmissions.
--    # timeout = 0
--
--    # Lifetime of XFRM acquire state and allocated SPIs in kernel.
--    # xfrm_acq_expires = 165
--
--    # XFRM policy hashing threshold configuration for IPv4 and IPv6.
-     spdh_thresh {
--
-         ipv4 {
--
--            # Local subnet XFRM policy hashing threshold for IPv4.
--            # lbits = 32
--
--            # Remote subnet XFRM policy hashing threshold for IPv4.
--            # rbits = 32
--
-         }
--
-         ipv6 {
--
--            # Local subnet XFRM policy hashing threshold for IPv6.
--            # lbits = 128
--
--            # Remote subnet XFRM policy hashing threshold for IPv6.
--            # rbits = 128
--
-         }
--
-     }
--
- }
--
 --- a/conf/plugins/kernel-pfkey.conf
 +++ b/conf/plugins/kernel-pfkey.conf
 @@ -1,14 +1,3 @@
@@ -2090,7 +1387,7 @@
 -
 --- a/conf/plugins/pkcs11.conf
 +++ b/conf/plugins/pkcs11.conf
-@@ -1,47 +1,7 @@
+@@ -1,52 +1,7 @@
  pkcs11 {
 -
 -    # Whether to load the plugin. Can also be an integer to increase the
@@ -2117,6 +1414,11 @@
 -
 -    # Whether the PKCS#11 modules should be used as RNG.
 -    # use_rng = no
+-
+-    # Whether the PKCS#11 modules should try to use internal hashing for RSA-PSS
+-    # signatures (some PKCS#11 libraries don't implement internal hashing in
+-    # conjunction with RSA-PSS correctly).
+-    # use_rsa_pss_hashers = no
 -
 -    # List of available PKCS#11 modules.
      modules {
@@ -2174,44 +1476,6 @@
 -
 -    # File to read pseudo random bytes from.
 -    # urandom = ${urandom_device}
--
- }
--
---- a/conf/plugins/resolve.conf
-+++ b/conf/plugins/resolve.conf
-@@ -1,18 +1,5 @@
- resolve {
--
--    # File where to add DNS server entries.
--    # file = /etc/resolv.conf
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
-     resolvconf {
--
--        # Prefix used for interface names sent to resolvconf(8).
--        # iface_prefix = lo.inet.ipsec.
--
-     }
--
- }
--
---- a/conf/plugins/revocation.conf
-+++ b/conf/plugins/revocation.conf
-@@ -1,14 +1,3 @@
- revocation {
--
--    # Whether CRL validation should be enabled.
--    # enable_crl = yes
--
--    # Whether OCSP validation should be enabled.
--    # enable_ocsp = yes
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
 -
  }
 -
@@ -2534,26 +1798,6 @@
 -
  }
 -
---- a/conf/plugins/unbound.conf
-+++ b/conf/plugins/unbound.conf
-@@ -1,17 +1,3 @@
- unbound {
--
--    # File to read trusted keys for DLV (DNSSEC Lookaside Validation) from.
--    # dlv_anchors =
--
--    # Whether to load the plugin. Can also be an integer to increase the
--    # priority of this plugin.
-     load = yes
--
--    # File to read DNS resolver configuration from.
--    # resolv_conf = /etc/resolv.conf
--
--    # File to read DNSSEC trust anchors from (usually root zone KSK).
--    # trust_anchors = /etc/ipsec.d/dnssec.keys
--
- }
--
 --- a/conf/plugins/updown.conf
 +++ b/conf/plugins/updown.conf
 @@ -1,12 +1,4 @@
@@ -2666,3 +1910,802 @@
  }
 -
  include strongswan.d/*.conf
+--- a/conf/options/charon.conf
++++ b/conf/options/charon.conf
+@@ -1,429 +1,21 @@
+-# Options for the charon IKE daemon.
+ charon {
+-
+-    # Deliberately violate the IKE standard's requirement and allow the use of
+-    # private algorithm identifiers, even if the peer implementation is unknown.
+-    # accept_private_algs = no
+-
+-    # Accept unencrypted ID and HASH payloads in IKEv1 Main Mode.
+-    # accept_unencrypted_mainmode_messages = no
+-
+-    # Maximum number of half-open IKE_SAs (including unprocessed IKE_SA_INITs)
+-    # for a single peer IP.
+-    # block_threshold = 5
+-
+-    # Whether Certificate Revocation Lists (CRLs) fetched via HTTP or LDAP
+-    # should be saved under a unique file name derived from the public key of
+-    # the Certification Authority (CA) to ${sysconfdir}/ipsec.d/crls (stroke) or
+-    # ${sysconfdir}/swanctl/x509crl (vici), respectively.
+-    # cache_crls = no
+-
+-    # Whether relations in validated certificate chains should be cached in
+-    # memory.
+-    # cert_cache = yes
+-
+-    # Whether to use DPD to check if the current path still works after any
+-    # changes to interfaces/addresses.
+-    # check_current_path = no
+-
+-    # Send the Cisco FlexVPN vendor ID payload (IKEv2 only).
+-    # cisco_flexvpn = no
+-
+-    # Send Cisco Unity vendor ID payload (IKEv1 only).
+-    # cisco_unity = no
+-
+-    # Close the IKE_SA if setup of the CHILD_SA along with IKE_AUTH failed.
+-    # close_ike_on_child_failure = no
+-
+-    # Number of half-open IKE_SAs (including unprocessed IKE_SA_INITs) that
+-    # activate the cookie mechanism.
+-    # cookie_threshold = 30
+-
+-    # Number of half-open IKE_SAs (including unprocessed IKE_SA_INITs) for a
+-    # single peer IP that activate the cookie  mechanism.
+-    # cookie_threshold_ip = 3
+-
+-    # Delete CHILD_SAs right after they got successfully rekeyed (IKEv1 only).
+-    # delete_rekeyed = no
+-
+-    # Delay in seconds until inbound IPsec SAs are deleted after rekeyings
+-    # (IKEv2 only).
+-    # delete_rekeyed_delay = 5
+-
+-    # Use ANSI X9.42 DH exponent size or optimum size matched to cryptographic
+-    # strength.
+-    # dh_exponent_ansi_x9_42 = yes
+-
+-    # Use RTLD_NOW with dlopen when loading plugins and IMV/IMCs to reveal
+-    # missing symbols immediately.
+-    # dlopen_use_rtld_now = no
+-
+-    # DNS server assigned to peer via configuration payload (CP).
+-    # dns1 =
+-
+-    # DNS server assigned to peer via configuration payload (CP).
+-    # dns2 =
+-
+-    # Enable Denial of Service protection using cookies and aggressiveness
+-    # checks.
+-    # dos_protection = yes
+-
+-    # Free objects during authentication (might conflict with plugins).
+-    # flush_auth_cfg = no
+-
+-    # Whether to follow IKEv2 redirects (RFC 5685).
+-    # follow_redirects = yes
+-
+-    # Violate RFC 5998 and use EAP-only authentication even if the peer did not
+-    # send an EAP_ONLY_AUTHENTICATION notify during IKE_AUTH.
+-    # force_eap_only_authentication = no
+-
+-    # Maximum size (complete IP datagram size in bytes) of a sent IKE fragment
+-    # when using proprietary IKEv1 or standardized IKEv2 fragmentation, defaults
+-    # to 1280 (use 0 for address family specific default values, which uses a
+-    # lower value for IPv4).  If specified this limit is used for both IPv4 and
+-    # IPv6.
+-    # fragment_size = 1280
+-
+-    # Name of the group the daemon changes to after startup.
+-    # group =
+-
+-    # Timeout in seconds for connecting IKE_SAs (also see IKE_SA_INIT DROPPING).
+-    # half_open_timeout = 30
+-
+-    # Enable hash and URL support.
+-    # hash_and_url = no
+-
+-    # Allow IKEv1 Aggressive Mode with pre-shared keys as responder.
+-    # i_dont_care_about_security_and_use_aggressive_mode_psk = no
+-
+-    # Whether to ignore the traffic selectors from the kernel's acquire events
+-    # for IKEv2 connections (they are not used for IKEv1).
+-    # ignore_acquire_ts = no
+-
+-    # A space-separated list of routing tables to be excluded from route
+-    # lookups.
+-    # ignore_routing_tables =
+-
+-    # Maximum number of IKE_SAs that can be established at the same time before
+-    # new connection attempts are blocked.
+-    # ikesa_limit = 0
+-
+-    # Number of exclusively locked segments in the hash table.
+-    # ikesa_table_segments = 1
+-
+-    # Size of the IKE_SA hash table.
+-    # ikesa_table_size = 1
+-
+-    # Whether to close IKE_SA if the only CHILD_SA closed due to inactivity.
+-    # inactivity_close_ike = no
+-
+-    # Limit new connections based on the current number of half open IKE_SAs,
+-    # see IKE_SA_INIT DROPPING in strongswan.conf(5).
+-    # init_limit_half_open = 0
+-
+-    # Limit new connections based on the number of queued jobs.
+-    # init_limit_job_load = 0
+-
+-    # Causes charon daemon to ignore IKE initiation requests.
+-    # initiator_only = no
+-
+-    # Install routes into a separate routing table for established IPsec
+-    # tunnels.
+-    # install_routes = yes
+-
+-    # Install virtual IP addresses.
+-    # install_virtual_ip = yes
+-
+-    # The name of the interface on which virtual IP addresses should be
+-    # installed.
+-    # install_virtual_ip_on =
+-
+-    # Check daemon, libstrongswan and plugin integrity at startup.
+-    # integrity_test = no
+-
+-    # A comma-separated list of network interfaces that should be ignored, if
+-    # interfaces_use is specified this option has no effect.
+-    # interfaces_ignore =
+-
+-    # A comma-separated list of network interfaces that should be used by
+-    # charon. All other interfaces are ignored.
+-    # interfaces_use =
+-
+-    # NAT keep alive interval.
+-    # keep_alive = 20s
+-
+-    # Number of seconds the keep alive interval may be exceeded before a DPD is
+-    # sent instead of a NAT keep alive (0 to disable).  This is only useful if a
+-    # clock is used that includes time spent suspended (e.g. CLOCK_BOOTTIME).
+-    # keep_alive_dpd_margin = 0s
+-
+-    # Plugins to load in the IKE daemon charon.
+-    # load =
+-
+-    # Determine plugins to load via each plugin's load option.
+-    # load_modular = no
+-
+-    # Initiate IKEv2 reauthentication with a make-before-break scheme.
+-    # make_before_break = no
+-
+-    # Maximum number of IKEv1 phase 2 exchanges per IKE_SA to keep state about
+-    # and track concurrently.
+-    # max_ikev1_exchanges = 3
+-
+-    # Maximum packet size accepted by charon.
+-    # max_packet = 10000
+-
+-    # Enable multiple authentication exchanges (RFC 4739).
+-    # multiple_authentication = yes
+-
+-    # WINS servers assigned to peer via configuration payload (CP).
+-    # nbns1 =
+-
+-    # WINS servers assigned to peer via configuration payload (CP).
+-    # nbns2 =
+-
+-    # Length of nonces in OCSP requests (1-32).
+-    # ocsp_nonce_len = 32
+-
+-    # UDP port used locally. If set to 0 a random port will be allocated.
+-    # port = 500
+-
+-    # UDP port used locally in case of NAT-T. If set to 0 a random port will be
+-    # allocated.  Has to be different from charon.port, otherwise a random port
+-    # will be allocated.
+-    # port_nat_t = 4500
+-
+-    # Whether to prefer updating SAs to the path with the best route.
+-    # prefer_best_path = no
+-
+-    # Prefer locally configured proposals for IKE/IPsec over supplied ones as
+-    # responder (disabling this can avoid keying retries due to
+-    # INVALID_KE_PAYLOAD notifies).
+-    # prefer_configured_proposals = yes
+-
+-    # Controls whether permanent or temporary IPv6 addresses are used as source,
+-    # or announced as additional addresses if MOBIKE is used.
+-    # prefer_temporary_addrs = no
+-
+-    # Process RTM_NEWROUTE and RTM_DELROUTE events.
+-    # process_route = yes
+-
+-    # How RDNs in subject DNs of certificates are matched against configured
+-    # identities (strict, reordered, or relaxed).
+-    # rdn_matching = strict
+-
+-    # Delay in ms for receiving packets, to simulate larger RTT.
+-    # receive_delay = 0
+-
+-    # Delay request messages.
+-    # receive_delay_request = yes
+-
+-    # Delay response messages.
+-    # receive_delay_response = yes
+-
+-    # Specific IKEv2 message type to delay, 0 for any.
+-    # receive_delay_type = 0
+-
+-    # Reject peers that use trusted end-entity certificates (i.e. local
+-    # certificates).
+-    # reject_trusted_end_entity = no
+-
+-    # Size of the AH/ESP replay window, in packets.
+-    # replay_window = 32
+-
+-    # Value of the first reqid to be automatically assigned to a CHILD_SA.
+-    # reqid_base = 1
+-
+-    # Base to use for calculating exponential back off, see IKEv2 RETRANSMISSION
+-    # in strongswan.conf(5).
+-    # retransmit_base = 1.8
+-
+-    # Maximum jitter in percent to apply randomly to calculated retransmission
+-    # timeout (0 to disable).
+-    # retransmit_jitter = 0
+-
+-    # Upper limit in seconds for calculated retransmission timeout (0 to
+-    # disable).
+-    # retransmit_limit = 0
+-
+-    # Timeout in seconds before sending first retransmit.
+-    # retransmit_timeout = 4.0
+-
+-    # Number of times to retransmit a packet before giving up.
+-    # retransmit_tries = 5
+-
+-    # Interval in seconds to use when retrying to initiate an IKE_SA (e.g. if
+-    # DNS resolution failed), 0 to disable retries.
+-    # retry_initiate_interval = 0s
+-
+-    # Initiate CHILD_SA within existing IKE_SAs (always enabled for IKEv1).
+-    # reuse_ikesa = yes
+-
+-    # Numerical routing table to install routes to.
+-    # routing_table =
+-
+-    # Priority of the routing table.
+-    # routing_table_prio =
+-
+-    # Whether to use RSA with PSS padding instead of PKCS#1 padding by default.
+-    # rsa_pss = no
+-
+-    # Whether to encode an explicit trailerField value of 0x01 in the RSA-PSS
+-    # algorithmIdentifier (CONTEXT3) or using the DEFAULT value by omitting it.
+-    # rsa_pss_trailerfield = no
+-
+-    # Delay in ms for sending packets, to simulate larger RTT.
+-    # send_delay = 0
+-
+-    # Delay request messages.
+-    # send_delay_request = yes
+-
+-    # Delay response messages.
+-    # send_delay_response = yes
+-
+-    # Specific IKEv2 message type to delay, 0 for any.
+-    # send_delay_type = 0
+-
+-    # Send strongSwan vendor ID payload
+-    # send_vendor_id = no
+-
+-    # Whether to enable Signature Authentication as per RFC 7427.
+-    # signature_authentication = yes
+-
+-    # Whether to enable constraints against IKEv2 signature schemes.
+-    # signature_authentication_constraints = yes
+-
+-    # Value mixed into the local IKE SPIs after applying spi_mask.
+-    # spi_label = 0x0000000000000000
+-
+-    # Mask applied to local IKE SPIs before mixing in spi_label (bits set will
+-    # be replaced with spi_label).
+-    # spi_mask = 0x0000000000000000
+-
+-    # The upper limit for SPIs requested from the kernel for IPsec SAs.
+-    # spi_max = 0xcfffffff
+-
+-    # The lower limit for SPIs requested from the kernel for IPsec SAs.
+-    # spi_min = 0xc0000000
+-
+-    # Number of worker threads in charon.
+-    # threads = 16
+-
+-    # Name of the user the daemon changes to after startup.
+-    # user =
+-
+     crypto_test {
+-
+-        # Benchmark crypto algorithms and order them by efficiency.
+-        # bench = no
+-
+-        # Buffer size used for crypto benchmark.
+-        # bench_size = 1024
+-
+-        # Time in ms during which crypto algorithm performance is measured.
+-        # bench_time = 50
+-
+-        # Test crypto algorithms during registration (requires test vectors
+-        # provided by the test-vectors plugin).
+-        # on_add = no
+-
+-        # Test crypto algorithms on each crypto primitive instantiation.
+-        # on_create = no
+-
+-        # Strictly require at least one test vector to enable an algorithm.
+-        # required = no
+-
+-        # Whether to test RNG with TRUE quality; requires a lot of entropy.
+-        # rng_true = no
+-
+     }
+-
+     host_resolver {
+-
+-        # Maximum number of concurrent resolver threads (they are terminated if
+-        # unused).
+-        # max_threads = 3
+-
+-        # Minimum number of resolver threads to keep around.
+-        # min_threads = 0
+-
+     }
+-
+     leak_detective {
+-
+-        # Includes source file names and line numbers in leak detective output.
+-        # detailed = yes
+-
+-        # Threshold in bytes for allocations to be included in usage reports (0
+-        # to include all).
+-        # usage_threshold = 10240
+-
+-        # Threshold in number of allocations for allocations to be included in
+-        # usage reports (0 to include all).
+-        # usage_threshold_count = 0
+-
+     }
+-
+     processor {
+-
+-        # Section to configure the number of reserved threads per priority class
+-        # see JOB PRIORITY MANAGEMENT in strongswan.conf(5).
+         priority_threads {
+-
+         }
+-
+     }
+-
+-    # Section containing a list of scripts (name = path) that are executed when
+-    # the daemon is started.
+     start-scripts {
+-
+     }
+-
+-    # Section containing a list of scripts (name = path) that are executed when
+-    # the daemon is terminated.
+     stop-scripts {
+-
+     }
+-
+     tls {
+-
+-        # List of TLS encryption ciphers.
+-        # cipher =
+-
+-        # List of TLS key exchange groups.
+-        # ke_group =
+-
+-        # List of TLS key exchange methods.
+-        # key_exchange =
+-
+-        # List of TLS MAC algorithms.
+-        # mac =
+-
+-        # Whether to include CAs in a server's CertificateRequest message.
+-        # send_certreq_authorities = yes
+-
+-        # List of TLS signature schemes.
+-        # signature =
+-
+-        # List of TLS cipher suites.
+-        # suites =
+-
+-        # Maximum TLS version to negotiate.
+-        # version_max = 1.2
+-
+-        # Minimum TLS version to negotiate.
+-        # version_min = 1.2
+-
+     }
+-
+     x509 {
+-
+-        # Discard certificates with unsupported or unknown critical extensions.
+-        # enforce_critical = yes
+-
+     }
+-
+ }
+ 
+--- a/conf/options/pki.conf
++++ b/conf/options/pki.conf
+@@ -1,21 +1,5 @@
+ pki {
+-
+-    # Plugins to load in the pki tool.
+-    # load =
+-
+     scep {
+-
+-        # Source IP address to bind for HTTP operations.
+-        # http_bind =
+-
+-        # Timeout for HTTP operations.
+-        # http_timeout = 30s
+-
+-        # Some SCEP servers (e.g. openxpki) are incorrectly doing certificate
+-        # renewal via messageType PKCSReq (19) instead of RenewalReq (17).
+-        # renewal_via_pkcs_req = no
+-
+     }
+-
+ }
+ 
+--- a/conf/plugins/curl.conf
++++ b/conf/plugins/curl.conf
+@@ -1,15 +1,4 @@
+ curl {
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # Maximum number of redirects followed by the plugin, set to 0 to disable
+-    # following redirects, set to -1 for no limit.
+-    # redir = -1
+-
+-    # The SSL/TLS backend to configure in curl if multiple are available.
+-    # tls_backend =
+-
+ }
+ 
+--- a/conf/plugins/eap-peap.conf
++++ b/conf/plugins/eap-peap.conf
+@@ -1,30 +1,4 @@
+ eap-peap {
+-
+-    # Maximum size of an EAP-PEAP packet.
+-    # fragment_size = 1024
+-
+-    # Include length in non-fragmented EAP-PEAP packets.
+-    # include_length = no
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # Maximum number of processed EAP-PEAP packets (0 = no limit).
+-    # max_message_count = 32
+-
+-    # Phase2 EAP client authentication method.
+-    # phase2_method = mschapv2
+-
+-    # Phase2 EAP Identity request piggybacked by server onto TLS Finished
+-    # message, relevant only if TLS 1.2 or earlier is negotiated.
+-    # phase2_piggyback = no
+-
+-    # Start phase2 EAP TNC protocol after successful client authentication.
+-    # phase2_tnc = no
+-
+-    # Request peer authentication based on a client certificate.
+-    # request_peer_auth = no
+-
+ }
+ 
+--- a/conf/plugins/eap-radius.conf
++++ b/conf/plugins/eap-radius.conf
+@@ -1,111 +1,12 @@
+ eap-radius {
+-
+-    # Send RADIUS accounting information to RADIUS servers.
+-    # accounting = no
+-
+-    # Close the IKE_SA if there is a timeout during interim RADIUS accounting
+-    # updates.
+-    # accounting_close_on_timeout = yes
+-
+-    # Interval in seconds for interim RADIUS accounting updates, if not
+-    # specified by the RADIUS server in the Access-Accept message.
+-    # accounting_interval = 0s
+-
+-    # If enabled, accounting is disabled unless an IKE_SA has at least one
+-    # virtual IP. Only for IKEv2, for IKEv1 a virtual IP is strictly necessary.
+-    # accounting_requires_vip = no
+-
+-    # If enabled, adds the Class attributes received in Access-Accept message to
+-    # the RADIUS accounting messages.
+-    # accounting_send_class = no
+-
+-    # Use class attributes in Access-Accept messages as group membership
+-    # information.
+-    # class_group = no
+-
+-    # Closes all IKE_SAs if communication with the RADIUS server times out. If
+-    # it is not set only the current IKE_SA is closed.
+-    # close_all_on_timeout = no
+-
+-    # Send EAP-Start instead of EAP-Identity to start RADIUS conversation.
+-    # eap_start = no
+-
+-    # Use filter_id attribute as group membership information.
+-    # filter_id = no
+-
+-    # Prefix to EAP-Identity, some AAA servers use a IMSI prefix to select the
+-    # EAP method.
+-    # id_prefix =
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # NAS-Identifier to include in RADIUS messages.
+-    # nas_identifier = strongSwan
+-
+-    # Port of RADIUS server (authentication).
+-    # port = 1812
+-
+-    # Base to use for calculating exponential back off.
+-    # retransmit_base = 1.4
+-
+-    # Timeout in seconds before sending first retransmit.
+-    # retransmit_timeout = 2.0
+-
+-    # Number of times to retransmit a packet before giving up.
+-    # retransmit_tries = 4
+-
+-    # Shared secret between RADIUS and NAS. If set, make sure to adjust the
+-    # permissions of the config file accordingly.
+-    # secret =
+-
+-    # IP/Hostname of RADIUS server.
+-    # server =
+-
+-    # Number of sockets (ports) to use, increase for high load.
+-    # sockets = 1
+-
+-    # Whether to include the UDP port in the Called- and Calling-Station-Id
+-    # RADIUS attributes.
+-    # station_id_with_port = yes
+-
+     dae {
+-
+-        # Enables support for the Dynamic Authorization Extension (RFC 5176).
+-        # enable = no
+-
+-        # Address to listen for DAE messages from the RADIUS server.
+-        # listen = 0.0.0.0
+-
+-        # Port to listen for DAE requests.
+-        # port = 3799
+-
+-        # Shared secret used to verify/sign DAE messages. If set, make sure to
+-        # adjust the permissions of the config file accordingly.
+-        # secret =
+-
+     }
+-
+     forward {
+-
+-        # RADIUS attributes to be forwarded from IKEv2 to RADIUS.
+-        # ike_to_radius =
+-
+-        # Same as ike_to_radius but from RADIUS to IKEv2.
+-        # radius_to_ike =
+-
+     }
+-
+-    # Section to specify multiple RADIUS servers.
+     servers {
+-
+     }
+-
+-    # Section to configure multiple XAuth authentication rounds via RADIUS.
+     xauth {
+-
+     }
+-
+ }
+ 
+--- a/conf/plugins/kernel-libipsec.conf
++++ b/conf/plugins/kernel-libipsec.conf
+@@ -1,18 +1,4 @@
+ kernel-libipsec {
+-
+-    # Allow that the remote traffic selector equals the IKE peer.
+-    # allow_peer_ts = no
+-
+-    # Firewall mark to set on outbound raw ESP packets.
+-    # fwmark = charon.plugins.socket-default.fwmark
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # Whether to send and receive ESP packets without UDP encapsulation if
+-    # supported on this platform and no NAT is detected.
+-    # raw_esp = no
+-
+ }
+ 
+--- a/conf/plugins/kernel-netlink.conf
++++ b/conf/plugins/kernel-netlink.conf
+@@ -1,90 +1,10 @@
+ kernel-netlink {
+-
+-    # Buffer size for received Netlink messages.
+-    # buflen = <min(PAGE_SIZE, 8192)>
+-
+-    # Firewall mark to set on the routing rule that directs traffic to our
+-    # routing table.
+-    # fwmark =
+-
+-    # Interface to be used to find hardware offload feature flag on.
+-    # hw_offload_feature_interface = lo
+-
+-    # Whether to ignore errors potentially resulting from a retransmission.
+-    # ignore_retransmit_errors = no
+-
+-    # Whether to install routes for SAs that reference XFRM interfaces.
+-    # install_routes_xfrmi = no
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # MSS to set on installed routes, 0 to disable.
+-    # mss = 0
+-
+-    # MTU to set on installed routes, 0 to disable.
+-    # mtu = 0
+-
+-    # Whether to perform concurrent Netlink ROUTE queries on a single socket.
+-    # parallel_route = no
+-
+-    # Whether to perform concurrent Netlink XFRM queries on a single socket.
+-    # parallel_xfrm = no
+-
+-    # Whether to always use XFRM_MSG_UPDPOLICY to install policies.
+-    # policy_update = no
+-
+-    # Whether to use port or socket based IKE XFRM bypass policies.
+-    # port_bypass = no
+-
+-    # Whether to process changes in routing rules to trigger roam events.
+-    # process_rules = no
+-
+-    # Maximum Netlink socket receive buffer in bytes.
+-    # receive_buffer_size = 8388608
+-
+-    # Number of Netlink message retransmissions to send on timeout.
+-    # retries = 0
+-
+-    # Whether to trigger roam events when interfaces, addresses or routes
+-    # change.
+-    # roam_events = yes
+-
+-    # Whether to set protocol and ports in the selector installed on transport
+-    # mode IPsec SAs in the kernel.
+-    # set_proto_port_transport_sa = no
+-
+-    # Netlink message retransmission timeout, 0 to disable retransmissions.
+-    # timeout = 0
+-
+-    # Lifetime of XFRM acquire state and allocated SPIs in kernel.
+-    # xfrm_acq_expires = 165
+-
+-    # XFRM policy hashing threshold configuration for IPv4 and IPv6.
+     spdh_thresh {
+-
+         ipv4 {
+-
+-            # Local subnet XFRM policy hashing threshold for IPv4.
+-            # lbits = 32
+-
+-            # Remote subnet XFRM policy hashing threshold for IPv4.
+-            # rbits = 32
+-
+         }
+-
+         ipv6 {
+-
+-            # Local subnet XFRM policy hashing threshold for IPv6.
+-            # lbits = 128
+-
+-            # Remote subnet XFRM policy hashing threshold for IPv6.
+-            # rbits = 128
+-
+         }
+-
+     }
+-
+ }
+ 
+--- a/conf/plugins/resolve.conf
++++ b/conf/plugins/resolve.conf
+@@ -1,21 +1,6 @@
+ resolve {
+-
+-    # File where to add DNS server entries if not using resolvconf(8).
+-    # file = /etc/resolv.conf
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+     resolvconf {
+-
+-        # Interface name/protocol sent to resolvconf(8).
+-        # iface = lo.ipsec
+-
+-        # Path/command for resolvconf(8).
+-        # path = /sbin/resolvconf
+-
+     }
+-
+ }
+ 
+--- a/conf/plugins/revocation.conf
++++ b/conf/plugins/revocation.conf
+@@ -1,17 +1,4 @@
+ revocation {
+-
+-    # Whether CRL validation should be enabled.
+-    # enable_crl = yes
+-
+-    # Whether OCSP validation should be enabled.
+-    # enable_ocsp = yes
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # Timeout used when fetching OCSP/CRL.
+-    # timeout = 10s
+-
+ }
+ 
+--- a/conf/plugins/unbound.conf
++++ b/conf/plugins/unbound.conf
+@@ -1,17 +1,4 @@
+ unbound {
+-
+-    # File to read trusted keys for DLV (DNSSEC Lookaside Validation) from.
+-    # dlv_anchors =
+-
+-    # Whether to load the plugin. Can also be an integer to increase the
+-    # priority of this plugin.
+     load = yes
+-
+-    # File to read DNS resolver configuration from.
+-    # resolv_conf = /etc/resolv.conf
+-
+-    # File to read DNSSEC trust anchors from (usually root zone KSK).
+-    # trust_anchors = ${sysconfdir}/ipsec.d/dnssec.keys
+-
+ }
+ 

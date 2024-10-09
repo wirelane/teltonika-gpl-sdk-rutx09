@@ -3,6 +3,16 @@
 / {
 	model = "RUTX08 STM32";
 
+	soc {
+		wifi@a000000 {
+			status = "disabled";
+		};
+
+		wifi@a800000 {
+			status = "disabled";
+		};
+	};
+
 	tlt_gpios { // Modify according to wiki page "DTS syntax with Libgpiod changes"
 		gpiochip_info {
 			hw_0 {

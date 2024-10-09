@@ -1,35 +1,37 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /lib/functions/board.sh
 
 # shellcheck disable=SC2317
 set_pin() {
 	local sim="$1"
-	local modem position num builtin pincode
+	local sim_pos=0
+	local modem position pincode num pin modem_data modem_num mnf_cfg mnf_modem
 
 	config_get modem "$sim" "modem"
-	builtin=$(is_builtin_modem "$modem")
-	[ "$builtin" = "0" ] && return
-
-	local dual_modem="$(is_dual_modem)"
-
 	config_get position "$sim" "position"
-	[ "$dual_modem" = "1" ] && {
-		#If modem builtin and primary then position num 3 or 4 else 1 or 2
-		[ "$builtin" = "2" ] && num="$((position + 2))" || num="$position"
-	} || {
-		#If modem builtin and primary then position num 1 or 2 else 3 or 4
-		[ "$builtin" = "2" ] && num="$position" || num="$((position + 2))"
-	}
-
 	config_get pincode "$sim" "pincode"
-	if [ -z "$pincode" ]; then
-		pin=$(/sbin/mnf_info --simpin "$num")
-		[ -z "$pin" ] || uci_set "simcard" "$sim" "pincode" "$pin"
-	else
-		/sbin/mnf_info -P "$num" -p "$pincode"
-	fi
+
+	modem_data="$(jsonfilter -i "/etc/board.json" -e "@.modems[@.id=\"$modem\"]" 2>/dev/null)"
+	[ -z "$modem_data" ] && return
+
+	modem_num="$(jsonfilter -s "$modem_data" -e '@.num' 2>/dev/null)"
+
+	for num in $(seq 1 4); do
+		mnf_cfg="$(/sbin/mnf_info -C "$num" 2>/dev/null)"
+		[ -z "$mnf_cfg" ] && break
+
+		mnf_modem=${mnf_cfg:1:1}
+		[ $mnf_modem -eq 0 ] && continue # Skip empty
+
+		[ $mnf_modem -eq $modem_num ] && sim_pos=$((sim_pos + 1)) && [ $sim_pos -eq $position ] && {
+			[ -z "$pincode" ] && {
+				pin=$(/sbin/mnf_info -S "$num" 2>/dev/null)
+				[ -n "$pin" ] && uci_set "simcard" "$sim" "pincode" "$pin"
+			} || /sbin/mnf_info -P "$num" -p "$pincode" 2>/dev/null
+			break
+		}
+	done
 }
 
 # shellcheck disable=SC2317

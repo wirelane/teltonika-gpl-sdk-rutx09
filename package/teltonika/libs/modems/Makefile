@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=modems
-PKG_VERSION:=2024-08-29
+PKG_VERSION:=3.8.1
 
 
 
@@ -21,6 +21,7 @@ endef
 
 define Build/Compile
 endef
+
 
 define Package/modems/install
 	$(INSTALL_DIR) $(1)/lib/network/wwan/

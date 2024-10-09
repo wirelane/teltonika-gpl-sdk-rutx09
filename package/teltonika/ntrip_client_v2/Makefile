@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ntrip_client_v2
-PKG_VERSION:=2024-08-01
+PKG_VERSION:=2024-10-01
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=647cae59ee687216180a475d38fdf32ba90a1a25
@@ -20,7 +20,7 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=$(PKG_NAME)
-	DEPENDS:=+libstdcpp +libuci +libubus +libtlt_uci +libtlt_termios +libjson-c +libblobmsg-json +GPS_SUPPORT:libgps
+	DEPENDS:=+libstdcpp +libuci +libubox +libubus +libtlt_uci +libtlt_termios +libjson-c +libblobmsg-json +GPS_SUPPORT:libgps
 endef
 
 define Package/$(PKG_NAME)/description

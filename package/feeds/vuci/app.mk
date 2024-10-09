@@ -48,6 +48,25 @@ ifeq ($(CONFIG_GPL_INCLUDE_WEB_SOURCES), y)
 endif
 endif
 
+define Package/$(PKG_NAME)/post/Default
+#!/bin/sh
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+/usr/bin/lua -e 'require("vuci.menu_generate"):regenerate_menu()'
+exit 0
+endef
+
+ifndef Package/$(PKG_NAME)/postinst
+define Package/$(PKG_NAME)/postinst
+$(call Package/$(PKG_NAME)/post/Default,$(1))
+endef
+endif
+
+ifndef Package/$(PKG_NAME)/postrm
+define Package/$(PKG_NAME)/postrm
+$(call Package/$(PKG_NAME)/post/Default,$(1))
+endef
+endif
+
 ifndef CLOSED_GPL_INSTALL
 define Build/Compile
 	if [[ -d ./files ]]; then $(CP) ./files/ $(PKG_BUILD_DIR)/ ; fi
@@ -127,7 +146,9 @@ define Build/InstallGPL
 		$(MAKE) -C $(TOPDIR) package/vuci-ui-core/gpl-install V=s; \
 	fi; \
 	$(if $(CONFIG_GPL_INCLUDE_WEB_SOURCES), \
-		$(Build/InstallGPL/Default) , \
+		$(Build/InstallGPL/Default); \
+		mkdir -p $(GPL_BUILD_DIR)/package/feeds/vuci/applications; \
+		cd  $(GPL_BUILD_DIR)/package/feeds/vuci/applications && ln -s ../$(PKG_NAME) $(PKG_NAME); , \
 		$(INSTALL_DIR) $(PKG_GPL_BUILD_DIR)/files; \
 		if [[ -d $(PKG_BUILD_DIR)/files ]] && [[ "$$(ls -A $(PKG_BUILD_DIR)/files)" ]]; then \
 			$(CP) $(PKG_BUILD_DIR)/files/* $(PKG_GPL_BUILD_DIR)/files ;\

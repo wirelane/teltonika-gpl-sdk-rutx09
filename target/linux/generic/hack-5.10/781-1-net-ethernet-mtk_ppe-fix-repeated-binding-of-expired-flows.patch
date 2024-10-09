@@ -1,0 +1,21 @@
+Make sure FOE entries have MTK_FOE_STATE_BIND before being added to
+hw FOE table. 
+
+Fixes issue where driver could not restore offloading
+to a flow that had a gap in transmission, causing entry to be removed
+from hw table and state set to MTK_FOE_STATE_UNBIND.
+
+--- a/drivers/net/ethernet/mediatek/mtk_ppe.c
++++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
+@@ -511,8 +511,9 @@ __mtk_foe_entry_commit(struct mtk_ppe *p
+ 
+ 	timestamp = mtk_eth_timestamp(ppe->eth);
+ 	timestamp &= MTK_FOE_IB1_BIND_TIMESTAMP;
+-	entry->ib1 &= ~MTK_FOE_IB1_BIND_TIMESTAMP;
+-	entry->ib1 |= FIELD_PREP(MTK_FOE_IB1_BIND_TIMESTAMP, timestamp);
++	entry->ib1 &= ~(MTK_FOE_IB1_BIND_TIMESTAMP | MTK_FOE_IB1_STATE);
++	entry->ib1 |= FIELD_PREP(MTK_FOE_IB1_BIND_TIMESTAMP, timestamp) |
++		      FIELD_PREP(MTK_FOE_IB1_STATE, MTK_FOE_STATE_BIND);
+ 
+ 	hwe = &ppe->foe_table[hash];
+ 	memcpy(&hwe->data, &entry->data, sizeof(hwe->data));

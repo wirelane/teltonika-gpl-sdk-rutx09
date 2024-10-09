@@ -1,6 +1,6 @@
 --- a/drivers/net/ppp/ppp_generic.c
 +++ b/drivers/net/ppp/ppp_generic.c
-@@ -3435,6 +3435,125 @@ static void *unit_find(struct idr *p, in
+@@ -3450,6 +3450,125 @@ static void *unit_find(struct idr *p, in
  	return idr_find(p, n);
  }
  
@@ -126,7 +126,7 @@
  /* Module/initialization stuff */
  
  module_init(ppp_init);
-@@ -3451,6 +3570,10 @@ EXPORT_SYMBOL(ppp_input_error);
+@@ -3466,6 +3585,10 @@ EXPORT_SYMBOL(ppp_input_error);
  EXPORT_SYMBOL(ppp_output_wakeup);
  EXPORT_SYMBOL(ppp_register_compressor);
  EXPORT_SYMBOL(ppp_unregister_compressor);

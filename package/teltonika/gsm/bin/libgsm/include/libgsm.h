@@ -391,6 +391,13 @@ typedef enum {
 } lgsm_enabled_t;
 
 typedef enum {
+	LGSM_SHUTDOWN_ENABLED,
+	LGSM_SHUTDOWN_GPIO,
+	LGSM_SHUTDOWN_DEFAULT_GPIO,
+	LGSM_SHUTDOWN_MAX,
+} lgsm_enabled_gpio_t;
+
+typedef enum {
 	LGSM_IMSI_RESPONSE,
 	LGSM_IMSI_MAX,
 } lgsm_imsi_t;
@@ -398,6 +405,7 @@ typedef enum {
 typedef enum {
 	LGSM_PORT_STR,
 	LGSM_PORT_DEF_STR,
+	LGSM_PORT_RS_STR,
 	LGSM_PORT_MAX,
 } lgsm_port_t;
 
@@ -873,6 +881,8 @@ typedef enum {
 	LGSM_UBUS_SET_QSIMDET,
 	LGSM_UBUS_GET_CAP_FEATURE_GENERAL_PARAMS,
 	LGSM_UBUS_SET_CAP_FEATURE_GENERAL_PARAMS,
+	LGSM_UBUS_GET_FAST_SHUTDOWN_INFO,
+	LGSM_UBUS_SET_FAST_SHUTDOWN_INFO,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -1018,7 +1028,14 @@ typedef struct {
 typedef struct {
 	char port[32];
 	char def_port[32];
+	char rs_port[32];
 } lgsm_urc_port_t;
+
+typedef struct {
+	uint32_t enabled;
+	int gpio;
+	int def_gpio;
+} lgsm_shutdown_gpio_t;
 
 typedef struct {
 	uint8_t sim_pin1;
@@ -1479,6 +1496,7 @@ typedef enum {
 	LGSM_LABEL_GET_IPV6_NDP_T,
 	LGSM_LABEL_FROUTING_STATE_T,
 	LGSM_LABEL_QSIMDET_STATE_T,
+	LGSM_LABEL_FAST_SHUTDOWN_STATE_T,
 	LGSM_LABEL_ERROR,
 } lgsm_resp_label_t;
 
@@ -1561,6 +1579,7 @@ typedef union {
 	enum disable_nr5g_mode_id disable_5g_mode;
 	enum ipv6_ndp_state_t ipv6_ndp;
 	lgsm_qsimdet_t qsimdet;
+	lgsm_shutdown_gpio_t gpio;
 } lgsm_resp_data;
 
 typedef struct {
@@ -2960,10 +2979,11 @@ lgsm_err_t lgsm_get_nmea(struct ubus_context *ctx, enum nmea_sata_type_id sata_i
 /**
  * Initialize GNSS
  * @param[ptr]  ctx         Ubus ctx.
+ * @param[char] port        Port to be configured for gps.
  * @param[char] resp        Response from modem for the executed AT command.
  * @param[in]   modem_num   Modem identification number.
  */
-lgsm_err_t lgsm_gnss_init(struct ubus_context *ctx, func_t *resp, uint32_t modem_num);
+lgsm_err_t lgsm_gnss_init(struct ubus_context *ctx, char *port, func_t *resp, uint32_t modem_num);
 
 /**
  * Denitialize GNSS
@@ -3148,6 +3168,17 @@ lgsm_err_t lgsm_set_5g_extended_params(struct ubus_context *ctx, bool enabled, f
  * @param[in]   modem_num   Modem identification number.
  */
 lgsm_err_t lgsm_set_5g_cap_feature_general_params(struct ubus_context *ctx, bool enabled, func_t *resp,
+				       uint32_t modem_num);
+
+/**
+ * set fast shutdown info configuration
+ * @param[ptr]  ctx         Ubus ctx.
+ * @param[in]   enabled	    Is fast shutdown enabled.
+ * @param[in]   gpio	    gpio number.
+ * @param[char] resp        Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ */
+lgsm_err_t lgsm_set_fast_shutdown_info(struct ubus_context *ctx, bool enabled, int gpio, func_t *resp,
 				       uint32_t modem_num);
 
 /**
@@ -3815,6 +3846,12 @@ void handle_get_5g_extended_params_rsp(struct blob_attr *info, lgsm_structed_inf
    */
 void handle_get_5g_cap_feature_general_params_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
+/**
+   * Parse fast shutdown method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_fast_shutdown_info_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 /**
    * Parse DPO mode method response
    * @param[ptr]   info      Blob from gsmd.

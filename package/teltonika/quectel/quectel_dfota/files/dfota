@@ -455,7 +455,7 @@ do_update() {
 	json_update_modem_status "$modem_id" "downloading"
 	notify_webui "start" "{\"modem_id\": \"$(get_from_info "$m_id" "usb_id")\"}"
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server
+	[ -z "$MODE" ] && rut_fota --notify_server "$(get_from_info "$m_id" "usb_id")"
 	if [ "$MODE" != "file" ]; then
 		if [ "$MODE" = "link" ]; then
 			download_link="$MODE_PATH"
@@ -589,7 +589,7 @@ do_update_EG915Q() {
 	json_update_modem_status "$modem_id" "downloading"
 	notify_webui "start"
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server
+	[ -z "$MODE" ] && rut_fota --notify_server "$(get_from_info "$modem_id" "usb_id")"
 	if [ "$MODE" != "file" ]; then
 		if [ "$MODE" = "link" ]; then
 			download_link="$MODE_PATH"
@@ -673,17 +673,24 @@ do_update_mobile_only() {
 
 	print_output "Starting download!"
 
+	# If EG12 ifdown all interfaces
+	model=$(get_from_info "$modem_id" "firmware" | head -c 6)
+	if [ "$model" = "EG12EA" ]; then
+		control_mobile_interfaces "$modem_usb_id" "ifdown"
+	fi
+
 	json_update_modem_status "$modem_id" "downloading"
 	notify_webui "start" "{\"modem_id\": \"$modem_usb_id\"}"
 
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server
+	[ -z "$MODE" ] && rut_fota --notify_server "$modem_usb_id"
 
 	ret=$(ubus call "$modem_id" dfota_upgrade "{\"path\":\"$download_link\"}")
 	ret=$(get_value_from_json "$ret" "status")
 	[ "$ret" == "OK" ] && return 0
 
 	print_error "Unable to start firmware update process!" "$EC_UPD_START_FAILED"
+	[ "$model" = "EG12EA" ] && control_mobile_interfaces "$modem_usb_id" "ifup"
 	return 1
 }
 
@@ -928,7 +935,8 @@ update_loop(){
 				state_str=$(get_value_from_json "$ret" "state_str")
 				[ -n "$state_str" ] && legacy_AT_commands=0
 			fi
-			if [ "$modem_model" = "EC200A" ]; then
+			mobile_only_flag=$(ubus call "$m_id" info | grep "mobile_dfota")
+			if [ -n "$mobile_only_flag" ]; then
 				max_wait=250
 				func=do_update_mobile_only
 			elif [ "$modem_model" = "EG915Q" ]; then

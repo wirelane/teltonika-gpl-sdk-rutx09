@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=esim-lpac
 
-PKG_SOURCE_VERSION:=1.1.4
+PKG_SOURCE_VERSION:=1.3
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -34,6 +34,13 @@ define Package/lua_lpac
 	DEPENDS:= +liblpac +libubus +lua
 endef
 
+define Package/rpc_esim
+	SECTION:=libs
+	CATEGORY:=Libraries
+	TITLE:=RPC library for eSIM management
+	DEPENDS:= +esim-lpac +libmnfinfo
+endef
+
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR)/usr/lib $(STAGING_DIR)/usr/include
 	$(CP) $(PKG_BUILD_DIR)/*.so $(STAGING_DIR)/usr/lib/
@@ -52,6 +59,11 @@ define Package/lua_lpac/install
 	$(CP) $(PKG_BUILD_DIR)/lua/lpac.lua $(1)/usr/lib/lua
 endef
 
+define Package/rpc_esim/install
+	$(INSTALL_DIR) $(1)/usr/lib/rpcd
+	$(CP) $(PKG_BUILD_DIR)/rpc/rpc_esim.so $(1)/usr/lib/rpcd
+endef
+
 define Package/esim-lpac/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/etc
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lpac $(1)/sbin/lpac
@@ -60,4 +72,5 @@ endef
 
 $(eval $(call BuildPackage,liblpac))
 $(eval $(call BuildPackage,lua_lpac))
+$(eval $(call BuildPackage,rpc_esim))
 $(eval $(call BuildPackage,esim-lpac))

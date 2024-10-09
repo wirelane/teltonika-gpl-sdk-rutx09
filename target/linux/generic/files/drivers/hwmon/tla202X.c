@@ -179,6 +179,8 @@ static int tla2021_probe(struct i2c_client *client, const struct i2c_device_id *
 
 	dev_info(&client->dev, "Found ADC: TLA2021");
 
+	mutex_init(&data->lock);
+
 	err = sysfs_create_file(&client->dev.kobj, &dev_attr_in0_input.attr);
 	if (err)
 		return err;

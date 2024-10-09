@@ -22,6 +22,7 @@ CUR_BUILD_DIR:=$(HOST_BUILD_DIR)-$(VARIANT)
 PATCH_DIR:=$(PATH_PREFIX)/patches
 
 PKG_LICENSE:=LGPL-2.1-or-later
+PKG_CPE_ID:=cpe:/a:gnu:glibc
 
 include $(INCLUDE_DIR)/toolchain-build.mk
 

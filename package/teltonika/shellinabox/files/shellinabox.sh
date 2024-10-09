@@ -7,7 +7,7 @@ uhttpd_key=$(uci -q get uhttpd.main.key)
 key_type=$(uci get uhttpd.defaults.key_type)
 enable=$(uci -q get cli.status.enable)
 wan_deny=0
-echo "$SERVER_ADDR" | grep -q -E '^192\.168\.|^10\.' || {
+echo "$SERVER_ADDR" | grep -q -E '^192\.168\.|^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^127\.' || {
 	wan_access=$(uci -q get cli.status._cliWanAccess)
 	[ "$wan_access" -eq "1" ] || wan_deny=1
 }

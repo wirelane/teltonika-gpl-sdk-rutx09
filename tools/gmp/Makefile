@@ -14,6 +14,7 @@ PKG_SOURCE_URL:=@GNU/gmp/
 PKG_HASH:=fd4829912cddd12f84181c3451cc752be224643e87fac497b69edddadc49b4f2
 
 PKG_LICENSE:=LGPL-3.0-or-later GPL-2.0-or-later
+PKG_CPE_ID:=cpe:/a:gmplib:gmp
 
 HOST_FIXUP:=autoreconf
 

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ledman
 
-PKG_SOURCE_VERSION:=2.18.1
+PKG_SOURCE_VERSION:=2.19
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -29,6 +29,14 @@ define Package/ledman
 	PROVIDES:=ledman
 	CONFLICTS:=ledman-full
 	VARIANT:=tiny
+endef
+
+define Package/ledman-full/description
+	Daemon for handling and controlling LEDs
+endef
+
+define Package/ledman/description
+	Daemon for handling and controlling LEDs
 endef
 
 ifeq ($(BUILD_VARIANT),full)

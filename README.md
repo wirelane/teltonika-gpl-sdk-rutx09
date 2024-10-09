@@ -3,11 +3,11 @@
 ## Prerequisites
 
 	Make sure you're running a supported Linux distribution.
-	We recommend using Ubuntu 20.04 LTS (http://www.ubuntu.com/download/desktop).
+	We recommend using Ubuntu 22.04 LTS (http://www.ubuntu.com/download/desktop).
 	You might succeed with other distributions.
 
 	It is recommended to use Docker environment to build RUTOS firmware which
-	is accessible from "RUTX_R_GPL_00.07.09.4/scripts/dockerbuild".
+	is accessible from "RUTX_R_GPL_00.07.10/scripts/dockerbuild".
 
 ## Building with Docker environment
 
@@ -15,12 +15,12 @@
 
 	2. Extract the  archive to an empty folder
 
-		$ mkdir RUTX_R_GPL_00.07.09.4
-		$ tar -xzf ~/Downloads/RUTX_R_GPL_00.07.09.4.tar.gz -C RUTX_R_GPL_00.07.09.4
+		$ mkdir RUTX_R_GPL_00.07.10
+		$ tar -xzf ~/Downloads/RUTX_R_GPL_00.07.10.tar.gz -C RUTX_R_GPL_00.07.10
 
 	3. Update feeds
 
-		$ cd RUTX_R_GPL_00.07.09.4
+		$ cd RUTX_R_GPL_00.07.10
 		$ ./scripts/dockerbuild ./scripts/feeds update -a
 
 	4. Build the image
@@ -31,7 +31,7 @@
 
 		$ ./scripts/dockerbuild make pm
 
-		After this you can find packages in "RUTX_R_GPL_00.07.09.4/bin/packages/<arch_name>/zipped_packages".
+		After this you can find packages in "RUTX_R_GPL_00.07.10/bin/packages/<arch_name>/zipped_packages".
 
 	6. Sign the image with local keys (optional):
 
@@ -57,23 +57,24 @@
 		$ sudo apt update
 		$ sudo apt install binutils binutils-gold bison build-essential bzip2    \
 			ca-certificates curl cmake default-jdk device-tree-compiler          \
-			devscripts ecj file flex fuse g++ gawk gcc gengetopt gettext git     \
-			gnupg groff gperf help2man java-wrappers java-propose-classpath      \
-			jq  libc6-dev libffi-dev libncurses5-dev libpcre3-dev libsqlite3-dev \
-			libssl-dev libxml-parser-perl lz4 make ocaml ocaml-findlib ocaml-nox \
-			patch pkg-config python3.9 python3.9-dev python3.9-distutils         \
-			python3-yaml rsync ruby sharutils subversion swig u-boot-tools       \
-			unzip uuid-dev vim-common wget zip zlib1g-dev
+			devscripts ecj file flex fuse g++ gawk gcc gcovr gengetopt gettext   \
+			git gnupg groff gperf help2man java-wrappers java-propose-classpath  \
+			jq libc6-dev libffi-dev libexpat-dev libncurses5-dev libpcre3-dev    \
+			libsqlite3-dev libssl-dev libxml-parser-perl lz4 liblz4-dev          \
+			libzstd-dev make ocaml ocaml-findlib ocaml-nox patch pkg-config      \
+			psmisc python-is-python3 python3.11 python3.11-dev                   \
+			python3-setuptools python3-yaml rsync ruby sharutils subversion swig \
+			u-boot-tools unzip uuid-dev vim-common wget zip zlib1g-dev
 
 
 	3. Extract the  archive to an empty folder
 
-		$ mkdir RUTX_R_GPL_00.07.09.4
-		$ tar -xzf ~/Downloads/RUTX_R_GPL_00.07.09.4.tar.gz -C RUTX_R_GPL_00.07.09.4
+		$ mkdir RUTX_R_GPL_00.07.10
+		$ tar -xzf ~/Downloads/RUTX_R_GPL_00.07.10.tar.gz -C RUTX_R_GPL_00.07.10
 
 	4. Update feeds
 
-		$ cd RUTX_R_GPL_00.07.09.4
+		$ cd RUTX_R_GPL_00.07.10
 		$ ./scripts/feeds update -a
 
 	5. Build the image
@@ -84,7 +85,7 @@
 
 		$ make pm
 
-		After this you can find packages in "RUTX_R_GPL_00.07.09.4/bin/packages/<arch_name>/zipped_packages".
+		After this you can find packages in "RUTX_R_GPL_00.07.10/bin/packages/<arch_name>/zipped_packages".
 
 	7. Sign the image with local keys (optional):
 
@@ -96,7 +97,7 @@
 ## Installation
 
 	After successful build you will get the firmware file in
-		"RUTX_R_GPL_00.07.09.4/bin/targets/ipq40xx/generic/tltFws".
+		"RUTX_R_GPL_00.07.10/bin/targets/ipq40xx/generic/tltFws".
 
 	Update the new firmware via the web interface on your device.
 
@@ -122,7 +123,7 @@
 
 ## WebUI rebranding
 
-	All changes should be done in "RUTX_R_GPL_00.07.09.4/package/feeds/vuci/vuci-ui-core/bin/dist" folder.
+	All changes should be done in "RUTX_R_GPL_00.07.10/package/feeds/vuci/vuci-ui-core/bin/dist" folder.
 
 	WebUI Colors can be changed in "brand/brand.css" file.
 	Company information can be changed in "brand/brand.json" file.
@@ -145,7 +146,7 @@
 
 	2. Use figlet tool to generate needed text:
 
-		$ figlet YOUR_TEXT > "RUTX_R_GPL_00.07.09.4/package/base-files/files/etc/banner.logo"
+		$ figlet YOUR_TEXT > "RUTX_R_GPL_00.07.10/package/base-files/files/etc/banner.logo"
 
 ## Firmware Version Change
 
@@ -165,5 +166,5 @@
 
 ## Default Password Change
 
-	To change the default device password changes need to be made inside "RUTX_R_GPL_00.07.09.4/package/base-files/files/lib/preinit/84_set_password" file.
+	To change the default device password changes need to be made inside "RUTX_R_GPL_00.07.10/package/base-files/files/lib/preinit/84_set_password" file.
 	Change "admin01" to your password on line [ -z "$passwd" ] && passwd="$(mkpasswd admin01)"

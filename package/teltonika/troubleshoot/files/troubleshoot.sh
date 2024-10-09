@@ -183,6 +183,7 @@ switch_hook() {
 wifi_hook() {
 	local wifi __tmp devname
 	local log_file="${PACK_DIR}wifi.log"
+	local mt76_debug_path="/sys/kernel/debug/ieee80211/phy0/mt76/reset"
 
 	wifi="$(jsonfilter -i /etc/board.json -e '@.hwinfo.wifi')"
 	[ "$wifi" = "true" ] && [ -n "$(which iw)" ] || return
@@ -199,6 +200,10 @@ wifi_hook() {
 		troubleshoot_add_log "$(iwinfo "$devname" assoclist 2>/dev/null)" "$log_file"
 	done
 
+	[ -e "$mt76_debug_path" ] && {
+		troubleshoot_init_log "MT76 reset statistics" "$log_file"
+		troubleshoot_add_file_log "$mt76_debug_path" "$log_file"
+	}
 }
 
 systemlog_hook() {
@@ -342,12 +347,12 @@ generate_package() {
 		tar -czf "${PACK_FILE}.gz" troubleshoot >/dev/null 2>&1
 	else
 		tar -cf "$PACK_FILE" troubleshoot >/dev/null 2>&1
-		which 7zr >/dev/null || {
-			echo "Could not create troubleshoot.tar.7z - 7zip package is not installed";
+		which minizip >/dev/null || {
+			echo "Could not create troubleshoot.tar.zip - minizip package is not installed";
 			rm -f "$PACK_FILE"
 			exit 1
 		}
-		7zr a -p"$1" -mhe=on "${PACK_FILE}.7z" "$PACK_FILE" >/dev/null 2>&1
+		minizip -s -p "$1" "${PACK_FILE}.zip" "$PACK_FILE" >/dev/null 2>&1
 	fi
 
 	rm -r "$PACK_DIR"
@@ -361,7 +366,7 @@ init() {
 	if [ -z  "$1" ]; then
 		rm "${PACK_FILE}.gz" >/dev/null 2>&1
 	else
-		rm "${PACK_FILE}.7z" >/dev/null 2>&1	
+		rm "${PACK_FILE}.zip" >/dev/null 2>&1	
 	fi
 
 	mkdir "$PACK_DIR"

@@ -4,6 +4,18 @@
 . /usr/share/libubox/jshn.sh
 . /lib/functions/mobile.sh
 
+ucidef_add_dot1x_server_capabilities() {
+	local guest_vlan="$1"
+	local fallback_vlan="$2"
+	local isolation_method="$3"
+	json_add_object "port_security"
+	json_add_boolean guest_vlan $guest_vlan
+	json_add_boolean fallback_vlan "$fallback_vlan"
+	json_add_string isolation_method "$isolation_method"
+	json_close_object
+
+}
+
 ucidef_add_static_modem_info() {
 	#Parameters: model usb_id sim_count other_params
 	local model usb_id count

@@ -4,7 +4,7 @@
     "index": 110
   },
   "network/dhcp_servers/general": {
-    "title": "Server settings",
+    "title": "Server Settings",
     "index": 10
   },
   "network/dhcp_servers/general/ipv4": {

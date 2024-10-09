@@ -119,6 +119,7 @@ n	[A-Za-z0-9_-]
 "range"			return T_RANGE;
 "reset"			return T_RESET;
 "maintainer"		return T_MAINTAINER;
+"label"		return T_LABEL;
 "select"		return T_SELECT;
 "source"		return T_SOURCE;
 "string"		return T_STRING;

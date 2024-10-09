@@ -40,34 +40,21 @@ local test_action = Example:action("test", Example.TestAction)
 function Example:UPLOAD_init()
 	local location = "/tmp/%s"
 
-	local function set_filename(name)
-		local file_path = string.format(location, name)
-		return file_path
+	local function handle_request(upload_request)
+		if #upload_request.files > 1 then
+			return false, { code = 5, error = "Only uploading a single file is allowed", source = "filename" }
+		end
+
+		local file = upload_request.files[1]
+		file.location = string.format(location, file.filename)
+		return true
 	end
 
-	-- Callbacks:
-	--     on_boundry_complete
-	--     on_value_complete
-	--     on_content_type_complete
-	--     on_content_disposition_complete
-	--     on_filename_complete
-	--     set_filename
-	--     get_old_location
-	--     set_file_size
-
-	local callbacks = {
-		set_filename = set_filename
-	}
-
-	-- Return:
-	--      File save location
-	--      Table for UPLOAD_after_upload_hook
-	--      Callbacks
-	--      Maximum file size
-	return nil, nil, callbacks
+	return { handle_request = handle_request }
 end
 
-function Example:UPLOAD_after_upload_hook(path, table)
+function Example:UPLOAD_after_upload_hook(upload_request)
+	local path = upload_request.files[1].location
 	-- Do something after upload, must return file path
 	return { path = path }
 end

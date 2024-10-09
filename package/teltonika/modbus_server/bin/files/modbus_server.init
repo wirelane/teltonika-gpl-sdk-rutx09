@@ -25,15 +25,17 @@ rename_custom_regfile() {
 }
 
 set_tcp_service() {
+	local SECTION=$1
 	ENABLED=$(uci -q get modbus_server.modbus.enabled)
 	REGFILE_ON=$(uci -q get modbus_server.modbus.clientregs)
 
 	rename_custom_regfile "$REGFILE_ON"
 
 	if [ "$ENABLED" == "1" ]; then
-		procd_open_instance
-		procd_set_param command $BIN -s "modbus"
-		procd_set_param file /etc/config/modbus_server
+		procd_open_instance "$SECTION"
+		section_hash=$(uci show "$CONFIG"."$SECTION" | md5sum | head -c 32)
+		procd_set_param data hash=$section_hash
+		procd_set_param command $BIN -s "modbus" -H $section_hash
 		procd_set_param respawn
 		procd_close_instance
 	fi
@@ -48,9 +50,10 @@ set_serial_service() {
 		REGFILE_ON=$(uci -q get modbus_server.$SECTION.clientregs)
 		rename_custom_regfile "$REGFILE_ON"
 
-		procd_open_instance
-		procd_set_param file /etc/config/$CONFIG
-		procd_set_param command "$BIN" -s "$SECTION"
+		procd_open_instance "$SECTION"
+		section_hash=$(uci show "$CONFIG"."$SECTION" | md5sum | head -c 32)
+		procd_set_param data hash=$section_hash
+		procd_set_param command "$BIN" -s "$SECTION" -H $section_hash
 		procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-60} ${respawn_retry:-0}
 		procd_close_instance
 	fi
@@ -59,7 +62,7 @@ set_serial_service() {
 start_service() {
 	config_load "$CONFIG"
 
-	set_tcp_service
+	set_tcp_service modbus
 
 	config_foreach set_serial_service rtu_device
 }
