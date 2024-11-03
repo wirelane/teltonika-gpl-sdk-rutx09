@@ -9,11 +9,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2024-09-30
+PKG_VERSION:=2024-10-15
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_VERSION:=1.4
 PKG_SOURCE_URL:=https://codeload.github.com/coova/coova-chilli/tar.gz/refs/tags/$(PKG_SOURCE_VERSION)?

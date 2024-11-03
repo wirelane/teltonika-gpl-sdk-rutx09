@@ -81,8 +81,9 @@ endef
 
 define Package/mwan3/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/etc/config/mwan3 \
-		$(1)/etc/config/
+	$(if $(wildcard $(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)), \
+		$(INSTALL_CONF) "$(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)" $(1)/etc/config/mwan3, \
+		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/etc/config/mwan3 $(1)/etc/config/mwan3)
 
 	$(INSTALL_DIR) $(1)/usr/share/mwan3
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/usr/share/15-mwan3 \

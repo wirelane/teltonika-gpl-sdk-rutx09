@@ -1,3 +1,37 @@
+# 2024-10-25 00.07.10.2
+
+### New
+
+* Mobile: added "213x.sentinel01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "213x.sentinelent01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "iot.kajeet" APN for "T-Mobile" operator to APN database (ID: 21109)
+* Mobile: added "iot.tmowholesale.static" APN for "T-Mobile" operator to APN database (ID: 21109)
+* Mobile: added "iot.tmowholesale" APN for "T-Mobile" operator to APN database (ID: 21109)
+* Mobile: added "kajeet.crs.bell.ca.ioe" APN for "Bell Mobility" operator to APN database (ID: 21109)
+* Mobile: added "kajeet.fw5g.vzwentp" APN for "Verizon" operator to APN database (ID: 21109)
+* Mobile: added "kajeet.gw12.vzwentp" APN for "Verizon" operator to APN database (ID: 21109)
+* Mobile: added "sentinel-static.mcs" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.apn" APN for "Rogers" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.crs.bell.ca.ioe" APN for "Bell Mobility" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.lpwa.vf" APN for "LPWA" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.vf" APN for "Vodafone" operator to APN database (ID: 21109)
+* Mobile: added "sentinel01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "sentinelent01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "sentinelnb01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "uscc05016.enterprise3.usc-cdp" APN for "US Cellular" operator to APN database (ID: 21109)
+* Mobile: added "uscc07009.enterprise3.usc-cdp" APN for "US Cellular" operator to APN database (ID: 21109)
+* Mobile: added "V5GA01INTERNET" APN for "Verizon" operator to APN database (ID: 21109)
+
+### Improvements
+
+* Mobile: improved carrier aggregation signal value parsing (ID: 17700)
+
+### Fix
+
+* Firewall: fixed bug in NAT rule migration script that would overwrite Port Forwarding rule options (ID: 21382)
+* Mobile: fixed eSIM profile loading from servers with unusual response (ID: 20807)
+* Network: fixed unnecessary RX packet drop in Ethernet driver for RUTX family (ID: 21420)
+
 # 2024-10-08 00.07.10
 
 ### New

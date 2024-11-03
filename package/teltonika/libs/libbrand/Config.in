@@ -17,6 +17,7 @@ config TLT_VERSIONING_PREFIX
 	default TCR1 if TARGET_ath79_24kc_DEVICE_teltonika_tcr1xx
 	default RUT9M if TARGET_ramips_mt76x8_DEVICE_teltonika_rut9m
 	default RUT14X if TARGET_ramips_mt76x8_DEVICE_teltonika_rut14x
+	default DAP14X if TARGET_ramips_mt76x8_DEVICE_teltonika_dap14x
 	default RUT30X if TARGET_ath79_24kc_DEVICE_teltonika_rut30x
 	default RUT301 if TARGET_ramips_mt76x8_DEVICE_teltonika_rut301
 	default RUT36X if TARGET_ath79_24kc_DEVICE_teltonika_rut36x

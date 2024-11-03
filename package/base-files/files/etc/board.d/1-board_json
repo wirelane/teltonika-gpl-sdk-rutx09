@@ -201,6 +201,27 @@ setup_json() {
 		ucidef_set_network_options "vlans" 16 "max_mtu" 1500 "readonly_vlans" 2 "vlan0" true
 		ucidef_add_dot1x_server_capabilities false false "vlan"
 		;;
+	DAP14*)
+		ucidef_add_switch "switch0" "1:lan:1" "0:lan:2" "6@eth0"
+		ucidef_add_wlan_bssid_limit "wlan0" 4
+		ucidef_set_interface_default_macaddr "lan" "$(mtd_get_mac_binary config 0x0)"
+		ucidef_set_interface "lan" "default_ip" "%%LAN_IP%%"
+		ucidef_set_interface "dhcp" "device" "br-lan" "proto" "dhcp"
+		ucidef_set_hwinfo wifi nat_offloading ethernet port_link industrial-access-point
+		if [ "${model:5:1}" = "2" ]; then
+			ucidef_set_hwinfo rs232
+			ucidef_add_serial_capabilities "rs232" \
+				"300 600 1200 2400 4800 9600 19200 38400 57600 115200" \
+				"5 6 7 8" \
+				"rts/cts xon/xoff none" \
+				"1 2" \
+				"even odd mark space none" \
+				"none" \
+				"/usb1/1-1/1-1:1.0/"
+		fi
+		ucidef_set_network_options "vlans" 16 "max_mtu" 1500 "readonly_vlans" 1 "vlan0" true
+		ucidef_add_dot1x_server_capabilities false false "vlan"
+		;;
 	RUT361* |\
 	RUT200* |\
 	RUT241* |\

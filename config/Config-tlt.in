@@ -1578,7 +1578,7 @@ config CORE_UI_PACKAGES
 	imply PACKAGE_vuci-app-setup-wizard-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-side-widget-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-services-status-ui if !AP_DEVICE
-	imply PACKAGE_vuci-advanced-mode if !AP_DEVICE
+	imply PACKAGE_vuci-advanced-mode if !AP_DEVICE && !INDUSTRIAL_AP
 	imply PACKAGE_vuci-app-uscripts-ui if !AP_DEVICE
 	imply BUSYBOX_CONFIG_PASSWD
 	imply BUSYBOX_CONFIG_CHPASSWD

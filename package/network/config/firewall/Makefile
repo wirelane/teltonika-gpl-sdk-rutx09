@@ -101,6 +101,9 @@ ifeq ($(TLT_PLATFORM_TCR1), y)
 	FIREWALL_CONFIG=firewall.config-tcr100
 endif
 
+ifeq ($(TLT_PLATFORM_DAP14X), y)
+	FIREWALL_CONFIG=firewall.config-dap14x
+endif
 define Package/firewall/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/firewall3 $(1)/sbin/fw3

@@ -62,5 +62,9 @@
   {
     "name": "TRB2M",
     "devices": ["TRB256", "TRB246"]
+  },
+  {
+    "name": "DAP",
+    "devices": ["DAP140", "DAP142"]
   }
 ]

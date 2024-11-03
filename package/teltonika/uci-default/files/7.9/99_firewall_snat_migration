@@ -8,11 +8,16 @@ INDEX=1
 config_cb() {
 	local type="$1"
 	local name="$2"
-
-	[ "$type" != "redirect" ] && return
-
 	local target=$(uci_get firewall "$name" target "")
-	[ "$target" != "SNAT" ] && return
+	[ "$type" != "redirect" ] || [ "$target" != "SNAT" ]  && {
+		option_cb() {
+			return 0
+		}
+		list_cb() {
+			return 0
+		}
+		return
+	}
 
 	[ "${name:0:3}" = "cfg" ] && {
 		while uci_get "firewall" "$INDEX" >/dev/null

@@ -94,7 +94,8 @@ sub target_config_features(@) {
 		/^portlink$/ and $ret .= "\tselect PORT_LINK\n";
 		/^rs232$/ and $ret .= "\tselect HAS_RS232\n";
 		/^rs485$/ and $ret .= "\tselect HAS_RS485\n";
-		/^hi-storage$/ and $ret .= "\tselect HIGH_STORAGE\n"
+		/^hi-storage$/ and $ret .= "\tselect HIGH_STORAGE\n";
+		/^industrial-access-point$/ and $ret .= "\tselect INDUSTRIAL_AP\n"
 	}
 	return $ret;
 }

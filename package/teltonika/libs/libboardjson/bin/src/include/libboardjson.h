@@ -106,11 +106,25 @@ struct lbjson_modem {
 };
 
 
+struct lbjson_network_port {
+	char *name;
+	char *type;
+	char *num;
+	char *position;
+	char *block;
+};
+
 // struct that represents a network description in /etc/board.json
 struct lbjson_network {
 	char *name;
+	char *device;
 	char *ifname; // linux iface id
+	char *macaddr;
 	char *proto; // could be turned into an enum
+	char *protocol;
+	char *default_ip;
+	int port_count;
+	struct lbjson_network_port ports[64];
 };
 
 // represents 'hwinfo' section in /etc/board.json
@@ -150,6 +164,7 @@ struct lbjson_hwinfo {
 	bool esim             : 1;
 	bool custom_usbcfg    : 1;
 	bool mbus	      : 1;
+	bool urc_control      : 1;
 };
 
 ///////////////////////////////////////////////
@@ -223,6 +238,7 @@ struct lbjson_board {
 
 	// hardware info
 	struct lbjson_hwinfo hw;
+	struct blob_attr *hw_blob;
 
 	// serial info
 	int device_count;
@@ -267,6 +283,11 @@ lbjson_status lbjson_get_modem_by_id(const char *id, struct lbjson_modem *output
 // returns BJSON_SUCCESS on successful retreival
 // returns a variant of BJSON_ERR upon failure.
 lbjson_status lbjson_get_modem_by_num(int num, struct lbjson_modem *output);
+
+// Check if a specific flag in `hwinfo` is set.
+// returns BJSON_SUCCESS if hwinfo flag was found
+// returns a variant of BJSON_ERR upon failure.
+lbjson_status lbjson_get_hwinfo(const char *name);
 
 /**
  * @brief converts modem type to string

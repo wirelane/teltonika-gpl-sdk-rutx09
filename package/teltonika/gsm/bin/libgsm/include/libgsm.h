@@ -3874,7 +3874,7 @@ void handle_get_rat_priority_rsp(struct blob_attr *info, lgsm_structed_info_t *p
 void handle_get_disable_5g_mode_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
-   * Parse GEA algorythm method response
+   * Parse GEA algorithm method response
    * @param[ptr]   info      Blob from gsmd.
    * @param[ptr]   parsed    Parsed union readable information.
    */

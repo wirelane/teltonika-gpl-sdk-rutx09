@@ -60,7 +60,7 @@ $(curdir)/merge:
 	-$(foreach pdir,$(PACKAGE_SUBDIRS),$(if $(wildcard $(pdir)/*.ipk),ln -s $(pdir)/*.ipk $(PACKAGE_DIR_ALL);))
 
 $(curdir)/merge-index: $(curdir)/merge
-	(cd $(PACKAGE_DIR_ALL) && $(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages; ) $(stdout_to_logs)
+	(cd $(PACKAGE_DIR_ALL) && $(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages && echo "$(PACKAGE_DIR_ALL)/Packages" >>"$(TMP_DIR)/unsigned_pkgs"; ) $(stdout_to_logs)
 
 ifndef SDK
   $(curdir)/compile: $(if $(INSIDE_DOCKER),,$(curdir)/system/opkg/host/compile)
@@ -91,6 +91,7 @@ $(curdir)/index: FORCE
 		cd $$d || continue; \
 		$(SCRIPT_DIR)/ipkg-make-index.sh . 2>&1 > Packages.manifest; \
 		grep -vE '^(Maintainer|LicenseFiles|Source|SourceName|Require|SourceDateEpoch)' Packages.manifest > Packages; \
+		echo "$$d/Packages" >>"$(TMP_DIR)/unsigned_pkgs"; \
 		case "$$(((64 + $$(stat -L -c%s Packages)) % 128))" in 110|111) \
 			$(call ERROR_MESSAGE,WARNING: Applying padding in $$d/Packages to workaround usign SHA-512 bug!); \
 			{ echo ""; echo ""; } >> Packages;; \

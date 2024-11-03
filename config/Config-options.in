@@ -11,7 +11,7 @@ config GENERATE_PROMPT_HEADER
 config DEVICE_DEFAULT_IP
 	string "Default IP address"
 	default "192.168.2.1" if BASEBAND_SUPPORT
-	default "192.168.1.3" if AP_DEVICE
+	default "192.168.1.3" if AP_DEVICE || INDUSTRIAL_AP
 	default "192.168.33.1" if x86_64
 	default "192.168.1.1"
 

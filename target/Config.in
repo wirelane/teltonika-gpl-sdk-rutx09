@@ -211,6 +211,9 @@ config HAS_RS485
 config HIGH_STORAGE
 	bool
 
+config INDUSTRIAL_AP
+	bool
+
 # Architecture selection
 
 config aarch64

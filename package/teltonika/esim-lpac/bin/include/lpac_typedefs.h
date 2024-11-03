@@ -25,7 +25,12 @@ typedef enum  {
 	eNoData = 8,
 	eNoMem = 9,
 	eSimBusy = 10,
-	eConErr = 11
+	eConErr = 11,
+	eNoEMem = 12,
+	eAuth = 13,
+	eModem = 14,
+	eNoSim = 15,
+	eDesc = 16
 } ErrCode;
 
 typedef struct {

@@ -545,7 +545,7 @@ get_simcount_by_modem_num() {
 	local modem_num="$1"
 	local simcount=0
 
-	for sim in $(seq 3); do
+	for sim in $(seq 4); do
 		sim_cfg="$(mnf_info -C $sim 2> /dev/null)"
 		# Find the amount of matches to the modem_num
 		if [ -n "$sim_cfg" ] && [ "${sim_cfg:1:1}" = "$modem_num" ]; then
