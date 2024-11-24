@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ip_blockd
-PKG_VERSION:=2024-09-30
+PKG_VERSION:=2024-11-05
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.12
+PKG_SOURCE_VERSION:=1.13
 
 PKG_FIXUP:=autoreconf
 
@@ -46,11 +46,14 @@ define Package/ip_blockd/install
 	$(INSTALL_DIR)  $(1)/usr/bin/
 	$(INSTALL_DIR)  $(1)/usr/sbin/
 	$(INSTALL_DIR)  $(1)/etc/init.d/
-	$(INSTALL_DIR)  $(1)/usr/share/ip_block/
+	$(INSTALL_DIR)  $(1)/usr/local/share/ip_block/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/insertIpTables.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ip_blockd.init $(1)/etc/init.d/ip_blockd
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/ip_blockd.conf $(1)/etc/config/ip_blockd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip_blockd $(1)/usr/bin/
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/migrations/7.11/99_ip_blockd_fix $(1)/etc/uci-defaults/7.11/99_ip_blockd_fix
 endef
 
 $(eval $(call BuildPackage,ip_blockd))

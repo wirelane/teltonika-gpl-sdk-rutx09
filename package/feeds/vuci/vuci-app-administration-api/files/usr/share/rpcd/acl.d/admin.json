@@ -6,14 +6,16 @@
         "/system/config/*": ["*"],
         "/system/led/config/*": ["*"],
         "/system/buttons/config/*": ["*"],
-        "/system/languages/options/*": ["*"]
+        "/system/languages/options/*": ["*"],
+        "/system/banner/config/*": ["*"]
       }
     },
     "write": {
       "api": [
         "/system/config/*",
         "/system/led/config/*",
-        "/system/buttons/config/*"
+        "/system/buttons/config/*",
+        "/system/banner/config/*"
       ]
     }
   },

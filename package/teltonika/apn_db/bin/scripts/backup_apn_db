@@ -1,8 +1,8 @@
 #!/usr/bin/lua
 local CFG = {
     APN_DB = "/tmp/apn.db",
-    APN_DB_COMPRESSED = "/usr/share/mobifd/apn.db.gz",
-    BACKUP_FILE = "/usr/share/mobifd/apn_backup.json"
+    APN_DB_COMPRESSED = "/usr/local/share/mobifd/apn.db.gz",
+    BACKUP_FILE = "/usr/local/share/mobifd/apn_backup.json"
 }
 
 local json = require("luci.jsonc")

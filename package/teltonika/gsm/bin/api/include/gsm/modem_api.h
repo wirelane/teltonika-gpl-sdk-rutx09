@@ -69,6 +69,8 @@ typedef enum {
 
 	EVT_BAND_CHANGE, /*!< Band change event */
 
+	EVT_GNSS_STATE_CHANGE, /*!< GPS change event */
+
 	__EVT_MAX,
 } evt_type_t;
 
@@ -1129,6 +1131,17 @@ enum urc_lte_sms_format {
 	URC_LTE_FORMAT, /* <! LTE FORMAT */
 
 	__URC_LTESMS_FORMAT_MAX,
+};
+
+/**
+ * Enumeration of GNSS state
+ */
+enum gnss_state_t {
+	GNSS_STATE_UNKNOWN, /* <! GPS unknown */
+	GNSS_STATE_INACTIVE, /* <! GPS disabled */
+	GNSS_STATE_ACTIVE, /* <! GPS enabled */
+
+	__GNSS_STATE_MAX,
 };
 
 /**

@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=data-sender
 
-PKG_SOURCE_VERSION:=1.8
+PKG_SOURCE_VERSION:=1.10
 
 PKG_FIXUP:=autoreconf
 
@@ -59,6 +59,12 @@ define Package/data-sender-mod-opcua
   $(call Package/data-sender/Default)
   DEPENDS:=data-sender +libsqlite3
   TITLE:=Input plugin for OPC UA data gathering
+endef
+
+define Package/data-sender-mod-impulse_counter
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender +libsqlite3
+  TITLE:=Input plugin for impulse counter data gathering
 endef
 
 define Package/data-sender-mod-mbus
@@ -118,19 +124,25 @@ endef
 define Package/data-sender-mod-format-custom
   $(call Package/data-sender/Default)
   DEPENDS:=data-sender +libblobmsg-json
-  TITLE:=Filter plugin for data concatenation
+  TITLE:=Format plugin for data concatenation
+endef
+
+define Package/data-sender-mod-format-csv
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender
+  TITLE:=Format plugin for CSV formating
+endef
+
+define Package/data-sender-mod-format-none
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender
+  TITLE:=Format plugin for plain serialization
 endef
 
 define Package/data-sender-mod-http
   $(call Package/data-sender/Default)
   DEPENDS:=data-sender +libcurl
   TITLE:=Output plugin for sending data over http
-endef
-
-define Package/data-sender-mod-kinesis
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libcurl +libopenssl +libblobmsg-json
-  TITLE:=Output plugin for sending data over kinesis
 endef
 
 define Package/data-sender-mod-mqtt-out
@@ -230,6 +242,31 @@ define Package/data-sender-mod-mqtt-in
   TITLE:=Input plugin for subscribing MQTT data
 endef
 
+define Package/data-sender-mod-lua_filter
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender +liblua
+  TITLE:=Filter plugin for LUA scripts
+endef
+
+define Package/data-sender-mod-cmp
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender
+  TITLE:=Filter plugin for data comparison
+endef
+
+define Package/data-sender-mod-stdin
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender
+  TITLE:=Input plugin for reading data from stdin
+endef
+
+define Package/data-sender-mod-stdout
+  $(call Package/data-sender/Default)
+  DEPENDS:=data-sender
+  TITLE:=Output plugin for writing data to stdout
+endef
+
+
 CONFIGURE_ARGS += \
 		--with-max_instances=$(CONFIG_PACKAGE_DATA_SENDER_COLLECTIONS) \
 		--with-max_inputs=$(CONFIG_PACKAGE_DATA_SENDER_INPUTS) \
@@ -248,6 +285,7 @@ CONFIGURE_ARGS += \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-mbus),--enable-mbus) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-dnp3),--enable-dnp3) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-opcua),--enable-opcua) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-impulse_counter),--enable-impulse_counter) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-bluetooth),--enable-bluetooth) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-wifiscan),--enable-wifiscan) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-nflog),--enable-nflog) \
@@ -255,13 +293,18 @@ CONFIGURE_ARGS += \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-lua-in),--enable-lua) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-lua_out),--enable-lua_out) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-lua_format),--enable-lua_format) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-format-csv),--enable-csv) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-format-none),--enable-none) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-telegram),--enable-telegram) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-ftp),--enable-ftp) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-file),--enable-file) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-dlms),--enable-dlms) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-mqtt-out),--enable-mqtt_out) \
 		$(if $(CONFIG_PACKAGE_data-sender-mod-mqtt-in),--enable-mqtt_in) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-kinesis),--enable-kinesis) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-lua_filter),--enable-lua_filter) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-cmp),--enable-cmp_filter) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-stdin),--enable-stdin) \
+		$(if $(CONFIG_PACKAGE_data-sender-mod-stdout),--enable-stdout)
 
 
 define Package/data-sender/install
@@ -295,6 +338,7 @@ $(eval $(call BuildPlugin,modbus,input_modbus))
 $(eval $(call BuildPlugin,modbus-alarm,input_modbus_alarm))
 $(eval $(call BuildPlugin,dnp3,input_dnp3))
 $(eval $(call BuildPlugin,opcua,input_opcua))
+$(eval $(call BuildPlugin,impulse_counter,input_impulse_counter))
 $(eval $(call BuildPlugin,mbus,input_mbus))
 $(eval $(call BuildPlugin,wifiscan,input_wifiscan))
 $(eval $(call BuildPlugin,mnfinfo,input_mnfinfo))
@@ -305,8 +349,9 @@ $(eval $(call BuildPlugin,gps,input_gps))
 $(eval $(call BuildPlugin,chilli,input_chilli))
 $(eval $(call BuildPlugin,io,input_io))
 $(eval $(call BuildPlugin,format-custom,format_custom))
+$(eval $(call BuildPlugin,format-csv,format_csv))
+$(eval $(call BuildPlugin,format-none,format_none))
 $(eval $(call BuildPlugin,http,output_http))
-$(eval $(call BuildPlugin,kinesis,output_kinesis))
 $(eval $(call BuildPlugin,mqtt-out,output_mqtt))
 $(eval $(call BuildPlugin,socket,output_socket))
 $(eval $(call BuildPlugin,sms,output_sms))
@@ -316,10 +361,14 @@ $(eval $(call BuildPlugin,eventlog,input_eventlog))
 $(eval $(call BuildPlugin,base,input_base))
 $(eval $(call BuildPlugin,lua-in,input_lua,input/lua))
 $(eval $(call BuildPlugin,lua_out,output_lua))
-$(eval $(call BuildPlugin,lua_format,format_lua))
+$(eval $(call BuildPlugin,lua_format,format_lua,format/lua))
 $(eval $(call BuildPlugin,telegram,output_telegram))
 $(eval $(call BuildPlugin,ftp,output_ftp))
 $(eval $(call BuildPlugin,ubus,output_ubus))
 $(eval $(call BuildPlugin,file,output_file))
 $(eval $(call BuildPlugin,dlms,input_dlms))
 $(eval $(call BuildPlugin,mqtt-in,input_mqtt))
+$(eval $(call BuildPlugin,lua_filter,filter_lua))
+$(eval $(call BuildPlugin,cmp,filter_cmp))
+$(eval $(call BuildPlugin,stdin,input_stdin))
+$(eval $(call BuildPlugin,stdout,output_stdout))

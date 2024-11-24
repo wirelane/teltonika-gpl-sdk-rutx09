@@ -1,12 +1,48 @@
 [
   {
-    "category": "Network",
-    "name": "Interfaces",
+    "category": "System",
+    "name": "System Users",
     "depends": []
   },
   {
+    "category": "Network",
+    "name": "VXLAN",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "flash16mb",
+        "value": false
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Impulse Counter",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "ios"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "MBus Gateway",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "mbus"
+      }
+    ]
+  },
+  {
     "category": "System",
-    "name": "JSON-RPC",
+    "name": "Password Policy",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Bluetooth",
     "depends": []
   },
   {
@@ -281,6 +317,10 @@
     "name": "Events Log"
   },
   {
+    "category": "System",
+    "name": "Logging"
+  },
+  {
     "category": "Services",
     "name": "DNP3 Outstation",
     "depends": [
@@ -398,13 +438,7 @@
   },
   {
     "category": "Network",
-    "name": "802.1X",
-    "depends": [
-      {
-        "type": "hw",
-        "name": "has_dot1x_client"
-      }
-    ]
+    "name": "802.1X"
   },
   {
     "category": "Network",
@@ -861,6 +895,16 @@
       {
         "type": "family",
         "name": "Router"
+      },
+      {
+        "type": "hw",
+        "name": "is_trb1",
+        "value": false
+      },
+      {
+        "type": "hw",
+        "name": "is_trb5",
+        "value": false
       }
     ]
   },
@@ -890,6 +934,16 @@
   },
   {
     "name": "Realtime Traffic",
+    "category": "Network",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "name": "Topology",
     "category": "Network",
     "depends": [
       {

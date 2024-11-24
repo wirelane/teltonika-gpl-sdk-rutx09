@@ -4,7 +4,7 @@
 START=94
 STOP=15
 USE_PROCD=1
-PROG=/usr/sbin/miniupnpd
+PROG=miniupnpd
 
 upnpd_get_port_range() {
 	local var="$1"; shift

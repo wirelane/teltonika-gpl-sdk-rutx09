@@ -13,6 +13,7 @@ local FAILED_PACKAGES = "/etc/failed_packages"
 local THIRD_PARTY_FEEDS = "--force_feeds /etc/opkg/openwrt/distfeeds.conf -f /etc/tlt_opkg.conf"
 local TLT_PACKAGES = "/var/opkg-lists/tlt_packages"
 local TIME_OF_SLEEP = 10
+local MAX_RETRIES = 3
 local PKG_REBOOT = false
 local PKG_NET_RESTART = false
 local ERROR_SENT = false
@@ -106,28 +107,43 @@ for _, app_name in ipairs(app_names) do
 	end
 end
 
-for _, pkg in ipairs(packages) do
-	(function ()
-		local ok, err_code = pkg:_validate_pkg_online_install()
-		if not ok then
-			add_to_failed_packages(pkg.app_name)
-			return --continue
-		end
-		ok, err_code = pkg:_install_package_online()
-		opkg._trigger_pkg_event()
-		if not ok then
-			add_to_failed_packages(pkg.app_name)
-			return --continue
-		end
-
-		opkg._restart_services()
-		if pkg:get("pkg_reboot") == "1" then PKG_REBOOT = true end
-		if pkg:get("pkg_network_restart") == "1" then PKG_NET_RESTART = true end
-
-		pkg:_remove_pkg_from_pkg_restore()
-	end)()
+-- Reverse the packages array in place
+local i, j = 1, #packages
+while i < j do
+	packages[i], packages[j] = packages[j], packages[i]
+	i = i + 1
+	j = j - 1
 end
 
+for i = 1, MAX_RETRIES do -- retry pkg install 3 times in case pkg install fails
+	for j = #packages, 1, -1 do
+		(function ()
+			local pkg = packages[j]
+			local ok, err_code = pkg:_validate_pkg_online_install()
+			if not ok then
+				if i == MAX_RETRIES then
+					add_to_failed_packages(pkg.app_name)
+				end
+				return --continue
+			end
+			ok, err_code = pkg:_install_package_online()
+			opkg._trigger_pkg_event()
+			if not ok then
+				if i == MAX_RETRIES then
+					add_to_failed_packages(pkg.app_name)
+				end
+				return --continue
+			end
+
+			table.remove(packages, j)
+			opkg._restart_services()
+			if pkg:get("pkg_reboot") == "1" then PKG_REBOOT = true end
+			if pkg:get("pkg_network_restart") == "1" then PKG_NET_RESTART = true end
+
+			pkg:_remove_pkg_from_pkg_restore()
+		end)()
+	end
+end
 
 --------------- 3RD PARTY PACKAGE INSTALL -----------------------
 local uci = require "vuci.uci".cursor()

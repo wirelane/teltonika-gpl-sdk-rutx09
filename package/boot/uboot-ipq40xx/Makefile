@@ -8,6 +8,8 @@ PKG_NAME:=uboot
 
 PKG_SOURCE_VERSION:=2.4
 
+PKG_ASLR_PIE:=0
+
 PKG_LICENSE:=GPL-2.0-or-later
 
 DEVICE_VENDOR='teltonika'

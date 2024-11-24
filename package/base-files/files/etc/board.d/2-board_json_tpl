@@ -5,7 +5,6 @@
 
 . /lib/functions/system.sh
 . /lib/functions/uci-defaults.sh
-. /lib/functions/teltonika-defaults.sh
 
 [ -f /lib/functions/target-defaults.sh ] && \
 	. /lib/functions/target-defaults.sh

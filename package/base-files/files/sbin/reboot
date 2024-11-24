@@ -34,11 +34,11 @@ while getopts "wsipgebcmvojraCd:nfl" opt; do
 			;;
 		b) TEXT="Request from button"
 			;;
-		c) TEXT="Request after backup"
+		c) TEXT="Device rebooted after backup"
 			;;
-		m) TEXT="Request after modem firmware upgrade"
+		m) TEXT="Device rebooted after modem firmware upgrade"
 			;;
-		v) TEXT="Request after firmware upgrade"
+		v) TEXT="Device rebooted after firmware upgrade"
 			;;
 		o) TEXT="Request from modbus"
 			;;

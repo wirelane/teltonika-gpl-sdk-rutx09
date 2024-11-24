@@ -1,10 +1,10 @@
 FROM ubuntu:jammy-20240808
 
 # Set environment variables
-ENV DEBIAN_FRONTEND noninteractive
-ENV LC_ALL C.UTF-8
-ENV NODE_MAJOR 20
-ENV TZ Etc/UTC
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LC_ALL=C.UTF-8
+ENV NODE_MAJOR=20
+ENV TZ=Etc/UTC
 
 # Set startup command
 CMD ["/bin/bash"]
@@ -51,6 +51,7 @@ RUN apt update && apt upgrade -y \
 	libexpat-dev \
 	libncurses5-dev \
 	libpcre3-dev \
+	libpython3-dev \
 	libsqlite3-dev \
 	libssl-dev \
 	libxml-parser-perl \
@@ -85,3 +86,5 @@ RUN apt update && apt upgrade -y \
 RUN curl -L -o- https://deb.nodesource.com/setup_"$NODE_MAJOR".x | bash - \
 	&& apt update && apt install -y nodejs \
 	&& rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3.11-config /usr/bin/python3-config

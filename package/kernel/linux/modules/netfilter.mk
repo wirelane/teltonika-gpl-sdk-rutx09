@@ -173,7 +173,7 @@ define KernelPackage/nf-flow
 	CONFIG_NETFILTER_INGRESS=y \
 	CONFIG_NF_FLOW_TABLE \
 	CONFIG_NF_FLOW_TABLE_HW
-  DEPENDS:=+kmod-nf-conntrack
+  DEPENDS:=+kmod-nf-conntrack +XFRM_OFFLOAD:kmod-ipsec4
   FILES:= \
 	$(LINUX_DIR)/net/netfilter/nf_flow_table.ko \
 	$(if $(or $(CONFIG_LINUX_4_14),$(CONFIG_LINUX_5_4)),$(LINUX_DIR)/net/netfilter/nf_flow_table_hw.ko)

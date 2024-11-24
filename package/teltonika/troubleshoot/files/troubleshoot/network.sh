@@ -13,9 +13,9 @@ network_hook() {
 	troubleshoot_init_log "IP ROUTES" "$log_file"
 	troubleshoot_add_log "$(ip route show table all)" "$log_file"
 
-	is_executable "ipsec" && {
+	is_executable "swanctl" && {
 		troubleshoot_init_log "IPSEC STATUS" "$log_file"
-		troubleshoot_add_log_ext "ipsec" "statusall" "$log_file"
+		troubleshoot_add_log_ext "/etc/init.d/swanctl" "get_status" "$log_file"
 	}
 	is_executable "mwan3" && {
 		troubleshoot_init_log "MULTIWAN STATUS" "$log_file"

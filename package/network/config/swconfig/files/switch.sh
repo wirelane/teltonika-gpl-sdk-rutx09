@@ -180,9 +180,10 @@ compare_md_states() {
 
 setup_port_links() {
 
-	[ "$(jsonfilter -i /etc/board.json -e '@.hwinfo.port_link')" = "false" ] && return 1
-	
 	local f_path="/tmp/state/ports_state"
+	local port_link="$(jsonfilter -i /etc/board.json -e '@.hwinfo.port_link')"
+
+	[ -z "$port_link" ] || [ "$port_link" = "false" ] && return 1
 
 	[ ! -f "$f_path" ] && touch "$f_path"
 

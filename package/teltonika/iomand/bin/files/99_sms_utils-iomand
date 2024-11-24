@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /lib/functions/teltonika-functions.sh
+. /lib/functions/system.sh
 
 sms_utils_cb() {
 	config_get name "$1" "action"

@@ -12,8 +12,8 @@ case "$PLUTO_VERB:" in
 		[ "$(uci -q get ipsec.${PLUTO_CONNECTION##*-}.defaultroute)" = "1" ] || exit 0
 		offloading="$(uci get firewall.1.flow_offloading 2>/dev/null)"
 		[ "$offloading" = 1 ] && {
-			iptables -I FORWARD -s "$lan_subnet" -m comment --comment "Added by Strongswan hotplug for Default Route" -j ACCEPT
-			iptables -I FORWARD -d "$lan_subnet" -m comment --comment "Added by Strongswan hotplug for Default Route" -j ACCEPT
+			iptables -I FORWARD $FORWARD_POSITION -s "$lan_subnet" -m comment --comment "Added by Strongswan hotplug for Default Route" -j ACCEPT
+			iptables -I FORWARD $FORWARD_POSITION -d "$lan_subnet" -m comment --comment "Added by Strongswan hotplug for Default Route" -j ACCEPT
 		}
 		iptables -I postrouting_wan_rule -t nat -s "$lan_subnet" -m comment --comment "Added by Strongswan hotplug" -j SNAT --to $PLUTO_MY_SOURCEIP4_1
 		echo "Added firewall SNAT rule: from $lan_subnet to $PLUTO_MY_SOURCEIP4_1"

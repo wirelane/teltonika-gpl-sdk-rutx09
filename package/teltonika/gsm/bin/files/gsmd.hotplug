@@ -35,7 +35,7 @@ devicename="$DEVICENAME"
 
 json_init
 json_load "$(cat $usb)"
-json_get_vars desc control serial_control data_secondary boudrate stop_bits gps
+json_get_vars desc control serial_control data_secondary boudrate stop_bits gps wdm
 
 if [ -n "$serial_control" ]; then
 	at_device="/dev/ttyS${serial_control}"
@@ -46,6 +46,10 @@ fi
 [ "$gps" ] && gps_device="/dev/$(ls -d /sys/bus/usb/devices/${devicename}:1.${gps}/tty?* | sed "s/.*\///g" | tr "\n")"
 
 [ "$data_secondary" ] && data_device="/dev/$(ls -d /sys/bus/usb/devices/${devicename}:1.${data_secondary}/tty?* | sed "s/.*\///g" | tr "\n")"
+if [ "$wdm" = "" ]; then
+	 wdm_port="$(ls -d /sys/bus/usb/devices/${devicename}:1.${wdm}/usbmisc/* | sed "s/.*\///g" | tr "\n")"
+	[ "$wdm_port" = "" ] || wdm_device="/dev/$wdm_port"
+fi
 
 [ -s /etc/config/simcard ] && {
 	config_load "simcard"
@@ -80,6 +84,7 @@ json_init
 json_add_string "id" "$devicename"
 json_add_string "cmd_port" "$at_device"
 json_add_string "gps_port" "$gps_device"
+[ -n "$wdm_device"] && json_add_string "wdm_port" "$wdm_device"
 json_add_string "data_port" "$data_device"
 json_add_string "vidpid" "$vid:$pid"
 json_add_int "boudrate" "$boudrate"

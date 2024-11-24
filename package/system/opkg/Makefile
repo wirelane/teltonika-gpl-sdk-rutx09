@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=opkg
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_FLAGS:=essential
 
 PKG_SOURCE_VERSION:=1bf042dd06751b693a8544d2317e5b969d666b69
@@ -84,16 +84,22 @@ CMAKE_HOST_OPTIONS += \
 define Package/opkg/install
 	$(INSTALL_DIR) $(1)/usr/lib/opkg
 	$(INSTALL_DIR) $(1)/bin
+	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_DIR) $(1)/etc/opkg
 	$(INSTALL_DATA) ./files/customfeeds.conf $(1)/etc/opkg/customfeeds.conf
 	$(INSTALL_DATA) ./files/opkg$(2).conf $(1)/etc/opkg.conf
+	$(CP) ./files/opkg-cleanup $(1)/sbin/opkg-cleanup
+  ifeq ($(CONFIG_IPK_FILES_CHECKSUMS),y)
+	$(CP) ./files/pkg_check $(1)/sbin/pkg_check
+  endif
+	$(CP) ./files/ipk-sig.sh $(1)/bin/ipk-sig.sh
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/opkg-cl $(1)/bin/opkg
   ifneq ($(CONFIG_SIGNATURE_CHECK),)
 	echo "option check_signature" >> $(1)/etc/opkg.conf
   endif
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/opkg-key $(1)/usr/sbin/
-	echo src/gz tlt_packages https://opkg.teltonika-networks.com/73d86d0aa6bafa26c15b868c1a9360f800d6b49c46a574e1c3669fad63dfa926 > $(1)/etc/opkg/teltonikafeeds.conf
+	echo $(OPKG_FEED) > $(1)/etc/opkg/teltonikafeeds.conf
 endef
 
 define Host/Install

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubox
-PKG_RELEASE:=5
+PKG_RELEASE:=8
 
 PKG_SOURCE_DATE:=2020-10-25
 CMAKE_INSTALL:=1
@@ -44,7 +44,7 @@ endef
 define Package/logd
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+libubox +libubus +libblobmsg-json +libsqlite3 +log_rotation
+  DEPENDS:=+libubox +libubus +libblobmsg-json +libsqlite3 +libuci +zlib
   TITLE:=OpenWrt system log implementation
   USERID:=logd=514:logd=514
 endef

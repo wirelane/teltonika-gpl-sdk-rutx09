@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2024-10-01
-PKG_RELEASE:=1
+PKG_VERSION:=2024-11-13
+PKG_RELEASE:=2
 
-PKG_SOURCE_VERSION:=7.10
+PKG_SOURCE_VERSION:=7.11
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -20,7 +20,7 @@ define Package/gpsd
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Deamon providing gps related functionality.
-	DEPENDS:=+libsqlite3 +libpthread +libuci +libtlt_uci +liblog +libubus +liburc +libgsm +zlib +libcurl +libboardjson +IO_SUPPORT:iomand +libmnfinfo
+	DEPENDS:=+libsqlite3 +libpthread +libuci +libtlt_uci +liblog +libubus +liburc +libgsm +zlib +libcurl +libboardjson +IO_SUPPORT:iomand +libmnfinfo +libtlt_termios
 endef
 
 define Package/gpsctl
@@ -93,7 +93,9 @@ define Package/gpsd/install
 	fi;
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.10/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.10/01_gps_add_nmea_rules $(1)/etc/uci-defaults/7.10/
+	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.11/01_gps_add_serial_forwarding_section $(1)/etc/uci-defaults/7.11/
 endef
 
 define Package/gpsctl/install

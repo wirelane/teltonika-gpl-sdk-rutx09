@@ -124,6 +124,7 @@ TARGET_DEVICES += TEMPLATE_teltonika_rutx14
 define Device/TEMPLATE_teltonika_rutx50
 	$(Device/teltonika_rutx_common)
 	DEVICE_MODEL := RUTX50
+	DEVICE_FEATURES += framed-routing
 
 	HARDWARE/System_Characteristics/RAM := $(HW_RAM_SIZE_256M) (100 MB available for userspace)
 	HARDWARE/System_Characteristics/Flash_Storage := $(HW_FLASH_SIZE_256M) (80 MB available for userspace)

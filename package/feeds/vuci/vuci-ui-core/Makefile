@@ -5,8 +5,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2024-10-30-d77581c51b
-PKG_RELEASE:=2
+PKG_VERSION:=2024-11-20-159ed9fdcd
+PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
 PKG_BUILD_PARALLEL:=1
@@ -63,7 +63,7 @@ define install_closed_gpl
 	$(CP) "$(CORE_DIR)/ui-core/plugins/brand/brand.json" \
 		"$(CORE_DIR)/dist/www/brand"
 
-	$(MAKE) -C $(PKG_BUILD_DIR)
+	$(MAKE) -C $(PKG_BUILD_DIR) DL_DIR="$(TOPDIR)/dl/$(PKG_NAME)"
 
 	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue \
 		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerifyGPL.vue

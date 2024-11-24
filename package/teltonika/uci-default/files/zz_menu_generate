@@ -1,4 +1,0 @@
-#!/bin/sh
-
-[ -f /usr/share/vuci/menu.d/menu.json ] || /usr/bin/lua -e 'require("vuci.menu_generate"):regenerate_menu()'
-exit 0

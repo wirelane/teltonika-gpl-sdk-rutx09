@@ -36,14 +36,14 @@ sign_certificate() {
     local ca="/etc/uhttpd-ca.crt"
     local ca_key="/etc/uhttpd-ca.key"
 
-
     if [ ! -e "$ca" ]; then
-        local macaddr="$(mnf_info -m)"
-        local ip_addr="$(uci get network.lan.ipaddr)"
         $OPENSSL_BIN req -x509 -nodes \
             -subj "/CN=ca" \
             -newkey rsa:2048 -keyout "${ca_key}" -out "${ca}" -days 3650 &>/dev/null
     fi
+	local macaddr="$(mnf_info -m)"
+	#							replace invalid dashes JSON keys
+	local ip_addr=$(ubus call network.interface.lan status | tr '-' '_' | jsonfilter -e "@.ipv4_address[0].address")
     local extfile="$(mktemp)"
     echo -e "extendedKeyUsage=serverAuth\nsubjectAltName=DNS:Teltonika${macaddr},IP:${ip_addr}" > "$extfile"
     $OPENSSL_BIN x509 -req -in "${crt_req}" -CA "${ca}" -CAkey "${ca_key}" -out "${crt}" -days 3650 -extfile "$extfile" &>/dev/null
@@ -145,7 +145,13 @@ start_instance()
 	[ -f /lib/libustream-ssl.so ] && append_bool "$cfg" rfc1918_filter_https "-F" 0
 
 	config_get enb_http "$cfg" enable_http "1"
-	[ "$enb_http" = "1" ] && append_arg "$cfg" listen_http "-p"
+	[ "$enb_http" = "1" ] && {
+		local http
+		config_get http "$cfg" listen_http
+		for listen in $http; do
+			procd_append_param command -p "$listen"
+		done
+	}
 
 	config_get enb_https "$cfg" enable_https
 	[ -f /lib/libustream-ssl.so ] && [ "$enb_https" = "1" ] && {
@@ -162,8 +168,10 @@ start_instance()
 
 			local https
 			config_get https "$cfg" listen_https
-			procd_append_param command -s "$https"
-			procd_add_mdns "https" "tcp" "$https"
+			for listen in $https; do
+				procd_append_param command -s "$listen"
+				procd_add_mdns "https" "tcp" "$listen"
+			done
 
 			procd_set_param file "$cert" "$cert_key"
 		}

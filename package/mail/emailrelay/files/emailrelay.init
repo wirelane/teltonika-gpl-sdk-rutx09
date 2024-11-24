@@ -4,6 +4,7 @@ START=90
 
 USE_PROCD=1
 PROG=/usr/bin/emailrelay
+[ -x "$PROG" ] || PROG="/usr/local$PROG"
 NAME=emailrelay
 
 emailrelay_instance()

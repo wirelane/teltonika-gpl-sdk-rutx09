@@ -1,5 +1,4 @@
 . /lib/functions.sh
-. /lib/functions/board.sh
 
 create_mobile_iface() {
 

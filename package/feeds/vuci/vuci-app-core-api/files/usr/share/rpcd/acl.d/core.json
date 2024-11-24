@@ -23,7 +23,8 @@
 				"/esim/status/*": ["id", "eid"],
 				"/firmware/device/updates/status/*": ["*"],
 				"/firmware/modem/updates/status/*": ["*"],
-				"/firmware/modem/progress/status/*": ["*"]
+				"/firmware/modem/progress/status/*": ["*"],
+				"/password_policy/config/*": ["password_length", "password_lifetime", "require_lower_upper", "require_digits", "require_special", "current_days_left"]
 			}
 		},
 		"write": {

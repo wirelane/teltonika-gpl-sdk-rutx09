@@ -157,11 +157,13 @@ define Package/base-files/install
 	rm -f $(1)/var
 	$(LN) tmp $(1)/var
 	mkdir -p $(1)/etc
+	mkdir -p $(1)/log
+	mkdir -p $(1)/usr/local/lib
+	$(LN) /usr/local/usr/lib $(1)/usr/local/lib
 	$(LN) /tmp/resolv.conf /tmp/TZ /tmp/localtime $(1)/etc/
 
 	chmod 0600 $(1)/etc/shadow
 	chmod 1777 $(1)/tmp
-	chmod 755 $(1)/usr/libexec/rpcd/lan_info
 
 	$(call Package/base-files/install-target,$(1))
 	for conffile in $(1)/etc/config/*; do \
@@ -181,58 +183,20 @@ define Package/base-files/install
 		mkdir -p $(1)/etc/opkg/openwrt; \
 		$(call FeedSourcesAppend,$(1)/etc/opkg/openwrt/distfeeds.conf); \
 		$(VERSION_SED_SCRIPT) $(1)/etc/opkg/openwrt/distfeeds.conf)
-	$(if $(CONFIG_IPK_FILES_CHECKSUMS),, \
-		rm -f $(1)/sbin/pkg_check)
 
 	# set target name
 	$(SED) "s#%%NAME%%#$(TLT_PLATFORM_NAME)#g" \
-		$(1)/bin/config_generate \
 		$(1)/etc/init.d/system
 
 	# set lan ip
-	$(SED) "s#%%LAN_IP%%#$(CONFIG_DEVICE_DEFAULT_IP)#g" $(1)/bin/config_generate \
-		$(1)/etc/board.d/1-board_json
+	$(SED) "s#%%LAN_IP%%#$(CONFIG_DEVICE_DEFAULT_IP)#g" $(1)/etc/board.d/1-board_json
 
 	# add compile time timestamp
 	date +%s > $(1)/etc/firmware-date
 
-	# remove rfkill script if not supported
-	$(if $(CONFIG_RFKILL_SUPPORT),,\
-		$(RM) $(1)/etc/rc.button/rfkill)
-
-	$(if $(CONFIG_MOBILE_SUPPORT),,\
-		$(RM) $(1)/bin/board_modem)
-
-#		--prod flag
+	# --prod flag
 	$(if $(CONFIG_VUCI_COMPILE_LUA),\
 		$(RM) $(1)/sbin/memleak_watcher $(1)/etc/init.d/memleak_watcher)
-
-	if [ ! $(CONFIG_MOBILE_SUPPORT) ] || [ $(CONFIG_BASEBAND_SUPPORT) ]; then \
-		$(RM) $(1)/lib/preinit/82_modem_power; \
-	fi;
-
-	if [ ! $(CONFIG_MOBILE_SUPPORT) ] || [ ! $(CONFIG_SERIAL_SUPPORT) ]; then \
-		$(RM) $(1)/etc/init.d/rs_modem $(1)/etc/config/rs_modem; \
-	fi;
-
-	if [ ! $(CONFIG_WIFI_SUPPORT) ] && [ ! $(CONFIG_BUILD_FACTORY_TEST_IMAGE) ]; then \
-		$(RM) $(1)/sbin/wifi; \
-	fi;
-
-	if [ ! $(CONFIG_SERIAL_SUPPORT) ]; then \
-		$(RM) $(1)/etc/hotplug.d/tty/01-serial-symlink.sh; \
-		$(RM) $(1)/etc/init.d/rs_console $(1)/etc/config/rs_console; \
-	fi;
-
-	if [ ! $(CONFIG_NAND_SUPPORT) ]; then \
-		$(RM) $(1)/etc/init.d/mount_nand; \
-	fi;
-
-	if [ ! $(CONFIG_BUSYBOX_CONFIG_NTPD) ]; then \
-		$(RM) $(1)/etc/init.d/ntpserver; \
-	fi;
-
-	$(RM) $(1)/etc/config/rutx_console;
 
 	if [ $(CONFIG_BUILD_FACTORY_TEST_IMAGE) ]; then \
 		$(RM) $(1)/etc/rc.local $(1)/usr/libexec/login.sh; \

@@ -22,18 +22,46 @@
 			}
 		}
 	},
-	"services/gps/nmea": {
-		"description": "gps nmea configuration",
+	"services/gps/nmea_forwarding": {
+		"description": "gps nmea forwarding configuration",
 		"read": {
 			"api": {
-				"/gps/nmea/*": ["*"],
-				"/gps/nmea/rules/*": ["*"]
+				"/gps/nmea/config/*": ["*"],
+				"/gps/nmea/serial/config/*": ["*"],
+				"/gps/nmea/status/*": ["*"],
+				"/serial/status/*": ["*"]
 			}
 		},
 		"write": {
 			"api": [
-				"/gps/nmea/*",
-				"/gps/nmea/rules/*"
+				"/gps/nmea/config/*",
+				"/gps/nmea/serial/config/*"
+			]
+		}
+	},
+	"services/gps/nmea_collecting": {
+		"description": "gps nmea collecting configuration",
+		"read": {
+			"api": {
+				"/gps/nmea/config/*": ["*"]
+			}
+		},
+		"write": {
+			"api": [
+				"/gps/nmea/config/*"
+			]
+		}
+	},
+	"services/gps/nmea_sentences": {
+		"description": "gps nmea sentences configuration",
+		"read": {
+			"api": {
+				"/gps/nmea/rules/config/*": ["*"]
+			}
+		},
+		"write": {
+			"api": [
+				"/gps/nmea/rules/config/*"
 			]
 		}
 	},

@@ -143,13 +143,13 @@ start_service() {
 
 	procd_open_instance
 	procd_add_mdns "smb" "tcp" "445"
-	procd_set_param command /usr/sbin/smbd -F
+	procd_set_param command smbd -F
 	procd_set_param respawn
 	procd_set_param file /var/etc/smb.conf
 	procd_close_instance
 
 	procd_open_instance
-	procd_set_param command /usr/sbin/nmbd -F
+	procd_set_param command nmbd -F
 	procd_set_param respawn
 	procd_set_param file /var/etc/smb.conf
 	procd_close_instance

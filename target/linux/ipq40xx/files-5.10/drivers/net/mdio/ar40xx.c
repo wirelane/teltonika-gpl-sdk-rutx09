@@ -1041,6 +1041,42 @@ static int ar40xx_sw_delay_reset(struct switch_dev *dev, const struct switch_att
 	return 0;
 }
 
+static void ar40xx_port_linkdown(struct switch_dev *dev, int port)
+{
+	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
+	struct mii_bus *bus;
+	u16 val;
+
+	if (port < 0 || port >= AR40XX_NUM_PORTS - 2)
+		return -EINVAL;
+
+	bus = priv->mii_bus;
+
+	mdiobus_write(bus, port, MII_BMCR, BMCR_PDOWN);
+
+	ar40xx_phy_dbg_read(priv, port, 0x3d, &val);
+	val &= ~0x0040;
+	ar40xx_phy_dbg_write(priv, port, 0x3d, val);
+
+	ar40xx_phy_dbg_read(priv, port, 0x0b, &val);
+	val &= ~0x2400;
+	ar40xx_phy_dbg_write(priv, port, 0x0b, val);
+}
+
+static void ar40xx_port_reset_enable(struct switch_dev *dev, int port)
+{
+	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
+	u16 val;
+
+	if (port < 0 || port >= AR40XX_NUM_PORTS - 2)
+		return -EINVAL;
+
+	ar40xx_phy_dbg_read(priv, port, AR40XX_PHY_DEBUG_0, &val);
+	val &= ~AR40XX_PHY_MANU_CTRL_EN;
+	ar40xx_phy_dbg_write(priv, port, AR40XX_PHY_DEBUG_0, val);
+
+	ar40xx_phy_poll_reset(priv);
+}
 
 static int
 ar40xx_atu_flush(struct ar40xx_priv *priv);
@@ -1133,6 +1169,7 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
 	struct mii_bus *bus = priv->mii_bus;
 	u32 status;
+	int ret;
 
 	if (!priv || !bus)
 		return -ENODEV;
@@ -1142,9 +1179,13 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 
 	status = mdiobus_read(bus, port - 1, MII_BMCR);
 
+	ar40xx_port_linkdown(dev, port);
+
 	if (link->aneg) {
 		status |= BMCR_ANENABLE | BMCR_ANRESTART | BMCR_FULLDPLX | BMCR_SPEED1000;
-		return mdiobus_write(bus, port - 1, MII_BMCR, status);
+		ret = mdiobus_write(bus, port - 1, MII_BMCR, status);
+		ar40xx_port_reset_enable(dev, port);
+		return ret;
 	} else {
 		status &= ~BMCR_ANENABLE;
 	}
@@ -1172,7 +1213,9 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 		break;
 	}
 
-	return mdiobus_write(bus, port - 1, MII_BMCR, status);
+	ret = mdiobus_write(bus, port - 1, MII_BMCR, status);
+	ar40xx_port_reset_enable(dev, port);
+	return ret;
 }
 
 static int

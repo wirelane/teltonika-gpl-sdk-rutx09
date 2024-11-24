@@ -21,10 +21,30 @@
   },
   "services/gps/nmea": {
     "title": "NMEA",
-    "index": 3,
-    "view": "services/NMEA",
+    "index": 3
+  },
+  "services/gps/nmea/forwarding": {
+    "title": "NMEA Forwarding",
+    "index": 1,
+    "view": "services/NMEAForwarding",
     "acls": [
-      "services/gps/nmea"
+      "services/gps/nmea_forwarding"
+    ]
+  },
+  "services/gps/nmea/collecting": {
+    "title": "NMEA Collecting",
+    "index": 2,
+    "view": "services/NMEACollecting",
+    "acls": [
+      "services/gps/nmea_collecting"
+    ]
+  },
+  "services/gps/nmea/sentences": {
+    "title": "NMEA Sentences",
+    "index": 3,
+    "view": "services/NMEASentences",
+    "acls": [
+      "services/gps/nmea_sentences"
     ]
   },
   "services/gps/https": {

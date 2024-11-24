@@ -30,7 +30,7 @@
     "description": "setup wizard wan",
     "read": {
       "api": {
-        "/modems/status/*": ["id", "name", "index", "builtin", "operator_state"],
+        "/modems/status/*": ["*"],
         "/modems/apns/status/*": ["*"],
         "/interfaces/config/*": ["*"],
         "/interfaces/basic/status/*": ["*"],

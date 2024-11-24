@@ -11,10 +11,9 @@ start_service() {
 	local debug
 	config_load rms_mqtt
 	config_get enabled "rms_connect_mqtt" enable 0
+	config_get debug "rms_connect_mqtt" debug 0
 
 	[ "$enabled" -eq 0 ] && return
-
-	config_get debug "rms_connect_mqtt" debug 0
 
 	local uci_changes="0"
 	local opts="rms_id demo_rms_id local_rms_id"

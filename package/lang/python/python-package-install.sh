@@ -76,6 +76,7 @@ while IFS='|' read -r cmd path file_mode dir_mode; do
 
 		if ! path_exists "$src" "$path"; then
 			error "\"$src/$path\" not found"
+			exit 1
 		fi
 
 		dir="${path%/*}"
@@ -90,7 +91,7 @@ while IFS='|' read -r cmd path file_mode dir_mode; do
 
 		if ! path_exists "$dest" "$path"; then
 			error "\"$dest/$path\" not found"
-			# exit 1
+			exit 1
 		fi
 
 		rm -fR -- "$dest"/$path

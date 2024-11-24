@@ -4,6 +4,6 @@
 		"index": 250,
 		"view": "services/WifiScanner",
 		"acls": [ "services/wifi_scanner" ],
-		"files": [ "/etc/config/wifi_scanner", "/etc/config/wireless" ]
+		"files": [ "/etc/config/wifi_scanner" ]
 	}
 }

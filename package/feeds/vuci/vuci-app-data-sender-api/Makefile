@@ -26,6 +26,7 @@ define Package/$(PKG_NAME)/install
 	$(call InstallLuaFile,data_sender_collections,$(1))
 	$(call InstallLuaFile,data_sender_inputs,$(1))
 	$(call InstallLuaFile,data_sender_outputs,$(1))
+	$(call InstallLuaFile,data_sender_format,$(1))
 	$(call InstallLuaFile,data_sender_utils,$(1))
 endef
 
@@ -81,6 +82,7 @@ endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))
 $(eval $(call GenerateDataToServerModule,Format Custom,format-custom,ds_formats,ds_format_custom))
+$(eval $(call GenerateDataToServerModule,Lua Format,lua_format,ds_formats,ds_format_lua))
 $(eval $(call GenerateDataToServerModule,MQTT Input,mqtt-in,ds_inputs,ds_input_mqtt))
 $(eval $(call GenerateDataToServerModule,MQTT Output,mqtt-out,ds_outputs,ds_output_mqtt))
 $(eval $(call GenerateDataToServerModule,HTTP,http,ds_outputs,ds_output_http))
@@ -94,6 +96,7 @@ $(eval $(call GenerateDataToServerModule,Modbus Alarm,modbus-alarm,ds_inputs,ds_
 $(eval $(call GenerateDataToServerModule,Modbus,modbus,ds_inputs,ds_input_modbus))
 $(eval $(call GenerateDataToServerModule,DNP3,dnp3,ds_inputs,ds_input_dnp3))
 $(eval $(call GenerateDataToServerModule,OPCUA,opcua,ds_inputs,ds_input_opcua))
+$(eval $(call GenerateDataToServerModule,Impulse Counter,impulse_counter,ds_inputs,ds_input_impulse_counter))
 $(eval $(call GenerateDataToServerModule,Dlms,dlms,ds_inputs,ds_input_dlms))
 $(eval $(call GenerateDataToServerModule,WifiScan,wifiscan,ds_inputs,ds_input_wifiscan))
 $(eval $(call GenerateDataToServerModule,Azure,azure,ds_outputs,ds_output_azure))

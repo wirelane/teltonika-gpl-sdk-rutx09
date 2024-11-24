@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=opcua_client
-PKG_VERSION:=2024-10-03
-PKG_SOURCE_VERSION:=7.10
+PKG_VERSION:=2024-11-13
+PKG_SOURCE_VERSION:=7.11
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,8 +16,7 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=OPC UA client by Teltonika
-	DEPENDS:=+libuci +libtlt_uci +libtlt_utils +libubox +libubus +libsqlite3 \
-		+open62541 +rpcd
+	DEPENDS:=+libuci +libtlt_uci +libubox +libubus +libtlt_utils +libsqlite3 +open62541 +rpcd
 endef
 
 define Package/$(PKG_NAME)/description

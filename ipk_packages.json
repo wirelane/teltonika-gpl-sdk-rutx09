@@ -5,8 +5,7 @@
 		"name": "java_vm"
 	},
 	"python3": {
-		"base_dep": "libpython3-3.11 libuuid1 libbz2-1.0 python3-base python3-readline python3-asyncio python3-cgi python3-cgitb python3-codecs python3-ctypes python3-decimal python3-distutils python3-email python3-light python3-logging python3-multiprocessing python3-ncurses python3-openssl python3-pydoc python3-sqlite3 python3-unittest python3-urllib python3-xml libncurses6 terminfo libreadline8 libdb47",
-		"packages_dep": "libffi",
+		"base_dep": "libpython3-3.11 libuuid1 libbz2-1.0 python3-uuid python3-base python3-asyncio python3-cgi python3-cgitb python3-codecs python3-ctypes python3-decimal python3-distutils python3-email python3-light python3-logging python3-multiprocessing python3-ncurses python3-openssl python3-pydoc python3-sqlite3 python3-unittest python3-urllib python3-xml libncurses6 terminfo libreadline8 libdb47 libffi",
 		"name": "python3"
 	},
 	"vuci-app-aws-ui": {
@@ -131,7 +130,7 @@
 	},
 	"vuci-app-coovachilli-ui": {
 		"base_dep": "libtltchilli coova-chilli tc-tiny libjson-c libcurl",
-		"vuci_dep": "vuci-app-coovachilli-api vuci-app-landingpage tlt_hs_theme_default",
+		"vuci_dep": "vuci-app-coovachilli-api vuci-app-landingpage tlt_hs_theme_default vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"kmod_dep": "kmod-ipt-coova kmod-ifb kmod-sched-core",
 		"name": "hotspot"
 	},
@@ -338,30 +337,39 @@
 		"name": "iptables_filter_extension"
 	},
 	"hs_theme_airport2": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_airport2_theme"
 	},
 	"hs_theme_airport": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_airport_theme"
 	},
 	"hs_theme_bus": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_bus_theme"
 	},
 	"hs_theme_coffee_shop": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_coffee_shop_theme"
 	},
 	"hs_theme_grocery_store": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_grocery_store_theme"
 	},
 	"hs_theme_office": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_office_theme"
 	},
 	"hs_theme_park": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_park_theme"
 	},
 	"hs_theme_ship": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_ship_theme"
 	},
 	"hs_theme_station": {
+		"vuci_dep": "vuci-app-landingpage vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"name": "hotspot_landing_page_station_theme"
 	},
 	"vuci-app-smpp-ui": {
@@ -392,21 +400,21 @@
 		"name": "portuguese_language_support"
 	},
 	"modem_updater": {
-		"base_dep": "libusb-1.0-0",
-		"packages_dep": "libffi libattr",
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_updater"
 	},
 	"modem_logger": {
-		"base_dep": "libusb-1.0-0",
-		"packages_dep": "libffi libattr",
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_logger"
 	},
 	"vuci-app-sshfs-ui": {
 		"vuci_dep": "vuci-app-sshfs-api",
-		"base_dep": "sshfs fuse3-utils libfuse3-3 glib2",
-		"packages_dep": "libffi libattr",
+		"base_dep": "sshfs fuse3-utils libfuse3-3 glib2 libffi",
+		"packages_dep": "libattr",
 		"kmod_dep": "kmod-fuse",
 		"name": "sshfs"
 	},
@@ -456,14 +464,15 @@
 	"iperf3": {
 		"name": "iperf3"
 	},
-	"vxlan": {
+	"vuci-app-vxlan-ui": {
 		"name": "vxlan",
 		"kmod_dep": "kmod-vxlan",
-		"vuci_dep": "vuci-app-network-devices-ui"
+		"vuci_dep": "vuci-app-vxlan-api vuci-app-network-devices-ui vuci-app-network-devices-api"
 	},
-	"jool": {
+	"vuci-app-jool-ui": {
 		"name": "jool",
-		"base_dep": "libnl200 libnl-cli200 libnl-nf200 libnl-route200",
+		"vuci_dep": "vuci-app-jool-api",
+		"base_dep": "jool libnl200 libnl-cli200 libnl-nf200 libnl-route200",
 		"kmod_dep": "kmod-jool"
 	},
 	"docker":{

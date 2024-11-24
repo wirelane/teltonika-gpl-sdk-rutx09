@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobutils
 
-PKG_SOURCE_VERSION:=3.10
+PKG_SOURCE_VERSION:=3.11
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -53,7 +53,7 @@ define Package/mobutils-sms_utilities
 	DEPENDS+=mobutils +libgsm +libcgi +MOBILE_SUPPORT:libmdcollect \
 		+libboardjson +liblog +SMS_UTILS_HANDLER_IO:iomand \
 		+SMS_UTILS_HANDLER_GPS:libgps +libcurl +@LIBCURL_SMTP \
-		+libparam +SMS_UTILS_HANDLER_RMS:librms +liblpac
+		+libparam +SMS_UTILS_HANDLER_RMS:librms
 endef
 
 define Package/mobutils-sms_utilities/conffiles
@@ -122,10 +122,6 @@ define Package/mobutils-sms_utilities/install
 
 	$(if  $(CONFIG_WIFI_SUPPORT), \
 		cat $(PKG_BUILD_DIR)/sms_utils/files/wifi.conf >> $(1)/etc/config/sms_utils)
-
-	$(if  $(CONFIG_ESIM_SUPPORT), \
-		cat $(PKG_BUILD_DIR)/sms_utils/files/esim.conf >> $(1)/etc/config/sms_utils)
-
 endef
 
 $(eval $(call BuildPackage,mobutils))

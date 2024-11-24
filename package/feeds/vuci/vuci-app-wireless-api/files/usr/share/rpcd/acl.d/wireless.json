@@ -7,7 +7,9 @@
         "/certificates/config/*": ["fullname", "type", "cert_type"],
         "/hotspot/config/*": ["network"],
         "/routes/status/mac_hints/*": ["*"],
-        "/interfaces/config/*": ["name", "proto", "bridge", "ifname"]
+        "/interfaces/config/*": ["name", "proto", "bridge", "ifname"],
+        "/basic/network/devices/status/*": ["id", "name", "type"],
+        "/network/devices/status/*": ["*"]
       }
     },
     "write": {

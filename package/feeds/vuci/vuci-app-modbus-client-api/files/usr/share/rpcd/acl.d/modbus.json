@@ -7,7 +7,9 @@
         "/modems/status/*": ["id", "name", "builtin", "index"],
         "/io/status/*": ["*"],
         "/certificates/config/*": ["fullname", "cert_type", "type"],
-        "/basic/network/devices/status/*": ["name"]
+        "/basic/network/devices/status/*": ["name"],
+        "/recipients/phone_groups/config/*": ["id", "name"],
+        "/recipients/email_users/config/*": ["id", "name"]
       }
     },
     "write": {

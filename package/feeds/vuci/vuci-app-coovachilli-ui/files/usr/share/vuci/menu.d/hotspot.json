@@ -18,13 +18,6 @@
 			"acls": [ "services/hotspot/users" ],
 			"files": [ "/etc/config/chilli" ]
 		},
-		"services/hotspot/landing": {
-			"title": "Landing Page",
-			"index": 30,
-			"view": "services/HotspotLandingpage",
-			"acls": [ "services/hotspot/landing" ],
-			"files": [ "/etc/config/landingpage" ]
-		},
 		"services/hotspot/groups": {
 			"title": "User Groups",
 			"index": 40,

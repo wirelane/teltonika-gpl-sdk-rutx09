@@ -101,9 +101,11 @@ json_init
 
 		# Call platform_check_image() here so it can add its test
 		# results and still mark image properly.
-		json_set_namespace $old_ns
-		platform_check_image "$1" >&2 || notify_firmware_invalid
-		json_set_namespace validate_firmware_image old_ns
+		if type 'platform_check_hw_support' >/dev/null 2>/dev/null; then
+			json_set_namespace $old_ns
+			platform_check_image "$1" >&2 || notify_firmware_invalid
+			json_set_namespace validate_firmware_image old_ns
+		fi
 	json_close_object
 	json_add_boolean valid "$VALID"
 	json_add_string fw_version "$fw_version"

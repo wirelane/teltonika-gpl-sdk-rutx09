@@ -26,10 +26,8 @@ service_triggers()
 	procd_add_raw_trigger "interface.*" 2000 /etc/init.d/relayd reload
 }
 
-start_service() {
-	config_load relayd
-
-	local cfg="relayd"
+start_relay() {
+	local cfg="$1"
 	local enabled
 
 	config_get_bool enabled "$cfg" enabled 0
@@ -92,4 +90,9 @@ start_service() {
 	[ $fwd_dhcp -eq 1 ] && procd_append_param command "-D"
 
 	procd_close_instance
+}
+
+start_service() {
+	config_load relayd
+	config_foreach start_relay relayd
 }

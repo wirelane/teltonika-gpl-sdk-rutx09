@@ -74,7 +74,9 @@ define Build/Compile
 		$(if $(findstring m,$(CONFIG_PACKAGE_$(PKG_NAME))), \
 			$(INSTALL_DIR) $(PLUGIN_DIR)/$(PKG_NAME); \
 			$(CP) $(PKG_BUILD_DIR)/* $(PLUGIN_DIR)/$(PKG_NAME); \
-			$(CP) $(VUCI_CORE_DIR)/vuci-ui-core/src/dist/applications/$(APP_NAME_ONLY) $(PKG_BUILD_DIR)/dest; \
+			$(if $(wildcard $(VUCI_CORE_DIR)/vuci-ui-core/src/dist/applications/$(APP_NAME_ONLY)), \
+				$(CP) $(VUCI_CORE_DIR)/vuci-ui-core/src/dist/applications/$(APP_NAME_ONLY) $(PKG_BUILD_DIR)/dest; \
+			) \
 		) \
 	, \
 		$(Build/Compile/Default) \

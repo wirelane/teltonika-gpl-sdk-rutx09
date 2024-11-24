@@ -6,13 +6,31 @@ INSTANCE=$(echo "$config" | cut -d"-" -f2 | cut -d"." -f1)
 TYPE=$(uci get openvpn."$INSTANCE".type)
 STATUS_FILE="/tmp/state/openvpn-$INSTANCE.info"
 
-arping_net() {
-	local tun_dev="$1"
-	local net="$2"
-	local start="$3"
-	local end="$4"
+send_package() {
+	local start end
+	local type="$1"
+	local tun_dev="$2"
+	local ipa="$3"
+	local mask="$4"
+	if [ -z "$mask" ]; then
+		eval "$(ipcalc.sh "$ipa")"
+	else
+		eval "$(ipcalc.sh "$ipa" "$mask")"
+	fi
+	if [ "$PREFIX" -lt "24" ]; then
+		start="1"
+		end="254"
+	else
+		start="${NETWORK##*.}"
+		end="${BROADCAST##*.}"
+	fi
+
 	for i in $(seq "$start" "$end"); do
-		{ sleep 3 && arping -I "$tun_dev" -c1 -w1 "${net}.${i}" >/dev/null 2>&1 & }
+		if [ "$type" = "arp" ]; then
+			{ sleep 3 && arping -I "$tun_dev" -c1 -w1 "${IP%.*}.${i}" >/dev/null 2>&1 & }
+		elif [ "$type" = "icmp" ]; then
+			{ sleep 3 && ping -I "$tun_dev" -c1 -W1 "${IP%.*}.${i}" >/dev/null 2>&1 & }
+		fi
 	done
 }
 
@@ -48,18 +66,15 @@ case $script_type in
 				done
 			elif [ -n "$ifconfig_remote" ]; then
 				{ sleep 3 && ping -c1 -W1 -I "$dev" "$ifconfig_remote" >/dev/null 2>&1; } &
+			elif [ -n "$ifconfig_local" ] && [ -n "$ifconfig_netmask" ]; then
+				send_package "icmp" "$dev" "$ifconfig_local" "$ifconfig_netmask"
 			fi
 		elif [ "$dev" != "${dev/tap_c/}" ]; then
 			bridge="$(uci -q get openvpn.${INSTANCE}.to_bridge)"
 			if [ -n "$bridge" ] && [ "$bridge" != "none" ]; then
 				dev_bridge="$(uci -q get network.${bridge}.name)"
 				for ip in $(ip -f inet addr show "$dev_bridge" | awk '/inet / {print $2}'); do
-					eval "$(ipcalc.sh "$ip")"
-					if [ "$PREFIX" -lt "24" ]; then
-						arping_net "$dev" "${IP%.*}" "1" "254"
-					else
-						arping_net "$dev" "${IP%.*}" "${NETWORK##*.}" "${BROADCAST##*.}"
-					fi
+					send_package "arp" "$dev" "$ip"
 				done
 			fi
 		fi

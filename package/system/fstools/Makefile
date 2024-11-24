@@ -105,7 +105,7 @@ endef
 
 define Package/block-mount/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/lib $(1)/usr/sbin $(1)/etc/hotplug.d/block $(1)/etc/init.d \
-		$(1)/etc/uci-defaults/etc
+		$(1)/etc/uci-defaults/etc $(1)/etc/config
 
 	$(INSTALL_BIN) ./files/fstab.init $(1)/etc/init.d/fstab
 	$(INSTALL_CONF) ./files/mount.hotplug $(1)/etc/hotplug.d/block/10-mount
@@ -117,6 +117,7 @@ define Package/block-mount/install
 	$(LN) ../../sbin/block $(1)/usr/sbin/swapoff
 
 	$(INSTALL_DATA) ./files/fstab-fstools.defaults $(1)/etc/uci-defaults/etc/10_fstab-fstools
+	$(INSTALL_CONF) ./files/fstab.conf $(1)/etc/config/fstab
 
 endef
 

@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libffmpeg-audio-dec
 PKG_VERSION:=4.3.1
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_VERSION:=4.3.1
 PKG_SOURCE:=ffmpeg-$(PKG_SOURCE_VERSION).tar.xz
@@ -94,6 +94,9 @@ endef
 REAL_CPU_TYPE:=$(firstword $(subst +, ,$(CONFIG_CPU_TYPE)))
 # Fixup cpu types recogized by ffmpeg configure
 REAL_CPU_TYPE:=$(subst octeonplus,octeon+,$(REAL_CPU_TYPE))
+ifeq ($(CONFIG_TARGET_x86),y)
+	REAL_CPU_TYPE:=
+endif
 
 FFMPEG_CONFIGURE:= \
 	CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS) $(FPIC)" \

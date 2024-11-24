@@ -183,7 +183,6 @@ proto_qmux_setup() {
 	set_package_aggregation "/sys/class/net/${ifname}/qmi/tx_max_size_mux" "$ul_max_size"
 	set_package_aggregation "/sys/class/net/${ifname}/qmi/tx_max_datagrams_mux" "$ul_max_datagrams"
 
-
 	manage_qmimux_interface && return 1
 
 #~ Connectivity part----------------------------------------------------

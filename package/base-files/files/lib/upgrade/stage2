@@ -44,7 +44,7 @@ switch_to_ramfs() {
 		ubidetach ubirsvol ubirmvol ubimkvol			\
 		snapshot snapshot_tool date jshn dtbtool dtc mkbootimg	\
 		ubinize-image.sh sysupgrade-tar.sh which ubinize mktemp	\
-		dumpimage ledman fwtool sodog \
+		dumpimage ledman fwtool \
 		$RAMFS_COPY_BIN
 	do
 		local file="$(command -v "$binary" 2>/dev/null)"
@@ -95,8 +95,6 @@ kill_remaining() { # [ <signal> [ <loop> ] ]
 			read pid name state ppid rest < $stat
 			name="${name#(}"; name="${name%)}"
 
-			# Skip sodog
-			[ "$name" = "sodog" ] && continue
 			# Skip PID1, our parent, ourself and our children
 			[ $pid -ne 1 -a $pid -ne $proc_ppid -a $pid -ne $$ -a $ppid -ne $$ ] || continue
 

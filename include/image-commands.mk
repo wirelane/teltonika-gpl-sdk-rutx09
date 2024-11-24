@@ -122,7 +122,7 @@ define Build/finalize-tlt-custom
 	[ -d $(BIN_DIR)/tltFws ] || mkdir -p $(BIN_DIR)/tltFws
 	$(CP) $@ $(BIN_DIR)/tltFws/$(TLT_VERSION_FILE)$(if $(1),_$(word 1,$(1)))$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).$(if $(word 2,$(1)),$(word 2,$(1)),bin)
 	echo "Copying $@ to tltFws"
-	echo  $(BIN_DIR)/tltFws/$(TLT_VERSION_FILE)$(if $(1),_$(word 1,$(1)))$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).$(if $(word 2,$(1)),$(word 2,$(1)),bin) >$(TMP_DIR)/last_built.fw
+	echo  $(BIN_DIR)/tltFws/$(TLT_VERSION_FILE)$(if $(1),_$(word 1,$(1)))$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).$(if $(word 2,$(1)),$(word 2,$(1)),bin) | tee /tmp/last_built.fw >"$(TMP_DIR)/last_built.fw"
 	sed -e 's|$(TOPDIR)/||g' "$(TMP_DIR)"/last_built.fw >>"$(TMP_DIR)"/unsigned_fws
 endef
 

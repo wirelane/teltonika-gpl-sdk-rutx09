@@ -792,6 +792,8 @@ nhrp_parse_instance(){
 	config_get interface      "$section" interface
 	config_get redirect       "$section" redirect
 
+	[ -n "ipsec_instance" ] && ipsec_instance=${ipsec_instance#*-}
+
 	xappend      "$CONFIG_FILE_NHRP" "interface" "$interface"
 	xappend      "$CONFIG_FILE_NHRP" "ip nhrp cisco-authentification" "$auth"
 	xappend      "$CONFIG_FILE_NHRP" "ip nhrp network-id" "$network_id"

@@ -66,10 +66,12 @@ define gpl_install_feeds
 endef
 
 define gpl_install_deps
-	(\
-		dir=$$(find "$(TOPDIR)/package" -name "$(1)" | xargs -I {} find -L {} -name Makefile -maxdepth 1 -printf "%h\n" | \
-			sed 's@$(TOPDIR)/@@g'); \
-		[ -n "$${dir}" ] && $(MAKE) -C "$(TOPDIR)/$${dir}" gpl-install || true; \
+	$(if $(and $(PARENT_PKG),$(filter $(1),$(PARENT_PKG))),, \
+		(\
+			dir=$$(find "$(TOPDIR)/package" -name "$(1)" | xargs -I {} find -L {} -name Makefile -maxdepth 1 -printf "%h\n" | \
+				sed 's@$(TOPDIR)/@@g'); \
+			[ -n "$${dir}" ] && $(MAKE) -C "$(TOPDIR)/$${dir}" PARENT_PKG="$(if $(PARENT_PKG),$(PARENT_PKG),$(PKG_NAME))" gpl-install || true; \
+		) \
 	)
 endef
 

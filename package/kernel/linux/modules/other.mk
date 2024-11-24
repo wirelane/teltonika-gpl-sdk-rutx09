@@ -1178,6 +1178,32 @@ endef
 
 $(eval $(call KernelPackage,tpm-tis))
 
+define KernelPackage/tpm-tis-core
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TPM TIS CORE (generic)
+  DEPENDS:= +kmod-tpm
+  KCONFIG:= CONFIG_TCG_TIS_CORE
+  FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm_tis_core.ko
+  AUTOLOAD:= $(call AutoLoad,25,tpm_tis_core,1)
+endef
+
+$(eval $(call KernelPackage,tpm-tis-core))
+
+define KernelPackage/tpm-tis-i2c
+  SUBMENU:=$(OTHER_MENU)
+  TITLE:=TPM TIS 1.2 / TPM 2.0 FIFO Interface - (I2C - generic)
+  DEPENDS:= +kmod-tpm +kmod-i2c-core +kmod-tpm-tis-core
+  KCONFIG:= CONFIG_TCG_TIS_I2C
+  FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm_tis_i2c.ko
+  AUTOLOAD:= $(call AutoLoad,30,tpm_tis_i2c,1)
+endef
+
+define KernelPackage/tpm-tis-i2c/description
+   TPM security chip, compliant with the TCG TPM PTP (I2C interface) specification and connected to an I2C bus master.
+endef
+
+$(eval $(call KernelPackage,tpm-tis-i2c))
+
 define KernelPackage/tpm-i2c-atmel
   SUBMENU:=$(OTHER_MENU)
   TITLE:=TPM I2C Atmel Support
@@ -1196,7 +1222,7 @@ $(eval $(call KernelPackage,tpm-i2c-atmel))
 define KernelPackage/tpm-i2c-infineon
   SUBMENU:=$(OTHER_MENU)
   TITLE:= TPM I2C Infineon driver
-  DEPENDS:= +kmod-tpm +kmod-i2c-core
+  DEPENDS:= +kmod-tpm +kmod-i2c-core +kmod-tpm-tis-i2c
   KCONFIG:= CONFIG_TCG_TIS_I2C_INFINEON
   FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm_i2c_infineon.ko
   AUTOLOAD:= $(call AutoLoad,40,tpm_i2c_infineon,1)

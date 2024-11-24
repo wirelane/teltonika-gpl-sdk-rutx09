@@ -125,6 +125,12 @@ function generateIconDefinitions() {
  */
 interface Env {
   /**
+   * @description vuci repository hash concatenated with current build date in such format: `{date}-{hash}`
+   * @example
+   * '2024-10-21-867547f873'
+   */
+  VUCI_BUILD_HASH?: string
+  /**
    * The commit revision the project is built for.
    */
   CI_COMMIT_SHA: string
@@ -161,7 +167,8 @@ interface Env {
  * * master branch - production
  */
 export function getSentryConfig(env: Env) {
-  const { CI_COMMIT_SHA, CI_COMMIT_TAG, CI_COMMIT_BRANCH, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN } = env
+  const { VUCI_BUILD_HASH, CI_COMMIT_SHA, CI_COMMIT_TAG, CI_COMMIT_BRANCH, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN } = env
+  const repoHash = VUCI_BUILD_HASH ? VUCI_BUILD_HASH.split('-').at(-1) : CI_COMMIT_SHA
   const dotenvConfigured = !!(SENTRY_ORG && SENTRY_PROJECT && SENTRY_AUTH_TOKEN)
   const isDevelopmentBranch = CI_COMMIT_BRANCH === 'develop'
   const isReleaseBranch = CI_COMMIT_BRANCH?.startsWith('release/')
@@ -170,7 +177,7 @@ export function getSentryConfig(env: Env) {
     org: SENTRY_ORG,
     project: SENTRY_PROJECT,
     authToken: SENTRY_AUTH_TOKEN,
-    releaseName: CI_COMMIT_TAG ?? CI_COMMIT_SHA,
+    releaseName: CI_COMMIT_TAG ?? repoHash,
     enabled: dotenvConfigured && (isDevelopmentBranch || isReleaseBranch || isMasterBranch),
     environment: isMasterBranch ? 'production' : isReleaseBranch ? 'release' : 'development'
   }

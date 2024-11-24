@@ -1,49 +1,62 @@
 const dataGetters = require('./dataGetters')
+const process = require('process')
 
 module.exports = { validateChangelogFiles, validateChangelogFile, validateDatabase }
 
-function validateChangelogFiles() {
-  /** @type {string[]} */
-  const errors = []
-  const validFiles = []
-  const fileErrors = []
-  dataGetters.getChangelogs(true).forEach((file, _, arr) => {
+/**
+ * @typedef Validation
+ * @type {object}
+ * @property {string} message
+ * @property {'error' | 'warning'} type
+ */
+
+function validateChangelogFiles(print = true) {
+  const validations = dataGetters.getChangelogs(true).map((file, _, arr) => {
+    /** @type {Validation[]} */
+    const validations = []
     const idMatch = file.match(/(\d+-).+/)
     if (!file.endsWith('.json'))
-      fileErrors.push(`"changelog file "${file}" is not .json file. You Probably used old format use new one`)
-    else if (!idMatch)
-      fileErrors.push(
-        `changelog file "${file}" does not start with case id. You probably created changelog from develop or release - rename file to branch name`
-      )
+      validations.push({
+        message: 'file has missing .json extention. You Probably used old format use new one',
+        type: 'warning',
+      })
+    if (!idMatch)
+      validations.push({
+        message:
+          'file  does not start with case id. You probably created changelog from develop or release - rename file to branch name',
+        type: 'warning',
+      })
     else if (arr.some((other) => other !== file && other.startsWith(idMatch[1])))
-      fileErrors.push(`changelog file "${file}" has dublicate case id in name`)
-    else validFiles.push(file)
-  })
-  errors.push(...fileErrors)
-  const changelogIds = validFiles.map((file) => file.split('.')[0])
-  changelogIds.forEach((id) => {
-    const changelogErrors = validateChangelogFile(dataGetters.getChangelog(id, true))
-    if (changelogErrors.length > 0) errors.push(`${id}\n  ${changelogErrors.join('\n  ')}`)
-  })
-  if (errors.length > 0) {
-    console.log(errors.join('\n'))
-    process.exit(1)
-  }
-}
+      validations.push({
+        message: 'two changelog files start with same id. Merge them into one.',
+        type: 'warning',
+      })
 
-function validateDatabase() {
-  function printError(name, errors) {
-    if (errors.length > 0) {
-      console.log(`There is errors in "${name}" database`)
-      console.log(errors.join('\n'))
+    const id = file.split('.')[0]
+    const res = [...validations, ...validateChangelogFile(dataGetters.getChangelog(id, true))]
+    return /** @type {[string, Validation[]]}} */ ([id, res])
+  })
+
+  if (print) {
+    validations.forEach(([id, errors]) => {
+      printErrors('changelog', id, errors)
+    })
+    if (validations.some((e) => e[1].length)) {
+      console.log('\x1b[36m%s\x1b[0m', 'Some errors can be fixed by running "./create_changelog.sh auto-fix"')
+    }
+    if (validations.some((validation) => validation[1].some((error) => error.type === 'error'))) {
       process.exit(1)
     }
   }
+  return validations
+}
+
+function validateDatabase() {
   const devices = dataGetters.getDevices(true)
-  /** @type {Record<string, any[]>} */
+  /** @type {Record<string, () => any[]>} */
   const databases = {
-    topics: dataGetters.getTopics(),
-    families: dataGetters.getFamilies(),
+    families: () => dataGetters.getFamilies(),
+    topics: () => dataGetters.getTopics(),
   }
   const validations = {
     topics: (topic) =>
@@ -59,39 +72,64 @@ function validateDatabase() {
       }),
   }
   Object.entries(databases).forEach(([name, database]) => {
-    if (!Array.isArray(database)) printError(name, ['database is not array'])
-    const errors = database.reduce(
-      (errors, item, index) => [
-        ...errors,
-        ...validations[name](item).map((error) => `- entry #${index + 1} > ${error}`),
-      ],
-      []
+    /** @type {any[] | undefined} */
+    let parsedDatabase
+    try {
+      parsedDatabase = database()
+    } catch (e) {
+      if (e.message.includes('JSON'))
+        return printErrors('database', name, [{ message: e.message, type: 'error' }], true)
+    }
+    if (!Array.isArray(parsedDatabase))
+      return printErrors('database', name, [{ message: 'database is not array', type: 'error' }], true)
+    /** @type {string[]} */
+    const errors = parsedDatabase.reduce(
+      (errors, item, index) => [...errors, ...validations[name](item).map((error) => `entry #${index + 1} > ${error}`)],
+      /** @type {string[]} */ ([])
     )
-    printError(name, errors)
+    if (name === 'families') {
+      const devicesInFamily = parsedDatabase.filter((e) => e.name !== 'Router').flatMap((e) => e.devices)
+      const deviceNotInFamily = devices.filter((device) => !devicesInFamily.includes(device))
+      errors.push(...deviceNotInFamily.map((e) => `Device ${e} is not found in any family`))
+    }
+
+    printErrors(
+      'database',
+      name,
+      errors.map((error) => ({ type: 'warning', message: error }))
+    )
   })
-  const devicesInFamily = databases.families.filter((e) => e.name !== 'Router').flatMap((e) => e.devices)
-  const deviceNotInFamily = devices.filter((device) => !devicesInFamily.includes(device))
-  printError(
-    'families',
-    deviceNotInFamily.map((e) => `Device ${e} is not found in any family`)
-  )
 }
 
+/**
+ * @param {string} changelogTxt
+ * @param {string[]} [caseIdOptions]
+ * @param {boolean} [disableFormatingCheck]
+ * @returns {Validation[]}
+ */
 function validateChangelogFile(changelogTxt, caseIdOptions, disableFormatingCheck = false) {
   let changelogs
+  /** @type {Validation[]} */
+  const validations = []
   try {
     changelogs = JSON.parse(changelogTxt)
   } catch (e) {
-    return [e.message]
+    return [{ message: e, type: 'error' }]
   }
-  if (!Array.isArray(changelogs)) return ['changelog file must be array']
+  if (!Array.isArray(changelogs)) return [{ message: 'changelog file must be array', type: 'error' }]
   const changelogErrors = changelogs.flatMap((changelog, index) => {
     const changlogErrors = validateChangelog(changelog, caseIdOptions)
-    return changlogErrors.map((error) => `- entry #${index + 1} > ${error}`)
+    return changlogErrors.map(
+      /** @returns {Validation} */ (error) => ({ message: `entry #${index + 1} > ${error}`, type: 'warning' })
+    )
   })
-  if (disableFormatingCheck) return changelogErrors
-  if (!changelogTxt.endsWith('\n')) changelogErrors.push('- file should end with new line')
-  return changelogErrors
+  validations.push(...changelogErrors)
+  if (!disableFormatingCheck && changelogTxt !== JSON.stringify(changelogs, null, 2) + '\n')
+    validations.push({
+      message: 'file has incorrect JSON formatting.',
+      type: 'warning',
+    })
+  return validations
 }
 
 /**
@@ -127,7 +165,7 @@ function validateChangelog(changelog, caseIdOptions) {
   const changeValidators = {
     'CVE Patches': /^CVE-\d*-\d*$/,
     Updates: /^[^ ]*$/,
-    default: /^[a-z].*[^ .]$/,
+    default: (object, key) => [...validateRegex(object, key, /^[a-z].*[^ .]$/), ...validateChange(object, key)],
   }
   const topicValidators = {
     'CVE Patches': [undefined],
@@ -151,8 +189,7 @@ function validateChangelog(changelog, caseIdOptions) {
 
 /**
  * @param {*} object
- * @param {Record<string, RegExp | any[]>} rules
- * @param {string} rules
+ * @param {Record<string, RegExp | any[] | function>} rules
  * @returns {string[]}
  */
 function validateObject(object, rules) {
@@ -160,7 +197,49 @@ function validateObject(object, rules) {
   return Object.entries(rules).reduce((errors, [value, rule]) => {
     if (!object[value] && !(Array.isArray(rule) && rule.includes(undefined))) errors.push(`${value}: required`)
     else if (rule instanceof RegExp) errors.push(...validateRegex(object, value, rule))
+    else if (typeof rule === 'function') errors.push(...rule(object, value))
     else errors.push(...validateOption(object, value, rule))
     return errors
   }, /** @type {string[]} */ ([]))
+}
+
+/**
+ * @param {Record<string,string>} object
+ * @returns {string[]}
+ */
+function validateChange(object, key) {
+  const res = []
+  const words = object[key].split(' ')
+  if (!(!words[0] || dataGetters.irregularVerbs.includes(words[0]) || words[0].endsWith('ed')))
+    res.push(`first word "${words[0]}" is not past tense`)
+  res.push(
+    ...words
+      .filter((word) => dataGetters.getSpellings()[word])
+      .map((mistake) => `common mistake: "${mistake}" instead of "${dataGetters.getSpellings()[mistake]}"`)
+  )
+  return res.map((e) => `${key}: ${e}`)
+}
+
+/** @type {Record<Validation['type'], string>} */
+const colors = {
+  error: '\x1b[41m',
+  warning: '\x1b[43m',
+}
+/**
+ * Prints errors and warnings
+ * @param {string} group
+ * @param {string} name
+ * @param {Validation[]} validations
+ * @param {boolean} [exitOnError]
+ */
+function printErrors(group, name, validations, exitOnError) {
+  if (!validations.length) return
+  const errorsFound = validations.some((e) => e.type === 'error')
+  if (!globalThis.supressInfo || errorsFound) {
+    console.error(
+      `${group} "${name}":\n${validations?.map((e) => `  ${colors[e.type]} ${e.type} \x1b[0m ${e.message}`).join('\n')}`
+    )
+  }
+  if (exitOnError && errorsFound) process.exit(1)
+  process.exitCode = 1
 }

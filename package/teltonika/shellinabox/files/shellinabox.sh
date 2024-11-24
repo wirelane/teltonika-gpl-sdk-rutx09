@@ -2,6 +2,7 @@
 title=""
 paragraph=""
 shell_cert="/tmp/certificate.pem"
+shell_banner="/tmp/shellinabox.banner"
 uhttpd_cert=$(uci -q get uhttpd.main.cert)
 uhttpd_key=$(uci -q get uhttpd.main.key)
 key_type=$(uci get uhttpd.defaults.key_type)
@@ -27,6 +28,13 @@ if [ "$enable" -eq "1" ] && [ "$wan_deny" -eq "0" ]; then
 	fi
 	shells=$(ps | grep -v grep | grep -c shellinaboxd)
 	if [ "$shells" -lt "$shell_limit" ]; then
+		banner_opt=""
+		banner_enabled="$(uci -q get system.banner.enabled)"
+		if [ -n "$banner_enabled" ] && [ "$banner_enabled" -eq 1 ]; then
+			echo -e "*** $(uci -q get system.banner.title) ***" > $shell_banner
+			echo -e "\n$(uci -q get system.banner.message)" >> $shell_banner
+			banner_opt="--banner="$shell_banner""
+		fi
 		if [ -n "$HTTPS" ]; then
 			tmp_cert_file=$(mktemp)
 
@@ -46,9 +54,9 @@ if [ "$enable" -eq "1" ] && [ "$wan_deny" -eq "0" ]; then
 
 			mv "$tmp_cert_file" "$shell_cert"
 			exec 3<"$shell_cert"
-			/usr/sbin/shellinaboxd --disable-ssl-menu --cgi="${port}" -u 0 -g 0 --cert-fd=3
+			/usr/sbin/shellinaboxd --disable-ssl-menu --cgi="${port}" -u 0 -g 0 --cert-fd=3 $banner_opt
 		else
-			/usr/sbin/shellinaboxd -t --cgi="${port}" -u 0 -g 0
+			/usr/sbin/shellinaboxd -t --cgi="${port}" -u 0 -g 0 $banner_opt
 		fi
 	else
 		title="Too many active shell instances!"
@@ -58,6 +66,8 @@ else
 	title="CLI not enabled!"
 	paragraph="CLI not enabled! Enable CLI and try again."
 fi
+
+rm -f "$shell_banner"
 
 if [ -n "$title" ] && [ -n "$paragraph" ]; then
 echo "Content-type: text/html"

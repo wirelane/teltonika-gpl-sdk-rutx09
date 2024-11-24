@@ -1,9 +1,9 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. /lib/functions/teltonika-functions.sh
+. /lib/functions/system.sh
 
-is_ios_enabled || exit 0	
+is_ios_enabled || exit 0
 
 CONFIG_FILE="/etc/config/ioman"
 [ -f "$CONFIG_FILE" ] || exit 0

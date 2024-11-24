@@ -82,6 +82,7 @@ sub target_config_features(@) {
 		/^serial-reset-quirk$/ and $ret .= "\tselect SERIAL_RESET_QUIRK\n";
 		/^bacnet$/ and $ret .= "\tselect BACNET_MODULE_SUPPORT\n";
 		/^ntrip$/ and $ret .= "\tselect NTRIP_MODULE_SUPPORT\n";
+		/^impulse_counter$/ and $ret .= "\tselect IMPULSE_COUNTER_SUPPORT\n";
 		/^multi-device$/ and $ret .= "\tselect MULTI_DEVICE_QUIRK\n";
 		/^gateway$/ and $ret .= "\tselect GATEWAY_DEVICE\n";
 		/^access-point$/ and $ret .= "\tselect AP_DEVICE\n";
@@ -89,12 +90,15 @@ sub target_config_features(@) {
 		/^ledman-lite$/ and $ret .= "\tselect LEDMAN_LITE\n";
 		/^sw-offload$/ and $ret .= "\tselect SW_OFFLOAD\n";
 		/^hw-offload$/ and $ret .= "\tselect HW_OFFLOAD\n";
+		/^xfrm-offload$/ and $ret .= "\tselect XFRM_OFFLOAD\n";
 		/^tlt-failsafe-boot$/ and $ret .= "\tselect TLT_FAILSAFE_BOOT\n";
 		/^modem-reset-quirk$/ and $ret .= "\tselect MODEM_RESET_QUIRK\n";
 		/^portlink$/ and $ret .= "\tselect PORT_LINK\n";
 		/^rs232$/ and $ret .= "\tselect HAS_RS232\n";
 		/^rs485$/ and $ret .= "\tselect HAS_RS485\n";
 		/^hi-storage$/ and $ret .= "\tselect HIGH_STORAGE\n";
+		/^esim-p$/ and $ret .= "\tselect ESIM_SUPPORT\n";
+		/^framed-routing$/ and $ret .= "\tselect FRAMED_ROUTING\n";
 		/^industrial-access-point$/ and $ret .= "\tselect INDUSTRIAL_AP\n"
 	}
 	return $ret;
@@ -506,7 +510,7 @@ EOF
 		my $profiles = $target->{profiles};
 		foreach my $profile (@$profiles) {
 			next unless $profile->{included_devices};
-			print "\tdefault \"$profile->{included_devices}\" if TARGET_$target->{conf}_$profile->{id}\n";
+			print "\tdefault \"$profile->{included_devices}\" if (TARGET_$target->{conf}_$profile->{id} || TARGET_DEVICE_$target->{conf}_$profile->{id})\n";
 		}
 	}
 

@@ -12,7 +12,7 @@
 
 		"system/admin/multiusers/users_configuration": {
 			"title": "System Users",
-			"index": 2,
+			"index": 3,
 			"acls": [ "system/admin/multiusers/users_configuration" ],
 			"view": "system/Users"
 		}

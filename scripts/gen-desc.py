@@ -118,12 +118,12 @@ class Profile:
                 self.features = set(l[25:-1].split())
                 self.features.update(self.target.features)
             elif 'Target-Profile-HARDWARE-' in l:
-                if len(l.strip()[24:].split(': ')) != 2:
+                data = l.strip()[24:].split(': ', 1)
+                if len(data) < 2:
                     continue
 
-                key, value = l.strip()[24:].split(': ')
-                key_parts = key.split('-')
-                self.recursive_insert(self.hw, key_parts, value)
+                key_parts = data[0].split('-')
+                self.recursive_insert(self.hw, key_parts, data[1])
 
         self.hw = self.convert_to_array_format(self.hw)
 
@@ -207,7 +207,8 @@ class Profile:
 
         f.close()
 
-        Popen('make defconfig', shell=True, stdout=subprocess.DEVNULL).wait()
+        Popen('./scripts/auto-exec.sh ./scripts/config/conf --defconfig .config Config.in',
+            shell=True, stdout=subprocess.DEVNULL).wait()
 
     def read_config(self):
         with open('.config', 'r') as config_file:
@@ -218,6 +219,17 @@ class Profile:
                 elif '=' in line:
                     option, value = line.split('=', 1)
                     self.conf[option.split('CONFIG_')[1]] = True if value == 'y' else value
+
+    def append_or_insert_arr(self, array, target_kv):
+        for item in array:
+            if item['key'] == target_kv['key']:
+                if target_kv['value'][0] == '\\' and target_kv['value'][1] != '\\':
+                    item['value'] += target_kv['value'][1:]
+                else:
+                    item['value'] += ' ' + target_kv['value']
+                return
+
+        array.append(target_kv)
 
     def fetch_features(self):
         self.features = []
@@ -232,12 +244,12 @@ class Profile:
                 new_item = {'key': d['key'], 'value': d['value']}
 
                 if not 'expr' in d or not d['expr']:
-                    new_detail.append(new_item)
+                    self.append_or_insert_arr(new_detail, new_item)
                     continue
 
                 expr = self.parse_expr(d['expr'])
                 if self.evaluate_expr(expr):
-                    new_detail.append(new_item)
+                    self.append_or_insert_arr(new_detail, new_item)
 
             f.detail = new_detail
             f.external = (self.conf[f.name] == 'm')
@@ -274,6 +286,7 @@ class Profile:
 
     def json(self, descriptions_only=False):
         data = {
+            "name": self.name,
             "hardware": self.hw,
         }
         if not descriptions_only:
@@ -290,11 +303,16 @@ class Profile:
 
         data["features"] = dump_features(self.features, descriptions_only)
 
-        return json.dumps(data, indent=2, ensure_ascii=False)
+        return data
+
+def run_metadata_info(*args):
+    command = './scripts/target-metadata.pl '
+    command += ' '.join(args)
+    return subprocess.run(command, shell=True, capture_output=True, text=True).stdout.strip()
 
 def initialize_targets(targetDevice=None, targetFamily=None):
     ti = 'tmp/.targetinfo'
-
+    devlist = None
 
     print('Initializing targets...')
 
@@ -303,8 +321,26 @@ def initialize_targets(targetDevice=None, targetFamily=None):
         Popen('make defconfig', shell=True).wait()
 
     if not path.exists(ti):
-        print('Unable to generate ftable due to missing targetinfo data!')
+        print('Unable to initialize targets due to missing targetinfo data!')
         exit(1)
+
+    if targetFamily is not None:
+        res = run_metadata_info('target', 'tmp/.targetinfo', targetFamily)
+        match = re.search(r'DEVICE_PROFILE=(DEVICE_teltonika_\S+)', res)
+        if match:
+            familyProfile = match.group(1).replace("DEVICE_", "")
+            print(f'Found family profile: {familyProfile}')
+        else:
+            return
+
+        res = run_metadata_info('option', 'tmp/.targetinfo', familyProfile, 'included_devices')
+        if not res:
+            # use family profile for backwards compatibility
+            devlist = [ familyProfile ]
+            print(f'Unable to find family devices, using family profile: {", ".join(devlist)}')
+        else:
+            devlist = res.split()
+            print(f'Found family devices: {", ".join(devlist)}')
 
     f = open(ti, 'r')
     target = None
@@ -321,7 +357,7 @@ def initialize_targets(targetDevice=None, targetFamily=None):
                     list_profiles.append(profile)
                     break
             elif targetFamily is not None:
-                if targetFamily in line[33:-1]:
+                if line[23:-1] in devlist:
                     profile = Profile(line[16:-1], target)
                     profile.parse(f)
                     list_profiles.append(profile)
@@ -337,7 +373,7 @@ class Feature:
         self.name = empty_none_value(name)
         self.title = ''
         self.maintainer = ''
-        self.label = 'Other'
+        self.label = 'Utilities'
         self.external = False
         self.packages = []
         self.desc = ''
@@ -382,6 +418,10 @@ class Feature:
             if is_match('^config ', l):
                 file.seek(position)
                 break
+            elif is_match('^endmenu', l):
+                help_parse = False
+                detail_parse = False
+                detail_expr_parse = False
             elif is_match('^\tbool ', l) or is_match('^\ttristate ', l):
                 help_parse = False
                 detail_parse = False
@@ -520,6 +560,10 @@ def dump_features(data, descriptions_only=False):
 
         features[label].append(info)
 
+    # sort alphabetically
+    for label in features:
+        features[label].sort(key=lambda x: x['title'])
+
     return features
 
 class Package:
@@ -605,6 +649,7 @@ def generate_device_features(dump=False, descriptions_only=False, target=None, f
     default_dir='out'
     default_name='features.json'
     dump_list = False
+    json_data = None
 
     print('Generating device features...')
 
@@ -627,15 +672,24 @@ def generate_device_features(dump=False, descriptions_only=False, target=None, f
     if not os.path.exists(default_dir):
         os.makedirs(default_dir)
 
+    # prepare for defconfig generation
+    print('Initializing tmpinfo...')
+    Popen('make prepare-tmpinfo', shell=True, stdout=subprocess.DEVNULL).wait()
+
     if dump_list:
-        json_data = json.dumps(dump_features(list_features, descriptions_only), indent=2, ensure_ascii=False)
+        json_data = dump_features(list_features, descriptions_only)
     else:
-        data = []
+        if family:
+            json_data = []
+
         for p in list_profiles:
             print(f'Generating {p.name}...')
-            data.append(p.json(descriptions_only))
 
-        json_data = ',\n'.join(data)
+            if target:
+                json_data = p.json(descriptions_only)
+                break
+
+            json_data.append(p.json(descriptions_only))
 
     if len(json_data) == 0:
         print('Unable to generate json data!')
@@ -644,7 +698,7 @@ def generate_device_features(dump=False, descriptions_only=False, target=None, f
 
     default_path = os.path.join(default_dir, default_name)
     with open(default_path, 'w') as file:
-        file.write(json_data)
+        json.dump(json_data, file, indent=2, ensure_ascii=False)
 
     print(f'Data written to {default_path} path.')
 

@@ -3,6 +3,9 @@
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
+[ -f "/lib/functions/mobile.sh" ] && \
+	. /lib/functions/mobile.sh
+
 json_select_array() {
 	local _json_no_warning=1
 
@@ -364,102 +367,6 @@ ucidef_set_interface_macaddr() {
 	ucidef_set_interface "$network" macaddr "$macaddr"
 }
 
-ucidef_add_atm_bridge() {
-	local vpi="$1"
-	local vci="$2"
-	local encaps="$3"
-	local payload="$4"
-	local nameprefix="$5"
-
-	json_select_object dsl
-		json_select_object atmbridge
-			json_add_int vpi "$vpi"
-			json_add_int vci "$vci"
-			json_add_string encaps "$encaps"
-			json_add_string payload "$payload"
-			json_add_string nameprefix "$nameprefix"
-		json_select ..
-	json_select ..
-}
-
-ucidef_add_adsl_modem() {
-	local annex="$1"
-	local firmware="$2"
-
-	json_select_object dsl
-		json_select_object modem
-			json_add_string type "adsl"
-			json_add_string annex "$annex"
-			json_add_string firmware "$firmware"
-		json_select ..
-	json_select ..
-}
-
-ucidef_add_vdsl_modem() {
-	local annex="$1"
-	local tone="$2"
-	local xfer_mode="$3"
-
-	json_select_object dsl
-		json_select_object modem
-			json_add_string type "vdsl"
-			json_add_string annex "$annex"
-			json_add_string tone "$tone"
-			json_add_string xfer_mode "$xfer_mode"
-		json_select ..
-	json_select ..
-}
-
-ucidef_set_rssimon() {
-	local dev="$1"
-	local refresh="$2"
-	local threshold="$3"
-
-	json_select_object rssimon
-
-	json_select_object "$dev"
-	[ -n "$refresh" ] && json_add_int refresh "$refresh"
-	[ -n "$threshold" ] && json_add_int threshold "$threshold"
-	json_select ..
-
-	json_select ..
-}
-
-ucidef_add_gpio_switch() {
-	local cfg="$1"
-	local name="$2"
-	local pin="$3"
-	local default="${4:-0}"
-
-	json_select_object gpioswitch
-		json_select_object "$cfg"
-			json_add_string name "$name"
-			json_add_int pin "$pin"
-			json_add_int default "$default"
-		json_select ..
-	json_select ..
-}
-
-ucidef_set_hostname() {
-	local hostname="$1"
-
-	json_select_object system
-		json_add_string hostname "$hostname"
-	json_select ..
-}
-
-ucidef_set_ntpserver() {
-	local server
-
-	json_select_object system
-		json_select_array ntpserver
-			for server in "$@"; do
-				json_add_string "" "$server"
-			done
-		json_select ..
-	json_select ..
-}
-
 ucidef_set_network_options() {
 	json_select_object "network_options"
 	n=$#
@@ -480,11 +387,6 @@ ucidef_set_network_options() {
 }
 
 ucidef_set_poe() {
-	local poe
-
-	json_get_var poe poe
-	[ -n "$poe" ] && return
-
 	json_select_object poe
 		json_add_string "bus" "/dev/$1"
 		json_add_int "chip_count" "$2"
@@ -523,17 +425,152 @@ ucidef_set_poe_chip() {
 	json_select ..
 }
 
-ucidef_usbcheck() {
-	json_add_object usbcheck
-		json_add_string path "$1"
-	json_close_object
+ucidef_check_path() {
+	json_select_array "checks"
+		json_add_object
+			json_add_string name "$1"
+			json_add_string path "$2"
+			json_add_string action "$3"
+		json_close_object
+	json_close_array
 }
 
-ucidef_usbhubcheck() {
-	json_add_object usbhubcheck
-		json_add_string usb_id "$1"
-		json_add_string gpio "$2"
+ucidef_add_dot1x_server_capabilities() {
+	local guest_vlan="$1"
+	local fallback_vlan="$2"
+	local isolation_method="$3"
+	json_add_object "port_security"
+	json_add_boolean guest_vlan $guest_vlan
+	json_add_boolean fallback_vlan "$fallback_vlan"
+	json_add_string isolation_method "$isolation_method"
 	json_close_object
+
+}
+
+ucidef_add_static_modem_info() {
+	#Parameters: model usb_id sim_count other_params
+	local model usb_id count
+	local modem_counter=0
+	local sim_count=1
+
+	model="$1"
+	usb_id="$2"
+
+	json_get_keys count modems
+	[ -n "$count" ] && modem_counter="$(echo "$count" | wc -w)"
+
+	modem_num=$((modem_counter + 1))
+
+	json_select_array "modems"
+		json_add_object
+			json_add_string id "$usb_id"
+			json_add_string num "$modem_num"
+			json_add_boolean builtin 1
+			sim_count=$(get_simcount_by_modem_num $modem_num)
+			json_add_int simcount "$sim_count"
+
+			for i in "$@"; do
+				case "$i" in
+					primary)
+						json_add_boolean primary 1
+						;;
+					gps_out)
+						json_add_boolean gps_out 1
+					;;
+				esac
+			done
+
+		json_close_object
+	json_select ..
+}
+
+ucidef_add_serial_capabilities() {
+	json_select_array serial
+		json_add_object
+			[ -n "$1" ] && {
+				json_select_array devices
+				for d in $1; do
+					json_add_string "" $d
+				done
+				json_select ..
+			}
+
+			json_select_array bauds
+			for b in $2; do
+				json_add_string "" $b
+			done
+			json_select ..
+
+			json_select_array data_bits
+			for n in $3; do
+				json_add_string "" $n
+			done
+			json_select ..
+
+			json_select_array flow_control
+			for n in $4; do
+				json_add_string "" $n
+			done
+			json_select ..
+
+			json_select_array stop_bits
+			for n in $5; do
+				json_add_string "" $n
+			done
+			json_select ..
+
+			json_select_array parity_types
+			for n in $6; do
+				json_add_string "" $n
+			done
+			json_select ..
+
+			json_select_array duplex
+			for n in $7; do
+				json_add_string "" $n
+			done
+			json_select ..
+
+			json_add_string "path" $8
+
+		json_close_object
+	json_select ..
+}
+
+ucidef_add_wlan_bssid_limit() {
+	json_select_object wlan
+		json_add_object "$1"
+			json_add_int bssid_limit "$2"
+		json_close_object
+	json_select ..
+}
+
+ucidef_set_hwinfo() {
+	local args=" $* "
+
+	json_select_object hwinfo
+
+	for opt in $args; do
+		[ -z "$opt" ] && continue
+		json_add_boolean "$opt" 1
+		shift
+	done
+
+	json_select ..
+}
+
+ucidef_set_esim() {
+	json_select_object hwinfo
+	json_add_boolean "esim" 1
+	json_select ..
+}
+
+ucidef_set_release_version() {
+	json_add_string release_version "$1"
+}
+
+ucidef_set_usb_jack() {
+	json_add_string "usb_jack" "$1"
 }
 
 board_config_update() {

@@ -224,3 +224,7 @@ macaddr_canonicalize() {
 
 	printf "%02x:%02x:%02x:%02x:%02x:%02x" 0x${canon// / 0x} 2>/dev/null
 }
+
+is_ios_enabled() {
+	[ "$(jsonfilter -q -i /etc/board.json -e '@.hwinfo.ios')" = "true" ]
+}

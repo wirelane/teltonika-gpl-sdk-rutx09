@@ -7,7 +7,6 @@
 		"title": "Hotspot 2.0",
 		"index": 60,
 		"view": "services/Hotspot2Overview",
-		"acls": [ "services/hotspot/hotspot2" ],
-        "files": [ "/etc/config/wireless" ]
+		"acls": [ "services/hotspot/hotspot2" ]
 	}
 }

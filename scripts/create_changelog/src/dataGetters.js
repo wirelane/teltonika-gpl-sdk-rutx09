@@ -18,8 +18,13 @@ async function prepareVuci() {
 module.exports = {
   changelogDir: '../../.gitlab/changelogs',
   deviceHwDir: '../../feeds/vuci/api-documentation/devices',
+  spellingDir: '../spelling.txt',
   /** @type {null | Record<string, any>} */
   deviceHwCache: null,
+  /** @type {null | Record<string, string>} */
+  spellingCache: null,
+  /** @type {null | 'rutx_open'| 'tswos'} */
+  projectNameCache: null,
   getTypes() {
     return ['New', 'Improvements', 'Fix', 'CVE Patches', 'Updates']
   },
@@ -38,28 +43,39 @@ module.exports = {
       devices: noDevices ? undefined : family.devices,
     }))
     // generating Router family in js as it would require a lot of dublication in json
-    parsedData.push({
-      type: 'family',
-      name: 'Router',
-      devices: noDevices
-        ? undefined
-        : this.getDevices()
-            .map((e) => e.name)
-            .filter((e) => !e.startsWith('TAP')),
-    })
+    if (this.getProjectName() === 'rutx_open') {
+      parsedData.push({
+        type: 'family',
+        name: 'Router',
+        devices: noDevices
+          ? undefined
+          : this.getDevices()
+              .map((e) => e.name)
+              .filter((e) => !e.startsWith('TAP')),
+      })
+    }
     return parsedData
   },
   getDevices(raw) {
+    if (this.getProjectName() === 'tswos') {
+      const txt = fs.readFileSync('./databases/devices.json', { encoding: 'utf8' })
+      if (raw) return JSON.parse(txt)
+      return JSON.parse(txt).map((device) => ({ type: 'device', name: device }))
+    }
     prepareVuci()
-    const exceptions = ['TSW202', 'TSW212', 'RUT206', 'RUT240', 'RUT950', 'RUT955']
+    // delete RUT950 after https://git.teltonika.lt/teltonika/rutx_open/-/issues/21615
+    const exceptions = ['RUT950']
     const devices = fs
       .readdirSync(this.deviceHwDir)
       .map((device) => device.split('.')[0].toUpperCase())
-      .filter((device) => !exceptions.includes(device))
+      .filter((device) => !exceptions.includes(device) && this.getDevicesHw()[device].is_switch === false)
     if (raw) return devices
     return devices.map((device) => ({ type: 'device', name: device }))
   },
   getDepends(noDevices, allPosible) {
+    if (this.getProjectName() === 'tswos') {
+      return [...this.getDevices(), ...this.getFamilies(noDevices)]
+    }
     return [...this.getDevices(), ...this.getFamilies(noDevices), ...this.getHwDepends(allPosible)]
   },
   getChangelog(id, raw) {
@@ -71,6 +87,9 @@ module.exports = {
     } else {
       return null
     }
+  },
+  getFullId(id) {
+    return this.getChangelogs().find((fileName) => fileName.split('-')[0] === id)
   },
   getChangelogs(full) {
     const changelogFiles = fs.readdirSync(this.changelogDir).filter((file) => file !== '.gitkeep')
@@ -88,7 +107,7 @@ module.exports = {
     }
   },
   getDevicesHw() {
-    if (this.deviceHwCache) this.deviceHwCache
+    if (this.deviceHwCache) return this.deviceHwCache
     prepareVuci()
     const changelogFiles = fs
       .readdirSync(this.deviceHwDir)
@@ -125,5 +144,91 @@ module.exports = {
       { type: 'hw', name: 'flash16mb', value: false },
       { type: 'hw', name: 'poe' },
     ]
+  },
+  /** @return {Record<string, string>} */
+  getSpellings() {
+    if (this.spellingCache) return this.spellingCache
+    if (!fs.existsSync(this.spellingDir)) {
+      throw Error('Spelling file missing')
+    }
+    const txt = fs.readFileSync(this.spellingDir, { encoding: 'utf8' })
+    const res = Object.fromEntries(
+      txt
+        .split('\n')
+        .filter((line) => !line.startsWith('#') && line.includes('||'))
+        .map((line) => line.split('||'))
+    )
+    this.spellingCache = res
+    return res
+  },
+  // This is not comprehensive list. Fill if needed.
+  irregularVerbs: [
+    'bound',
+    'broke',
+    'brought',
+    'built',
+    'caught',
+    'chose',
+    'cut',
+    'drew',
+    'forbade',
+    'found',
+    'froze',
+    'gave',
+    'hid',
+    'kept',
+    'let',
+    'made',
+    'overcome',
+    'put',
+    'set',
+    'showed',
+    'shrank',
+    'shut',
+    'sought',
+    'sped',
+    'spelt',
+    'spent',
+    'split',
+    'thought',
+    'threw',
+    'told',
+    'took',
+    'withdrew',
+    'wrote',
+  ],
+  getHistory() {
+    const files = this.getChangelogs(true).map((file) => `-- "${this.changelogDir}/${file}"`)
+    let stdout = execSync(
+      `git log --name-only --no-merges --pretty=format:'{"commit":"%H","authorName":"%aN","authorEmail":"%aE","timestamp":"%at","message": "%f"}' ${files.join(
+        ' '
+      )}`,
+      { encoding: 'utf8' }
+    )
+    const allCommits = stdout.split('\n\n').reduce((acc, commit) => {
+      const commitAndDirs = commit.split('\n')
+      const commits = commitAndDirs.filter((e) => e.startsWith('{'))
+      const dirs = commitAndDirs.filter((e) => !e.startsWith('{'))
+      const changes = dirs.map((file) => file.split('/').at(-1)?.split('-')[0])
+      const parsedChanges = commits.map((rawCommit) => {
+        const commit = JSON.parse(rawCommit)
+        commit.changes = changes
+        return commit
+      })
+      acc.push(...parsedChanges)
+      return acc
+    }, /** @type {any[]} */ ([]))
+    return allCommits
+  },
+  /**
+   * @returns {'rutx_open'| 'tswos'}
+   */
+  getProjectName() {
+    if (this.projectNameCache) return this.projectNameCache
+    let stdout = execSync('git config --local remote.origin.url', { encoding: 'utf8' })
+    const res = /** @type {'rutx_open'| 'tswos' | undefined} */ (stdout.split('/').at(-1)?.split('.')[0])
+    if (!res) throw new Error('failed to get project name')
+    this.projectNameCache = res ?? null
+    return res
   },
 }

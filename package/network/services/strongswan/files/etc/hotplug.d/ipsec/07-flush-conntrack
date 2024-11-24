@@ -2,7 +2,10 @@
 
 [ "$PLUTO_VERB" = "up-client" ] || exit 0
 
-flush="$(uci get ipsec.${PLUTO_CONNECTION##*-}.flush)"
+connection="${PLUTO_CONNECTION##*-}"
+flush="$(uci get ipsec.${connection%_[0-9]*}.flush)"
 
-[ "$flush" -eq 1 ] && echo f > /proc/net/nf_conntrack
-
+[ "$flush" -eq 1 ] && {
+	logger -t ipsec "Flushing conntrack due to $connection up"
+	echo f > /proc/net/nf_conntrack
+}

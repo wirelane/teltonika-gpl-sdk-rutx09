@@ -14,7 +14,7 @@ Index: firewall-2022-02-17-4cd7d4f3/jools.c
 +	FW3_LIST("src_ip",             network,   jool,     ip_src),
 +	FW3_LIST("src_port",           port,      jool,     port_src),
 +	FW3_LIST("dest_ip",            network,   jool,     ip_dest),
-+	FW3_LIST("port_dest",	       port,	  jool,	    port_dest),
++	FW3_LIST("dest_port",	       port,	  jool,	    port_dest),
 +	FW3_OPT("extra",               string,    jool,     extra),
 +	FW3_OPT("instance",	       string,	  jool,	    instance),
 +	FW3_OPT("target",              target,    jool,     target),

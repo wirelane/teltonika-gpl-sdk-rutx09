@@ -196,6 +196,9 @@ config SW_OFFLOAD
 config HW_OFFLOAD
 	bool
 
+config XFRM_OFFLOAD
+	bool
+
 config MODEM_RESET_QUIRK
 	bool
 
@@ -210,6 +213,7 @@ config HAS_RS485
 
 config HIGH_STORAGE
 	bool
+
 
 config INDUSTRIAL_AP
 	bool

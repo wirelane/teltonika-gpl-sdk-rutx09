@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mnfinfo
 
-PKG_SOURCE_VERSION:=2.18
+PKG_SOURCE_VERSION:=2.22
 
 PKG_LICENSE:=Teltonika-closed
 

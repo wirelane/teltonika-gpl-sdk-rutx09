@@ -163,7 +163,7 @@ sub parse_target_metadata($) {
 		/^Target-Profile-SupportedDevices:\s*(.+)\s*$/ and $profile->{supported_devices} = [ split(/\s+/, $1) ];
 		/^Target-Profile-BootName:\s*(.*)\s*$/ and $profile->{boot_name} = $1;
 		/^Target-Profile-IncludedDevices:\s*(.*)\s*$/ and $profile->{included_devices} = $1;
-		/^Target-Profile-USBCheckPath:\s*(.*)\s*$/ and $profile->{usb_check_path} = $1;
+		/^Target-Profile-CheckPath:\s*(.*)\s*$/ and $profile->{check_path} = $1;
 		/^Target-Profile-USBJackPath:\s*(.*)\s*$/ and $profile->{usb_jack_path} = $1;
 		/^Target-Profile-WLANBssidLimit:\s*(.*)\s*$/ and $profile->{wlan_bssid_limit} = $1;
 		/^Target-Profile-WLANBssidLimit:\s*(.*)\s*$/ and $profile->{wlan_bssid_limit} = $1;

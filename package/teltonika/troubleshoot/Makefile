@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=troubleshoot
-PKG_VERSION:=1.2
+PKG_VERSION:=1.3
 
 PKG_LICENSE:=Teltonika-closed
 

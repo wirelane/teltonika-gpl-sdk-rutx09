@@ -66,7 +66,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.
 -stamp-h1
 diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2024-08-08 06:46:38.000000000 +0000
++++ src/.gitlab-ci.yml	2024-09-13 09:02:09.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -91,7 +91,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml s
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference upstream/cli.conf src/cli.conf
 --- upstream/cli.conf	1970-01-01 00:00:00.000000000 +0000
-+++ src/cli.conf	2024-08-08 06:46:38.000000000 +0000
++++ src/cli.conf	2024-09-13 09:02:09.000000000 +0000
 @@ -0,0 +1,6 @@
 +config status 'status'
 +	option enable '1'
@@ -101,7 +101,7 @@ diff --recursive --unified --new-file --no-dereference upstream/cli.conf src/cli
 +config cli
 diff --recursive --unified --new-file --no-dereference upstream/config.h src/config.h
 --- upstream/config.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/config.h	2024-08-08 06:46:38.000000000 +0000
++++ src/config.h	2024-09-13 09:02:09.000000000 +0000
 @@ -0,0 +1,189 @@
 +/* config.h.  Generated from config.h.in by configure.  */
 +/* config.h.in.  Generated from configure.ac by autoheader.  */
@@ -294,7 +294,7 @@ diff --recursive --unified --new-file --no-dereference upstream/config.h src/con
 +/* #undef const */
 diff --recursive --unified --new-file --no-dereference upstream/configure.ac src/configure.ac
 --- upstream/configure.ac	2016-11-09 19:40:33.000000000 +0000
-+++ src/configure.ac	2024-08-08 06:46:38.000000000 +0000
++++ src/configure.ac	2024-09-13 09:02:09.000000000 +0000
 @@ -34,6 +34,9 @@
  AC_CHECK_HEADERS([libutil.h pthread.h pty.h strings.h syslog.h sys/prctl.h \
                    sys/uio.h util.h])
@@ -307,7 +307,7 @@ diff --recursive --unified --new-file --no-dereference upstream/configure.ac src
                 [AC_CHECK_LIB(util, login_tty,
 diff --recursive --unified --new-file --no-dereference upstream/libhttp/httpconnection.c src/libhttp/httpconnection.c
 --- upstream/libhttp/httpconnection.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/libhttp/httpconnection.c	2024-08-08 06:46:38.000000000 +0000
++++ src/libhttp/httpconnection.c	2024-09-13 09:02:09.000000000 +0000
 @@ -288,33 +288,38 @@
  }
  
@@ -375,7 +375,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libhttp/httpconn
        }
 diff --recursive --unified --new-file --no-dereference upstream/libhttp/server.c src/libhttp/server.c
 --- upstream/libhttp/server.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/libhttp/server.c	2024-08-08 06:46:38.000000000 +0000
++++ src/libhttp/server.c	2024-09-13 09:02:09.000000000 +0000
 @@ -171,7 +171,7 @@
                                                   "content-length");
    if (!contentLength ||
@@ -434,7 +434,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libhttp/server.c
    check(server->pollFds         = malloc(sizeof(struct pollfd)));
 diff --recursive --unified --new-file --no-dereference upstream/libhttp/ssl.c src/libhttp/ssl.c
 --- upstream/libhttp/ssl.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/libhttp/ssl.c	2024-08-08 06:46:38.000000000 +0000
++++ src/libhttp/ssl.c	2024-09-13 09:02:09.000000000 +0000
 @@ -117,6 +117,9 @@
  int           (*SSL_CTX_set_cipher_list)(SSL_CTX *, const char *);
  void          (*SSL_CTX_set_info_callback)(SSL_CTX *,
@@ -622,7 +622,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libhttp/ssl.c sr
  
 diff --recursive --unified --new-file --no-dereference upstream/libhttp/ssl.h src/libhttp/ssl.h
 --- upstream/libhttp/ssl.h	2016-11-09 19:40:33.000000000 +0000
-+++ src/libhttp/ssl.h	2024-08-08 06:46:38.000000000 +0000
++++ src/libhttp/ssl.h	2024-09-13 09:02:09.000000000 +0000
 @@ -99,6 +99,9 @@
  extern int     (*x_SSL_CTX_set_cipher_list)(SSL_CTX *, const char *);
  extern void    (*x_SSL_CTX_set_info_callback)(SSL_CTX *,
@@ -699,7 +699,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libhttp/ssl.h sr
  #undef  BIO_set_buffer_read_data
 diff --recursive --unified --new-file --no-dereference upstream/libhttp/url.c src/libhttp/url.c
 --- upstream/libhttp/url.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/libhttp/url.c	2024-08-08 06:46:38.000000000 +0000
++++ src/libhttp/url.c	2024-09-13 09:02:09.000000000 +0000
 @@ -313,6 +313,19 @@
              }
            }
@@ -729,7 +729,7 @@ diff --recursive --unified --new-file --no-dereference upstream/m4/.gitignore sr
 -!.gitignore
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/cgi_root.html src/shellinabox/cgi_root.html
 --- upstream/shellinabox/cgi_root.html	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/cgi_root.html	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/cgi_root.html	2024-09-13 09:02:09.000000000 +0000
 @@ -49,7 +49,7 @@
      http://shellinabox.com
      -->
@@ -768,7 +768,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/cgi_
    </head>
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/launcher.c src/shellinabox/launcher.c
 --- upstream/shellinabox/launcher.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/launcher.c	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/launcher.c	2024-09-13 09:02:09.000000000 +0000
 @@ -86,10 +86,6 @@
  #include <util.h>
  #endif
@@ -789,10 +789,15 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/laun
  #define min(a,b) ({ typeof(a) _a=(a); typeof(b) _b=(b); _a < _b ? _a : _b; })
  #define updwtmpx x_updwtmpx
  
-@@ -1678,14 +1674,22 @@
+@@ -1678,14 +1674,27 @@
      // At login service launch, we try to pass real IP in '-h' parameter. Real
      // IP is provided in HTTP header field 'X-Real-IP', if ShellInABox is used
      // behind properly configured HTTP proxy.
++
++    if (service->bannerContent) {
++      fputs(service->bannerContent, stdout);
++      fputs("\n", stdout);
++    }
 +
      char remoteHost[256];
      snprintf(remoteHost, 256,
@@ -816,7 +821,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/laun
    } else {
      // Launch user provied service
      execService(width, height, service, peerName, realIP, environment, url);
-@@ -1786,7 +1790,7 @@
+@@ -1786,7 +1795,7 @@
        if (!((*s >= '0' && *s <= '9') ||
              (*s >= 'A' && *s <= 'Z') ||
              (*s >= 'a' && *s <= 'z') ||
@@ -827,7 +832,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/laun
      }
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/root_page.html src/shellinabox/root_page.html
 --- upstream/shellinabox/root_page.html	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/root_page.html	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/root_page.html	2024-09-13 09:02:09.000000000 +0000
 @@ -110,6 +110,22 @@
        }
  
@@ -853,35 +858,38 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/root
    </head>
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/service.c src/shellinabox/service.c
 --- upstream/shellinabox/service.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/service.c	2024-08-08 06:46:38.000000000 +0000
-@@ -253,9 +253,10 @@
++++ src/shellinabox/service.c	2024-09-13 09:02:09.000000000 +0000
+@@ -253,9 +253,11 @@
    free(desc);
  }
  
 -struct Service *newService(const char *arg) {
-+struct Service *newService(const char *arg, const char *portRange) {
++struct Service *newService(const char *arg, const char *portRange, const char *bannerContent) {
    struct Service *service;
    check(service = malloc(sizeof(struct Service)));
 +  service->portRange = portRange;
++  service->bannerContent = bannerContent;
    initService(service, arg);
    return service;
  }
-@@ -267,6 +268,7 @@
+@@ -267,6 +269,8 @@
      free((char *)service->group);
      free((char *)service->cwd);
      free((char *)service->cmdline);
 +	free((char *)service->portRange);
++  free((char *)service->bannerContent);
    }
  }
  
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/service.h src/shellinabox/service.h
 --- upstream/shellinabox/service.h	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/service.h	2024-08-08 06:46:38.000000000 +0000
-@@ -61,13 +61,14 @@
++++ src/shellinabox/service.h	2024-09-13 09:02:09.000000000 +0000
+@@ -61,13 +61,15 @@
    const char *group;
    const char *cwd;
    const char *cmdline;
 +  const char *portRange;
++  const char *bannerContent;
  };
  
  extern struct Service **services;
@@ -889,13 +897,13 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/serv
  
  void initService(struct Service *service, const char *arg);
 -struct Service *newService(const char *arg);
-+struct Service *newService(const char *arg, const char *portRange);
++struct Service *newService(const char *arg, const char *portRange, const char *bannerContent);
  void destroyService(struct Service *service);
  void deleteService(struct Service *service);
  void destroyServiceHashEntry(void *arg, char *key, char *value);
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shell_in_a_box.jspp src/shellinabox/shell_in_a_box.jspp
 --- upstream/shellinabox/shell_in_a_box.jspp	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/shell_in_a_box.jspp	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/shell_in_a_box.jspp	2024-09-13 09:02:09.000000000 +0000
 @@ -92,7 +92,7 @@
  function ShellInABox(url, container) {
    if (url == undefined) {
@@ -943,7 +951,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
                             'application/x-www-form-urlencoded; charset=utf-8');
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shellinaboxd.c src/shellinabox/shellinaboxd.c
 --- upstream/shellinabox/shellinaboxd.c	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/shellinaboxd.c	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/shellinaboxd.c	2024-09-13 09:02:09.000000000 +0000
 @@ -65,6 +65,7 @@
  #include <sys/un.h>
  #include <time.h>
@@ -965,7 +973,15 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
  static int            localhostOnly     = 0;
  static int            noBeep            = 0;
  static int            numericHosts      = 0;
-@@ -410,8 +413,8 @@
+@@ -124,6 +127,7 @@
+ static char           *cgiSessionKey;
+ static int            cgiSessions;
+ static char           *cssStyleSheet;
++static char           *bannerContent;
+ static struct UserCSS *userCSSList;
+ static const char     *pidfile;
+ static sigjmp_buf     jmpenv;
+@@ -410,8 +414,8 @@
  
    // Adjust window dimensions if provided by client
    if (width && height) {
@@ -976,7 +992,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
    }
  
    // Create a new session, if the client did not provide an existing one
-@@ -756,7 +759,7 @@
+@@ -756,7 +760,7 @@
    } else if (pathInfoLength > 8 && !memcmp(pathInfo, "usercss-", 8)) {
      // Server user style sheets (if any)
      struct UserCSS *css   = userCSSList;
@@ -985,7 +1001,46 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
           idx-- > 0 && css; css = css->next ) {
      }
      if (css) {
-@@ -1043,6 +1046,7 @@
+@@ -802,6 +806,7 @@
+           "\n"
+           "List of command line options:\n"
+           "  -b, --background[=PIDFILE]  run in background\n"
++          "      --banner=FILE           show banner before login\n"
+           "%s"
+           "      --css=FILE              attach contents to CSS style sheet\n"
+           "      --cgi[=PORTMIN-PORTMAX] run as CGI\n"
+@@ -912,6 +917,7 @@
+     static struct option options[] = {
+       { "help",                 0, 0, 'h' },
+       { "background",           2, 0, 'b' },
++      { "banner",               1, 0,  0  },
+       { "cert",                 1, 0, 'c' },
+       { "cert-fd",              1, 0,  0  },
+       { "css",                  1, 0,  0  },
+@@ -971,6 +977,22 @@
+         check(pidfile     = strdup(optarg));
+       }
+     } else if (!idx--) {
++      // Banner
++      struct stat st;
++      if (!optarg || !*optarg || stat(optarg, &st) || !S_ISREG(st.st_mode)) {
++        fatal("[config] Option --banner expects a file name!");
++      }
++      FILE *banner            = fopen(optarg, "r");
++      if (!banner) {
++        fatal("[config] Cannot read banner \"%s\"!", optarg);
++      } else {
++        check(bannerContent = calloc(st.st_size, sizeof(char)));
++        if (fread(bannerContent, st.st_size, 1, banner) != 1) {
++          fatal("[config] Failed to read banner \"%s\"!", optarg);
++        }
++        fclose(banner);
++      }
++    } else if (!idx--) {
+       // Certificate
+       if (!hasSSL) {
+         warn("[config] Ignoring certificate directory, as SSL support is unavailable.");
+@@ -1043,6 +1065,7 @@
          if (!ptr) {
            fatal("[config] Syntax error in port range specification!");
          }
@@ -993,25 +1048,25 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
          *ptr               = '\000';
          portMin            = strtoint(optarg, 1, 65535);
          *ptr               = '-';
-@@ -1145,7 +1149,7 @@
+@@ -1145,7 +1168,7 @@
          fatal("[config] Option \"--service\" expects an argument.");
        }
        struct Service *service;
 -      service              = newService(optarg);
-+      service              = newService(optarg, NULL);
++      service              = newService(optarg, NULL, bannerContent);
        if (getRefFromHashMap(serviceTable, service->path)) {
          fatal("[config] Duplicate service description for \"%s\".", service->path);
        }
-@@ -1278,7 +1282,7 @@
+@@ -1278,7 +1301,7 @@
  #else
                                      ":SSH"
  #endif
 -                                    ));
-+                                    , portRange));
++                                    , portRange, bannerContent));
    }
    enumerateServices(serviceTable);
    deleteHashMap(serviceTable);
-@@ -1359,6 +1363,38 @@
+@@ -1359,6 +1382,38 @@
    }
  }
  
@@ -1050,7 +1105,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
  int main(int argc, char * const argv[]) {
  #ifdef HAVE_SYS_PRCTL_H
    // Disable core files
-@@ -1389,6 +1425,7 @@
+@@ -1389,6 +1444,7 @@
      // background.
      pid_t pid;
      int   fds[2];
@@ -1058,7 +1113,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
      dropPrivileges();
      check(!pipe(fds));
      check((pid    = fork()) >= 0);
-@@ -1414,7 +1451,8 @@
+@@ -1414,7 +1470,8 @@
             "Content-type: text/html; charset=utf-8\r\n\r\n",
             port, getpid(), cgiSessionKey);
      UNUSED(cgiRootSize);
@@ -1068,7 +1123,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
      fflush(stdout);
      check(!NOINTR(close(fds[1])));
      closeAllFds((int []){ launcherFd, serverGetFd(server) }, 2);
-@@ -1478,7 +1516,7 @@
+@@ -1478,7 +1535,7 @@
        NOINTR(close(fd));
        if (sz > 0) {
          buf[sz]   = '\000';
@@ -1079,7 +1134,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/shel
        }
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/styles.css src/shellinabox/styles.css
 --- upstream/shellinabox/styles.css	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/styles.css	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/styles.css	2024-09-13 09:02:09.000000000 +0000
 @@ -13,9 +13,21 @@
  }
  
@@ -1118,7 +1173,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/styl
  }
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox/vt100.jspp src/shellinabox/vt100.jspp
 --- upstream/shellinabox/vt100.jspp	2016-11-09 19:40:33.000000000 +0000
-+++ src/shellinabox/vt100.jspp	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox/vt100.jspp	2024-09-13 09:02:09.000000000 +0000
 @@ -98,6 +98,9 @@
  #define MOUSE_UP       1
  #define MOUSE_CLICK    2
@@ -1217,7 +1272,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox/vt10
  VT100.prototype.Latin1Map = [
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox.init src/shellinabox.init
 --- upstream/shellinabox.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/shellinabox.init	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox.init	2024-09-13 09:02:09.000000000 +0000
 @@ -0,0 +1,46 @@
 +#!/bin/sh /etc/rc.common
 +# Copyright (C) 2018 Teltonika
@@ -1267,7 +1322,7 @@ diff --recursive --unified --new-file --no-dereference upstream/shellinabox.init
 +}
 diff --recursive --unified --new-file --no-dereference upstream/shellinabox.sh src/shellinabox.sh
 --- upstream/shellinabox.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/shellinabox.sh	2024-08-08 06:46:38.000000000 +0000
++++ src/shellinabox.sh	2024-09-13 09:02:09.000000000 +0000
 @@ -0,0 +1,55 @@
 +#!/bin/sh
 +title=""

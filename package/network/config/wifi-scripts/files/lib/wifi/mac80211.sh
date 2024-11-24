@@ -309,6 +309,7 @@ add_custom_wifi_iface() {
 			set wireless."$index".encryption=none
 			set wireless."$index".isolate=1
 			set wireless."$index".disabled=1
+			set wireless."$index"._device_id='2'
 			EOF
 			wifi_id=$((wifi_id + 1))
 		}

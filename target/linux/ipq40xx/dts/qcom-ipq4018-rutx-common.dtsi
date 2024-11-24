@@ -1,6 +1,7 @@
 #include "qcom-ipq4019-ap.dk01.1.dtsi"
 #include <dt-bindings/gpio/gpio.h>
 #include "platform_name.dtsi"
+#include "qcom-ipq4018-rutx-i2c.dtsi"
 
 #define BLOCK_4PIN "1"
 #define BLOCK_10PIN "2"
@@ -93,12 +94,6 @@
 				snps,dis_u2_susphy_quirk;
 			};
 		};
-
-		tpm: tpm@2e {
-			compatible = "tcg,tpm_tis_i2c";
-			reg = <0x2e>;
-			status = "okay";
-		};
 	};
 
 	boot: boot_partition {
@@ -161,6 +156,7 @@
 		branch {
 			reg = <&config 0x58 0x4>;
 			type = "ascii";
+			default = "";
 			log;
 		};
 

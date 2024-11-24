@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netifd
-PKG_RELEASE:=9
+PKG_RELEASE:=13
 
 PKG_SOURCE_DATE:=2024-01-04
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
@@ -44,11 +44,13 @@ CMAKE_OPTIONS += \
 	-DDEBUG=1
 
 define Package/netifd/install
-	$(INSTALL_DIR) $(1)/sbin
+	$(INSTALL_DIR) $(1)/sbin $(1)/lib/config.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netifd $(1)/sbin/
 	$(CP) ./files/* $(1)/
 	$(INSTALL_DIR) $(1)/etc/udhcpc.user.d/
 	$(CP) $(PKG_BUILD_DIR)/scripts/* $(1)/lib/netifd/
+
+	$(CP) $(1)/lib/network/300-setup-network $(1)/lib/config.d
 
 	$(if $(CONFIG_SMP_SUPPORT),, \
 		$(RM) $(1)/etc/hotplug.d/net/20-smp-packet-steering)
@@ -65,6 +67,12 @@ define Package/netifd/install
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot network ./files/etc/init.d/network.openrc $(1))
 	$(RM) $(1)/etc/init.d/network.openrc
+
+	$(if $(CONFIG_AP_DEVICE), \
+		mv $(1)/lib/netifd/proto/dhcp-tap.sh $(1)/lib/netifd/proto/dhcp.sh; \
+		mv $(1)/lib/netifd/dhcp-tap.script $(1)/lib/netifd/dhcp.script; ,
+		$(RM) $(1)/lib/netifd/proto/dhcp-tap.sh; \
+		$(RM) $(1)/lib/netifd/dhcp-tap.script;)
 endef
 
 $(eval $(call BuildPackage,netifd))

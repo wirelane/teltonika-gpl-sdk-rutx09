@@ -46,6 +46,13 @@ typedef struct lutil_v {
 	void *p;
 } lutil_v;
 
+struct port_node {
+	/* next node */
+	struct port_node *next;
+	/* port value */
+	char *value;
+};
+
 /**
  * @brief add recipient to smtp context
  * 
@@ -119,6 +126,16 @@ unsigned char *lutil_base64_decode(const unsigned char *src, size_t len,
  */
 int lutil_v_add(lutil_v *d, const void *s, size_t n);
 
+/**
+ * @brief Resolves a protocol based on a given port number.
+ *
+ * This function checks the predefined mapping to find the protocol associated 
+ * with the specified port. If found, it returns the corresponding protocol 
+ * string.
+ *
+ * @param port the port number as a string to resolve.
+ * @return pointer to the protocol string if found; otherwise, NULL.
+ */
 const char *lutil_protocol_resolve(char *port);
 
 #endif //__LIBTLT_SMTP_H

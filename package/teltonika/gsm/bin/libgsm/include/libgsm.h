@@ -43,6 +43,7 @@ typedef enum {
 	LGSM_INFO_DATA_TTY,
 	LGSM_INFO_BAUDRATE,
 	LGSM_INFO_AUX,
+	LGSM_INFO_WDM,
 	LGSM_INFO_SIMCOUNT,
 	LGSM_INFO_BAND,
 	LGSM_INFO_SERVICE,
@@ -59,7 +60,9 @@ typedef enum {
 	LGSM_INFO_FEATURE_DYNAMIC_MTU,
 	LGSM_INFO_FEATURE_AUTO_IMS,
 	LGSM_INFO_FEATURE_EXTENDED_TIMEOUT,
+	LGSM_INFO_FEATURE_WWAN_GNSS_CONFLICT,
 	LGSM_INFO_FEATURE_DHCP_FILTER,
+	LGSM_INFO_HW_STATS,
 	LGSM_INFO_FEATURE_CSD,
 	LGSM_INFO_FEATURE_FRAMED_ROUTING,
 	LGSM_INFO_FEATURE_LOW_SIGNAL_RECONNECT,
@@ -71,6 +74,25 @@ typedef enum {
 	LGSM_INFO_GPS_SATELLITE,
 	LGSM_INFO_MAX,
 } lgsm_info_t;
+
+typedef enum {
+	LGSM_HW_STAT_DESC,
+	LGSM_HW_STAT_TYPE,
+	LGSM_HW_STAT_CONTROL,
+	LGSM_HW_STAT_BAUDRATE,
+	LGSM_HW_STAT_STOP_BITS,
+	LGSM_HW_STAT_GPS,
+	LGSM_HW_STAT_POWER_ON_MS,
+	LGSM_HW_STAT_RESET_MS,
+	LGSM_HW_STAT_EP_IFACE,
+	LGSM_HW_STAT_DL_MAX_SIZE,
+	LGSM_HW_STAT_DL_MAX_DATAGRAMS,
+	LGSM_HW_STAT_UL_MAX_SIZE,
+	LGSM_HW_STAT_UL_MAX_DATAGRAMS,
+	LGSM_HW_STAT_DATA,
+	LGSM_HW_STAT_SERIAL_CONTROL,
+	LGSM_HW_STAT_MAX,
+} lgsm_modem_hw_stat_t;
 
 typedef enum {
 	LGSM_CACHE_FIRMWARE,
@@ -95,6 +117,8 @@ typedef enum {
 	LGSM_CACHE_SIM_PUK1,
 	LGSM_CACHE_TEMPERATURE,
 	LGSM_CACHE_RSSI,
+	LGSM_CACHE_ESIM_PROFILE_ID,
+	LGSM_CACHE_GNSS_STATE,
 	LGSM_CACHE_MAX,
 } lgsm_cache_t;
 
@@ -225,6 +249,11 @@ typedef enum {
 	LGSM_INDEX,
 	LGSM_INDEX_MAX,
 } lgsm_index_t;
+
+typedef enum {
+	LGSM_ESIM_PROFILE,
+	LGSM_ESIM_PROFILE_MAX,
+} lgsm_esim_profile_t;
 
 typedef enum {
 	LGSM_PDP_CTX_CID,
@@ -881,8 +910,12 @@ typedef enum {
 	LGSM_UBUS_SET_QSIMDET,
 	LGSM_UBUS_GET_CAP_FEATURE_GENERAL_PARAMS,
 	LGSM_UBUS_SET_CAP_FEATURE_GENERAL_PARAMS,
+	LGSM_UBUS_GET_ESIM_PROFILE_ID,
+	LGSM_UBUS_UPDATE_ESIM_PROFILE_ID,
 	LGSM_UBUS_GET_FAST_SHUTDOWN_INFO,
 	LGSM_UBUS_SET_FAST_SHUTDOWN_INFO,
+	LGSM_UBUS_GET_SIGNAL_API_SELECTION_STATE,
+	LGSM_UBUS_SET_SIGNAL_API_SELECTION_STATE,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -1111,6 +1144,25 @@ typedef struct {
 } lgsm_modem_func_t;
 
 typedef struct {
+	int control;
+	int boudrate;
+	int stop_bits;
+	int gps;
+	int ep_iface;
+	int dl_max_size;
+	int dl_max_datagrams;
+	int ul_max_size;
+	int ul_max_datagrams;
+	int power_on_ms;
+	int power_off_ms;
+	int reset_ms;
+	int data;
+	int serial_control;
+	char desc[32];
+	char type[32];
+} lgsm_modem_hw_net_stats_t;
+
+typedef struct {
 	char **gps;
 	char **glonass;
 	char **galileo;
@@ -1153,6 +1205,7 @@ typedef struct {
 	char gps_port[32];
 	char data_port[32];
 	char aux_port[32];
+	char wdm_port[32];
 	char serial_num[32];
 	char imei[16];
 	char imsi[16];
@@ -1175,6 +1228,7 @@ typedef struct {
 	bool framed_routing_support;
 	bool low_signal_reconnect_support;
 	bool extended_timeout;
+	bool wwan_gnss_conflict;
 	bool dhcp_filter_support;
 	bool builtin;
 	bool csd_support;
@@ -1187,8 +1241,11 @@ typedef struct {
 	lgsm_net_reg_info_t net_reg_info;
 	lgsm_pin_count_t pin_cnt;
 	lgsm_modem_func_t mfunc;
+	lgsm_modem_hw_net_stats_t m_hw_net_stats;
 	uint32_t state_id;
 	lgsm_gps_info_t gps_info;
+	uint32_t esim_profile_id;
+	uint32_t gnss_state;
 
 } lgsm_t;
 
@@ -1497,6 +1554,7 @@ typedef enum {
 	LGSM_LABEL_FROUTING_STATE_T,
 	LGSM_LABEL_QSIMDET_STATE_T,
 	LGSM_LABEL_FAST_SHUTDOWN_STATE_T,
+	LGSM_LABEL_SIGNAL_API_SELECTION_STATE_T,
 	LGSM_LABEL_ERROR,
 } lgsm_resp_label_t;
 
@@ -3168,7 +3226,7 @@ lgsm_err_t lgsm_set_5g_extended_params(struct ubus_context *ctx, bool enabled, f
  * @param[in]   modem_num   Modem identification number.
  */
 lgsm_err_t lgsm_set_5g_cap_feature_general_params(struct ubus_context *ctx, bool enabled, func_t *resp,
-				       uint32_t modem_num);
+						  uint32_t modem_num);
 
 /**
  * set fast shutdown info configuration
@@ -3240,6 +3298,16 @@ lgsm_err_t lgsm_attach(struct ubus_context *ctx, func_t *resp, const char *usbid
  * @return lgsm_err_t.	    Return function status code.
  */
 lgsm_err_t lgsm_deattach(struct ubus_context *ctx, func_t *resp, const char *usbid);
+
+/**
+ * Set Signal API selection state
+ * @param[ptr]  ctx   	    Ubus ctx.
+ * @param[char] resp   	    Response from modem for the executed AT command.
+ * @param[in]   enabled 	Is Signal API selection state enabled.
+ * @param[in]   modem_num   Modem identification number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_signal_api_selection_state(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
 
 /******************
 *  GET HANDLERS  *
@@ -3609,6 +3677,13 @@ void handle_get_sim_hotswap_rsp(struct blob_attr *info, lgsm_structed_info_t *pa
 void handle_get_sim_slot_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
+   * Parse sim slot retrival method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_esim_profile_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
    * Parse wan ping retrival method response
    * @param[ptr]   info      Blob from gsmd.
    * @param[ptr]   parsed    Parsed union readable information.
@@ -3900,6 +3975,13 @@ void handle_get_usbcfg_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed)
    * @param[ptr]   parsed    Parsed union readable information.
    */
 void handle_get_qsimdet_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+   * Parse Signal API selection state method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_signal_api_selection_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 /*********************
 *  STRUCT HANDLERS  *
 *********************/
@@ -4086,6 +4168,17 @@ lgsm_err_t lgsm_parse_ubus_err(int ubus_err);
  */
 lgsm_err_t lgsm_set_usbcfg(struct ubus_context *ctx, bool nmea, bool modem, bool adb, bool uac, func_t *resp,
 			   uint32_t modem_num);
+
+/*
+ * Set esim_profile_id for the modem
+ * @param[ptr]  ctx        Ubus context.
+ * @param[in]   func_t	 Status code for modem setting configuration.
+ * @param[in]   index      Profile index.
+ * @param[in]   modem_num  Modem number.
+ *
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_update_esim_profile_id(struct ubus_context *ctx, func_t *resp, int index, uint32_t modem_num);
 #ifdef __cplusplus
 }
 #endif

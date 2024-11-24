@@ -2,7 +2,9 @@
 
 . /lib/functions.sh
 . ../netifd-proto.sh
-. /lib/functions/mobile.sh
+
+[ -f "/lib/functions/mobile.sh" ] && \
+	. /lib/functions/mobile.sh
 
 init_proto "$@"
 
@@ -186,7 +188,7 @@ proto_wwan_setup() {
 	cdc_mbim)		proto_mbim_setup $@ ;;
 	sierra_net)		proto_directip_setup $@ ;;
 	pppmobile)		proto_pppmobile_setup $@ ;;
-	cdc_ether|*cdc_ncm) 	proto_ncm_setup $@ ;;
+	cdc_ether|*cdc_ncm) 	proto_ncm_setup $@ "$devicename";;
 	qmi_wwan)		proto_qmi_setup $@ ;;
 	qmux|qmapv5)		proto_qmux_setup $@ ;;
 	trb_qmapv5)		proto_trb_qmapv5_setup $@ ;;

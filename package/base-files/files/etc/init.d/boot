@@ -35,7 +35,6 @@ boot() {
 	type boot_target_pre_board_detect &> /dev/null && \
 		boot_target_pre_board_detect
 
-	/bin/board_detect
 	/bin/config_generate
 
 	/sbin/kmodloader

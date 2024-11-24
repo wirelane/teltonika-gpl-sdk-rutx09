@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	CATEGORY:=WebUI
 	SUBMENU:=Landing page themes
 	TITLE:=$(THEME_TITLE)
-	DEPENDS:=+vuci-app-landingpage +coova-chilli
+	DEPENDS:=+vuci-app-landingpage
 	APP_HW_INFO:=ethernet/wifi
 endef
 

@@ -23,8 +23,8 @@ if [ "$PLUTO_VERB" = "up-client" ]; then
 	get_networks
 	for net in $passthrough_net; do
 		[ "$offloading" = 1 ] && {
-			iptables -I FORWARD -s "$net" -m comment --comment "${PLUTO_CONNECTION##*-} passthrough offload bypass" -j ACCEPT
-			iptables -I FORWARD -d "$net" -m comment --comment "${PLUTO_CONNECTION##*-} passthrough offload bypass" -j ACCEPT
+			iptables -I FORWARD $FORWARD_POSITION -s "$net" -m comment --comment "${PLUTO_CONNECTION##*-} passthrough offload bypass" -j ACCEPT
+			iptables -I FORWARD $FORWARD_POSITION -d "$net" -m comment --comment "${PLUTO_CONNECTION##*-} passthrough offload bypass" -j ACCEPT
 		}
 		iptables -I postrouting_wan_rule -t nat -s "$net" -m comment --comment "Added by Strongswan hotplug" -j SNAT --to "$PLUTO_MY_SOURCEIP4_1"
 	done

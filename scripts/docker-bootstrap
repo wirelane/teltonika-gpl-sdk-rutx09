@@ -2,7 +2,7 @@
 
 IMG_NAME_PREFIX=git.teltonika.lt:4567/docker/buildsys/
 IMG_NAME=${IMG_NAME:-${IMG_NAME_PREFIX}tools}
-IMG_TAG=${IMG_TAG:-1.11}
+IMG_TAG=${IMG_TAG:-1.14}
 
 # Color codes
 RED='\033[0;31m'
@@ -20,7 +20,7 @@ info() {
 calc_images_size() {
 	for id in $($DOCKER_CMD image ls --all --format '{{.ID}}' 'git.teltonika.lt:4567/docker/buildsys/*'); do
 		$DOCKER_CMD history "$id" --format '{{.Size}} {{.CreatedBy}}'
-	done | sort -u | cut -d' ' -f1 | tr . , | sed -E 's|([0-9]+(,[0-9]+)?[kKMG]?)B|\1|g' | numfmt --from=iec | awk 'BEGIN { sum = 0 } { sum += $1 } END { print sum	}'
+	done | sort -u | cut -d' ' -f1 | tr , . | sed -E 's|([0-9]+(,[0-9]+)?[kKMG]?)B|\1|g' | LC_NUMERIC="en_US" numfmt --from=iec | awk 'BEGIN { sum = 0 } { sum += $1 } END { print sum }'
 }
 
 cleanup() {
@@ -81,10 +81,25 @@ if ! $DOCKER_CMD info &>/dev/null; then
 	info "Docker started successfully."
 fi
 
+FUNC=run_main
+echo "$IMG_NAME" | grep -q '/buildsys/' && {
+	TOKEN=aCb3RawxFnwuSZymE7XM
+}
+echo "$IMG_NAME" | grep -q '/rutx_open/' && {
+	TOKEN=CDFnJK15XBkAu8nU13fS
+	FUNC=run_tbot
+}
+
 # Check if the Docker image and tag exists locally
 if ! $DOCKER_CMD image inspect "$IMG_NAME:$IMG_TAG" >/dev/null 2>&1; then
 	info "Docker image $IMG_NAME:$IMG_TAG not found locally. Attempting to download..."
-	$DOCKER_CMD login "${IMG_NAME%%/*}" -u oauth2 -p aCb3RawxFnwuSZymE7XM 2>/dev/null # a shared token for read-only access to the container registry
+
+	if [[ -z $TOKEN ]]; then {
+		err "No token for $(dirname "$IMG_NAME")  Docker repository. Trying to pull the image without authentication."
+	}; else {
+		$DOCKER_CMD login "${IMG_NAME%%/*}" -u oauth2 -p "$TOKEN" 2>/dev/null # a shared token for read-only access to the container registry
+	}; fi
+
 	$DOCKER_CMD pull "$IMG_NAME:$IMG_TAG" || {
 		err "Failed to download Docker image. Please check the image name and tag."
 		exit 1
@@ -124,34 +139,59 @@ gen_dns() {
 	done < <(grep -oP '(?<=nameserver\s)(\d{1,3})(\.(?1))+' /etc/resolv.conf | grep -vP '^127\.*')
 }
 
-# Start a long-running container
-if ! $DOCKER_CMD ps --all --quiet --filter name="$CONTAINER_NAME" | grep -q .; then
-	VOLUME_PREFIX="${WORKDIR//\//_}"
-	VOLUME_STAGING_HOST="${VOLUME_PREFIX:1}_staging_host"
-	VOLUME_STAGING_HOSTPKG="${VOLUME_PREFIX:1}_staging_hostpkg"
-	create_volume "$VOLUME_STAGING_HOST"
-	create_volume "$VOLUME_STAGING_HOSTPKG"
+run_main() {
+	# Start a long-running container
+	if ! $DOCKER_CMD ps --all --quiet --filter name="$CONTAINER_NAME" | grep -q .; then
+		VOLUME_PREFIX="${WORKDIR//\//_}"
+		VOLUME_STAGING_HOST="${VOLUME_PREFIX:1}_staging_host"
+		VOLUME_STAGING_HOSTPKG="${VOLUME_PREFIX:1}_staging_hostpkg"
+		create_volume "$VOLUME_STAGING_HOST"
+		create_volume "$VOLUME_STAGING_HOSTPKG"
 
-	#shellcheck disable=SC2046
-	$DOCKER_CMD run -d \
-		--rm \
-		--name "$CONTAINER_NAME" \
-		--user "$USER_GROUP" \
-		$(gen_dns) \
-		--workdir "$WORKDIR" \
-		--volume "$HOME:$HOME" \
-		--volume "$WORKDIR:$WORKDIR" \
-		--volume "$VOLUME_STAGING_HOST:$WORKDIR/staging_dir/host" \
-		--volume "$VOLUME_STAGING_HOSTPKG:$WORKDIR/staging_dir/hostpkg" \
-		--volume "$PASSWD:$PASSWD:ro" \
-		--volume "$GROUP:$GROUP:ro" \
-		--volume "$HOSTS:$HOSTS:ro" \
-		--env EXEC_REAL_BUILD=1 \
-		--env INSIDE_DOCKER=1 \
-		--ulimit "nofile=1024:1048576" \
+		#shellcheck disable=SC2046
+		$DOCKER_CMD run -d \
+			--rm \
+			--name "$CONTAINER_NAME" \
+			--user "$USER_GROUP" \
+			$(gen_dns) \
+			--workdir "$WORKDIR" \
+			--volume "$HOME:$HOME" \
+			--volume "$WORKDIR:$WORKDIR" \
+			--volume "$VOLUME_STAGING_HOST:$WORKDIR/staging_dir/host" \
+			--volume "$VOLUME_STAGING_HOSTPKG:$WORKDIR/staging_dir/hostpkg" \
+			--volume "$PASSWD:$PASSWD:ro" \
+			--volume "$GROUP:$GROUP:ro" \
+			--volume "$HOSTS:$HOSTS:ro" \
+			--env EXEC_REAL_BUILD=1 \
+			--env INSIDE_DOCKER=1 \
+			--ulimit "nofile=1024:1048576" \
+			"$IMG_NAME:$IMG_TAG" \
+			sleep 86400 >/dev/null
+	fi
+
+	# Execute command in the long-running container
+	$DOCKER_CMD exec -it "$CONTAINER_NAME" "$@"
+}
+
+run_tbot() {
+	fws_dir=$(find "bin/targets/x86" -type d -name "tltFws")
+	f_gz=$(find "$fws_dir" -name "*.img.gz" -printf '%T+ %p\n' | sort | tail -n1 | awk '{print $2}')
+	[[ -z $f_gz ]] && {
+		err "No firmware image found in $fws_dir"
+		exit 1
+	}
+
+	rm -f "$fws_dir"/*.img
+
+	printf "Booting %s\n" "$(basename "$f_gz")"
+
+	#shellcheck disable=2068
+	$DOCKER_CMD run --rm -it --cap-add=NET_ADMIN \
+		--device /dev/net/tun:/dev/net/tun \
+		--volume "$WORKDIR":/x86_64:rw -w /x86_64 \
+		--sysctl net.ipv4.ip_forward=1 \
 		"$IMG_NAME:$IMG_TAG" \
-		sleep 86400 >/dev/null
-fi
+		$@
+}
 
-# Execute command in the long-running container
-$DOCKER_CMD exec -it "$CONTAINER_NAME" "$@"
+$FUNC "$@"

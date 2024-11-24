@@ -136,7 +136,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.
 -debian/files
 diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2024-10-15 06:17:37.000000000 +0000
++++ src/.gitlab-ci.yml	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -160,7 +160,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml s
 +    - job: semgrep_errors
 diff --recursive --unified --new-file --no-dereference upstream/Makefile.am src/Makefile.am
 --- upstream/Makefile.am	2016-12-15 17:28:43.000000000 +0000
-+++ src/Makefile.am	2024-10-15 06:17:37.000000000 +0000
++++ src/Makefile.am	2024-10-24 10:13:49.000000000 +0000
 @@ -9,3 +9,6 @@
  if WITH_MINIPORTAL
  SUBDIRS += miniportal
@@ -170,7 +170,7 @@ diff --recursive --unified --new-file --no-dereference upstream/Makefile.am src/
 +#endif
 diff --recursive --unified --new-file --no-dereference upstream/README.md src/README.md
 --- upstream/README.md	2016-12-15 17:28:43.000000000 +0000
-+++ src/README.md	2024-10-15 06:17:37.000000000 +0000
++++ src/README.md	2024-10-24 10:13:49.000000000 +0000
 @@ -27,3 +27,14 @@
    `make`
  
@@ -188,7 +188,7 @@ diff --recursive --unified --new-file --no-dereference upstream/README.md src/RE
 +chilli | logout | `{"ip":"String","mac":"String","sessionid":"String"}` | Logoff active user. Params: `ip` - ip address (optional), mac - mac address (optional), sessionid - session ID (optional). At least one parameter required.
 diff --recursive --unified --new-file --no-dereference upstream/changelog src/changelog
 --- upstream/changelog	1970-01-01 00:00:00.000000000 +0000
-+++ src/changelog	2024-10-15 06:17:37.000000000 +0000
++++ src/changelog	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,9 @@
 +# 2019-12-19
 +	*New
@@ -201,7 +201,7 @@ diff --recursive --unified --new-file --no-dereference upstream/changelog src/ch
 +		* Configurable url params added
 diff --recursive --unified --new-file --no-dereference upstream/conf/down.sh.in src/conf/down.sh.in
 --- upstream/conf/down.sh.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/conf/down.sh.in	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/down.sh.in	2024-10-24 10:13:49.000000000 +0000
 @@ -5,12 +5,75 @@
  
  TUNTAP=$(basename $DEV)
@@ -280,7 +280,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/down.sh.in 
      [ -e @SYSCONFDIR@/chilli/ipdown.sh ] && . @SYSCONFDIR@/chilli/ipdown.sh
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/cloud4wi src/conf/profiles/configs/cloud4wi
 --- upstream/conf/profiles/configs/cloud4wi	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/cloud4wi	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/configs/cloud4wi	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,33 @@
 +config group
 +	option name 'default'
@@ -317,7 +317,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option param1value ''
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/default src/conf/profiles/configs/default
 --- upstream/conf/profiles/configs/default	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/default	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/configs/default	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,19 @@
 +config group
 +	option name 'default'
@@ -340,7 +340,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option _protocol 'http'
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/hotspotsystems src/conf/profiles/configs/hotspotsystems
 --- upstream/conf/profiles/configs/hotspotsystems	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/hotspotsystems	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/configs/hotspotsystems	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,26 @@
 +config group
 +	option name 'default'
@@ -370,7 +370,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option radiussecret 'hotsys123'
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/purple src/conf/profiles/configs/purple
 --- upstream/conf/profiles/configs/purple	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/purple	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/configs/purple	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,31 @@
 +config group
 +	option name 'default'
@@ -405,7 +405,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option swapoctets '1'
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/uamdomains/uamdomainfile_cloud4wi src/conf/profiles/uamdomains/uamdomainfile_cloud4wi
 --- upstream/conf/profiles/uamdomains/uamdomainfile_cloud4wi	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/uamdomains/uamdomainfile_cloud4wi	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/uamdomains/uamdomainfile_cloud4wi	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,5 @@
 +cloud4wi.com
 +facebook.com
@@ -414,13 +414,13 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/ua
 +licdn.com
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/uamdomains/uamdomainfile_hs src/conf/profiles/uamdomains/uamdomainfile_hs
 --- upstream/conf/profiles/uamdomains/uamdomainfile_hs	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/uamdomains/uamdomainfile_hs	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/uamdomains/uamdomainfile_hs	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,2 @@
 +hotspotsystem.com
 +facebook.com
 diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/uamdomains/uamdomainfile_purple src/conf/profiles/uamdomains/uamdomainfile_purple
 --- upstream/conf/profiles/uamdomains/uamdomainfile_purple	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/uamdomains/uamdomainfile_purple	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/profiles/uamdomains/uamdomainfile_purple	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,5 @@
 +purpleportal.net
 +venuewifi.com
@@ -429,7 +429,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/ua
 +stripe.com
 diff --recursive --unified --new-file --no-dereference upstream/conf/up.sh.in src/conf/up.sh.in
 --- upstream/conf/up.sh.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/conf/up.sh.in	2024-10-15 06:17:37.000000000 +0000
++++ src/conf/up.sh.in	2024-10-24 10:13:49.000000000 +0000
 @@ -2,6 +2,7 @@
  
  TUNTAP=$(basename $DEV)
@@ -613,7 +613,7 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/up.sh.in sr
 +[ -e @ETCCHILLI@/ipup.sh ] && . @ETCCHILLI@/ipup.sh
 diff --recursive --unified --new-file --no-dereference upstream/configure.ac src/configure.ac
 --- upstream/configure.ac	2016-12-15 17:28:43.000000000 +0000
-+++ src/configure.ac	2024-10-15 06:17:37.000000000 +0000
++++ src/configure.ac	2024-10-24 10:13:49.000000000 +0000
 @@ -154,8 +154,17 @@
     AC_DEFINE(ENABLE_CHILLIQUERY,1,[Define to enable chilli_query])
  fi
@@ -703,7 +703,7 @@ diff --recursive --unified --new-file --no-dereference upstream/configure.ac src
  		 debian/Makefile
 diff --recursive --unified --new-file --no-dereference upstream/doc/attributes src/doc/attributes
 --- upstream/doc/attributes	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/attributes	2024-10-15 06:17:37.000000000 +0000
++++ src/doc/attributes	2024-10-24 10:13:49.000000000 +0000
 @@ -8,7 +8,7 @@
  Service-Type      :     6 : Integer : X : - : X : - : - : Set to Login (1) for normal authentication requests.  The Access-Accept message from the radius server for configuration management messages must also be set to Administrative-User.
  Framed-IP-Address : 	8 : IPaddr  : X : X : X : - : - : IP address of the user, which is configurable during MAC authentication in the Access-Accept.
@@ -715,7 +715,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/attributes s
  Class             :    25 : String  : - : X : X : - : - : Copied transparently by chilli from Access-Accept to Accounting-Request.
 diff --recursive --unified --new-file --no-dereference upstream/doc/chilli.conf.5.in src/doc/chilli.conf.5.in
 --- upstream/doc/chilli.conf.5.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/chilli.conf.5.in	2024-10-15 06:17:37.000000000 +0000
++++ src/doc/chilli.conf.5.in	2024-10-24 10:13:49.000000000 +0000
 @@ -889,11 +889,6 @@
  .RE
  
@@ -730,7 +730,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/chilli.conf.
  .B postauthproxyport
 diff --recursive --unified --new-file --no-dereference upstream/doc/chilli_query.1.in src/doc/chilli_query.1.in
 --- upstream/doc/chilli_query.1.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/chilli_query.1.in	2024-10-15 06:17:37.000000000 +0000
++++ src/doc/chilli_query.1.in	2024-10-24 10:13:49.000000000 +0000
 @@ -115,6 +115,10 @@
  Sets the max output data limit of the session.
  
@@ -744,7 +744,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/chilli_query
  
 diff --recursive --unified --new-file --no-dereference upstream/doc/dictionary.coovachilli src/doc/dictionary.coovachilli
 --- upstream/doc/dictionary.coovachilli	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/dictionary.coovachilli	2024-10-15 06:17:37.000000000 +0000
++++ src/doc/dictionary.coovachilli	2024-10-24 10:13:49.000000000 +0000
 @@ -54,6 +54,7 @@
  ATTRIBUTE	CoovaChilli-Location		       25	string
  ATTRIBUTE	CoovaChilli-Old-Location		       26	string
@@ -755,7 +755,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/dictionary.c
  ATTRIBUTE	CoovaChilli-Sys-LoadAvg		       41	string
 diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.c src/json/linkhash.c
 --- upstream/json/linkhash.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/json/linkhash.c	2024-10-15 06:17:37.000000000 +0000
++++ src/json/linkhash.c	2024-10-24 10:13:49.000000000 +0000
 @@ -52,15 +52,6 @@
  	return 0;
  }
@@ -774,7 +774,7 @@ diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.c 
  	/* CAW: refactored to be 64bit nice */
 diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.h src/json/linkhash.h
 --- upstream/json/linkhash.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/json/linkhash.h	2024-10-15 06:17:37.000000000 +0000
++++ src/json/linkhash.h	2024-10-24 10:13:49.000000000 +0000
 @@ -294,21 +294,6 @@
  extern int lh_table_length(struct lh_table *t);
  
@@ -799,7 +799,7 @@ diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.h 
   * @param t Pointer to table to resize.
 diff --recursive --unified --new-file --no-dereference upstream/src/Makefile.am src/src/Makefile.am
 --- upstream/src/Makefile.am	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/Makefile.am	2024-10-15 06:17:37.000000000 +0000
++++ src/src/Makefile.am	2024-10-24 10:13:49.000000000 +0000
 @@ -12,34 +12,35 @@
  tun.h ippool.h md5.h redir.h dhcp.h iphash.h \
  radius_wispr.h radius_coovachilli.h ssl.h dns.h net.h \
@@ -918,7 +918,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/Makefile.am 
  if WITH_NETFILTER_COOVA
 diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src/src/chilli.c
 --- upstream/src/chilli.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/chilli.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/chilli.c	2024-10-24 10:13:49.000000000 +0000
 @@ -20,10 +20,13 @@
  
  #include "chilli.h"
@@ -1536,7 +1536,104 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
    /* Max input gigawords */
    if (!radius_getattr(pack, &attr, RADIUS_ATTR_VENDOR_SPECIFIC,
-@@ -5085,8 +5362,11 @@
+@@ -4961,6 +5238,70 @@
+ }
+ #endif
+ 
++static struct ippoolm_t* sms_auth_mac_authentication(struct app_conn_t *appconn) {
++  sqlite3 *db;
++
++  struct str_sms_user user = {0};
++  struct dhcp_conn_t *dhcpconn = (struct dhcp_conn_t *)appconn->dnlink;
++
++  if (!dhcpconn || !dhcpconn->hismac || !_options.usersdbpath)
++    return NULL;
++
++  if (!(db = sqlopen(_options.usersdbpath))) {
++    syslog(LOG_INFO, "%s: sqlopen() failed opening %s!", strerror(errno), _options.usersdbpath);
++    return NULL;
++  }
++
++  if (usr_sms_user_exists(db, NULL, dhcpconn->hismac) != USER_RET_ALREADY) {
++    sqlclose(db);
++    return NULL;
++  }
++
++  if (usr_get_sms_user_phone(db, &user, NULL, dhcpconn->hismac)) {
++    sqlclose(db);
++    return NULL;
++  }
++
++  if (user.username == NULL || user.username[0] == '\0' || user.used == 0) {
++    sqlclose(db);
++    return NULL;
++  }
++
++  if (_options.duplicateusers && find_active_user(user.username)) {
++    syslog(LOG_INFO, "%s(%d): Found duplication on username: %s", __FUNCTION__, __LINE__, user.username);
++    sqlclose(db);
++    return NULL;
++  }
++
++  appconn->s_state.redir.user_time = user.user_time;
++  appconn->s_state.redir.auth_mode = AUTH_SMS_USER;
++  strncpy(appconn->s_state.redir.username, user.username, USER_RAND_USERNAME_LEN);
++  strlcpy(appconn->s_state.redir.phone, user.phone, sizeof(appconn->s_state.redir.phone));
++  session_params_dyn(&appconn->s_params);
++
++  uint32_t timestamp = (uint32_t)mainclock_now();
++  usr_update_sms_user(db, &user, user.phone, dhcpconn->hismac, timestamp, NULL);
++  session_param_defaults(&appconn->s_params);
++
++#ifdef ENABLE_DATABASE
++  if ((appconn->s_params.maxinputoctets || appconn->s_params.maxoutputoctets ||
++      appconn->s_params.sessiontimeout) && dbcheck_session(appconn) != ACCESS_ACCEPTED) {
++    sqlclose(db);
++    return NULL;
++  }
++#endif
++
++  syslog(LOG_INFO, "Granted PHONE=%s MAC="MAC_FMT" with IP=%s access by MAC authentication",
++                 user.phone, MAC_ARG(dhcpconn->hismac), inet_ntoa(appconn->hisip));
++
++  memcpy(appconn->hismac, dhcpconn->hismac, PKT_ETH_ALEN);
++
++  upprot_getip(appconn, &appconn->reqip, 0);
++
++  sqlclose(db);
++  return (struct ippoolm_t*) appconn->uplink;
++}
++
+ /***********************************************************
+  *
+  * dhcp callback functions
+@@ -5063,7 +5404,11 @@
+ 	  /*
+ 	   *  Otherwise, authenticate with RADIUS.
+ 	   */
+-	  auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
++	  if (_options.smsusers) {
++	    ipm = sms_auth_mac_authentication(appconn);
++	  } else {
++	    auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
++	  }
+ 
+ 	  allocate = !_options.strictmacauth;
+ 	  domacauth = 0;
+@@ -5077,7 +5422,11 @@
+ 	 */
+ 	appconn->dnprot = DNPROT_MAC;
+ 
+-	auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
++	if (_options.smsusers) {
++		ipm = sms_auth_mac_authentication(appconn);
++	} else {
++		auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
++	}
+ 
+ 	allocate = !_options.strictmacauth;
+ 	domacauth = 0;
+@@ -5085,8 +5434,11 @@
      }
    }
  
@@ -1548,7 +1645,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      if (!allocate)
        return -1;
  
-@@ -5151,9 +5431,14 @@
+@@ -5151,17 +5503,27 @@
  		   &_options.dns1, &_options.dns2);
    }
  
@@ -1560,12 +1657,27 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
 +  }
  
 -    if (domacauth) {
+-      auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
 +  if (!appconn->s_state.authenticated) {
 +    if (domacauth && mainclock.tv_sec - appconn->s_state.dhcp_last_time > 1) {
-       auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
++      if (_options.smsusers) {
++        sms_auth_mac_authentication(appconn);
++      } else {
++        auth_radius(appconn, 0, 0, dhcp_pkt, dhcp_len);
++      }
      }
  
-@@ -5171,6 +5456,8 @@
+     /* if not already authenticated, ensure DNAT authstate */
+ #ifdef ENABLE_LAYER3
+     if (!_options.layer3)
+ #endif
+-      conn->authstate = DHCP_AUTH_DNAT;
++      if (!appconn->s_state.authenticated)
++        conn->authstate = DHCP_AUTH_DNAT;
+   }
+ 
+   /* If IP was requested before authentication it was UAM */
+@@ -5171,6 +5533,8 @@
    if (_options.dhcpnotidle)
      appconn->s_state.last_up_time = mainclock.tv_sec;
  
@@ -1574,7 +1686,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return 0;
  }
  
-@@ -5229,12 +5516,6 @@
+@@ -5229,12 +5593,6 @@
  
    conn->authstate = DHCP_AUTH_NONE; /* TODO: Not yet authenticated */
  
@@ -1587,7 +1699,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return 0;
  }
  
-@@ -5279,20 +5560,23 @@
+@@ -5279,20 +5637,23 @@
  }
  #endif
  
@@ -1622,7 +1734,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
  int chilli_getinfo(struct app_conn_t *appconn, bstring b, int fmt) {
    uint32_t sessiontime = 0;
-@@ -5374,6 +5658,11 @@
+@@ -5374,6 +5735,11 @@
                        appconn->s_params.maxtotaloctets, _options.swapoctets);
          bconcat(b, tmp);
  
@@ -1634,7 +1746,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #ifdef ENABLE_LEAKYBUCKET
          /* adding: max-bandwidth-up max-bandwidth-down */
          if (appconn->s_state.bucketupsize) {
-@@ -5553,10 +5842,12 @@
+@@ -5553,10 +5919,12 @@
        appconn->s_params.maxinputoctets =
        appconn->s_params.maxoutputoctets =
        appconn->s_params.maxtotaloctets =
@@ -1647,7 +1759,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  }
  
  int terminate_appconn(struct app_conn_t *appconn, int terminate_cause) {
-@@ -5580,11 +5871,15 @@
+@@ -5580,11 +5948,15 @@
        }
      }
  #endif
@@ -1664,7 +1776,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      }
  
      acct_req(ACCT_USER, appconn, RADIUS_STATUS_TYPE_STOP);
-@@ -5622,6 +5917,8 @@
+@@ -5622,6 +5994,8 @@
  
    appconn = (struct app_conn_t*) conn->peer;
  
@@ -1673,7 +1785,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return session_disconnect(appconn, conn, term_cause);
  }
  
-@@ -6143,9 +6440,12 @@
+@@ -6143,9 +6517,12 @@
          appconn->s_state.session_state =
              RADIUS_VALUE_COOVACHILLI_SESSION_USER_LOGOUT_URL;
  #endif
@@ -1686,7 +1798,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        }
  
        appconn->uamabort = 0;
-@@ -6191,57 +6491,75 @@
+@@ -6191,57 +6568,75 @@
    return 0;
  }
  
@@ -1802,7 +1914,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  int chilli_cmd(struct cmdsock_request *req, bstring s, int sock) {
  
  #ifdef HAVE_NETFILTER_COOVA
-@@ -6482,6 +6800,14 @@
+@@ -6482,6 +6877,14 @@
              bconcat(s, tmp);
            }
  
@@ -1817,7 +1929,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #ifdef ENABLE_GARDENACCOUNTING
            if (_options.uamgardendata) {
              bassignformat(tmp,
-@@ -7070,6 +7396,17 @@
+@@ -7070,6 +7473,17 @@
  }
  #endif
  
@@ -1835,7 +1947,20 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #if XXX_IO_DAEMON
  int chilli_io(int fd_ctrl_r, int fd_ctrl_w, int fd_pkt_r, int fd_pkt_w) {
    int maxfd = 0;
-@@ -7216,6 +7553,12 @@
+@@ -7190,7 +7604,11 @@
+     if (conn->is_reserved && conn->peer) {
+       appconn = (struct app_conn_t *)conn->peer;
+       if (!appconn->s_state.authenticated) {
+-	auth_radius((struct app_conn_t *)conn->peer, 0, 0, 0, 0);
++        if (_options.smsusers) {
++          sms_auth_mac_authentication((struct app_conn_t *)conn->peer);
++        } else {
++          auth_radius((struct app_conn_t *)conn->peer, 0, 0, 0, 0);
++        }
+       }
+     }
+     conn = conn->next;
+@@ -7216,6 +7634,12 @@
  }
  #endif
  
@@ -1848,7 +1973,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  int chilli_main(int argc, char **argv) {
    select_ctx sctx;
    int status;
-@@ -7398,6 +7741,8 @@
+@@ -7398,6 +7822,8 @@
      ssdp.s_addr = inet_addr(SSDP_MCAST_ADDR);
  #endif
  
@@ -1857,7 +1982,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      syslog(LOG_INFO, "CoovaChilli %s. "
             "Copyright 2002-2005 Mondru AB. Licensed under GPL. "
             "Copyright 2006-2012 David Bird (Coova Technologies). "
-@@ -7438,8 +7783,13 @@
+@@ -7438,8 +7864,13 @@
  
      tun_set_cb_ind(tun, cb_tun_ind);
  
@@ -1872,7 +1997,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
      /* Allocate ippool for dynamic IP address allocation */
      if (ippool_new(&ippool,
-@@ -7467,6 +7817,11 @@
+@@ -7467,6 +7898,11 @@
        exit(1);
      }
  
@@ -1884,7 +2009,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      dhcp_set_cb_request(dhcp, cb_dhcp_request);
      dhcp_set_cb_connect(dhcp, cb_dhcp_connect);
      dhcp_set_cb_disconnect(dhcp, cb_dhcp_disconnect);
-@@ -7547,6 +7902,14 @@
+@@ -7547,6 +7983,14 @@
        return -1;
      }
  #endif
@@ -1899,7 +2024,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
      if (_options.radsec) {
  #ifdef ENABLE_CHILLIRADSEC
-@@ -7714,10 +8077,25 @@
+@@ -7714,10 +8158,25 @@
  #ifdef ENABLE_CHILLIQUERY
      net_select_reg(&sctx, cmdsock, SELECT_READ,
                     (select_callback)cmdsock_accept, 0, cmdsock);
@@ -1926,7 +2051,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
        if (reload_config) {
  
-@@ -7821,6 +8199,10 @@
+@@ -7821,6 +8280,10 @@
  
      syslog(LOG_INFO, "CoovaChilli shutting down");
  
@@ -1937,7 +2062,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      if (_options.seskeepalive) {
  #ifdef ENABLE_BINSTATFILE
        if (printstatus() != 0)
-@@ -7863,6 +8245,10 @@
+@@ -7863,6 +8326,10 @@
  #ifdef ENABLE_CHILLIQUERY
      cmdsock_shutdown();
  #endif
@@ -1950,7 +2075,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      if (redir_pid > 0) {
 diff --recursive --unified --new-file --no-dereference upstream/src/chilli.h src/src/chilli.h
 --- upstream/src/chilli.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/chilli.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/chilli.h	2024-10-24 10:13:49.000000000 +0000
 @@ -35,11 +35,31 @@
  #include "net.h"
  #include "md5.h"
@@ -2070,7 +2195,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.h src
  int statedir_file(char *dst, int dlen, char *file, char *deffile);
 diff --recursive --unified --new-file --no-dereference upstream/src/chilli_limits.h src/src/chilli_limits.h
 --- upstream/src/chilli_limits.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/chilli_limits.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/chilli_limits.h	2024-10-24 10:13:49.000000000 +0000
 @@ -112,20 +112,18 @@
  #endif
  
@@ -2096,7 +2221,16 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli_limit
  #define MACOK_MAX                         16
 diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo src/src/cmdline.ggo
 --- upstream/src/cmdline.ggo	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/cmdline.ggo	2024-10-15 06:17:37.000000000 +0000
++++ src/src/cmdline.ggo	2024-10-24 10:13:49.000000000 +0000
+@@ -30,7 +30,7 @@
+ option  "gid"         - "GID to run as, after being started as root" int default="0" no
+ 
+ # NET/TUN parameters
+-option "net"         n "Network"           string default="192.168.182.0/24" no
++option "net"         n "Network"           string no
+ option "dhcpstart"   - "Network DHCP Starting IP"      int default="0" no
+ option "dhcpend"     - "Network DHCP Ending IP"        int default="0" no
+ option "dhcpbroadcast" - "Always broadcast DHCP responses" flag off
 @@ -99,6 +99,7 @@
  option "coaport"            - "Radius disconnect port to listen to" int default="0" no
  option "coanoipcheck"       - "Allow radius disconnect from any IP" flag   off
@@ -2199,9 +2333,77 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
 +
 +option "testtime"    - "Disables CLOCK_MONOTONIC and use CLOCK_REALTIME instead" flag   off
 +
+diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.mini.c src/src/cmdline.mini.c
+--- upstream/src/cmdline.mini.c	2016-12-15 17:28:43.000000000 +0000
++++ src/src/cmdline.mini.c	2024-10-24 10:13:49.000000000 +0000
+@@ -57,7 +57,7 @@
+ 		       void *d, char is_cmdline) {
+   struct opt_def_t * opt = &opts[o];
+ 
+-#if(_debug_)
++#if(_debug_ > 1)
+   printf("%s opts[%d] %s [%s] offset %d\n", __FUNCTION__, o,
+ 	 opt->opt_name, d ? (char *)d : "(null)",
+ 	 opt->offset_arg);
+@@ -72,7 +72,7 @@
+       *p = d;
+     } else {
+       if (*p && !opt->multi_opt) {
+-#if(_debug_)
++#if(_debug_ > 1)
+ 	fprintf(stderr, "Skipping option %s defined on command line\n",
+ 		opt->opt_name);
+ #endif
+@@ -85,7 +85,7 @@
+ 
+     case OPT_integer:
+       if (opt->offset_arg > 0) {
+-#if(_debug_)
++#if(_debug_ > 1)
+         if (opt->multi_opt) fprintf(stderr, "NOT SUPPORTED %s %s %d\n", __FUNCTION__, __FILE__, __LINE__);
+ #endif
+         *((int *)(((char *)args_info) + opt->offset_arg)) = atoi((char *)d);
+@@ -95,7 +95,7 @@
+ 
+     case OPT_flag:
+       if (opt->offset_arg > 0) {
+-#if(_debug_)
++#if(_debug_ > 1)
+         if (opt->multi_opt) fprintf(stderr, "NOT SUPPORTED %s %s %d\n", __FUNCTION__, __FILE__, __LINE__);
+ #endif
+         *((int *)(((char *)args_info) + opt->offset_arg)) = 1;
+@@ -135,7 +135,7 @@
+ 
+     case OPT_long:
+       if (opt->offset_arg > 0) {
+-#if(_debug_)
++#if(_debug_ > 1)
+         if (opt->multi_opt) fprintf(stderr, "NOT SUPPORTED %s %s %d\n", __FUNCTION__, __FILE__, __LINE__);
+         printf("long offset %d\n", opt->offset_arg);
+ #endif
+@@ -232,7 +232,7 @@
+       continue;
+     }
+ 
+-#if(_debug_)
++#if(_debug_ > 1)
+     fprintf(stderr,"%s = %s\n", fopt, farg);
+ #endif
+ 
+@@ -250,6 +250,10 @@
+     }
+   }
+ 
++  if (line_num == 0) {
++    result = -1;
++  }
++
+   return result;
+ }
+ 
 diff --recursive --unified --new-file --no-dereference upstream/src/cmdsock.c src/src/cmdsock.c
 --- upstream/src/cmdsock.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/cmdsock.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/cmdsock.c	2024-10-24 10:13:49.000000000 +0000
 @@ -47,7 +47,7 @@
  	cmdsock = -1;
        } else {
@@ -2213,7 +2415,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdsock.c sr
  	  }
 diff --recursive --unified --new-file --no-dereference upstream/src/database.c src/src/database.c
 --- upstream/src/database.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/database.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/database.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,326 @@
 +#include <inttypes.h>
 +#include "chilli.h"
@@ -2543,7 +2745,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/database.c s
 +}
 diff --recursive --unified --new-file --no-dereference upstream/src/database.h src/src/database.h
 --- upstream/src/database.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/database.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/database.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,43 @@
 +//
 +// Created by darius on 19.5.23.
@@ -2590,7 +2792,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/database.h s
 +#endif //RUTX_DATABASE_H
 diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.c src/src/dhcp.c
 --- upstream/src/dhcp.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/dhcp.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/dhcp.c	2024-10-24 10:13:49.000000000 +0000
 @@ -50,7 +50,7 @@
      struct chilli_peer *p;
      chilli_peers = (struct chilli_peer *)calloc(8, sizeof(struct chilli_peer));
@@ -2941,7 +3143,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.c src/s
      p_eap = pkt_eappkt(p);
 diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.h src/src/dhcp.h
 --- upstream/src/dhcp.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/dhcp.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/dhcp.h	2024-10-24 10:13:49.000000000 +0000
 @@ -300,7 +300,7 @@
  int dhcp_decaps(struct dhcp_t *this, int idx);
  int dhcp_relay_decaps(struct dhcp_t *this, int idx);
@@ -2953,7 +3155,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.h src/s
  int dhcp_receive(struct dhcp_t *this, int idx);
 diff --recursive --unified --new-file --no-dereference upstream/src/dns.c src/src/dns.c
 --- upstream/src/dns.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/dns.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/dns.c	2024-10-24 10:13:49.000000000 +0000
 @@ -136,7 +136,11 @@
  	     int isReq, int *qmatch, int *modified, int mode) {
  
@@ -3004,7 +3206,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/dns.c src/sr
    if (antidnstunnel && !required) {
 diff --recursive --unified --new-file --no-dereference upstream/src/garden.c src/src/garden.c
 --- upstream/src/garden.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/garden.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/garden.c	2024-10-24 10:13:49.000000000 +0000
 @@ -478,7 +478,7 @@
    if (p3 == NULL)
       return 0;
@@ -3058,7 +3260,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/garden.c src
  #endif
 diff --recursive --unified --new-file --no-dereference upstream/src/gsm.c src/src/gsm.c
 --- upstream/src/gsm.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/gsm.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/gsm.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,61 @@
 +
 +#ifdef HAVE_SYSLOG_H
@@ -3123,7 +3325,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/gsm.c src/sr
 +}
 diff --recursive --unified --new-file --no-dereference upstream/src/gsm.h src/src/gsm.h
 --- upstream/src/gsm.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/gsm.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/gsm.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,20 @@
 +
 +#ifndef RUTX_GSM_H
@@ -3147,7 +3349,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/gsm.h src/sr
 +
 diff --recursive --unified --new-file --no-dereference upstream/src/linux/libxt_coova.c src/src/linux/libxt_coova.c
 --- upstream/src/linux/libxt_coova.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/linux/libxt_coova.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/linux/libxt_coova.c	2024-10-24 10:13:49.000000000 +0000
 @@ -126,7 +126,7 @@
  	.extra_opts    = coova_opts,
  };
@@ -3159,7 +3361,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/linux/libxt_
  	xtables_register_match(&coova_mt6_reg);
 diff --recursive --unified --new-file --no-dereference upstream/src/linux/xt_coova.c src/src/linux/xt_coova.c
 --- upstream/src/linux/xt_coova.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/linux/xt_coova.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/linux/xt_coova.c	2024-10-24 10:13:49.000000000 +0000
 @@ -91,8 +91,12 @@
  
  #ifdef CONFIG_PROC_FS
@@ -3276,7 +3478,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/linux/xt_coo
  static struct xt_match coova_mt_reg[] __read_mostly = {
 diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c src/src/main-opt.c
 --- upstream/src/main-opt.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-opt.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main-opt.c	2024-10-24 10:13:49.000000000 +0000
 @@ -24,6 +24,10 @@
  #include "system.h"
  #include "chilli.h"
@@ -3391,8 +3593,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
    syslog(LOG_DEBUG, "UAM Listen: %s", inet_ntoa(_options.uamlisten));
  
 +#ifdef HAVE_NETFILTER_COOVA
-+  if (_options.kname) {
-+    syslog(LOG_DEBUG, "Using kernel module for %s", _options.kname);
++  if (args_info.kname_arg) {
++    syslog(LOG_DEBUG, "Using kernel module for %s", args_info.kname_arg);
 +  }
 +#endif
 +
@@ -3566,7 +3768,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
  #endif
 diff --recursive --unified --new-file --no-dereference upstream/src/main-proxy.c src/src/main-proxy.c
 --- upstream/src/main-proxy.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-proxy.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main-proxy.c	2024-10-24 10:13:49.000000000 +0000
 @@ -325,7 +325,7 @@
  	    switch(attrs[i].t) {
                case 0: /*integer*/
@@ -3578,7 +3780,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-proxy.c
  #if(_debug_)
 diff --recursive --unified --new-file --no-dereference upstream/src/main-query.c src/src/main-query.c
 --- upstream/src/main-query.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-query.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main-query.c	2024-10-24 10:13:49.000000000 +0000
 @@ -150,6 +150,11 @@
      sizeof(request.d.sess.params.maxoutputoctets),
      &request.d.sess.params.maxoutputoctets,
@@ -3650,7 +3852,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-query.c
                request.type = CMDSOCK_ROUTE_SET;
 diff --recursive --unified --new-file --no-dereference upstream/src/main-redir.c src/src/main-redir.c
 --- upstream/src/main-redir.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-redir.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main-redir.c	2024-10-24 10:13:49.000000000 +0000
 @@ -396,7 +396,7 @@
  	    if (!strncasecmp(hdr, "content-length:", 15)) {
  	      char c = hdr[l];
@@ -3671,7 +3873,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-redir.c
      if (conn_setup(&req->conn, httpreq->host, port,
 diff --recursive --unified --new-file --no-dereference upstream/src/main-response.c src/src/main-response.c
 --- upstream/src/main-response.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-response.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main-response.c	2024-10-24 10:13:49.000000000 +0000
 @@ -97,7 +97,7 @@
      return usage(argv[0]);
  
@@ -3683,7 +3885,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-respons
    if (strlen(argv[idx+1]) >= sizeof(buffer))
 diff --recursive --unified --new-file --no-dereference upstream/src/main-rtmon.c src/src/main-rtmon.c
 --- upstream/src/main-rtmon.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-rtmon.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main-rtmon.c	2024-10-24 10:13:49.000000000 +0000
 @@ -70,7 +70,7 @@
      } else if (strcmp(argv[i], "-file")==0) {
        chilli_conf = argv[i+1];
@@ -3695,7 +3897,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-rtmon.c
  
 diff --recursive --unified --new-file --no-dereference upstream/src/main.c src/src/main.c
 --- upstream/src/main.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/main.c	2024-10-24 10:13:49.000000000 +0000
 @@ -83,14 +83,14 @@
  
  #if defined(__linux__)
@@ -3715,7 +3917,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main.c src/s
    }
 diff --recursive --unified --new-file --no-dereference upstream/src/md5.h src/src/md5.h
 --- upstream/src/md5.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/md5.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/md5.h	2024-10-24 10:13:49.000000000 +0000
 @@ -22,11 +22,22 @@
  #include "system.h"
  
@@ -3741,7 +3943,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/md5.h src/sr
  #include <cyassl/openssl/md5.h>
 diff --recursive --unified --new-file --no-dereference upstream/src/ms_chap.c src/src/ms_chap.c
 --- upstream/src/ms_chap.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/ms_chap.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/ms_chap.c	2024-10-24 10:13:49.000000000 +0000
 @@ -41,6 +41,10 @@
  #include <openssl/md4.h>
  #include <openssl/md5.h>
@@ -4090,7 +4292,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ms_chap.c sr
  }
 diff --recursive --unified --new-file --no-dereference upstream/src/mssl/httpsClient.c src/src/mssl/httpsClient.c
 --- upstream/src/mssl/httpsClient.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/mssl/httpsClient.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/mssl/httpsClient.c	2024-10-24 10:13:49.000000000 +0000
 @@ -156,7 +156,7 @@
  	  err_exit("Out of memory");
  	break;
@@ -4102,7 +4304,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/mssl/httpsCl
        case 's':
 diff --recursive --unified --new-file --no-dereference upstream/src/net.c src/src/net.c
 --- upstream/src/net.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/net.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/net.c	2024-10-24 10:13:49.000000000 +0000
 @@ -939,7 +939,8 @@
    if (len < 0) {
      switch (errno) {
@@ -4148,7 +4350,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/net.c src/sr
      if (net_setsockopt(netif->fd, SOL_SOCKET, SO_BROADCAST,
 diff --recursive --unified --new-file --no-dereference upstream/src/net.h src/src/net.h
 --- upstream/src/net.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/net.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/net.h	2024-10-24 10:13:49.000000000 +0000
 @@ -177,6 +177,7 @@
    struct pollfd pfds[MAX_SELECT];
  #endif
@@ -4175,7 +4377,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/net.h src/sr
    uint8_t flags;
 diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.c src/src/oauth2.c
 --- upstream/src/oauth2.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/oauth2.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/oauth2.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,828 @@
 +#include <inttypes.h>
 +#include "chilli.h"
@@ -5007,7 +5209,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.c src
 +}
 diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.h src/src/oauth2.h
 --- upstream/src/oauth2.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/oauth2.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/oauth2.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,58 @@
 +#ifndef OAUTH2_H
 +#define OAUTH2_H
@@ -5069,7 +5271,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.h src
 +#endif //OAUTH2_H
 diff --recursive --unified --new-file --no-dereference upstream/src/options.c src/src/options.c
 --- upstream/src/options.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/options.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/options.c	2024-10-24 10:13:49.000000000 +0000
 @@ -113,7 +113,8 @@
  
    chilli_binconfig(file, sizeof(file), 0);
@@ -5213,7 +5415,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
  }
 diff --recursive --unified --new-file --no-dereference upstream/src/options.h src/src/options.h
 --- upstream/src/options.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/options.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/options.h	2024-10-24 10:13:49.000000000 +0000
 @@ -188,7 +188,10 @@
    uint16_t forcedns2_port;        /* Port to force DNS to */
  #endif
@@ -5336,7 +5538,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.h sr
  
 diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5crypt.c src/src/passwd_md5crypt.c
 --- upstream/src/passwd_md5crypt.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_md5crypt.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/passwd_md5crypt.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,293 @@
 +#include "chilli.h"
 +#include <assert.h>
@@ -5633,7 +5835,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5cr
 +// }
 diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5crypt.h src/src/passwd_md5crypt.h
 --- upstream/src/passwd_md5crypt.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_md5crypt.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/passwd_md5crypt.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,11 @@
 +#ifndef PASSWD_MD5CRYPT_H__
 +#define PASSWD_MD5CRYPT_H__
@@ -5648,7 +5850,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5cr
 +#endif /* passwd_md5crypt.h */
 diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacrypt.c src/src/passwd_shacrypt.c
 --- upstream/src/passwd_shacrypt.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_shacrypt.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/passwd_shacrypt.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,406 @@
 +#include <assert.h>
 +#include <openssl/rand.h>
@@ -6058,7 +6260,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacr
 +}
 diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacrypt.h src/src/passwd_shacrypt.h
 --- upstream/src/passwd_shacrypt.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_shacrypt.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/passwd_shacrypt.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,18 @@
 +#ifndef PASSWD_SHA512CRYPT_H__
 +#define PASSWD_SHA512CRYPT_H__
@@ -6080,7 +6282,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacr
 +#endif /* passwd_sha512crypt.h */
 diff --recursive --unified --new-file --no-dereference upstream/src/patricia.c src/src/patricia.c
 --- upstream/src/patricia.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/patricia.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/patricia.c	2024-10-24 10:13:49.000000000 +0000
 @@ -264,7 +264,7 @@
  #endif /* HAVE_IPV6 */
  
@@ -6092,7 +6294,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/patricia.c s
      assert (cp - string < MAXLINE);
 diff --recursive --unified --new-file --no-dereference upstream/src/radius.c src/src/radius.c
 --- upstream/src/radius.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/radius.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/radius.c	2024-10-24 10:13:49.000000000 +0000
 @@ -25,6 +25,9 @@
  
  #define deeplog 0
@@ -6167,7 +6369,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/radius.c src
   * radius_authcheck()
 diff --recursive --unified --new-file --no-dereference upstream/src/radius.h src/src/radius.h
 --- upstream/src/radius.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/radius.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/radius.h	2024-10-24 10:13:49.000000000 +0000
 @@ -202,9 +202,9 @@
    struct in_addr addr0;
    struct in_addr addr1;
@@ -6206,7 +6408,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/radius.h src
    int (*cb_ind)       (struct radius_t *radius, struct radius_packet_t *pack,
 diff --recursive --unified --new-file --no-dereference upstream/src/radius_coovachilli.h src/src/radius_coovachilli.h
 --- upstream/src/radius_coovachilli.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/radius_coovachilli.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/radius_coovachilli.h	2024-10-24 10:13:49.000000000 +0000
 @@ -49,6 +49,7 @@
  #define	RADIUS_ATTR_COOVACHILLI_LOCATION                  25 /* string */
  #define	RADIUS_ATTR_COOVACHILLI_OLD_LOCATION              26 /* string */
@@ -6232,7 +6434,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/radius_coova
  #endif	/* !_RADIUS_COOVACHILLI_H */
 diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/src/redir.c
 --- upstream/src/redir.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/redir.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/redir.c	2024-10-24 10:13:49.000000000 +0000
 @@ -18,21 +18,24 @@
   *
   */
@@ -7513,7 +7715,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +          // When hashing fails, make sure password check fails too
 +          user_password = (uint8_t *)strdup("");
 +        }
-+      }
+       }
 +}
 +#endif
 +      if (!strncmp((char *)user_password, user.password, sizeof(user.password))) {
@@ -7527,10 +7729,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +        }
 +#endif
 +        match = ACCESS_ACCEPTED;
-       }
- 
--      /* password until the next ':' */
--      while (*pl && *pl != ':' && *pl != '\n') *pp++ = *pl++;
++      }
++
 +#ifdef HAVE_OPENSSL
 +      // If salt is not NULL that means that user_password was changed to point to newly allocated memory and we need to free it.
 +      if (salt) {
@@ -7544,8 +7744,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +      match = auth_chap(conn, context, chap_challenge, user_password, user.password);
 +    }
  
--      *pu = 0; /* null terminate */
--      *pp = 0;
+-      /* password until the next ':' */
+-      while (*pl && *pl != ':' && *pl != '\n') *pp++ = *pl++;
 +    if (match == ACCESS_ACCEPTED) {
 +      conn->s_state.redir.user_time = user.user_time;
 +      conn->s_state.redir.auth_mode = AUTH_DYN_USER;
@@ -7554,16 +7754,18 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +    }
 +  }
  
--      if (usernamelen == strlen(u) &&
--	  !strncmp(conn->s_state.redir.username, u, usernamelen)) {
+-      *pu = 0; /* null terminate */
+-      *pp = 0;
 +  if (_options.debug)
 +    syslog(LOG_DEBUG, "%s(%d): user %s %s", __FUNCTION__, __LINE__,
 +      conn->s_state.redir.username, match ? "found" : "not found");
  
+-      if (usernamelen == strlen(u) &&
+-	  !strncmp(conn->s_state.redir.username, u, usernamelen)) {
++  sqlclose(db);
+ 
 -        if (_options.debug)
 -          syslog(LOG_DEBUG, "%s(%d): found %s, checking password", __FUNCTION__, __LINE__, u);
-+  sqlclose(db);
-+
 +  return match;
 +}
  
@@ -7827,23 +8029,26 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
                int cnt = 0;
                for (p=filename; *p; p++) {
                  if (*p == '.' || *p == '_'|| *p == '-' || *p == '/') {
-@@ -3889,6 +4784,15 @@
+@@ -3889,6 +4784,18 @@
  
    /* default hexchal for use in replies */
    redir_chartohex(conn.s_state.redir.uamchal, hexchal, REDIR_MD5LEN);
 +  if (_options.smsusers && _options.usersdbpath){
 +    sqlite3 *db;
 +    conn.s_state.redir.otp_state = 0;
-+    if ((db = sqlopen(_options.usersdbpath)))
-+      if (usr_sms_user_exists(db, NULL, conn.hismac) == USER_RET_ALREADY) {
++    if ((db = sqlopen(_options.usersdbpath))) {
++      struct str_sms_user user = {0};
++      if (usr_sms_user_exists(db, NULL, conn.hismac) == USER_RET_ALREADY && \
++          !usr_get_sms_user_phone(db, &user, NULL, conn.hismac) && user.used == 0) {
 +        conn.s_state.redir.otp_state = 1;
-+        sqlclose(db);
 +      }
++      sqlclose(db);
++    }
 +  }
  
    switch (conn.type) {
  
-@@ -3897,21 +4801,17 @@
+@@ -3897,21 +4804,17 @@
  
        /* Was client was already logged on? */
        if (state == 1) {
@@ -7868,7 +8073,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
                        &conn.hisip, httpreq.qs);
  
            return redir_main_exit(&socket, forked, rreq);
-@@ -3920,11 +4820,11 @@
+@@ -3920,11 +4823,11 @@
  
        /* Did the challenge expire? */
        if (_options.challengetimeout2 &&
@@ -7884,7 +8089,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
          redir_memcopy(REDIR_CHALLENGE);
          redir_msg_send(REDIR_MSG_OPT_REDIR);
-@@ -3936,74 +4836,204 @@
+@@ -3936,74 +4839,204 @@
          return redir_main_exit(&socket, forked, rreq);
        }
  
@@ -8073,7 +8278,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +        } else {
 +          msg.mtype = REDIR_NOTYET;
 +        }
-+
+ 
 +        redir_reply(redir, &socket, &conn, conn.response,
 +                    NULL,
 +                    0, hexchal, NULL, conn.s_state.redir.userurl, conn.reply,
@@ -8131,12 +8336,12 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +#endif
 +		  }
 +	  }
- 
++
 +      if (conn.response == REDIR_SUCCESS) { /* Accept-Accept */
          conn.s_params.flags &= ~REQUIRE_UAM_SPLASH;
  
          if (reauth) {
-@@ -4015,18 +5045,28 @@
+@@ -4015,18 +5048,28 @@
          if (_options.debug)
            syslog(LOG_DEBUG, "%s(%d): handling Access-Accept", __FUNCTION__, __LINE__);
  
@@ -8167,7 +8372,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
          int hasnexturl = (strlen((char *)conn.s_params.url) > 5);
  
          if (_options.debug)
-@@ -4034,9 +5074,9 @@
+@@ -4034,9 +5077,9 @@
  
          if (!hasnexturl) {
            if (_options.challengetimeout)
@@ -8179,7 +8384,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
          }
  
          redir_reply(redir, &socket, &conn, conn.response,
-@@ -4148,6 +5188,316 @@
+@@ -4148,6 +5191,316 @@
          return redir_main_exit(&socket, forked, rreq);
        }
  
@@ -8496,7 +8701,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
      case REDIR_MSDOWNLOAD:
        snprintf(buffer, bufsize, "HTTP/1.0 403 Forbidden\r\n\r\n");
        redir_write(&socket, buffer, strlen(buffer));
-@@ -4314,11 +5664,8 @@
+@@ -4314,11 +5667,8 @@
      redir_memcopy(REDIR_CHALLENGE);
      redir_msg_send(REDIR_MSG_OPT_REDIR);
    }
@@ -8512,7 +8717,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
    if (_options.debug)
 diff --recursive --unified --new-file --no-dereference upstream/src/redir.h src/src/redir.h
 --- upstream/src/redir.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/redir.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/redir.h	2024-10-24 10:13:49.000000000 +0000
 @@ -45,6 +45,11 @@
  #define REDIR_SPLASH          8
  #define REDIR_MACREAUTH       9
@@ -8593,7 +8798,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.h src/
    char *homepage;
 diff --recursive --unified --new-file --no-dereference upstream/src/session.c src/src/session.c
 --- upstream/src/session.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/session.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/session.c	2024-10-24 10:13:49.000000000 +0000
 @@ -68,16 +68,16 @@
    bcatcstr(json,"\",\"userName\":\"");
    bcatcstr(json,state->redir.username);
@@ -8629,7 +8834,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/session.c sr
    return 0;
 diff --recursive --unified --new-file --no-dereference upstream/src/session.h src/src/session.h
 --- upstream/src/session.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/session.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/session.h	2024-10-24 10:13:49.000000000 +0000
 @@ -25,7 +25,6 @@
  #include "garden.h"
  
@@ -8753,7 +8958,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/session.h sr
  #endif
 diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.c src/src/sqlite.c
 --- upstream/src/sqlite.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/sqlite.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/sqlite.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,73 @@
 +
 +#include "sqlite.h"
@@ -8830,7 +9035,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.c src
 +}
 diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.h src/src/sqlite.h
 --- upstream/src/sqlite.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/sqlite.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/sqlite.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,19 @@
 +//
 +// Created by darius on 19.5.23.
@@ -8853,7 +9058,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.h src
 +#endif //RUTX_SQLITE_H
 diff --recursive --unified --new-file --no-dereference upstream/src/ssl.c src/src/ssl.c
 --- upstream/src/ssl.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/ssl.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/ssl.c	2024-10-24 10:13:49.000000000 +0000
 @@ -35,11 +35,13 @@
      if (openssl_init == 0) {
        openssl_init = 1;
@@ -8914,7 +9119,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ssl.c src/sr
  #endif
 diff --recursive --unified --new-file --no-dereference upstream/src/ssl.h src/src/ssl.h
 --- upstream/src/ssl.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/ssl.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/ssl.h	2024-10-24 10:13:49.000000000 +0000
 @@ -41,6 +41,7 @@
  #include <openssl/ssl.h>
  #include <openssl/pem.h>
@@ -8925,7 +9130,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ssl.h src/sr
  #include <stdlib.h>
 diff --recursive --unified --new-file --no-dereference upstream/src/statusfile.c src/src/statusfile.c
 --- upstream/src/statusfile.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/statusfile.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/statusfile.c	2024-10-24 10:13:49.000000000 +0000
 @@ -324,7 +324,7 @@
    file = fopen(filedest, "w");
    if (!file) { syslog(LOG_ERR, "%s: could not open file %s", strerror(errno), filedest); return -1; }
@@ -8961,7 +9166,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/statusfile.c
      }
 diff --recursive --unified --new-file --no-dereference upstream/src/tun.c src/src/tun.c
 --- upstream/src/tun.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/tun.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/tun.c	2024-10-24 10:13:49.000000000 +0000
 @@ -1184,9 +1184,11 @@
  #endif
  
@@ -8979,7 +9184,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/tun.c src/sr
    if (execl(
 diff --recursive --unified --new-file --no-dereference upstream/src/ubus.c src/src/ubus.c
 --- upstream/src/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ubus.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/ubus.c	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,625 @@
 +
 +#include "chilli.h"
@@ -9609,7 +9814,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ubus.c src/s
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference upstream/src/ubus.h src/src/ubus.h
 --- upstream/src/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ubus.h	2024-10-15 06:17:37.000000000 +0000
++++ src/src/ubus.h	2024-10-24 10:13:49.000000000 +0000
 @@ -0,0 +1,39 @@
 +
 +#ifndef _CHILLI_UBUS_H
@@ -9652,8 +9857,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ubus.h src/s
 +#endif //_CHILLI_UBUS_H
 diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/src/users.c
 --- upstream/src/users.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/users.c	2024-10-15 06:17:37.000000000 +0000
-@@ -0,0 +1,688 @@
++++ src/src/users.c	2024-10-24 10:13:49.000000000 +0000
+@@ -0,0 +1,695 @@
 +#include "chilli.h"
 +#include <uci.h>
 +#include <libtlt_uci.h>
@@ -10071,8 +10276,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +	char *sql = 0;
 +	sqlite3_stmt *stmt;
 +
-+	if (phone != NULL && mac != NULL)
-+		asprintf(&sql, SELECT_NOT_EXPIRED_FMT, "sms_users", phone, MAC_ARG(mac));
++	if (phone != NULL)
++		asprintf(&sql, SELECT_NOT_EXPIRED_FMT, "sms_users", phone);
 +	else if (mac != NULL)
 +		asprintf(&sql, SELECT_NOT_EXPIRED_MAC_FMT, "sms_users", MAC_ARG(mac));
 +	else
@@ -10120,13 +10325,19 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +	return ret;
 +}
 +
-+static int get_sms_user_phone(sqlite3 *db, struct str_sms_user *user, char *phone, uint8_t *mac)
++int usr_get_sms_user_phone(sqlite3 *db, struct str_sms_user *user, char *phone, uint8_t *mac)
 +{
 +	int ret = SQL_SUCCESS;
 +	char *sql = NULL;
 +	char *err = 0;
 +
-+	asprintf(&sql, SELECT_SMS_USER_PHONE_FMT, phone, MAC_ARG(mac));
++	if (phone != NULL)
++		asprintf(&sql, SELECT_SMS_USER_PHONE_FMT, phone);
++	else if (mac != NULL)
++		asprintf(&sql, SELECT_SMS_USER_MAC_FMT, MAC_ARG(mac));
++	else
++		goto out;
++
 +	if (_options.debug)
 +		syslog(LOG_INFO, "[%s] SQL: %s", __FUNCTION__, sql);
 +
@@ -10139,6 +10350,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +		return SQL_FAIL;
 +	}
 +
++out:
 +	free(sql);
 +
 +	return SQL_SUCCESS;
@@ -10161,7 +10373,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +
 +	if ((ret = usr_sms_user_exists(db, phone, conn->hismac)) != USER_RET_SUCCESS) {
 +		struct str_sms_user user = { 0 };
-+		if (get_sms_user_phone(db, &user, phone, conn->hismac) || user.used == 0) {
++		if (usr_get_sms_user_phone(db, &user, phone, conn->hismac) || user.used == 0) {
 +			syslog(LOG_DEBUG, "user already exists: %d\n", ret);
 +			goto out;
 +		}
@@ -10199,9 +10411,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +	char *err = 0;
 +
 +	if (new_passw) {
-+		asprintf(&sql, UPDATE_SMS_USERS_PWD_FMT, new_passw, used, phone, MAC_ARG(mac));
++		asprintf(&sql, UPDATE_SMS_USERS_PWD_FMT, new_passw, used, MAC_ARG(mac), phone);
 +	} else {
-+		asprintf(&sql, UPDATE_SMS_USERS_USE_FMT, used, phone, MAC_ARG(mac));
++		asprintf(&sql, UPDATE_SMS_USERS_USE_FMT, used, MAC_ARG(mac), phone);
 +	}
 +
 +	if (_options.debug)
@@ -10344,8 +10556,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +}
 diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/src/users.h
 --- upstream/src/users.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/users.h	2024-10-15 06:17:37.000000000 +0000
-@@ -0,0 +1,178 @@
++++ src/src/users.h	2024-10-24 10:13:49.000000000 +0000
+@@ -0,0 +1,182 @@
 +
 +#ifndef RUTX_USERS_H
 +#define RUTX_USERS_H
@@ -10414,19 +10626,18 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/
 +
 +#define UPDATE_SMS_USERS_PWD_FMT                                                                             \
 +	"UPDATE sms_users SET password='%s', \
-+			used='%" PRIu32 "' WHERE (" NOT_EXPIRED_FMT " AND (phone = '%s' OR mac = '" MAC_FMT  \
-+	"'));"
++			used='%" PRIu32 "', mac='"MAC_FMT"' WHERE (" NOT_EXPIRED_FMT " AND phone = '%s');"
 +
 +#define UPDATE_SMS_USERS_USE_FMT                                                                             \
-+	"UPDATE sms_users SET used='%" PRIu32 "' \
-+			WHERE (" NOT_EXPIRED_FMT " AND (phone = '%s' OR mac = '" MAC_FMT "'));"
++	"UPDATE sms_users SET used='%" PRIu32 "', mac='"MAC_FMT"' \
++			WHERE (" NOT_EXPIRED_FMT " AND phone = '%s');"
 +
 +#define USER_TIME_FMT "(strftime('%%s','now') - strftime('%%s', created)) AS user_time"
 +
 +//Cont all unexpired users with corresponding phone number
 +#define SELECT_NOT_EXPIRED_FMT                                                                               \
 +	"SELECT COUNT(*) from %s"                                                                            \
-+	" WHERE (" NOT_EXPIRED_FMT " AND (phone = '%s' OR mac = '" MAC_FMT "'));"
++	" WHERE (" NOT_EXPIRED_FMT " AND phone = '%s');"
 +
 +//Cont all unexpired users with corresponding mac
 +#define SELECT_NOT_EXPIRED_MAC_FMT                                                                           \
@@ -10443,7 +10654,11 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/
 +
 +#define SELECT_SMS_USER_PHONE_FMT                                                                            \
 +	"SELECT *, " USER_TIME_FMT "  FROM sms_users"                                                        \
-+	" WHERE (" NOT_EXPIRED_FMT " AND (phone = '%s' OR mac = '" MAC_FMT "'))" LIMIT_FMT ";"
++	" WHERE (" NOT_EXPIRED_FMT " AND phone = '%s')" LIMIT_FMT ";"
++
++#define SELECT_SMS_USER_MAC_FMT                                                                            \
++	"SELECT *, " USER_TIME_FMT "  FROM sms_users"                                                        \
++	" WHERE (" NOT_EXPIRED_FMT " AND mac = '" MAC_FMT "')" LIMIT_FMT ";"
 +
 +#define INSERT_USERS_FMT                                                                                     \
 +	"INSERT INTO users (username, email, password, mac, phone,"                                          \
@@ -10508,6 +10723,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/
 +int usr_add_user(struct redir_conn_t *conn);
 +
 +int usr_get_sms_user(sqlite3 *db, struct str_sms_user *user, char *password);
++int usr_get_sms_user_phone(sqlite3 *db, struct str_sms_user *user, char *phone, uint8_t *mac);
 +int usr_update_sms_user(sqlite3 *db, struct str_sms_user *user, char *phone, uint8_t *mac, uint32_t used,
 +			char *new_passw);
 +int usr_add_sms_user(struct redir_conn_t *conn, char *phone, char *hexchall);
@@ -10526,7 +10742,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/
 +#endif //RUTX_USERS_H
 diff --recursive --unified --new-file --no-dereference upstream/src/util.c src/src/util.c
 --- upstream/src/util.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/util.c	2024-10-15 06:17:37.000000000 +0000
++++ src/src/util.c	2024-10-24 10:13:49.000000000 +0000
 @@ -117,6 +117,54 @@
    return 0;
  }

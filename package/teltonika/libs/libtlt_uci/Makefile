@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libtlt_uci
-PKG_VERSION:=2024-10-02
+PKG_VERSION:=2024-11-14
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=7.10

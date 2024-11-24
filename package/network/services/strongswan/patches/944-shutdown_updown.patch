@@ -1,0 +1,11 @@
+--- a/src/_updown/_updown.in
++++ b/src/_updown/_updown.in
+@@ -29,6 +29,8 @@
+ 
+ /sbin/hotplug-call ipsec "$1"
+ 
++return
++
+ #      PLUTO_VERSION
+ #              indicates  what  version of this interface is being
+ #              used.  This document describes version  1.1.   This

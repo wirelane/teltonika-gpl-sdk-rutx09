@@ -1,7 +1,5 @@
-Index: Python-3.11.7/setup.py
-===================================================================
---- Python-3.11.7.orig/setup.py
-+++ Python-3.11.7/setup.py
+--- a/setup.py
++++ b/setup.py
 @@ -1344,7 +1344,6 @@ class PyBuildExt(build_ext):
          self.detect_crypt()
          self.detect_openssl_hashlib()

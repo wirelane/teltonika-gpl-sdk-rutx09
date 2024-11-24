@@ -46,8 +46,8 @@ define Package/relayd/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/etc/config/relayd $(1)/etc/config/
 
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.6
-	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.6/10-move-relayd-from-network-conf
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11
+	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.11/10-move-relayd-from-network-conf
 endef
 
 $(eval $(call BuildPackage,relayd))

@@ -6,16 +6,14 @@
 set_pin() {
 	local sim="$1"
 	local sim_pos=0
-	local modem position pincode num pin modem_data modem_num mnf_cfg mnf_modem
+	local modem position pincode num pin modem_num mnf_cfg mnf_modem
 
 	config_get modem "$sim" "modem"
 	config_get position "$sim" "position"
 	config_get pincode "$sim" "pincode"
 
-	modem_data="$(jsonfilter -i "/etc/board.json" -e "@.modems[@.id=\"$modem\"]" 2>/dev/null)"
-	[ -z "$modem_data" ] && return
-
-	modem_num="$(jsonfilter -s "$modem_data" -e '@.num' 2>/dev/null)"
+	modem_num="$(jsonfilter -i "/etc/board.json" -e "@.modems[@.id=\"$modem\"].num" 2>/dev/null)"
+	[ -z "$modem_num" ] && return
 
 	for num in $(seq 1 4); do
 		mnf_cfg="$(/sbin/mnf_info -C "$num" 2>/dev/null)"

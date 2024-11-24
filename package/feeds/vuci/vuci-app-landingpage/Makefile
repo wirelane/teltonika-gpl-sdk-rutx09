@@ -13,7 +13,7 @@ define Package/vuci-app-landingpage
 	CATEGORY:=WebUI
 	SUBMENU:=Applications
 	TITLE:=Hotspot landingpage core files
-	DEPENDS:=+liblua
+	DEPENDS:=+liblua +vuci-app-coovachilli-themes-ui
 endef
 
 define Package/vuci-app-landingpage/conffiles

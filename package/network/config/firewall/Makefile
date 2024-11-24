@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_RELEASE:=4
+PKG_RELEASE:=9
 
 PKG_SOURCE_DATE:=2022-02-17
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -104,6 +104,7 @@ endif
 ifeq ($(TLT_PLATFORM_DAP14X), y)
 	FIREWALL_CONFIG=firewall.config-dap14x
 endif
+
 define Package/firewall/install
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/firewall3 $(1)/sbin/fw3

@@ -15,6 +15,12 @@
 			pinctrl-names = "default";
 			clock-frequency = <400000>;
 			status = "ok";
+
+			tpm: tpm@2e {
+				compatible = "tcg,tpm_tis_i2c";
+				reg = <0x2e>;
+				status = "okay";
+			};
 		};
 	};
 };

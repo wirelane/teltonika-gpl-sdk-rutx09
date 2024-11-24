@@ -95,14 +95,14 @@ Index: mosquitto-ssl/mosquitto-2.0.11/config.mk
 ===================================================================
 --- a/config.mk
 +++ b/config.mk
-@@ -239,7 +239,7 @@ endif
+@@ -251,7 +251,7 @@ endif
  ifeq ($(WITH_TLS),yes)
- 	APP_CPPFLAGS:=$(APP_CPPFLAGS) -DWITH_TLS
- 	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_TLS
+ 	APP_CPPFLAGS:=$(APP_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
+ 	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
 -	BROKER_LDADD:=$(BROKER_LDADD) -lssl -lcrypto
 +	BROKER_LDADD:=$(BROKER_LDADD) -lssl -lcrypto -lubus -lubox -luci
- 	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_TLS
- 	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_TLS
+ 	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
+ 	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
  	LIB_LIBADD:=$(LIB_LIBADD) -lssl -lcrypto
 Index: mosquitto-ssl/mosquitto-2.0.11/include/mosquitto.h
 ===================================================================

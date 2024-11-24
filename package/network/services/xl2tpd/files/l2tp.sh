@@ -24,12 +24,14 @@ proto_l2tp_init_config() {
 }
 
 check_bind() {
-        config_get bind_to "$1" bind_to
-                                       
-        [ "$bind_to" = "$2" ] || continue
-                                         
-        [ -z "$(ipsec status ${1%%_*}-${1} | grep "1 up")" ] && BIND_STOP=1
-}                                                                          
+	config_get bind_to "$1" bind_to
+
+	[ "$bind_to" = "$2" ] || continue
+	if ! swanctl --list-sas --child ${1} 2>/dev/null | grep -q "INSTALLED"; then
+		logger "L2TP instance ${bind_to} cannot start, it's bound to unestablished IPsec connection ${1}."
+		BIND_STOP=1
+	fi
+}
 
 proto_l2tp_add_opts() {
 	[ -n "$1" ] && echo "$1" >> "$3"
@@ -38,12 +40,14 @@ proto_l2tp_add_opts() {
 proto_l2tp_setup() {
 	local interface="$1"
 
-	sleep 1
 	local fail_count="0"
 	[ -f "/tmp/l2tp/$interface.failcount" ] && fail_count="$(cat "/tmp/l2tp/$interface.failcount")"
 	local sleep_time="$(($fail_count * 30))"
 	[ "$sleep_time" -gt "180" ] && sleep_time="180"
-	sleep "$sleep_time"
+	if [ "$sleep_time" -gt "0" ]; then
+		logger -t "l2tp" "Interface '$interface' is waiting $sleep_time seconds for the next connection retry"
+		sleep "$sleep_time"
+	fi
 
 	local optfile="/tmp/l2tp/options.${interface}"
 	local static_opt="/etc/ppp/options.l2tp"

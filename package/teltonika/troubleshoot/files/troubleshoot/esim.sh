@@ -21,12 +21,16 @@ esim_hook() {
 	for mdm in $(ubus list | grep "gsm.modem"); do
 		modem=${mdm##*.}
                 troubleshoot_add_log "INFO for $modem" "$log_file"
-		resp=$(lpac "$modem" "get-eid" 2>/dev/null | tail -n 1)
+		resp=$(timeout 10 lpac "$modem" "get-eid" 2>/dev/null | tail -n 1)
+		if [ -z "$resp" ]; then
+			troubleshoot_add_log "No eSIM detected" "$log_file"        
+			continue
+		fi
 		res="$(jsonfilter -s "$resp" -e '@.result')"
 		if [ "$res" = "0" ]; then
 			eid="$(jsonfilter -s "$resp" -e '@.response.eid')"
 			troubleshoot_add_log "EID $eid" "$log_file"
-			resp=$(lpac "$modem" "get-profiles" 2>/dev/null | tail -n 1)
+			resp=$(timeout 10 lpac "$modem" "get-profiles" 2>/dev/null | tail -n 1)
 			res="$(jsonfilter -s "$resp" -e '@.result')"
 			if [ "$res" = "0" ]; then
 				pretty_print "$resp" "$log_file"                       

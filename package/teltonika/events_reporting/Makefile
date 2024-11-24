@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=events_reporting
 
-PKG_SOURCE_VERSION:=2.4
+PKG_SOURCE_VERSION:=2.5
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -31,6 +31,7 @@ define Package/events_reporting/install
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/events_reporting.init $(1)/etc/init.d/events_reporting
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/events_reporting.conf $(1)/etc/config/events_reporting
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/startup_event $(1)/etc/init.d/startup_event
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/events_reporting $(1)/usr/bin/events_reporting
 endef
 

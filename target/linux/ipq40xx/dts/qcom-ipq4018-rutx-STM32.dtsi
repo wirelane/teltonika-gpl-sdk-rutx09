@@ -1,5 +1,4 @@
 #include "qcom-ipq4018-rutx-common.dtsi"
-#include "qcom-ipq4018-rutx-i2c.dtsi"
 
 / {
 	io_expander = "stm32";

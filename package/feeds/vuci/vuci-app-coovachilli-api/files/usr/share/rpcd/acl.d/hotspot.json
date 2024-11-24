@@ -19,8 +19,8 @@
     "write": {
       "api": ["/hotspot/config/*", "/hotspot/options/*", "/hotspot/status/*"]
     },
-	"source": ["/hotspot/config/*"],
-	"exception": ["/hotspot/config/*", "/hotspot/status/*"]
+    "source": ["/hotspot/config/*"],
+    "exception": ["/hotspot/config/*", "/hotspot/status/*"]
   },
   "services/hotspot/users": {
     "description": "hotspot users configuration",
@@ -39,7 +39,7 @@
   "services/hotspot/groups": {
     "description": "hotspot groups configuration",
     "read": {
-      "api": {"/hotspot/groups/*":["*"]}
+      "api": { "/hotspot/groups/*": ["*"] }
     },
     "write": {
       "api": ["/hotspot/groups/*"]
@@ -47,20 +47,11 @@
     "source": ["/hotspot/groups/*"],
     "exception": ["/hotspot/groups/config/*"]
   },
-  "services/hotspot/landing": {
-    "description": "hotspot landing page configuration",
-    "read": {
-      "api": {"/hotspot/themes/*":["*"], "/hotspot/images/*":["*"]}
-    },
-    "write": {
-      "api": ["/hotspot/themes/*", "/hotspot/images/*"]
-    }
-  },
   "services/hotspot/user_management": {
     "description": "hotspot users management",
     "read": {
       "api": {
-        "/hotspot/user_management/*":["*"],
+        "/hotspot/user_management/*": ["*"],
         "/hotspot/users/config/*": ["id", "username"]
       }
     },
@@ -71,7 +62,7 @@
   "system/maintenance/hotspot": {
     "description": "hotspot logs",
     "read": {
-      "api": {"/hotspot/logs/*":["*"]}
+      "api": { "/hotspot/logs/*": ["*"] }
     }
   }
 }

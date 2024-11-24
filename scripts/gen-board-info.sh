@@ -6,7 +6,6 @@ SAVE_FILE="$3"
 
 . "$2/lib/functions.sh" 2>/dev/null
 . "$2/lib/functions/uci-defaults.sh" 2>/dev/null
-. "$2/lib/functions/teltonika-defaults.sh" 2>/dev/null
 . "$2/usr/share/libubox/jshn.sh" 2>/dev/null
 
 # declare device properties
@@ -14,7 +13,7 @@ declare -A device_properties=(
     # option name = exported variable,option name,delimiter,inside data delimiter,data type,uci func
     [features]="DEVICE_FEATURES,features, ,,array,ucidef_set_hwinfo"
     [initial_support_version]="INITIAL_VERSION,option, ,,array,ucidef_set_release_version"
-    [usb_check_path]="USB_CHECK,option, ,,single,ucidef_usbcheck"
+    [check_path]="PATH_CHECK,option,;,,single,ucidef_check_path"
     [usb_jack_path]="USB_JACK,option, ,,single,ucidef_set_usb_jack"
     [lan_iface_opt]="LAN_OPT,option,;,,single,ucidef_set_interface_lan"
     [wan_iface_opt]="WAN_OPT,option,;,,single,ucidef_set_interface_wan"
@@ -65,7 +64,6 @@ filter_common_values() {
     [ "$in_delim" = "y" ] && in_delim=","
 
     processed_data=$(echo "$data" | \
-        xargs | \
         tr "$delim$in_delim" "\n" | \
         sed 's/^[ \t]*//' | \
         sort | \
@@ -76,6 +74,7 @@ filter_common_values() {
         processed_data=$(echo "$processed_data" | paste -sd "$in_delim" -)
 
     echo $processed_data
+
 }
 
 # prepare to generate board.json
@@ -83,6 +82,9 @@ json_init
 
 for prop in "${!device_properties[@]}"; do
     IFS=',' read -r var_name _ delim in_delim dt ds <<< "${device_properties[$prop]}"
+
+    [ -n "${!var_name}" ] || continue
+
     declare "COMMON_$var_name=$(filter_common_values "${!var_name}" "$delim" "$DEVICE_NUMBER" "$in_delim")"
 
     common_var_name="COMMON_$var_name"
@@ -110,7 +112,7 @@ for device in $INCLUDED_DEVICES; do
     declare -n device_properties_ref="properties_$device"
 
     # create case section for a device
-    BOARDSH+="\t$(echo "$device*)" | cut -d '_' -f 3 | tr '[:lower:]' '[:upper:]')\n"
+    BOARDSH+="\t$(echo "$device*)" | rev | cut -d'_' -f1 | rev | tr '[:lower:]' '[:upper:]')\n"
 
     for prop in "${!device_properties[@]}"; do
         IFS=',' read -r var_name _ _ in_delim dt ds <<< "${device_properties[$prop]}"

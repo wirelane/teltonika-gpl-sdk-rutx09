@@ -4,6 +4,10 @@
     "devices": ["TAP100", "TAP200", "TAP400"]
   },
   {
+    "name": "DAP",
+    "devices": ["DAP140", "DAP142"]
+  },
+  {
     "name": "ATRM",
     "devices": ["ATRM50"]
   },
@@ -17,11 +21,11 @@
   },
   {
     "name": "RUTM",
-    "devices": ["RUTM08", "RUTM51", "RUTM50", "RUTM11", "RUTM10", "RUTM09", "RUTM52", "RUTM59"]
+    "devices": ["RUTM08", "RUTM51", "RUTM50", "RUTM11", "RUTM10", "RUTM09", "RUTM52", "RUTM56", "RUTM59"]
   },
   {
     "name": "RUT2M",
-    "devices": ["RUT200", "RUT241", "RUT260", "RUT271"]
+    "devices": ["RUT200", "RUT241", "RUT260", "RUT271", "RUT206"]
   },
   {
     "name": "RUT9M",
@@ -62,9 +66,5 @@
   {
     "name": "TRB2M",
     "devices": ["TRB256", "TRB246"]
-  },
-  {
-    "name": "DAP",
-    "devices": ["DAP140", "DAP142"]
   }
 ]

@@ -3,8 +3,7 @@
     "description": "",
     "read": {
       "api": {
-        "/interfaces/config/*": ["*"],
-        "/interfaces/basic/status/*": ["*"],
+        "/interfaces/*": ["*"],
         "/hotspot/config/*": ["network", "moreif"],
         "/firewall/zones/config/*": ["name", "network"],
         "/wireless/interfaces/config/*": ["id", "network", "ssid", "mesh_id"],
@@ -24,8 +23,7 @@
     "description": "",
     "read": {
       "api": {
-        "/interfaces/config/*": ["*"],
-        "/interfaces/basic/status/*": ["*"],
+        "/interfaces/*": ["*"],
         "/hotspot/config/*": ["network", "moreif"],
         "/firewall/zones/config/*": ["name", "network"],
         "/wireless/interfaces/config/*": ["id", "name", "network"],

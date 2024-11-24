@@ -3,11 +3,13 @@ if (Number(process.versions.node.split('.')[0]) < 16) {
   console.log('This script needs node >=v16')
   process.exit(1)
 }
+
 const generate = require('./src/generator')
 const createServer = require('./src/server')
 const { validateChangelogFiles, validateDatabase } = require('./src/validator')
 const dataGetters = require('./src/dataGetters')
 const fs = require('fs')
+const Controller = require('./src/controller')
 
 process.chdir(__dirname)
 
@@ -21,7 +23,7 @@ if (process.argv.length === 2 || process.argv[2] === 'create') {
 } else if (process.argv[2] === 'validate') {
   validateDatabase()
   validateChangelogFiles()
-  console.log('Everything is valid')
+  console.log('No critical errors.')
   process.exit()
 } else if (process.argv[2] === 'generate') {
   globalThis.supressInfo = true
@@ -45,6 +47,7 @@ if (process.argv.length === 2 || process.argv[2] === 'create') {
   console.log(generate[type](device))
   process.exit()
 } else if (process.argv[2] === 'ci') {
+  validateDatabase()
   validateChangelogFiles()
   const folder = '../../wiki_changelogs/'
   const globalChangelog = '../../tmp_changelog'
@@ -57,7 +60,17 @@ if (process.argv.length === 2 || process.argv[2] === 'create') {
   const globalText = generate.wiki(undefined)
   fs.writeFileSync(`${folder}global`, globalText, { flag: 'w' })
   const gitText = generate.git(undefined)
-  fs.writeFileSync(`${globalChangelog}`, gitText, { flag: 'w' })
+  if (gitText === 'No changes') console.log(gitText)
+  else fs.writeFileSync(`${globalChangelog}`, gitText, { flag: 'w' })
+
+  process.exit()
+} else if (process.argv[2] === 'auto-fix') {
+  const changelogs = dataGetters.getChangelogs().flatMap((id) => dataGetters.getChangelog(id))
+  Controller.saveChangelogs(changelogs)
+  console.log('Auto fix completed.')
+  console.log('\x1b[36m%s\x1b[0m', 'Validation problems after auto-fix:')
+  validateDatabase()
+  validateChangelogFiles()
   process.exit()
 } else {
   console.log('./create_changelog.sh [command]')
@@ -67,4 +80,5 @@ if (process.argv.length === 2 || process.argv[2] === 'create') {
   console.log('  generate [wiki|git|json] [device] - generates changelog. By default generates for all devices')
   console.log('  ci - generates all changelog to all devices and global changelog for git')
   console.log('  dev - starts server and WebUI in develop mode (effects vue import)')
+  console.log('  auto-fix - automatically fix some errors.')
 }

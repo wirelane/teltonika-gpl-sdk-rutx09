@@ -12,12 +12,13 @@ PROG=/usr/lib/ipsec/charon
 STRONGSWAN_CONF_FILE=/etc/strongswan.conf
 STRONGSWAN_VAR_CONF_FILE=/var/ipsec/strongswan.conf
 
-SWANCTL_BIN="swanctl"
+SWANCTL_BIN="/usr/sbin/swanctl"
 SWANCTL_DIR="/etc/swanctl"
 SWANCTL_CONF_FILE="$SWANCTL_DIR/swanctl.conf"
 SWANCTL_VAR_CONF_FILE=/var/swanctl/swanctl.conf
 
 WAIT_FOR_INTF=0
+ENABLED=0
 
 CONFIG_FAIL=0
 
@@ -28,7 +29,7 @@ EXTRA_HELP="
 "
 
 get_status() {
-	$SWANCTL_BIN  --version
+	$SWANCTL_BIN  --version 2> /dev/null || return
 	$SWANCTL_BIN  --stats
 	echo "Connection list:"
 	$SWANCTL_BIN  --list-conns
@@ -39,7 +40,7 @@ get_status() {
 get_child_conn() {
 	local ike="$1" connections
 	[ -z "$ike" ] && return 1
-	connections="$(swanctl --list-conns --pretty | grep "${ike}_"  | sed 's/^ *//' | sed 's/ {//' | tr '\n' ' ')"
+	connections="$($SWANCTL_BIN --list-conns --pretty | grep "${ike}_"  | sed 's/^ *//' | sed 's/ {//' | tr '\n' ' ')"
 	echo "$connections"
 }
 
@@ -332,7 +333,6 @@ config_child() {
 	local lifepackets
 	local replay_window
 	local custom
-	local forceencaps
 
 	config_get startaction "$conf" mode "start"
 	config_get local_nat "$conf" local_nat ""
@@ -344,7 +344,6 @@ config_child() {
 	config_get if_id_in "$conf" if_id_in ""
 	config_get if_id_out "$conf" if_id_out ""
 	config_get rekeytime "$conf" rekeytime ""
-	[ -z "$rekeytime" ] && config_get rekeytime "$conf" ikelifetime ""
 	config_get_bool ipcomp "$conf" ipcomp 0
 	config_get interface "$conf" interface ""
 	config_get hw_offload "$conf" hw_offload ""
@@ -355,6 +354,7 @@ config_child() {
 	config_get lifepackets "$conf" lifepackets ""
 	config_get replay_window "$conf" replay_window ""
 	config_get mode "$conf" type ""
+	[ "$startaction" = "start" ] && closeaction="restart"
 	config_get custom "$conf" custom ""
 	config_get remote_sourceip "$conf" remote_sourceip ""
 	config_get leftprotoport "$conf" leftprotoport ""
@@ -362,7 +362,6 @@ config_child() {
 	config_get_bool local_firewall "$conf" local_firewall 1
 	config_get_bool remote_firewall "$conf" remote_firewall 0
 	config_get_bool comp_mode "$conf" comp_mode 0
-	config_get_bool encap "$conf" forceencaps 0
 
 	if [ $comp_mode = 0 ]; then
 		config_list_foreach "$conf" local_subnet append_var local_subnet ","
@@ -370,7 +369,7 @@ config_child() {
 		if [ -n "$leftprotoport" ]; then
 			local local_subnet
 			local local_subnet_join
-			config_get local_subnet "$conf" local_subnet ""
+			config_get local_subnet "$conf" local_subnet "dynamic"
 			for i in $local_subnet; do
 				append_var "${i}[${leftprotoport}]" local_subnet_join ","
 			done
@@ -380,7 +379,7 @@ config_child() {
 		if [ -n "$rightprotoport" ]; then
 			local remote_subnet
 			local remote_subnet_join
-			config_get remote_subnet "$conf" remote_subnet ""
+			config_get remote_subnet "$conf" remote_subnet "dynamic"
 			for i in $remote_subnet; do
 				append_var "${i}[${rightprotoport}]" remote_subnet_join ","
 			done
@@ -423,7 +422,7 @@ config_child() {
 		;;
 	esac
 
-	[ -n "$closeaction" -a "$closeaction" != "none" ] && warning "Closeaction $closeaction can cause instability"
+	[ -n "$closeaction" -a "$closeaction" != "none" -a "$startaction" = "trap" ] && warning "Closeaction $closeaction can cause instability when used with trap policies"
 
 	case "$dpdaction" in
 	none)
@@ -469,12 +468,11 @@ config_child() {
 	[ -n "$remote_subnet" ] && swanctl_xappend4 "remote_ts = $remote_subnet"
 
 	[ -n "$hw_offload" ] && swanctl_xappend4 "hw_offload = $hw_offload"
-	[ $ipcomp -eq 1 ] && swanctl_xappend4 "ipcomp = 1"
+	[ $ipcomp -eq 1 ] && swanctl_xappend4 "ipcomp = yes"
 	[ -n "$interface" ] && swanctl_xappend4 "interface = $interface"
 	[ -n "$priority" ] && swanctl_xappend4 "priority = $priority"
 	[ -n "$if_id_in" ] && swanctl_xappend4 "if_id_in = $if_id_in"
 	[ -n "$if_id_out" ] && swanctl_xappend4 "if_id_out = $if_id_out"
-	[ "$encap" = 1 ] && swanctl_xappend4 "encap = 1"
 	[ -n "$startaction" -a "$startaction" != "none" ] && swanctl_xappend4 "start_action = $startaction"
 	[ -n "$closeaction" -a "$closeaction" != "none" ] && swanctl_xappend4 "close_action = $closeaction"
 	[ $force_crypto_esp = 0 ] && append_var "default" "esp_proposal" ","
@@ -486,7 +484,6 @@ config_child() {
 	elif [ -n "$rekeytime" ]; then
 		swanctl_xappend4 "life_time = $(seconds2time $(((110 * $(time2seconds $rekeytime)) / 100)))"
 	fi
-	[ -n "$rekeytime" ] && swanctl_xappend4 "rekey_time = $rekeytime"
 	if [ -n "$lifebytes" ]; then
 		swanctl_xappend4 "life_bytes = $lifebytes"
 	elif [ -n "$rekeybytes" ]; then
@@ -686,18 +683,21 @@ config_remote() {
 	local remote_ca_certs
 	local pools
 	local xauth_identity
+	local forceencaps
 
 	config_get_bool enabled "$conf" enabled 0
-	[ $enabled -eq 0 ] && return
+	[ $enabled = 0 ] && return
+
+	ENABLED=1
 
 	config_get gateway "$conf" gateway "%any"
 	config_get pre_shared_key "$conf" pre_shared_key
-	config_get auth_method "$conf" authentication_method
+	config_get auth_method "$conf" authentication_method "psk"
 	[ "$auth_method" = "x509" ] && auth_method="pubkey"
 	config_get local_identifier "$conf" local_identifier ""
 	config_get remote_identifier "$conf" remote_identifier ""
 	config_get local_ip "$conf" local_ip "%any"
-	config_get keyingtries "$conf" keyingtries "3"
+	config_get keyingtries "$conf" keyingtries "0"
 	config_get dpddelay "${conf}_c" dpddelay "30s"
 	config_get dpdtimeout "${conf}_c" dpdtimeout "90s"
 	config_get inactivity "${conf}_c" inactivity
@@ -708,6 +708,7 @@ config_remote() {
 	config_get local_key "$conf" key ""
 	config_get ca_cert "$conf" cacert ""
 	config_get rekeytime "$conf" rekeytime
+	[ -z "$rekeytime" ] && config_get rekeytime "${conf}_c" ikelifetime ""
 	config_get overtime "$conf" overtime
 	config_get pools "$conf" pools
 	[ -z "$pools" ] && config_get remote_sourceip "${conf}_c" remote_sourceip
@@ -725,10 +726,10 @@ config_remote() {
 	config_get local_sourceip "${conf}_c" local_sourceip ""
 	config_get passthrough "${conf}_c" passthrough ""
 	config_get passthrough_ip "${conf}_c" passthrough_ip ""
+	config_get_bool encap "${conf}_c" forceencaps 0
 
 	config_list_foreach "$conf" remote_ca_certs append_var remote_ca_certs ","
-
-	[ "$defaultroute" = 1 ] && local_sourceip="0.0.0.0,::"
+	[ "$defaultroute" = 1 ] || [ "$local_sourceip" = "%config" ] && local_sourceip="0.0.0.0,::"
 
 	case "$fragmentation" in
 	0)
@@ -806,6 +807,7 @@ config_remote() {
 
 	[ -n "$local_sourceip" ] && swanctl_xappend2 "vips = $local_sourceip"
 	[ -n "$fragmentation" ] && swanctl_xappend2 "fragmentation = $fragmentation"
+	[ "$encap" = 1 ] && swanctl_xappend2 "encap = yes"
 	if [ -n "$remote_sourceip" ]; then
 		config_list_foreach "${conf}_c" remote_sourceip append_var remote_sourceip ","
 		local iter_pools=0
@@ -818,8 +820,6 @@ config_remote() {
 		swanctl_xappend2 "pools = $pools"
 		config_list_foreach "$conf" pools append_var pools ","
 	fi
-
-	config_list_foreach "${conf}_c" "custom" swanctl_xappend_custom
 
 	[ "$xauth" = 1 ] && auth_method="xauth"
 
@@ -846,8 +846,8 @@ config_remote() {
 
 	if [ $comp_mode = 1 ]; then
 		local local_subnet remote_subnet leftprotoport rightprotoport
-		config_get local_subnet  "${conf}_c" local_subnet ""
-		config_get remote_subnet "${conf}_c" remote_subnet ""
+		config_get local_subnet  "${conf}_c" local_subnet "dynamic"
+		config_get remote_subnet "${conf}_c" remote_subnet "dynamic"
 		config_get leftprotoport "${conf}_c" leftprotoport ""
 		config_get rightprotoport "${conf}_c" rightprotoport ""
 		swanctl_xappend2 "children {"
@@ -888,11 +888,12 @@ config_remote() {
 	[ -n "$dpddelay" ] && swanctl_xappend2 "dpd_delay = $dpddelay"
 	[ -n "$dpdtimeout" ] && swanctl_xappend2 "dpd_timeout = $dpdtimeout"
 	[ "$keyingtries" = "%forever" ] && swanctl_xappend2 "keyingtries = 0" || swanctl_xappend2 "keyingtries = $keyingtries"
+	config_list_foreach "${conf}_c" "custom" swanctl_xappend_custom
 
 	swanctl_xappend1 "}"
 	swanctl_xappend0 "}"
 	case $auth_method in
-		pubkey)
+		pubkey | eap-mschapv2)
 			swanctl_xappend0 ""
 			if [ -n "$ca_cert" ]; then
 				swanctl_xappend0 "authorities {"
@@ -903,7 +904,7 @@ config_remote() {
 				swanctl_xappend0 ""
 			fi
 			if [ -n "$local_key" ]; then
-				ln -s "$local_key" "$SWANCTL_DIR/private"
+				ln -s "$local_key" "$SWANCTL_DIR/private/"
 				if [ -n "$key_decrypt" ]; then
 					local_key="${local_key:+\"$(basename $local_key)\"}"
 					swanctl_xappend0 ""
@@ -931,7 +932,7 @@ config_remote() {
 			swanctl_xappend0 "}"
 			;;
 		xauth)
-			info "AuthenticationMode is $auth_mode"
+			info "AuthenticationMode is $auth_method"
 			;;
 		pkcs12)
 			if [ -n "$pkcs12_path" ]; then
@@ -949,7 +950,7 @@ config_remote() {
 			swanctl_xappend0 "}"
 			;;
 		*)
-			fatal "AuthenticationMode $auth_mode not supported"
+			fatal "AuthenticationMode $auth_method not supported"
 			;;
 	esac
 
@@ -1009,24 +1010,32 @@ config_ipsec() {
 do_postamble() {
 	swan_xappend0 "# generated by /etc/init.d/swanctl"
 	swan_xappend0 "charon {"
+	swan_xappend1 "load_modular = yes"
 	swan_xappend1 "install_routes = $install_routes"
+	swan_xappend1 "retransmit_tries = 3"
 	[ -n "$routing_tables_ignored" ] && swan_xappend1 "ignore_routing_tables = $routing_tables_ignored"
 	[ -n "$device_list" ] && swan_xappend1 "interfaces_use = $device_list"
+	[ "$make_before_break" = "1" ] && swan_xappend1 "  make_before_break = 1"
+	swan_xappend1 "plugins {"
+	swan_xappend2 "include /etc/strongswan.d/charon/*.conf"
+	swan_xappend1 "}"
 	swan_xappend1 "start-scripts {"
 	# Somehow pkcs12 fails to load if --load-all is ran with --noprompt, go figure
-	swan_xappend2 "load-all = /usr/sbin/swanctl --load-all"
+	swan_xappend2 "load-all = $SWANCTL_BIN --load-all"
 	swan_xappend1 "}"
 	swan_xappend1 "syslog {"
 	swan_xappend2 "identifier = ipsec"
 	swan_xappend2 "daemon {"
 	swan_xappend3 "default = $debug"
+	swan_xappend3 "cfg = 2"
+	swan_xappend3 "ike_name = yes"
 	swan_xappend2 "}"
 	swan_xappend1 "}"
 	swan_xappend0 "}"
 }
 
 prepare_env() {
-	mkdir -p /var/ipsec /var/swanctl
+	mkdir -p /var/ipsec /var/swanctl /var/state/ipsec/
 
 	swan_reset
 	swanctl_reset
@@ -1050,14 +1059,18 @@ run_cleanup() {
 }
 
 service_running() {
-	swanctl --stats > /dev/null 2>&1
+	$SWANCTL_BIN --stats > /dev/null 2>&1
 }
 
 reload_service() {
 	running && {
 		prepare_env
 		[ $WAIT_FOR_INTF -eq 0 ] && {
-			swanctl --load-all --noprompt
+			if [ "$ENABLED" = 1 ]; then
+				swanctl --load-all --noprompt
+			else
+				restart
+			fi
 			return
 		}
 	}
@@ -1087,9 +1100,16 @@ service_trigger_ipsec() {
 }
 
 start_service() {
+	# only run if "remote" section exists in config
+	uci -q get ipsec.@remote[0] &>/dev/null || return
+
 	prepare_env
 
 	[ $WAIT_FOR_INTF -eq 1 ] && return
+	[ $ENABLED -eq 0 ] && {
+		stop_service
+		return
+	}
 
 	if [ $CONFIG_FAIL -ne 0 ]; then
 		procd_set_param error "Invalid configuration"
@@ -1103,8 +1123,11 @@ start_service() {
 	procd_set_param file $SWANCTL_CONF_FILE
 	procd_append_param file /etc/swanctl/conf.d/*.conf
 	procd_append_param file $STRONGSWAN_CONF_FILE
+	procd_append_param file /etc/strongswan.d/*.conf
+	procd_append_param file /etc/strongswan.d/charon/*.conf
 
 	procd_set_param respawn
 
 	procd_close_instance
+	date "+%s" > /tmp/state/ipsec/uptime
 }

@@ -1,12 +1,21 @@
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -392,8 +392,7 @@ nf_flow_offload_ip_hook(void *priv, stru
- 	ip_decrease_ttl(iph);
- 	skb->tstamp = 0;
+Index: linux-5.10.226/net/netfilter/xt_FLOWOFFLOAD.c
+===================================================================
+--- linux-5.10.226.orig/net/netfilter/xt_FLOWOFFLOAD.c
++++ linux-5.10.226/net/netfilter/xt_FLOWOFFLOAD.c
+@@ -938,6 +938,7 @@ static int init_flowtable(struct xt_flow
+ {
+ 	INIT_DELAYED_WORK(&tbl->work, xt_flowoffload_hook_work);
+ 	tbl->ft.type = &flowtable_inet;
++	tbl->ft.flags = NF_FLOWTABLE_COUNTER;
  
--	if (flow_table->flags & NF_FLOWTABLE_COUNTER)
--		nf_ct_acct_update(flow->ct, tuplehash->tuple.dir, skb->len);
-+	nf_ct_acct_update(flow->ct, tuplehash->tuple.dir, skb->len);
+ 	return nf_flow_table_init(&tbl->ft);
+ }
+@@ -956,7 +957,7 @@ static int __init xt_flowoffload_tg_init
+ 	if (ret)
+ 		goto cleanup;
  
- 	if (unlikely(tuplehash->tuple.xmit_type == FLOW_OFFLOAD_XMIT_XFRM)) {
- 		rt = (struct rtable *)tuplehash->tuple.dst_cache;
+-	flowtable[1].ft.flags = NF_FLOWTABLE_HW_OFFLOAD;
++	flowtable[1].ft.flags |= NF_FLOWTABLE_HW_OFFLOAD;
+ 
+ 	ret = xt_register_target(&offload_tg_reg);
+ 	if (ret)

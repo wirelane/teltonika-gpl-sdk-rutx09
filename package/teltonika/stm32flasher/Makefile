@@ -8,6 +8,8 @@ PKG_NAME:=stm32flasher
 
 PKG_SOURCE_VERSION:=2.7
 
+PKG_ASLR_PIE:=0
+
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

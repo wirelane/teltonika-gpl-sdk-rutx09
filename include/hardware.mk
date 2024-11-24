@@ -24,7 +24,7 @@ HW_INTERFACE_IO_4PIN_IOS:=2 x Digital Input, 2 x Digital Output on 4-pin power c
 HW_INTERFACE_IO_10PIN:=2 x Inputs and 2 x Outputs on 10-pin industrial socket, 1 x Digital input and 1 x Digital output on 4-pin power connector
 HW_INTERFACE_IO_4PIN_IN_OUT:=1 x Digital Input, 1 x Digital Output on 4-pin power connector
 HW_INTERFACE_IO_16PIN:=3 x Configurable digital I/O in 16-pin terminal block
-HW_INTERFACE_RESET:=Reboot/User default reset/Factory reset button
+HW_INTERFACE_RESET:=Reboot/Reset
 HW_INTERFACE_SIM_HOLDER:=x SIM slot (Mini SIM - 2FF), 1.8 V/3 V, external SIM holder
 HW_INTERFACE_SIM_HOLDERS:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, external SIM holders
 HW_INTERFACE_SIM_TRAY:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, double stacked SIM tray
@@ -50,7 +50,7 @@ HW_OUTPUT_DO_50V:=x Digital Output, Open collector output, max output 50 V, 300 
 # usb
 HW_USB_2_DATA_RATE:=USB 2.0
 HW_USB_APPLICATIONS:=Samba share, USB-to-serial
-HW_USB_EXTERNAL_DEV:=Possibility to connect external HDD, flash drive, additional modem, printer, USB-serial adapter
+HW_USB_EXTERNAL_DEV:=Possibility to connect external HDD, flash drive, printer, USB-serial adapter
 HW_USB_STORAGE_FORMATS:=FAT, FAT32, exFAT, NTFS (read-only), ext2, ext3, ext4
 
 # SD card
@@ -105,7 +105,7 @@ HW_FLASH_TYPE_NAND_SERIAL:=serial NAND flash
 
 # Wireless standards
 HW_WIFI_4:=IEEE 802.11b/g/n (Wi-Fi 4)
-HW_WIFI_5:=802.11b/g/n/ac Wave 2 (WiFi 5) with data transmission rates up to 867 Mbps (Dual Band, MU-MIMO), 802.11r fast transition, Access Point (AP), Station (STA)
+HW_WIFI_5:=802.11b/g/n/ac Wave 2 (WiFi 5)
 HW_WIFI_50_USERS:=Up to 50 simultaneous connections
 HW_WIFI_100_USERS:=Up to 100 simultaneous connections
 HW_WIFI_150_USERS:=Up to 150 simultaneous connections

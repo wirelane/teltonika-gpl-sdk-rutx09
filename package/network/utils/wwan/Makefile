@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=wwan
 PKG_VERSION:=2019-04-29
-PKG_RELEASE=5
+PKG_RELEASE=6
 
 PKG_ORIGIN_URL:=https://github.com/openwrt/openwrt/tree/openwrt-21.02/package/network/utils/wwan
 PKG_LICENSE:=GPL-2.0-only

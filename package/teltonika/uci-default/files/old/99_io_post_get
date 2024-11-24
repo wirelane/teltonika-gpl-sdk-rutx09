@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. /lib/functions/teltonika-functions.sh
+. /lib/functions/system.sh
 . /lib/functions.sh
 
 is_ios_enabled || exit 0
@@ -23,7 +23,7 @@ uci_set post_get io username "$username" 2>/dev/null
 		passwd="$(mkpasswd ${password})"
 		[ -n "$passwd" ] && password="$passwd"
 	}
-	
+
 	uci_set post_get io password "$password" 2>/dev/null
 }
 

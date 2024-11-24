@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 RCOMPR:=:
 PKG_NAME:=etherwake
 PKG_VERSION:=1.09
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/e/etherwake
 PKG_HASH:=54241c7689579dc86e29e6afbc6d60e69f97135091a1395c8a10f6d5a2daec1d

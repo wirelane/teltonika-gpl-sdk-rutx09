@@ -37,10 +37,11 @@ HOST_BUILD_PARALLEL:=1
 # "no-lto" prevents CONFIG_USE_LTO to add additional and interfering flags
 PKG_BUILD_FLAGS:=no-lto
 
+PKG_BUILD_DIR:=$(BUILD_DIR)/Python-$(PKG_VERSION)
 HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/Python-$(PKG_VERSION)
 
-PKG_BUILD_DEPENDS:=bluez python3/host
-HOST_BUILD_DEPENDS:=bzip2/host libffi/host
+PKG_BUILD_DEPENDS:=bluez python3/host python-build/host python-installer/host python-wheel/host
+HOST_BUILD_DEPENDS:=bzip2/host libffi/host readline/host
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
@@ -69,7 +70,7 @@ endef
 define Package/libpython3
 $(call Package/python3/Default)
   TITLE+= core library
-  DEPENDS:=+libpthread +zlib
+  DEPENDS:=+libpthread
   ABI_VERSION:=$(PYTHON3_VERSION)
 endef
 
@@ -95,7 +96,7 @@ endef
 define Package/python3-light
 $(call Package/python3/Default)
   TITLE+= light installation
-  DEPENDS:=+python3-base +libffi +libbz2 +libuuid +libdb47
+  DEPENDS:=+python3-base +libbz2 +zlib +libreadline
 endef
 
 define Package/python3-light/config
@@ -158,7 +159,7 @@ TARGET_CONFIGURE_OPTS+= \
 
 EXTRA_LDFLAGS+= \
 	-L$(PKG_BUILD_DIR) \
-	-L$(STAGING_DIR)/usr/lib -L$(STAGING_DIR)/lib \
+	-L$(STAGING_DIR)/usr/lib -L$(STAGING_DIR)/lib
 
 EXTRA_CFLAGS+= \
 	-DOPENSSL_NO_TLS1_METHOD \
@@ -274,7 +275,6 @@ define Py3Package/python3-light/filespec
 -|/usr/lib/python$(PYTHON3_VERSION)/turtledemo
 -|/usr/lib/python$(PYTHON3_VERSION)/webbrowser.py
 -|/usr/lib/python$(PYTHON3_VERSION)/_osx_support.py
--|/usr/lib/python$(PYTHON3_VERSION)/ensurepip
 $(foreach lib_file,$(filter /usr/lib/python$(PYTHON3_VERSION)/%,$(PYTHON3_LIB_FILES_DEL)),
   -|$(lib_file)
 )
@@ -294,16 +294,6 @@ endef
 
 Py3Package/python3-light/install:=:
 Package/python3/install:=:
-
-# libuuid is provided by e2fsprogs and uuid/uuid.h is moved into
-# $(STAGING_DIR_HOST)/include/e2fsprogs
-HOST_CFLAGS += \
-	-I$(STAGING_DIR_HOST)/include/e2fsprogs
-HOST_CPPFLAGS += \
-	-I$(STAGING_DIR_HOST)/include/e2fsprogs
-
-HOST_LDFLAGS += \
-	-Wl$(comma)-rpath$(comma)$(STAGING_DIR_HOSTPKG)/lib
 
 ifeq ($(HOST_OS),Linux)
 HOST_LDFLAGS += \
@@ -328,7 +318,7 @@ endif
 HOST_CONFIGURE_ARGS += \
 	--enable-optimizations \
 	--disable-test-modules \
-	--without-ensurepip \
+	--with-ensurepip=upgrade \
 	--with-ssl-default-suites=openssl \
 	--with-system-expat \
 	--without-cxx-main

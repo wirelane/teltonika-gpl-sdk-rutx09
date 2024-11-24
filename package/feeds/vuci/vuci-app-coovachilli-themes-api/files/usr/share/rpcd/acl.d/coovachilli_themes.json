@@ -1,0 +1,11 @@
+{
+  "services/hotspot/landing": {
+    "description": "hotspot landing page configuration",
+    "read": {
+      "api": { "/hotspot/themes/*": ["*"], "/hotspot/images/*": ["*"] }
+    },
+    "write": {
+      "api": ["/hotspot/themes/*", "/hotspot/images/*"]
+    }
+  }
+}

@@ -39,7 +39,7 @@ Date:   Fri Jan 6 19:49:49 2023 +0900
 
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -539,32 +539,30 @@ static int rx_submit (struct usbnet *dev
+@@ -538,32 +538,30 @@ static int rx_submit (struct usbnet *dev
  
  /*-------------------------------------------------------------------------*/
  
@@ -78,7 +78,7 @@ Date:   Fri Jan 6 19:49:49 2023 +0900
  }
  
  /*-------------------------------------------------------------------------*/
-@@ -1483,6 +1481,14 @@ err:
+@@ -1482,6 +1480,14 @@ err:
  	return ret;
  }
  
@@ -93,7 +93,7 @@ Date:   Fri Jan 6 19:49:49 2023 +0900
  /*-------------------------------------------------------------------------*/
  
  // tasklet (work deferred from completions, in_irq) or timer
-@@ -1497,15 +1503,14 @@ static void usbnet_bh (struct timer_list
+@@ -1496,15 +1502,14 @@ static void usbnet_bh (struct timer_list
  		entry = (struct skb_data *) skb->cb;
  		switch (entry->state) {
  		case rx_done:

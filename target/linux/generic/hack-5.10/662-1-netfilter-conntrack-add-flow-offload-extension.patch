@@ -3,17 +3,15 @@ struct to related nf_conn.
 
 --- a/include/net/netfilter/nf_conntrack_extend.h
 +++ b/include/net/netfilter/nf_conntrack_extend.h
-@@ -28,6 +28,9 @@ enum nf_ct_ext_id {
+@@ -28,6 +28,7 @@ enum nf_ct_ext_id {
  #if IS_ENABLED(CONFIG_NETFILTER_SYNPROXY)
  	NF_CT_EXT_SYNPROXY,
  #endif
-+#if IS_ENABLED(CONFIG_NF_FLOW_TABLE)
 +	NF_CT_EXT_FLOW_OFFLOAD,
-+#endif
  	NF_CT_EXT_NUM,
  };
  
-@@ -40,6 +43,7 @@ enum nf_ct_ext_id {
+@@ -40,6 +41,7 @@ enum nf_ct_ext_id {
  #define NF_CT_EXT_TIMEOUT_TYPE struct nf_conn_timeout
  #define NF_CT_EXT_LABELS_TYPE struct nf_conn_labels
  #define NF_CT_EXT_SYNPROXY_TYPE struct nf_conn_synproxy

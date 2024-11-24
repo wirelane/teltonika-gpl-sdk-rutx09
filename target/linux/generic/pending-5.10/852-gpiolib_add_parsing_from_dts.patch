@@ -1,6 +1,6 @@
 --- a/drivers/gpio/gpiolib.c
 +++ b/drivers/gpio/gpiolib.c
-@@ -404,6 +404,67 @@ static int devprop_gpiochip_set_names(st
+@@ -404,6 +404,86 @@ static int devprop_gpiochip_set_names(st
  	return 0;
  }
  
@@ -65,10 +65,29 @@
 +}
 +EXPORT_SYMBOL_GPL(gpiochip_find_by_id);
 +
++int tlt_gpio_get_line_by_name(struct gpio_chip *chip, const char *line_name)
++{
++	struct gpio_device *gdev;
++	int i;
++
++	if (!chip || !line_name) {
++		return -1;
++	}
++
++	gdev = chip->gpiodev;
++	for (i = 0; i < gdev->ngpio; i++) {
++		if (gdev->descs[i].name && !strcmp(gdev->descs[i].name, line_name)) {
++			return i;
++		}
++	}
++	return -1;
++}
++EXPORT_SYMBOL_GPL(tlt_gpio_get_line_by_name);
++
  static unsigned long *gpiochip_allocate_mask(struct gpio_chip *gc)
  {
  	unsigned long *p;
-@@ -691,12 +752,13 @@ int gpiochip_add_data_with_key(struct gp
+@@ -691,12 +771,13 @@ int gpiochip_add_data_with_key(struct gp
  	INIT_LIST_HEAD(&gdev->pin_ranges);
  #endif
  
@@ -90,12 +109,13 @@
  	if (ret)
 --- a/include/linux/gpio/driver.h
 +++ b/include/linux/gpio/driver.h
-@@ -833,4 +833,8 @@ static inline void gpiochip_unlock_as_ir
+@@ -833,4 +833,9 @@ static inline void gpiochip_unlock_as_ir
  }
  #endif /* CONFIG_GPIOLIB */
  
 +int tlt_gpio_set_line_name(struct gpio_chip *chip, char *line_name, int index);
 +int tlt_gpio_set_active_low(struct gpio_chip *chip, int index);
 +struct gpio_chip *gpiochip_find_by_id(int id);
++int tlt_gpio_get_line_by_name(struct gpio_chip *chip, const char *line_name);
 +
  #endif /* __LINUX_GPIO_DRIVER_H */

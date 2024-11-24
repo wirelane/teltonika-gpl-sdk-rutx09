@@ -7,6 +7,7 @@ START=99
 STOP=1
 
 BIN="/usr/sbin/wifi_scanner"
+[ -x "$BIN" ] || BIN="/usr/local$BIN"
 
 start_tracker() {
 	local disabled interface device _device

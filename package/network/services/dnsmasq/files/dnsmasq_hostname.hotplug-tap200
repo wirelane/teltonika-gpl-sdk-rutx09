@@ -2,7 +2,7 @@
 
 . /lib/functions/network.sh
 
-[ "$INTERFACE" = "lan" ] && [ "$ACTION" = "ifup" ] && {
+[ "$INTERFACE" = "lan" ] && { [ "$ACTION" = "ifup" ] || [ "$ACTION" = "ifupdate" ]; } && {
 	network_get_ipaddr ipaddr "lan"
 	network_is_up dhcp || echo "address=/:tap200.rutos.net*:/$ipaddr" > /tmp/dnsmasq.d/hostname
 	/etc/init.d/dnsmasq reload

@@ -143,7 +143,6 @@ include $(INCLUDE_DIR)/package-ipkg.mk
 include $(INCLUDE_DIR)/package-bin.mk
 include $(INCLUDE_DIR)/package-gpl.mk
 include $(INCLUDE_DIR)/autotools.mk
-include $(INCLUDE_DIR)/package-test.mk
 
 _pkg_target:=$(if $(QUILT),,.)
 
@@ -433,12 +432,6 @@ ucompile:
 
 uclean:
 	$(MAKE) -C $(PKG_BUILD_DIR) clean
-
-unit_test: compile unit_test_clean toolchain-dump
-	$(Test/unit_test)
-
-unit_test_clean: toolchain-dump
-	$(Test/unit_test_clean)
 
 toolchain-dump:
 	(\

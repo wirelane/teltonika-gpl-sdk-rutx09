@@ -7,7 +7,7 @@
 
 ## Building
 
-    1. Copy "vuci-app-example-api" and "vuci-app-example-ui" into "RUTX_R_GPL_00.07.10.2/package/feeds/vuci" directory.
+    1. Copy "vuci-app-example-api" and "vuci-app-example-ui" into "RUTX_R_GPL_00.07.11/package/feeds/vuci" directory.
 
        Directory names can be changed, but API and UI names must match, for example "vuci-app-test-app-api" and "vuci-app-test-app-ui" are valid.
 
@@ -32,15 +32,40 @@
             $ make clean
             $ make
 
-    5. After building both the API and UI packages will be available in "RUTX_R_GPL_00.07.10.2/bin/packages/ipq40xx/vuci"
+    5. After building both the API and UI packages will be available in "RUTX_R_GPL_00.07.11/bin/packages/ipq40xx/vuci"
 
 ## Manual installation
 
-    1. Copy both API and UI packages from "RUTX_R_GPL_00.07.10.2/bin/packages/ipq40xx/vuci" to the device.
+    1. Copy both API and UI packages from "RUTX_R_GPL_00.07.11/bin/packages/ipq40xx/vuci" to the device.
 
-        $ scp "RUTX_R_GPL_00.07.10.2/bin/packages/ipq40xx/vuci/vuci-app-example-api_1_ipq40xx.ipk" "RUTX_R_GPL_00.07.10.2/bin/packages/ipq40xx/vuci/vuci-app-example-ui_1_ipq40xx.ipk" root@192.168.1.1:/tmp
+        $ scp "RUTX_R_GPL_00.07.11/bin/packages/ipq40xx/vuci/vuci-app-example-api_1_ipq40xx.ipk" "RUTX_R_GPL_00.07.11/bin/packages/ipq40xx/vuci/vuci-app-example-ui_1_ipq40xx.ipk" root@192.168.1.1:/tmp
 
     2. Install using "opkg"
 
         $ opkg install /tmp/vuci-app-example-api_1_ipq40xx.ipk
         $ opkg install /tmp/vuci-app-example-ui_1_ipq40xx.ipk
+
+## Package Manager package compilation
+
+    1. Modify "RUTX_R_GPL_00.07.11/ipk_packages.json" by adding the following lines:
+
+        "vuci-app-example-ui": {
+            "name": "example_app",
+            "vuci_dep": "vuci-app-example-api"
+        }
+
+    2. Enter OpenWrt Configuration:
+
+        $ make menuconfig
+
+    3. Navigate to "VuCI -> Applications/UI" and select <M> for "vuci-app-example-ui".
+
+    4. Build the selected APP:
+
+        $ make package/vuci-app-example-ui/{clean,compile}
+
+    5. Compile Package Manager packages:
+
+        $ make pm
+
+    6. After compilation this package should apprear in in "RUTX_R_GPL_00.07.11/bin/packages/<arch_name>/zipped_packages" as "example_app.tar.gz".

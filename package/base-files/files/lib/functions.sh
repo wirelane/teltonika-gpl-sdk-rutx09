@@ -40,6 +40,12 @@ append() {
 	eval "export ${NO_EXPORT:+-n} -- \"$var=\${$var:+\${$var}\${value:+\$sep}}\$value\""
 }
 
+to_lower() {
+	tr '[A-Z]' '[a-z]' <<-EOF
+		$@
+	EOF
+}
+
 list_contains() {
 	local var="$1"
 	local str="$2"
@@ -465,51 +471,5 @@ uci_apply_defaults() {
 
 	uci commit
 }
-
-ucidef_check_esim() {
-	local simcfg="$(cat /sys/mnf_info/sim_cfg)"
-	json_select_object hwinfo
-	json_get_vars mobile
-	[ "$mobile" = "1" ] && {
-		for i in $(seq 2 8 26); do
-			[ "$i" -gt "${#simcfg}" ] && break
-  			if [ "${simcfg:i:1}" = "2" ]; then
-				json_add_boolean "esim" 1
-    			break
-  			fi
-		done
-	}
-	json_select ..
-}
-
-ucidef_check_dual_sim() {
-	json_select_object hwinfo
-	json_get_vars mobile
-	[ "$mobile" = "1" ] && [ "$(cat /sys/mnf_info/sim_count)" -gt "1" ] && {
-		json_add_boolean "dual_sim" 1
-	}
-	json_select ..
-}
-
-control_mobile_interfaces() {
-	local modem="$1"
-	local action="$2"
-
-	[ -z "$modem" ] && return 1
-	[ -z "$action" ] && return 1
-
-	# List all interfaces in the network configuration
-	for interface in $(uci show network | grep '=interface' | cut -d'.' -f2 | cut -d'=' -f1); do
-		# Get the modem ID for the current interface
-		local modem_id=$(uci get network.$interface.modem 2>/dev/null)
-		# Check modem ID
-		if [ "$modem_id" = "$modem" ]; then
-			# Bring down the interface
-			$action $interface
-			echo "Performing $action $interface for modem ID $modem_id"
-		fi
-	done
-}
-
 
 [ -z "$IPKG_INSTROOT" ] && [ -f /lib/config/uci.sh ] && . /lib/config/uci.sh

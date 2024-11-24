@@ -2,7 +2,8 @@ const http = require('http')
 const fs = require('fs')
 const { exec } = require('child_process')
 const dataGetters = require('./dataGetters')
-const { validateChangelogFile } = require('./validator')
+const { validateChangelogFile, validateChangelogFiles } = require('./validator')
+const Controller = require('./controller')
 
 module.exports = createServer
 
@@ -26,13 +27,39 @@ function createServer(port, devMode = false) {
     } else if (req.method == 'POST' && req.url === '/stop') {
       return stopServer(req, res)
     } else if (req.method == 'GET' && req.url?.startsWith('/changelogs/all')) {
+      const validations = validateChangelogFiles(false)
+      if (validations.some((validation) => validation[1].some((error) => error.type === 'error'))) {
+        res.writeHead(400)
+        res.end(
+          `Changelogs has critical errors!!\n\n${validations
+            .filter((e) => e[1].some((errors) => errors.type === 'error'))
+            .map(
+              (e) =>
+                `${e[0]}:\n${e[1]
+                  .filter((errors) => errors.type === 'error')
+                  .map((error) => `  - ${error}`)
+                  .join('\n')}`
+            )
+            .join('\n')}`
+        )
+        return
+      }
       return sendData(res, JSON.stringify(dataGetters.getChangelogs().flatMap((id) => dataGetters.getChangelog(id))))
+    } else if (req.method == 'GET' && req.url?.startsWith('/history/all')) {
+      return sendData(res, JSON.stringify(dataGetters.getHistory()))
     } else if (req.method == 'GET' && req.url?.startsWith('/changelogs/')) {
       return getChangelog(req, res)
     } else if (req.method == 'POST' && req.url?.startsWith('/changelogs/all')) {
       return saveChangelogs(req, res)
     } else if (req.method == 'POST' && req.url?.startsWith('/changelogs/')) {
       return saveChangelog(req, res)
+    } else if (req.method == 'GET' && req.url === '/spelling') {
+      return sendData(
+        res,
+        JSON.stringify({ commonMistakes: dataGetters.getSpellings(), irregularVerbs: dataGetters.irregularVerbs })
+      )
+    } else if (req.method == 'GET' && req.url === '/projectName') {
+      return sendData(res, dataGetters.getProjectName(), 'text/plain')
     } else {
       res.writeHead(404)
       res.end('Endpoint does not exist')
@@ -40,8 +67,9 @@ function createServer(port, devMode = false) {
   })
 
   server.listen({ port, host: '127.0.0.1' }, () => {
-    console.log('Server is started on:', '\x1b[36m', `http://127.0.0.1:${port}`, '\x1b[0m')
-    exec(`xdg-open http://127.0.0.1:${port}${devMode ? '#dev' : ''}`, (error, stdout, stderr) => {
+    const link = `http://127.0.0.1:${port}${devMode ? '#dev' : ''}`
+    console.log('Server is started on:', '\x1b[36m', link, '\x1b[0m')
+    exec(`xdg-open ${link}`, (error, stdout, stderr) => {
       const errorString = `symbol lookup error: /snap/core20/current/lib/x86_64-linux-gnu/libpthread.so.0: undefined symbol: __libc_pthread_init, version GLIBC_PRIVATE`
       if (stderr.includes(errorString)) {
         console.log('\x1b[31m', 'Failed to open browser because https://stackoverflow.com/a/75956168', '\x1b[0m')
@@ -51,11 +79,14 @@ function createServer(port, devMode = false) {
     console.log('Changelog WebUI opened')
   })
 
-  server.on('error', (e) => {
-    if (e.code === 'EADDRINUSE') {
-      createServer(port + 1, devMode)
-    } else throw e
-  })
+  server.on(
+    'error',
+    /** @param e {any} */ (e) => {
+      if (e.code === 'EADDRINUSE') {
+        createServer(port + 1, devMode)
+      } else throw e
+    }
+  )
 }
 
 /**
@@ -72,18 +103,32 @@ function parseId(url) {
 }
 
 /**
+ * @param {string | undefined} url
+ * @returns {string | undefined}
+ */
+function parseNumber(url) {
+  if (!url) return undefined
+  const parts = url.split('/')
+  if (parts.length !== 3) return undefined
+  const id = parts[2]
+  if (!/^[0-9]+$/.test(id)) return undefined
+  return id
+}
+
+/**
  * @param {http.IncomingMessage} req
  * @param {http.ServerResponse} res
  */
 function getChangelog(req, res) {
-  const id = parseId(req.url)
+  const id = parseNumber(req.url)
   if (!id) {
     res.writeHead(400)
     res.end(`malformed ID`)
     return
   }
-  const changelog = dataGetters.getChangelog(id, true)
-  if (changelog !== null) {
+  const fullId = dataGetters.getFullId(id)
+  const changelog = dataGetters.getChangelog(fullId, true)
+  if (fullId && changelog) {
     res.end(changelog)
   } else {
     res.writeHead(404)
@@ -111,20 +156,23 @@ function getBody(req) {
  * @param {http.ServerResponse} res
  */
 async function saveChangelog(req, res) {
-  const id = parseId(req.url)
+  let id = parseId(req.url)
   if (!id) {
     res.writeHead(400)
     res.end(`malformed ID`)
     return
   }
+  const existingId = dataGetters.getFullId(id.split('-')[0])
+  if (existingId) id = existingId
   const path = `${dataGetters.changelogDir}/${id}.json`
   const body = await getBody(req)
   const parsedBody = JSON.parse(body)
   const prettyBody = JSON.stringify(parsedBody, null, 2) + '\n'
   const validationErrors = validateChangelogFile(prettyBody)
-  if (validationErrors.length > 0) {
+  const parsedErrors = validationErrors.map((e) => `  - ${e.message}`)
+  if (parsedErrors.length > 0) {
     res.writeHead(400)
-    res.end(validationErrors.join('\n'))
+    res.end(parsedErrors.join('\n'))
     return
   }
   if (parsedBody.length > 0) fs.writeFileSync(path, prettyBody, { flag: 'w' })
@@ -143,19 +191,16 @@ async function saveChangelogs(req, res) {
   const caseIds = fullIds.map((file) => file.split('-')[0])
   const body = await getBody(req)
   const validationErrors = validateChangelogFile(body, caseIds, true)
-  if (validationErrors.length > 0) {
+  const parsedErrors = validationErrors.map((e) => `  - ${e.message}`)
+  if (parsedErrors.length > 0) {
     res.writeHead(400)
-    res.end(validationErrors.join('\n'))
+    res.end(parsedErrors.join('\n'))
     return
   }
   const changelogs = JSON.parse(body)
-  fullIds.forEach((fullId) => {
-    const id = fullId.split('-')[0]
-    const entries = changelogs.filter((changelog) => changelog.caseId === id)
-    const path = `${dataGetters.changelogDir}/${fullId}.json`
-    if (entries.length > 0) fs.writeFileSync(path, JSON.stringify(entries, undefined, 2) + '\n', { flag: 'w' })
-    else fs.rmSync(path)
-  })
+
+  Controller.saveChangelogs(changelogs)
+
   res.writeHead(200)
   res.end('OK')
 }
@@ -212,9 +257,13 @@ async function addTopic(req, res) {
 
 /**
  * @param {http.ServerResponse} res
- * @param {string} data
+ * @param {string|undefined|null} data
  */
 function sendData(res, data, type = 'application/json') {
+  if (data === 'undefined' || data === null) {
+    res.writeHead(500)
+    res.end('Internal Server Error')
+  }
   res.writeHead(200, { 'Content-Type': type })
   res.end(data)
 }

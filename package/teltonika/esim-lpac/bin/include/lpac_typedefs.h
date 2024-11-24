@@ -20,7 +20,7 @@ typedef enum  {
 	eNotImpl = 3,
 	eBadArg = 4,
 	eJsonParseError = 5,
-	eSessionCancelled = 6,
+	eTryAgain = 6,
 	eNotEnoughBuffer = 7,
 	eNoData = 8,
 	eNoMem = 9,
@@ -30,7 +30,9 @@ typedef enum  {
 	eAuth = 13,
 	eModem = 14,
 	eNoSim = 15,
-	eDesc = 16
+	eDesc = 16,
+	eTermC = 17,
+	eTryAgainReload = 18,
 } ErrCode;
 
 typedef struct {
@@ -92,5 +94,6 @@ typedef enum {
 	EVENT_PROFILE_DISABLE,
 	EVENT_PROFILE_DELETE,
 	EVENT_PROFILE_PROCESS_NOTIFICATIONS,
-	EVENT_PROFILE_SET_NICKNAME
+	EVENT_PROFILE_SET_NICKNAME,
+	EVENT_PROFILE_RESET_MEMORY,
 } esim_event;

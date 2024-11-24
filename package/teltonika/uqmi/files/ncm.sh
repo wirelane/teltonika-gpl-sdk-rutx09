@@ -120,6 +120,7 @@ failure_notify() {
 
 proto_ncm_setup() {
 	local interface="$1"
+	local devicename="$2"
 	local mtu method device pdp modem pdptype sim dhcp dhcpv6 $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 delay passthrough_mode leasetime mac
 	local ip4table ip6table mdm_ubus_obj pin_state pdp_ctx_state pdp_ctx
 	local timeout=2 retries=0
@@ -165,8 +166,9 @@ proto_ncm_setup() {
 	[ -z "$metric" ] && metric="1"
 
         #~ Find interface name
+	[ -z "$device" ] && device="$devicename"
         devname="$(basename "$device")"
-        ifname="$(ls /sys/bus/usb/devices/$devname/*/net/)"
+        ifname="$(ls /sys/bus/usb/devices/$devname/*/net/ | tail -1)"
 
 	[ -n "$ifname" ] || {
 		echo "The interface could not be found."

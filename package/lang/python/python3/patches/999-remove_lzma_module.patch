@@ -1,6 +1,4 @@
-Index: Python-3.11.7/Doc/library/lzma.rst
-===================================================================
---- Python-3.11.7.orig/Doc/library/lzma.rst
+--- a/Doc/library/lzma.rst
 +++ /dev/null
 @@ -1,438 +0,0 @@
 -:mod:`lzma` --- Compression using the LZMA algorithm

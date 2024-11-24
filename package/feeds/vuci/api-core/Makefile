@@ -48,6 +48,8 @@ endif
 
 define install_closed_gpl
 	$(INSTALL_DIR) -D $(PKG_GPL_BUILD_DIR)/files/sbin \
+		$(PKG_GPL_BUILD_DIR)/files/bin \
+		$(PKG_GPL_BUILD_DIR)/files/lib/config.d \
 		$(PKG_GPL_BUILD_DIR)/files/usr/sbin \
 		$(PKG_GPL_BUILD_DIR)/files/etc/init.d \
 		$(PKG_GPL_BUILD_DIR)/files/etc/config \
@@ -66,6 +68,8 @@ define install_closed_gpl
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/network
 
 	$(CP) $(GPL_FILES_DIR)/etc/config/vuci $(PKG_GPL_BUILD_DIR)/files/etc/config
+	$(CP) $(GPL_FILES_DIR)/lib/config.d/899-generate-menu $(PKG_GPL_BUILD_DIR)/files/lib/config.d
+	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
 	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
 	$(CP) $(GPL_FILES_DIR)/sbin/letsencrypt.sh $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/tls_generate_lua.lua $(PKG_GPL_BUILD_DIR)/files/sbin
@@ -93,6 +97,9 @@ define Package/api-core/install
 	if [[ -d "$(PKG_BUILD_DIR)/files" ]] && [[ -n "$(CONFIG_VUCI_COMPILE_LUA)" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
 	echo $$$$files_dir ; \
 	$(INSTALL_DIR) -D $(1)/www/cgi-bin \
+				$(1)/bin \
+				$(1)/sbin \
+				$(1)/lib/config.d \
 				$(1)/usr/sbin \
 				$(1)/usr/lib/lua/ubus \
 				$(1)/usr/lib/lua/vuci/network \
@@ -107,6 +114,8 @@ define Package/api-core/install
 				$(1)/usr/lib/lua/ubus/services \
 				$(1)/etc/vuci-uploads ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/config/vuci $(1)/etc/config/vuci ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/bin/trigger_vuci_routes_reload $(1)/bin/trigger_vuci_routes_reload ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/lib/config.d/899-generate-menu $(1)/lib/config.d/899-generate-menu ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server.init $(1)/etc/init.d/event_server ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/letsencrypt.sh $(1)/sbin/letsencrypt ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/tls_generate_lua.lua $(1)/sbin/tls_generate_lua ; \

@@ -4,7 +4,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
 
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -477,10 +477,18 @@ static int rx_submit (struct usbnet *dev
+@@ -476,10 +476,18 @@ static int rx_submit (struct usbnet *dev
  		return -ENOLINK;
  	}
  

@@ -10,7 +10,7 @@ TMP_DIR=/var/run
 UNDO_FILE=${TMP_DIR}/privoxy_firewall.sh
 CONFIG_FILE=${TMP_DIR}/privoxy.config
 PID_FILE=${TMP_DIR}/privoxy.pid
-DAEMON=/usr/sbin/privoxy
+DAEMON=privoxy
 USER_ACTION_FILE=${TMP_DIR}/user.action
 PORT=
 

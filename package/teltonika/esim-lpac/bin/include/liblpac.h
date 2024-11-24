@@ -12,3 +12,6 @@ ErrCode LPA__set_smdp_address(const char* port_name, const char* smdp_address, u
 ErrCode LPA__set_profile_nickname(const char* port_name, const char* iccid, const char* nick_name, unsigned char** result, size_t* result_size);
 ErrCode LPA__get_notifications(const char* port_name, unsigned char** result, size_t* result_size);
 ErrCode LPA__process_notifications(const char* port_name, unsigned char** result, size_t* result_size);
+ErrCode LPA__get_free_memory(const char* port_name, unsigned char** result, size_t* result_size);
+ErrCode LPA__reset_memory(const char* port_name, unsigned char** result, size_t* result_size);
+ErrCode LPA__reset_settings(const char* port_name, unsigned char** result, size_t* result_size);

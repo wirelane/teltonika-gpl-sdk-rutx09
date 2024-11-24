@@ -1,4 +1,8 @@
 {
+	"network/ports": {
+		"title": "Ports",
+		"index": 100
+	},
 	"network/ports/port_security/general": {
 		"title": "General",
 		"view": "network/PortSecurity",

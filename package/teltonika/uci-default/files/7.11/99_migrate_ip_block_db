@@ -1,0 +1,4 @@
+#!/bin/sh
+
+[ -f /usr/share/ip_block/attempts.db ] || return
+mv /usr/share/ip_block/attempts.db /usr/local/share/ip_block/attempts.db

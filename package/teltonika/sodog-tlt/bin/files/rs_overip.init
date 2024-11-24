@@ -4,8 +4,6 @@ USE_PROCD=1
 START=99
 STOP=99
 
-. /lib/functions/teltonika-functions.sh
-
 PROGRAM=/usr/sbin/sodog
 CONFIG=rs_overip
 

@@ -36,7 +36,7 @@ end
 
 local extension = ".log"
 local data_directory = "/tmp/ps_data/"
-local result_directory = "/memleaks/"
+local result_directory = "/usr/local/memleaks/"
 local output_path = data_directory .. tostring(os.time()) .. extension
 local log = print
 local log_err = err

@@ -256,6 +256,7 @@ menu "Global build settings"
 	choice
 		prompt "User space ASLR PIE compilation"
 		default PKG_ASLR_PIE_NONE if ((SMALL_FLASH || LOW_MEMORY_FOOTPRINT) && !SDK)
+		default PKG_ASLR_PIE_ALL if (arm || aarch64)
 		default PKG_ASLR_PIE_REGULAR
 		help
 		  Add -fPIC to CFLAGS and -specs=hardened-build-ld to LDFLAGS.

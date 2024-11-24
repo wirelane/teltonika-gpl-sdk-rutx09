@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sodog-tlt
-PKG_VERSION:=2024-10-02
-PKG_SOURCE_VERSION:=7.10-1
+PKG_VERSION:=2024-11-13
+PKG_SOURCE_VERSION:=7.11
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -24,6 +24,7 @@ endef
 
 define Package/$(PKG_NAME)/conffiles
 /etc/config/rs_overip
+$(if $(CONFIG_MOBILE_SUPPORT), /etc/config/rs_modem)
 endef
 
 define Package/$(PKG_NAME)/install
@@ -33,6 +34,11 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/rs_overip.config $(1)/etc/config/rs_overip
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/etc
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/23_migrate_overip $(1)/etc/uci-defaults/etc/23_migrate_overip
+
+	$(if $(CONFIG_MOBILE_SUPPORT), \
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rs_modem.init $(1)/etc/init.d/rs_modem; \
+		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/rs_modem.config $(1)/etc/config/rs_modem; \
+	)
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

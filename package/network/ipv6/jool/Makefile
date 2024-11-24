@@ -59,10 +59,6 @@ define Package/jool
   $(call Package/jool/Default)
   TITLE:=Jool userspace control programs
   DEPENDS:=+libnl +libxtables +kmod-jool
-  ifeq (m, $(CONFIG_PACKAGE_jool))
-	PKG_TLT_NAME:=NAT64
-	PKG_ROUTER:=$(TLT_PLATFORM_NAME)
-  endif
 endef
 
 define Package/jool/description

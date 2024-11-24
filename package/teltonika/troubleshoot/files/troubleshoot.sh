@@ -292,7 +292,9 @@ services_hook() {
 package_manager_hook() {
 	local log_file="${PACK_DIR}package_manager.log"
 
-	opkg_packets=$(grep -l "Router:" /usr/lib/opkg/info/*.control)
+	opkg_packets=""
+	[ -d "/usr/lib/opkg/info" ] && opkg_packets=$(grep -l "Router:" /usr/lib/opkg/info/*.control)
+	[ -d "/usr/local/lib/opkg/info" ] && opkg_packets="$opkg_packets $(grep -l "Router:" /usr/local/lib/opkg/info/*.control)"
 	[ -z "$opkg_packets" ] && return
 
 	troubleshoot_init_log "Installed packages from PM" "$log_file"
@@ -386,11 +388,9 @@ troubleshoot_hook_init package_manager_hook
 troubleshoot_hook_init serial_hook
 
 #init external hooks
-[ -d "/lib/troubleshoot" ] && {
-	for tr_source_file in /lib/troubleshoot/*; do
-		. $tr_source_file
-	done
-}
+for tr_source_file in /lib/troubleshoot/* /usr/local/lib/troubleshoot/*; do
+	[ -f "$tr_source_file" ] && . "$tr_source_file"
+done
 
 troubleshoot_hook_init generate_root_hook
 troubleshoot_run_hook_all

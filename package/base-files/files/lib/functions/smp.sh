@@ -1,26 +1,5 @@
 #!/bin/sh
 
-find_irq_cpu() {
-	local dev="$1"
-	local match="$(grep -m 1 "$dev\$" /proc/interrupts)"
-	local cpu=0
-	local procs="$2"
-
-	[ -n "$match" ] && {
-		set -- $match
-		shift
-		for cur in $(seq 1 $procs); do
-			[ "$1" -gt 0 ] && {
-				cpu=$(($cur - 1))
-				break
-			}
-			shift
-		done
-	}
-
-	echo "$cpu"
-}
-
 set_hex_val() {
 	local file="$1"
 	local val="$2"
@@ -48,16 +27,14 @@ default_rps() {
 
 		device="$(readlink "${dev}/device")"
 		device="$(basename "$device")"
-		irq_cpu="$(find_irq_cpu "$device" "$NPROCS")"
-		irq_cpu_mask="$((1 << $irq_cpu))"
 
 		for q in ${dev}/queues/rx-*; do
-			set_hex_val "$q/rps_cpus" "$(($PROC_MASK & ~$irq_cpu_mask))"
+			set_hex_val "$q/rps_cpus" "$PROC_MASK"
 		done
 
 		ntxq="$(ls -d ${dev}/queues/tx-* | wc -l)"
 
-		idx=$(($irq_cpu + 1))
+		idx="0"
 		for q in ${dev}/queues/tx-*; do
 			set_hex_val "$q/xps_cpus" "$((1 << $idx))"
 			let "idx = idx + 1"
