@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tailscale
 PKG_VERSION:=1.70.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_HASH:=8429728708f9694534489daa0a30af58be67f25742597940e7613793275c738f
 
@@ -36,6 +36,9 @@ GO_PKG_TAGS:=ts_include_cli
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/package/lang/golang/golang-package.mk
 
+RSTRIP:=:
+STRIP:=:
+
 define Package/tailscale
   SECTION:=net
   CATEGORY:=Network
@@ -57,7 +60,6 @@ endef
 
 define Package/tailscale/conffiles
 /etc/config/tailscale
-/etc/tailscale/
 endef
 
 define Package/tailscale/install

@@ -294,6 +294,7 @@ setup_json() {
 		ucidef_set_hwinfo usb ethernet ios gps mobile wifi dual_sim at_sim dual_band_ssid dsa hw_nat nat_offloading port_link soft_port_mirror \
 			gigabit_port multi_tag xfrm-offload
 		ucidef_set_network_options "vlans" 4094 "max_mtu" 2022 "readonly_vlans" 1
+		ucidef_set_compat_version "2.0"
 		;;
 	x86*)
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"

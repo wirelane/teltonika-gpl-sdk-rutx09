@@ -230,6 +230,11 @@ fwtool_check_image() {
 	for k in $dev_keys; do
 		json_get_var dev "$k"
 		if [ "$dev" = "$device" ]; then
+			# allow flashing firmwares with lower major compat version on RUTC devices
+			if [ "$device_name" = "RUTC" ] && [ ${imagecompat%.*} -le ${devicecompat%.*} ]; then
+				return 0
+			fi
+
 			# major compat version -> no sysupgrade
 			if [ "${devicecompat%.*}" != "${imagecompat%.*}" ]; then
 				v "The device is supported, but this image is incompatible for sysupgrade based on the image version ($devicecompat->$imagecompat)."

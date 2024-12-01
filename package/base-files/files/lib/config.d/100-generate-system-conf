@@ -28,6 +28,15 @@ generate_system_conf() {
 	[ -n "$devicename" ] && [ "${#devicename}" = 6 ] && [ -z "$cfg_hostname" ] && \
 		uci_set "system" "@system[0]" "hostname" "$devicename"
 
+	if json_is_a system object; then
+		json_select system
+
+		local compat_version
+		json_get_var compat_version compat_version
+		uci -q set "system.@system[-1].compat_version=${compat_version:-1.0}"
+		json_select ..
+	fi
+
 	json_get_keys keys checks
 	for key in $keys; do
 		json_select checks
