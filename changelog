@@ -1,3 +1,13 @@
+# 2024-12-04 00.07.11.2
+
+### Fix
+
+* IPsec: fixed connection status display (ID: 22085)
+* IPsec: fixed issue with multiple global secrets of same type (ID: 22222)
+* IPsec: fixed loading connections using AEAD algorithms (ID: 22068)
+* IPsec: fixed Local source IP option (ID: 22097)
+* OpenVPN: fixed the certificate file selection issue in the server configuration (ID: 22030)
+
 # 2024-11-27 00.07.11.1
 
 ### New

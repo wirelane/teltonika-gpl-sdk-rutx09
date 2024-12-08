@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
 PKG_VERSION:=5.9.14
-PKG_RELEASE:=17
+PKG_RELEASE:=22
 
 PKG_SOURCE_VERSION:=5.9.14
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -660,9 +660,10 @@ endef
 define Plugin/updown/install
 	$(INSTALL_DIR) $(1)/usr/lib/ipsec/plugins
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/_updown $(1)/usr/lib/ipsec/
+	$(INSTALL_BIN) ./files/usr/lib/ipsec/_updown_no_fw $(1)/usr/lib/ipsec/
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/plugins/libstrongswan-updown.so $(1)/usr/lib/ipsec/plugins/
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ipsec
-	$(CP) ./files/etc/hotplug.d/ipsec $(1)/etc/hotplug.d
+	$(INSTALL_BIN) ./files/etc/hotplug.d/ipsec/* $(1)/etc/hotplug.d/ipsec/
 endef
 
 define Plugin/vici/install

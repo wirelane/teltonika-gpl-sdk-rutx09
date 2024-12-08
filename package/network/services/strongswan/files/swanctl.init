@@ -197,10 +197,9 @@ config_esp_proposal() {
 
 	dh_group="${dh_group/no_pfs}"
 
-	# check for AEAD and clobber hash_algorithm if set
+	# check for AEAD and map hash_algorithm to prf variant
 	if is_aead "$encryption_algorithm" && [ -n "$hash_algorithm" ]; then
-		info "Can't have $hash_algorithm with $encryption_algorithm"
-		hash_algorithm=
+		hash_algorithm="prf${hash_algorithm}"
 	fi
 
 	[ -n "$encryption_algorithm" ] && \
@@ -231,10 +230,9 @@ config_ike_proposal() {
 	config_get dh_group "$conf" dh_group
 	config_get prf_algorithm "$conf" prf_algorithm
 
-	# check for AEAD and clobber hash_algorithm if set
+	# check for AEAD and map hash_algorithm to prf variant
 	if is_aead "$encryption_algorithm" && [ -n "$hash_algorithm" ]; then
-		info "Can't have $hash_algorithm with $encryption_algorithm"
-		hash_algorithm=
+		hash_algorithm="prf${hash_algorithm}"
 	fi
 
 	[ -n "$encryption_algorithm" ] && \
@@ -254,6 +252,7 @@ iter_ike_proposal() {
 
 config_secrets() {
 	local id_selector type secret key key_decrypt pkcs12_path pkcs12_decrypt
+	secret_iter=$(($secret_iter+1))
 
 	config_get id_selector    "$1" "id_selector"
 	config_get type           "$1" "type"
@@ -270,31 +269,31 @@ config_secrets() {
 
 	case "$type" in
 		psk)
-			swanctl_xappend1 "ike {"
+			swanctl_xappend1 "ike-${secret_iter} {"
 			[ -n "$id_selector" ] && swanctl_xappend2 "id = ${id_selector}"
 			swanctl_xappend2 "secret = ${secret}"
 			swanctl_xappend1 "}"
 			;;
 		xauth)
-			swanctl_xappend1 "xauth {"
+			swanctl_xappend1 "xauth-${secret_iter} {"
 			[ -n "$id_selector" ] && swanctl_xappend2 "id = ${id_selector}"
 			swanctl_xappend2 "secret = ${secret}"
 			swanctl_xappend1 "}"
 			;;
 		rsa)
-			swanctl_xappend1 "private {"
+			swanctl_xappend1 "private-${secret_iter} {"
 			swanctl_xappend2 "file = ${key}"
 			swanctl_xappend2 "secret = ${key_decrypt}"
 			swanctl_xappend1 "}"
 			;;
 		eap)
-			swanctl_xappend1 "eap {"
+			swanctl_xappend1 "eap-${secret_iter} {"
 			[ -n "$id_selector" ] && swanctl_xappend2 "id = ${id_selector}"
 			swanctl_xappend2 "secret = ${secret}"
 			swanctl_xappend1 "}"
 			;;
 		pkcs12)
-			swanctl_xappend1 "pkcs12 {"
+			swanctl_xappend1 "pkcs12-${secret_iter} {"
 			swanctl_xappend2 "file = ${pkcs12_path}"
 			swanctl_xappend2 "secret = ${pkcs12_decrypt}"
 			swanctl_xappend1 "}"
@@ -501,7 +500,7 @@ config_child() {
 	if [ "$local_firewall" = 1 ] || [ "$remote_firewall" = 1 ]; then
 		swanctl_xappend4 "updown = /usr/lib/ipsec/_updown iptables"
 	else
-		swanctl_xappend4 "updown = /etc/hotplug.d/ipsec/*"
+		swanctl_xappend4 "updown = /usr/lib/ipsec/_updown_no_fw"
 	fi
 	[ -n "$updown" ] && swanctl_xappend4 "updown = $updown"
 	[ -n "$dpdaction" ] && swanctl_xappend4 "dpd_action = $dpdaction"
@@ -729,7 +728,10 @@ config_remote() {
 	config_get_bool encap "${conf}_c" forceencaps 0
 
 	config_list_foreach "$conf" remote_ca_certs append_var remote_ca_certs ","
-	[ "$defaultroute" = 1 ] || [ "$local_sourceip" = "%config" ] && local_sourceip="0.0.0.0,::"
+
+	[ "${local_sourceip}" = "%config4" ] && local_sourceip="0.0.0.0"
+	[ "${local_sourceip}" = "%config6" ] && local_sourceip="::"
+	[ "$defaultroute" = 1 ] || [ "${local_sourceip}" = "%config" ] && local_sourceip="0.0.0.0,::"
 
 	case "$fragmentation" in
 	0)
@@ -1047,6 +1049,7 @@ prepare_env() {
 	config_load ipsec
 	config_foreach config_ipsec ipsec
 	config_foreach config_remote remote
+	secret_iter=0
 	swanctl_xappend0 "secrets {"
 	config_foreach config_secrets secret
 	swanctl_xappend0 "}"
