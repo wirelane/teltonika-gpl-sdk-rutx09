@@ -49,7 +49,36 @@ resulting in possible leaks, or worse.
  
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -146,30 +146,6 @@ static void nft_flow_dst_release(struct
+@@ -42,6 +42,19 @@ flow_offload_fill_dir(struct flow_offloa
+ 	ft->dst_port = ctt->dst.u.tcp.port;
+ }
+ 
++static struct flow_offload *_flow_offload_alloc(void)
++{
++	struct flow_offload *flow;
++
++	flow = kzalloc(sizeof(*flow), GFP_ATOMIC);
++	if (!flow)
++		return NULL;
++
++	spin_lock_init(&flow->lock);
++
++	return flow;
++}
++
+ struct flow_offload *flow_offload_alloc(struct nf_conn *ct)
+ {
+ 	struct flow_offload *flow;
+@@ -50,7 +63,7 @@ struct flow_offload *flow_offload_alloc(
+ 	    !atomic_inc_not_zero(&ct->ct_general.use)))
+ 		return NULL;
+ 
+-	flow = kzalloc(sizeof(*flow), GFP_ATOMIC);
++	flow = _flow_offload_alloc();
+ 	if (!flow)
+ 		goto err_ct_refcnt;
+ 
+@@ -146,30 +159,6 @@ static void nft_flow_dst_release(struct
  		dst_release(flow->tuplehash[dir].tuple.dst_cache);
  }
  
@@ -80,7 +109,7 @@ resulting in possible leaks, or worse.
  static void flow_offload_fixup_tcp(struct ip_ct_tcp *tcp)
  {
  	tcp->seen[0].td_maxwin = 0;
-@@ -293,41 +269,93 @@ static void nf_flow_offload_deregister(s
+@@ -293,41 +282,93 @@ static void nf_flow_offload_deregister(s
  	spin_unlock_bh(&flow_table->flows_lock);
  }
  
@@ -192,7 +221,7 @@ resulting in possible leaks, or worse.
  }
  EXPORT_SYMBOL_GPL(flow_offload_add);
  
-@@ -375,9 +403,23 @@ static void flow_offload_del(struct nf_f
+@@ -375,9 +416,23 @@ static void flow_offload_del(struct nf_f
  
  void flow_offload_teardown(struct flow_offload *flow)
  {

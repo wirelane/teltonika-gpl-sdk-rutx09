@@ -45,7 +45,7 @@ where necessary.
  };
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -86,7 +86,7 @@ static u32 flow_offload_dst_cookie(struc
+@@ -99,7 +99,7 @@ static u32 flow_offload_dst_cookie(struc
  }
  
  static int flow_offload_fill_route(struct flow_offload *flow,
@@ -54,7 +54,7 @@ where necessary.
  				   enum flow_offload_tuple_dir dir)
  {
  	struct flow_offload_tuple *flow_tuple = &flow->tuplehash[dir].tuple;
-@@ -112,6 +112,16 @@ static int flow_offload_fill_route(struc
+@@ -125,6 +125,16 @@ static int flow_offload_fill_route(struc
  	}
  	flow_tuple->encap_num = route->in.num_encaps;
  
@@ -71,7 +71,7 @@ where necessary.
  	switch (route->xmit_type) {
  	case FLOW_OFFLOAD_XMIT_DIRECT:
  		memcpy(flow_tuple->out.h_dest, route->out.h_dest,
-@@ -133,6 +143,8 @@ static int flow_offload_fill_route(struc
+@@ -146,6 +156,8 @@ static int flow_offload_fill_route(struc
  		WARN_ON_ONCE(1);
  		break;
  	}
@@ -80,7 +80,7 @@ where necessary.
  	flow_tuple->xmit_type = route->xmit_type;
  
  	return 0;
-@@ -144,6 +156,8 @@ static void nft_flow_dst_release(struct
+@@ -157,6 +169,8 @@ static void nft_flow_dst_release(struct
  	if (flow->tuplehash[dir].tuple.xmit_type == FLOW_OFFLOAD_XMIT_NEIGH ||
  	    flow->tuplehash[dir].tuple.xmit_type == FLOW_OFFLOAD_XMIT_XFRM)
  		dst_release(flow->tuplehash[dir].tuple.dst_cache);

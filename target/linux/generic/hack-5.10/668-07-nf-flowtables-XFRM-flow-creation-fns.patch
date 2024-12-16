@@ -72,7 +72,7 @@ Adds 'flow_offload_add_xfrm' for submitting a 'nf_flow_xfrm' to be offloaded.
  
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -338,8 +338,9 @@ err_unset:
+@@ -351,8 +351,9 @@ err_unset:
  	return NULL;
  }
  
@@ -84,7 +84,7 @@ Adds 'flow_offload_add_xfrm' for submitting a 'nf_flow_xfrm' to be offloaded.
  {
  	struct nf_conn_flow *flow_ext = nf_ct_ext_find(ct, NF_CT_EXT_FLOW_OFFLOAD);
  	struct flow_offload *flow;
-@@ -410,7 +411,101 @@ err:
+@@ -423,7 +424,101 @@ err:
  	}
  	return err;
  }
@@ -139,7 +139,7 @@ Adds 'flow_offload_add_xfrm' for submitting a 'nf_flow_xfrm' to be offloaded.
 +	struct flow_offload *flow;
 +	int err;
 +
-+	flow = kzalloc(sizeof(*flow), GFP_ATOMIC);
++	flow = _flow_offload_alloc();
 +	if (!flow)
 +		return -ENOMEM;
 +
@@ -187,6 +187,14 @@ Adds 'flow_offload_add_xfrm' for submitting a 'nf_flow_xfrm' to be offloaded.
  
  void flow_offload_refresh(struct nf_flowtable *flow_table,
  			  struct flow_offload *flow)
+@@ -709,6 +804,7 @@ int nf_flow_table_init(struct nf_flowtab
+ 
+ 	INIT_HLIST_HEAD(&flowtable->flows);
+ 	spin_lock_init(&flowtable->flows_lock);
++	spin_lock_init(&flowtable->insertion_lock);
+ 
+ 	mutex_lock(&flowtable_lock);
+ 	list_add(&flowtable->list, &flowtables);
 --- a/net/netfilter/xt_FLOWOFFLOAD.c
 +++ b/net/netfilter/xt_FLOWOFFLOAD.c
 @@ -675,8 +675,8 @@ flowoffload_tg(struct sk_buff *skb, cons

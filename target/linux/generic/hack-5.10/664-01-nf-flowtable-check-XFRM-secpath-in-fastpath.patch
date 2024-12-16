@@ -126,7 +126,7 @@ distinguish packets originating from diferent SA's.
  #include <net/netfilter/nf_conntrack.h>
  #include <net/netfilter/nf_conntrack_core.h>
  #include <net/netfilter/nf_conntrack_l4proto.h>
-@@ -122,6 +123,8 @@ static int flow_offload_fill_route(struc
+@@ -135,6 +136,8 @@ static int flow_offload_fill_route(struc
  	}
  	flow_tuple->encap_out.encap_num = route->out.num_encaps;
  
@@ -135,7 +135,7 @@ distinguish packets originating from diferent SA's.
  	switch (route->xmit_type) {
  	case FLOW_OFFLOAD_XMIT_DIRECT:
  		memcpy(flow_tuple->out.h_dest, route->out.h_dest,
-@@ -150,6 +153,10 @@ static int flow_offload_fill_route(struc
+@@ -163,6 +166,10 @@ static int flow_offload_fill_route(struc
  	return 0;
  }
  
@@ -146,7 +146,7 @@ distinguish packets originating from diferent SA's.
  static void nft_flow_dst_release(struct flow_offload *flow,
  				 enum flow_offload_tuple_dir dir)
  {
-@@ -200,6 +207,9 @@ static void flow_offload_fixup_ct(struct
+@@ -213,6 +220,9 @@ static void flow_offload_fixup_ct(struct
  
  static void flow_offload_route_release(struct flow_offload *flow)
  {
@@ -156,7 +156,7 @@ distinguish packets originating from diferent SA's.
  	nft_flow_dst_release(flow, FLOW_OFFLOAD_DIR_ORIGINAL);
  	nft_flow_dst_release(flow, FLOW_OFFLOAD_DIR_REPLY);
  }
-@@ -238,7 +248,7 @@ static int flow_offload_hash_cmp(struct
+@@ -251,7 +261,7 @@ static int flow_offload_hash_cmp(struct
  	const struct flow_offload_tuple *tuple = arg->key;
  	const struct flow_offload_tuple_rhash *x = ptr;
  

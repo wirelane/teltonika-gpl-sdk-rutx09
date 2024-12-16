@@ -1,3 +1,12 @@
+# 2024-12-12 00.07.11.3
+
+### Fix
+
+* Input/Output: fixed issues causing fault messages on service close (ID: 22398)
+* Ledman: fixed green-red tech leds blinking indefinitely after reboot before manual mobile connection restart for RUT9M family (ID: 22418)
+* Network: fixed possible memory leak when "IPsec software flow offload" is enabled for DAP family, OTD140, RUT14X family, RUT2M family, RUT301, RUT361, RUT9M family, RUTC family, TRB2M family (ID: 22349)
+* Wireguard: fixed field validation after firmware upgrade (ID: 22075)
+
 # 2024-12-04 00.07.11.2
 
 ### Fix

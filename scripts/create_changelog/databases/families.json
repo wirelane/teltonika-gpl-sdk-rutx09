@@ -21,7 +21,19 @@
   },
   {
     "name": "RUTM",
-    "devices": ["RUTM08", "RUTM51", "RUTM50", "RUTM11", "RUTM10", "RUTM09", "RUTM52", "RUTM56", "RUTM59"]
+    "devices": [
+      "RUTM08",
+      "RUTM51",
+      "RUTM50",
+      "RUTM11",
+      "RUTM10",
+      "RUTM09",
+      "RUTM52",
+      "RUTM56",
+      "RUTM59",
+      "RUTM54",
+      "RUTM55"
+    ]
   },
   {
     "name": "RUT2M",

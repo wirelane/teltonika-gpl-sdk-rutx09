@@ -39,7 +39,7 @@ unclear, at least with xtables FLOWOFFLOAD.
  	return (__s32)(timeout - nf_flowtable_time_stamp);
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -56,6 +56,7 @@ struct flow_offload *flow_offload_alloc(
+@@ -69,6 +69,7 @@ struct flow_offload *flow_offload_alloc(
  		goto err_ct_refcnt;
  
  	flow->ct = ct;
@@ -47,7 +47,7 @@ unclear, at least with xtables FLOWOFFLOAD.
  
  	flow_offload_fill_dir(flow, FLOW_OFFLOAD_DIR_ORIGINAL);
  	flow_offload_fill_dir(flow, FLOW_OFFLOAD_DIR_REPLY);
-@@ -270,7 +271,7 @@ static const struct rhashtable_params nf
+@@ -283,7 +284,7 @@ static const struct rhashtable_params nf
  unsigned long flow_offload_get_timeout(struct flow_offload *flow)
  {
  	unsigned long timeout = NF_FLOW_TIMEOUT;
@@ -56,7 +56,7 @@ unclear, at least with xtables FLOWOFFLOAD.
  	int l4num = nf_ct_protonum(flow->ct);
  
  	if (l4num == IPPROTO_TCP) {
-@@ -660,7 +661,7 @@ static void nf_flow_table_do_cleanup(str
+@@ -673,7 +674,7 @@ static void nf_flow_table_do_cleanup(str
  		return;
  	}
  

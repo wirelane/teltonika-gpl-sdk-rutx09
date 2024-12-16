@@ -47,7 +47,7 @@ With changes to flow_offload_add, holding data for both directions is no longer 
  struct nf_conn_flow {
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -90,7 +90,7 @@ static int flow_offload_fill_route(struc
+@@ -103,7 +103,7 @@ static int flow_offload_fill_route(struc
  				   enum flow_offload_tuple_dir dir)
  {
  	struct flow_offload_tuple *flow_tuple = &flow->tuplehash[dir].tuple;
@@ -56,7 +56,7 @@ With changes to flow_offload_add, holding data for both directions is no longer 
  	int i, j = 0;
  
  	switch (flow_tuple->l3proto) {
-@@ -102,28 +102,28 @@ static int flow_offload_fill_route(struc
+@@ -115,28 +115,28 @@ static int flow_offload_fill_route(struc
  		break;
  	}
  
@@ -97,7 +97,7 @@ With changes to flow_offload_add, holding data for both directions is no longer 
  			return -1;
  
  		flow_tuple->dst_cache = dst;
-@@ -133,7 +133,7 @@ static int flow_offload_fill_route(struc
+@@ -146,7 +146,7 @@ static int flow_offload_fill_route(struc
  		WARN_ON_ONCE(1);
  		break;
  	}

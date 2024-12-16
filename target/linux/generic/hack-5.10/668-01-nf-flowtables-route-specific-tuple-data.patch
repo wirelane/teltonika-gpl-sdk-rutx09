@@ -99,7 +99,7 @@ separate struct and union.
  	return 0;
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -79,7 +79,7 @@ static u32 flow_offload_dst_cookie(struc
+@@ -92,7 +92,7 @@ static u32 flow_offload_dst_cookie(struc
  	const struct rt6_info *rt;
  
  	if (flow_tuple->l3proto == NFPROTO_IPV6) {
@@ -108,7 +108,7 @@ separate struct and union.
  		return rt6_get_cookie(rt);
  	}
  
-@@ -96,10 +96,10 @@ static int flow_offload_fill_route(struc
+@@ -109,10 +109,10 @@ static int flow_offload_fill_route(struc
  
  	switch (flow_tuple->l3proto) {
  	case NFPROTO_IPV4:
@@ -121,7 +121,7 @@ separate struct and union.
  		break;
  	}
  
-@@ -115,42 +115,42 @@ static int flow_offload_fill_route(struc
+@@ -128,42 +128,42 @@ static int flow_offload_fill_route(struc
  
  	j = 0;
  	for (i = route->out.num_encaps - 1; i >= 0; i--) {
@@ -178,7 +178,7 @@ separate struct and union.
  
  	return 0;
  }
-@@ -161,11 +161,11 @@ static void flow_offload_release_common_
+@@ -174,11 +174,11 @@ static void flow_offload_release_common_
  
  static void nft_flow_dst_release(struct flow_offload_tuple *tuple)
  {
@@ -194,7 +194,7 @@ separate struct and union.
  }
  
  static void flow_offload_fixup_tcp(struct ip_ct_tcp *tcp)
-@@ -210,7 +210,7 @@ static void flow_offload_route_tuple_rel
+@@ -223,7 +223,7 @@ static void flow_offload_route_tuple_rel
  {
  	flow_offload_release_common_tuple(tuple);
  	nft_flow_dst_release(tuple);

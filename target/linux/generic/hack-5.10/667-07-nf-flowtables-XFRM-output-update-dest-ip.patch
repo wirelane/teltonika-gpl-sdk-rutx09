@@ -27,7 +27,7 @@ nexthop lookups.
  };
 --- a/net/netfilter/nf_flow_table_core.c
 +++ b/net/netfilter/nf_flow_table_core.c
-@@ -142,6 +142,7 @@ static int flow_offload_fill_route(struc
+@@ -155,6 +155,7 @@ static int flow_offload_fill_route(struc
  
  		flow_tuple->dst_cache = dst;
  		flow_tuple->dst_cookie = flow_offload_dst_cookie(flow_tuple);
