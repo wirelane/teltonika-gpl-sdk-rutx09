@@ -21,7 +21,9 @@
       "api": {
         "/dhcp/servers/*": ["*"],
         "/interfaces/config/*": ["id", "name", "proto", "ipaddr", "netmask"],
-        "/interfaces/basic/status/*": ["id", "ipv6-prefix", "ipv6-prefix-assignment"]
+        "/interfaces/basic/status/*": ["id", "ipv6-prefix", "ipv6-prefix-assignment"],
+        "/dhcp/leases/ipv4/status/*": ["ipaddr"],
+        "/dhcp/static_leases/ipv4/config/*": ["ip"]
       }
     },
     "write": {

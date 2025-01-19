@@ -863,7 +863,7 @@ diff --recursive --unified --new-file --no-dereference upstream/ChangeLog.old sr
 -	* make_bcc.mak: File added.
 diff --recursive --unified --new-file --no-dereference upstream/Makefile src/Makefile
 --- upstream/Makefile	2021-12-28 20:05:16.000000000 +0000
-+++ src/Makefile	2024-12-13 13:29:21.465239069 +0000
++++ src/Makefile	2025-01-17 12:17:52.270315364 +0000
 @@ -1,54 +1,26 @@
 -# Makefile for lrexlib
 +WFLAGS=-Wall -Wextra -Wno-unused-parameter
@@ -2842,7 +2842,7 @@ diff --recursive --unified --new-file --no-dereference upstream/rockspecs.lua sr
 -} -- close wrapper table
 diff --recursive --unified --new-file --no-dereference upstream/src/algo.h src/src/algo.h
 --- upstream/src/algo.h	2021-12-28 20:05:16.000000000 +0000
-+++ src/src/algo.h	2024-12-13 13:29:21.465239069 +0000
++++ src/src/algo.h	2025-01-17 12:17:52.270315364 +0000
 @@ -1,6 +1,7 @@
  /* algo.h */
  /* See Copyright Notice in the file LICENSE */
@@ -4825,7 +4825,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/pcre/lpcre_f
 -
 diff --recursive --unified --new-file --no-dereference upstream/src/pcre2/lpcre2.c src/src/pcre2/lpcre2.c
 --- upstream/src/pcre2/lpcre2.c	2021-12-28 20:05:16.000000000 +0000
-+++ src/src/pcre2/lpcre2.c	2024-12-13 13:29:21.465239069 +0000
++++ src/src/pcre2/lpcre2.c	2025-01-17 12:17:52.270315364 +0000
 @@ -1,502 +1,502 @@
 -/* lpcre2.c - Lua binding of PCRE2 library */
 -/* See Copyright Notice in the file LICENSE */

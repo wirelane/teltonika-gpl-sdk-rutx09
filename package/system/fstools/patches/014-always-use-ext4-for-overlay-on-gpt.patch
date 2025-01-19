@@ -1,0 +1,41 @@
+Index: fstools-2022-05-03-9e11b372/libfstools/common.c
+===================================================================
+--- fstools-2022-05-03-9e11b372.orig/libfstools/common.c	2024-07-17 10:45:15.378821903 +0300
++++ fstools-2022-05-03-9e11b372/libfstools/common.c	2024-07-17 10:45:33.394713747 +0300
+@@ -91,24 +91,6 @@
+ 	return FS_NONE;
+ }
+ 
+-static bool use_f2fs(struct volume *v, uint64_t offset, const char *bdev)
+-{
+-	uint64_t size = 0;
+-	bool ret = false;
+-	int fd;
+-
+-	fd = open(bdev, O_RDONLY);
+-	if (fd < 0)
+-		return false;
+-
+-	if (ioctl(fd, BLKGETSIZE64, &size) == 0)
+-		ret = size - offset > F2FS_MINSIZE;
+-
+-	close(fd);
+-
+-	return ret;
+-}
+-
+ int block_volume_format(struct volume *v, uint64_t offset, const char *bdev)
+ {
+ 	int ret = 0;
+@@ -160,10 +142,7 @@
+ 		}
+ do_format:
+ 		ULOG_INFO("overlay filesystem in %s has not been formatted yet\n", v->blk);
+-		if (use_f2fs(v, offset, bdev))
+-			snprintf(str, sizeof(str), "mkfs.f2fs -q -f -l rootfs_data %s", v->blk);
+-		else
+-			snprintf(str, sizeof(str), "mkfs.ext4 -q -F -L rootfs_data %s", v->blk);
++		snprintf(str, sizeof(str), "mkfs.ext4 -q -F -L rootfs_data %s", v->blk);
+ 
+ 		ret = system(str);
+ 		break;

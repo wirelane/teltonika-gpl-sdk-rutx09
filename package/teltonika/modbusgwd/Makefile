@@ -2,9 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbusgwd
-PKG_VERSION:=2024-11-13
+PKG_VERSION:=2025-01-08
 
-PKG_SOURCE_VERSION:=7.11
+PKG_SOURCE_VERSION:=7.12
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

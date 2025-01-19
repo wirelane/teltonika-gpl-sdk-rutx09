@@ -143,6 +143,10 @@ module.exports = {
       { type: 'hw', name: 'flash16mb' },
       { type: 'hw', name: 'flash16mb', value: false },
       { type: 'hw', name: 'poe' },
+      { type: 'hw', name: 'has_dot1x_server' },
+      { type: 'hw', name: 'rs232'},
+      { type: 'hw', name: 'rs485'},
+      { type: 'hw', name: 'mbus'}
     ]
   },
   /** @return {Record<string, string>} */

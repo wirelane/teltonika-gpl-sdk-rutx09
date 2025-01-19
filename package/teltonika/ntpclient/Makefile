@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ntpclient
-PKG_VERSION:=2024-10-29
+PKG_VERSION:=2025-01-08
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2015_365

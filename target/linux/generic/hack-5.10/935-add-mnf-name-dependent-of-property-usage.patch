@@ -1,5 +1,7 @@
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
+Index: linux-5.10.229/drivers/gpio/gpiolib-of.c
+===================================================================
+--- linux-5.10.229.orig/drivers/gpio/gpiolib-of.c
++++ linux-5.10.229/drivers/gpio/gpiolib-of.c
 @@ -1060,6 +1060,7 @@ static int of_gpio_export_probe(struct p
  {
  	struct device_node *np = pdev->dev.of_node;
@@ -21,14 +23,16 @@
 +			continue;
 +
 +		prop = of_find_property(cnp, "tlt-mnf,hwver", NULL);
-+		if (prop && !of_mnf_hwver_is_compatible(cnp))
++		if (prop && !of_mnf_hwver_is_compatible(prop))
 +			continue;
 +
  		of_property_read_string(cnp, "gpio-export,name", &name);
  
  		if (!name)
---- a/drivers/of/base.c
-+++ b/drivers/of/base.c
+Index: linux-5.10.229/drivers/of/base.c
+===================================================================
+--- linux-5.10.229.orig/drivers/of/base.c
++++ linux-5.10.229/drivers/of/base.c
 @@ -28,7 +28,8 @@
  #include <linux/slab.h>
  #include <linux/string.h>
@@ -39,7 +43,7 @@
  #include "of_private.h"
  
  LIST_HEAD(aliases_lookup);
-@@ -578,6 +579,85 @@ int of_machine_is_compatible(const char
+@@ -578,6 +579,94 @@ int of_machine_is_compatible(const char
  }
  EXPORT_SYMBOL(of_machine_is_compatible);
  
@@ -100,9 +104,10 @@
 +}
 +EXPORT_SYMBOL(of_mnf_branch_is_compatible);
 +
-+bool of_mnf_hwver_is_compatible(const struct device_node *device) {
++bool of_mnf_hwver_is_compatible(const struct property *prop) {
 +	static long int cur_hwver = 0;
 +	unsigned int arr_hwver[2];
++	const __be32 *val;
 +	const char *p;
 +
 +	if (cur_hwver == 0) {
@@ -113,10 +118,18 @@
 +		if (cur_hwver == 0) return true;
 +	}
 +
-+	if (of_property_read_u32_array(device, "tlt-mnf,hwver", arr_hwver, 2) == 0) {
-+		if (arr_hwver[0] <= cur_hwver && cur_hwver <= arr_hwver[1])
-+			return true; /* Compatible */
-+	}
++	if (!prop->value)
++		return false;
++	if (prop->length < 2)
++		return false;
++
++	val = prop->value;
++	arr_hwver[0] = be32_to_cpup(val);   // Lower hwver
++	arr_hwver[1] = be32_to_cpup(val+1); // Upper hwver
++
++	if (arr_hwver[0] <= cur_hwver && cur_hwver <= arr_hwver[1])
++		return true; /* Compatible */
++
 +	return false;
 +}
 +EXPORT_SYMBOL(of_mnf_hwver_is_compatible);
@@ -125,7 +138,7 @@
  /**
   *  __of_device_is_available - check if a device is available for use
   *
-@@ -590,10 +670,23 @@ static bool __of_device_is_available(con
+@@ -590,10 +679,23 @@ static bool __of_device_is_available(con
  {
  	const char *status;
  	int statlen;
@@ -143,13 +156,13 @@
 +		return false;
 +
 +	prop = __of_find_property(device, "tlt-mnf,hwver" , NULL);
-+	if (prop && !of_mnf_hwver_is_compatible(device))
++	if (prop && !of_mnf_hwver_is_compatible(prop))
 +		return false;
 +
  	status = __of_get_property(device, "status", &statlen);
  	if (status == NULL)
  		return true;
-@@ -605,7 +698,6 @@ static bool __of_device_is_available(con
+@@ -605,7 +707,6 @@ static bool __of_device_is_available(con
  
  	return false;
  }
@@ -157,25 +170,18 @@
  /**
   *  of_device_is_available - check if a device is available for use
   *
---- a/include/linux/of.h
-+++ b/include/linux/of.h
+Index: linux-5.10.229/include/linux/of.h
+===================================================================
+--- linux-5.10.229.orig/include/linux/of.h
++++ linux-5.10.229/include/linux/of.h
 @@ -413,6 +413,10 @@ extern int of_update_property(struct dev
  extern int of_attach_node(struct device_node *);
  extern int of_detach_node(struct device_node *);
  
 +extern bool of_mnf_name_is_compatible(const struct property *prop);
 +extern bool of_mnf_branch_is_compatible(const struct property *prop);
-+extern bool of_mnf_hwver_is_compatible(const struct device_node *device);
++extern bool of_mnf_hwver_is_compatible(const struct property *prop);
 +
  #define of_match_ptr(_ptr)	(_ptr)
  
  /*
---- a/include/linux/sysfs-mnfinfo.h
-+++ b/include/linux/sysfs-mnfinfo.h
-@@ -5,5 +5,6 @@
- const char *mnf_info_get_device_name(void);
- const char *mnf_info_get_hw_version(void);
- const char *mnf_info_get_batch(void);
-+const char *mnf_info_get_branch(void);
- 
- #endif

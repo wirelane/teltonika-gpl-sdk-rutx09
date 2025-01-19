@@ -168,7 +168,7 @@ verify_user_fw_path() {
             FW_PATH="$FW_PATH""update.pac"
         }
         verify_firmware_file
-    elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ]; then
+    elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
         verify_firmware_file
     elif [ "$DEVICE" = "Telit" ]; then
         # If FW_PATH is a directory add update.bin so it points to file
@@ -195,7 +195,7 @@ verify_auto_fw_path() {
         else
             verify_firmware_file
         fi
-    elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ]; then
+    elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
         verify_firmware_file
     else
         verify_firmware_folder
@@ -409,7 +409,7 @@ nvresultcheck() {
 
 retry_backup=0
 backupnvr() {
-    debug "[INFO] Meiglink device lets backup NVRAM"
+    debug "[INFO] Lets backup NVRAM"
     NV_RESULT=$(gsmctl -N "$MODEM_N" -A AT+NVBURS=2)
     exec_ubus_call "$MODEM_N" "info"
     nvresultcheck
@@ -477,7 +477,18 @@ setDevice() {
         esac
     fi
 
-    if [ "$DEVICE" = "MeiglinkASR" ]; then
+    if [ "$DEVICE" = "Teltonika" ]; then
+        exec_ubus_call "$MODEM_N" "get_firmware"
+        MODEM=$(parse_from_ubus_rsp "firmware")
+        case $MODEM in
+        ALA440*)
+            DEVICE="TeltonikaASR"
+            ;;
+        *) ;;
+        esac
+    fi
+
+    if [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
         exec_ubus_call "$MODEM_N" "info"
         TTY_CMD_PORT=$(parse_from_ubus_rsp "tty_port")
     fi
@@ -491,7 +502,7 @@ setFlasherPath() {
         FLASHER_PATH="/usr/bin/$QUECTEL_ASR_FLASHER"
     elif [ "$DEVICE" = "Meiglink" ]; then
         FLASHER_PATH="/usr/bin/$MEIG_FLASHER"
-    elif [ "$DEVICE" = "MeiglinkASR" ]; then
+    elif [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
         FLASHER_PATH="/usr/bin/$MEIG_ASR_FLASHER"
     elif [ "$DEVICE" = "Telit" ]; then
         FLASHER_PATH="/usr/bin/$TELIT_FLASHER"
@@ -546,6 +557,8 @@ get_fw_list() {
         get_compatible_fw_list "EC200/fwlist.txt"
     elif [ "$DEVICE" = "MeiglinkASR" ]; then
         get_compatible_fw_list "SLM770/fwlist.txt"
+    elif [ "$DEVICE" = "TeltonikaASR" ]; then
+        get_compatible_fw_list "ALA440/fwlist.txt"
     elif [ "$DEVICE" = "QuectelUNISOC" ]; then
         get_compatible_fw_list "RG500U/fwlist.txt"
     elif [ "$DEVICE" = "Telit" ]; then
@@ -648,7 +661,7 @@ common_validation() {
     fi
 
     if [ "$DEVICE" = "Quectel" ] || [ "$DEVICE" = "Meiglink" ] || [ "$DEVICE" = "QuectelASR" ] ||
-        [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "QuectelUNISOC" ] || [ "$DEVICE" = "Telit" ]; then
+        [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "QuectelUNISOC" ] || [ "$DEVICE" = "Telit" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
         debug "[INFO] DEVICE is compatible."
     else
         if [ "$SKIP_VALIDATION" = "0" ]; then
@@ -932,7 +945,7 @@ ASR_validation() {
 
 ASR_prep() {
     setFlasherPath
-    if [ "$DEVICE" = "MeiglinkASR" ] && [ "$SKIP_VALIDATION" = "0" ]; then
+    if { [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; } && [ "$SKIP_VALIDATION" = "0" ]; then
         backupnvr
     fi
 
@@ -950,6 +963,9 @@ ASR_prep() {
         elif [ "$DEVICE" = "MeiglinkASR" ]; then
             curl -Ss --ssl-reqd https://$HOSTNAME/SLM770/"$VERSION" \
                 --output "$UPDATE_BIN" --connect-timeout 300
+        elif [ "$DEVICE" = "TeltonikaASR" ]; then
+            curl -Ss --ssl-reqd https://$HOSTNAME/ALA440/"$VERSION.bin" \
+                --output "$UPDATE_BIN" --connect-timeout 300
         else
             echo "[ERROR] Unknown device($DEVICE)."
             graceful_exit
@@ -961,8 +977,8 @@ ASR_prep() {
         fi
     else
         UPDATE_BIN="$FW_PATH"
-        [ "$DEVICE" = "MeiglinkASR" ] && [ ! -f "$FW_PATH" ] && {
-            echo "[ERROR] MeiglinkASR modems require path to be a firmware file instead of a directory."
+        { [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; } && [ ! -f "$FW_PATH" ] && {
+            echo "[ERROR] $DEVICE modems require path to be a firmware file instead of a directory."
             echo "[INFO] Eg. $0 -p update/firmware.bin"
             graceful_exit
         }
@@ -1009,7 +1025,7 @@ helpFunction() {
     printf "\t-i \t <MODEM_N> Modem USB ID. eg.: 1-1 3-1 etc.\n"
     printf "\t-f \t Force upgrade start without extra validation. USE AT YOUR OWN RISK.\n"
     printf "\t-l \t Legacy mode for quectel modems(Fastboot).\n"
-    printf "\t-d \t <name> Manually set device Vendor (Quectel, QuectelASR, QuectelUNISOC, Meiglink, MeiglinkASR or Telit).\n"
+    printf "\t-d \t <name> Manually set device Vendor (Quectel, QuectelASR, QuectelUNISOC, Meiglink, MeiglinkASR, TeltonikaASR or Telit).\n"
     printf "\t-t \t <ttyUSBx> ttyUSBx port.\n"
     printf "\t-D \t debug\n"
 }
@@ -1143,7 +1159,7 @@ common_validation
 
 if [ "$PRODUCT_NAME" = "TRB1" ] || [ "$PRODUCT_NAME" = "TRB5" ]; then
     trb_start
-elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ]; then
+elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
     ASR_start
 else
     generic_start

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=easycwmp
-PKG_VERSION:=2024-03-05
+PKG_VERSION:=2025-01-08
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.8.3

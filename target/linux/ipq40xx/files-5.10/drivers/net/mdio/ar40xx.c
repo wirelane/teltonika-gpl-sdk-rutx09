@@ -1177,13 +1177,14 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 	if (port <= AR40XX_PORT_CPU || port >= AR40XX_NUM_PORTS || !link)
 		return -EINVAL;
 
-	status = mdiobus_read(bus, port - 1, MII_BMCR);
+	port -= 1; // Convert physical port index to equivalent register index
+	status = mdiobus_read(bus, port, MII_BMCR);
 
 	ar40xx_port_linkdown(dev, port);
 
 	if (link->aneg) {
 		status |= BMCR_ANENABLE | BMCR_ANRESTART | BMCR_FULLDPLX | BMCR_SPEED1000;
-		ret = mdiobus_write(bus, port - 1, MII_BMCR, status);
+		ret = mdiobus_write(bus, port, MII_BMCR, status);
 		ar40xx_port_reset_enable(dev, port);
 		return ret;
 	} else {
@@ -1213,7 +1214,7 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 		break;
 	}
 
-	ret = mdiobus_write(bus, port - 1, MII_BMCR, status);
+	ret = mdiobus_write(bus, port, MII_BMCR, status);
 	ar40xx_port_reset_enable(dev, port);
 	return ret;
 }

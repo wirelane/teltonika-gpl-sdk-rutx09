@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=snmp-mod
-PKG_VERSION:=2024-10-29
+PKG_VERSION:=2025-01-08
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.11
+PKG_SOURCE_VERSION:=3.14
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -114,7 +114,7 @@ define Package/snmp-mib/install
 	$(CP) $(PKG_BUILD_DIR)/files/modules/* $(1)/etc/snmp/modules/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/scripts/* $(1)/etc/snmp/modules/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/snmpd.defaults $(1)/etc/uci-defaults/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/launch_generate_MIBs.sh $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/launch_generate_MIBs.sh $(1)/etc/snmp/
 endef
 
 define BuildPlugin

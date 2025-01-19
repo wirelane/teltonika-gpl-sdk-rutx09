@@ -62,6 +62,7 @@ typedef enum {
 	LGSM_INFO_FEATURE_EXTENDED_TIMEOUT,
 	LGSM_INFO_FEATURE_WWAN_GNSS_CONFLICT,
 	LGSM_INFO_FEATURE_DHCP_FILTER,
+	LGSM_INFO_FEATURE_VERIZON_DISABLE_5G_SA,
 	LGSM_INFO_HW_STATS,
 	LGSM_INFO_FEATURE_CSD,
 	LGSM_INFO_FEATURE_FRAMED_ROUTING,
@@ -72,6 +73,7 @@ typedef enum {
 	LGSM_INFO_DEFAULT_IMS,
 	LGSM_INFO_BUILTIN,
 	LGSM_INFO_GPS_SATELLITE,
+	LGSM_INFO_DISABLED_NR5G_SA_MODE,
 	LGSM_INFO_MAX,
 } lgsm_info_t;
 
@@ -497,13 +499,6 @@ typedef enum {
 } lgsm_frouting_attrs_t;
 
 typedef enum {
-	LGSM_QSIMDET_ENABLED,
-	LGSM_QSIMDET_INSERT_LEVEL,
-	LGSM_QSIMDET_IS_DEFAULT,
-	LGSM_QSIMDET_MAX,
-} lgsm_qsimdet_attrs_t;
-
-typedef enum {
 	LGSM_SET_IMS_RESTART,
 	LGSM_SET_IMS_MAX,
 } lgsm_set_ims_attrs_t;
@@ -906,8 +901,6 @@ typedef enum {
 	LGSM_UBUS_DEATTACH,
 	LGSM_UBUS_GET_5G_EXTENDED_PARAMS,
 	LGSM_UBUS_SET_5G_EXTENDED_PARAMS,
-	LGSM_UBUS_GET_QSIMDET,
-	LGSM_UBUS_SET_QSIMDET,
 	LGSM_UBUS_GET_CAP_FEATURE_GENERAL_PARAMS,
 	LGSM_UBUS_SET_CAP_FEATURE_GENERAL_PARAMS,
 	LGSM_UBUS_GET_ESIM_PROFILE_ID,
@@ -916,6 +909,7 @@ typedef enum {
 	LGSM_UBUS_SET_FAST_SHUTDOWN_INFO,
 	LGSM_UBUS_GET_SIGNAL_API_SELECTION_STATE,
 	LGSM_UBUS_SET_SIGNAL_API_SELECTION_STATE,
+	LGSM_UBUS_DISABLE_NR5G_SA,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -1230,6 +1224,7 @@ typedef struct {
 	bool extended_timeout;
 	bool wwan_gnss_conflict;
 	bool dhcp_filter_support;
+	bool verizon_disable_5g_sa; // Mark modem_info for Verizon 5G SA disable
 	bool builtin;
 	bool csd_support;
 	bool auto_5g_mode;
@@ -1246,6 +1241,7 @@ typedef struct {
 	lgsm_gps_info_t gps_info;
 	uint32_t esim_profile_id;
 	uint32_t gnss_state;
+	bool disabled_nr5g_sa_mode; // Mark webui to hide 5G management
 
 } lgsm_t;
 
@@ -1433,12 +1429,6 @@ typedef struct {
 } lgsm_mtu_info_t;
 
 typedef struct {
-	bool enabled;
-	int insert_level;
-	bool is_default;
-} lgsm_qsimdet_t;
-
-typedef struct {
 	int restore_cnt;
 	enum cefs_restore_state_id restore_state;
 } lgsm_flash_state_t;
@@ -1552,7 +1542,6 @@ typedef enum {
 	LGSM_LABEL_GEA_ALGO_T,
 	LGSM_LABEL_GET_IPV6_NDP_T,
 	LGSM_LABEL_FROUTING_STATE_T,
-	LGSM_LABEL_QSIMDET_STATE_T,
 	LGSM_LABEL_FAST_SHUTDOWN_STATE_T,
 	LGSM_LABEL_SIGNAL_API_SELECTION_STATE_T,
 	LGSM_LABEL_ERROR,
@@ -1636,7 +1625,6 @@ typedef union {
 	enum dpo_mode_id dpo_mode;
 	enum disable_nr5g_mode_id disable_5g_mode;
 	enum ipv6_ndp_state_t ipv6_ndp;
-	lgsm_qsimdet_t qsimdet;
 	lgsm_shutdown_gpio_t gpio;
 } lgsm_resp_data;
 
@@ -2743,19 +2731,6 @@ lgsm_err_t lgsm_set_m2m_state(struct ubus_context *ctx, enum m2m_state_id id, fu
 lgsm_err_t lgsm_set_frouting_state(struct ubus_context *ctx, bool enable, func_t *resp, uint32_t modem_num);
 
 /**
- * Set QSIMDET state
- * @param[ptr]  ctx   	    Ubus ctx.
- * @param[char] resp   	    Response from modem for the executed AT command.
- * @param[in]   id 	    	Frouting state to be set.
- * @param[in]   modem_num   Modem identification number.
- * @param[in]   enable      State to be set.
- * @param[in]   insert_level Insertion level to be set.
- * @return lgsm_err_t. Return function status code.
- */
-lgsm_err_t lgsm_set_qsimdet_state(struct ubus_context *ctx, bool enable, int insert_level, func_t *resp,
-				  uint32_t modem_num);
-
-/**
  * Set SIM initdelay
  * @param[ptr]  ctx   	    Ubus ctx.
  * @param[char] resp   	    Response from modem for the executed AT command.
@@ -3136,6 +3111,20 @@ lgsm_err_t lgsm_update_modem_func(struct ubus_context *ctx, enum modem_func_t fm
 				  uint32_t modem_num);
 
 /**
+ * Set NR5G SA configuration flag
+ * @param[ptr]  ctx         Ubus context.
+ * @param[in]   state       State of NR5G SA operation mode.
+ * @param[char] resp        Response from gsmd.
+ * @param[in]   modem_num   Modem identification number.
+ * @return lgsm_err_t. Return function status code.
+ *
+ * This function does not send any commands to the modem. It only sets a flag in the cache
+ * that is used by the web interface to show or hide the 5G mode selection setting.
+ */
+lgsm_err_t lgsm_set_nr5g_sa_configuration_flag(struct ubus_context *ctx, bool state, func_t *resp,
+					       uint32_t modem_num);
+
+/**
  * Deactivate MBN list
  * @param[ptr]  ctx         Ubus ctx.
  * @param[char] resp        Response from modem for the executed AT command.
@@ -3307,7 +3296,8 @@ lgsm_err_t lgsm_deattach(struct ubus_context *ctx, func_t *resp, const char *usb
  * @param[in]   modem_num   Modem identification number.
  * @return lgsm_err_t. Return function status code.
  */
-lgsm_err_t lgsm_set_signal_api_selection_state(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
+lgsm_err_t lgsm_set_signal_api_selection_state(struct ubus_context *ctx, bool enabled, func_t *resp,
+					       uint32_t modem_num);
 
 /******************
 *  GET HANDLERS  *
@@ -3968,13 +3958,6 @@ void handle_get_ipv6_ndp_rsp(struct blob_attr *info, lgsm_structed_info_t *parse
    * @param[ptr]   parsed    Parsed union readable information.
    */
 void handle_get_usbcfg_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
-
-/**
-   * Parse qsimdet state method response
-   * @param[ptr]   info      Blob from gsmd.
-   * @param[ptr]   parsed    Parsed union readable information.
-   */
-void handle_get_qsimdet_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
    * Parse Signal API selection state method response

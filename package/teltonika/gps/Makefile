@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2024-11-13
-PKG_RELEASE:=2
+PKG_VERSION:=2025-01-08
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.11
+PKG_SOURCE_VERSION:=7.12
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -84,8 +84,6 @@ define Package/gpsd/install
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_TRB2M.conf $(1)/etc/config/gps; \
 	elif [ $(TLT_PLATFORM_TRB2) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_TRB2.conf $(1)/etc/config/gps; \
-	elif [ $(TLT_PLATFORM_RUT30X) ] || [ $(TLT_PLATFORM_RUT36X) ]; then \
-		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_RUT3.conf $(1)/etc/config/gps; \
 	elif [ $(TLT_PLATFORM_RUT9M) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_RUT9.conf $(1)/etc/config/gps; \
 	elif [ $(TLT_PLATFORM_ATRM50) ]; then \
@@ -94,8 +92,10 @@ define Package/gpsd/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.10/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.12/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.10/01_gps_add_nmea_rules $(1)/etc/uci-defaults/7.10/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.11/01_gps_add_serial_forwarding_section $(1)/etc/uci-defaults/7.11/
+	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.12/01_gps_migrate_glonass_beidou $(1)/etc/uci-defaults/7.12/
 endef
 
 define Package/gpsctl/install
@@ -118,8 +118,6 @@ define Package/avl/install
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_RUTX.conf $(1)/etc/config/avl; \
 	elif [ $(TLT_PLATFORM_TRB2) ] || [ $(TLT_PLATFORM_TRB2M) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_TRB2.conf $(1)/etc/config/avl; \
-	elif [ $(TLT_PLATFORM_RUT30X) ] || [ $(TLT_PLATFORM_RUT36X) ]; then \
-		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_RUT3.conf $(1)/etc/config/avl; \
 	elif [ $(TLT_PLATFORM_RUT9M) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_RUT9.conf $(1)/etc/config/avl; \
 	elif [ $(TLT_PLATFORM_ATRM50) ]; then \

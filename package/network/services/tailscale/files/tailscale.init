@@ -7,6 +7,9 @@
 USE_PROCD=1
 START=80
 
+PROG="/usr/sbin/tailscale"
+[ -x "$PROG" ] || PROG="/usr/local${PROG}"
+
 log() {
 	local type="$1"
 	local msg="$2"
@@ -65,21 +68,21 @@ connect() {
 	[ -n "$param" ] && flags="and flags '"$param"'"
 
 	local type="info"
-	eval "$(/usr/sbin/tailscale status --json | jsonfilter -e 'auth_url=@.AuthURL' -e 'state=@.BackendState')"
+	eval "$($PROG status --json | jsonfilter -e 'auth_url=@.AuthURL' -e 'state=@.BackendState')"
 	if [ "$auth_type" = "url" ]; then
 		log "info" "Trying to connect using 'URL' mode $flags"
 		if [ "$state" = "NeedsLogin" ] && [ -z "$auth_url" ]; then
-			answ=$(/usr/sbin/tailscale login $param --timeout 5s 2>&1) || type="err"
+			answ=$($PROG login $param --timeout 5s 2>&1) || type="err"
 		else
-			answ=$(/usr/sbin/tailscale up $param --reset --timeout 5s 2>&1) || type="err"
+			answ=$($PROG up $param --reset --timeout 5s 2>&1) || type="err"
 		fi
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
 
 	if [ "$auth_type" = "key" ] && [ -n "$auth_key" ]; then
-		/usr/sbin/tailscale logout 1>/dev/null 2>&1
+		$PROG logout 1>/dev/null 2>&1
 		log "info" "Trying to connect using 'KEY' mode $flags"
-		answ=$(/usr/sbin/tailscale up --auth-key $auth_key $param --reset --timeout 5s 2>&1) || type="err"
+		answ=$($PROG up --auth-key $auth_key $param --reset --timeout 5s 2>&1) || type="err"
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
 
@@ -107,10 +110,10 @@ start_service() {
 	config_get exit_node_ip "settings" exit_node_ip ""
 	config_get login_server "settings" login_server ""
 
-	/usr/sbin/tailscaled --cleanup 1>/dev/null 2>&1
+	${PROG}d --cleanup 1>/dev/null 2>&1
 
 	procd_open_instance
-	procd_set_param command /usr/sbin/tailscaled
+	procd_set_param command ${PROG}d
 
 # Set the port to listen on for incoming VPN packets.
 # Remote nodes will automatically be informed about the new port number,
@@ -133,8 +136,8 @@ start_service() {
 }
 
 stop_service() {
-	/usr/sbin/tailscale down
-	/usr/sbin/tailscaled --cleanup 1>/dev/null 2>&1
+	$PROG down
+	${PROG}d --cleanup 1>/dev/null 2>&1
 	if grep -q "tailscale" /tmp/resolv.conf.d/resolv.conf.auto; then
 		mv /tmp/resolv.conf.d/resolv.conf.auto.backup /tmp/resolv.conf.d/resolv.conf.auto
 		rm /tmp/resolv.conf.d/resolv.conf.tailscale

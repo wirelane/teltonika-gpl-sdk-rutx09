@@ -344,6 +344,7 @@ proto_ncm_teardown() {
 
 		ip neigh flush proxy
 		ip neigh flush dev br-lan
+		ip neigh del "$bridge_ipaddr" dev br-lan 2>/dev/null
 	}
 
 	proto_init_update "*" 0

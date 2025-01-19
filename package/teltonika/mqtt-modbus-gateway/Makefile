@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mqtt-modbus-gateway
-PKG_VERSION:=2024-11-13
+PKG_VERSION:=2025-01-08
 PKG_SOURCE_VERSION:=7.11
 PKG_LICENSE:=Teltonika-closed
 
@@ -41,6 +41,18 @@ define Package/mqtt-modbus-gateway/install
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbusgateway.conf $(1)/etc/config/modbusgateway
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbusgateway.init $(1)/etc/init.d/modbusgateway
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/modbusgateway $(1)/usr/sbin/modbusgateway
+endef
+
+define Package/$(PKG_NAME)/prerm
+	#!/bin/sh
+	. /lib/functions.sh
+	config_load modbusgateway
+	config_get device_files gateway device_files "1"
+	for opt in cafile certfile keyfile ; do
+		config_get value gateway "$$opt" ""
+		[ "$$device_files" = 0 ] && [ -n "$$value" ] && rm -f "$$value"
+	done
+	exit 0
 endef
 
 $(eval $(call BuildPackage,mqtt-modbus-gateway))

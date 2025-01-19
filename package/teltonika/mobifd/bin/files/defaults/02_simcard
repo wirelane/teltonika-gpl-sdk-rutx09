@@ -25,6 +25,7 @@ set_pin() {
 		[ $mnf_modem -eq $modem_num ] && sim_pos=$((sim_pos + 1)) && [ $sim_pos -eq $position ] && {
 			[ -z "$pincode" ] && {
 				pin=$(/sbin/mnf_info -S "$num" 2>/dev/null)
+				[ "$pin" = "N/A" ] && break
 				[ -n "$pin" ] && uci_set "simcard" "$sim" "pincode" "$pin"
 			} || /sbin/mnf_info -P "$num" -p "$pincode" 2>/dev/null
 			break

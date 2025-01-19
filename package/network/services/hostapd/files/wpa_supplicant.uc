@@ -287,7 +287,6 @@ function iface_hostapd_notify(phy, ifname, iface, state)
 			msg.frequency = status.frequency;
 			msg.sec_chan_offset = status.sec_chan_offset;
 			break;
-		case "AUTHENTICATING":
 		case "DISCONNECTED":
 			msg.up = true;
 			msg.frequency = status.frequency;

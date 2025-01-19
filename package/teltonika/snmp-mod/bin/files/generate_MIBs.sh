@@ -20,7 +20,7 @@ is_installed() {
 }
 
 is_switch() {
-	mnf_info -n | grep "TSW" > /dev/null 2>&1
+	mnf_info -n | grep -E "SWM|TSW" > /dev/null 2>&1
 }
 
 is_trb5() {
@@ -29,10 +29,6 @@ is_trb5() {
 
 is_trb1() {
 	mnf_info -n | grep "TRB1" > /dev/null 2>&1
-}
-
-is_swm() {
-	mnf_info -n | grep "SWM" > /dev/null 2>&1
 }
 
 get_device_name() {
@@ -50,25 +46,13 @@ get_device_name() {
 	echo "$name"
 }
 
-get_io() {
-	local io_list
-	local counter=0
-
-	while which iomand >/dev/null 2>&1 && [ -z "$io_list" ]; do
-		io_list=$(ubus list ioman.* 2>/dev/null | awk -F'.' '{print $3}')
-
-		[ "$counter" -eq 1 ] && logger -t "$0" "Waiting for ioman to appear on ubus"
-		counter=$((counter + 1))
-		sleep 1
-	done
-	logger -t "$0" "Found ioman on ubus"
-	echo "$io_list"
-}
-
 get_traps_io_mib() {
 	local mib_name
+	local io_list
 
-	for io in $(get_io); do
+	io_list=$(ubus list ioman.* 2>/dev/null | awk -F'.' '{print $3}')
+
+	for io in $io_list; do
 		mib_name=traps_mib${1}${io}
 		eval "echo -n \"\$$mib_name\""
 	done
@@ -101,6 +85,7 @@ unset sqm
 unset port
 unset mwan3
 
+
 device=1
 # To support external modems, mobile MIB should also be included
 # on devices that don't have mobile modems but have a USB port.
@@ -109,15 +94,15 @@ is_installed mdcollectd && mdcollect=1
 is_true "gps" && gps=1
 traps=1
 # Hotspot is available on all devices except TSW switches
-( ! is_switch ) && ( ! is_swm ) && hotspot=1
+( ! is_switch ) && hotspot=1
 is_true "ios" && ios=1
 is_true "wifi" && wireless=1
 ! is_switch && if_vlan=1
 ( jsonfilter -q -i $board_json_file -e "$.switch" 1>/dev/null || is_switch || is_true "dsa") && port_vlan=1
-[ $if_vlan -eq 1 ]  || [ $port_vlan -eq 1 ] && vlan_gen=1
-( ! is_switch ) && ( ! is_trb5 ) && ( ! is_swm ) && sqm=1
-(is_installed "port_eventsd") && port=1
-( ! is_switch ) && ( ! is_swm ) && ( ! is_trb5 ) && ( ! is_trb1 ) && mwan3=1
+[ $if_vlan ] || [ $port_vlan ] && vlan_gen=1
+( ! is_switch ) && ( ! is_trb5 ) && sqm=1
+(is_installed "port_eventsd") || ( is_switch ) && port=1
+( ! is_switch ) && ( ! is_trb5 ) && ( ! is_trb1 ) && mwan3=1
 
 # Unset 'traps' if neither 'mobile' nor 'ios' or 'hotspot' are supported
 traps=${mobile:-${ios:-${hotspot:-''}}}
@@ -128,7 +113,9 @@ export MODULES_DIR="$MODULES_DIR"
 . "$MODULES_DIR/traps"
 # Read definitions of other MIBs directly
 device_mib=$(cat $MODULES_DIR/device.mib)
-mobile_mib=$($MODULES_DIR/mobile.sh "$mdcollect")
+if [ -e "$MODULES_DIR/mobile.sh" ]; then
+	mobile_mib=$($MODULES_DIR/mobile.sh "$mdcollect")
+fi
 gps_mib=$(cat $MODULES_DIR/gps.mib)
 hotspot_mib=$(cat $MODULES_DIR/hotspot.mib)
 io_mib=$(cat $MODULES_DIR/io.mib)
@@ -143,8 +130,12 @@ else
 	port_vlan_mib=$(cat $MODULES_DIR/vlan_port_non_dsa.mib)
 fi
 
+if is_switch; then
+	port_mib=$(cat $MODULES_DIR/switch_port.mib)
+else
+	port_mib=$(cat $MODULES_DIR/port.mib)
+fi
 sqm_mib=$(cat $MODULES_DIR/sqm.mib)
-port_mib=$(cat $MODULES_DIR/port.mib)
 mwan3_mib=$(cat $MODULES_DIR/mwan3.mib)
 
 beginning_mib="TELTONIKA-MIB DEFINITIONS ::= BEGIN
@@ -165,7 +156,7 @@ teltonika MODULE-IDENTITY
 	REVISION	\"$(date "+%Y%m%d%H%MZ")\"
 	DESCRIPTION	\"Latest version\"
 	::= { enterprises 48690 }
-	
+
 teltonikaSnmpGroups	OBJECT IDENTIFIER ::= { teltonika 0 }"
 end_mib='END'
 

@@ -34,6 +34,9 @@ if [ "$CONFIRM" != "1" ]; then
 fi
 
 if [ "$FACTORY" = "1" ]; then
+        if [ -e /sbin/esim_delete_profiles ]; then
+                esim_delete_profiles
+        fi
         # wipe all from log
         rm -fr /log/*
 else

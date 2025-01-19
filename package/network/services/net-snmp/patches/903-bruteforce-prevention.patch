@@ -55,7 +55,7 @@ Index: net-snmp-5.9.1/agent/snmp_agent.c
  /*******************************************************************-o-******
   * netsnmp_agent_check_packet
   *
-@@ -1118,6 +1157,20 @@ netsnmp_agent_check_packet(netsnmp_sessi
+@@ -1118,6 +1157,21 @@ netsnmp_agent_check_packet(netsnmp_sessi
      snmp_increment_statistic(STAT_SNMPINPKTS);
  
      if (addr_string != NULL) {
@@ -68,7 +68,8 @@ Index: net-snmp-5.9.1/agent/snmp_agent.c
 +            free(session->source_port);
 +            session->source_addr = source_addr;
 +            session->source_port = source_port;
-+            snmp_log(LOG_NOTICE, "Renewed source address: '%s:%s'\n", session->source_addr, session->source_port);
++            DEBUGMSGTL(("snmp_agent_bruteforce", "Renewed source address: '%s:%s'\n",
++                       session->source_addr, session->source_port));
 +        } else {
 +            free(source_addr);
 +            free(source_port);
@@ -76,29 +77,31 @@ Index: net-snmp-5.9.1/agent/snmp_agent.c
          netsnmp_addrcache_add(addr_string);
          SNMP_FREE(addr_string);
      }
-@@ -2235,8 +2288,15 @@ handle_snmp_packet(int op, netsnmp_sessi
+@@ -2235,8 +2289,16 @@ handle_snmp_packet(int op, netsnmp_sessi
          return netsnmp_wrap_up_request(asp, SNMP_ERR_NOTWRITABLE);
      }
  #endif /* NETSNMP_DISABLE_SET_SUPPORT && !NETSNMP_NO_WRITE_SUPPORT */
 +        access_ret = check_access(asp->pdu);
-+        snmp_log(LOG_NOTICE, "snmp_agent: access_ret = %d\n", access_ret);
++        DEBUGMSGTL(("snmp_agent_bruteforce", "snmp_agent: access_ret = %d\n", access_ret));
  
 -    if ((access_ret = check_access(asp->pdu)) != 0) {
 +        if (pdu->version  == SNMP_VERSION_3 && access_ret == 0) {
-+            snmp_log(LOG_NOTICE, "snmp_agent: unblocking host %s:%s with sec level %d\n", asp->session->source_addr,
-+                asp->session->source_port, asp->pdu->securityLevel);
++            DEBUGMSGTL(("snmp_agent_bruteforce", "snmp_agent: unblocking host %s:%s with sec level %d\n",
++                asp->session->source_addr,
++                asp->session->source_port, asp->pdu->securityLevel));
 +            ip_block_invoke("unblock", asp->session->source_addr, asp->session->source_port);
 +    }
 +    if (access_ret != 0) {
          if (access_ret == VACM_NOSUCHCONTEXT) {
              /*
               * rfc3413 section 3.2, step 5 says that we increment the
-@@ -2270,6 +2330,9 @@ handle_snmp_packet(int op, netsnmp_sessi
+@@ -2270,6 +2332,10 @@ handle_snmp_packet(int op, netsnmp_sessi
                  && asp->pdu->version != SNMP_VERSION_2c) {
  #endif
  #endif
-+                snmp_log(LOG_NOTICE, "snmp_agent: blocking host %s:%s\n", asp->session->source_addr,
-+                        asp->session->source_port);
++                DEBUGMSGTL(("snmp_agent_bruteforce", "snmp_agent: blocking host %s:%s\n",
++                        asp->session->source_addr,
++                        asp->session->source_port));
 +                ip_block_invoke("push", asp->session->source_addr, asp->session->source_port);
                  asp->pdu->errstat = SNMP_ERR_AUTHORIZATIONERROR;
                  asp->pdu->command = SNMP_MSG_RESPONSE;
@@ -308,4 +311,3 @@ Index: net-snmp-5.9.1/snmplib/snmp_api.c
          if (!pss->s_snmp_errno) {
              pss->s_snmp_errno = SNMPERR_BAD_PARSE;
          }
-

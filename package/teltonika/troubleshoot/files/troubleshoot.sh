@@ -105,6 +105,17 @@ get_mnf_info() {
 		echo -ne "$arg:   \t" >>"$log_file"
 		mnf_info --$arg >>"$log_file" 2>&1
 	done
+
+	# add SIMCFG info
+	for idx in $(seq 1 4); do
+		local simcfg="$(mnf_info -C $idx 2> /dev/null)"
+		[ -n "$simcfg" ] && echo -e "sim${idx}_cfg:   \t${simcfg}" >>"$log_file"
+	done
+}
+
+get_blver() {
+	local log_file="$1"
+	mnf_info --blver >>"$log_file" 2>&1
 }
 
 system_hook() {
@@ -120,6 +131,9 @@ system_hook() {
 
 	troubleshoot_init_log "Firmware version" "$log_file"
 	troubleshoot_add_file_log "/etc/version" "$log_file"
+
+	troubleshoot_init_log "Bootloader version" "$log_file"
+	get_blver "$log_file"
 
 	troubleshoot_init_log "Time" "$log_file"
 	troubleshoot_add_log "$(date)" "$log_file"
@@ -194,10 +208,14 @@ wifi_hook() {
 
 	[ -z "$wifaces" ] && return
 
-	troubleshoot_init_log "WiFi clients" "$log_file"
+	troubleshoot_init_log "WiFi interfaces" "$log_file"
+
 	for devname in ${wifaces}; do
-		troubleshoot_add_log "Interface ${devname}" "$log_file"
-		troubleshoot_add_log "$(iwinfo "$devname" assoclist 2>/dev/null)" "$log_file"
+		troubleshoot_add_log "*Interface ${devname}*" "$log_file"
+		troubleshoot_add_log "$(iwinfo "$devname" info)\n" "$log_file"
+
+		troubleshoot_add_log "*Clients*" "$log_file"
+		troubleshoot_add_log "$(iwinfo "$devname" assoclist)\n" "$log_file"
 	done
 
 	[ -e "$mt76_debug_path" ] && {

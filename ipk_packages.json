@@ -10,12 +10,12 @@
 	},
 	"vuci-app-aws-ui": {
 		"vuci_dep": "vuci-app-aws-api",
-		"base_dep": "aws libaws-iot-device-sdk-embedded-C",
+		"base_dep": "aws libaws-iot-device-sdk-embedded-C libapi20241125",
 		"name": "aws_iot_core"
 	},
 	"vuci-app-azure-iothub-ui": {
 		"vuci_dep": "vuci-app-azure-iothub-api data-sender-api-mod-azure",
-		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo liblua libtlt_uci libuuid1",
+		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo liblua libtlt_uci libuuid1 libapi20241125",
 		"name": "azure_iot_hub"
 	},
 	"vuci-app-cumulocity-ui": {
@@ -37,21 +37,21 @@
 	},
 	"vuci-app-dnp3-ui": {
 		"vuci_dep": "vuci-app-dnp3-api data-sender-api-mod-dnp3",
-		"base_dep": "dnp3 opendnp3 data-sender-mod-dnp3 libtlt_termios1.0",
-		"kmod_dep": "libstdcpp6",
+		"base_dep": "dnp3 opendnp3 data-sender-mod-dnp3 libtlt_termios1.0 libgpiod libcfgx",
+		"kmod_dep": "libstdcpp6 kmod-tlt-gpio",
 		"name": "dnp3"
 	},
 	"vuci-app-ntrip-ui": {
 		"vuci_dep": "vuci-app-ntrip-api",
-		"base_dep": "ntrip_client_v2 libtlt_termios1.0",
-		"kmod_dep": "libstdcpp6",
+		"base_dep": "ntrip_client_v2 libtlt_termios1.0 libgpiod libcfgx",
+		"kmod_dep": "libstdcpp6 kmod-tlt-gpio",
 		"name": "ntrip"
 	},
 	"vuci-app-bacnet-ui": {
 		"vuci_dep": "vuci-app-bacnet-api",
 		"base_dep": "bacnet-router lib-bacnet",
 		"kmod_dep": "libstdcpp6",
-		"name": "BACnet_router"
+		"name": "bacnet_router"
 	},
 	"vuci-app-thingworx-ui": {
 		"vuci_dep": "vuci-app-thingworx-api",
@@ -66,6 +66,7 @@
 	"vuci-app-minidlna-ui": {
 		"vuci_dep": "vuci-app-minidlna-api",
 		"packages_dep": "libjpeg-turbo libid3tag libexif libvorbis libogg0",
+		"kmod_dep": "kmod-fs-ntfs kmod-fs-msdos",
 		"base_dep": "libbz2-1.0 libuuid1 libffmpeg-audio-dec libflac tlt-minidlna",
 		"name": "dlna"
 	},
@@ -114,7 +115,7 @@
 	},
 	"vuci-app-samba-ui": {
 		"base_dep": "samba36-server libuuid1 libblkid1 libcomerr0 libext2fs2 libss2 e2fsprogs fmt-usb-msd exfat-mkfs storage-memory-expansion",
-		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-exfat kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage kmod-fuse block-mount",
+		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-exfat kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage block-mount",
 		"vuci_dep": "vuci-app-memory-expansion-api vuci-app-usb-tools-api vuci-app-memory-expansion-ui vuci-app-usb-tools-ui vuci-app-samba-api",
 		"name": "network_shares"
 	},
@@ -144,8 +145,9 @@
 		"name": "speedtest"
 	},
 	"vuci-app-port-mirroring-ui": {
-		"base_dep": "software-port-mirroring",
+		"base_dep": "software-port-mirroring tc-tiny",
 		"vuci_dep": "vuci-app-software-port-mirroring-api",
+		"kmod_dep": "kmod-sched-core",
 		"name": "port_mirroring"
 	},
 	"vuci-app-sqm-ui": {
@@ -186,28 +188,31 @@
 		"name": "traffic_logging"
 	},
 	"vuci-app-modbus-server-ui": {
-		"base_dep": "modbus_server libmodbus data-sender-mod-modbus libtlt_termios1.0",
+		"base_dep": "modbus_server libmodbus data-sender-mod-modbus libtlt_termios1.0 libgpiod libcfgx",
 		"vuci_dep": "vuci-app-modbus-server-api data-sender-api-mod-modbus",
+		"kmod_dep": "kmod-tlt-gpio",
 		"name": "modbus_server"
 	},
 	"vuci-app-modbus-gateway-ui": {
-		"base_dep": "mqtt-modbus-gateway libmodbus libtlt_termios1.0",
+		"base_dep": "mqtt-modbus-gateway libmodbus libtlt_termios1.0 libgpiod libcfgx",
 		"vuci_dep": "vuci-app-modbus-gateway-api",
+		"kmod_dep": "kmod-tlt-gpio",
 		"name": "mqtt_modbus_gateway"
 	},
 	"vuci-app-modbus-client-ui": {
-		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0",
+		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx",
 		"vuci_dep": "vuci-app-modbus-client-api vuci-app-modbus-serial-ui vuci-app-modbus-serial-api data-sender-api-mod-modbus data-sender-api-mod-modbus-alarm",
+		"kmod_dep": "kmod-tlt-gpio",
 		"name": "modbus_client"
 	},
 	"vuci-app-wifi-scanner-ui": {
 		"vuci_dep": "vuci-app-wifi-scanner-api data-sender-api-mod-wifiscan",
-		"base_dep": "wifi_scanner data-sender-mod-wifiscan",
+		"base_dep": "wifi_scanner data-sender-mod-wifiscan libiwinfo20230121 libiwinfo-data",
 		"name": "wifi_scanner"
 	},
 	"vuci-app-opcua-ui": {
 		"vuci_dep": "vuci-app-opcua-api data-sender-api-mod-opcua",
-		"base_dep": "opcua_client open62541 libtlt_utils data-sender-mod-opcua",
+		"base_dep": "opcua_client open62541 libtlt_utils data-sender-mod-opcua libcfgx",
 		"name": "opc_ua_client"
 	},
 	"vuci-app-opcua-server-ui": {
@@ -217,7 +222,8 @@
 	},
 	"vuci-app-dlms-ui": {
 		"vuci_dep": "vuci-app-dlms-api data-sender-api-mod-dlms",
-		"base_dep": "dlms_client libdlms libtlt_utils libtlt_termios1.0 data-sender-mod-dlms",
+		"base_dep": "dlms_client libdlms libtlt_utils libtlt_termios1.0 libgpiod libcfgx data-sender-mod-dlms",
+		"kmod_dep": "kmod-tlt-gpio",
 		"name": "dlms_client"
 	},
 	"vuci-app-mwan3-ui": {
@@ -411,6 +417,20 @@
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_logger"
 	},
+	"tpm2-tools": {
+		"base_dep": "libopenssl libcurl",
+		"packages_dep": "tpm2-tss",
+		"name": "tpm2_tools"
+	},
+	"tpm2-openssl": {
+		"base_dep": "openssl-util",
+		"packages_dep": "tpm2-tss",
+		"name": "tpm2_openssl"
+	},
+	"tpm2-tss": {
+		"base_dep": "curl libgcrypt libjson-c libusb-1.0 libuuid libopenssl",
+		"name": "tpm2_tss"
+	},
 	"vuci-app-sshfs-ui": {
 		"vuci_dep": "vuci-app-sshfs-api",
 		"base_dep": "sshfs fuse3-utils libfuse3-3 glib2 libffi",
@@ -439,7 +459,8 @@
 		"base_dep": "sim_idle_protection",
 		"name": "sim_idle_protection"
 	},
-	"travelmate": {
+	"vuci-app-travelmate-ui": {
+		"base_dep": "travelmate",
 		"name": "travelmate"
 	},
 	"vuci-app-apn-database-ui": {
@@ -482,12 +503,26 @@
 	},
 	"vuci-app-port-security-ui":{
 		"name": "802.1x_server",
-		"kmod_dep": "kmod-sched-act-vlan kmod-dummy kmod-sched-flower",
+		"kmod_dep": "kmod-sched-core kmod-sched-act-vlan kmod-dummy kmod-sched-flower",
 		"vuci_dep": "vuci-app-port-security-api",
 		"base_dep": "radius_test dsa-dot1x-server tc-tiny hostapd-common libucode20220812 ucode ucode-mod-fs ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uloop wpad-openssl"
 	},
 	"strongswan-pki": {
 		"base_dep": "strongswan-libtls strongswan-mod-pkcs7 strongswan-mod-curl",
 		"name": "scep"
+	},
+	"letsencrypt": {
+		"base_dep": "curl",
+		"name": "letsencrypt"
+	},
+	"vuci-app-io-post-get-ui" : {
+		"name": "io_post_get",
+		"vuci_dep": "vuci-app-io-post-get-api",
+		"base_dep": "post-get post-get-io libtlt_uci"
+	},
+	"vuci-app-mobile-post-get-ui" : {
+		"name": "mobile_post_get",
+		"vuci_dep": "vuci-app-mobile-post-get-api",
+		"base_dep": "post-get post-get-mobile libtlt_uci"
 	}
 }

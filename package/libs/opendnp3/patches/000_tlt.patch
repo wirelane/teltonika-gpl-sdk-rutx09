@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/include/opendnp3/gen/Parity.h src/cpp/lib/include/opendnp3/gen/Parity.h
 --- upstream/cpp/lib/include/opendnp3/gen/Parity.h	2021-08-10 13:43:15.000000000 +0000
-+++ src/cpp/lib/include/opendnp3/gen/Parity.h	2023-03-06 07:20:28.000000000 +0000
++++ src/cpp/lib/include/opendnp3/gen/Parity.h	2024-11-05 07:12:26.000000000 +0000
 @@ -44,6 +44,8 @@
  {
    Even = 1,
@@ -12,7 +12,7 @@ diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/include/
  
 diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/src/channel/ASIOSerialHelpers.cpp src/cpp/lib/src/channel/ASIOSerialHelpers.cpp
 --- upstream/cpp/lib/src/channel/ASIOSerialHelpers.cpp	2021-08-10 13:43:15.000000000 +0000
-+++ src/cpp/lib/src/channel/ASIOSerialHelpers.cpp	2023-03-06 07:20:28.000000000 +0000
++++ src/cpp/lib/src/channel/ASIOSerialHelpers.cpp	2024-11-05 07:12:26.000000000 +0000
 @@ -88,6 +88,12 @@
      case (Parity::Odd):
          t = asio::serial_port_base::parity::odd;
@@ -28,8 +28,8 @@ diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/src/chan
      }
 diff --recursive --unified --new-file --no-dereference upstream/deps/asio.cmake src/deps/asio.cmake
 --- upstream/deps/asio.cmake	2021-08-10 13:43:15.000000000 +0000
-+++ src/deps/asio.cmake	2023-03-06 07:20:28.000000000 +0000
-@@ -1,5 +1,16 @@
++++ src/deps/asio.cmake	2024-11-05 07:12:26.000000000 +0000
+@@ -1,12 +1,41 @@
  include(FetchContent)
  
 +
@@ -45,8 +45,9 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/asio.cmake 
 +
  FetchContent_Declare(
      asio
++    DOWNLOAD_DIR ${DL_DIR}
      URL      https://github.com/chriskohlhoff/asio/archive/asio-1-16-0.zip
-@@ -7,6 +18,23 @@
+     URL_HASH SHA1=6BDD33522D5B95B36445ABB2072A481F7CE15402
  )
  
  FetchContent_GetProperties(asio)
@@ -70,7 +71,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/asio.cmake 
  if(NOT asio_POPULATED)
      FetchContent_Populate(asio)
  
-@@ -14,6 +42,29 @@
+@@ -14,6 +43,29 @@
  
      add_library(asio INTERFACE)
      target_include_directories(asio INTERFACE ${asio_SOURCE_DIR}/asio/include)
@@ -100,9 +101,42 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/asio.cmake 
      target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
      target_compile_features(asio INTERFACE cxx_std_11)
      target_link_libraries(asio INTERFACE Threads::Threads)
+diff --recursive --unified --new-file --no-dereference upstream/deps/catch.cmake src/deps/catch.cmake
+--- upstream/deps/catch.cmake	2021-08-10 13:43:15.000000000 +0000
++++ src/deps/catch.cmake	2024-11-05 07:12:26.000000000 +0000
+@@ -2,6 +2,7 @@
+ 
+ FetchContent_Declare(
+     catch
++    DOWNLOAD_DIR ${DL_DIR}
+     URL                 https://github.com/catchorg/Catch2/releases/download/v2.11.3/catch.hpp
+     URL_HASH            SHA1=C127EBB7A4F65C6CEFF7587C8EF18F84A74D6C15
+     DOWNLOAD_NO_EXTRACT TRUE
+diff --recursive --unified --new-file --no-dereference upstream/deps/exe4cpp.cmake src/deps/exe4cpp.cmake
+--- upstream/deps/exe4cpp.cmake	2021-08-10 13:43:15.000000000 +0000
++++ src/deps/exe4cpp.cmake	2024-11-05 07:12:26.000000000 +0000
+@@ -2,6 +2,7 @@
+ 
+ FetchContent_Declare(
+     exe4cpp
++    DOWNLOAD_DIR ${DL_DIR}
+     URL      https://github.com/automatak/exe4cpp/archive/fb878a4de598ba9d6e4338afebf83f96e03af1b8.zip
+     URL_HASH SHA1=18B141E8CF09DC8D28CC62DD5FA2920670D501BD
+ )
+diff --recursive --unified --new-file --no-dereference upstream/deps/ser4cpp.cmake src/deps/ser4cpp.cmake
+--- upstream/deps/ser4cpp.cmake	2021-08-10 13:43:15.000000000 +0000
++++ src/deps/ser4cpp.cmake	2024-11-05 07:12:26.000000000 +0000
+@@ -2,6 +2,7 @@
+ 
+ FetchContent_Declare(
+     ser4cpp
++    DOWNLOAD_DIR ${DL_DIR}
+     URL      https://github.com/automatak/ser4cpp/archive/3c449734dc530a8f465eb0982de29165cc4e23d5.zip
+     URL_HASH SHA1=937B759B7CC80180DA26B47037E796B59798A672
+ )
 diff --recursive --unified --new-file --no-dereference upstream/deps/serial_port_base.hpp.patch src/deps/serial_port_base.hpp.patch
 --- upstream/deps/serial_port_base.hpp.patch	1970-01-01 00:00:00.000000000 +0000
-+++ src/deps/serial_port_base.hpp.patch	2023-03-06 07:20:28.000000000 +0000
++++ src/deps/serial_port_base.hpp.patch	2024-11-05 07:12:26.000000000 +0000
 @@ -0,0 +1,13 @@
 +diff --git a/asio/include/asio/serial_port_base.hpp b/asio/include/asio/serial_port_base.hpp
 +index 1f027601..e2f0c4cf 100644
@@ -119,7 +153,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/serial_port
 +     ASIO_DECL ASIO_SYNC_OP_VOID store(
 diff --recursive --unified --new-file --no-dereference upstream/deps/serial_port_base.ipp.patch src/deps/serial_port_base.ipp.patch
 --- upstream/deps/serial_port_base.ipp.patch	1970-01-01 00:00:00.000000000 +0000
-+++ src/deps/serial_port_base.ipp.patch	2023-03-06 07:20:28.000000000 +0000
++++ src/deps/serial_port_base.ipp.patch	2024-11-05 07:12:26.000000000 +0000
 @@ -0,0 +1,29 @@
 +diff --git a/asio/include/asio/impl/serial_port_base.ipp b/asio/include/asio/impl/serial_port_base.ipp
 +index 984d7a85..7cb53d0d 100644

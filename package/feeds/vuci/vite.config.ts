@@ -72,6 +72,16 @@ export default defineConfig(({ mode, command }) => {
           telemetry: false,
           release: {
             name: sentryConfig.releaseName
+          },
+          errorHandler: error => {
+            console.error(error)
+            try {
+              const fd = fs.openSync('/tmp/sentry_upload_error.txt', 'w')
+              fs.writeSync(fd, error.stack || error.message)
+              fs.closeSync(fd)
+            } catch (err) {
+              console.error(err)
+            }
           }
         })
     ],

@@ -14,6 +14,6 @@ but it is deprecated
 -#define TELEMETRY_MSG_TIMEOUT_MIN           2*60
 +#define RESEND_TIMEOUT_VALUE_MIN            5
 +#define TELEMETRY_MSG_TIMEOUT_MIN           10
+ #define MQTT_MESSAGE_DUP_FLAG_TRUE          true
+ #define MQTT_MESSAGE_DUP_FLAG_FALSE         false
  #define DEFAULT_CONNECTION_INTERVAL         30
- #define FAILED_CONN_BACKOFF_VALUE           5
- #define STATUS_CODE_FAILURE_VALUE           500

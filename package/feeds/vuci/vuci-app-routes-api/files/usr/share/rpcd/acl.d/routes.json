@@ -11,7 +11,8 @@
         "/pptp/server/config/*": ["id"],
         "/pptp/client/config/*": ["id"],
         "/gre/config/*": ["id"],
-        "/wireguard/config/*": ["id"]
+        "/wireguard/config/*": ["id"],
+        "/sstp/config/*": ["id"]
       }
     },
     "write": {
@@ -33,7 +34,8 @@
         "/pptp/server/config/*": ["id"],
         "/pptp/client/config/*": ["id"],
         "/gre/config/*": ["id"],
-        "/wireguard/config/*": ["id"]
+        "/wireguard/config/*": ["id"],
+        "/sstp/config/*": ["id"]
       }
     },
     "write": {

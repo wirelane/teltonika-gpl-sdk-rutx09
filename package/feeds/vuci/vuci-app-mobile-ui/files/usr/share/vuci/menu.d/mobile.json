@@ -9,17 +9,17 @@
   "network/mobile/general/:id": {
     "view": "network/MobileGeneral"
   },
-  "network/mobile/connection": {
-    "view": "network/MobileConnection"
-  },
-  "network/mobile/connection/:id": {
-    "view": "network/MobileConnection"
-  },
   "network/mobile/esim_profiles": {
     "view": "network/MobileProfiles"
   },
   "network/mobile/esim_profiles/:id": {
     "view": "network/MobileProfiles"
+  },
+  "network/mobile/connection": {
+    "view": "network/MobileConnection"
+  },
+  "network/mobile/connection/:id": {
+    "view": "network/MobileConnection"
   },
   "network/mobile/limits": {
     "title": "Limits",

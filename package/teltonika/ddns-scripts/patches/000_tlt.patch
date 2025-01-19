@@ -450,13 +450,13 @@ diff --recursive --unified --new-file --no-dereference upstream/Makefile src/Mak
 -$(eval $(call BuildPackage,ddns-scripts_route53-v1))
 diff --recursive --unified --new-file --no-dereference upstream/README.md src/README.md
 --- upstream/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/README.md	2024-09-23 13:25:52.000000000 +0000
++++ src/README.md	2024-10-30 08:03:31.000000000 +0000
 @@ -0,0 +1,2 @@
 +# ddns-scripts
 +
 diff --recursive --unified --new-file --no-dereference upstream/files/ddns.config src/files/ddns.config
 --- upstream/files/ddns.config	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.config	2024-09-23 13:25:52.000000000 +0000
++++ src/files/ddns.config	2024-10-30 08:03:31.000000000 +0000
 @@ -1,15 +1,15 @@
  #
 -# Please read https://openwrt.org/docs/guide-user/base-system/ddns
@@ -495,7 +495,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.confi
 -
 diff --recursive --unified --new-file --no-dereference upstream/files/ddns.defaults src/files/ddns.defaults
 --- upstream/files/ddns.defaults	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.defaults	2024-09-23 13:25:52.000000000 +0000
++++ src/files/ddns.defaults	2024-10-30 08:03:31.000000000 +0000
 @@ -1,39 +1,39 @@
  #!/bin/sh
  
@@ -673,7 +673,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.defau
  }
 diff --recursive --unified --new-file --no-dereference upstream/files/ddns.hotplug src/files/ddns.hotplug
 --- upstream/files/ddns.hotplug	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.hotplug	2024-09-23 13:25:52.000000000 +0000
++++ src/files/ddns.hotplug	2024-10-30 08:03:31.000000000 +0000
 @@ -1,11 +1,18 @@
 -#!/bin/sh
 +#!/bin/sh /etc/rc.common
@@ -705,7 +705,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.hotpl
 +fi
 diff --recursive --unified --new-file --no-dereference upstream/files/ddns.init src/files/ddns.init
 --- upstream/files/ddns.init	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.init	2024-09-23 13:25:52.000000000 +0000
++++ src/files/ddns.init	2024-10-30 08:03:31.000000000 +0000
 @@ -1,27 +1,39 @@
  #!/bin/sh /etc/rc.common
 +
@@ -762,7 +762,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.init 
  }
 diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dns_functions.sh src/files/dynamic_dns_functions.sh
 --- upstream/files/dynamic_dns_functions.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_functions.sh	2024-09-23 13:25:52.000000000 +0000
++++ src/files/dynamic_dns_functions.sh	2024-10-30 08:03:31.000000000 +0000
 @@ -21,10 +21,12 @@
  . /lib/functions/network.sh
  
@@ -942,7 +942,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		__PROG="$CURL -RsS -o $DATFILE --stderr $ERRFILE"
  		# check HTTPS support
  		[ -z "$CURL_SSL" -a $use_https -eq 1 ] && \
-@@ -902,16 +910,28 @@
+@@ -902,16 +910,40 @@
  	write_log 7 "Detect local IP on '$ip_source'"
  
  	while : ; do
@@ -957,11 +957,23 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
 +						|| __RUNPROG="network_get_ipaddr6"
 +			write_log 7 "#> $__RUNPROG __DATA '$ip_network'"
 +
-+			ifconfig_name=`ubus call network.interface.$ip_network status | grep -m 1 "device" | cut -f 4 -d '"' | tr -d $'\n'`
-+			ifconfig_ip=`ifconfig | grep -A1 $ifconfig_name | grep 'inet addr:' | cut -f 2 -d ':' | cut -f 1 -d ' ' | tr -d $'\n'`
++			ifconfig_name="$(ubus call network.interface.$ip_network status | grep -m 1 "device" | cut -f 4 -d '"' | tr -d $'\n')"
++			if [ $use_ipv6 -eq 0 ]; then
++				ifconfig_ip="$(ifconfig | grep -A1 $ifconfig_name | grep 'inet addr:' | cut -f 2 -d ':' | cut -f 1 -d ' ' | tr -d $'\n')"
++			else
++				ifconfig_ip="$(ifconfig | grep -A1 $ifconfig_name | grep 'inet6 addr:' | awk '{print $3}' | cut -f1 -d'/' | tr -d $'\n')"
++			fi
++
 +			write_log 7 "ifconfig_name=$ifconfig_name; ifconfig_ip=$ifconfig_ip"
 +
-+			eval "$__RUNPROG __DATA $ip_network" || [ -n "$ifconfig_ip" ] && __DATA="$ifconfig_ip" && write_log 7 "Used ifconfig IP $ifconfig_ip instead" || write_log 3 "$__RUNPROG Error: '$?'"
++			if ! eval "$__RUNPROG __DATA $ip_network"; then
++				if [ -n "$ifconfig_ip" ]; then
++					__DATA="$ifconfig_ip"
++					write_log 7 "Used ifconfig IP $ifconfig_ip instead"
++				else
++					write_log 3 "$__RUNPROG Error: '$?'"
++				fi
++			fi
  			[ -n "$__DATA" ] && write_log 7 "Local IP '$__DATA' detected on network '$ip_network'"
 -		elif [ -n "$ip_interface" ]; then
 +		elif [ -n "$ip_interface" -a "$ip_source" = "interface" ]; then
@@ -976,7 +988,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			if [ -n "$(which ip)" ]; then		# ip program installed
  				write_log 7 "#> ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE"
  				ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE
-@@ -989,7 +1009,7 @@
+@@ -989,7 +1021,7 @@
  			fi
  			[ $use_ipv6 -eq 0 ] && __DATA="$__DATA4" || __DATA="$__DATA6"
  			[ -n "$__DATA" ] && write_log 7 "Local IP '$__DATA' detected on interface '$ip_interface'"
@@ -985,7 +997,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			write_log 7 "#> $ip_script >$DATFILE 2>$ERRFILE"
  			eval $ip_script >$DATFILE 2>$ERRFILE
  			__ERR=$?
-@@ -1000,7 +1020,7 @@
+@@ -1000,7 +1032,7 @@
  				write_log 3 "$ip_script Error: '$__ERR'"
  				write_log 7 "$(cat $ERRFILE)"		# report error
  			fi
@@ -994,7 +1006,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			do_transfer "$ip_url"
  			# use correct regular expression
  			[ $use_ipv6 -eq 0 ] \
-@@ -1204,17 +1224,17 @@
+@@ -1204,17 +1236,17 @@
  
  	case $1 in
  		 0)	if [ $__ERR -eq 0 ]; then
@@ -1021,7 +1033,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  
 diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dns_lucihelper.sh src/files/dynamic_dns_lucihelper.sh
 --- upstream/files/dynamic_dns_lucihelper.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_lucihelper.sh	2024-09-23 13:25:52.000000000 +0000
++++ src/files/dynamic_dns_lucihelper.sh	2024-10-30 08:03:31.000000000 +0000
 @@ -10,7 +10,8 @@
  # variables in big chars beginning with "__" are local defined inside functions only
  # set -vx  	#script debugger
@@ -1052,7 +1064,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			export HTTP_PROXY="http://$proxy"
 diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dns_updater.sh src/files/dynamic_dns_updater.sh
 --- upstream/files/dynamic_dns_updater.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_updater.sh	2024-09-23 13:25:52.000000000 +0000
++++ src/files/dynamic_dns_updater.sh	2024-10-30 08:03:31.000000000 +0000
 @@ -193,7 +193,7 @@
  [ "$ip_source" = "network" -a -z "$ip_network" -a $use_ipv6 -eq 1 ] && ip_network="wan6" # IPv6: default wan6
  [ "$ip_source" = "web" -a -z "$ip_url" -a $use_ipv6 -eq 0 ] && ip_url="http://checkip.dyndns.com"
@@ -1148,7 +1160,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		PID_SLEEP=0
 diff --recursive --unified --new-file --no-dereference upstream/files/services src/files/services
 --- upstream/files/services	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services	2024-09-23 13:25:52.000000000 +0000
++++ src/files/services	2024-10-30 08:03:31.000000000 +0000
 @@ -43,13 +43,15 @@
  
  "able.or.kr"		"http://able.or.kr/ddns/src/update.php?hostname=[DOMAIN]&myip=[IP]&ddnsuser=[USERNAME]&pwd=[PASSWORD]"
@@ -1186,7 +1198,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/services s
  
 diff --recursive --unified --new-file --no-dereference upstream/files/services_ipv6 src/files/services_ipv6
 --- upstream/files/services_ipv6	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services_ipv6	2024-09-23 13:25:52.000000000 +0000
++++ src/files/services_ipv6	2024-10-30 08:03:31.000000000 +0000
 @@ -38,10 +38,10 @@
  #.no-ip.com / noip.com	!!! Please install additional package "ddns-scripts_no-ip_com"
  #.route53-v1		!!! Please install additional package "ddns-scripts_route53-v1"
@@ -1204,7 +1216,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/services_i
  
 diff --recursive --unified --new-file --no-dereference upstream/files/update_cloudflare_com_v4.sh src/files/update_cloudflare_com_v4.sh
 --- upstream/files/update_cloudflare_com_v4.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_cloudflare_com_v4.sh	2024-09-23 13:25:52.000000000 +0000
++++ src/files/update_cloudflare_com_v4.sh	2024-10-30 08:03:31.000000000 +0000
 @@ -15,7 +15,7 @@
  # option password  - cloudflare api key, you can get it from cloudflare.com/my-account/
  # option domain    - "hostname@yourdomain.TLD"	# syntax changed to remove split_FQDN() function and tld_names.dat.gz
@@ -1294,14 +1306,16 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_clo
 -
 diff --recursive --unified --new-file --no-dereference upstream/files/update_no-ip_com.sh src/files/update_no-ip_com.sh
 --- upstream/files/update_no-ip_com.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_no-ip_com.sh	2024-09-23 13:25:52.000000000 +0000
-@@ -9,31 +9,31 @@
++++ src/files/update_no-ip_com.sh	2024-10-30 08:03:31.000000000 +0000
+@@ -9,31 +9,33 @@
  # provider did not reactivate records, if no IP change was recognized
  # so we send a dummy (localhost) and a seconds later we send the correct IP addr
  #
 -local __DUMMY
+-local __UPDURL="http://[USERNAME]:[PASSWORD]@dynupdate.no-ip.com/nic/update?hostname=[DOMAIN]&myip=[IP]"
 +# local __DUMMY
- local __UPDURL="http://[USERNAME]:[PASSWORD]@dynupdate.no-ip.com/nic/update?hostname=[DOMAIN]&myip=[IP]"
++local __UPDURL6="http://[USERNAME]:[PASSWORD]@dynupdate6.noip.com/nic/update?hostname=[DOMAIN]&myip=[IP]"
++local __UPDURL="http://[USERNAME]:[PASSWORD]@dynupdate.noip.com/nic/update?hostname=[DOMAIN]&myip=[IP]"
  # inside url we need username and password
  [ -z "$username" ] && write_log 14 "Service section not configured correctly! Missing 'username'"
  [ -z "$password" ] && write_log 14 "Service section not configured correctly! Missing 'password'"
@@ -1309,6 +1323,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_no-
  # set IP version dependend dummy (localhost)
 -[ $use_ipv6 -eq 0 ] && __DUMMY="127.0.0.1" || __DUMMY="::1"
 +# [ $use_ipv6 -eq 0 ] && __DUMMY="127.0.0.1" || __DUMMY="::1"
++[ $use_ipv6 -eq 0 ] && __UPDURL=$__UPDURL || __UPDURL=$__UPDURL6
  
  # lets do DUMMY transfer
 -write_log 7 "sending dummy IP to 'no-ip.com'"
@@ -1337,9 +1352,14 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_no-
  
  # now send the correct data
  write_log 7 "sending real IP to 'no-ip.com'"
+@@ -49,4 +51,3 @@
+ # "nochg [IP_ADR]"	= no change but OK
+ grep -E "good|nochg" $DATFILE >/dev/null 2>&1
+ return $?	# "0" if "good" or "nochg" found
+-
 diff --recursive --unified --new-file --no-dereference upstream/files/update_nsupdate.sh src/files/update_nsupdate.sh
 --- upstream/files/update_nsupdate.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_nsupdate.sh	2024-09-23 13:25:52.000000000 +0000
++++ src/files/update_nsupdate.sh	2024-10-30 08:03:31.000000000 +0000
 @@ -19,8 +19,9 @@
  local __RRTYPE __PW __TCP
  local __PROG=$(which nsupdate)			# BIND nsupdate ?
@@ -1361,7 +1381,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_nsu
  return 0
 diff --recursive --unified --new-file --no-dereference upstream/files/update_route53_v1.sh src/files/update_route53_v1.sh
 --- upstream/files/update_route53_v1.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_route53_v1.sh	2024-09-23 13:25:52.000000000 +0000
++++ src/files/update_route53_v1.sh	2024-10-30 08:03:31.000000000 +0000
 @@ -1,46 +1,44 @@
  #!/bin/sh
 -#.Distributed under the terms of the GNU General Public License (GPL) version 2.0

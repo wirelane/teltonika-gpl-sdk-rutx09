@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobifd
 
-PKG_SOURCE_VERSION:=7.11.0.1
+PKG_SOURCE_VERSION:=7.12
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -44,9 +44,10 @@ TARGET_CFLAGS += $(if $(CONFIG_MOBIFD_DEBUG),-DMOBIFD_DEBUG) \
 
 
 define Package/mobifd/install
-	$(INSTALL_DIR) $(1)/usr/share/gsm/ $(1)/lib/config.d
+	$(INSTALL_DIR) $(1)/usr/share/gsm/ $(1)/lib/config.d $(1)/usr/libexec/rpcd/
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config/ $(1)/etc/init.d/ $(1)/etc/uci-defaults/etc $(1)/lib/functions
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mobifd $(1)/usr/sbin/mobifd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rpcd/rpc-ping $(1)/usr/libexec/rpcd/rpc-ping
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mobile.sh $(1)/lib/functions/mobile.sh
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mobifd.init $(1)/etc/init.d/mobifd
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/mobifd.conf $(1)/etc/config/operctl

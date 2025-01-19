@@ -77,6 +77,15 @@ proto_connm_setup() {
 	verify_active_esim "$esim_profile_index" "$interface" || { reload_mobifd "$modem" "$interface"; return; }
 	deny_roaming=$(get_deny_roaming "$active_sim" "$modem" "$esim_profile_index")
 #~ ---------------------------------------------------------------------
+	if [ "$deny_roaming" = "1" ]; then
+		reg_stat_str=$(jsonfilter -s "$(ubus call $gsm_modem info)" -e '@.cache.reg_stat_str')
+		if [ "$reg_stat_str" = "Roaming" ]; then
+			echo "Roaming detected. Stopping connection"
+			proto_notify_error "$interface" "Roaming detected"
+			proto_block_restart "$interface"
+			return
+		fi
+	fi
 
 	device="/dev/cdc-wdm0"
 
@@ -95,8 +104,6 @@ proto_connm_setup() {
 	pdptype="$(echo "$pdptype" | awk '{print tolower($0)}')"
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] || pdptype="ip"
 
-	[ "$deny_roaming" -ne "0" ] && deny_roaming="yes" || deny_roaming="no"
-
 	first_uqmi_call "uqmi -d $device --timeout 10000 --set-autoconnect disabled" || return 1
 
 	cid="$(uqmi -d "$device" $options --get-client-id wds)"
@@ -104,7 +111,7 @@ proto_connm_setup() {
 
 #~ Do not add TABS!
 call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
---modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag ${deny_roaming}"
+--modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
 
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
 	[ -z "$retry_before_reinit" ] && retry_before_reinit="0"
@@ -313,6 +320,7 @@ proto_connm_teardown() {
 
 		ip neigh flush proxy
 		ip neigh flush dev br-lan
+		ip neigh del "$bridge_ipaddr" dev br-lan 2>/dev/null
 	}
 
 	proto_init_update "*" 0

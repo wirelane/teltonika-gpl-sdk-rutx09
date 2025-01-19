@@ -92,7 +92,7 @@ proto_qmux_setup() {
 	gsm_info=$(ubus call $gsm_modem info)
 	red_cap=$(jsonfilter -q -s "$gsm_info" -e '@.red_cap')
 
-	if [ "$red_cap" = "true" ] && [ "$deny_roaming" = "1" ]; then
+	if [ "$deny_roaming" = "1" ]; then
 		reg_stat_str=$(jsonfilter -s "$gsm_info" -e '@.cache.reg_stat_str')
 		if [ "$reg_stat_str" = "Roaming" ]; then
 			echo "Roaming detected. Stopping connection"
@@ -218,14 +218,12 @@ required driver attribute: /sys/class/net/$ifname/qmi/raw_ip"
 	pdptype="$(echo "$pdptype" | awk '{print tolower($0)}')"
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] || pdptype="ip"
 
-	[ "$deny_roaming" -ne "0" ] && deny_roaming="yes" || deny_roaming="no"
-
 	if [ "$red_cap" != "true" ]; then
 		cid="$(uqmi -d "$device" $options --get-client-id wds)"
 		qmi_error_handle "$cid" "$error_cnt" "$modem" || return 1
 
 		call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
---modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag ${deny_roaming}"
+--modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
 	fi
 
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
@@ -467,6 +465,7 @@ proto_qmux_teardown() {
 
 		ip neigh flush proxy
 		ip neigh flush dev br-lan
+		ip neigh del "$bridge_ipaddr" dev br-lan 2>/dev/null
 	}
 
 	# Remove device after interfaces are down

@@ -1,0 +1,12 @@
+--- a/drivers/net/usb/usbnet.c	2024-11-18 12:07:59.680187372 +0200
++++ b/drivers/net/usb/usbnet.c	2024-11-18 12:08:18.816415274 +0200
+@@ -1816,8 +1816,7 @@
+ 		// can rename the link if it knows better.
+ 		if ((dev->driver_info->flags & FLAG_ETHER) != 0 &&
+ 		    ((dev->driver_info->flags & FLAG_POINTTOPOINT) == 0 ||
+-		     /* somebody touched it*/
+-		     !is_zero_ether_addr(net->dev_addr)))
++		     (net->dev_addr [0] & 0x02) == 0))
+ 			strscpy(net->name, "eth%d", sizeof(net->name));
+ 		/* WLAN devices should always be named "wlan%d" */
+ 		if ((dev->driver_info->flags & FLAG_WLAN) != 0)

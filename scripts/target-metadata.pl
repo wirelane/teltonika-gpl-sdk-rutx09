@@ -65,11 +65,14 @@ sub target_config_features(@) {
 		/^guest-wifi$/ and $ret .= "\tselect WIFI_GUEST_NETWORK_SUPPORT\n";
 		/^bt$/ and $ret .= "\tselect BLUETOOTH_SUPPORT\n";
 		/^mobile$/ and $ret .= "\tselect MOBILE_SUPPORT\n";
+		/^bypass-mobile-counters$/ and $ret .= "\tselect BYPASS_MOBILE_COUNTERS\n";
+		/^custom-data-limit$/ and $ret .= "\tselect CUSTOM_DATA_LIMIT\n";
 		/^dualsim$/ and $ret .= "\tselect DUAL_SIM_SUPPORT\n";
 		/^tpm$/ and $ret .= "\tselect TPM_SUPPORT\n";
 		/^rndis$/ and $ret .= "\tselect RNDIS_SUPPORT\n";
 		/^ncm$/ and $ret .= "\tselect USB_NCM_SUPPORT\n";
 		/^poe$/ and $ret .= "\tselect POE_SUPPORT\n";
+		/^networks-external$/ and $ret .= "\tselect NETWORKS_EXTERNAL\n";
 		/^port-mirror$/ and $ret .= "\tselect HAS_PORT_MIRRORING\n";
 		/^usb-port$/ and $ret .= "\tselect USB_SUPPORT_EXTERNAL\n";
 		/^smp$/ and $ret .= "\tselect SMP_SUPPORT\n";
@@ -99,7 +102,9 @@ sub target_config_features(@) {
 		/^hi-storage$/ and $ret .= "\tselect HIGH_STORAGE\n";
 		/^esim-p$/ and $ret .= "\tselect ESIM_SUPPORT\n";
 		/^framed-routing$/ and $ret .= "\tselect FRAMED_ROUTING\n";
-		/^industrial-access-point$/ and $ret .= "\tselect INDUSTRIAL_AP\n"
+		/^industrial-access-point$/ and $ret .= "\tselect INDUSTRIAL_AP\n";
+		/^emmc$/ and $ret .= "\tselect EMMC_SUPPORT\n";
+		/^no-wired-wan$/ and $ret .= "\tselect NO_WIRED_WAN\n"
 	}
 	return $ret;
 }
@@ -498,6 +503,19 @@ EOF
 		foreach my $profile (@$profiles) {
 			next unless $profile->{mtd_log_partition};
 			print "\tdefault $profile->{mtd_log_partition} if TARGET_$target->{conf}_$profile->{id}\n";
+		}
+	}
+
+	print <<EOF;
+
+config DEVICE_MODEM_VENDORS
+	string
+EOF
+	foreach my $target (@target) {
+		my $profiles = $target->{profiles};
+		foreach my $profile (@$profiles) {
+			next unless $profile->{modem_vendor};
+			print "\tdefault \"$profile->{modem_vendor}\" if (TARGET_$target->{conf}_$profile->{id} || TARGET_DEVICE_$target->{conf}_$profile->{id})\n";
 		}
 	}
 

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=esim-lpac
 
-PKG_SOURCE_VERSION:=1.3.7
+PKG_SOURCE_VERSION:=1.3.8
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -68,6 +68,7 @@ define Package/esim-lpac/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/etc
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lpac $(1)/sbin/lpac
 	$(INSTALL_CONF) files/lpac_config.json $(1)/etc
+	$(CP) files/esim_delete_profiles $(1)/sbin/esim_delete_profiles
 endef
 
 $(eval $(call BuildPackage,liblpac))

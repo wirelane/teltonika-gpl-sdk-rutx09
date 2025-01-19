@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for Wireless
-APP_DEPENDS:=+libiwinfo-lua +luci-bwc
+APP_DEPENDS:=+libiwinfo-lua
 
 CUSTOM_INSTALL=1
 include ../api.mk

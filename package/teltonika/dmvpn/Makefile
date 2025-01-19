@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=DMVPN
 PKG_VERSION:=2021-02-11
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -57,7 +57,7 @@ define Package/dmvpn/prerm
 		config_load "$${config}" || return
 		config_foreach delete_dmvpn "" "$${config}"
 		uci_commit "$${config}"
-		/etc/init.d/"$${config}" reload
+		/etc/init.d/"$${config/ipsec/swanctl}" reload
 	}
 	clean_dmvpn network
 	clean_dmvpn ipsec

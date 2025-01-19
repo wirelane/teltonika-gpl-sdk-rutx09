@@ -388,11 +388,9 @@ ucidef_set_network_options() {
 
 ucidef_set_poe() {
 	json_select_object poe
-		json_add_string "bus" "/dev/$1"
-		json_add_int "chip_count" "$2"
-		json_add_int "budget" "$3"
-		json_add_int "poe_ports" "$4"
-		shift 4
+		json_add_int "chip_count" "$1"
+		json_add_int "poe_ports" "$2"
+		shift 2
 		json_select_array ports
 			while [ $# -gt 0 ]; do
 				json_add_object ""
@@ -571,6 +569,10 @@ ucidef_set_release_version() {
 
 ucidef_set_usb_jack() {
 	json_add_string "usb_jack" "$1"
+}
+
+ucidef_set_usb_jack_low_speed() {
+	json_add_string "usb_jack_low_speed" "$1"
 }
 
 board_config_update() {

@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_server
-PKG_VERSION:=2024-11-29
+PKG_VERSION:=2025-01-08
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=7.11.1
+PKG_SOURCE_VERSION:=7.12
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 PKG_RELEASE:=1
@@ -40,6 +40,15 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_server.config $(1)/etc/config/modbus_server
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_server.init $(1)/etc/init.d/modbus_server
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modbus_server $(1)/usr/sbin/modbus_server
+endef
+
+define Package/$(PKG_NAME)/prerm
+	#!/bin/sh
+	. /lib/functions.sh
+	config_load modbus_server
+	config_get regfile modbus regfile ""
+	[ -n "$$regfile" ] && rm -f "$$regfile"
+	exit 0
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

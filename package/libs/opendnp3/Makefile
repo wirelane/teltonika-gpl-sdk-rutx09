@@ -17,6 +17,8 @@ PKG_LICENSE_FILES:=LICENSE NOTICE
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 
+CMAKE_OPTIONS += -DDL_DIR=$(DL_DIR)
+
 define Package/opendnp3
 	SECTION:=libs
 	CATEGORY:=Libraries

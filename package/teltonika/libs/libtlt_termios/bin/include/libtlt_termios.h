@@ -6,6 +6,7 @@ extern "C" {
 
 #include <termios.h>
 #include <uci.h>
+#include <cfgx.h>
 #include <libboardjson.h>
 
 #define MAX_DEVICE_LENGTH 64
@@ -27,6 +28,8 @@ struct libtlt_termios_settings {
 };
 
 int ltermios_read_settings(struct libtlt_termios_settings *s, struct uci_context *ctx, const char *config_name, const char *uci_section);
+int ltermios_read_settings_cfgx(struct libtlt_termios_settings *s, cfgx_context_t *ctx, struct cfgx_section *section);
+
 int ltermios_set_settings(struct libtlt_termios_settings *s);
 int ltermios_validate_settings(struct libtlt_termios_settings *s);
 void ltermios_debug(struct libtlt_termios_settings *s);

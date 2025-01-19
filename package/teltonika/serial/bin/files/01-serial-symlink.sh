@@ -106,6 +106,10 @@ manage_serial() {
 	usb_jack="$(jsonfilter -i $file -e '@.usb_jack')"
 	strstr "$DEVPATH" "$usb_jack" && \
 		handle_multi_symlink "$usb_serial"
+
+	usb_jack="$(jsonfilter -i $file -e '@.usb_jack_low_speed')"
+	strstr "$DEVPATH" "$usb_jack" && \
+		handle_multi_symlink "$usb_serial"	
 }
 
 manage_serial

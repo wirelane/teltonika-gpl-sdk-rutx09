@@ -200,7 +200,7 @@ local function main()
 	for i = cnt > MAX_MESSAGE_TO_READ and cnt - MAX_MESSAGE_TO_READ + 1 or 1, cnt do
 		handle_message(mbox, i)
 	end
-	mbox:close()
+	mbox:quit()
 end
 
 local function start()

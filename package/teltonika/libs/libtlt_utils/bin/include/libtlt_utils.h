@@ -37,15 +37,6 @@ struct lutil_smtp {
 	struct list_head *to;
 };
 
-typedef struct lutil_v {
-	/* bytes used */
-	size_t n;
-	/* bytes allocated */
-	size_t m;
-	/* bytes */
-	void *p;
-} lutil_v;
-
 struct port_node {
 	/* next node */
 	struct port_node *next;
@@ -63,14 +54,14 @@ struct port_node {
  * @retval LUTIL_ERROR on error
  */
 lutil_stat lutil_smtp_add_recipient(struct lutil_smtp *ctx,
-				    const char *recipient);
+				    const char *recipient)  __attribute__((deprecated("use libtlt_smtp")));
 
 /**
  * @brief clean smtp context
  * 
  * @param ctx smtp context
  */
-void lutil_smtp_free(struct lutil_smtp *ctx);
+void lutil_smtp_free(struct lutil_smtp *ctx) __attribute__((deprecated("use libtlt_smtp")));
 
 /**
  * @brief send email
@@ -80,7 +71,7 @@ void lutil_smtp_free(struct lutil_smtp *ctx);
  * @retval LUTIL_SUCCESS on success
  * @retval LUTIL_ERROR on error
  */
-lutil_stat lutil_smtp_send(struct lutil_smtp *ctx);
+lutil_stat lutil_smtp_send(struct lutil_smtp *ctx) __attribute__((deprecated("use libtlt_smtp")));
 
 /**
  * @brief Base64 encode
@@ -96,7 +87,7 @@ lutil_stat lutil_smtp_send(struct lutil_smtp *ctx);
  * it easier to use as a C string. The nul terminator is not included in out_len.
  */
 unsigned char *lutil_base64_encode(const unsigned char *src, size_t len,
-				   size_t *out_len);
+				   size_t *out_len) __attribute__((deprecated("use libubox/utils.h")));
 
 /**
  * @brief Base64 decode
@@ -111,20 +102,7 @@ unsigned char *lutil_base64_encode(const unsigned char *src, size_t len,
  * is about 9.5 times faster than b64_decode() in libubox/utils.h
  */
 unsigned char *lutil_base64_decode(const unsigned char *src, size_t len,
-				   size_t *out_len);
-
-/**
- * @brief Append to vector or resize to acommodate additional bytes.
- *
- * @param d: destination vector
- * @param s: source data; if NULL vector will be resized instead.
- * @param n: source data size in bytes.
- *
- * \warning: no resizing factor; make initial blob to avoid realloc() spam.
- *
- * @return status code, 0 meaning success and anything else meaning failure
- */
-int lutil_v_add(lutil_v *d, const void *s, size_t n);
+				   size_t *out_len) __attribute__((deprecated("use libubox/utils.h")));
 
 /**
  * @brief Resolves a protocol based on a given port number.

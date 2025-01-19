@@ -23,6 +23,11 @@ start_service() {
 	qos-start
 }
 
+stop_service() {
+	qos-stop
+}
+
 reload_service() {
+	qos-stop
 	qos-start
 }

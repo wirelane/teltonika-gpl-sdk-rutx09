@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_client
-PKG_VERSION:=2024-11-13
-PKG_SOURCE_VERSION:=7.11
+PKG_VERSION:=2025-01-10
+PKG_SOURCE_VERSION:=7.12
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -17,7 +17,7 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=MODBUS TCP/Serial client daemon by Teltonika
 	DEPENDS:=+libuci +libtlt_uci +libtlt_termios +libsqlite3 +libmodbus +IO_SUPPORT:iomand \
-		 +MOBILE_SUPPORT:libgsm +libparam +libmosquitto +libtlt_smtp
+		 +MOBILE_SUPPORT:libgsm +libparam +libmosquitto +libtlt_smtp +libcurl
 endef
 
 define Package/$(PKG_NAME)/description
@@ -125,6 +125,24 @@ define Package/$(PKG_NAME)/prerm
 	config_foreach start_modbus_in "input"
 	/etc/init.d/data_sender reload 2> /dev/null || true
 
+	######################################################################
+
+	foreach_server() {
+		config_foreach foreach_alarm "alarm_$$1"
+	}
+
+	foreach_alarm() {
+		config_get device_files "$$1" device_files "1"
+		for opt in ca_file cert_file key_file ; do
+			config_get value "$$1" "$$opt" ""
+			[ "$$device_files" = 0 ] && [ -n "$$value" ] && rm -f "$$value"
+		done
+	}
+
+	config_load modbus_client
+	config_foreach foreach_server tcp_server
+	config_foreach foreach_server rtu_server
+	exit 0
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

@@ -87,11 +87,18 @@ export default function VuCI(pluginOptions: VuciOptions): Plugin {
 // Generated at: ${today().format('YYYY-MM-DD hh:mm:ss')}
 export const routes = [
   ${grouped.map(format).join(',\n  ')}
-]`
-        const path = new URL('../vuci-menu.js', import.meta.url)
-        this.info('Writing menu contents to ' + green(path.pathname))
-        fsp.writeFile(path, fileContent.trim() + '\n')
-        this.info('Contents successfully written to ' + green(path.pathname))
+] as const
+
+export type RoutePath = (typeof routes)[number]['path']`
+        const pathTs = new URL('../vuci-menu.ts', import.meta.url)
+        this.info('Writing menu contents to ' + green(pathTs.pathname))
+        fsp.writeFile(pathTs, fileContent.trim() + '\n')
+        this.info('Contents successfully written to ' + green(pathTs.pathname))
+        const pathJs = new URL('../vuci-menu.js', import.meta.url)
+        if (fs.existsSync(pathJs)) {
+          this.info('Deleting old file ' + green(pathJs.pathname))
+          fsp.rm(pathJs)
+        }
       }
     },
     writeBundle: {

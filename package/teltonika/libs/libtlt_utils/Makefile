@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libtlt_utils
 
-PKG_SOURCE_VERSION:=1.5
+PKG_SOURCE_VERSION:=1.7
 
 PKG_LICENSE:=Teltonika-closed
 

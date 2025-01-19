@@ -15,6 +15,7 @@ declare -A device_properties=(
     [initial_support_version]="INITIAL_VERSION,option, ,,array,ucidef_set_release_version"
     [check_path]="PATH_CHECK,option,;,,single,ucidef_check_path"
     [usb_jack_path]="USB_JACK,option, ,,single,ucidef_set_usb_jack"
+    [usb_jack_path_low_speed]="USB_JACK_LOW_SPEED,option, ,,single,ucidef_set_usb_jack_low_speed"
     [lan_iface_opt]="LAN_OPT,option,;,,single,ucidef_set_interface_lan"
     [wan_iface_opt]="WAN_OPT,option,;,,single,ucidef_set_interface_wan"
     [switch_conf]="SWITCH_CONF,option,;,,single,ucidef_add_switch"

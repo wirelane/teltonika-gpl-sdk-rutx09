@@ -8,14 +8,6 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-upnp-ui))
 	APP_APP_NAME:=miniupnpd
 endif
 
-define Package/vuci-app-upnp-ui/prerm
-#!/bin/sh
-	uci delete firewall.miniupnpd
-	uci -q commit firewall
-	/etc/init.d/firewall reload
-	exit 0
-endef
-
 include ../app.mk
 
 define Package/vuci-app-upnp-ui/description

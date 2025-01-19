@@ -144,6 +144,10 @@ int parse_fit_partitions(struct parsed_partitions *state, u64 fit_start_sector, 
 
 	np = of_find_node_by_path("/chosen");
 	if (np) {
+		/* new fitblk driver should take over if /chosen/rootdisk is defined */
+		if (of_get_property(np, "rootdisk", NULL))
+			return 0;
+
 		bootconf_c = of_get_property(np, "u-boot,bootconf", &bootconf_len);
 		if (bootconf_c && bootconf_len)
 			bootconf = kmemdup_nul(bootconf_c, bootconf_len, GFP_KERNEL);
@@ -157,7 +161,7 @@ int parse_fit_partitions(struct parsed_partitions *state, u64 fit_start_sector, 
 
 	config = fdt_path_offset(fit, FIT_CONFS_PATH);
 	if (config < 0) {
-		printk(KERN_ERR "FIT: Cannot find %s node: %d\n", FIT_CONFS_PATH, images);
+		printk(KERN_ERR "FIT: Cannot find %s node: %d\n", FIT_CONFS_PATH, config);
 		ret = -ENOENT;
 		goto ret_out;
 	}

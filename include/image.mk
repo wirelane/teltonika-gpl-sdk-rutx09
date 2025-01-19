@@ -474,6 +474,7 @@ define Device/InitProfile
   INCLUDED_DEVICES :=
   DEVICE_CHECK_PATH :=
   DEVICE_USB_JACK_PATH :=
+  DEVICE_USB_JACK_PATH_LOW_SPEED :=
   DEVICE_WLAN_BSSID_LIMIT :=
   DEVICE_LAN_OPTION :=
   DEVICE_WAN_OPTION :=
@@ -841,6 +842,7 @@ Target-Profile-Packages: $(DEVICE_PACKAGES) $(if $(CONFIG_BUILD_FACTORY_TEST_IMA
 Target-Profile-Features: $(DEVICE_FEATURES)
 Target-Profile-InitialSupportVersion: $(DEVICE_INITIAL_FIRMWARE_SUPPORT)
 Target-Profile-DefaultLogPartition: $(DEVICE_MTD_LOG_PARTNAME)
+Target-Profile-ModemVendor: $(DEVICE_MODEM_VENDORS)
 Target-Profile-MultiProfileName: $(DEVICE_MULTI_PROFILE_NAME)
 Target-Profile-hasImageMetadata: $(if $(foreach image,$(IMAGES),$(findstring append-metadata,$(IMAGE/$(image)))),1,0)
 Target-Profile-GPLPrefix: $(GPL_PREFIX)
@@ -849,6 +851,7 @@ Target-Profile-BootName: $(DEVICE_BOOT_NAME)
 Target-Profile-IncludedDevices: $(INCLUDED_DEVICES)
 Target-Profile-CheckPath: $(DEVICE_CHECK_PATH)
 Target-Profile-USBJackPath: $(DEVICE_USB_JACK_PATH)
+Target-Profile-USBJackPathLowSpeed: $(DEVICE_USB_JACK_PATH_LOW_SPEED)
 Target-Profile-WLANBssidLimit: $(DEVICE_WLAN_BSSID_LIMIT)
 Target-Profile-LANInterfaceOpt: $(DEVICE_LAN_OPTION)
 Target-Profile-WANInterfaceOpt: $(DEVICE_WAN_OPTION)

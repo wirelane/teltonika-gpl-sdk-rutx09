@@ -603,7 +603,6 @@ config_round() {
 				;;
 		esac
 		[ "$auth_method" = pubkey ] && [ -n "$local_cert" ] && {
-			local_identifier=""
 			swanctl_xappend3 "certs = $local_cert"
 		}
 		[ -n "$local_identifier" ] && swanctl_xappend3 "id = \"$local_identifier\""
@@ -625,7 +624,6 @@ config_round() {
 				;;
 		esac
 		[ "$auth_method" = pubkey ] && [ -n "$remote_cert" ] && {
-			remote_identifier=""
 			swanctl_xappend3 "certs = $remote_cert"
 		}
 		[ -n "$remote_identifier" ] && swanctl_xappend3 "id = \"$remote_identifier\""
@@ -1029,7 +1027,7 @@ do_postamble() {
 	swan_xappend2 "identifier = ipsec"
 	swan_xappend2 "daemon {"
 	swan_xappend3 "default = $debug"
-	swan_xappend3 "cfg = 2"
+	[ "$debug" != "0" ] && swan_xappend3 "cfg = 2"
 	swan_xappend3 "ike_name = yes"
 	swan_xappend2 "}"
 	swan_xappend1 "}"

@@ -1,8 +1,6 @@
-Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
-===================================================================
---- libazure-iot-sdk-c-2023-01-05.orig/c-utility/adapters/tlsio_openssl.c
-+++ libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
-@@ -452,7 +452,7 @@ static const IO_INTERFACE_DESCRIPTION tl
+--- a/c-utility/adapters/tlsio_openssl.c
++++ b/c-utility/adapters/tlsio_openssl.c
+@@ -453,7 +453,7 @@ static const IO_INTERFACE_DESCRIPTION tl
  
  static LOCK_HANDLE * openssl_locks = NULL;
  
@@ -11,7 +9,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
  static void openssl_lock_unlock_helper(LOCK_HANDLE lock, int lock_mode, const char* file, int line)
  {
  #ifdef NO_LOGGING
-@@ -476,6 +476,7 @@ static void openssl_lock_unlock_helper(L
+@@ -477,6 +477,7 @@ static void openssl_lock_unlock_helper(L
          }
      }
  }
@@ -19,7 +17,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
  
  static void log_ERR_get_error(const char* message)
  {
-@@ -529,6 +530,7 @@ static STATIC_VAR_UNUSED struct CRYPTO_d
+@@ -530,6 +531,7 @@ static STATIC_VAR_UNUSED struct CRYPTO_d
      return result;
  }
  
@@ -27,7 +25,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
  static STATIC_VAR_UNUSED void openssl_dynamic_locks_lock_unlock_cb(int lock_mode, struct CRYPTO_dynlock_value* dynlock_value, const char* file, int line)
  {
      openssl_lock_unlock_helper(dynlock_value->lock, lock_mode, file, line);
-@@ -544,7 +546,7 @@ static STATIC_VAR_UNUSED void openssl_dy
+@@ -545,7 +547,7 @@ static STATIC_VAR_UNUSED void openssl_dy
  
  static void openssl_dynamic_locks_uninstall(void)
  {
@@ -36,7 +34,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
      CRYPTO_set_dynlock_create_callback(NULL);
      CRYPTO_set_dynlock_lock_callback(NULL);
      CRYPTO_set_dynlock_destroy_callback(NULL);
-@@ -645,6 +647,7 @@ static int openssl_static_locks_install(
+@@ -647,6 +649,7 @@ static int openssl_static_locks_install(
      }
      return result;
  }
@@ -44,7 +42,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
  
  static void indicate_error(TLS_IO_INSTANCE* tls_io_instance)
  {
-@@ -755,6 +758,7 @@ static void send_handshake_bytes(TLS_IO_
+@@ -757,6 +760,7 @@ static void send_handshake_bytes(TLS_IO_
      }
  }
  
@@ -52,52 +50,48 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
  void engine_destroy(TLS_IO_INSTANCE* tls)
  {
      if(tls->engine != NULL)
-@@ -782,6 +786,7 @@ int engine_load(TLS_IO_INSTANCE* tls)
- 
+@@ -788,6 +792,7 @@ int engine_load(TLS_IO_INSTANCE* tls)
      return result;
  }
+ #endif // OPENSSL_NO_ENGINE
 +#endif
  
  static void close_openssl_instance(TLS_IO_INSTANCE* tls_io_instance)
  {
-@@ -1052,7 +1057,21 @@ static int create_openssl_instance(TLS_I
+@@ -1062,7 +1067,17 @@ static int create_openssl_instance(TLS_I
  
      const SSL_METHOD* method = NULL;
  
--#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || (OPENSSL_VERSION_NUMBER >= 0x20000000L)
+-#if (OPENSSL_VERSION_NUMBER < 0x10100000L) || defined(LIBRESSL_VERSION_NUMBER)
 +#if (OPENSSL_VERSION_NUMBER >= 0x30000000L)
 +    method = TLS_method();
-+    if (tlsInstance->tls_version == VERSION_1_2)
-+    {
-+        SSL_CTX_set_min_proto_version(tlsInstance->ssl_context, TLS1_2_VERSION);
-+    }
-+    else if (tlsInstance->tls_version == VERSION_1_1)
-+    {
-+        SSL_CTX_set_min_proto_version(tlsInstance->ssl_context, TLS1_1_VERSION);
-+    }
-+    else
-+    {
-+        SSL_CTX_set_min_proto_version(tlsInstance->ssl_context, TLS1_VERSION);
++    if (tlsInstance->tls_version == VERSION_1_2) {
++	SSL_CTX_set_min_proto_version(tlsInstance->ssl_context, TLS1_2_VERSION);
++    } else if (tlsInstance->tls_version == VERSION_1_1) {
++	SSL_CTX_set_min_proto_version(tlsInstance->ssl_context, TLS1_1_VERSION);
++    } else {
++	SSL_CTX_set_min_proto_version(tlsInstance->ssl_context, TLS1_VERSION);
 +    }
 +#elif (OPENSSL_VERSION_NUMBER < 0x10100000L) || (OPENSSL_VERSION_NUMBER >= 0x20000000L)
++
      if (tlsInstance->tls_version == VERSION_1_2)
      {
          method = TLSv1_2_method();
-@@ -1077,8 +1096,11 @@ static int create_openssl_instance(TLS_I
-         log_ERR_get_error("Failed allocating OpenSSL context.");
+@@ -1088,8 +1103,11 @@ static int create_openssl_instance(TLS_I
          result = MU_FAILURE;
      }
+     #ifndef OPENSSL_NO_ENGINE
 -    else if ((tlsInstance->engine_id != NULL) &&
 -             (engine_load(tlsInstance) != 0))
 +    else if ((tlsInstance->engine_id != NULL)
 +#if (OPENSSL_VERSION_NUMBER < 0x30000000L)
-+            && (engine_load(tlsInstance) != 0)
++	&& (engine_load(tlsInstance) != 0)
 +#endif
-+            )
++	)
      {
          SSL_CTX_free(tlsInstance->ssl_context);
          tlsInstance->ssl_context = NULL;
-@@ -1087,7 +1109,9 @@ static int create_openssl_instance(TLS_I
+@@ -1099,7 +1117,9 @@ static int create_openssl_instance(TLS_I
      else if ((tlsInstance->cipher_list != NULL) &&
               (SSL_CTX_set_cipher_list(tlsInstance->ssl_context, tlsInstance->cipher_list)) != 1)
      {
@@ -107,37 +101,40 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
          SSL_CTX_free(tlsInstance->ssl_context);
          tlsInstance->ssl_context = NULL;
          log_ERR_get_error("unable to set cipher list.");
-@@ -1095,7 +1119,9 @@ static int create_openssl_instance(TLS_I
+@@ -1107,7 +1127,9 @@ static int create_openssl_instance(TLS_I
      }
      else if (add_certificate_to_store(tlsInstance, tlsInstance->certificate) != 0)
      {
+-        engine_destroy(tlsInstance);
 +#if (OPENSSL_VERSION_NUMBER < 0x30000000L)
-         engine_destroy(tlsInstance);
++         engine_destroy(tlsInstance);
 +#endif
          SSL_CTX_free(tlsInstance->ssl_context);
          tlsInstance->ssl_context = NULL;
          log_ERR_get_error("unable to add_certificate_to_store.");
-@@ -1113,7 +1139,9 @@ static int create_openssl_instance(TLS_I
-             tlsInstance->engine) != 0)
+@@ -1129,7 +1151,9 @@ static int create_openssl_instance(TLS_I
+     #endif // OPENSSL_NO_ENGINE
          )
      {
+-        engine_destroy(tlsInstance);
 +#if (OPENSSL_VERSION_NUMBER < 0x30000000L)
-         engine_destroy(tlsInstance);
++             engine_destroy(tlsInstance);
 +#endif
          SSL_CTX_free(tlsInstance->ssl_context);
          tlsInstance->ssl_context = NULL;
          log_ERR_get_error("unable to use x509 authentication");
-@@ -1126,7 +1154,9 @@ static int create_openssl_instance(TLS_I
+@@ -1142,7 +1166,9 @@ static int create_openssl_instance(TLS_I
          tlsInstance->in_bio = BIO_new(BIO_s_mem());
          if (tlsInstance->in_bio == NULL)
          {
+-            engine_destroy(tlsInstance);
 +#if (OPENSSL_VERSION_NUMBER < 0x30000000L)
-             engine_destroy(tlsInstance);
++                engine_destroy(tlsInstance);
 +#endif
              SSL_CTX_free(tlsInstance->ssl_context);
              tlsInstance->ssl_context = NULL;
              log_ERR_get_error("Failed BIO_new for in BIO.");
-@@ -1138,7 +1168,9 @@ static int create_openssl_instance(TLS_I
+@@ -1154,7 +1180,9 @@ static int create_openssl_instance(TLS_I
              if (tlsInstance->out_bio == NULL)
              {
                  (void)BIO_free(tlsInstance->in_bio);
@@ -147,7 +144,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
                  SSL_CTX_free(tlsInstance->ssl_context);
                  tlsInstance->ssl_context = NULL;
                  log_ERR_get_error("Failed BIO_new for out BIO.");
-@@ -1151,7 +1183,9 @@ static int create_openssl_instance(TLS_I
+@@ -1167,7 +1195,9 @@ static int create_openssl_instance(TLS_I
                  {
                      (void)BIO_free(tlsInstance->in_bio);
                      (void)BIO_free(tlsInstance->out_bio);
@@ -157,7 +154,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
                      SSL_CTX_free(tlsInstance->ssl_context);
                      tlsInstance->ssl_context = NULL;
                      LogError("Failed BIO_set_mem_eof_return.");
-@@ -1174,7 +1208,9 @@ static int create_openssl_instance(TLS_I
+@@ -1190,7 +1220,9 @@ static int create_openssl_instance(TLS_I
                      {
                          (void)BIO_free(tlsInstance->in_bio);
                          (void)BIO_free(tlsInstance->out_bio);
@@ -167,7 +164,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
                          SSL_CTX_free(tlsInstance->ssl_context);
                          tlsInstance->ssl_context = NULL;
                          log_ERR_get_error("Failed creating OpenSSL instance.");
-@@ -1186,7 +1222,9 @@ static int create_openssl_instance(TLS_I
+@@ -1202,7 +1234,9 @@ static int create_openssl_instance(TLS_I
                          tlsInstance->ssl = NULL;
                          (void)BIO_free(tlsInstance->in_bio);
                          (void)BIO_free(tlsInstance->out_bio);
@@ -177,7 +174,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
                          SSL_CTX_free(tlsInstance->ssl_context);
                          tlsInstance->ssl_context = NULL;
                          log_ERR_get_error("Failed setting SNI hostname hint.");
-@@ -1218,6 +1256,13 @@ static int create_openssl_instance(TLS_I
+@@ -1234,6 +1268,13 @@ static int create_openssl_instance(TLS_I
  
  int tlsio_openssl_init(void)
  {
@@ -191,7 +188,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
      (void)SSL_library_init();
  
      SSL_load_error_strings();
-@@ -1231,11 +1276,18 @@ int tlsio_openssl_init(void)
+@@ -1247,11 +1288,19 @@ int tlsio_openssl_init(void)
      }
  
      openssl_dynamic_locks_install();
@@ -207,10 +204,11 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
 +#endif
 +    OPENSSL_cleanup();
 +#else
++
      openssl_dynamic_locks_uninstall();
      openssl_static_locks_uninstall();
  #if  (OPENSSL_VERSION_NUMBER >= 0x00907000L) && (FIPS_mode_set)
-@@ -1255,6 +1307,7 @@ void tlsio_openssl_deinit(void)
+@@ -1271,6 +1320,7 @@ void tlsio_openssl_deinit(void)
      SSL_COMP_free_compression_methods();
  #endif
      CRYPTO_cleanup_all_ex_data();
@@ -218,33 +216,29 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/tlsio_openssl.c
  }
  
  CONCRETE_IO_HANDLE tlsio_openssl_create(void* io_create_parameters)
-@@ -1363,8 +1416,9 @@ void tlsio_openssl_destroy(CONCRETE_IO_H
+@@ -1379,7 +1429,9 @@ void tlsio_openssl_destroy(CONCRETE_IO_H
      else
      {
          TLS_IO_INSTANCE* tls_io_instance = (TLS_IO_INSTANCE*)tls_io;
 +#if (OPENSSL_VERSION_NUMBER < 0x30000000L)
          engine_destroy(tls_io_instance);
--
 +#endif
+ 
          if (tls_io_instance->certificate != NULL)
          {
-             free(tls_io_instance->certificate);
-@@ -1721,8 +1775,9 @@ int tlsio_openssl_setoption(CONCRETE_IO_
-         }
+@@ -1743,7 +1795,9 @@ int tlsio_openssl_setoption(CONCRETE_IO_
+         #ifndef OPENSSL_NO_ENGINE
          else if (strcmp(OPTION_OPENSSL_ENGINE, optionName) == 0)
          {
 +#if (OPENSSL_VERSION_NUMBER < 0x30000000L)
              ENGINE_load_builtin_engines();
--
 +#endif
+ 
              if (mallocAndStrcpy_s((char**)&tls_io_instance->engine_id, value) != 0)
              {
-                 LogError("unable to mallocAndStrcpy_s %s", optionName);
-Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/x509_openssl.c
-===================================================================
---- libazure-iot-sdk-c-2023-01-05.orig/c-utility/adapters/x509_openssl.c
-+++ libazure-iot-sdk-c-2023-01-05/c-utility/adapters/x509_openssl.c
-@@ -137,8 +137,7 @@ static int load_key_RSA(SSL_CTX* ssl_ctx
+--- a/c-utility/adapters/x509_openssl.c
++++ b/c-utility/adapters/x509_openssl.c
+@@ -139,8 +139,7 @@ static int load_key_RSA(SSL_CTX* ssl_ctx
  {
      int result;
      /*Codes_SRS_X509_OPENSSL_02_005: [ x509_openssl_add_credentials shall use PEM_read_bio_RSAPrivateKey to read the x509 private key. ]*/
@@ -254,7 +248,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/x509_openssl.c
      {
          /*Codes_SRS_X509_OPENSSL_02_009: [ Otherwise x509_openssl_add_credentials shall fail and return a non-zero number. ]*/
          log_ERR_get_error("Failure reading RSA private key");
-@@ -147,10 +146,10 @@ static int load_key_RSA(SSL_CTX* ssl_ctx
+@@ -149,10 +148,10 @@ static int load_key_RSA(SSL_CTX* ssl_ctx
      else
      {
          /*Codes_SRS_X509_OPENSSL_02_007: [ x509_openssl_add_credentials shall use SSL_CTX_use_RSAPrivateKey to load the private key into the SSL context. ]*/
@@ -267,7 +261,7 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/x509_openssl.c
              result = MU_FAILURE;
          }
          else
-@@ -159,7 +158,6 @@ static int load_key_RSA(SSL_CTX* ssl_ctx
+@@ -161,7 +160,6 @@ static int load_key_RSA(SSL_CTX* ssl_ctx
              /*Codes_SRS_X509_OPENSSL_02_008: [ If no error occurs, then x509_openssl_add_credentials shall succeed and return 0. ]*/
              result = 0;
          }
@@ -275,10 +269,10 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/x509_openssl.c
      }
      return result;
  }
-@@ -219,52 +217,39 @@ int x509_openssl_add_pem_file_key(SSL_CT
-     return result;
+@@ -222,52 +220,39 @@ int x509_openssl_add_pem_file_key(SSL_CT
  }
  
+ #ifndef OPENSSL_NO_ENGINE
 -int x509_openssl_add_engine_key(SSL_CTX* ssl_ctx, const char* x509privatekey_id, ENGINE* engine)
 +int x509_openssl_add_engine_key(SSL_CTX* ssl_ctx, const char* x509privatekey_id)
  {
@@ -341,12 +335,12 @@ Index: libazure-iot-sdk-c-2023-01-05/c-utility/adapters/x509_openssl.c
          }
      }
  
-@@ -299,7 +284,7 @@ int x509_openssl_add_credentials(
-         }
+@@ -314,7 +299,7 @@ int x509_openssl_add_credentials(
+         #ifndef OPENSSL_NO_ENGINE
          else if (x509privatekeytype == KEY_TYPE_ENGINE)
          {
 -            result = x509_openssl_add_engine_key(ssl_ctx, x509privatekey, engine);
 +            result = x509_openssl_add_engine_key(ssl_ctx, x509privatekey);
          }
+         #endif // OPENSSL_NO_ENGINE
          else
-         {

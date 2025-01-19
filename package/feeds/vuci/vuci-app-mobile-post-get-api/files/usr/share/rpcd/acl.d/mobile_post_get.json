@@ -1,0 +1,15 @@
+{
+	"services/mobile_utilities/sms_gateway/post_get": {
+		"description": "post/get configuration",
+		"read": {
+			"api": {
+				"/modems/status/*": ["id", "name", "builtin", "index", "primary"],
+				"/sms_gateway/post_get/*": ["*"],
+				"/modem_control/config/*": ["*"]
+			}
+		},
+		"write": {
+			"api": ["/sms_gateway/post_get/*"]
+		}
+	}
+}

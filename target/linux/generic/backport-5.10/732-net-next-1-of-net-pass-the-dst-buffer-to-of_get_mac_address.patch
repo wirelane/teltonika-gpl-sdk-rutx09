@@ -222,7 +222,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  		mdio = of_find_node_by_phandle(*ph);
 --- a/drivers/net/ethernet/aeroflex/greth.c
 +++ b/drivers/net/ethernet/aeroflex/greth.c
-@@ -1450,10 +1450,10 @@ static int greth_of_probe(struct platfor
+@@ -1451,10 +1451,10 @@ static int greth_of_probe(struct platfor
  			break;
  	}
  	if (i == 6) {
@@ -334,7 +334,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	}
 --- a/drivers/net/ethernet/broadcom/bcmsysport.c
 +++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2468,7 +2468,6 @@ static int bcm_sysport_probe(struct plat
+@@ -2469,7 +2469,6 @@ static int bcm_sysport_probe(struct plat
  	struct bcm_sysport_priv *priv;
  	struct device_node *dn;
  	struct net_device *dev;
@@ -342,7 +342,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	u32 txq, rxq;
  	int ret;
  
-@@ -2563,12 +2562,10 @@ static int bcm_sysport_probe(struct plat
+@@ -2564,12 +2563,10 @@ static int bcm_sysport_probe(struct plat
  	}
  
  	/* Initialize netdevice members */
@@ -423,7 +423,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	if (bgmac->irq < 0)
 --- a/drivers/net/ethernet/cadence/macb_main.c
 +++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -4484,7 +4484,6 @@ static int macb_probe(struct platform_de
+@@ -4492,7 +4492,6 @@ static int macb_probe(struct platform_de
  	struct net_device *dev;
  	struct resource *regs;
  	void __iomem *mem;
@@ -431,7 +431,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	struct macb *bp;
  	int err, val;
  
-@@ -4597,15 +4596,11 @@ static int macb_probe(struct platform_de
+@@ -4605,15 +4604,11 @@ static int macb_probe(struct platform_de
  	if (bp->caps & MACB_CAPS_NEEDS_RSTONUBR)
  		bp->rx_intr_mask |= MACB_BIT(RXUBR);
  

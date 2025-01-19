@@ -1,7 +1,5 @@
-Index: linux-5.10.226/drivers/i2c/busses/i2c-qup.c
-===================================================================
---- linux-5.10.226.orig/drivers/i2c/busses/i2c-qup.c
-+++ linux-5.10.226/drivers/i2c/busses/i2c-qup.c
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
 @@ -444,8 +444,10 @@ static int qup_i2c_bus_active(struct qup
  		if (!(status & I2C_STATUS_BUS_ACTIVE))
  			break;

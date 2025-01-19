@@ -31,10 +31,16 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/diag_saver $(1)/usr/bin/diag_saver
+
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/qlog $(1)/usr/bin/qlog
+
+	#If not one of the listed PLATFORMS install diag_saver and qc_trace_collector
+	$(if $(TLT_PLATFORM_TRB2)$(TLT_PLATFORM_TRB2M)$(TLT_PLATFORM_RUT361)$(TLT_PLATFORM_RUT36X)$(TLT_PLATFORM_TCR1)$(TLT_PLATFORM_OTD140)$(TLT_PLATFORM_RUT9M)$(TLT_PLATFORM_RUT2M)$(TLT_PLATFORM_RUT206),,
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/diag_saver $(1)/usr/bin/diag_saver
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/qc_trace_collector/qc-trace-collector/linux/qc_trace_collector $(1)/usr/bin/qc_trace_collector
+	)
+
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modem_logger.sh $(1)/usr/bin/modem_logger
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/qc_trace_collector/qc-trace-collector/linux/qc_trace_collector $(1)/usr/bin/qc_trace_collector
 	$(if $(CONFIG_BASEBAND_SUPPORT), \
 		$(INSTALL_DIR) $(1)/etc; \
 		$(CP) $(PKG_BUILD_DIR)/src/qlog/conf/default.cfg $(1)/etc/modem_logger_default.cfg)

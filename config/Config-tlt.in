@@ -283,7 +283,7 @@ config EBTABLES_DNS_SUPPORT
 config VXLAN_SUPPORT
 	tristate "VXLAN"
 	maintainer "Networks/Core"
-	depends on PKG_SUPPORT && NAND_SUPPORT
+	depends on PKG_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-vxlan-ui
 	label "Network"
@@ -343,18 +343,51 @@ config SCEP_SUPPORT
 	help
 		SCEP (Simple Certificate Enrollment Protocol) is a standard protocol used for the automated issuance and management of digital certificates
 
-config TPM_SUPPORT
-	bool "TPM"
+config TPM_MOD
+	tristate "TPM Kernel Modules"
 	maintainer "Embedded/PoC"
-	imply PACKAGE_kmod-tpm
+	depends on TPM_SUPPORT
+	default y
 	imply PACKAGE_kmod-tpm-tis-i2c
-	imply PACKAGE_tpm2-openssl
+	help
+		TPM kernel modules meant for communicating with TPM devices
+
+
+config TPM_TSS
+	tristate "TPM TCG library"
+	maintainer "Embedded/PoC"
+	depends on TPM_SUPPORT
+	default m if !NAND_SUPPORT
+	default y
+	imply PACKAGE_tpm2-tss
+	help
+		TPM TCG library is a framework meant to communicate with TPM devices
+
+
+config TPM_TOOLS
+	tristate "TPM tools"
+	maintainer "Embedded/PoC"
+	depends on TPM_SUPPORT
+	default m if !NAND_SUPPORT
+	default y
 	imply PACKAGE_tpm2-tools
 	help
 		TPM is a hardware based crypto trusted platform
 	detail
 		Unique identifier support
 		Secure storage support
+		TPM tools is a ctl based utility for TPM devices
+
+config TPM_OPENSSL
+	tristate "TPM OpenSSL"
+	maintainer "Embedded/PoC"
+	depends on TPM_SUPPORT
+	default m if !NAND_SUPPORT
+	default y
+	imply PACKAGE_tpm2-openssl
+	help
+		TPM OpenSSL is a library that provides openssl API for handling TPM
+
 
 config GRE_SUPPORT
 	bool "GRE"
@@ -490,7 +523,6 @@ config TINC_SUPPORT
 	label "VPN"
 	maintainer "SysApp"
 	depends on PKG_SUPPORT
-	default y if x86_64
 	default m
 	imply PACKAGE_vuci-app-tinc-ui
 	help
@@ -513,7 +545,6 @@ config TAILSCALE_SUPPORT
 	label "VPN"
 	maintainer "SysApp"
 	depends on !SMALL_FLASH && PKG_SUPPORT && ( !GATEWAY_DEVICE || BYPASS_OFFLOAD_FEATURE || USB_GADGET_SUPPORT)
-	default y if x86_64
 	default m
 	imply PACKAGE_vuci-app-tailscale-ui
 	help
@@ -540,8 +571,8 @@ config PORT_MIRRORING_SUPPORT
 config RELAYD_SUPPORT
 	tristate "Relayd"
 	maintainer "Networks/Core"
-	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !POE_SUPPORT
-	default y if NAND_SUPPORT || x86_64
+	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !NETWORKS_EXTERNAL
+	default y if NAND_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-relayd-ui
 	label "Network"
@@ -612,7 +643,7 @@ config MULTIWAN_SUPPORT
 	tristate "Multiwan"
 	maintainer "Networks/Core"
 	depends on PKG_SUPPORT && (!GATEWAY_DEVICE || (GATEWAY_DEVICE && SERIAL_SUPPORT && !MULTI_DEVICE_QUIRK))
-	default m if HAS_SINGLE_ETH_PORT || POE_SUPPORT
+	default m if HAS_SINGLE_ETH_PORT || NETWORKS_EXTERNAL
 	default y
 	imply PACKAGE_vuci-app-mwan3-ui
 	label "Network"
@@ -640,7 +671,7 @@ config WOL_SUPPORT
 	tristate "Wake On LAN"
 	maintainer "SysApp"
 	depends on PKG_SUPPORT
-	default y if NAND_SUPPORT && !POE_SUPPORT
+	default y if NAND_SUPPORT && !NETWORKS_EXTERNAL
 	default m
 	imply PACKAGE_vuci-app-wol-ui
 	help
@@ -784,8 +815,7 @@ config QOS_SUPPORT
 config DLNA_SUPPORT
 	tristate "DLNA"
 	maintainer "SysApp"
-	depends on (PKG_SUPPORT && USB_SUPPORT_EXTERNAL) || x86_64
-	default y if x86_64
+	depends on PKG_SUPPORT && USB_SUPPORT_EXTERNAL
 	default m
 	imply PACKAGE_vuci-app-minidlna-ui
 	help
@@ -797,6 +827,7 @@ config SSHFS_SUPPORT
 	depends on PKG_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-sshfs-ui
+	imply PACKAGE_kmod-fuse
 	help
 		SSHFS filesystem client for mounting remote directories over a Secure Shell connection
 
@@ -841,7 +872,7 @@ config CONNCHECKER_SUPPORT
 	tristate "Internet status"
 	maintainer "Networks/Core"
 	depends on PKG_SUPPORT && !AP_DEVICE
-	default m if !NAND_SUPPORT && !x86_64
+	default m if !NAND_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-internet-ui
 	label "Network"
@@ -994,8 +1025,9 @@ config ESIM_SUPPORT
 
 config LPAC_APP
 	bool
-	default y
 	maintainer "Embedded/BBU"
+	depends on MOBILE_SUPPORT
+	default y
 	imply PACKAGE_esim-lpac
 	imply PACKAGE_lua_lpac
 	imply PACKAGE_rpc_esim
@@ -1019,7 +1051,7 @@ config MOBILE_USAGE_SUPPORT
 	maintainer "Networks/Mobile"
 	depends on MOBILE_SUPPORT
 	default y
-	imply PACKAGE_quota_limit if !BYPASS_OFFLOAD_FEATURE
+	imply PACKAGE_quota_limit if !BYPASS_MOBILE_COUNTERS
 	imply PACKAGE_mdcollectd
 	imply PACKAGE_vuci-app-mobile-usage-ui
 	help
@@ -1052,8 +1084,6 @@ config MOBILE_UTILS_SUPPORT
 	imply PACKAGE_mobutils-call_utilities if !TARGET_sdxlemur
 	imply PACKAGE_vuci-app-call-utilities-ui if !TARGET_sdxlemur
 	imply PACKAGE_mobutils-sms_utilities
-	imply PACKAGE_post-get
-	imply PACKAGE_post-get-mobile
 	imply PACKAGE_email_to_sms
 	imply SMS_UTILS_HANDLER_IO if IO_SUPPORT
 	imply SMS_UTILS_HANDLER_WIFI if WIFI_SUPPORT
@@ -1064,13 +1094,32 @@ config MOBILE_UTILS_SUPPORT
 		Utilities for various SMS and Call related device control options to read and send
 	detail
 		SMS Utilities: Rules that perform certain actions when they are activated by SMS messages
-		Post/Get: Rules that perform certain actions when they are activated by a HTTP GET request
 		SMS Forwarding: To HTTP, SMS and Email
 		Email Forwarding: To SMS
 		Auto Reply: Automatic replying to SMS messages that the device receives
 		Messages: Sending and reading of SMS messages
+	detail if POST_GET_MOBILE_SUPPORT
+		Post/Get: Rules that perform certain actions when they are activated by a HTTP GET request
 	detail if !TARGET_sdxlemur && !TARGET_sdxnightjar
 		Call Utilities: Rules that perform certain actions when they are activated by a call
+
+config POST_GET_IO_SUPPORT
+	tristate
+	maintainer "Apps/Apps1"
+	depends on IO_SUPPORT
+	default m if SMALL_FLASH && PKG_SUPPORT
+	default y
+	imply PACKAGE_vuci-app-io-post-get-ui
+	imply PACKAGE_post-get-io
+
+config POST_GET_MOBILE_SUPPORT
+	tristate
+	maintainer "Apps/Apps1"
+	depends on MOBILE_SUPPORT
+	default m if SMALL_FLASH && PKG_SUPPORT
+	default y
+	imply PACKAGE_vuci-app-mobile-post-get-ui
+	imply PACKAGE_post-get-mobile
 
 config DUAL_SIM_SUPPORT
 	bool "SIM Switch"
@@ -1200,7 +1249,7 @@ config WIFI_GUEST_NETWORK_SUPPORT
 config WIFI_SCANNER_SUPPORT
 	tristate "WiFi Scanner"
 	maintainer "SysApp"
-	depends on WIFI_SUPPORT
+	depends on WIFI_SUPPORT || x86_64
 	default m if PKG_SUPPORT && !NAND_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-wifi-scanner-ui
@@ -1212,7 +1261,7 @@ config HOTSPOT_SUPPORT
 	tristate "HotSpot"
 	maintainer "SysApp"
 	depends on PKG_SUPPORT
-	default y if NAND_SUPPORT && !GATEWAY_DEVICE && !POE_SUPPORT
+	default y if NAND_SUPPORT && !GATEWAY_DEVICE && !NETWORKS_EXTERNAL
 	default m
 	imply PACKAGE_vuci-app-coovachilli-ui
 	imply COOVACHILLI_CHILLIQUERY
@@ -1242,8 +1291,8 @@ config DOT1X_CLIENT_SUPPORT
 config DOT1X_SERVER_SUPPORT
 	tristate "802.1X Server"
 	maintainer "SysApp"
-	depends on HAS_DOT1X_SERVER
-	default y if (HAS_SINGLE_ETH_PORT || DSA_SUPPORT)
+	depends on HAS_DOT1X_SERVER || x86_64
+	default y if HAS_SINGLE_ETH_PORT || DSA_SUPPORT || x86_64
 	default m
 	imply PACKAGE_dsa-dot1x-server 
 	imply PACKAGE_radius_test
@@ -1285,7 +1334,7 @@ config TRAVELMATE_SUPPORT
 	depends on PKG_SUPPORT && WIFI_SUPPORT
 	default y if NAND_SUPPORT
 	default m
-	imply PACKAGE_travelmate
+	imply PACKAGE_vuci-app-travelmate-ui
 	help
 		Travelmate forward WiFi hotspot landing page to subsequent connected device
 
@@ -1298,11 +1347,10 @@ config USB_STORAGE_SUPPORT
 	depends on USB_SUPPORT_EXTERNAL
 	default y
 	imply PACKAGE_kmod-usb-storage
-	imply PACKAGE_kmod-fuse
-	imply PACKAGE_kmod-fs-ntfs
 	imply PACKAGE_kmod-fs-exfat
-	imply PACKAGE_exfat-mkfs
+	imply PACKAGE_kmod-fs-ntfs
 	imply PACKAGE_kmod-fs-msdos
+	imply PACKAGE_exfat-mkfs
 	imply PACKAGE_kmod-fs-autofs4
 	imply PACKAGE_kmod-fs-ext4
 	imply PACKAGE_block-mount
@@ -1345,6 +1393,14 @@ config APP_SOCAT
 	help
 		Command line based utility that establishes two bidirectional byte streams and transfers data between them
 
+config APP_MODEM_CONTROL
+	bool
+	maintainer "Apps/Apps2"
+	depends on SERIAL_SUPPORT && MOBILE_SUPPORT
+	default y
+	imply PACKAGE_modem_control
+	imply PACKAGE_vuci-app-modem-control-ui
+
 config SERIAL_SUPPORT
 	bool
 	maintainer "Apps/Apps2"
@@ -1353,10 +1409,8 @@ config SERIAL_SUPPORT
 	imply PACKAGE_vuci-app-overip-ui
 	imply PACKAGE_vuci-app-modbus-serial-gateway-ui
 	imply PACKAGE_vuci-app-getty-ui
-	imply PACKAGE_vuci-app-modem-control-ui
 	imply PACKAGE_usb-reboot if SERIAL_RESET_QUIRK
 	imply BUSYBOX_DEFAULT_STTY
-
 
 config SERIAL_USB_DRIVERS
 	bool
@@ -1428,14 +1482,13 @@ config IO_UTILS
 	default y
 	imply PACKAGE_iojuggler
 	imply PACKAGE_vuci-app-io-ui
-	imply PACKAGE_post-get
-	imply PACKAGE_post-get-io
 	help
 		Input/Output controlling and monitoring utilities
 	detail
 		Status: Controlling and monitoring of current I/O pin status
-		Post/Get: Rules that perform certain actions when they are activated by a HTTP GET request
 		I/O Juggler: Utility that provides the possibility to create automated rules that perform certain actions based on Input state changes and other conditions
+	detail if POST_GET_IO_SUPPORT
+		Post/Get: Rules that perform certain actions when they are activated by a HTTP GET request
 
 config POWER_CONTROL_SUPPORT
 	bool "Power Control"
@@ -1493,6 +1546,7 @@ config BLUETOOTH_SUPPORT
 	maintainer "Apps/Apps2"
 	imply PACKAGE_blesemd
 	imply PACKAGE_vuci-app-bluetooth-ui
+	imply PACKAGE_rtl8761bu-firmware
 	help
 		Sensors data monitoring via low energy (LE) protocol
 
@@ -1560,7 +1614,7 @@ config IO_MODBUS_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-modbus-server-ui
 	imply PACKAGE_vuci-app-modbus-client-ui
-	imply PACKAGE_vuci-app-modbus-serial-ui if SERIAL_SUPPORT
+	imply PACKAGE_vuci-app-modbus-serial-ui if SERIAL_SUPPORT || x86_64
 	imply PACKAGE_vuci-app-modbus-gateway-ui
 	help
 		Communication protocol for data monitoring and device controlling
@@ -1693,6 +1747,8 @@ config DOCKER_SUPPORT
 	imply PACKAGE_dockerd
 	imply PACKAGE_docker
 	imply LIBCURL_UNIX_SOCKETS
+	imply USE_FS_ACL_ATTR
+	imply KERNEL_EXT4_FS_SECURITY
 
 #
 # webui
@@ -1739,6 +1795,15 @@ config CERTIFICATE_SUPPORT
 	imply PACKAGE_vuci-app-certificates-ui
 	help
 		Certificate creation tool allows to create CA, server, client, let's encrypt, SCEP certificates
+
+config LETS_ENCRYPT_SUPPORT
+	tristate "Lets encrypt certificate generation"
+	label "System"
+	maintainer "SysApp"
+	depends on PKG_SUPPORT && CERTIFICATE_SUPPORT
+	default m if SMALL_FLASH
+	default y
+	imply PACKAGE_letsencrypt
 
 config RECIPIENTS_SUPPORT
 	bool

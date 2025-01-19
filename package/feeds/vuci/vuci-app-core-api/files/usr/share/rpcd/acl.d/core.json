@@ -24,7 +24,8 @@
 				"/firmware/device/updates/status/*": ["*"],
 				"/firmware/modem/updates/status/*": ["*"],
 				"/firmware/modem/progress/status/*": ["*"],
-				"/password_policy/config/*": ["password_length", "password_lifetime", "require_lower_upper", "require_digits", "require_special", "current_days_left"]
+				"/password_policy/config/*": ["password_length", "password_lifetime", "require_lower_upper", "require_digits", "require_special", "current_days_left"],
+				"/modems/status/*": ["id", "name", "index", "builtin", "primary", "operator", "provider", "operator_state"]
 			}
 		},
 		"write": {

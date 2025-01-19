@@ -52,6 +52,7 @@ sub version_filter_list(@) {
 
 sub gen_kconfig_overrides() {
 	my %config;
+	my %cfg_lkp;
 	my %kconfig;
 	my $package;
 	my $pkginfo = shift @ARGV;
@@ -62,6 +63,7 @@ sub gen_kconfig_overrides() {
 	open FILE, "<$cfgfile" or return;
 	while (<FILE>) {
 		/^(CONFIG_.+?)=(.+)$/ and $config{$1} = 1;
+		/^(CONFIG_.+?)=(.+)$/ and $cfg_lkp{$1} = $2;
 	}
 	close FILE;
 
@@ -73,6 +75,9 @@ sub gen_kconfig_overrides() {
 			my @config = split /\s+/, $1;
 			foreach my $config (version_filter_list($patchver, @config)) {
 				my $val = 'm';
+				if($cfg_lkp{"CONFIG_SMALL_FLASH"}) {
+					$val = $cfg_lkp{"CONFIG_PACKAGE_$package"};
+				}
 				my $override;
 				if ($config =~ /^(.+?)=(.+)$/) {
 					$config = $1;
@@ -717,7 +722,7 @@ sub gen_image_cyclonedxsbom($) {
 				}
 			}
 		}
-		$version =~ s/-\d+$// if $version;
+		$version =~ s/-\d+(\.\d+)*$// if $version;
 		if ($name =~ /^(kernel|kmod-)/ and $version =~ /^(\d+\.\d+\.\d+)/) {
 			$version = $1;
 		}

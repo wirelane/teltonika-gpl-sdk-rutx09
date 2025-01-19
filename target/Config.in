@@ -147,6 +147,9 @@ config HAS_MODBUS
 config HAS_DOWNSTREAM_KERNEL
 	bool
 
+config CUSTOM_DATA_LIMIT
+	bool
+
 config SMP_SUPPORT
 	bool
 
@@ -189,6 +192,9 @@ config GATEWAY_DEVICE
 
 config 64MB_RAM
 	bool
+
+config TPM_SUPPORT
+	bool
 	
 config SW_OFFLOAD
 	bool
@@ -214,8 +220,13 @@ config HAS_RS485
 config HIGH_STORAGE
 	bool
 
-
 config INDUSTRIAL_AP
+	bool
+
+config EMMC_SUPPORT
+	bool
+
+config NO_WIRED_WAN
 	bool
 
 # Architecture selection
@@ -329,3 +340,8 @@ config ARCH
 	default "sparc"     if sparc
 	default "x86_64"    if x86_64
 
+config BYPASS_MOBILE_COUNTERS
+	bool
+
+config NETWORKS_EXTERNAL
+	bool

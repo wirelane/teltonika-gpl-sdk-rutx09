@@ -15,12 +15,6 @@
     "index": 2,
     "title": "SMS Gateway"
   },
-  "services/mobile_utilities/sms_gateway/post_get": {
-    "view": "services/PostGet",
-    "title": "Post/Get",
-    "index": 1,
-    "acls": ["services/mobile_utilities/sms_gateway/post_get"]
-  },
   "services/mobile_utilities/sms_gateway/auto_reply": {
     "view": "services/AutoReply",
     "title": "Auto Reply",

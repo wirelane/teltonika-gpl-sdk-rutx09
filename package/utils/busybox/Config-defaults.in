@@ -2365,7 +2365,7 @@ config BUSYBOX_DEFAULT_FEATURE_INETD_RPC
 	default n
 config BUSYBOX_DEFAULT_IP
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_IPADDR
 	bool
 	default n
@@ -2446,7 +2446,7 @@ config BUSYBOX_DEFAULT_NC_110_COMPAT
 	default n
 config BUSYBOX_DEFAULT_NETMSG
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_NETSTAT
 	bool
 	default y

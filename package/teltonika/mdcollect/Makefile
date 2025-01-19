@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mdcollect
-PKG_VERSION:=2024-11-05
+PKG_VERSION:=2025-01-07
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 
-PKG_SOURCE_VERSION:=7.11
+PKG_SOURCE_VERSION:=7.12
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -21,7 +21,7 @@ define Package/mdcollectd
 	CATEGORY:=Base system
 	TITLE:=mdcollectd
 	DEPENDS:=+lsqlite3 +libuci +libtlt_uci +libmdcollect +libubus +libubox \
-		+libtlt-logger +libgsm +libnftnl
+		+libtlt-logger +libnftnl +MOBILE_SUPPORT:libgsm
 endef
 
 define Package/libmdcollect

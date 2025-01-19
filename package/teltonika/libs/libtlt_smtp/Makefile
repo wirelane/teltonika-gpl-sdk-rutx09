@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libtlt_smtp
 
-PKG_SOURCE_VERSION:=1.4
+PKG_SOURCE_VERSION:=1.6
 
 PKG_LICENSE:=Teltonika-closed
 

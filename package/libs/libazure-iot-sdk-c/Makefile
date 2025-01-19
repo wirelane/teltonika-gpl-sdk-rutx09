@@ -2,15 +2,14 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libazure-iot-sdk-c
-PKG_VERSION:=2024-04-29
+PKG_VERSION:=2024-11-05
 PKG_RELEASE:=1
 
-# Need this to not redownload source each time it is compiled
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/Azure/azure-iot-sdk-c.git
-PKG_SOURCE_VERSION:=3fd808bee3c88f8578dcc30c0a6d1d396c172070
-PKG_HASH:=e9af1ddae3942040c698e60678a6ad6f1051b5fe0ad51b24a4cd87686e1ffc67
+PKG_SOURCE_VERSION:=9c70f98b7b659e169ae44389a5142f3a386c5791
+PKG_HASH:=c529733965f5c5cb141c3e7c13bab1a70421508774242f312de6a0c6f8893c5c
 
 PKG_LICENSE:=MIT
 PKG_LICENSE_FILES:=LICENSE

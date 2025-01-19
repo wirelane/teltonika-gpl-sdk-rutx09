@@ -21,12 +21,12 @@ add_modem_features() {
 	# Loads modem info
 	json_set_namespace support old_cb
 	json_load "$modem_info_from_unhandler"
-	json_get_vars multi_apn operator_scan dhcp_filter dynamic_mtu ipv6 volte csd wwan_gnss_conflict framed_routing low_signal_reconnect auto_5g_mode red_cap
+	json_get_vars multi_apn operator_scan dhcp_filter dynamic_mtu ipv6 volte csd wwan_gnss_conflict framed_routing low_signal_reconnect auto_5g_mode red_cap verizon_disable_5g_sa
 	json_get_values bands band_list
 	json_set_namespace "$old_cb"
 
 	# Sets modem supported feature values
-	json_add_string	revision "$revision"
+	json_add_string revision "$revision"
 	json_add_int modem_func_id "$modem_func_id"
 	json_add_boolean multi_apn "$multi_apn"
 	json_add_boolean operator_scan "$operator_scan"
@@ -40,6 +40,7 @@ add_modem_features() {
 	json_add_boolean low_signal_reconnect "$low_signal_reconnect"
 	json_add_boolean auto_5g_mode "$auto_5g_mode"
 	json_add_boolean red_cap "$red_cap"
+	json_add_boolean verizon_disable_5g_sa "$verizon_disable_5g_sa"
 
 	# Adds supported band array
 	json_is_a band_list array || {
@@ -105,7 +106,6 @@ modem_info_from_unhandler="$2"
 default_modem_func="$3"
 
 lock /var/run/board_modem.lock
-
 
 board_config_update
 json_for_each_item setup_modem modems

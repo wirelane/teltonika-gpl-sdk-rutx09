@@ -2,9 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=azure_iothub
-PKG_VERSION:=2024-06-17
+PKG_VERSION:=2025-01-10
 
-PKG_SOURCE_VERSION:=3.0
+PKG_SOURCE_VERSION:=3.3
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -16,7 +16,8 @@ define Package/azure_iothub
 	SECTION:=base
 	CATEGORY:=Base system
 	DEPENDS:=+libc +libuci +libubus +libblobmsg-json +libtlt-logger \
-		 +libubox +libazure-iot-sdk-c +libmnfinfo +liblua +libtlt_uci
+		 +libubox +libazure-iot-sdk-c +libmnfinfo +liblua +libtlt_uci \
+		 +libapi
 	TITLE:=Azure IoT Hub client
 endef
 
@@ -50,9 +51,6 @@ define Package/azure_iothub/install
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/azure_iothub.init $(1)/etc/init.d/azure_iothub
-
-	$(INSTALL_DIR) $(1)/etc/azure_iothub/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/azure_api_list.json $(1)/etc/azure_iothub/azure_api_list.json
 
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/azure_iothub.conf $(1)/etc/config/azure_iothub

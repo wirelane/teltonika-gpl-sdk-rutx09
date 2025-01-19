@@ -6,6 +6,8 @@ START=42
 STOP=1
 USE_PROCD=1
 
+PROG="/usr/sbin/tincd"
+[ -x "$PROG" ] || PROG="/usr/local${PROG}"
 TMP_TINC="/tmp/tinc"
 
 append_param() {
@@ -236,7 +238,7 @@ start_instance() {
 	[ "$enabled" = "0" ] && return
 
 	procd_open_instance
-	procd_set_param command /usr/sbin/tincd -c "$TMP_TINC/$s" -n "$s" -D -d1
+	procd_set_param command $PROG -c "$TMP_TINC/$s" -n "$s" -D -d1
 	procd_set_param stderr 1
 	procd_set_param respawn
 	procd_set_param file $TMP_TINC/$s/tinc.conf

@@ -44,6 +44,9 @@ sign_certificate() {
 	local macaddr="$(mnf_info -m)"
 	#							replace invalid dashes JSON keys
 	local ip_addr=$(ubus call network.interface.lan status | tr '-' '_' | jsonfilter -e "@.ipv4_address[0].address")
+	if [ -z "$ip_addr" ]; then
+		ip_addr=$(jsonfilter -i /etc/board.json -e "@.network.lan.default_ip")
+	fi
     local extfile="$(mktemp)"
     echo -e "extendedKeyUsage=serverAuth\nsubjectAltName=DNS:Teltonika${macaddr},IP:${ip_addr}" > "$extfile"
     $OPENSSL_BIN x509 -req -in "${crt_req}" -CA "${ca}" -CAkey "${ca_key}" -out "${crt}" -days 3650 -extfile "$extfile" &>/dev/null

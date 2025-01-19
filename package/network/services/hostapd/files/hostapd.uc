@@ -184,7 +184,8 @@ function iface_restart(phydev, config, old_config)
 		hostapd.printf(`hostapd.add_iface failed for phy ${phy} ifname=${bss.ifname}`);
 	ubus.call("wpa_supplicant", "phy_set_state", { phy: phy, stop: false });
 
-	ubus.event("wireless.state", {state: "up", ifname: bss.ifname, mode: "ap"});
+	for (let bss in config.bss)
+		ubus.event("wireless.state", {state: "up", ifname: bss.ifname, mode: "ap"});
 }
 
 function array_to_obj(arr, key, start)

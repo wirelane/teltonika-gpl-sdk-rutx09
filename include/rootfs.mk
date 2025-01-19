@@ -86,6 +86,13 @@ define generate_banner
 	)
 endef
 
+define symlink_usr_share
+	mkdir -p $(1)/usr/local/share
+	mv $(1)/usr/share/* $(1)/usr/local/share
+	rmdir $(1)/usr/share
+	ln -s /usr/local/share $(1)/usr
+endef
+
 define prepare_rootfs
 	$(if $(2),@if [ -d '$(2)' ]; then \
 		$(call file_copy,$(2)/.,$(1)); \
@@ -125,5 +132,6 @@ define prepare_rootfs
 	$(call mklibs,$(1))
 	$(if $(CONFIG_GENERATE_PROMPT_HEADER),$(call generate_banner,$(1)))
 	$(TOPDIR)/scripts/gen-board-info.sh $(TOPDIR)/.config $(1) true
+	$(call symlink_usr_share,$(1))
 	$(if $(SOURCE_DATE_EPOCH),find $(1)/ -mindepth 1 -execdir touch -hcd "@$(SOURCE_DATE_EPOCH)" "{}" +)
 endef

@@ -178,6 +178,12 @@
 			log;
 		};
 
+		profiles {
+			reg = <&config 0x140 0x80>;
+			type = "ascii";
+			default = "";
+		};
+
 		blver {
 			reg = <&boot 0xa0000 0xa>;
 			trailling-data;

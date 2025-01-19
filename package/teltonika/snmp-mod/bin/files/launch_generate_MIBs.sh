@@ -24,4 +24,6 @@ uci_commit snmpd
 
 script="/etc/snmp/generate_MIBs.sh"
 
-($script && rm $script) &
+$script
+
+rm $script

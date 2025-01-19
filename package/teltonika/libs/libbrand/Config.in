@@ -6,6 +6,7 @@ config TLT_VERSIONING_PREFIX
 	default RUTM if TARGET_ramips_mt7621_DEVICE_teltonika_rutm
 	default ATRM50 if TARGET_ramips_mt7621_DEVICE_teltonika_atrm50
 	default RUTC if TARGET_mediatek_mt7981_DEVICE_teltonika_rutc
+	default RUTC if TARGET_mediatek_mt7981_DEVICE_teltonika_rutcv2
 	default RUTX if TARGET_ipq40xx_generic_DEVICE_teltonika_rutx
 	default TRB2 if TARGET_ath79_24kc_DEVICE_teltonika_trb2xx
 	default TRB2M if TARGET_ramips_mt76x8_DEVICE_teltonika_trb2m
@@ -35,6 +36,7 @@ config TLT_VERSIONING_CLIENT
 	string "Client"
 	help
 		Client code, two decimals
+	default 99 if TARGET_mediatek_mt7981_DEVICE_teltonika_rutcv2
 	default 00
 
 config TLT_VERSIONING_MANUAL_ENABLE

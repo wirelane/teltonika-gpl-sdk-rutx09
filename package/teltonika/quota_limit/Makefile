@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=quota_limit
-PKG_VERSION:=2024-11-05
+PKG_VERSION:=2025-01-07
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 
-PKG_SOURCE_VERSION:=7.11
+PKG_SOURCE_VERSION:=7.12
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -20,7 +20,7 @@ define Package/quota_limit
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=quota_limit
-	DEPENDS:=+libuci +libtlt_uci +libgsm +libtlt-logger +kmod-nft-netdev +libmdcollect +libnftnl
+	DEPENDS:=+libuci +libtlt_uci +libgsm +libtlt-logger +!CUSTOM_DATA_LIMIT:kmod-nft-netdev +libmdcollect +libnftnl
 endef
 
 TARGET_CFLAGS += -D_GNU_SOURCE

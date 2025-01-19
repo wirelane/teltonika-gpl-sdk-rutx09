@@ -5,13 +5,18 @@
 . /usr/share/libubox/jshn.sh
 
 migrate_io() {
+	local current_sleep=0
+
 	config_get action "$1" "action"
 	[ "$action" = "send_status" ] || [ "$action" = "io_set" ] || return
 
-	while [ -z "$io_list" ]; do
+	while [ -z "$io_list" ] && [ "$current_sleep" -lt 100 ]; do
 		io_list=$(ubus list ioman.*)
+		current_sleep=$((current_sleep + 1))
 		sleep 1
 	done
+
+	[ -z "$io_list" ] && return
 
 	config_get smstext "$1" "smstext"
 	[ "$smstext" = "iostatus" ] && migrate_io_status "$1" "$io_list"

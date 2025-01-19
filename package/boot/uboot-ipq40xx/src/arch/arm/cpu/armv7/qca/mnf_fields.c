@@ -76,6 +76,7 @@ mnf_field_t mnf_fields[] = {
 	{ 'W', "wifi_pass", "WiFi password",       0x90,  16, clear          },
 	{ 'x', "passwd",    "Linux password",      0xA0, 106, clear          },
 	{ 'C', "simcfg",    "SIM configuration",  0x120,  32, clear          },
+	{ 'P', "profiles",  "eSIM profiles",      0x140, 128, clear          },
 	{ '1', "sim1",      "SIM 1 PIN",        0x10000,   4, clear          },
 	{ '2', "sim2",      "SIM 2 PIN",        0x10010,   4, clear          },
 	{ '3', "sim3",      "SIM 3 PIN",        0x10020,   4, clear          },

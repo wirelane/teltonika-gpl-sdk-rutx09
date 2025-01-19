@@ -128,7 +128,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  	usb_kill_urb(dev->interrupt);
  	usb_free_urb(dev->interrupt);
  	kfree(dev->padding_pkt);
-@@ -1807,6 +1886,13 @@ usbnet_probe (struct usb_interface *udev
+@@ -1808,6 +1887,13 @@ usbnet_probe (struct usb_interface *udev
  		}
  	}
  
@@ -170,7 +170,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  	return nskb;
  }
  
-+inline int usbnet_napi_rx(struct usbnet *dev, struct sk_buff *skb) {
++static inline int usbnet_napi_rx(struct usbnet *dev, struct sk_buff *skb) {
 +	if (dev->rx_napi_budget > 0) {
 +		dev->rx_napi_budget--;
 +		napi_gro_receive(&dev->rx_napi, skb);

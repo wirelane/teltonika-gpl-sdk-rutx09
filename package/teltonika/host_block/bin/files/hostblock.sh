@@ -14,10 +14,47 @@ DEFAULT_DNS="8.8.8.8"
 DEFAULT_BLOCKIPV4="255.255.255.255"
 DEFAULT_BLOCKIPV6="::ffff:ffff:ffff"
 SERVER_IP=""
+FORCE_RESTART=0
 
 help() {
 	echo "Next Generation Host Blocker"
 	echo "Usage: $SCRIPT_NAME enable|disable|restart"
+}
+
+is_exist() {
+	local host
+	config_get host "$1" "host"
+	[ "$host" = "$2" ] && EXIST=1
+}
+
+add_cname() {
+	local cname="$1"
+	local host="$2"
+	uci_add hostblock block
+	uci_set hostblock @block[-1] enabled '1'
+	uci_set hostblock @block[-1] host "$cname"
+	uci_set hostblock @block[-1] phost "$host"
+	uci_commit hostblock
+}
+
+check_cname() {
+	local enabled host phost cname ncname
+	config_get_bool enabled "$1" "enabled"
+
+	[ "$enabled" -eq 1 ] || return
+
+	config_get host "$1" "host"
+	config_get phost "$1" "phost"
+	config_get ncname "$1" "ncname" "0"
+
+	[ -z "$host" ] || [ "$ncname" != "0" ] || [ -n "$phost" ] && return
+
+	cname=$(nslookup "$host" | grep "Name:" | awk '{print $2}' | tail -1)
+	[ -z "$cname" ] || [ "$cname" = "$host" ] && return
+
+	EXIST=0
+	config_foreach is_exist "block" "$cname"
+	[ "$EXIST" = "0" ] && add_cname "$cname" "$host"
 }
 
 append_file_hosts() {
@@ -70,10 +107,13 @@ enable_hb() {
 	rm -f "/tmp/dnsmasq.d/server"
 	rm -f "/tmp/dnsmasq.d/address"
 
+	config_foreach check_cname "block"
+	config_load "hostblock"
 	config_foreach append_host "block"
 	[ -e "/etc/vuci-uploads/hosts" ] && append_file_hosts "/etc/vuci-uploads/hosts"
 
 	echo "server=/rms.teltonika.lt/$icmp_host" >>"$SERVER_CONF"
+	echo "server=/rut.teltonika.lt/$icmp_host" >>"$SERVER_CONF"
 
 	if [ "$mode" = "whitelist" ]; then
 		echo "address=/#/$DEFAULT_BLOCKIPV4" >>"$ADDRESS_CONF"
@@ -164,6 +204,10 @@ reload_firewall() {
 	/etc/init.d/firewall reload >/dev/null 2>&1
 }
 
+reload_dnsmasq() {
+	/etc/init.d/dnsmasq reload >/dev/null 2>&1
+}
+
 restart_dnsmasq() {
 	/etc/init.d/dnsmasq restart >/dev/null 2>&1
 }
@@ -214,20 +258,21 @@ if [ $# -ne 1 ]; then
 	exit
 fi
 
-case "$1" in
-"enable")
+service_enable() {
 	config_snapshot
 	enable_hb
 	if [ $? -eq 0 ]; then
 		enable_dns_redirect
 	fi
-	;;
-"disable")
+}
+
+service_disable() {
 	config_snapshot
 	disable_hb
 	disable_dns_redirect
-	;;
-"restart")
+}
+
+service_restart() {
 	config_snapshot
 	disable_hb
 	enable_hb
@@ -235,6 +280,24 @@ case "$1" in
 		enable_dns_redirect
 	else
 		disable_dns_redirect
+	fi
+}
+
+case "$1" in
+"enable")
+	service_enable
+	;;
+"disable")
+	service_disable
+	;;
+"restart")
+	service_restart
+	compare_snapshot
+	if [ $? -eq 1 ]; then
+		FORCE_RESTART=1
+		# Will not get cname without reload when whitelist is enabled
+		reload_dnsmasq
+		service_restart
 	fi
 	;;
 *)
@@ -244,7 +307,7 @@ case "$1" in
 esac
 
 compare_snapshot
-if [ $? -eq 1 ]; then
+if [ $? -eq 1 ] || [ "$FORCE_RESTART" -eq 1 ]; then
 	echo "Restarting dnsmasq"
 	restart_dnsmasq
 fi

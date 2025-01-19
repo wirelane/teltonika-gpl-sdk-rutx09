@@ -131,7 +131,7 @@ menu "Target Images"
 		config TARGET_EXT4_JOURNAL
 			bool "Create a journaling filesystem"
 			depends on TARGET_ROOTFS_EXT4FS
-			default n
+			default y
 			help
 			  Create an ext4 filesystem with a journal.
 
@@ -285,8 +285,8 @@ menu "Target Images"
 
 	config TARGET_ROOTFS_PARTSIZE
 		int "Root filesystem partition size (in MB)"
-		depends on USES_ROOTFS_PART || TARGET_ROOTFS_EXT4FS || TARGET_omap || TARGET_sunxi || TARGET_uml
-		default 104
+		depends on USES_ROOTFS_PART || TARGET_ROOTFS_EXT4FS
+		default 256
 		help
 		  Select the root filesystem partition size.
 

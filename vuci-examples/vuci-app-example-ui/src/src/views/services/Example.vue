@@ -74,6 +74,8 @@
           <tlt-form-item-input
             v-model="addModel.id"
             :label="$t('Name')"
+            rules="uciname"
+            maxlength="8"
             prop="id"
             required
           />

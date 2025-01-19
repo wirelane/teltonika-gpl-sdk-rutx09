@@ -82,7 +82,6 @@ typedef enum {
 	__ASYNC_MAX,
 } async_type_t;
 
-
 /**
  * Enumeration of modem pin states
  */
@@ -734,6 +733,7 @@ enum polarity_id {
 	POLARITY_UNKNOWN, /*<! Unknown polarity value*/
 	POLARITY_LOW, /*<! Low polarity value*/
 	POLARITY_HIGH, /*<! High polarity value*/
+	POLARITY_MIXED, /*<! Mixed polarity value (For Telit Modems only)*/
 
 	__POLARITY_MAX,
 };

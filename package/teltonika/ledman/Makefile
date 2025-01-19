@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ledman
 
-PKG_SOURCE_VERSION:=2.19.5
+PKG_SOURCE_VERSION:=2.21.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -18,7 +18,7 @@ define Package/ledman-full
 	TITLE:=LED status manager
 	PROVIDES:=ledman
 	VARIANT:=full
-	DEPENDS:= +libubus +libubox +libgsm +liburc +libuci +libtlt_uci +libmnfinfo +libnl-tiny +libgpiod +gpiod-tools
+	DEPENDS:= +libubus +libubox +libblobmsg-json +libuci +libnl-tiny +MOBILE_SUPPORT:libgsm +MOBILE_SUPPORT:liburc
 endef
 
 # TODO SOMEHOW DEPS FROM 'FULL' IS NEEDED TO COMPILE 'TINY'
@@ -45,9 +45,8 @@ ifeq ($(BUILD_VARIANT),full)
 endif
 
 define Package/ledman-full/install
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/bin $(1)/etc/hotplug.d/iface
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ledman.init $(1)/etc/init.d/ledman
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/broadcast-event.hotplug $(1)/etc/hotplug.d/iface/01-broadcast-event
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ledman $(1)/usr/bin/ledman
 endef
 

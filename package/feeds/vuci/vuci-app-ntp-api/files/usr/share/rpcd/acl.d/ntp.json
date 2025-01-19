@@ -4,7 +4,8 @@
     "read": {
       "api": {
         "/date_time/ntp/client/config/*": ["*"],
-        "/date_time/ntp/client/timezones/options/*": ["*"]
+        "/date_time/ntp/client/timezones/options/*": ["*"],
+        "/gps/global/*": ["enabled"]
       }
     },
     "write": {

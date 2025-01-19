@@ -26,9 +26,9 @@ do_mount_root() {
 		sync
 		sme.sh --preboot || echo "- sme.sh failed with code $? -"
 
-	elif [ -f /sysupgrade.tgz ]; then
+	elif [ -f /sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tgz ]; then
 		echo "- config restore -"
-		mv /sysupgrade.tgz /tmp/
+		[ -f /sysupgrade.tgz ] && mv /sysupgrade.tgz /tmp/
 		cp /etc/passwd /etc/group /etc/shadow /tmp
 		echo 'etc/rc.d/*' > /tmp/exclusions
 		echo 'etc/profile' >> /tmp/exclusions

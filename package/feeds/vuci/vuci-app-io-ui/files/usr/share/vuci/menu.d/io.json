@@ -9,12 +9,6 @@
     "title": "Status",
     "acls": ["services/io/general"]
   },
-  "services/io/post_get": {
-    "view": "services/IoPostGet",
-    "index": 20,
-    "title": "Post/Get",
-    "acls": ["services/io/post_get"]
-  },
   "services/io/scheduler": {
     "view": "services/IoScheduler",
     "index": 30,

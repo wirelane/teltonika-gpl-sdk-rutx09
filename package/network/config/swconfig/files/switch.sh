@@ -139,6 +139,11 @@ ports_info_cb() {
 	# Only rutx wan handling must be done via ethtool
 	[ "$(jsonfilter -i /etc/board.json -e '@.model.platform')" = "RUTX" ] && [ "$role" = "wan" ] && return 1
 
+	# Set values as is if not present in config
+	[ "$speed" == "speed " ] && speed="speed $(/sbin/swconfig dev switch0 port "$port_num" get speed)"
+	[ "$duplex" == "duplex " ] && duplex="duplex $(/sbin/swconfig dev switch0 port "$port_num" get duplex)"
+	[ "$autoneg" == "autoneg " ] && autoneg="autoneg $(/sbin/swconfig dev switch0 port "$port_num" get autoneg)"
+
 	/sbin/swconfig dev "switch0" port "$port_num" set link "$speed $duplex $autoneg"
 	[ "$autoneg" = "autoneg on" ] && [ -n "$advert" ] && /sbin/swconfig dev "switch0" port "$port_num" set advert "$advert"
 }

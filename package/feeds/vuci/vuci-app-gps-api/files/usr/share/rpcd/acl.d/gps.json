@@ -29,7 +29,8 @@
 				"/gps/nmea/config/*": ["*"],
 				"/gps/nmea/serial/config/*": ["*"],
 				"/gps/nmea/status/*": ["*"],
-				"/serial/status/*": ["*"]
+				"/serial/status/*": ["*"],
+				"/interfaces/basic/status/*": ["id", "name"]
 			}
 		},
 		"write": {

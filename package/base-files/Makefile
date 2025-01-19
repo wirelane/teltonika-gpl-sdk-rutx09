@@ -94,6 +94,12 @@ ifeq ($(CONFIG_NAND_SUPPORT),)
   endef
 endif
 
+ifeq ($(CONFIG_EMMC_SUPPORT),)
+  define Package/base-files/emmc-support
+	rm -f $(1)/lib/upgrade/emmc.sh
+  endef
+endif
+
 ifdef CONFIG_INSTALL_LOCAL_KEY
   define Package/base-files/install-local-key
 	mkdir -p $(1)/etc/opkg/keys
@@ -111,6 +117,7 @@ define Package/base-files/install
 	$(CP) ./files/* $(1)/
 	$(Package/base-files/install-local-key)
 	$(Package/base-files/nand-support)
+	$(Package/base-files/emmc-support)
 	if [ -d $(GENERIC_PLATFORM_DIR)/base-files/. ]; then \
 		$(CP) $(GENERIC_PLATFORM_DIR)/base-files/* $(1)/; \
 	fi
@@ -195,7 +202,7 @@ define Package/base-files/install
 	date +%s > $(1)/etc/firmware-date
 
 	# --prod flag
-	$(if $(CONFIG_VUCI_COMPILE_LUA),\
+	$(if $(CONFIG_VUCI_COMPILE_LUA)$(CONFIG_GPL_BUILD),\
 		$(RM) $(1)/sbin/memleak_watcher $(1)/etc/init.d/memleak_watcher)
 
 	if [ $(CONFIG_BUILD_FACTORY_TEST_IMAGE) ]; then \

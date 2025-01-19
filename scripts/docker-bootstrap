@@ -85,7 +85,7 @@ FUNC=run_main
 echo "$IMG_NAME" | grep -q '/buildsys/' && {
 	TOKEN=aCb3RawxFnwuSZymE7XM
 }
-echo "$IMG_NAME" | grep -q '/rutx_open/' && {
+echo "$IMG_NAME" | grep -qP '(^|/)tbot' && {
 	TOKEN=CDFnJK15XBkAu8nU13fS
 	FUNC=run_tbot
 }
@@ -175,18 +175,18 @@ run_main() {
 
 run_tbot() {
 	fws_dir=$(find "bin/targets/x86" -type d -name "tltFws")
-	f_gz=$(find "$fws_dir" -name "*.img.gz" -printf '%T+ %p\n' | sort | tail -n1 | awk '{print $2}')
+	f_gz=$(find "$fws_dir" -name "X86*_combined-efi.img*" -printf '%T+ %p\n' | sort | tail -n1 | awk '{print $2}')
 	[[ -z $f_gz ]] && {
 		err "No firmware image found in $fws_dir"
 		exit 1
 	}
 
-	rm -f "$fws_dir"/*.img
+	case "$@" in
+	*--debug*) opts="--publish 42069:42069" ;;
+	esac
+	[[ -t 0 ]] && opts="-it $opts"
 
-	printf "Booting %s\n" "$(basename "$f_gz")"
-
-	#shellcheck disable=2068
-	$DOCKER_CMD run --rm -it --cap-add=NET_ADMIN \
+	$DOCKER_CMD run --rm $opts --cap-add=NET_ADMIN \
 		--device /dev/net/tun:/dev/net/tun \
 		--volume "$WORKDIR":/x86_64:rw -w /x86_64 \
 		--sysctl net.ipv4.ip_forward=1 \

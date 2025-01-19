@@ -71,7 +71,6 @@ define install_closed_gpl
 	$(CP) $(GPL_FILES_DIR)/lib/config.d/899-generate-menu $(PKG_GPL_BUILD_DIR)/files/lib/config.d
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
 	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
-	$(CP) $(GPL_FILES_DIR)/sbin/letsencrypt.sh $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/tls_generate_lua.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/event_server.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/api.lua $(PKG_GPL_BUILD_DIR)/files/sbin
@@ -117,7 +116,6 @@ define Package/api-core/install
 	$(INSTALL_BIN) -D "$$$$files_dir"/bin/trigger_vuci_routes_reload $(1)/bin/trigger_vuci_routes_reload ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/lib/config.d/899-generate-menu $(1)/lib/config.d/899-generate-menu ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server.init $(1)/etc/init.d/event_server ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/letsencrypt.sh $(1)/sbin/letsencrypt ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/tls_generate_lua.lua $(1)/sbin/tls_generate_lua ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/event_server.lua $(1)/sbin/event_server ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/api.lua $(1)/sbin/api ; \

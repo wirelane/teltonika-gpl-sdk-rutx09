@@ -1,0 +1,14 @@
+{
+  "services/io/post_get": {
+    "description": "input.output post/get configuration",
+    "read": {
+      "api": {
+        "/io/post_get/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/io/post_get/*"]
+    },
+	"source": ["/io/post_get/*"]
+  }
+}

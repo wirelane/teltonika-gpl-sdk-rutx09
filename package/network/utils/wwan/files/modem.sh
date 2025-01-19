@@ -177,7 +177,7 @@ add_simcard_config(){
 	uci_set simcard $CONFIG_SECTION position "$position"
 	uci_set simcard $CONFIG_SECTION volte "$volte"
 	[ "$primary" -eq 1 ] && uci_set simcard $CONFIG_SECTION primary "$primary"
-	[ -n "$pin" ] && uci_set simcard $CONFIG_SECTION pincode "$pin"
+	[ -n "$pin" ] && [ "$pin" != "N/A" ] && uci_set simcard $CONFIG_SECTION pincode "$pin"
 	uci_commit simcard
 
 	[ -x "/bin/trigger_vuci_routes_reload" ] && /bin/trigger_vuci_routes_reload

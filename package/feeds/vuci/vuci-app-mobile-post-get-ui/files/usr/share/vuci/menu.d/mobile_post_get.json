@@ -1,0 +1,16 @@
+{
+  "services/mobile_utilities": {
+    "title": "Mobile Utilities",
+    "index": 30
+  },
+  "services/mobile_utilities/sms_gateway": {
+    "index": 2,
+    "title": "SMS Gateway"
+  },
+  "services/mobile_utilities/sms_gateway/post_get": {
+    "view": "services/PostGet",
+    "title": "Post/Get",
+    "index": 1,
+    "acls": ["services/mobile_utilities/sms_gateway/post_get"]
+  }
+}

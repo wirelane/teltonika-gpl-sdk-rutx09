@@ -40,7 +40,8 @@ cleanup() {
 	ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "\
 		b=\"\$($df_cmd)\" ;\
 		d=1048576 ;\
-		find '$path' -maxdepth 1 -type d -mtime '$mtime' -exec rm -r {} ';' ;\
+		find '$path' -maxdepth 1 -type d -mtime '$mtime' -exec rm -r {} + ;\
+		find '$path' -name wiki -type d -exec rm -rf {} + ;\
 		a=\"\$($df_cmd)\" ;\
 		printf \"Before:  $fmt\\nAfter:   $fmt\\nCleaned: $fmt\\n\" \"\$((b / d))\" \"\$((a / d))\" \"\$(((b - a) / d))\"
 	"
@@ -103,9 +104,10 @@ ARCH=$(ls "${TOPDIR}/bin/packages/")
 PACKAGEDIR="${TOPDIR}/bin/packages/${ARCH}/pm_packages"
 ZIPPEDDIR="${TOPDIR}/bin/packages/${ARCH}/zipped_packages"
 TAG=$(git describe | awk -F "-pm" '{print $1}')
-HASH=$(echo -n "00/${TAG}/${PLATFORM}" | sha256sum | awk '{print $1}')
+CLIENT=$(grep 'CONFIG_TLT_VERSIONING_CLIENT' .config | cut -d'=' -f2 | tr -d '"')
+HASH=$(echo -n "${CLIENT}/${TAG}/${PLATFORM}" | sha256sum | awk '{print $1}')
 FOLDER="$PACKAGES_ROOT/${HASH}"
-LINK="$PACKAGES_ROOT/packages/00/${TAG}"
+LINK="$PACKAGES_ROOT/packages/${CLIENT}/${TAG}"
 
 echo "UPLOADING TO ${!SSH_USER_HOST#*@}:"
 ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "rm -fr ${FOLDER:?}"

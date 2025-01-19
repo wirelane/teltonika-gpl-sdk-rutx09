@@ -31,6 +31,7 @@
         maxlength="64"
         multiple
         allow-create
+        rules="defaulttype"
       />
     </vuci-named-section>
   </vuci-form>

@@ -268,6 +268,7 @@ proto_pppmobile_teardown() {
 		ip route flush table 42
 		ip route flush table 43
 		ip route del "$bridge_ipaddr"
+		ip neigh del "$bridge_ipaddr" dev br-lan 2>/dev/null
 		swconfig dev switch0 set soft_reset 5 &
 	}
 

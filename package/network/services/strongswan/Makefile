@@ -471,6 +471,11 @@ $(call Package/strongswan/description/Default)
  This is a tool to test ipsec connection
 endef
 
+define Build/Install
+	find $(PKG_BUILD_DIR)/src $(PKG_BUILD_DIR)/conf -name '*.conf' -print -exec sed -i -e 's/#.*$$$$//' -e '/^[[:space:]]*$$$$/d' {} +
+	$(call Build/Install/Default)
+endef
+
 define BuildPlugin
   define Package/strongswan-mod-$(1)
     $$(call Package/strongswan/Default)

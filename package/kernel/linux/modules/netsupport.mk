@@ -110,6 +110,14 @@ define KernelPackage/vxlan/mdm9x07
   FILES:=$(LINUX_DIR)/drivers/net/vxlan.ko
 endef
 
+define KernelPackage/vxlan/ath79
+  FILES:=$(LINUX_DIR)/drivers/net/vxlan.ko
+endef
+
+define KernelPackage/vxlan/x86
+  FILES:=$(LINUX_DIR)/drivers/net/vxlan.ko
+endef
+
 define KernelPackage/vxlan/description
  Kernel module for supporting VXLAN in the Kernel.
  Requires Kernel 3.12 or newer.

@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=libboardjson
 
 PKG_LICENSE:=Teltonika-closed
-PKG_SOURCE_VERSION:=7.11
+PKG_SOURCE_VERSION:=7.12
 
 include $(INCLUDE_DIR)/package.mk
 

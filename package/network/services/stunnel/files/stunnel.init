@@ -8,6 +8,7 @@ USE_PROCD=1
 PID_FILE="/var/run/stunnel/stunnel.pid"
 CONF_FILE="/var/etc/stunnel.conf"
 BIN="/usr/bin/stunnel"
+[ -x "$BIN" ] || BIN="/usr/local$BIN"
 CONF_FILE_CREATED=
 HAVE_ALT_CONF_FILE=
 SERVICE_SECTION_FOUND=

@@ -1,13 +1,13 @@
 {
-	"network/other/udprelay": {
-		"read": {
-			"api": {
-				"/udprelay/*": ["*"],
-				"/interfaces/config/*": ["id", "name", "proto"]
-			}
-		},
-		"write": {
-			"api": ["/udprelay/*"]
-		}
-	}
+  "network/udprelay": {
+    "read": {
+      "api": {
+        "/udprelay/*": ["*"],
+        "/interfaces/config/*": ["id", "name", "proto"]
+      }
+    },
+    "write": {
+      "api": ["/udprelay/*"]
+    }
+  }
 }

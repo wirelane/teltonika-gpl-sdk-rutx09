@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tailscale
 PKG_VERSION:=1.70.0
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_HASH:=8429728708f9694534489daa0a30af58be67f25742597940e7613793275c738f
 
@@ -74,5 +74,29 @@ define Package/tailscale/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.6
 	$(CP) ./files/defaults/99_tailscale_fw_rules $(1)/etc/uci-defaults/7.6/99_tailscale_fw_rules
 endef
+
+define Package/tailscale/prerm
+	#!/bin/sh
+	. /lib/functions.sh
+
+	clean_zones() {
+		config_get name "$$1" name ""
+		[ "$$name" = "tailscale" ] && uci_remove firewall "$$1"
+	}
+
+	clean_forwardings() {
+		config_get dest "$$1" dest ""
+		config_get src "$$1" src ""
+		[ "$$dest" = "tailscale" ] || [ "$$src" = "tailscale" ] && uci_remove firewall "$$1"
+	}
+
+	config_load 'firewall'
+	config_foreach clean_zones "zone"
+	config_foreach clean_forwardings "forwarding"
+	uci_commit firewall
+	/etc/init.d/firewall reload > /dev/null 2>&1
+	exit 0
+endef
+
 
 $(eval $(call BuildPackage,tailscale))

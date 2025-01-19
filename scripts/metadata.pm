@@ -158,6 +158,7 @@ sub parse_target_metadata($) {
 		/^Target-Profile-hasImageMetadata:\s*(\d+)\s*$/ and $profile->{has_image_metadata} = $1;
 		/^Target-Profile-InitialSupportVersion:\s*(\S+)\s*$/ and $profile->{initial_support_version} = $1;
 		/^Target-Profile-DefaultLogPartition:\s*(\S+)\s*$/ and $profile->{mtd_log_partition} = $1;
+		/^Target-Profile-ModemVendor:\s*(.*)\s*$/ and $profile->{modem_vendor} = $1;
 		/^Target-Profile-MultiProfileName:\s*(\S+)\s*$/ and $profile->{multi_profile_name} = $1;
 		/^Target-Profile-GPLPrefix:\s*(.+)\s*$/ and $profile->{gpl_prefix} = $1;
 		/^Target-Profile-SupportedDevices:\s*(.+)\s*$/ and $profile->{supported_devices} = [ split(/\s+/, $1) ];
@@ -165,6 +166,7 @@ sub parse_target_metadata($) {
 		/^Target-Profile-IncludedDevices:\s*(.*)\s*$/ and $profile->{included_devices} = $1;
 		/^Target-Profile-CheckPath:\s*(.*)\s*$/ and $profile->{check_path} = $1;
 		/^Target-Profile-USBJackPath:\s*(.*)\s*$/ and $profile->{usb_jack_path} = $1;
+		/^Target-Profile-USBJackPathLowSpeed:\s*(.*)\s*$/ and $profile->{usb_jack_path_low_speed} = $1;
 		/^Target-Profile-WLANBssidLimit:\s*(.*)\s*$/ and $profile->{wlan_bssid_limit} = $1;
 		/^Target-Profile-WLANBssidLimit:\s*(.*)\s*$/ and $profile->{wlan_bssid_limit} = $1;
 		/^Target-Profile-LANInterfaceOpt:\s*(.*)\s*$/ and $profile->{lan_iface_opt} = $1;

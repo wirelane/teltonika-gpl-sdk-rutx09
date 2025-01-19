@@ -5,7 +5,8 @@
 START=90
 USE_PROCD=1
 
-PROG=/usr/bin/zerotier-one
+PROG="/usr/bin/zerotier-one"
+[ -x "$PROG" ] || PROG="/usr/local$PROG"
 CONFIG_PATH=/var/lib/zerotier-one
 
 setup_network() {

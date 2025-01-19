@@ -1,0 +1,73 @@
+Index: fstools-2022-05-03-9e11b372/libfstools/mtd.c
+===================================================================
+--- fstools-2022-05-03-9e11b372.orig/libfstools/mtd.c	2024-07-16 08:28:29.736893758 +0300
++++ fstools-2022-05-03-9e11b372/libfstools/mtd.c	2024-07-16 08:29:17.785636696 +0300
+@@ -336,6 +336,7 @@
+ 
+ static struct driver mtd_driver = {
+ 	.name = "mtd",
++	.priority = 10,
+ 	.find = mtd_volume_find,
+ 	.init = mtd_volume_init,
+ 	.erase = mtd_volume_erase,
+Index: fstools-2022-05-03-9e11b372/libfstools/rootdisk.c
+===================================================================
+--- fstools-2022-05-03-9e11b372.orig/libfstools/rootdisk.c	2022-05-03 04:00:21.000000000 +0300
++++ fstools-2022-05-03-9e11b372/libfstools/rootdisk.c	2024-07-16 08:29:37.965934124 +0300
+@@ -108,10 +108,6 @@
+ 	if (!rootdev)
+ 		return NULL;
+ 
+-	if (strstr(rootdev, "mtdblock") ||
+-	    strstr(rootdev, "ubiblock"))
+-		return NULL;
+-
+ 	if (get_squashfs(&sb))
+ 		return NULL;
+ 
+Index: fstools-2022-05-03-9e11b372/libfstools/ubi.c
+===================================================================
+--- fstools-2022-05-03-9e11b372.orig/libfstools/ubi.c	2022-05-03 04:00:21.000000000 +0300
++++ fstools-2022-05-03-9e11b372/libfstools/ubi.c	2024-07-16 08:29:52.414142034 +0300
+@@ -171,6 +171,7 @@
+ 
+ static struct driver ubi_driver = {
+ 	.name = "ubi",
++	.priority = 20,
+ 	.find = ubi_volume_find,
+ 	.init = ubi_volume_init,
+ 	.identify = ubi_volume_identify,
+Index: fstools-2022-05-03-9e11b372/libfstools/volume.c
+===================================================================
+--- fstools-2022-05-03-9e11b372.orig/libfstools/volume.c	2022-05-03 04:00:21.000000000 +0300
++++ fstools-2022-05-03-9e11b372/libfstools/volume.c	2024-07-16 08:30:16.670482024 +0300
+@@ -23,7 +23,16 @@
+ void
+ volume_register_driver(struct driver *d)
+ {
+-	list_add(&d->list, &drivers);
++	struct driver *cur, *tmp;
++
++	list_for_each_entry_safe(cur, tmp, &drivers, list) {
++		if (d->priority <= cur->priority)
++			continue;
++
++		_list_add(&d->list, cur->list.prev, &cur->list);
++		return;
++	}
++	list_add_tail(&d->list, &drivers);
+ }
+ 
+ struct volume* volume_find(char *name)
+Index: fstools-2022-05-03-9e11b372/libfstools/volume.h
+===================================================================
+--- fstools-2022-05-03-9e11b372.orig/libfstools/volume.h	2022-05-03 04:00:21.000000000 +0300
++++ fstools-2022-05-03-9e11b372/libfstools/volume.h	2024-07-16 08:32:39.212275046 +0300
+@@ -30,6 +30,7 @@
+ 
+ struct driver {
+ 	struct list_head	list;
++	unsigned int		priority;
+ 	char			*name;
+ 	volume_probe_t		probe;
+ 	volume_init_t		init;

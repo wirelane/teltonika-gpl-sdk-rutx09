@@ -19,17 +19,6 @@ define Package/travelmate
 	TITLE:=A wlan connection manager for travel router
 	DEPENDS:=+iwinfo +jshn +jsonfilter +curl +ca-bundle
 	PKGARCH:=all
-	ifeq (m, $(CONFIG_PACKAGE_travelmate))
-		PKG_ROUTER:=$(TLT_PLATFORM_NAME)
-		PKG_TLT_NAME:=TravelMate
-		PKG_HW_INFO:=wifi
-	endif
-endef
-
-define Package/travelmate/description
-A wlan connection manager for travel router.
-Please see https://github.com/openwrt/packages/blob/master/net/travelmate/files/README.md for further information.
-
 endef
 
 define Package/travelmate/conffiles

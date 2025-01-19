@@ -145,7 +145,6 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
 +		get_log_indexes(log_file, &oldest_index, &next_index);
 +		char *log_file_copy = strdup(log_file);
 +		char *dir_name = dirname(log_file_copy);
-+		free(log_file_copy);
 +		long free_space = get_free_space(dir_name);
 +		long required_space = log_size + 500000; // 0.5MB for safety
 +
@@ -162,6 +161,7 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
 +			}
 +			free_space = get_free_space(dir_name);
 +		}
++		free(log_file_copy);
 +		if (next_index) {
 +			close(sender.fd);
 +			rotate_log_file(log_file, next_index);

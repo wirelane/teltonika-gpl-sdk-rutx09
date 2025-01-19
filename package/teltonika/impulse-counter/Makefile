@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=impulse-counter
-PKG_VERSION:=2024-11-13
+PKG_VERSION:=2025-01-08
 PKG_SOURCE_VERSION:=7.11
 PKG_LICENSE:=Teltonika-closed
 

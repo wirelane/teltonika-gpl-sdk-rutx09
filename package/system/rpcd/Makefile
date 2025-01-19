@@ -76,26 +76,27 @@ define Package/rpcd/install
 	$(INSTALL_CONF) ./files/rpcd.config $(1)/etc/config/rpcd
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) ./files/lan_info $(1)/usr/libexec/rpcd/
-	if [ $(CONFIG_WIFI_SUPPORT) ]; then \
+
+	$(if $(CONFIG_WIFI_SUPPORT),\
 		$(SED) "s@%%WIRELESS_CHANNEL_ANALYSIS_ACL%%@list read '!status/wireless/channel_analysis*'@g" \
 			$(1)/etc/config/rpcd; \
-	else \
+	,\
 		$(SED) "/%%WIRELESS_CHANNEL_ANALYSIS_ACL%%/d" $(1)/etc/config/rpcd; \
-	fi
+	)
 
-	if [ $(TLT_PLATFORM_RUTX) ]; then \
+	$(if $(filter y,$(CONFIG_PACKAGE_coova-chilli)),\
 		$(SED) "s@%%USER_SCRIPTS_HOTSPOT_ACL%%@list read '!services/hotspot/general/userscripts*'@g" \
 			$(1)/etc/config/rpcd; \
-	else \
+	,\
 		$(SED) "/%%USER_SCRIPTS_HOTSPOT_ACL%%/d" $(1)/etc/config/rpcd; \
-	fi
+	)
 
-	if [ $(CONFIG_MOBILE_SUPPORT) ]; then \
+	$(if $(CONFIG_MOBILE_SUPPORT),\
 		$(SED) "s@%%MOBILE_UTILS_SMS_SEND_ACL%%@list read '!services/mobile_utilities/sms_messages/send*'@g" \
 			$(1)/etc/config/rpcd; \
-	else \
+	,\
 		$(SED) "/%%MOBILE_UTILS_SMS_SEND_ACL%%/d" $(1)/etc/config/rpcd; \
-	fi
+	)
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot rpcd ./files/rpcd.openrc $(1))

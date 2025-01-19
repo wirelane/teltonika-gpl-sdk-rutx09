@@ -60,6 +60,18 @@ platform_check_hw_support() {
 
 	{ ! prepare_metadata_hw_mods "$1"; } && return 1
 
+	local board exp hwver
+	board="$(cat /sys/mnf_info/name)"
+	hwver="$(cat /sys/mnf_info/hwver)"
+	exp="^RUTX(09|11)"
+
+	if [[ $board =~ $exp && "${hwver:2:2}" -ge "12" ]]; then
+		if ! find_hw_mod "RUTX_V12"; then
+			echo "This hardware revision is not supported by older firmwares"
+			return 1
+		fi
+	fi
+
 	# nand type validation
 	grep -q '^W25N02KV' "$nand_model_file" && { ! find_hw_mod "W25N02KV"; } && {
 		echo "Winbond NAND detected but fw does not support it"

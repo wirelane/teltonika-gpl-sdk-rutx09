@@ -37,7 +37,7 @@ define Device/teltonika_rutx
 	FILESYSTEMS := squashfs
 	DEVICE_FEATURES := usb-port gps serial modbus io wifi bt dualsim \
 			port-mirror ntrip hw-offload mobile dot1x-client portlink \
-			xfrm-offload
+			xfrm-offload tpm
 	GPL_PREFIX := GPL
 	# Default common packages for RUTX series
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,7 +63,19 @@ define Device/teltonika_rutx
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	HW_SUPPORT := io_expander%stm32:shiftreg_1
 
-	HW_MODS := mod1%W25N02KV mod2%NAND_GD5F2GXX mod3%EG060K
+	HW_MODS := mod1%W25N02KV mod2%NAND_GD5F2GXX mod3%EG060K mod4%RUTX_V12
+
+	INCLUDED_DEVICES := \
+		TEMPLATE_teltonika_rutx08 \
+		TEMPLATE_teltonika_rutx09 \
+		TEMPLATE_teltonika_rutx10 \
+		TEMPLATE_teltonika_rutx11 \
+		TEMPLATE_teltonika_rutx12 \
+		TEMPLATE_teltonika_rutx14 \
+		TEMPLATE_teltonika_rutx50 \
+		TEMPLATE_teltonika_rutxr1
+
+	DEVICE_MODEM_VENDORS := Quectel
 
 endef
 TARGET_DEVICES += teltonika_rutx

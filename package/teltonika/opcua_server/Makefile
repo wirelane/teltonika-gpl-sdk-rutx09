@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=opcua_server
-PKG_VERSION:=2024-11-13
+PKG_VERSION:=2025-01-08
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
-PKG_SOURCE_VERSION:=7.11
+PKG_SOURCE_VERSION:=7.12
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -36,6 +36,18 @@ define Package/opcua_server/install
 endef
 
 define Build/Test
+endef
+
+define Package/$(PKG_NAME)/prerm
+	#!/bin/sh
+	. /lib/functions.sh
+	config_load opcua_server
+	config_get key opcua_server key ""
+	[ -n "$$key" ] && rm -f "$$key"
+	config_get certificate opcua_server certificate ""
+	[ -n "$$certificate" ] && rm -f "$$certificate"
+	config_list_foreach opcua_server tcl rm
+	exit 0
 endef
 
 $(eval $(call BuildPackage,opcua_server))

@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ddns-scripts
-PKG_VERSION:=2024-11-05
+PKG_VERSION:=2024-10-30
 PKG_RELEASE:=1
 
 
@@ -319,8 +319,10 @@ define Package/ddns-scripts_no-ip_com/postinst
 	#!/bin/sh
 	# remove old services file entries
 	/bin/sed -i '/no-ip\.com/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
+	/bin/sed -i '/no-ip\.com/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
 	# and create new
 	printf "%s\\t%s\\n" '"no-ip.com"' '"update_no-ip_com.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
+	printf "%s\\t%s\\n" '"no-ip.com"' '"update_no-ip_com.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services_ipv6
 	# on real system restart service if enabled
 	[ -z "$${IPKG_INSTROOT}" ] && {
 		/etc/init.d/ddns enabled && \
@@ -332,6 +334,7 @@ define Package/ddns-scripts_no-ip_com/prerm
 	#!/bin/sh
 	# remove services file entries
 	/bin/sed -i '/no-ip\.com/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
+	/bin/sed -i '/no-ip\.com/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
 	exit 0	# suppress errors
 endef
 

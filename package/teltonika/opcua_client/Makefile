@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=opcua_client
-PKG_VERSION:=2024-11-13
-PKG_SOURCE_VERSION:=7.11
+PKG_VERSION:=2025-01-08
+PKG_SOURCE_VERSION:=7.12
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=OPC UA client by Teltonika
-	DEPENDS:=+libuci +libtlt_uci +libubox +libubus +libtlt_utils +libsqlite3 +open62541 +rpcd
+	DEPENDS:=+libuci +libtlt_uci +libubox +libubus +libsqlite3 +open62541 +rpcd +libcfgx
 endef
 
 define Package/$(PKG_NAME)/description
@@ -124,6 +124,19 @@ define Package/$(PKG_NAME)/prerm
 	config_foreach start_opc_ua_in "input"
 	/etc/init.d/data_sender reload 2> /dev/null || true
 
+	######################################################################
+
+	delete_files() {
+		config_get key "$$1" key ""
+		[ -n "$$key" ] && rm -f "$$key"
+		config_get certificate "$$1" certificate ""
+		[ -n "$$certificate" ] && rm -f "$$certificate"
+		config_list_foreach "$$1" tcl rm
+	}
+
+	config_load opcua_client
+	config_foreach delete_files server
+	exit 0
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

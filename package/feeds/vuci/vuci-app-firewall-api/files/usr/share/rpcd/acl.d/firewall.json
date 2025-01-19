@@ -3,7 +3,6 @@
     "description": "firewall zones configuration",
     "read": {
       "api": {
-        "/nat_offloading/global*": ["*"],
         "/firewall/zones/config/*": ["*"],
         "/firewall/global/*": ["*"],
         "/interfaces/config/*": ["id", "name"],
@@ -18,10 +17,23 @@
       }
     },
     "write": {
-      "api": ["/nat_offloading/*", "/firewall/zones/config/*", "/firewall/global/*"]
+      "api": ["/firewall/zones/config/*"]
     },
     "source": ["/firewall/zones/config/*"],
     "exception": ["/firewall/zones/config/*"]
+  },
+
+  "network/firewall/settings": {
+    "description": "firewall zones configuration",
+    "read": {
+      "api": {
+        "/nat_offloading/global*": ["*"],
+        "/firewall/global/*": ["*"]
+      }
+    },
+    "write": {
+      "api": ["/nat_offloading/*", "/firewall/global/*"]
+    }
   },
 
   "network/firewall/forwards": {

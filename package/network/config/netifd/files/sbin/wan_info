@@ -6,6 +6,11 @@ EXCLUDE_PROTOS="relay sstp pptp gre l2tp l2tpv3 wireguard mirror vrf"
 MWAN_TRACK_DIR="/var/run/mwan3track"
 MIN_METRIC=999999
 MIN_WANIF=""
+INCLUDE_VPN=0
+IGNORE_FAILOVER=0
+
+[ "$2" = "--include-vpn" ] || [ "$3" = "--include-vpn" ] && INCLUDE_VPN=1
+[ "$2" = "--ignore-failover" ] || [ "$3" = "--ignore-failover" ] && IGNORE_FAILOVER=1
 
 parse_mwan3_wan(){
 	local section="$1"
@@ -19,7 +24,8 @@ parse_mwan3_wan(){
 
 	[ "$(cat ${MWAN_TRACK_DIR}/${interface}/STATUS 2>/dev/null)" = "online" ] && is_online=1
 
-	[ $is_online -eq 0 ] || [ "$metric" -gt "$MIN_METRIC" ] || [ -z "$proto" ]  || [[ "$EXCLUDE_PROTOS" == *"$proto"* ]] && return;
+	[ $is_online -eq 0 ] || [ "$metric" -gt "$MIN_METRIC" ] || [ -z "$proto" ]  && return
+	[ $INCLUDE_VPN -eq 0 ] && [[ "$EXCLUDE_PROTOS" == *"$proto"* ]] && return
 	MIN_METRIC="$metric"
 	MIN_WANIF="$iface"
 }
@@ -29,7 +35,7 @@ if ! network_find_wan wanif "" 10; then
 	exit
 fi
 
-[ -d "$MWAN_TRACK_DIR" ] && {
+[ -d "$MWAN_TRACK_DIR" ] && [ $IGNORE_FAILOVER -eq 0 ] && {
 	config_load mwan3
 	config_foreach parse_mwan3_wan member
 }
@@ -37,9 +43,10 @@ fi
 if [ -z $MIN_WANIF ]; then
 	for i in $wanif
 	do
-        network_get_metric metric "$i"
-        network_get_protocol proto "$i"
-        [ "$metric" -gt "$MIN_METRIC" ] || [ -z "$proto" ]  || [[ "$EXCLUDE_PROTOS" == *"$proto"* ]] && continue;
+		network_get_metric metric "$i"
+		network_get_protocol proto "$i"
+		[ "$metric" -gt "$MIN_METRIC" ] || [ -z "$proto" ] && continue
+		[ $INCLUDE_VPN -eq 0 ] && [[ "$EXCLUDE_PROTOS" == *"$proto"* ]] && continue
 		MIN_METRIC="$metric"
 		MIN_WANIF="$i"
 	done
@@ -72,4 +79,6 @@ case "$1" in
 		network_get_device wandev "$wanif"
 		echo "$wandev"
 		;;
+	*)
+		echo "Usage: wan_info {ip|state|interface} [--include-vpn] [--ignore-failover]"
 esac

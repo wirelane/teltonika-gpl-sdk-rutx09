@@ -35,13 +35,13 @@ endef
 define Package/post-get-mobile
   $(call Package/post-get/Default)
   TITLE:=Mobile handlers
-  DEPENDS:=post-get
+  DEPENDS:=+post-get
 endef
 
 define Package/post-get-io
   $(call Package/post-get/Default)
   TITLE:=I/O handlers
-  DEPENDS:=post-get
+  DEPENDS:=+post-get
 endef
 
 CONFIGURE_ARGS += \

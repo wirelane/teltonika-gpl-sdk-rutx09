@@ -1,5 +1,35 @@
 [
   {
+    "category": "Services",
+    "name": "Post/Get - I/O",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Post/Get - Mobile",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Network",
+    "name": "VRF",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
     "category": "System",
     "name": "System Users",
     "depends": []
@@ -9,9 +39,18 @@
     "name": "VXLAN",
     "depends": [
       {
-        "type": "hw",
-        "name": "flash16mb",
-        "value": false
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "TR-069",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
       }
     ]
   },
@@ -43,17 +82,36 @@
   {
     "category": "Services",
     "name": "Bluetooth",
-    "depends": []
+    "depends": [
+      {
+        "type": "hw",
+        "name": "bluetooth"
+      }
+    ]
   },
   {
     "category": "Services",
     "name": "NTP Client",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      },
+      {
+        "type": "family",
+        "name": "TAP"
+      }
+    ]
   },
   {
     "category": "Services",
     "name": "AWS IoT Core",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "System",
@@ -63,17 +121,22 @@
   {
     "category": "Services",
     "name": "Console",
-    "depends": []
+    "depends": [
+      {
+        "type": "hw",
+        "name": "serial_usb"
+      }
+    ]
   },
   {
     "category": "Services",
     "name": "Modbus TCP over Serial Gateway",
-    "depends": []
-  },
-  {
-    "category": "Services",
-    "name": "Python3",
-    "depends": []
+    "depends": [
+      {
+        "type": "hw",
+        "name": "serial_usb"
+      }
+    ]
   },
   {
     "category": "System",
@@ -83,27 +146,46 @@
   {
     "category": "Services",
     "name": "L2TPv3",
-    "depends": []
-  },
-  {
-    "category": "Services",
-    "name": "Console",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "Services",
     "name": "Tinc",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "Services",
     "name": "Wireguard",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "Network",
     "name": "Curl",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      },
+      {
+        "type": "family",
+        "name": "TAP"
+      }
+    ]
   },
   {
     "category": "Services",
@@ -129,7 +211,12 @@
   {
     "category": "Services",
     "name": "L2TP",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "System",
@@ -144,7 +231,12 @@
   {
     "category": "Services",
     "name": "Events Reporting",
-    "depends": []
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "System",
@@ -184,6 +276,10 @@
   },
   {
     "category": "System",
+    "name": "USB client"
+  },
+  {
+    "category": "System",
     "name": "Security"
   },
   {
@@ -195,6 +291,10 @@
         "name": "Router"
       }
     ]
+  },
+  {
+    "category": "System",
+    "name": "NTP"
   },
   {
     "category": "Services",
@@ -249,8 +349,8 @@
     "name": "BACnet",
     "depends": [
       {
-        "type": "family",
-        "name": "Router"
+        "type": "hw",
+        "name": "rs485"
       }
     ]
   },
@@ -315,10 +415,6 @@
   {
     "category": "System",
     "name": "Events Log"
-  },
-  {
-    "category": "System",
-    "name": "Logging"
   },
   {
     "category": "Services",
@@ -438,7 +534,23 @@
   },
   {
     "category": "Network",
-    "name": "802.1X"
+    "name": "802.1X Server",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "has_dot1x_server"
+      }
+    ]
+  },
+  {
+    "category": "Network",
+    "name": "802.1X Client",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "has_dot1x_client"
+      }
+    ]
   },
   {
     "category": "Network",

@@ -1,0 +1,5 @@
+{
+	"system/admin/access_control/general": {
+		"main_page": true
+	}
+}

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=multiple_ap
-PKG_VERSION:=2024-11-05
+PKG_VERSION:=2025-01-07
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 

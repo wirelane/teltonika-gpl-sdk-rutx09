@@ -194,7 +194,7 @@ fwtool_check_image() {
 	}
 
 	fwtool_json_release_version_check || {
-		fwtool_msg "Firmware version is to old" "12"
+		fwtool_msg "Firmware version is too old" "12"
 		return 1
 	}
 

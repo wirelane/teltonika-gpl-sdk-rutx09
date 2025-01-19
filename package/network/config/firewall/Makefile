@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_RELEASE:=9
+PKG_RELEASE:=11
 
 PKG_SOURCE_DATE:=2022-02-17
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -50,7 +50,6 @@ TARGET_LDFLAGS += -lmnl -lnetfilter_conntrack
 CMAKE_OPTIONS += $(if $(CONFIG_IPV6),,-DDISABLE_IPV6=1)
 
 FIREWALL_CONFIG="firewall.config"
-
 ifeq ($(TLT_PLATFORM_TAP100), y)
 	FIREWALL_CONFIG=firewall.config-tap100
 endif
@@ -63,46 +62,25 @@ ifeq ($(TLT_PLATFORM_TAP400), y)
 	FIREWALL_CONFIG=firewall.config-tap400
 endif
 
-ifeq ($(CONFIG_HW_OFFLOAD), y)
-	FIREWALL_CONFIG=firewall.config-offload-full
-endif
-
-ifeq ($(CONFIG_SW_OFFLOAD), y)
-	FIREWALL_CONFIG=firewall.config-offload-sw
-endif
-
-ifeq ($(CONFIG_GATEWAY_DEVICE), y)
-	FIREWALL_CONFIG=firewall.config-without-wan
-endif
-
-ifeq ($(CONFIG_SW_OFFLOAD), y)
-ifeq ($(CONFIG_GATEWAY_DEVICE), y)
-	FIREWALL_CONFIG=firewall.config-offload-sw-without-wan
-endif
-endif
-
-ifeq ($(CONFIG_POE_SUPPORT), y)
-	FIREWALL_CONFIG=firewall.config-without-wan
-endif
-
-ifeq ($(CONFIG_SW_OFFLOAD), y)
-ifeq ($(CONFIG_POE_SUPPORT), y)
-	FIREWALL_CONFIG=firewall.config-offload-sw-without-wan
-endif
-endif
-
-ifeq ($(CONFIG_HW_OFFLOAD), y)
-ifeq ($(CONFIG_POE_SUPPORT), y)
-	FIREWALL_CONFIG=firewall.config-offload-full-without-wan
-endif
-endif
-
 ifeq ($(TLT_PLATFORM_TCR1), y)
 	FIREWALL_CONFIG=firewall.config-tcr100
 endif
 
 ifeq ($(TLT_PLATFORM_DAP14X), y)
 	FIREWALL_CONFIG=firewall.config-dap14x
+endif
+
+OFFLOADING=""
+WAN_NETWORK="option network 'wan wan6'"
+ifeq ($(CONFIG_SW_OFFLOAD), y)
+	OFFLOADING="option flow_offloading '1'"
+endif
+ifeq ($(CONFIG_HW_OFFLOAD), y)
+	OFFLOADING="option flow_offloading '1'\n	option flow_offloading_hw '1'"
+endif
+
+ifeq ($(CONFIG_NO_WIRED_WAN), y)
+	WAN_NETWORK=""
 endif
 
 define Package/firewall/install
@@ -114,6 +92,10 @@ define Package/firewall/install
 	$(INSTALL_CONF) ./files/firewall.hotplug $(1)/etc/hotplug.d/iface/20-firewall
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_CONF) ./files/$(FIREWALL_CONFIG) $(1)/etc/config/firewall
+
+	$(SED) "s#%%OFFLOADING%%#"$(OFFLOADING)"#g" $(1)/etc/config/firewall
+	$(SED) "s#%%WAN_NETWORK%%#"$(WAN_NETWORK)"#g" $(1)/etc/config/firewall
+
 	$(INSTALL_DIR) $(1)/etc/
 	$(INSTALL_CONF) ./files/firewall.user $(1)/etc/firewall.user
 	$(INSTALL_DIR) $(1)/usr/share/fw3

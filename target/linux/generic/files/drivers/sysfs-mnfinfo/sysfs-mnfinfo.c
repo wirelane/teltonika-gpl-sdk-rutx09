@@ -47,6 +47,7 @@
 	ACT(branch, ##__VA_ARGS__)                                                                           \
 	ACT(batch, ##__VA_ARGS__)                                                                            \
 	ACT(sim_cfg, ##__VA_ARGS__)                                                                          \
+	ACT(profiles, ##__VA_ARGS__)                                                                         \
 	ACT(sim_count, ##__VA_ARGS__)                                                                        \
 	ACT(simpin1, ##__VA_ARGS__)                                                                          \
 	ACT(simpin2, ##__VA_ARGS__)                                                                          \

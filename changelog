@@ -1,35 +1,196 @@
-# 2024-12-12 00.07.11.3
-
-### Fix
-
-* Input/Output: fixed issues causing fault messages on service close (ID: 22398)
-* Ledman: fixed green-red tech leds blinking indefinitely after reboot before manual mobile connection restart for RUT9M family (ID: 22418)
-* Network: fixed possible memory leak when "IPsec software flow offload" is enabled for DAP family, OTD140, RUT14X family, RUT2M family, RUT301, RUT361, RUT9M family, RUTC family, TRB2M family (ID: 22349)
-* Wireguard: fixed field validation after firmware upgrade (ID: 22075)
-
-# 2024-12-04 00.07.11.2
-
-### Fix
-
-* IPsec: fixed connection status display (ID: 22085)
-* IPsec: fixed issue with multiple global secrets of same type (ID: 22222)
-* IPsec: fixed loading connections using AEAD algorithms (ID: 22068)
-* IPsec: fixed Local source IP option (ID: 22097)
-* OpenVPN: fixed the certificate file selection issue in the server configuration (ID: 22030)
-
-# 2024-11-27 00.07.11.1
+# 2025-01-17 00.07.12
 
 ### New
 
-* Update Firmware: added support for new image format for RUTC family (ID: 20576)
+* 802.1X Client: added initial support for DAP family (ID: 21867)
+* DLMS: added configurable timeout option for serial connection (ID: 18822)
+* Dynamic DNS: added IPv6 support (ID: 19912)
+* GPS: added UBus method to get available NMEA sentences (ID: 19704)
+* Mobile: added "datasim.com" APN for "BT" operator to APN database (ID: 21807)
+* Mobile: added "datasim.com" APN for "Vodafone" operator to APN database (ID: 21807)
+* Mobile: added "datasim.com" APN for "Vodafone" operator to APN database (ID: 21807)
+* Mobile: added "datasim.global" APN for "Telefonica" operator to APN database (ID: 21807)
+* Mobile: added "global" APN for "Jersey Telecom" operator to APN database (ID: 21807)
+* Mobile: added "soracom.io" APN for "Soracom" carrier to APN database (ID: 21910)
+* Mobile: added mobile data limit feature for TRB500 (ID: 18107)
+* RutOS: added initial support for RUTM20 (ID: 20465)
+* RutOS: added initial support for RUTM30 (ID: 20466)
+* Tailscale: added removal of firewall rules when the package is deleted (ID: 20715)
+* VXLAN: moved VXLAN package to PM (ID: 22343)
+* WebUI: added default HTTP redirect to HTTPS for RUTX family (ID: 21812)
+
+### Improvements
+
+* API Core: added query parameter for configuration GET endpoints to receive all options, even if unset (ID: 20885)
+* Azure IoT Hub: added timed out D2C message retry handling (ID: 21008)
+* Boot: decreased boot times by building the necessary modules into the kernel (ID: 21862)
+* Certificates: moved "Let's Encrypt" functionality to Package Manager (ID: 21862)
+* DHCP: added leased IP status in DHCP server page (ID: 21139)
+* DLMS: added ability to view COSEM objects for each scanned physical device in overview page (ID: 21286)
+* DNS: added DNS strict order option (ID: 20585)
+* Docker: enabled some FS ACL and FS security kernel options for wider docker image compatibility (ID: 21654)
+* Firewall: improved "Conntrack helpers" field in zone edit by making it disabled with explanation instead of hiding it (ID: 17902)
+* Firewall: moved all traffic rule fields related to action to be below action field (ID: 17902)
+* Firewall: moved target field to the bottom of NAT rule edit and renamed it to "Action" to match traffic rules (ID: 17902)
+* Firewall: removed ability for any firewall rules to have port selection if protocol is set to "all" (ID: 17902)
+* Firewall: separated zone and global firewall settings into different pages (ID: 17902)
+* GPS: added broadcast and multicast support to NMEA forwarding (ID: 21114)
+* GPS: added WWAN connection warnings for devices that have GNSS WWAN conflict (ID: 18398)
+* IPsec: added API support for debug, route install and make before break options (ID: 22074)
+* IPsec: improved AES-CBC performance for OTD500, RUTM family, ATRM family (ID: 17795)
+* IPsec: improved multi-core CPU utilization on decrypt path for ATRM family, RUTC family, OTD500, RUTM family, RUTX family (ID: 21524)
+* Mobile: improved active SIM display in tabs and status pages (ID: 21091)
+* Mobile: improved deny data roaming to prevent connection issues after re-enabling roaming (ID: 20646)
+* Mobile: improved DNS checking across different interface PDP types (ID: 21863)
+* Mobile: improved error messages for eSIM profile downloads (ID: 20697)
+* Mobile: improved how mobile services check internet connection using pings (ID: 20883)
+* Mobile: improved modem reboot sequence (ID: 18225)
+* Mobile: improved modem signal value filtering (ID: 21424)
+* Mobile: improved SIM detection (ID: 18598)
+* Modbus Server: added analog register (pwr0) for TRB160 (ID: 18987)
+* Modbus TCP over Serial Gateway: added multiple connections support for up to 10 clients (ID: 16062)
+* Modbus TCP over Serial Gateway: added option for serial device reply timeout for Router family (ID: 16062)
+* Modbus TCP over Serial Gateway: improved performance for Router family (ID: 16062)
+* Network: fixed configuration viewing in the WAN page when user has only read permission for Router family (ID: 21710)
+* NTP Client: updated 'Count of failed NTP requests' option to permanently synchronize with mobile operator when NTP servers fail (ID: 21421)
+* NTP: added warnings about WWAN connection for devices that have GNSS WWAN conflict (ID: 18398)
+* OPC UA Client: added 'Client' word in menu and documentation (ID: 16073)
+* OPC UA Server: renamed 'Destination Server' to 'Server' in documentation (ID: 16073)
+* Overview: added IP type status to network interface cards for Router family (ID: 12796)
+* Package Manager: removed "Installed Version" and "Available Version" columns from the package table (ID: 21672)
+* Package Manager: updated description for "TravelMate" package (ID: 18167)
+* Post/Get - I/O: moved to Package Manager for TRB2M family, RUT30X family, RUT9M family, RUT2M family, RUT36X family (ID: 20662)
+* Post/Get - Mobile: moved to Package Manager for TRB2M family, OTD140, RUT9M family, RUT2M family, RUT36X family, TCR1 family (ID: 20662)
+* SMS Utilities: changed format of ADC and ACL status (ID: 21711)
+* System Status: removed luci-bwc package dependency (ID: 17848)
+* Troubleshoot: added simcfg info to troubleshoot (ID: 22063)
+* UDP Relay: moved service menu item from Network > Other > UDP Relay to Network > UDP Relay (ID: 19753)
+* VRF: added additional validations to address used device cases for Router family (ID: 21582)
+* VXLAN: separated edit form options into general and advanced tabs (ID: 21386)
+* WebUI: improved login screen error messages (ID: 21972)
+* Wireless: improved wireless join action performance for Router family (ID: 20921)
+* Wireless: renamed password field in join modal to be called same as in edit modal (ID: 20694)
+* Wireless: sorted scan results by signal strength by default (ID: 20694)
 
 ### Fix
 
-* Boot: fixed not working 3G LED in bootloader for RUTM52 (ID: 21892)
-* Hotspot: fixed limits not working for "MAC authentication", "Single sign-on" and "SMS OTP" modes (ID: 21985)
-* Ledman: fixed issue when network type LEDs are blinking when data connection is established (ID: 21733)
-* Memory Expansion: fixed USB flash drive recognition for RUT301 (ID: 21950)
-* Tailscale: fixed the segmentation fault that occurred after installing the package (ID: 21984)
+* 802.1X Server: updated radius secret back-end validation to match front-end validation (ID: 730)
+* API Core: fixed read-only list option deletion bug (ID: 21412)
+* BACnet: fixed API firewall rule creation (ID: 22556)
+* BACnet: fixed missing actions in BIP configuration section (ID: 21667)
+* Certificates: fixed issue where the API allowed the deletion of root certificate (ID: 20333)
+* Certificates: fixed uploading of certificates that are 4096 bits or longer (ID: 21783)
+* DLMS: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* DLMS: fixed mismatched name validations between API and WebUI (ID: 21089)
+* DLMS: fixed parameters table not always refreshing when selecting devices (ID: 21088)
+* DNP3 Client: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* DNP3 Client: fixed API error when non existent parent id is provided in requests endpoint URL (ID: 20003)
+* DNP3 Outstation: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* Dynamic routes: fixed dynamic routes not starting after installation on rare occasions (ID: 21547)
+* Firewall: deprecated invalid dest_local option in traffic rules API (ID: 21413)
+* Firewall: fixed zone placement in NAT rule description (ID: 21663)
+* GPS: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* GPS: fixed NMEA prefix dropdowns by simplifying their displayed values (ID: 14845)
+* IPsec: fixed deleting global secrets when more than one ipsec instances are configured (ID: 21514)
+* IPsec: fixed excessive logging (ID: 22074)
+* IPsec: fixed firewall rules migration and identifier setting when certificate authentication is used (ID: 22109)
+* IPsec: fixed IPsec not reloading after DMVPN uninstall (ID: 21627)
+* IPsec: fixed showing empty error messages after instance deletion (ID: 21921)
+* IPsec: increased maximum length of local / remote identifiers and selector ID to 255 characters (ID: 21514)
+* MBus Client: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* Mobile: disabled 5G SA network for Verizon carrier for RUTM50 (ID: 22220)
+* Mobile: fixed an issue where duplicate APN could be configured (ID: 21988)
+* Mobile: fixed an issue where incorrect SIM was selected (ID: 22211)
+* Mobile: fixed an issue where SIM card pin code would be stored as "N/A" (ID: 22466)
+* Mobile: fixed cell ID parsing on 2G networks (ID: 21343)
+* Mobile: fixed displaying 5G SA mobile signal properties in real-time data page for ATRM50, OTD500, RUT271, RUT976, RUTC50, RUTM20, RUTM30, RUTM50, RUTM51, RUTM52, RUTM54, RUTM55, RUTM56, RUTM59, RUTX50, TRB500, TRB501 (ID: 22450)
+* Mobile: fixed eSIM plugin crash on modem info parsing for RUTM52, OTD500, RUT241, RUTM54 (ID: 22111)
+* Mobile: fixed eSIM profile configuration when multiple profiles are available for RUT241, RUTM52, OTD500, RUTM54 (ID: 21190)
+* Mobile: fixed incorrect SIM slot configuration for RUTM11 (ID: 22738)
+* Mobile: fixed issue where bandwidth was returned as 'unknown' and ARFCN as 0 when GPS was enabled for TRB256 (ID: 20935)
+* Mobile: fixed LAC/TAC display in mobile status page (ID: 22172)
+* Mobile: fixed modem information collection after firmware installation (ID: 21384)
+* Mobile: fixed repetitive mobile band configuration on startup (ID: 21548)
+* Mobile: fixed SMS limit displaying incorrect reset date (ID: 21931)
+* Mobile: improved operator name parsing when information is unavailable on the SIM card (ID: 21796)
+* Modbus Client: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* Modbus Client: fixed configuration files not being removed after package removal (ID: 18902)
+* Modbus Client: fixed missing serial option in test request documentation (ID: 21437)
+* Modbus Server: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* Modbus Server: fixed configuration files not being removed after package removal (ID: 18902)
+* Modbus Server: fixed network link state retrieval for RUT271 (ID: 21621)
+* Modbus TCP over Serial Gateway: fixed gateway forwarding unrequested data from serial device for Router family (ID: 16062)
+* Modem Control: fixed modem control duplicating configuration option (ID: 22426)
+* MQTT Modbus Gateway: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* MQTT Modbus Gateway: fixed configuration files not being removed after package removal (ID: 18902)
+* Network: fixed missing PPPoE username and password validations for Router family (ID: 21716)
+* NTP Client: fixed Count of time synchronizations that was not working properly (ID: 22682)
+* NTRIP: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* OPC UA Client: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* OPC UA Client: fixed API security mode option require validation (ID: 20920)
+* OPC UA Client: fixed configuration files not being removed after package removal (ID: 18902)
+* OPC UA Client: fixed URL validation (ID: 16673)
+* OPC UA Client: fixed validation for prefix, midfix, postfix options (ID: 22025)
+* OPC UA Server: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* OPC UA Server: fixed API encryption option require validation (ID: 20920)
+* OPC UA Server: fixed configuration files not being removed after package removal (ID: 18902)
+* OPC UA Server: fixed mobile data value retrieval for RUTX12, RUTM52 (ID: 21810)
+* OPC UA Server: fixed modem information not showing if one SIM card is not inserted for RUTM52, RUTX12 (ID: 16673)
+* OpenVPN: fixed the problem related to the 'netlink reports object not found' warning when using the DCO configuration (ID: 20362)
+* Over IP: fixed an issue where uptime becomes incorrect when system time changes (ID: 21177)
+* Over IP: fixed API error when incorrect device option value was sent (ID: 22297)
+* Over IP: fixed serial device buffer handling (ID: 21486)
+* Overview: fixed main interface show for Router family (ID: 21998)
+* Overview: fixed port display in LAN cards when there is configured port based VLAN or bridge via device page for RUTM family (ID: 21951)
+* Package Manager: added link for "TravelMate" package where it can be configured (ID: 18167)
+* Package Manager: added protection against zip bombs when uploading a package (ID: 20685)
+* PAM: fixed creating new instance (ID: 22840)
+* Ports Settings: fixed an issue where incorrect port index was used for RUTX family (ID: 22276)
+* Ports Settings: fixed an occasional infinite spinner issue when changing port settings (ID: 21057)
+* Ports Settings: fixed incorrect warning message for identical port configurations (ID: 21044)
+* QOS: fixed source and destination host field validation to allow subnet in CIDR notation (ID: 21489)
+* QOS: fixed starting SQM after reboot when QoS package is installed (ID: 22459)
+* RMS: fixed UCI file configuration bug (ID: 21592)
+* SNMP: fixed mwan3Ip to display 'N/A' if no IPs are present (ID: 20360)
+* Static Routes: fixed interface select not showing SSTP instances (ID: 21187)
+* TR-069: fixed ConnectionRequestURL node to return VPN IP address if VPN is used for Router family (ID: 20751)
+* Update Firmware: fixed page reload after firmware upgrade using HTTPS protocol (ID: 22254)
+* USB client: fixed symlink creation for USB serial adapters for RUT301 (ID: 22604)
+* VLAN: fixed wrong error message when deleting a VLAN that does not exist (ID: 22143)
+* VRF: fixed an issue that prevented saving the configuration when an inactive VLAN was selected for Router family (ID: 21582)
+* Web Filter: added exception to FOTA server blocking (ID: 21664)
+* Web Filter: fixed site blocking not working with Hotspot (ID: 22548)
+* Web Filter: fixed site blocking rules affecting router itself when selecting specific network interface (ID: 21473)
+* Web Filter: fixed whitelist not working with domains that have forwards to other domains (ID: 9041)
+* WebUI: fixed '/hotspot/user_management/status/{id}' endpoint to return data when existing id is passed (ID: 21189)
+* WebUI: fixed API PUT request serial validation only validating first instance (ID: 20893)
+* WebUI: fixed Content Security Policy errors due to invalid directives (ID: 20086)
+* WebUI: fixed default value display on instances for multiple services for TRB1 family, TRB2 family, Router family, TRB5 family (ID: 21011)
+* WebUI: fixed save button being enabled when serial device is not found in BACnet, DLMS, DNP3, Console, NMEA, Modbus, Modem Control, NTRIP, Over IP services (ID: 20995)
+* WebUI: fixed SDK example app validation mismatch between UI and API (ID: 20745)
+* Wifi Scanner: fixed service not working when initially Wireless radio is disabled (ID: 21197)
+* Wireless: fixed 2.4 GHz radio sometimes being inactive after configuration for RUTX family (ID: 22151)
+* Wireless: fixed API "htmode" option format validation (ID: 22140)
+* Wireless: fixed API allowing empty "country" value (ID: 22140)
+* Wireless: fixed displayed client status when WPA supplicant does not have status (ID: 21295)
+* Wireless: fixed incorrect TX power calculation for RUT9M family, TAP100, RUT14X family, DAP family, RUT2M family, RUT361 (ID: 22374)
+* Wireless: fixed rare failure to initialize wireless interface when 160 MHz DFS channel is configured for RUTC50 (ID: 21381)
+* Wireless: fixed required password validation in join modal for Router family (ID: 21855)
+* Wireless: fixed transmit power getting adjusted incorrectly when changing regulatory country (ID: 21439)
+
+### CVE Patches
+
+* CVE-2024-5594 (ID: 22804)
+* CVE-2024-9681 (ID: 21640)
+* CVE-2024-29195 (ID: 21008)
+
+### Updates
+
+* azure-iot-sdk-c: updated version to  LTS_08_2024 for Router family (ID: 21008)
+* Curl: updated version to  8.11.0 (ID: 21640)
+* Kernel: updated version to  5.4.285 for TRB2 family, TRB1 family, RUT300, RUT360, TCR1 family (ID: 7140)
+* Kernel: updated version to  5.10.229 for RUTX family, RUTM family, OTD500, TAP200, ATRM family (ID: 7140)
+* Kernel: updated version to  5.15.171 for RUTC family, TRB2M family, RUT14X family, OTD140, RUT2M family, RUT301, RUT361, RUT9M family, TAP100, TAP400, DAP family (ID: 7140)
 
 # 2024-11-25 00.07.11
 
@@ -184,6 +345,53 @@
 * libffi: updated version to  3.4.6 (ID: 21285)
 * Mosquitto: updated version to  2.0.20 (ID: 21551)
 * readline: updated version to  8.2 (ID: 21285)
+
+# 2024-11-15 00.07.10.4
+
+### Fix
+
+* Kernel: fixed an issue with wi-fi not starting properly for RUTM family (ID: 21648)
+* Ledman: fixed issue when network type LED does not turn on when data connection is established (ID: 21516)
+
+# 2024-11-07 00.07.10.3
+
+### Fix
+
+* Update Firmware: fixed firmware size validation for TRB160 (ID: 21482)
+
+# 2024-10-25 00.07.10.2
+
+### New
+
+* Mobile: added "213x.sentinel01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "213x.sentinelent01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "iot.kajeet" APN for "T-Mobile" operator to APN database (ID: 21109)
+* Mobile: added "iot.tmowholesale.static" APN for "T-Mobile" operator to APN database (ID: 21109)
+* Mobile: added "iot.tmowholesale" APN for "T-Mobile" operator to APN database (ID: 21109)
+* Mobile: added "kajeet.crs.bell.ca.ioe" APN for "Bell Mobility" operator to APN database (ID: 21109)
+* Mobile: added "kajeet.fw5g.vzwentp" APN for "Verizon" operator to APN database (ID: 21109)
+* Mobile: added "kajeet.gw12.vzwentp" APN for "Verizon" operator to APN database (ID: 21109)
+* Mobile: added "sentinel-static.mcs" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.apn" APN for "Rogers" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.crs.bell.ca.ioe" APN for "Bell Mobility" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.lpwa.vf" APN for "LPWA" operator to APN database (ID: 21109)
+* Mobile: added "sentinel.vf" APN for "Vodafone" operator to APN database (ID: 21109)
+* Mobile: added "sentinel01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "sentinelent01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "sentinelnb01.com.attz" APN for "AT&T" operator to APN database (ID: 21109)
+* Mobile: added "uscc05016.enterprise3.usc-cdp" APN for "US Cellular" operator to APN database (ID: 21109)
+* Mobile: added "uscc07009.enterprise3.usc-cdp" APN for "US Cellular" operator to APN database (ID: 21109)
+* Mobile: added "V5GA01INTERNET" APN for "Verizon" operator to APN database (ID: 21109)
+
+### Improvements
+
+* Mobile: improved carrier aggregation signal value parsing (ID: 17700)
+
+### Fix
+
+* Firewall: fixed bug in NAT rule migration script that would overwrite Port Forwarding rule options (ID: 21382)
+* Mobile: fixed eSIM profile loading from servers with unusual response (ID: 20807)
+* Network: fixed unnecessary RX packet drop in Ethernet driver for RUTX family (ID: 21420)
 
 # 2024-10-08 00.07.10
 

@@ -1,6 +1,6 @@
 --- a/drivers/gpio/gpiolib.c
 +++ b/drivers/gpio/gpiolib.c
-@@ -404,6 +404,86 @@ static int devprop_gpiochip_set_names(st
+@@ -405,6 +405,86 @@ static int devprop_gpiochip_set_names(st
  	return 0;
  }
  
@@ -87,7 +87,7 @@
  static unsigned long *gpiochip_allocate_mask(struct gpio_chip *gc)
  {
  	unsigned long *p;
-@@ -691,12 +771,13 @@ int gpiochip_add_data_with_key(struct gp
+@@ -692,12 +772,13 @@ int gpiochip_add_data_with_key(struct gp
  	INIT_LIST_HEAD(&gdev->pin_ranges);
  #endif
  
