@@ -357,7 +357,7 @@ config TPM_TSS
 	tristate "TPM TCG library"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT
+	default m if !NAND_SUPPORT && !LARGE_FLASH
 	default y
 	imply PACKAGE_tpm2-tss
 	help
@@ -368,7 +368,7 @@ config TPM_TOOLS
 	tristate "TPM tools"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT
+	default m if !NAND_SUPPORT && !LARGE_FLASH
 	default y
 	imply PACKAGE_tpm2-tools
 	help
@@ -382,7 +382,7 @@ config TPM_OPENSSL
 	tristate "TPM OpenSSL"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT
+	default m if !NAND_SUPPORT && !LARGE_FLASH
 	default y
 	imply PACKAGE_tpm2-openssl
 	help
@@ -815,7 +815,7 @@ config QOS_SUPPORT
 config DLNA_SUPPORT
 	tristate "DLNA"
 	maintainer "SysApp"
-	depends on PKG_SUPPORT && USB_SUPPORT_EXTERNAL
+	depends on PKG_SUPPORT && USB_STORAGE_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-minidlna-ui
 	help

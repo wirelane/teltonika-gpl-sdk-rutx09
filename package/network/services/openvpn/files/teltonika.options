@@ -5,12 +5,10 @@ cert
 crl_verify
 dh
 cipher
-comp_lzo
 dev
 keepalive
 key
 port
-proto
 resolv_retry
 tls_auth
 tls_crypt

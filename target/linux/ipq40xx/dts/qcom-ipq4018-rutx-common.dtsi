@@ -153,6 +153,13 @@
 			log;
 		};
 
+		hwver_lo {
+			reg = <&config 0x54 0x4>;
+			type = "digit";
+			default = "0000";
+			log;
+		};
+
 		branch {
 			reg = <&config 0x58 0x4>;
 			type = "ascii";

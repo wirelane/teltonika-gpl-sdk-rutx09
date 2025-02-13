@@ -38,6 +38,10 @@ define Package/jamvm
 		@(i386||i686||x86_64||arm||armeb||mips||mipsel||powerpc||powerpc64) +CONFIG_powerpc64:libffi
 endef
 
+define Package/python3/teltonika_rute
+	PKG_HW_INFO:=usb
+endef
+
 define Package/jamvm/description
  JamVM is a new Java Virtual Machine which conforms to the JVM
  specification version (blue book). In comparison to most other VM's (free

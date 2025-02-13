@@ -128,7 +128,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  	usb_kill_urb(dev->interrupt);
  	usb_free_urb(dev->interrupt);
  	kfree(dev->padding_pkt);
-@@ -1808,6 +1887,13 @@ usbnet_probe (struct usb_interface *udev
+@@ -1807,6 +1886,13 @@ usbnet_probe (struct usb_interface *udev
  		}
  	}
  
@@ -166,7 +166,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  
  	/* init device ... can sleep, or cause probe() failure */
  	int	(*bind)(struct usbnet *, struct usb_interface *);
-@@ -346,4 +354,14 @@ inline struct sk_buff *usbnet_clone_zero
+@@ -346,4 +354,14 @@ static inline struct sk_buff *usbnet_clo
  	return nskb;
  }
  

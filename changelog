@@ -1,3 +1,27 @@
+# 2025-02-06 00.07.12.3
+
+### New
+
+* Modbus Client: added an endpoint that returns status for a single Modbus request (ID: 23443)
+
+### Fix
+
+* Network: fixed occasional network hangs when using wired LAN with "Hardware flow offloading" enabled for RUTM family, ATRM family (ID: 23196)
+* Network: fixed possible network hangs when using wired LAN with "Hardware flow offloading" enabled for RUTC50 (ID: 23196)
+
+# 2025-02-04 00.07.12.2
+
+### Improvements
+
+* Update Firmware: optimized modem firmware validation and update sequence for TRB1 family (ID: 22765)
+
+### Fix
+
+* IPsec: fixed kernel warnings when custom NAT rules are used with "IPsec Software Flow Offload" enabled for DAP family, OTD family, RUT14X family, RUT2M family, RUT30X family, RUT361, RUT9M family, RUTC family, RUTM family, RUTX family, TRB2M family (ID: 22793)
+* Mobile: fixed provider name parsing from SPN file (ID: 23011)
+* OpenVPN: fixed an issue with config file parsing when carriage return characters were present (ID: 22918)
+* OpenVPN: fixed parsing of the 'Protocol','Port' and 'LZO' options from the config file (ID: 22918)
+
 # 2025-01-17 00.07.12
 
 ### New

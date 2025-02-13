@@ -7,8 +7,6 @@ Subject: [PATCH 1/1] fix fw3/fw4 detection of nf_conntrack_pptp module
  net/netfilter/nf_conntrack_pptp.c | 5 +++++
  1 file changed, 5 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_pptp.c b/net/netfilter/nf_conntrack_pptp.c
-index 7d5708b..1848145 100644
 --- a/net/netfilter/nf_conntrack_pptp.c
 +++ b/net/netfilter/nf_conntrack_pptp.c
 @@ -34,6 +34,7 @@
@@ -30,6 +28,3 @@ index 7d5708b..1848145 100644
  int
  (*nf_nat_pptp_hook_outbound)(struct sk_buff *skb,
  			     struct nf_conn *ct, enum ip_conntrack_info ctinfo,
--- 
-2.47.0
-

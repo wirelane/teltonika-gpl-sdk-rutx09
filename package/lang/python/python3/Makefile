@@ -145,6 +145,10 @@ define Package/python3/teltonika_rut9m
   PKG_HW_INFO:=usb
 endef
 
+define Package/python3/teltonika_rute
+  PKG_HW_INFO:=usb
+endef
+
 define Package/python3/description
 $(call Package/python3/Default/description)
 

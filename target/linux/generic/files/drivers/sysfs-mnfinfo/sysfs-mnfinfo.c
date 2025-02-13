@@ -44,6 +44,7 @@
 	ACT(wps, ##__VA_ARGS__)                                                                              \
 	ACT(serial, ##__VA_ARGS__)                                                                           \
 	ACT(hwver, ##__VA_ARGS__)                                                                            \
+	ACT(hwver_lo, ##__VA_ARGS__)                                                                         \
 	ACT(branch, ##__VA_ARGS__)                                                                           \
 	ACT(batch, ##__VA_ARGS__)                                                                            \
 	ACT(sim_cfg, ##__VA_ARGS__)                                                                          \
@@ -214,7 +215,7 @@ static int fix_sim_count(void)
 	return 0;
 }
 
-static int fix_simcfg_type(struct mnfinfo_entry *e, size_t len, const char *def)
+static int fix_simcfg_type(struct mnfinfo_entry *e, size_t len, const char *def, bool keep_sim_presence)
 {
 	size_t i;
 	char *simcfg;
@@ -224,11 +225,14 @@ static int fix_simcfg_type(struct mnfinfo_entry *e, size_t len, const char *def)
 		if ((*simcfg < '0' || *simcfg > '2') && *simcfg != '_') {
 			if(i == 0) {
 				if(!def) return 1;
-				snprintf(e->data, e->dt_len, "%s", def);
-				return 0;
-			}
-			*simcfg = 0;
+				snprintf(simcfg, e->dt_len, "%s", def);
+			} else
+				*simcfg = 0;
 		}
+		/* temporary disable sim_presence */
+		if (!keep_sim_presence && (i == 5 || i == 13 || i == 21 || i == 29))
+			*simcfg = '0'; // sim_presence set to N/A
+		/* temporary disable sim_presence */
 		simcfg++;
 	}
 	e->is_set = true;
@@ -293,7 +297,7 @@ static int fix_digit_type(struct mnfinfo_entry *e, size_t len, const char *def)
 }
 
 static int fix_types(struct mnfinfo_entry *e, size_t len, const char *type, const char *def, bool strip,
-		     bool rs_alligned)
+		     bool rs_alligned, bool keep_sim_presence)
 {
 	int rc = 0;
 
@@ -306,7 +310,7 @@ static int fix_types(struct mnfinfo_entry *e, size_t len, const char *type, cons
 	} else if (!strcmp(type, "ascii")) {
 		rc = fix_ascii_type(e, len, def);
 	} else if (!strcmp(type, "simcfg")) {
-		rc = fix_simcfg_type(e, len, def);
+		rc = fix_simcfg_type(e, len, def, keep_sim_presence);
 	} else if (!strcmp(type, "alnum")) {
 		rc = fix_alnum_type(e, len, def);
 	} else if (!strcmp(type, "digit")) {
@@ -386,6 +390,12 @@ const char *mnf_info_get_hw_version(void)
 }
 EXPORT_SYMBOL(mnf_info_get_hw_version);
 
+const char *mnf_info_get_hw_lo_version(void)
+{
+	return get_data_of("hwver_lo");
+}
+EXPORT_SYMBOL(mnf_info_get_hw_lo_version);
+
 const char *mnf_info_get_branch(void)
 {
 	return get_data_of("branch");
@@ -405,10 +415,10 @@ static int parse_prop(struct device_node *node)
 	size_t retlen;
 	int status, size, i, z, di;
 	const char *part, *def, *type, *str, *dev_name, *branch;
-	int arr_hwver[2], cur_hwver;
+	int arr_hwver[4], cur_hwver, cur_hwver_lo;
 	const __be32 *list, *min_rlen;
 	phandle phandle;
-	bool strip, right_side_alligned;
+	bool strip, right_side_alligned, keep_sim_presence;
 	struct mnfinfo_entry *e;
 
 	for (e = mnf_data; e < e + ARRAY_SIZE(mnf_data); e++) {
@@ -434,7 +444,14 @@ devcompat:
 	if (of_property_read_u32_array(node, "tlt-mnf,hwver", arr_hwver, 2) == 0) {
 		str = mnf_info_get_hw_version();
 		if (kstrtoint(str, 10, &cur_hwver) != 0 || cur_hwver == 0) goto hvcompat;
-		if (cur_hwver > 99) cur_hwver %= 100;
+		if (cur_hwver > 99) cur_hwver /= 100;
+
+		str = mnf_info_get_hw_lo_version();
+		if (kstrtoint(str, 10, &cur_hwver_lo) != 0) cur_hwver_lo = 0;
+		if (cur_hwver_lo > 99) cur_hwver_lo /= 100;
+
+		cur_hwver = 100 * cur_hwver + cur_hwver_lo;
+
 		if (arr_hwver[0] <= cur_hwver && cur_hwver <= arr_hwver[1])
 			goto hvcompat;
 		pr_debug("Property \"%s\" is incompatible with hw v%d\n", node->full_name, cur_hwver);
@@ -537,8 +554,9 @@ brcompat:
 
 	strip		    = !!of_find_property(node, "strip-whitespaces", NULL);
 	right_side_alligned = !!of_find_property(node, "right-side-alligned", NULL);
+	keep_sim_presence   = !!of_find_property(node, "keep-sim-presence", NULL);
 
-	if (fix_types(e, retlen, type, def, strip, right_side_alligned)) {
+	if (fix_types(e, retlen, type, def, strip, right_side_alligned, keep_sim_presence)) {
 		pr_debug("Failed to fix type for \"%s\"\n", e->name);
 		kfree(e->data);
 		return -1;

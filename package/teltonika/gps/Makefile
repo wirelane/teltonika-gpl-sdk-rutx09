@@ -84,7 +84,7 @@ define Package/gpsd/install
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_TRB2M.conf $(1)/etc/config/gps; \
 	elif [ $(TLT_PLATFORM_TRB2) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_TRB2.conf $(1)/etc/config/gps; \
-	elif [ $(TLT_PLATFORM_RUT9M) ]; then \
+	elif [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_RUT9.conf $(1)/etc/config/gps; \
 	elif [ $(TLT_PLATFORM_ATRM50) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/gps_ATRM50.conf $(1)/etc/config/gps; \
@@ -118,7 +118,7 @@ define Package/avl/install
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_RUTX.conf $(1)/etc/config/avl; \
 	elif [ $(TLT_PLATFORM_TRB2) ] || [ $(TLT_PLATFORM_TRB2M) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_TRB2.conf $(1)/etc/config/avl; \
-	elif [ $(TLT_PLATFORM_RUT9M) ]; then \
+	elif [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_RUT9.conf $(1)/etc/config/avl; \
 	elif [ $(TLT_PLATFORM_ATRM50) ]; then \
 		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/avl_ATRM50.conf $(1)/etc/config/avl; \

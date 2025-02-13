@@ -234,7 +234,7 @@ define DownloadMethod/github_archive
 			--subdir="$(SUBDIR)" \
 			--source="$(FILE)" \
 			--hash="$(MIRROR_HASH)" \
-		|| ( $(call DownloadMethod/rawgit) ); \
+		|| ( $(call DownloadMethod/rawgit) ) \
 	)
 endef
 

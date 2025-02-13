@@ -11,6 +11,7 @@ endif
 NO_API_DEPEND:=y
 ifneq ($(CONFIG_USES_SOFT_PORT_MIRROR),)
 	APP_DEPENDS:=+vuci-app-software-port-mirroring-api
+	APP_HW_INFO:=soft_port_mirror
 endif
 
 include ../app.mk

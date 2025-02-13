@@ -35,7 +35,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/qlog $(1)/usr/bin/qlog
 
 	#If not one of the listed PLATFORMS install diag_saver and qc_trace_collector
-	$(if $(TLT_PLATFORM_TRB2)$(TLT_PLATFORM_TRB2M)$(TLT_PLATFORM_RUT361)$(TLT_PLATFORM_RUT36X)$(TLT_PLATFORM_TCR1)$(TLT_PLATFORM_OTD140)$(TLT_PLATFORM_RUT9M)$(TLT_PLATFORM_RUT2M)$(TLT_PLATFORM_RUT206),,
+	$(if $(TLT_PLATFORM_TRB2)$(TLT_PLATFORM_TRB2M)$(TLT_PLATFORM_RUT361)$(TLT_PLATFORM_RUT36X)$(TLT_PLATFORM_TCR1)$(TLT_PLATFORM_OTD140)$(TLT_PLATFORM_RUT9M)$(TLT_PLATFORM_RUT2M)$(TLT_PLATFORM_RUTE),,
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/diag_saver $(1)/usr/bin/diag_saver
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/qc_trace_collector/qc-trace-collector/linux/qc_trace_collector $(1)/usr/bin/qc_trace_collector
 	)

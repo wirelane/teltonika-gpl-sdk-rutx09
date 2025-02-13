@@ -61,8 +61,9 @@ define Device/teltonika_rutx
 	# Hardware supprot
 	# HW_SUPPORT := type1%type1_value1:type1_value2 type2%type2_value1 ...
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	HW_SUPPORT := io_expander%stm32:shiftreg_1
+	DEVICE_MODEM_VENDORS := Quectel
 
+	HW_SUPPORT := io_expander%stm32:shiftreg_1
 	HW_MODS := mod1%W25N02KV mod2%NAND_GD5F2GXX mod3%EG060K mod4%RUTX_V12
 
 	INCLUDED_DEVICES := \
@@ -74,9 +75,6 @@ define Device/teltonika_rutx
 		TEMPLATE_teltonika_rutx14 \
 		TEMPLATE_teltonika_rutx50 \
 		TEMPLATE_teltonika_rutxr1
-
-	DEVICE_MODEM_VENDORS := Quectel
-
 endef
 TARGET_DEVICES += teltonika_rutx
 

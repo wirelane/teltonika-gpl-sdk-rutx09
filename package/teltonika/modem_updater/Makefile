@@ -38,7 +38,7 @@ define Package/modem_updater/install
 	)
 	$(if $(findstring Meiglink,$(CONFIG_DEVICE_MODEM_VENDORS)),
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/Meig_Firehose/meig_firehose $(1)/usr/bin/meig_firehose
-		$(if $(TLT_PLATFORM_RUT2M)$(TLT_PLATFORM_RUT206),,
+		$(if $(TLT_PLATFORM_RUT2M)$(TLT_PLATFORM_RUTE),,
 			$(INSTALL_BIN) $(PKG_BUILD_DIR)/fbfdownloader/fbfdownloader $(1)/usr/bin/fbfdownloader
 		),
 	)

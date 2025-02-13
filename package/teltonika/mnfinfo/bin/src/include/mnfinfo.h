@@ -24,6 +24,7 @@ char *lmnfinfo_get_maceth(void);
 char *lmnfinfo_get_sn(void);
 char *lmnfinfo_get_blver(void);
 char *lmnfinfo_get_hwver(void);
+char *lmnfinfo_get_hwver_lo(void);
 char *lmnfinfo_get_branch(void);
 char *lmnfinfo_get_full_hwver(void);
 char *lmnfinfo_get_batch(void);

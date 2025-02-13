@@ -81,18 +81,20 @@ this functionality was moved into the FLOWOFFLOAD implementation.
  		const struct ip_options *opt = &(IPCB(skb)->opt);
  
  		if (unlikely(opt->optlen))
-@@ -504,6 +539,10 @@ xt_flowoffload_route(struct sk_buff *skb
- 				   xt_net(par)))
+@@ -509,6 +544,12 @@ xt_flowoffload_route(struct sk_buff *skb
  		return -1;
+ 	}
  
 +	// this_dst might've changed, recheck it.
-+	if (!nf_flow_dst_xfrm_check(this_dst, par))
++	if (!nf_flow_dst_xfrm_check(this_dst, par)) {
++		dst_release(this_dst);
 +		return -1;
++	}
 +
  	memset(&fl, 0, sizeof(fl));
  	switch (xt_family(par)) {
  	case NFPROTO_IPV4:
-@@ -573,7 +612,7 @@ flowoffload_tg(struct sk_buff *skb, cons
+@@ -575,7 +616,7 @@ flowoffload_tg(struct sk_buff *skb, cons
  	struct nf_conn *ct;
  	struct net *net;
  

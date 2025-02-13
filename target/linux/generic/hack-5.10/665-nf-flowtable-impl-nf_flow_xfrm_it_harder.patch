@@ -155,14 +155,29 @@ Integration with xtables FLOWOFFLOAD is included.
 +EXPORT_SYMBOL_GPL(nf_flow_xfrm_it_harder);
 --- a/net/netfilter/xt_FLOWOFFLOAD.c
 +++ b/net/netfilter/xt_FLOWOFFLOAD.c
-@@ -500,6 +500,10 @@ xt_flowoffload_route(struct sk_buff *skb
+@@ -500,6 +500,15 @@ xt_flowoffload_route(struct sk_buff *skb
  	if (nf_flow_xfrm_tuple_disect(skb, &route->in.xfrm_tuple))
  		return -1;
  
-+	if (nf_flow_xfrm_it_harder(skb, ct, dir, &this_dst, xt_family(par),
-+				   xt_net(par)))
++	if (!dst_hold_safe(this_dst))
 +		return -1;
++
++	if (nf_flow_xfrm_it_harder(skb, ct, dir, &this_dst, xt_family(par),
++				   xt_net(par))) {
++		dst_release(this_dst);
++		return -1;
++	}
 +
  	memset(&fl, 0, sizeof(fl));
  	switch (xt_family(par)) {
  	case NFPROTO_IPV4:
+@@ -513,9 +522,6 @@ xt_flowoffload_route(struct sk_buff *skb
+ 		break;
+ 	}
+ 
+-	if (!dst_hold_safe(this_dst))
+-		return -1;
+-
+ 	nf_route(xt_net(par), &other_dst, &fl, false, xt_family(par));
+ 
+ 	nf_default_forward_path(route, this_dst, dir, *indev);

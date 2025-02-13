@@ -209,7 +209,7 @@ define Device/TEMPLATE_teltonika_rutx50
 	HARDWARE/Power/Input_voltage_range := $(HW_POWER_VOLTAGE_4PIN_50V)
 	HARDWARE/Physical_Interfaces/Ethernet := 5 $(HW_ETH_RJ45_PORTS), $(HW_ETH_SPEED_1000)
 	HARDWARE/Physical_Interfaces/Status_leds := 3 x connection status LEDs, 3 x connection strength LEDs, 10 x Ethernet port status LEDs, 4 x WAN status LEDs, 1 x Power LED, 2 x 2.4G and 5G Wi-Fi LEDs
-	HARDWARE/Physical_Interfaces/SIM := 2 $(HW_INTERFACE_SIM_HOLDERS)
+	HARDWARE/Physical_Interfaces/SIM := 2 $(HW_INTERFACE_SIM_HOLDERS), $(HW_INTERFACE_SIM_ESIM)
 	HARDWARE/Physical_Interfaces/Antennas := 4 x SMA for Mobile, 2 x RP-SMA for Wi-Fi, 1 x SMA for GNNS
 	HARDWARE/Physical_Specification/Weight := 533 g
 	HARDWARE/Physical_Specification/Dimensions := 132 x 44.2 x 95.1 mm

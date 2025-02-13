@@ -41,7 +41,7 @@ cleanup() {
 	[[ $size -lt 10737418240 ]] && return
 
 	#shellcheck disable=SC2016
-	info "$(printf 'Toolchain docker images take up %s on disk. You can cleanup all of them with:\n\n\t$ %s image rm $(%s image ls --all --format "{{.ID}}" "*/docker/buildsys/*")\n\n' "$(echo "$size" | numfmt --to=iec)" "$DOCKER_CMD" "$DOCKER_CMD")"
+	info "$(printf 'Toolchain docker images take up %s on disk. You can cleanup all of them with:\n\n\t$ %s image ls --all --format "{{.ID}}" "*/docker/buildsys/*" | xargs %s image rm\n\n' "$(echo "$size" | LC_ALL=en_US.UTF-8 numfmt --to=iec)" "$DOCKER_CMD" "$DOCKER_CMD")"
 }
 
 # Check for Docker installation

@@ -11,7 +11,7 @@ config TLT_VERSIONING_PREFIX
 	default TRB2 if TARGET_ath79_24kc_DEVICE_teltonika_trb2xx
 	default TRB2M if TARGET_ramips_mt76x8_DEVICE_teltonika_trb2m
 	default RUT2M if TARGET_ramips_mt76x8_DEVICE_teltonika_rut2m
-	default RUT206 if TARGET_ramips_mt76x8_DEVICE_teltonika_rut206
+	default RUTE if TARGET_ramips_mt76x8_DEVICE_teltonika_rute
 	default TAP100 if TARGET_ramips_mt76x8_DEVICE_teltonika_tap100
 	default TAP200 if TARGET_ramips_mt7621_DEVICE_teltonika_tap200
 	default TAP400 if TARGET_mediatek_mt7981_DEVICE_teltonika_tap400

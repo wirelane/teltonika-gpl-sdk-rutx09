@@ -1,4 +1,8 @@
 {
+  "system/admin/memory_expansion": {
+    "title": "Storage Memory Expansion",
+    "index": 80
+  },
   "system/admin/memory_expansion/usb": {
     "title": "USB",
     "index": 1,

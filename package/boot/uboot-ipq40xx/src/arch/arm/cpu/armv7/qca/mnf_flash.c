@@ -58,7 +58,7 @@ extern int mnf_flash_write(const mnf_field_t *field, const char *buf)
 extern int mnf_flash_write_finalize(void)
 {
         int ret;
-        
+
         ret = spi_flash_erase(flash, CONFIG_MNF_INFO_START, MNF_INFO_SIZE);
         if (ret)
                 return ret;

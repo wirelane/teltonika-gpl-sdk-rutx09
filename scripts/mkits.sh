@@ -183,11 +183,16 @@ if [ -n "${DTB}" ]; then
 			# extract XYZ from image-qcom-ipq4018-rutx-XYZ.dtb
 			f=${f##*-}
 			f=${f%.*}
+			v=${f#*~}
+			f=${f%%~*}
+
+			[ -n "$v" ] && [ "$v" != "$f" ] && HWVER="full_hwver = \"${v}\";"
 
 			CONFIG_NODE="${CONFIG_NODE}
 
 				conf_mdtb${REFERENCE_CHAR}${FDTNUM} {
 				description = \"${f}\";
+				${HWVER}
 				kernel = \"kernel${REFERENCE_CHAR}1\";
 				fdt = \"fdt${REFERENCE_CHAR}$FDTNUM\";
 			};

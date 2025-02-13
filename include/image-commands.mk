@@ -160,6 +160,14 @@ define Build/finalize-tlt-master-stendui
 	$(CP) $@ $(BIN_DIR)/tltFws/$(TLT_VERSION_FILE)$(UBOOT_INSERTION)_MASTER_STENDUI$(word 1,$(1))$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).bin
 endef
 
+define Build/finalize-tlt-master-stendui-ex
+	[ -d $(BIN_DIR)/tltFws ] || mkdir -p $(BIN_DIR)/tltFws
+
+	$(eval UBOOT_INSERTION=$(shell cat ${BIN_DIR}/u-boot_version))
+	$(if $(UBOOT_INSERTION), $(eval UBOOT_INSERTION=_UBOOT_$(UBOOT_INSERTION)))
+	$(CP) $@ $(BIN_DIR)/tltFws/$(if $(1),$(1)_)$(TLT_VERSION_FILE)$(UBOOT_INSERTION)_MASTER_STENDUI$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).bin
+endef
+
 define Build/kernel-bin
 	rm -f $@
 	cp $< $@
@@ -167,6 +175,11 @@ endef
 
 define Build/lzma
 	$(call Build/lzma-no-dict,-lc1 -lp2 -pb2 $(1))
+endef
+
+define Build/zstd
+	cat $@ | zstd -o $@.new
+	mv $@.new $@
 endef
 
 define Build/lzma-no-dict

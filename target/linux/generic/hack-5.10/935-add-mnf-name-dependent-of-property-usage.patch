@@ -1,7 +1,5 @@
-Index: linux-5.10.229/drivers/gpio/gpiolib-of.c
-===================================================================
---- linux-5.10.229.orig/drivers/gpio/gpiolib-of.c
-+++ linux-5.10.229/drivers/gpio/gpiolib-of.c
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
 @@ -1060,6 +1060,7 @@ static int of_gpio_export_probe(struct p
  {
  	struct device_node *np = pdev->dev.of_node;
@@ -29,10 +27,8 @@ Index: linux-5.10.229/drivers/gpio/gpiolib-of.c
  		of_property_read_string(cnp, "gpio-export,name", &name);
  
  		if (!name)
-Index: linux-5.10.229/drivers/of/base.c
-===================================================================
---- linux-5.10.229.orig/drivers/of/base.c
-+++ linux-5.10.229/drivers/of/base.c
+--- a/drivers/of/base.c
++++ b/drivers/of/base.c
 @@ -28,7 +28,8 @@
  #include <linux/slab.h>
  #include <linux/string.h>
@@ -43,7 +39,7 @@ Index: linux-5.10.229/drivers/of/base.c
  #include "of_private.h"
  
  LIST_HEAD(aliases_lookup);
-@@ -578,6 +579,94 @@ int of_machine_is_compatible(const char
+@@ -578,6 +579,102 @@ int of_machine_is_compatible(const char
  }
  EXPORT_SYMBOL(of_machine_is_compatible);
  
@@ -105,18 +101,27 @@ Index: linux-5.10.229/drivers/of/base.c
 +EXPORT_SYMBOL(of_mnf_branch_is_compatible);
 +
 +bool of_mnf_hwver_is_compatible(const struct property *prop) {
-+	static long int cur_hwver = 0;
-+	unsigned int arr_hwver[2];
++	static long int cur_hwver = 0, cur_hwver_lo = 0;
++	unsigned int arr_hwver[2], hwver;
 +	const __be32 *val;
 +	const char *p;
 +
++	/* If major hwver == 0, then it is from "test batch", i.e. always compatible */
 +	if (cur_hwver == 0) {
++		if ((p = mnf_info_get_hw_lo_version())) {
++			kstrtol(p, 10, &cur_hwver_lo);
++			if (cur_hwver_lo > 99) cur_hwver_lo /= 100;
++		}
++
 +		if (!(p = mnf_info_get_hw_version()))
 +			return true;
 +		kstrtol(p, 10, &cur_hwver);
-+		if (cur_hwver > 99) cur_hwver %= 100;
++		if (cur_hwver > 99) cur_hwver /= 100;
 +		if (cur_hwver == 0) return true;
++
 +	}
++
++	hwver = 100 * cur_hwver + cur_hwver_lo;
 +
 +	if (!prop->value)
 +		return false;
@@ -127,18 +132,17 @@ Index: linux-5.10.229/drivers/of/base.c
 +	arr_hwver[0] = be32_to_cpup(val);   // Lower hwver
 +	arr_hwver[1] = be32_to_cpup(val+1); // Upper hwver
 +
-+	if (arr_hwver[0] <= cur_hwver && cur_hwver <= arr_hwver[1])
++	if (arr_hwver[0] <= hwver && hwver <= arr_hwver[1])
 +		return true; /* Compatible */
 +
 +	return false;
 +}
 +EXPORT_SYMBOL(of_mnf_hwver_is_compatible);
 +
-+
  /**
   *  __of_device_is_available - check if a device is available for use
   *
-@@ -590,10 +679,23 @@ static bool __of_device_is_available(con
+@@ -590,10 +687,23 @@ static bool __of_device_is_available(con
  {
  	const char *status;
  	int statlen;
@@ -162,7 +166,7 @@ Index: linux-5.10.229/drivers/of/base.c
  	status = __of_get_property(device, "status", &statlen);
  	if (status == NULL)
  		return true;
-@@ -605,7 +707,6 @@ static bool __of_device_is_available(con
+@@ -605,7 +715,6 @@ static bool __of_device_is_available(con
  
  	return false;
  }
@@ -170,10 +174,8 @@ Index: linux-5.10.229/drivers/of/base.c
  /**
   *  of_device_is_available - check if a device is available for use
   *
-Index: linux-5.10.229/include/linux/of.h
-===================================================================
---- linux-5.10.229.orig/include/linux/of.h
-+++ linux-5.10.229/include/linux/of.h
+--- a/include/linux/of.h
++++ b/include/linux/of.h
 @@ -413,6 +413,10 @@ extern int of_update_property(struct dev
  extern int of_attach_node(struct device_node *);
  extern int of_detach_node(struct device_node *);
