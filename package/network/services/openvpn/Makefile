@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=openvpn
 
 PKG_VERSION:=2.6.9
-PKG_RELEASE:=3
+PKG_RELEASE:=5
 
 PKG_HASH:=e08d147e15b4508dfcd1d6618a1f21f1495f9817a8dadc1eddf0532fa116d7e3
 
@@ -119,6 +119,10 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(1)/etc/hotplug.d/openvpn/01-user
 
 	$(INSTALL_DATA) \
+		files/etc/hotplug.d/openvpn/02-status \
+		$(1)/etc/hotplug.d/openvpn/02-status
+
+	$(INSTALL_DATA) \
 		files/etc/openvpn.user \
 		$(1)/etc/openvpn.user
 
@@ -143,10 +147,6 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 
 	$(INSTALL_DATA) \
 		files/express_template.ovpn \
-		$(1)/etc/openvpn/
-
-	$(INSTALL_BIN) \
-		files/updown.sh \
 		$(1)/etc/openvpn/
 
 	$(INSTALL_BIN) \

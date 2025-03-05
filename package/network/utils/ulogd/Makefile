@@ -99,7 +99,7 @@ endef
 
 define Package/tlt-ulogd
   $(call Package/ulogd/Default)
-  DEPENDS:=+ulogd +ulogd-mod-extra +ulogd-mod-nflog
+  DEPENDS:=+ulogd +ulogd-mod-extra +ulogd-mod-nflog +iptables-mod-nflog
   TITLE:=Netfilter userspace logging daemon
   MENU:=1
 endef

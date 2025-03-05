@@ -2,9 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mqtt_pub
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-02-14
 
-PKG_SOURCE_VERSION:=2.11
+PKG_SOURCE_VERSION:=2.13
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -19,6 +19,7 @@ define Package/mqtt_pub
 	DEPENDS:=+libuci +libtlt_uci +libmosquitto-ssl +libubus +libjson-c \
 		+libubox +libblobmsg-json +mosquitto-ssl \
 		+IO_SUPPORT:iomand +MOBILE_SUPPORT:libgsm +libmnfinfo
+	USERID:=mqtt_pub:mqtt_pub
 endef
 
 define Package/mqtt_pub/description
@@ -33,12 +34,23 @@ endef
 
 
 define Package/mqtt_pub/install
-	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/share/acl.d
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mqtt_pub.conf $(1)/etc/config/mqtt_pub
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mqtt_pub.init $(1)/etc/init.d/mqtt_pub
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mqtt_pub.json $(1)/usr/share/acl.d/mqtt_pub.json
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mqtt_pub $(1)/usr/sbin/mqtt_pub
+endef
+
+define Package/mqtt_pub/postinst
+#!/bin/sh
+
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+#Relaod ubusd acl rules
+pid=$$(pidof ubusd)
+[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,mqtt_pub))

@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/pppoe/common.c src/pppd/plugins/pppoe/common.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pppd/plugins/pppoe/common.c src/pppd/plugins/pppoe/common.c
 --- upstream/pppd/plugins/pppoe/common.c	2021-01-04 23:43:57.000000000 +0000
 +++ src/pppd/plugins/pppoe/common.c	2021-01-04 23:06:37.000000000 +0000
 @@ -160,42 +160,6 @@
@@ -82,7 +82,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/ppp
  	}
  	printer(arg, "]");
      }
-diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/pppoe/discovery.c src/pppd/plugins/pppoe/discovery.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pppd/plugins/pppoe/discovery.c src/pppd/plugins/pppoe/discovery.c
 --- upstream/pppd/plugins/pppoe/discovery.c	2021-01-04 23:43:57.000000000 +0000
 +++ src/pppd/plugins/pppoe/discovery.c	2021-01-04 23:06:37.000000000 +0000
 @@ -138,7 +138,7 @@
@@ -333,7 +333,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/ppp
      }
  
      /* We're done. */
-diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/pppoe/plugin.c src/pppd/plugins/pppoe/plugin.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pppd/plugins/pppoe/plugin.c src/pppd/plugins/pppoe/plugin.c
 --- upstream/pppd/plugins/pppoe/plugin.c	2021-01-04 23:43:57.000000000 +0000
 +++ src/pppd/plugins/pppoe/plugin.c	2021-01-04 23:06:37.000000000 +0000
 @@ -64,7 +64,7 @@
@@ -422,7 +422,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/ppp
  
      ccp_allowoptions[0].deflate = 0;
      ccp_wantoptions[0].deflate = 0;
-diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/pppoe/pppoe-discovery.c src/pppd/plugins/pppoe/pppoe-discovery.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pppd/plugins/pppoe/pppoe-discovery.c src/pppd/plugins/pppoe/pppoe-discovery.c
 --- upstream/pppd/plugins/pppoe/pppoe-discovery.c	2021-01-04 23:43:57.000000000 +0000
 +++ src/pppd/plugins/pppoe/pppoe-discovery.c	2021-01-04 23:06:37.000000000 +0000
 @@ -45,105 +45,22 @@
@@ -669,7 +669,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/ppp
  {
      fprintf(stderr, "Usage: pppoe-discovery [options]\n");
      fprintf(stderr, "Options:\n");
-diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/pppoe/pppoe.h src/pppd/plugins/pppoe/pppoe.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pppd/plugins/pppoe/pppoe.h src/pppd/plugins/pppoe/pppoe.h
 --- upstream/pppd/plugins/pppoe/pppoe.h	2021-01-04 23:43:57.000000000 +0000
 +++ src/pppd/plugins/pppoe/pppoe.h	2021-01-04 23:06:37.000000000 +0000
 @@ -233,18 +233,18 @@
@@ -709,7 +709,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pppd/plugins/ppp
  void pppoe_printpkt(PPPoEPacket *packet,
  		    void (*printer)(void *, char *, ...), void *arg);
  void pppoe_log_packet(const char *prefix, PPPoEPacket *packet);
-diff --recursive --unified --new-file --no-dereference upstream/pppd/pppd.8 src/pppd/pppd.8
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pppd/pppd.8 src/pppd/pppd.8
 --- upstream/pppd/pppd.8	2021-01-04 23:43:57.000000000 +0000
 +++ src/pppd/pppd.8	2021-01-04 23:06:37.000000000 +0000
 @@ -1243,9 +1243,8 @@

@@ -1,17 +1,1 @@
-{
-  "services/usb_tools/general": {
-    "description": "usb tools configuration",
-    "read": {
-      "api": {
-        "/usb_tools/*": ["*"]
-      }
-    },
-    "write": {
-      "api": [
-        "/usb_tools/*",
-        "/system/actions/reboot/*"
-      ]
-    },
-	"exception": ["/usb_tools/mount/options/*"]
-  }
-}
+{"services/sd_usb_tools/general":{"description":"sd & usb tools configuration","read":{"api":{"/usb_tools/*":["*"]}},"write":{"api":["/usb_tools/*","/system/actions/reboot/*"]},"exception":["/usb_tools/mount/options/*"]}}

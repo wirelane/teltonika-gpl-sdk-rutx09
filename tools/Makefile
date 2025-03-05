@@ -27,7 +27,7 @@ ifneq ($(CONFIG_TARGET_mdm9x07)$(CONFIG_TARGET_sdxprairie)$(CONFIG_TARGET_sdxlem
 endif
 
 tools-y += autoconf autoconf-archive automake bc bison dosfstools
-tools-y += e2fsprogs fakeroot findutils firmware-utils flex gengetopt upx
+tools-y += e2fsprogs findutils firmware-utils flex gengetopt upx
 tools-y += libressl libtool lzma m4 make-ext4fs missing-macros mkimage
 tools-y += mklibs mm-macros mtd-utils mtools padjffs2 patch-image usign
 tools-y += patchelf pkgconf quilt squashfskit4 sstrip zip zlib zstd emcc
@@ -51,7 +51,6 @@ $(curdir)/bison/compile := $(curdir)/flex/compile
 $(curdir)/cbootimage/compile += $(curdir)/automake/compile
 $(curdir)/dosfstools/compile := $(curdir)/autoconf/compile $(curdir)/automake/compile
 $(curdir)/e2fsprogs/compile := $(curdir)/libtool/compile
-$(curdir)/fakeroot/compile := $(curdir)/libtool/compile
 $(curdir)/findutils/compile := $(curdir)/bison/compile
 $(curdir)/firmware-utils/compile += $(curdir)/libressl/compile $(curdir)/zlib/compile
 $(curdir)/flex/compile := $(curdir)/libtool/compile

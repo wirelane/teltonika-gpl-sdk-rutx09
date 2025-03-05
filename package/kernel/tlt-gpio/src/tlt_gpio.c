@@ -17,7 +17,7 @@
 
 #define MNF_ERROR_STRING(s) pr_err("\033[1;31mtlt_gpio: error setting GPIO's - %s\033[0m\n", s)
 
-static int read_mnf(const char **model, const char **hwver, const char **branch)
+static int read_mnf(const char **model, int *hwver, const char **branch)
 {
 	*model = mnf_info_get_device_name();
 	if (*model == NULL) {
@@ -29,15 +29,14 @@ static int read_mnf(const char **model, const char **hwver, const char **branch)
 		return 1;
 	}
 
-	*hwver = mnf_info_get_hw_version();
-	if (*hwver == NULL) {
+	*hwver = mnf_info_get_full_hw_version();
+	if (*hwver < 0) {
 		MNF_ERROR_STRING("mnf hwver is empty");
 		return 1;
 	}
-	if (strlen(*hwver) < 4) {
-		MNF_ERROR_STRING("mnf hwver is too short");
-		return 1;
-	}
+
+	/* Only major version */
+	*hwver = *hwver / 100;
 
 	*branch = mnf_info_get_branch();
 	if (*branch != NULL) {
@@ -256,14 +255,16 @@ static int __init tlt_gpio_init(void)
 {
 	struct gpio_chip *gc	= NULL;
 	const char *device_long = NULL;
-	const char *hwver_long	= NULL;
 	const char *branch = NULL;
 	char *device		= NULL;
-	int gpio_offset = 0, chip_index = 0;
-	u32 hwver = 0;
+	int gpio_offset = 0, chip_index = 0, hwver = 0;
 	char ret  = 0;
 
-	ret = read_mnf(&device_long, &hwver_long, &branch);
+	/* TODO: Instead of this BS, "of_device_is_mnf_compatible" universal mnf
+	 * comaptability checking function should be used. However, in this case
+	 * all "compatible_versions" properties in .dts "tlt_gpios" nodes mustt
+	 * use 4 digits instead of 2 */
+	ret = read_mnf(&device_long, &hwver, &branch);
 	if (ret) {
 		DEBUG_MESSAGE("MNF read failed, exiting\n");
 		return -1;
@@ -271,10 +272,6 @@ static int __init tlt_gpio_init(void)
 
 	device = (char *)kzalloc(sizeof(char) * 7, GFP_KERNEL);
 	strncpy(device, device_long, 6);
-	hwver = 10 * (hwver_long[0] - '0') + (hwver_long[1] - '0');
-	if (hwver == 0) {
-		hwver = 10 * (hwver_long[2] - '0') + (hwver_long[3] - '0');
-	}
 
 	while ((gc = gpiochip_find_by_id(chip_index))) {
 		DEBUG_MESSAGE("Found a chip with name %s\n", gc->label);

@@ -1,110 +1,92 @@
-import { fileURLToPath, URL } from 'node:url'
 import fs from 'fs'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, mergeConfig, loadEnv } from 'vite'
 import vuci, { type DeviceApp } from './build/vuci-plugin'
-import vue from '@vitejs/plugin-vue'
 import { compression } from 'vite-plugin-compression2'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
+import baseConfig from './vite.base.config'
 
 const productionGzipExtensions = ['js', 'css', 'svg', 'html']
 
-export default defineConfig(({ mode, command }) => {
-  mode === 'development' && generateTypeDefinitions()
-  const env = loadEnv(mode, process.cwd(), '')
-  const plugins = env?.VUCI_PLUGINS?.split(' ')
-  const coreApps = env?.VUCI_APPS?.split(' ')
-  const proxy = {
-    '/ubus': {
-      target: env.VITE_PROXY || 'http://192.168.1.1'
-    },
-    '/api': {
-      target: env.VITE_PROXY || 'http://192.168.1.1'
-    },
-    '/cgi-bin/': {
-      target: env.VITE_PROXY || 'http://192.168.1.1'
-    },
-    '/views/': {
-      target: env.VITE_PROXY || 'http://192.168.1.1'
-    },
-    '/i18n/': {
-      target: env.VITE_PROXY || 'http://192.168.1.1'
-    }
-  }
-
-  const customHash = env?.VUCI_BUILD_HASH || '[hash]'
-
-  const sentryConfig = getSentryConfig(env as unknown as Env)
-  return {
-    root: './vuci-ui-core/src',
-    envDir: '../../',
-    build: {
-      outDir: 'dist/www',
-      cssCodeSplit: false,
-      emptyOutDir: true,
-      rollupOptions: {
-        output: {
-          manualChunks: manualChunks,
-          entryFileNames: `assets/[name]-${customHash}.js`,
-          chunkFileNames: `assets/[name]-${customHash}.js`,
-          assetFileNames: `assets/[name]-${customHash}[extname]`
+export default defineConfig(configEnv =>
+  mergeConfig(
+    baseConfig,
+    defineConfig(({ mode, command }) => {
+      mode === 'development' && generateTypeDefinitions()
+      const env = loadEnv(mode, process.cwd(), '')
+      const plugins = env?.VUCI_PLUGINS?.split(' ')
+      const coreApps = env?.VUCI_APPS?.split(' ')
+      const proxy = {
+        '/ubus': {
+          target: env.VITE_PROXY || 'http://192.168.1.1'
+        },
+        '/api': {
+          target: env.VITE_PROXY || 'http://192.168.1.1'
+        },
+        '/cgi-bin/': {
+          target: env.VITE_PROXY || 'http://192.168.1.1'
+        },
+        '/views/': {
+          target: env.VITE_PROXY || 'http://192.168.1.1'
+        },
+        '/i18n/': {
+          target: env.VITE_PROXY || 'http://192.168.1.1'
         }
-      },
-      sourcemap: sentryConfig.enabled
-    },
-    define: {
-      __SENTRY_ENABLED__: sentryConfig.enabled,
-      __SENTRY_ENVIRONMENT__: `'${sentryConfig.environment}'`
-    },
-    plugins: [
-      vuci({
-        minify: command === 'build',
-        ...(mode === 'development' || env.IS_PREVIEW === 'true'
-          ? {
-              target: env.TARGET_DEVICE as DeviceApp
-            }
-          : { coreApps, plugins })
-      }),
-      vue(),
-      compression({ include: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$') }),
-      sentryConfig.enabled &&
-        sentryVitePlugin({
-          ...sentryConfig,
-          telemetry: false,
-          release: {
-            name: sentryConfig.releaseName
-          },
-          errorHandler: error => {
-            console.error(error)
-            try {
-              const fd = fs.openSync('/tmp/sentry_upload_error.txt', 'w')
-              fs.writeSync(fd, error.stack || error.message)
-              fs.closeSync(fd)
-            } catch (err) {
-              console.error(err)
-            }
-          }
-        })
-    ],
-    resolve: {
-      extensions: ['.cjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
-      alias: {
-        '@': fileURLToPath(new URL('./vuci-ui-core/src/src', import.meta.url)),
-        '@ui-core': fileURLToPath(new URL('./vuci-ui-core/src/ui-core', import.meta.url)),
-        '@root': fileURLToPath(new URL('.', import.meta.url)),
-        '@conditional': fileURLToPath(new URL('./vuci-ui-core/src/src/components/package_components/components', import.meta.url))
       }
-    },
-    server: { proxy },
-    preview: { proxy }
-  }
-})
 
-function manualChunks(id: string) {
-  if (id.includes('node_modules')) return 'vendor'
-  const match = /.*vuci-app-([a-zA-Z0-9-]+)-ui/.exec(id)
-  if (match) return `app.${match[1]}.app`
-  return 'app'
-}
+      const customHash = env?.VUCI_BUILD_HASH || '[hash]'
+
+      const sentryConfig = getSentryConfig(env as unknown as Env)
+      return {
+        build: {
+          outDir: 'dist/www',
+          rollupOptions: {
+            output: {
+              entryFileNames: `assets/[name]-${customHash}.js`,
+              chunkFileNames: `assets/[name]-${customHash}.js`,
+              assetFileNames: `assets/[name]-${customHash}[extname]`
+            }
+          },
+          sourcemap: sentryConfig.enabled
+        },
+        define: {
+          __SENTRY_ENABLED__: sentryConfig.enabled,
+          __SENTRY_ENVIRONMENT__: `'${sentryConfig.environment}'`
+        },
+        plugins: [
+          vuci({
+            minify: command === 'build',
+            ...(mode === 'development' || env.IS_PREVIEW === 'true'
+              ? {
+                  target: env.TARGET_DEVICE as DeviceApp
+                }
+              : { coreApps, plugins })
+          }),
+          compression({ include: new RegExp('\\.(' + productionGzipExtensions.join('|') + ')$') }),
+          sentryConfig.enabled &&
+            sentryVitePlugin({
+              ...sentryConfig,
+              telemetry: false,
+              release: {
+                name: sentryConfig.releaseName
+              },
+              errorHandler: error => {
+                console.error(error)
+                try {
+                  const fd = fs.openSync('/tmp/sentry_upload_error.txt', 'w')
+                  fs.writeSync(fd, error.stack || error.message)
+                  fs.closeSync(fd)
+                } catch (err) {
+                  console.error(err)
+                }
+              }
+            })
+        ],
+        server: { proxy },
+        preview: { proxy }
+      }
+    })(configEnv)
+  )
+)
 
 // Add generator functions here
 function generateTypeDefinitions() {
@@ -117,7 +99,7 @@ function generateTypeDefinitions() {
 }
 
 function generateIconDefinitions() {
-  let icons = fs.readdirSync('./vuci-ui-core/src/ui-core/tlt-design/icons/').filter(name => !/^[Tlt]|icons\.d\.ts|icon-types/.test(name))
+  let icons = fs.readdirSync('./vuci-ui-core/src/ui-core/tlt-design/icons/').filter(name => /Icon.+.vue/.test(name))
   icons = icons.map(
     k =>
       `'${k

@@ -90,15 +90,15 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
 +static void compress_log_file(const char *log_file, const char *compressed_file) {
 +	gzFile out = gzopen(compressed_file, "wb");
 +	if (!out) {
-+        syslog(LOG_ERR, "Failed to open compressed file %s: %s", compressed_file, gzerror(out, NULL));
-+        return;
++		syslog(LOG_ERR, "Failed to open compressed file %s: %s", compressed_file, gzerror(out, NULL));
++		return;
 +	}
 +
 +	int in = open(log_file, O_RDONLY);
 +	if (in < 0) {
-+        syslog(LOG_ERR, "Failed to open log file %s: %m", log_file);
-+        gzclose(out);
-+        return;
++		syslog(LOG_ERR, "Failed to open log file %s: %m", log_file);
++		gzclose(out);
++		return;
 +	}
 +
 +	char buf[4096] = {0};
@@ -132,8 +132,7 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
  
  	id = blobmsg_get_u32(tb[LOG_ID]);
  
-+	// Rotate log file
- 	if ((log_type == LOG_FILE) && log_size && (!stat(log_file, &s)) && (s.st_size > log_size)) {
+-	if ((log_type == LOG_FILE) && log_size && (!stat(log_file, &s)) && (s.st_size > log_size)) {
 -		char *old = malloc(strlen(log_file) + 5);
 -
 -		close(sender.fd);
@@ -141,6 +140,8 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
 -			sprintf(old, "%s.old", log_file);
 -			rename(log_file, old);
 -			free(old);
++	// Rotate log file
++	if ((log_type == LOG_FILE) && log_size && (!stat(log_file, &s)) && (s.st_size + blob_len(msg) > log_size)) {
 +		int next_index, oldest_index;
 +		get_log_indexes(log_file, &oldest_index, &next_index);
 +		char *log_file_copy = strdup(log_file);

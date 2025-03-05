@@ -40,7 +40,6 @@ sub target_config_features(@) {
 		/^wps$/ and $ret .= "\tselect WPS_SUPPORT\n";
 		/^low_mem$/ and $ret .= "\tselect LOW_MEMORY_FOOTPRINT\n";
 		/^small_flash$/ and $ret .= "\tselect SMALL_FLASH\n";
-		/^large_flash$/ and $ret .= "\tselect LARGE_FLASH\n";
 		/^nand$/ and $ret .= "\tselect NAND_SUPPORT\n";
 		/^virtio$/ and $ret .= "\tselect VIRTIO_SUPPORT\n";
 		/^baseband$/ and $ret .= "\tselect BASEBAND_SUPPORT\n";

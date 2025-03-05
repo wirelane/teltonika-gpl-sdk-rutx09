@@ -1,13 +1,1 @@
-{
-	"network/failover/mwan": {
-		"description": "MultiWan configuration",
-		"read": {
-			"api": {
-				"/failover/*": ["*"]
-			}
-		},
-		"write": {
-			"api": ["/failover/*"]
-		}
-	}
-}
+{"network/failover/mwan":{"description":"MultiWan configuration","read":{"api":{"/failover/*":["*"]}},"write":{"api":["/failover/*"]}}}

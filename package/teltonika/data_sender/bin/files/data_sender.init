@@ -22,8 +22,11 @@ start_service() {
 
 	config_load data_sender
 	config_foreach collection_cb collection
-		
+
 	[ "$ENABLED" -eq 1 ] || return 0
+
+	mkdir -p /var/run/data_sender/
+	chown ds:ds /var/run/data_sender
 
 	config_get loglevel settings loglevel 1
 
@@ -32,5 +35,6 @@ start_service() {
 	procd_append_param command -l "$loglevel"
 	procd_set_param respawn
 	procd_set_param file /etc/config/data_sender
+	# procd_set_param user ds
 	procd_close_instance
 }

@@ -265,7 +265,7 @@ _procd_set_param() {
 		extroot|overlaydir|tmpoverlaysize)
 			json_add_string "$type" "$1"
 		;;
-		stdout|stderr|no_new_privs)
+		stdout|stderr|no_new_privs|homedir)
 			json_add_boolean "$type" "$1"
 		;;
 	esac

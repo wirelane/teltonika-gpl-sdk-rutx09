@@ -45,7 +45,7 @@
 +#else
 +static inline struct rfkill_data * rfkill_init(struct rfkill_config *cfg)
 +{
-+	return (void *) 1;
++	return NULL;
 +}
 +
 +static inline void rfkill_deinit(struct rfkill_data *rfkill)

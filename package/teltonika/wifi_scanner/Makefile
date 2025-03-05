@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=wifi_scanner
-PKG_VERSION:=2024-10-24
+PKG_VERSION:=2025-02-17
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.10
+PKG_SOURCE_VERSION:=1.11.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -20,7 +20,8 @@ define Package/$(PKG_NAME)
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=$(PKG_NAME)
-	DEPENDS:=+libuci +libubox +libtlt-logger +libubus +lsqlite3 +libiwinfo
+	DEPENDS:=+libubox +libtlt-logger +libubus +lsqlite3
+	USERID:=wifi_scanner:wifi_scanner
 endef
 
 define Package/$(PKG_NAME)/description
@@ -33,7 +34,9 @@ endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/usr/share/acl.d/
+
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/wifi_scanner.json $(1)/usr/share/acl.d/wifi_scanner.json
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/wifi_scanner.conf $(1)/etc/config/wifi_scanner
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/wifi_scanner.init $(1)/etc/init.d/wifi_scanner
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifi_scanner $(1)/usr/sbin/

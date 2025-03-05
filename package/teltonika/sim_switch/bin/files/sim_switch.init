@@ -33,4 +33,10 @@ start_service() {
 
 service_triggers() {
 	procd_add_reload_trigger "sim_switch"
+	procd_add_reload_trigger "simcard"
+}
+
+reload_service() {
+	stop
+	start
 }

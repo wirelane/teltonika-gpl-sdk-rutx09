@@ -282,16 +282,14 @@ function iface_hostapd_notify(phy, ifname, iface, state)
 		case "INACTIVE":
 			msg.up = true;
 			break;
-		case "COMPLETED":
-			msg.up = true;
-			msg.frequency = status.frequency;
-			msg.sec_chan_offset = status.sec_chan_offset;
+		case "AUTHENTICATING":
+			msg.up = false;
 			break;
+		case "COMPLETED":
 		case "DISCONNECTED":
 			msg.up = true;
 			msg.frequency = status.frequency;
 			msg.sec_chan_offset = status.sec_chan_offset;
-			msg.csa = true;
 			break;
 		default:
 			return;

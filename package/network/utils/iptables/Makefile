@@ -25,7 +25,7 @@ PKG_INSTALL:=1
 PKG_BUILD_FLAGS:=gc-sections
 PKG_BUILD_PARALLEL:=1
 PKG_LICENSE:=GPL-2.0-or-later
-PKG_CPE_ID:=cpe:/a:netfilter_core_team:iptables
+PKG_CPE_ID:=cpe:/a:netfilter:iptables
 
 include $(INCLUDE_DIR)/package.mk
 ifeq ($(DUMP),)
@@ -217,6 +217,8 @@ endef
 define Package/iptables-mod-nat-extra
 $(call Package/iptables/Module, +kmod-ipt-nat-extra)
   TITLE:=Extra NAT extensions
+  PKG_TLT_NAME:=IPtables NAT extra
+  PKG_ROUTER:=$(TLT_PLATFORM_NAME)
 endef
 
 define Package/iptables-mod-nat-extra/description

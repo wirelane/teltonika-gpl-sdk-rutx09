@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/include/opendnp3/gen/Parity.h src/cpp/lib/include/opendnp3/gen/Parity.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/cpp/lib/include/opendnp3/gen/Parity.h src/cpp/lib/include/opendnp3/gen/Parity.h
 --- upstream/cpp/lib/include/opendnp3/gen/Parity.h	2021-08-10 13:43:15.000000000 +0000
 +++ src/cpp/lib/include/opendnp3/gen/Parity.h	2024-11-05 07:12:26.000000000 +0000
 @@ -44,6 +44,8 @@
@@ -10,7 +10,7 @@ diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/include/
    None = 0
  };
  
-diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/src/channel/ASIOSerialHelpers.cpp src/cpp/lib/src/channel/ASIOSerialHelpers.cpp
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/cpp/lib/src/channel/ASIOSerialHelpers.cpp src/cpp/lib/src/channel/ASIOSerialHelpers.cpp
 --- upstream/cpp/lib/src/channel/ASIOSerialHelpers.cpp	2021-08-10 13:43:15.000000000 +0000
 +++ src/cpp/lib/src/channel/ASIOSerialHelpers.cpp	2024-11-05 07:12:26.000000000 +0000
 @@ -88,6 +88,12 @@
@@ -26,7 +26,7 @@ diff --recursive --unified --new-file --no-dereference upstream/cpp/lib/src/chan
      default:
          break;
      }
-diff --recursive --unified --new-file --no-dereference upstream/deps/asio.cmake src/deps/asio.cmake
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/deps/asio.cmake src/deps/asio.cmake
 --- upstream/deps/asio.cmake	2021-08-10 13:43:15.000000000 +0000
 +++ src/deps/asio.cmake	2024-11-05 07:12:26.000000000 +0000
 @@ -1,12 +1,41 @@
@@ -101,7 +101,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/asio.cmake 
      target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
      target_compile_features(asio INTERFACE cxx_std_11)
      target_link_libraries(asio INTERFACE Threads::Threads)
-diff --recursive --unified --new-file --no-dereference upstream/deps/catch.cmake src/deps/catch.cmake
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/deps/catch.cmake src/deps/catch.cmake
 --- upstream/deps/catch.cmake	2021-08-10 13:43:15.000000000 +0000
 +++ src/deps/catch.cmake	2024-11-05 07:12:26.000000000 +0000
 @@ -2,6 +2,7 @@
@@ -112,7 +112,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/catch.cmake
      URL                 https://github.com/catchorg/Catch2/releases/download/v2.11.3/catch.hpp
      URL_HASH            SHA1=C127EBB7A4F65C6CEFF7587C8EF18F84A74D6C15
      DOWNLOAD_NO_EXTRACT TRUE
-diff --recursive --unified --new-file --no-dereference upstream/deps/exe4cpp.cmake src/deps/exe4cpp.cmake
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/deps/exe4cpp.cmake src/deps/exe4cpp.cmake
 --- upstream/deps/exe4cpp.cmake	2021-08-10 13:43:15.000000000 +0000
 +++ src/deps/exe4cpp.cmake	2024-11-05 07:12:26.000000000 +0000
 @@ -2,6 +2,7 @@
@@ -123,7 +123,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/exe4cpp.cma
      URL      https://github.com/automatak/exe4cpp/archive/fb878a4de598ba9d6e4338afebf83f96e03af1b8.zip
      URL_HASH SHA1=18B141E8CF09DC8D28CC62DD5FA2920670D501BD
  )
-diff --recursive --unified --new-file --no-dereference upstream/deps/ser4cpp.cmake src/deps/ser4cpp.cmake
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/deps/ser4cpp.cmake src/deps/ser4cpp.cmake
 --- upstream/deps/ser4cpp.cmake	2021-08-10 13:43:15.000000000 +0000
 +++ src/deps/ser4cpp.cmake	2024-11-05 07:12:26.000000000 +0000
 @@ -2,6 +2,7 @@
@@ -134,7 +134,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/ser4cpp.cma
      URL      https://github.com/automatak/ser4cpp/archive/3c449734dc530a8f465eb0982de29165cc4e23d5.zip
      URL_HASH SHA1=937B759B7CC80180DA26B47037E796B59798A672
  )
-diff --recursive --unified --new-file --no-dereference upstream/deps/serial_port_base.hpp.patch src/deps/serial_port_base.hpp.patch
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/deps/serial_port_base.hpp.patch src/deps/serial_port_base.hpp.patch
 --- upstream/deps/serial_port_base.hpp.patch	1970-01-01 00:00:00.000000000 +0000
 +++ src/deps/serial_port_base.hpp.patch	2024-11-05 07:12:26.000000000 +0000
 @@ -0,0 +1,13 @@
@@ -151,7 +151,7 @@ diff --recursive --unified --new-file --no-dereference upstream/deps/serial_port
 +     ASIO_DECL explicit parity(type t = none);
 +     type value() const;
 +     ASIO_DECL ASIO_SYNC_OP_VOID store(
-diff --recursive --unified --new-file --no-dereference upstream/deps/serial_port_base.ipp.patch src/deps/serial_port_base.ipp.patch
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/deps/serial_port_base.ipp.patch src/deps/serial_port_base.ipp.patch
 --- upstream/deps/serial_port_base.ipp.patch	1970-01-01 00:00:00.000000000 +0000
 +++ src/deps/serial_port_base.ipp.patch	2024-11-05 07:12:26.000000000 +0000
 @@ -0,0 +1,29 @@

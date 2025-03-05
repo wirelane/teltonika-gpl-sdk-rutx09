@@ -1,0 +1,11 @@
+{
+	"user": "ds",
+	"access": {
+		"gsm": {
+			"methods": [ "*" ]
+		},
+		"gsm.modem*": {
+			"methods": [ "*" ]
+		}
+	}
+}

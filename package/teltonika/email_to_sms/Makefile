@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=email_to_sms
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-02-14
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.11
+PKG_SOURCE_VERSION:=2.13
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -22,6 +22,7 @@ define Package/email_to_sms
 	CATEGORY:=Base system
 	TITLE:=POP3 email to SMS
 	DEPENDS:=+lua-pop3
+	USERID:=ets:ets
 endef
 
 define Package/email_to_sms/description
@@ -35,12 +36,23 @@ endef
 
 
 define Package/email_to_sms/install
-		$(INSTALL_DIR) $(1)/etc/config/
+		$(INSTALL_DIR) $(1)/etc/config/ $(1)/usr/share/acl.d/
 		$(INSTALL_DIR) $(1)/etc/init.d/
 		$(INSTALL_DIR) $(1)/usr/bin/
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/email_to_sms.init $(1)/etc/init.d/email_to_sms
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/email_to_sms.lua $(1)/usr/bin/email_to_sms
 		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/email_to_sms.conf $(1)/etc/config/email_to_sms
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/email_to_sms.json $(1)/usr/share/acl.d/
+endef
+
+define Package/email_to_sms/postinst
+#!/bin/sh
+
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+#Relaod ubusd acl rules
+pid=$$(pidof ubusd)
+[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,email_to_sms))

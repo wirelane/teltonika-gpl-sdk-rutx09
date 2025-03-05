@@ -1,0 +1,75 @@
+#!/bin/sh
+
+. /lib/functions.sh
+. /usr/share/libubox/jshn.sh
+
+call_handle_reboot() {
+	local args ret
+
+	read input;
+	json_load "$input"
+	json_select args
+	json_get_values args
+
+	echo "$args" | xargs /sbin/reboot &> /dev/null
+	ret=$?
+
+	json_init
+	json_add_int "res" "$ret"
+	json_dump
+}
+
+call_handle_firstboot() {
+	local factory ret
+
+	read input;
+	json_load "$input"
+	json_get_var factory factory
+
+	[ "$factory" = "1" ] && factory="-f" || factory=
+
+	/sbin/firstboot -y ${factory:+-f} &> /dev/null
+	ret=$?
+
+	json_init
+	json_add_int "res" "$ret"
+	json_dump
+}
+
+call_handle_userdefaults() {
+
+	json_init
+	/sbin/user_defaults &> /dev/null
+	json_add_int "res" "$?"
+	json_dump
+}
+
+main() {
+	case "$1" in
+	list)
+		json_init
+		json_add_object "reboot"
+		json_add_array "args"
+		json_close_array
+		json_close_object
+
+		json_add_object "firstboot"
+		json_add_boolean "factory" 1
+		json_close_object
+
+		json_add_object "userdefaults"
+		json_close_object
+
+		json_dump
+		;;
+	call)
+		case "$2" in
+		reboot) call_handle_reboot ;;
+		firstboot) call_handle_firstboot ;;
+		userdefaults) call_handle_userdefaults ;;
+		esac
+		;;
+	esac
+}
+
+main "$@"

@@ -20,6 +20,8 @@ define Package/udprelay
   SECTION:=net
   CATEGORY:=Network
   TITLE:=UDP packages relay
+  USERID:=udprelay:udprelay
+  CAP:=/usr/sbin/udp-broadcast-relay:cap_net_bind_service,cap_net_raw=ep
 endef
 
 define Package/udprelay/description

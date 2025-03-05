@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ip_blockd
-PKG_VERSION:=2024-11-05
-PKG_RELEASE:=1
+PKG_VERSION:=2025-02-19
+PKG_RELEASE:=2
 
-PKG_SOURCE_VERSION:=1.13
+PKG_SOURCE_VERSION:=1.14.1
 
 PKG_FIXUP:=autoreconf
 
@@ -21,7 +21,7 @@ define Package/ip_blockd
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=IP Block Daemon
-	DEPENDS:=+rpcd +ipset +iptables +libubus +libubox +libuci +liblog +libip4tc +libip6tc +libipset +libtlt-logger +libblobmsg-json +libtlt_utils +libsqlite3
+	DEPENDS:=+rpcd +ipset +iptables +libubus +libubox +libuci +liblog +libip4tc +libip6tc +libipset +libblobmsg-json +libsqlite3
 	MENU:=1
 endef
 

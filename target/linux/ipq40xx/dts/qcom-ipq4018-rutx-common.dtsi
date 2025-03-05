@@ -179,7 +179,6 @@
 
 		sim_cfg {
 			reg = <&config 0x120 0x20>;
-			min-res-len = <0x7>;
 			default = "";
 			type = "simcfg";
 			log;

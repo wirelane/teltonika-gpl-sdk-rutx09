@@ -1,0 +1,32 @@
+Index: mwan3-2.10.12/files/lib/mwan3/mwan3.sh
+===================================================================
+--- mwan3-2.10.12.orig/files/lib/mwan3/mwan3.sh
++++ mwan3-2.10.12/files/lib/mwan3/mwan3.sh
+@@ -482,8 +482,10 @@ mwan3_create_iface_rules()
+ 
+ 	if [ "$family" = "ipv4" ]; then
+ 		IP="$IP4"
++		network_get_ipaddr wan_addr "${1}"
+ 	elif [ "$family" = "ipv6" ] && [ $NO_IPV6 -eq 0 ]; then
+ 		IP="$IP6"
++		network_get_subnet6 wan_addr "${1}"
+ 	else
+ 		return
+ 	fi
+@@ -491,6 +493,7 @@ mwan3_create_iface_rules()
+ 	mwan3_delete_iface_rules "$1"
+ 
+ 	$IP rule add pref $((id+1000)) iif "$2" lookup "$id"
++	[ -n "$wan_addr" ] && $IP rule add pref $((id+1500)) from ${wan_addr} lookup "$id"
+ 	$IP rule add pref $((id+2000)) fwmark "$(mwan3_id2mask id MMX_MASK)/$MMX_MASK" lookup "$id"
+ 	$IP rule add pref $((id+3000)) fwmark "$(mwan3_id2mask id MMX_MASK)/$MMX_MASK" unreachable
+ }
+@@ -512,7 +515,7 @@ mwan3_delete_iface_rules()
+ 		return
+ 	fi
+ 
+-	for rule_id in $(ip rule list | awk '$1 % 1000 == '$id' && $1 > 1000 && $1 < 4000 {print substr($1,0,4)}'); do
++	for rule_id in $(ip rule list | awk '($1 % 1000 == '$id' || $1 % 1500 == '$id') && $1 > 1000 && $1 < 4000 {print substr($1,0,4)}'); do
+ 		$IP rule del pref $rule_id
+ 	done
+ }

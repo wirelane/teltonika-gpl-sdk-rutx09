@@ -14,6 +14,7 @@ azure_instance() {
 		procd_set_param respawn
 		procd_set_param command "$PROG" -n "$1"
 		procd_set_param file "$CONF"
+		procd_set_param user azure
 		procd_close_instance
 	fi
 }

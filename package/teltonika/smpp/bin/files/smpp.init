@@ -28,7 +28,7 @@ start_service() {
 	procd_set_param command /usr/sbin/smppd
 	config_load smpp
 	procd_set_param respawn
-	#procd_set_param user smppd
+	procd_set_param user smppd
 	procd_set_param file /etc/config/smpp
 	procd_set_param stdout 1
 	procd_set_param stderr 1

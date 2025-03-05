@@ -93,12 +93,6 @@ if [ "$reboot" != "0" ]; then
 	ubus call ip_block rebooted 2> /dev/null
 
 	sleep 1;
-	#Oh boy, we have unfinished job here
-	while [ -e "/tmp/events_reporting.lock" -a "$count" -le 10 ]; do
-		sleep 1
-		count=$((count +1))
-	done
-
 	[ -e "/var/lock/opkg.lock" ] && {
 		/etc/init.d/package_restore stop
 		count=0

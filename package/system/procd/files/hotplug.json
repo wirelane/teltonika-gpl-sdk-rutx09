@@ -25,6 +25,14 @@
 						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
 					],
 					[ "if",
+						[ "regex", "DEVNAME", "^cdc-wdm" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+					],
+					[ "if",
+						[ "regex", "DEVNAME", "^smd" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+					],
+					[ "if",
 						[ "has", "DEVNAME" ],
 						[ "makedev", "/dev/%DEVNAME%", "0600" ]
 					]

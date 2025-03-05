@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=emailrelay
-PKG_VERSION:=2.4.1
+PKG_VERSION:=2024-12-20
 PKG_RELEASE:=$(AUTORELEASE)-1
 
+PKG_SOURCE_VERSION:=2.4.1
 PKG_HASH:=cff8cf5bff19fd1721cefdbd6207da67af01d2b1b4a51d147c33f4429a79766e
 
 PKG_MAINTAINER:=Federico Di Marco <fededim@gmail.com>
 PKG_LICENSE:=GPL-3.0-only
 PKG_LICENSE_FILES:=COPYING
-PKG_SOURCE_VERSION:=2.4.1
 PKG_SOURCE=emailrelay-$(PKG_SOURCE_VERSION)-src.tar.gz
 PKG_SOURCE_URL:=@SF/emailrelay/$(PKG_SOURCE_VERSION)
 
@@ -32,6 +32,8 @@ define Package/emailrelay
 	DEPENDS:=+EMAILRELAY_SSL:libopenssl +libstdcpp
 	TITLE:=A simple SMTP proxy and MTA
 	URL:=http://emailrelay.sourceforge.net/
+	USERID:=emailrelay:emailrelay
+	CAP:=/usr/bin/emailrelay:cap_net_bind_service=ep
 	MENU:=1
 endef
 

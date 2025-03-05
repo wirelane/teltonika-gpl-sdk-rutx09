@@ -62,7 +62,7 @@ user=ggc_user
 define Package/greengrass/postinst
 #!/bin/sh
 
-[ -z "$${IPKG_INSTROOT}" ] || return
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
 
 grep -q $(group) /etc/group || addgroup $(group)
 grep -q $(user) /etc/shadow || adduser -DH -G $(group) $(user)
@@ -71,7 +71,7 @@ endef
 define Package/greengrass/postrm
 #!/bin/sh
 
-[ -z "$${IPKG_INSTROOT}" ] || return
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
 
 deluser $(user)
 sed --in-place '/$(group)/d' /etc/group

@@ -2,7 +2,7 @@
 
 IMG_NAME_PREFIX=git.teltonika.lt:4567/docker/buildsys/
 IMG_NAME=${IMG_NAME:-${IMG_NAME_PREFIX}tools}
-IMG_TAG=${IMG_TAG:-1.14}
+IMG_TAG=${IMG_TAG:-1.17}
 
 # Color codes
 RED='\033[0;31m'
@@ -20,7 +20,19 @@ info() {
 calc_images_size() {
 	for id in $($DOCKER_CMD image ls --all --format '{{.ID}}' 'git.teltonika.lt:4567/docker/buildsys/*'); do
 		$DOCKER_CMD history "$id" --format '{{.Size}} {{.CreatedBy}}'
-	done | sort -u | cut -d' ' -f1 | tr , . | sed -E 's|([0-9]+(,[0-9]+)?[kKMG]?)B|\1|g' | LC_NUMERIC="en_US" numfmt --from=iec | awk 'BEGIN { sum = 0 } { sum += $1 } END { print sum }'
+	done | sort -u | cut -d' ' -f1 | tr , . | python3 -c '
+import sys
+
+units = {"k": 10**3, "M": 10**6, "G": 10**9}
+
+def parse_size(size):
+	if size[-1] == "B":
+		size = size[:-1]
+	unit = size[-1]
+	return int(float(size[:-1]) * units[unit]) if unit in units else int(size)
+
+print(sum(parse_size(line.strip()) for line in sys.stdin))
+'
 }
 
 cleanup() {
@@ -57,10 +69,12 @@ fi
 DOCKER_CMD="docker"
 if $DOCKER_CMD info -f "{{println .SecurityOptions}}" 2>/dev/null | grep -q rootless; then
 	info "Cannot use rootless docker due to file ownership issues. Will proceed with sudo..."
+	info "To use docker without sudo, refer to https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user"
 	DOCKER_CMD="sudo docker"
 fi
 if ! $DOCKER_CMD ps &>/dev/null; then
 	info "Docker commands require sudo. Attempting to proceed with sudo..."
+	info "To use docker without sudo, refer to https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user"
 	DOCKER_CMD="sudo docker"
 fi
 
@@ -147,6 +161,7 @@ run_main() {
 		VOLUME_STAGING_HOSTPKG="${VOLUME_PREFIX:1}_staging_hostpkg"
 		create_volume "$VOLUME_STAGING_HOST"
 		create_volume "$VOLUME_STAGING_HOSTPKG"
+		mkdir -p "$WORKDIR/staging_dir/host" "$WORKDIR/staging_dir/hostpkg"
 
 		#shellcheck disable=SC2046
 		$DOCKER_CMD run -d \
@@ -190,6 +205,10 @@ run_tbot() {
 		--device /dev/net/tun:/dev/net/tun \
 		--volume "$WORKDIR":/x86_64:rw -w /x86_64 \
 		--sysctl net.ipv4.ip_forward=1 \
+		--sysctl net.ipv6.conf.all.disable_ipv6=0 \
+		--sysctl net.ipv6.conf.all.forwarding=1 \
+		--publish 2200:2200 \
+		--publish 8000:8000 \
 		"$IMG_NAME:$IMG_TAG" \
 		$@
 }

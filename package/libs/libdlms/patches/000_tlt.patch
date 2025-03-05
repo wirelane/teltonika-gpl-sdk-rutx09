@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.gitignore
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitignore src/.gitignore
 --- upstream/.gitignore	2024-01-23 14:13:59.000000000 +0000
 +++ src/.gitignore	2024-06-19 13:37:18.000000000 +0000
 @@ -251,3 +251,6 @@
@@ -8,7 +8,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.
 +development/VS/.vs/
 +GuruxDLMSClientExample/VS/.vs/
 +*.json
-diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSClientExample/src/communication.c src/GuruxDLMSClientExample/src/communication.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/GuruxDLMSClientExample/src/communication.c src/GuruxDLMSClientExample/src/communication.c
 --- upstream/GuruxDLMSClientExample/src/communication.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/GuruxDLMSClientExample/src/communication.c	2024-06-19 13:37:18.000000000 +0000
 @@ -919,10 +919,6 @@
@@ -41,7 +41,7 @@ diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSClientE
                      oa_push(&connection->settings.objects, pObj);
                  }
              }
-diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSClientExample/src/main.c src/GuruxDLMSClientExample/src/main.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/GuruxDLMSClientExample/src/main.c src/GuruxDLMSClientExample/src/main.c
 --- upstream/GuruxDLMSClientExample/src/main.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/GuruxDLMSClientExample/src/main.c	2024-06-19 13:37:18.000000000 +0000
 @@ -135,6 +135,37 @@
@@ -82,7 +82,7 @@ diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSClientE
  
  /**
  * Executes selected script.
-diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSServerExample/include/exampleserver.h src/GuruxDLMSServerExample/include/exampleserver.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/GuruxDLMSServerExample/include/exampleserver.h src/GuruxDLMSServerExample/include/exampleserver.h
 --- upstream/GuruxDLMSServerExample/include/exampleserver.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/GuruxDLMSServerExample/include/exampleserver.h	2024-06-19 13:37:18.000000000 +0000
 @@ -22,7 +22,7 @@
@@ -94,7 +94,7 @@ diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSServerE
  #include "connection.h"
  char DATAFILE[FILENAME_MAX];
  char IMAGEFILE[FILENAME_MAX];
-diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSServerExample/src/exampleserver.c src/GuruxDLMSServerExample/src/exampleserver.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/GuruxDLMSServerExample/src/exampleserver.c src/GuruxDLMSServerExample/src/exampleserver.c
 --- upstream/GuruxDLMSServerExample/src/exampleserver.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/GuruxDLMSServerExample/src/exampleserver.c	2024-06-19 13:37:18.000000000 +0000
 @@ -120,6 +120,7 @@
@@ -551,7 +551,7 @@ diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSServerE
          else
          {
              //Return error if client can connect only using pre-established connnection.
-diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSServerExample2/src/main.c src/GuruxDLMSServerExample2/src/main.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/GuruxDLMSServerExample2/src/main.c src/GuruxDLMSServerExample2/src/main.c
 --- upstream/GuruxDLMSServerExample2/src/main.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/GuruxDLMSServerExample2/src/main.c	2024-06-19 13:37:18.000000000 +0000
 @@ -197,10 +197,14 @@
@@ -818,7 +818,7 @@ diff --recursive --unified --new-file --no-dereference upstream/GuruxDLMSServerE
 -}
 +    }
  
-diff --recursive --unified --new-file --no-dereference upstream/development/include/ciphering.h src/development/include/ciphering.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/ciphering.h src/development/include/ciphering.h
 --- upstream/development/include/ciphering.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/ciphering.h	2024-06-19 13:37:18.000000000 +0000
 @@ -170,6 +170,21 @@
@@ -843,7 +843,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
  #ifdef  __cplusplus
  }
  #endif
-diff --recursive --unified --new-file --no-dereference upstream/development/include/date.h src/development/include/date.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/date.h src/development/include/date.h
 --- upstream/development/include/date.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/date.h	2024-06-19 13:37:18.000000000 +0000
 @@ -83,6 +83,8 @@
@@ -855,7 +855,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
          int16_t deviation;
          DATETIME_SKIPS skip : 16;
          DLMS_DATE_TIME_EXTRA_INFO extraInfo : 8;
-diff --recursive --unified --new-file --no-dereference upstream/development/include/dlms.h src/development/include/dlms.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/dlms.h src/development/include/dlms.h
 --- upstream/development/include/dlms.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/dlms.h	2024-06-19 13:37:18.000000000 +0000
 @@ -48,7 +48,6 @@
@@ -947,7 +947,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
  #endif // DLMS_IGNORE_ASSOCIATION_SHORT_NAME
  
      int dlms_generateChallenge(
-diff --recursive --unified --new-file --no-dereference upstream/development/include/enums.h src/development/include/enums.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/enums.h src/development/include/enums.h
 --- upstream/development/include/enums.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/enums.h	2024-06-19 13:37:18.000000000 +0000
 @@ -159,7 +159,7 @@
@@ -2008,7 +2008,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
  
      // Defines the ZigBee status enumeration values.
      typedef enum
-diff --recursive --unified --new-file --no-dereference upstream/development/include/gxignore.h src/development/include/gxignore.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/gxignore.h src/development/include/gxignore.h
 --- upstream/development/include/gxignore.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/gxignore.h	2024-06-19 13:37:18.000000000 +0000
 @@ -36,146 +36,150 @@
@@ -2309,7 +2309,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
  #ifdef  __cplusplus
  }
  #endif
-diff --recursive --unified --new-file --no-dereference upstream/development/include/gxint.h src/development/include/gxint.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/gxint.h src/development/include/gxint.h
 --- upstream/development/include/gxint.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/gxint.h	2024-06-19 13:37:18.000000000 +0000
 @@ -34,7 +34,7 @@
@@ -2346,7 +2346,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
 -
 +#endif //!defined(_WIN32) && !defined(_WIN64) && !defined(__linux__)
  #endif //GXINT_H
-diff --recursive --unified --new-file --no-dereference upstream/development/include/gxobjects.h src/development/include/gxobjects.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/gxobjects.h src/development/include/gxobjects.h
 --- upstream/development/include/gxobjects.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/gxobjects.h	2024-06-19 13:37:18.000000000 +0000
 @@ -2125,7 +2125,120 @@
@@ -2518,7 +2518,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
  #ifdef DLMS_IGNORE_MALLOC
          // Function name.
          unsigned char name[MAX_FUNCTION_NAME_LENGTH];
-diff --recursive --unified --new-file --no-dereference upstream/development/include/variant.h src/development/include/variant.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/include/variant.h src/development/include/variant.h
 --- upstream/development/include/variant.h	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/include/variant.h	2024-06-19 13:37:18.000000000 +0000
 @@ -76,13 +76,16 @@
@@ -2539,7 +2539,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/incl
  #define GX_UINT8_BYREF(X, VALUE_) GX_UNION(&X, pbVal = &VALUE_, (DLMS_DATA_TYPE)(DLMS_DATA_TYPE_BYREF | DLMS_DATA_TYPE_UINT8))
  #define GX_UINT16_BYREF(X, VALUE_) GX_UNION(&X, puiVal = &VALUE_, (DLMS_DATA_TYPE)(DLMS_DATA_TYPE_BYREF | DLMS_DATA_TYPE_UINT16))
  #define GX_UINT32_BYREF(X, VALUE_) GX_UNION(&X, pulVal = &VALUE_, (DLMS_DATA_TYPE)(DLMS_DATA_TYPE_BYREF | DLMS_DATA_TYPE_UINT32))
-diff --recursive --unified --new-file --no-dereference upstream/development/src/apdu.c src/development/src/apdu.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/apdu.c src/development/src/apdu.c
 --- upstream/development/src/apdu.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/apdu.c	2024-06-19 13:37:18.000000000 +0000
 @@ -172,7 +172,10 @@
@@ -2563,7 +2563,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  #ifndef DLMS_IGNORE_MALLOC
          ret = cip_encrypt(
              &settings->cipher,
-diff --recursive --unified --new-file --no-dereference upstream/development/src/ciphering.c src/development/src/ciphering.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/ciphering.c src/development/src/ciphering.c
 --- upstream/development/src/ciphering.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/ciphering.c	2024-06-19 13:37:18.000000000 +0000
 @@ -215,858 +215,858 @@
@@ -4162,7 +4162,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  
 -#endif //DLMS_IGNORE_HIGH_GMAC
 +    #endif //DLMS_IGNORE_HIGH_GMAC
-diff --recursive --unified --new-file --no-dereference upstream/development/src/client.c src/development/src/client.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/client.c src/development/src/client.c
 --- upstream/development/src/client.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/client.c	2024-06-19 13:37:18.000000000 +0000
 @@ -413,15 +413,14 @@
@@ -4259,7 +4259,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
          {
              secret = &settings->password;
          }
-diff --recursive --unified --new-file --no-dereference upstream/development/src/converters.c src/development/src/converters.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/converters.c src/development/src/converters.c
 --- upstream/development/src/converters.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/converters.c	2024-06-19 13:37:18.000000000 +0000
 @@ -1047,6 +1047,47 @@
@@ -4537,7 +4537,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
      return ret;
  }
  int obj_accountToString(gxAccount* object, char** buff)
-diff --recursive --unified --new-file --no-dereference upstream/development/src/cosem.c src/development/src/cosem.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/cosem.c src/development/src/cosem.c
 --- upstream/development/src/cosem.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/cosem.c	2024-06-19 13:37:18.000000000 +0000
 @@ -926,7 +926,10 @@
@@ -4565,7 +4565,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  {
      int ret;
      unsigned char tmp;
-diff --recursive --unified --new-file --no-dereference upstream/development/src/date.c src/development/src/date.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/date.c src/development/src/date.c
 --- upstream/development/src/date.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/date.c	2024-06-19 13:37:18.000000000 +0000
 @@ -191,6 +191,11 @@
@@ -4625,7 +4625,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
      if (time->deviation != (short)0x8000 && (time->skip & DATETIME_SKIPS_DEVITATION) == 0)
      {
          short tmp = time->deviation;
-diff --recursive --unified --new-file --no-dereference upstream/development/src/dlms.c src/development/src/dlms.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/dlms.c src/development/src/dlms.c
 --- upstream/development/src/dlms.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/dlms.c	2024-06-19 13:37:18.000000000 +0000
 @@ -3185,6 +3185,18 @@
@@ -4846,7 +4846,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
          bb_clear(&challenge);
          return ret;
  #endif //DLMS_IGNORE_HIGH_SHA256
-diff --recursive --unified --new-file --no-dereference upstream/development/src/gxget.c src/development/src/gxget.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/gxget.c src/development/src/gxget.c
 --- upstream/development/src/gxget.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/gxget.c	2024-06-19 13:37:18.000000000 +0000
 @@ -4437,16 +4437,16 @@
@@ -5142,7 +5142,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  #endif //DLMS_IGNORE_PARAMETER_MONITOR
  
  #ifndef DLMS_IGNORE_LLC_SSCS_SETUP
-diff --recursive --unified --new-file --no-dereference upstream/development/src/gxinvoke.c src/development/src/gxinvoke.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/gxinvoke.c src/development/src/gxinvoke.c
 --- upstream/development/src/gxinvoke.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/gxinvoke.c	2024-06-19 13:37:18.000000000 +0000
 @@ -809,8 +809,7 @@
@@ -5166,7 +5166,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
                      break;
                  case DLMS_GLOBAL_KEY_TYPE_AUTHENTICATION:
                      bb_clear(&settings->base.cipher.authenticationKey);
-diff --recursive --unified --new-file --no-dereference upstream/development/src/gxobjects.c src/development/src/gxobjects.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/gxobjects.c src/development/src/gxobjects.c
 --- upstream/development/src/gxobjects.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/gxobjects.c	2024-06-19 13:37:18.000000000 +0000
 @@ -1134,6 +1134,7 @@
@@ -5222,7 +5222,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  #endif //DLMS_IGNORE_SERVER
  
  int clock_utcToMeterTime(gxClock* object, gxtime* value)
-diff --recursive --unified --new-file --no-dereference upstream/development/src/gxsetignoremalloc.c src/development/src/gxsetignoremalloc.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/gxsetignoremalloc.c src/development/src/gxsetignoremalloc.c
 --- upstream/development/src/gxsetignoremalloc.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/gxsetignoremalloc.c	2024-06-19 13:37:18.000000000 +0000
 @@ -2034,7 +2034,8 @@
@@ -5504,7 +5504,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
      break;
      case 3:
      {
-diff --recursive --unified --new-file --no-dereference upstream/development/src/gxsetmalloc.c src/development/src/gxsetmalloc.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/gxsetmalloc.c src/development/src/gxsetmalloc.c
 --- upstream/development/src/gxsetmalloc.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/gxsetmalloc.c	2024-06-19 13:37:18.000000000 +0000
 @@ -5471,12 +5471,15 @@
@@ -5766,7 +5766,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  #endif //DLMS_IGNORE_ARBITRATOR
  #ifndef DLMS_IGNORE_IEC_8802_LLC_TYPE1_SETUP
  int cosem_setIec8802LlcType1Setup(
-diff --recursive --unified --new-file --no-dereference upstream/development/src/gxsha256.c src/development/src/gxsha256.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/gxsha256.c src/development/src/gxsha256.c
 --- upstream/development/src/gxsha256.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/gxsha256.c	2024-06-19 13:37:18.000000000 +0000
 @@ -62,13 +62,7 @@
@@ -5969,7 +5969,7 @@ diff --recursive --unified --new-file --no-dereference upstream/development/src/
  }
  
  #endif //DLMS_IGNORE_HIGH_SHA256
-diff --recursive --unified --new-file --no-dereference upstream/development/src/server.c src/development/src/server.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/development/src/server.c src/development/src/server.c
 --- upstream/development/src/server.c	2024-01-23 14:13:59.000000000 +0000
 +++ src/development/src/server.c	2024-06-19 13:37:18.000000000 +0000
 @@ -317,7 +317,7 @@

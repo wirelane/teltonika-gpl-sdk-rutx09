@@ -2,9 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=azure_iothub
-PKG_VERSION:=2025-01-10
+PKG_VERSION:=2025-02-14
 
-PKG_SOURCE_VERSION:=3.3
+PKG_SOURCE_VERSION:=3.5
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -19,6 +19,7 @@ define Package/azure_iothub
 		 +libubox +libazure-iot-sdk-c +libmnfinfo +liblua +libtlt_uci \
 		 +libapi
 	TITLE:=Azure IoT Hub client
+	USERID:=azure:azure
 endef
 
 define Package/azure_iothub/description
@@ -62,6 +63,9 @@ define Package/azure_iothub/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-default/7.5/98_azure_to_data_sender $(1)/etc/uci-defaults/7.5/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-default/7.7/98_azure_data_sender_collection_fix $(1)/etc/uci-defaults/7.7/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-default/7.8/99_azure_pnp $(1)/etc/uci-defaults/7.8/
+
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/azure_iothub.json $(1)/usr/share/acl.d/azure_iothub.json
 endef
 
 define Package/azure_iothub/prerm
@@ -96,6 +100,16 @@ define Package/azure_iothub/prerm
 	uci_commit data_sender 2> /dev/null
 	/etc/init.d/data_sender reload 2> /dev/null || true
 
+endef
+
+define Package/azure_iothub/postinst
+#!/bin/sh
+
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+#Relaod ubusd acl rules
+pid=$$(pidof ubusd)
+[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,azure_iothub))

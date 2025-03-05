@@ -5,6 +5,7 @@ APP_CATEGORY?=VuCI
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
 PKG_LICENSE?=Teltonika-nda-source
+PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -31,13 +32,16 @@ endif
 endef
 
 define Build/Prepare
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)
 	if [[ -d ./files ]] && [[ "$$$$(ls -A ./files)" ]]; then $(CP) -R ./files $(PKG_BUILD_DIR)/files; fi
 	# only called if pkg has .c files in ./src dir to copy
 	if [[ -d ./src ]] && [[ "$$$$(ls -A ./src)" ]]; then $(CP) ./src/* $(PKG_BUILD_DIR)/; fi
 endef
 
 define Build/Compile
-  $(call CompileLua,$(PKG_BUILD_DIR)/files)
+	$(if $(CONFIG_VUCI_MINIFY_LUA),$(call MinifyLua,$(PKG_BUILD_DIR)/files),true);
+	$(if $(CONFIG_VUCI_COMPILE_LUA),$(call CompileLua,$(PKG_BUILD_DIR)/files),true);
+	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(PKG_BUILD_DIR)/files),true);
 	# only called if pkg has .c files in ./src dir (or ./bin for GPL build) to compile 
 	if [[ -d ./src && "$$$$(ls -A ./src)" ]] || [[ -d ./bin && "$$$$(ls -A ./bin)" ]]; then ( $(call Build/Compile/Default) ); fi
 endef
@@ -46,8 +50,9 @@ define Build/Configure
 endef
 
 define Package/$(PKG_NAME)/install/Default
-	if [[ -n "$(CONFIG_VUCI_COMPILE_LUA)" ]] && [[ -d $(PKG_BUILD_DIR)/files ]]; then $(CP) $(PKG_BUILD_DIR)/files/* $(1)/; elif [[ -d ./files ]]; then $(CP) ./files/* $(1)/; fi; \
-	if [[ -d $(PKG_BUILD_DIR)/files ]] || [[ -d ./files ]]; then \
+	files_dir="./files"; if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
+	if [[ -d "$$$$files_dir" ]]; then \
+		$(CP) "$$$$files_dir"/* $(1)/; \
 		$(if $(CONFIG_AP_DEVICE), , $(RM) $(1)/usr/share/rpcd/acl.d/*.tap.json;) \
 		$(if $(CONFIG_SWITCH_DEVICE), , $(RM) $(1)/usr/share/rpcd/acl.d/*.tsw.json;) \
 		if [ -n "$(CONFIG_SWITCH_DEVICE)" ] || [ -n "$(CONFIG_AP_DEVICE)" ]; then \
@@ -56,7 +61,6 @@ define Package/$(PKG_NAME)/install/Default
 			fi; \
 		fi; \
 	fi
-	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 endef
 
 define install_closed_gpl

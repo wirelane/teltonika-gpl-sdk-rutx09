@@ -1,7 +1,5 @@
-Index: linux-5.10.226/net/netfilter/xt_FLOWOFFLOAD.c
-===================================================================
---- linux-5.10.226.orig/net/netfilter/xt_FLOWOFFLOAD.c
-+++ linux-5.10.226/net/netfilter/xt_FLOWOFFLOAD.c
+--- a/net/netfilter/xt_FLOWOFFLOAD.c
++++ b/net/netfilter/xt_FLOWOFFLOAD.c
 @@ -938,6 +938,7 @@ static int init_flowtable(struct xt_flow
  {
  	INIT_DELAYED_WORK(&tbl->work, xt_flowoffload_hook_work);

@@ -47,7 +47,7 @@ endef
 define Package/libcap-bin
   $(call Package/libcap/Default)
   TITLE += binaries
-  DEPENDS += libcap
+  DEPENDS += +libcap
 endef
 
 define Package/libcap-bin/description

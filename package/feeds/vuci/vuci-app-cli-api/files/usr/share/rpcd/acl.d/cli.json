@@ -1,8 +1,1 @@
-{
-	"system/maintenance/cli": {
-		"description": "Command Line Interface",
-		"read": {
-			"api": []
-		}
-	}
-}
+{"system/maintenance/cli":{"description":"Command Line Interface","read":{"api":[]}}}

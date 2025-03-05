@@ -103,7 +103,7 @@ TOPDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." >/dev/null && pwd)
 ARCH=$(ls "${TOPDIR}/bin/packages/")
 PACKAGEDIR="${TOPDIR}/bin/packages/${ARCH}/pm_packages"
 ZIPPEDDIR="${TOPDIR}/bin/packages/${ARCH}/zipped_packages"
-TAG=$(git describe | awk -F "-pm" '{print $1}')
+TAG=${CI_COMMIT_TAG:-$(git describe | awk -F "-pm" '{print $1}')}
 CLIENT=$(grep 'CONFIG_TLT_VERSIONING_CLIENT' .config | cut -d'=' -f2 | tr -d '"')
 HASH=$(echo -n "${CLIENT}/${TAG}/${PLATFORM}" | sha256sum | awk '{print $1}')
 FOLDER="$PACKAGES_ROOT/${HASH}"

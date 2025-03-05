@@ -20,6 +20,7 @@ typedef enum {
 	ACT_NOT_SUPPORTED, /*!< Functionality not supported */
 	ACT_TIMEOUT, /*!< Request timeout expired */
 	ACT_SMS_LIMIT, /*!< SMS limit reached */
+	ACT_RESTRICTED_SIM, /*!< Restricted SIM Access */
 
 	__ACT_MAX,
 } func_t;

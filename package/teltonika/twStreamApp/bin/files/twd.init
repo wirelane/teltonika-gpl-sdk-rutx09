@@ -20,6 +20,7 @@ start_service() {
             procd_set_param respawn
             procd_set_param command /usr/bin/twStreamApp
             procd_append_param command "$server" "$port" "$appkey" "$thing"
+            procd_append_param user tws
             procd_close_instance
         fi
     fi

@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2025-02-11-8dad197f1b
+PKG_VERSION:=2025-02-26-f04dc9c51e
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -14,7 +14,7 @@ VUCI_APPS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=y $(TOPDIR)/.config | cut -
 VUCI_PLUGINS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=m $(TOPDIR)/.config | cut -d'=' -f1 | cut -d'_' -f3 | sed ':a;N;$!ba;s/\n/ /g')
 
 PKG_CONFIG_DEPENDS:=CONFIG_VUCI_USE_HOST_NODE CONFIG_VUCI_BUILD_DEV
-
+MENU_OUTPUT_DIR=$(PKG_BUILD_DIR)/applications/menu.d
 # used for GPL app file path modification
 APP_DIR=$(1)
 APP_DIR_2=$(subst -ui,,$(1))
@@ -44,6 +44,7 @@ define Package/vuci-ui-core/conffiles
 endef
 # FIXME needs update, since .vue files remains in applications dir now.
 define install_closed_gpl
+	$(INSTALL_DIR) "$(GPL_BUILD_DIR)/package/feeds/vuci"
 	rm -rf ~/.npm/
 	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue \
 		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify_temp.vue
@@ -88,6 +89,7 @@ define install_closed_gpl
 	$(CP) ../compile-app-gpl.sh "$(GPL_BUILD_DIR)/package/feeds/vuci/"
 	$(CP) ../gpl.vite.config.js "$(GPL_BUILD_DIR)/package/feeds/vuci/"
 	$(CP) ../gpl.package.json "$(GPL_BUILD_DIR)/package/feeds/vuci/"
+	$(CP) "$(PKG_BUILD_DIR)/menu.json" "$(1)/menu.json"
 endef
 
 
@@ -117,10 +119,12 @@ endif
 
 define Package/vuci-ui-core/install
 	$(INSTALL_DIR) $(1)/www
+	$(INSTALL_DIR) $(1)/usr/share/vuci/menu.d
 	$(CP) $(PKG_BUILD_DIR)/vuci-ui-core/src/dist/www/* $(1)/www/
 	if [ ! -z "$$$$(ls ./modem-icons/$(TLT_PLATFORM_NAME)*)" ]; then \
 		$(CP) ./modem-icons/$(TLT_PLATFORM_NAME)* $(1)/www/icons/modem-icons/; \
 	fi
+	$(CP) $(PKG_BUILD_DIR)/menu.json $(1)/usr/share/vuci/menu.d/
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 
 endef

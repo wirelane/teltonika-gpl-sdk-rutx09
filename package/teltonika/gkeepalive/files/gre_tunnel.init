@@ -39,6 +39,7 @@ start_tunnel(){
 
 		procd_open_instance "$1"
 		
+		procd_set_param user gkeepalive
 		procd_set_param command gkeepalive --bind_interface "$t_source_interface"
 		if [ "$keep_alive" = "1" ]; then
 			procd_append_param command --remote_ip "$peeraddr"

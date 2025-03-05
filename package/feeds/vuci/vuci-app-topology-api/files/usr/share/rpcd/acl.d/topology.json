@@ -1,13 +1,1 @@
-{
-	"/network/topology": {
-		"description": "Network Topology",
-		"read": {
-			"api": {
-				"/network/topology/*": ["*"]
-			}
-		},
-		"write": {
-			"api": ["/network/topology/*"]
-		}
-	}
-}
+{"/network/topology":{"description":"Network Topology","read":{"api":{"/network/topology/*":["*"]}},"write":{"api":["/network/topology/*"]}}}

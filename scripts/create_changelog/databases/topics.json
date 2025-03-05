@@ -1,7 +1,28 @@
 [
   {
     "category": "Services",
-    "name": "Post/Get - I/O",
+    "name": "OpenConnect",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "flash16mb",
+        "value": false
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "SD & USB Tools",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "usb"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Events Reporting",
     "depends": [
       {
         "type": "family",
@@ -11,11 +32,61 @@
   },
   {
     "category": "Services",
-    "name": "Post/Get - Mobile",
+    "name": "NHRP",
+    "depends": []
+  },
+  {
+    "category": "System",
+    "name": "Date & Time",
+    "depends": []
+  },
+  {
+    "category": "Network",
+    "name": "BFD",
     "depends": [
       {
         "type": "family",
         "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "EoIP",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "System",
+    "name": "Speed Test",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Events juggler",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Network Shares",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "usb"
       }
     ]
   },
@@ -139,6 +210,52 @@
     ]
   },
   {
+    "category": "Services",
+    "name": "Python3",
+    "depends": [
+      {
+        "type": "family",
+        "name": "RUT30X"
+      },
+      {
+        "type": "family",
+        "name": "RUTX"
+      },
+      {
+        "type": "family",
+        "name": "TRB1"
+      },
+      {
+        "type": "device",
+        "name": "RUTC50"
+      },
+      {
+        "type": "family",
+        "name": "RUT9M"
+      },
+      {
+        "type": "family",
+        "name": "RUTM"
+      },
+      {
+        "type": "device",
+        "name": "OTD500"
+      },
+      {
+        "type": "family",
+        "name": "ATRM"
+      },
+      {
+        "type": "family",
+        "name": "TRB5"
+      }
+    ]
+  },
+  {
+    "category": "System",
+    "name": "USB client"
+  },
+  {
     "category": "System",
     "name": "CLI",
     "depends": []
@@ -229,16 +346,6 @@
     ]
   },
   {
-    "category": "Services",
-    "name": "Events Reporting",
-    "depends": [
-      {
-        "type": "family",
-        "name": "Router"
-      }
-    ]
-  },
-  {
     "category": "System",
     "name": "Backup"
   },
@@ -273,10 +380,6 @@
         "name": "TRB5"
       }
     ]
-  },
-  {
-    "category": "System",
-    "name": "USB client"
   },
   {
     "category": "System",
@@ -875,10 +978,6 @@
       {
         "type": "family",
         "name": "Router"
-      },
-      {
-        "type": "hw",
-        "name": "wifi"
       }
     ]
   },

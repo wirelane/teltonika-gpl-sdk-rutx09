@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=cmStreamApp
-PKG_VERSION:=2024-06-17
+PKG_VERSION:=2025-02-18
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.2
+PKG_SOURCE_VERSION:=2.5
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -22,6 +22,7 @@ define Package/cmStreamApp
 	CATEGORY:=Network
 	TITLE:=Cumulocity - Cloud of Things stream application.
 	DEPENDS:=+libsera +libuci +MOBILE_SUPPORT:libgsm +libmnfinfo
+	USERID:=iot:iot
 endef
 
 define Package/cmStreamApp/description
@@ -47,10 +48,22 @@ define Package/cmStreamApp/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iot $(1)/etc/config/iot
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iot.hotplug $(1)/etc/hotplug.d/iface/97-iot
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/iot.json $(1)/usr/share/acl.d/iot.json
 
 	if [ ! $(CONFIG_HNAT) ]; then \
 		$(SED) "s#Teltonika-Networks_RUTX#Teltonika-Networks_$(call device_shortname)#g" $(1)/usr/lib/lua/cm/srtemplate.txt; \
 	fi;
+endef
+
+define Package/cmStreamApp/postinst
+#!/bin/sh
+
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+#Relaod ubusd acl rules
+pid=$$(pidof ubusd)
+[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,cmStreamApp))

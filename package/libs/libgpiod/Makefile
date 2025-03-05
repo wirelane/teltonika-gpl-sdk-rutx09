@@ -26,33 +26,50 @@ PKG_SOURCE_URL:=@KERNEL/software/libs/libgpiod
 
 include $(INCLUDE_DIR)/package.mk
 
-ifneq ($(CONFIG_PACKAGE_gpiod-tools),)
+ifneq ($(CONFIG_PACKAGE_gpiod-tools),$(CONFIG_PACKAGE_gpiod-tools-full))
 CONFIGURE_ARGS += --enable-tools
 endif
 
 define Package/libgpiod
-  SECTION:=libs
-  CATEGORY:=Libraries
-  URL:=https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
-  TITLE:=Library for interacting with Linux's GPIO character device
-  DEPENDS:=+!TARGET_x86_64:kmod-tlt-gpio
+	SECTION:=libs
+	CATEGORY:=Libraries
+	URL:=https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git
+	TITLE:=Library for interacting with Linux's GPIO character device
+	DEPENDS:=+!TARGET_x86_64:kmod-tlt-gpio
 endef
 
 define Package/libgpiod/description
-  C library for interacting with the linux GPIO character device
-  (gpiod stands for GPIO device).
+	C library for interacting with the linux GPIO character device
+	(gpiod stands for GPIO device).
 endef
 
 define Package/gpiod-tools
-  SECTION:=utils
-  CATEGORY:=Utilities
-  TITLE:=Tools for interacting with GPIO pins
-  DEPENDS:=+libgpiod
+	SECTION:=utils
+	CATEGORY:=Utilities
+	TITLE:=Tools for interacting with GPIO pins
+	PROVIDES:=gpiod-tools
+	VARIANT:=minimal
+	DEPENDS:=+libgpiod
+endef
+
+define Package/gpiod-tools-full
+	SECTION:=utils
+	CATEGORY:=Utilities
+	TITLE:=Tools for interacting with GPIO pins full edition
+	PROVIDES:=gpiod-tools-full
+	CONFLICTS:=gpiod-tools
+	VARIANT:=full
+	DEPENDS:=+libgpiod
+endef
+
+define Package/gpiod-tools-full/description
+	Tools for interacting with the linux GPIO character device
+	(gpiod stands for GPIO device), full version.
 endef
 
 define Package/gpiod-tools/description
-  Tools for interacting with the linux GPIO character device
-  (gpiod stands for GPIO device).
+	Tools for interacting with the linux GPIO character device
+	(gpiod stands for GPIO device), minimal required version.
 endef
 
 define Build/InstallDev
@@ -73,8 +90,16 @@ endef
 
 define Package/gpiod-tools/install
 	$(INSTALL_DIR) $(1)/usr/bin
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpiofind $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpioget $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpioset $(1)/usr/bin/
+endef
+
+define Package/gpiod-tools-full/install
+	$(INSTALL_DIR) $(1)/usr/bin
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/* $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,libgpiod))
 $(eval $(call BuildPackage,gpiod-tools))
+$(eval $(call BuildPackage,gpiod-tools-full))

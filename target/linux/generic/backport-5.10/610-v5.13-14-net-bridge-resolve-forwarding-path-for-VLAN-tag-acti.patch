@@ -66,7 +66,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  }
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -409,7 +409,10 @@ static int br_fill_forward_path(struct n
+@@ -414,7 +414,10 @@ static int br_fill_forward_path(struct n
  		return -1;
  
  	br = netdev_priv(ctx->dev);
@@ -78,7 +78,7 @@ Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
  	if (!f || !f->dst)
  		return -1;
  
-@@ -417,10 +420,28 @@ static int br_fill_forward_path(struct n
+@@ -422,10 +425,28 @@ static int br_fill_forward_path(struct n
  	if (!dst)
  		return -1;
  

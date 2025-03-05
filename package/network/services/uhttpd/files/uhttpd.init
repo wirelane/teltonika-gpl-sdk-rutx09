@@ -8,6 +8,11 @@ USE_PROCD=1
 UHTTPD_BIN="/usr/sbin/uhttpd"
 OPENSSL_BIN="/usr/bin/openssl"
 
+DEFAULT_UHTTPD_CERT="/etc/uhttpd.crt"
+DEFAULT_UHTTPD_KEY="/etc/uhttpd.key"
+DEFAULT_UHTTPD_CA_CERT="/etc/uhttpd-ca.crt"
+DEFAULT_UHTTPD_CA_KEY="/etc/uhttpd-ca.key"
+
 append_arg() {
 	local cfg="$1"
 	local var="$2"
@@ -33,13 +38,11 @@ append_bool() {
 sign_certificate() {
     local crt_req="$1"
     local crt="$2"
-    local ca="/etc/uhttpd-ca.crt"
-    local ca_key="/etc/uhttpd-ca.key"
 
-    if [ ! -e "$ca" ]; then
+    if [ ! -e "$DEFAULT_UHTTPD_CA_CERT" ]; then
         $OPENSSL_BIN req -x509 -nodes \
             -subj "/CN=ca" \
-            -newkey rsa:2048 -keyout "${ca_key}" -out "${ca}" -days 3650 &>/dev/null
+            -newkey rsa:2048 -keyout "${DEFAULT_UHTTPD_CA_KEY}" -out "${DEFAULT_UHTTPD_CA_CERT}" -days 3650 &>/dev/null
     fi
 	local macaddr="$(mnf_info -m)"
 	#							replace invalid dashes JSON keys
@@ -49,7 +52,7 @@ sign_certificate() {
 	fi
     local extfile="$(mktemp)"
     echo -e "extendedKeyUsage=serverAuth\nsubjectAltName=DNS:Teltonika${macaddr},IP:${ip_addr}" > "$extfile"
-    $OPENSSL_BIN x509 -req -in "${crt_req}" -CA "${ca}" -CAkey "${ca_key}" -out "${crt}" -days 3650 -extfile "$extfile" &>/dev/null
+    $OPENSSL_BIN x509 -req -in "${crt_req}" -CA "${DEFAULT_UHTTPD_CA_CERT}" -CAkey "${DEFAULT_UHTTPD_CA_KEY}" -out "${crt}" -days 3650 -extfile "$extfile" &>/dev/null
     rm -f "$extfile" "${crt_req}"
 }
 
@@ -100,6 +103,12 @@ start_instance()
 	config_get disabled "$cfg" disabled "0"
 	[ "$disabled" = "1" ] && return
 
+	config_get enb_http "$cfg" enable_http "1"
+	config_get enb_https "$cfg" enable_https "0"
+	[ -f /lib/libustream-ssl.so ] || enb_https="0"
+
+	[ "$enb_http" = "1" ] || [ "$enb_https" = "1" ] || return
+
 	[ -h "/etc/hotplug.d/iface/91-trigger-vuci-routes-reload" ] || \
 		ln -s /usr/share/uhttpd/91-trigger-vuci-routes-reload.hotplug /etc/hotplug.d/iface/91-trigger-vuci-routes-reload
 	[ -h "/etc/hotplug.d/net/91-trigger-vuci-routes-reload" ] || \
@@ -147,7 +156,6 @@ start_instance()
 	append_bool "$cfg" rfc1918_filter_http "-R" 0
 	[ -f /lib/libustream-ssl.so ] && append_bool "$cfg" rfc1918_filter_https "-F" 0
 
-	config_get enb_http "$cfg" enable_http "1"
 	[ "$enb_http" = "1" ] && {
 		local http
 		config_get http "$cfg" listen_http
@@ -156,14 +164,26 @@ start_instance()
 		done
 	}
 
-	config_get enb_https "$cfg" enable_https
-	[ -f /lib/libustream-ssl.so ] && [ "$enb_https" = "1" ] && {
+	[ "$enb_https" = "1" ] && {
 		local cert key
-		config_get cert 	"$cfg" cert /etc/uhttpd.crt
-		config_get cert_key "$cfg" key	/etc/uhttpd.key
+		config_get cert 	"$cfg" cert "$DEFAULT_UHTTPD_CERT"
+		config_get cert_key "$cfg" key	"$DEFAULT_UHTTPD_KEY"
 
-		[ ! -s "$cert" ] || [ ! -s "$cert_key" ] \
-			&& generate_keys "defaults" "$cert" "$cert_key"
+		local generate_cert=0
+
+		[ -s "$cert" -a -s "$cert_key" ] || {
+			rm -f "$cert" "$cert_key"
+			generate_cert=1
+		}
+
+		[ "$cert_key" = "$DEFAULT_UHTTPD_KEY" ] && [ "$cert" = "$DEFAULT_UHTTPD_CERT" ] && {
+			[ -s "$DEFAULT_UHTTPD_CA_CERT" -a -s "$DEFAULT_UHTTPD_CA_KEY" ] || {
+				rm -f "$DEFAULT_UHTTPD_KEY" "$DEFAULT_UHTTPD_CERT" "$DEFAULT_UHTTPD_CA_CERT" "$DEFAULT_UHTTPD_CA_KEY"
+				generate_cert=1
+			}
+		}
+
+		[ "$generate_cert" -eq 1 ] && generate_keys "defaults" "$cert" "$cert_key"
 
 		[ -f "$cert" ] && [ -f "$cert_key" ] && {
 			procd_append_param command -C "$cert"

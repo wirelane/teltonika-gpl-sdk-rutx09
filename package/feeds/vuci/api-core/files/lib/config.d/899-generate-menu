@@ -1,7 +1,0 @@
-#!/bin/sh
-
-generate_menu() {
-	/usr/bin/lua -e 'require("vuci.menu_generate"):regenerate_menu()'
-}
-
-conf_file_register_hook generate_menu /usr/share/vuci/menu.d/menu.json

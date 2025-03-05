@@ -6,9 +6,22 @@ USE_PROCD=1
 
 CRONTAB_FILE='/etc/crontabs/root'
 IDENTIFYING_STRING='# periodic_reboot'
+ENABLED=0
+
+check_if_enabled() {
+    local enable
+    config_get enable "$1" enable 0
+    [ "$enable" -eq 1 ] && ENABLED=1
+}
 
 start_service() {
     sed -i "/$IDENTIFYING_STRING/d" "$CRONTAB_FILE" 2>/dev/null
+
+    config_load periodic_reboot
+    config_foreach check_if_enabled "reboot_instance"
+
+    [ "$ENABLED" -eq 0 ] && return
+
     /etc/reboot_utils/periodic_reboot_init.sh &
 }
 

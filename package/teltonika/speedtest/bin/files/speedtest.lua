@@ -1,4 +1,16 @@
 #!/usr/bin/lua
+local nixio = require("nixio")
+if nixio.getuid() == 0 and nixio.getgid() == 0 then
+	local user = nixio.getpw("speedtest")
+	if user then
+		if not nixio.setgid(user.gid) then
+			perror("could not setuid to speedtest user")
+		end
+		if not nixio.setuid(user.uid) then
+			perror("could not setgid to speedtest user")
+		end
+	end
+end
 
 local libspeedtest = require ("libspeedtest")
 local socket =  require("socket")
@@ -17,7 +29,7 @@ local DSPEED = 0
 local USPEED = 0
 
 local function exit()
-    os.remove("/var/run/speedtest.pid")
+    os.remove("/tmp/speedtest.pid")
     os.exit()
 end
 
@@ -176,17 +188,24 @@ local function fetchServerList()
         exit()
     end
 
+	local parsed = jsc.parse(body)
+	local filtered = {}
+	if parsed then
+		for _, v in ipairs(parsed) do
+			if string.lower(v["country"]) ~= "belarus" then
+				filtered[#filtered + 1] = v
+			end
+		end
+		body = jsc.stringify(filtered)
+	end
+
     return body
 end
 
 local function getConfig()
     -- check that internet exists before trying to resolve speedtest
-    ping = util.ubus("file", "exec", {
-        command = "ping",
-        params = {"1.1.1.1", "-c1"}
-    })
-
     local body = ""
+    local ping = util.file_exec("/bin/ping", { "1.1.1.1", "-c1"})
     if ping.code == 0 then
         body = libspeedtest.getbody("https://www.speedtest.net/speedtest-config.php") or ""
     end

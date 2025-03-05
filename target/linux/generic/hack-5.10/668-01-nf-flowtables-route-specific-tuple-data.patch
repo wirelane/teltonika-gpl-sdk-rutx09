@@ -237,7 +237,7 @@ separate struct and union.
  	dev_queue_xmit(skb);
  
  	return NF_STOLEN;
-@@ -346,21 +346,21 @@ unsigned int nf_flow_offload_ip_hook_tai
+@@ -346,18 +346,18 @@ unsigned int nf_flow_offload_ip_hook_tai
  	__be32 nexthop;
  	int ret;
  
@@ -245,9 +245,6 @@ separate struct and union.
 -		rt = (struct rtable *)tuple->dst_cache;
 +	if (unlikely(tuple->route.xmit_type == FLOW_OFFLOAD_XMIT_XFRM)) {
 +		rt = (struct rtable *)tuple->route.dst_cache;
- 		memset(skb->cb, 0, sizeof(struct inet_skb_parm));
- 		IPCB(skb)->iif = skb->dev->ifindex;
- 		IPCB(skb)->flags = IPSKB_FORWARDED;
  		return nf_flow_xmit_xfrm(skb, net, &rt->dst);
  	}
  
@@ -264,7 +261,7 @@ separate struct and union.
  		skb_dst_set_noref(skb, &rt->dst);
  		neigh_xmit(NEIGH_ARP_TABLE, outdev, &nexthop, skb);
  		ret = NF_STOLEN;
-@@ -402,7 +402,7 @@ nf_flow_offload_ip_hook(void *priv, stru
+@@ -399,7 +399,7 @@ nf_flow_offload_ip_hook(void *priv, stru
  	dir = tuplehash->tuple.dir;
  	flow = container_of(tuplehash, struct flow_offload, tuplehash[dir]);
  
@@ -273,7 +270,7 @@ separate struct and union.
  	if (unlikely(nf_flow_exceeds_mtu(skb, mtu)))
  		return NF_ACCEPT;
  
-@@ -434,7 +434,7 @@ nf_flow_offload_ip_hook(void *priv, stru
+@@ -431,7 +431,7 @@ nf_flow_offload_ip_hook(void *priv, stru
  		nf_ct_acct_update(flow->ct, tuplehash->tuple.dir, skb->len);
  
  #ifdef CONFIG_NF_FLOW_TABLE_XFRM
@@ -282,7 +279,7 @@ separate struct and union.
  		return nf_flow_xmit_xfrm_direct(skb, flow, dir);
  	}
  #endif
-@@ -606,21 +606,21 @@ unsigned int nf_flow_offload_ipv6_hook_t
+@@ -606,18 +606,18 @@ unsigned int nf_flow_offload_ipv6_hook_t
  	const struct in6_addr *nexthop;
  	int ret;
  
@@ -290,9 +287,6 @@ separate struct and union.
 -		rt = (struct rt6_info *)tuple->dst_cache;
 +	if (unlikely(tuple->route.xmit_type == FLOW_OFFLOAD_XMIT_XFRM)) {
 +		rt = (struct rt6_info *)tuple->route.dst_cache;
- 		memset(skb->cb, 0, sizeof(struct inet6_skb_parm));
- 		IP6CB(skb)->iif = skb->dev->ifindex;
- 		IP6CB(skb)->flags = IP6SKB_FORWARDED;
  		return nf_flow_xmit_xfrm(skb, net, &rt->dst);
  	}
  
@@ -309,7 +303,7 @@ separate struct and union.
  		skb_dst_set_noref(skb, &rt->dst);
  		neigh_xmit(NEIGH_ND_TABLE, outdev, nexthop, skb);
  		ret = NF_STOLEN;
-@@ -662,7 +662,7 @@ nf_flow_offload_ipv6_hook(void *priv, st
+@@ -659,7 +659,7 @@ nf_flow_offload_ipv6_hook(void *priv, st
  	dir = tuplehash->tuple.dir;
  	flow = container_of(tuplehash, struct flow_offload, tuplehash[dir]);
  
@@ -318,7 +312,7 @@ separate struct and union.
  	if (unlikely(nf_flow_exceeds_mtu(skb, mtu)))
  		return NF_ACCEPT;
  
-@@ -693,7 +693,7 @@ nf_flow_offload_ipv6_hook(void *priv, st
+@@ -690,7 +690,7 @@ nf_flow_offload_ipv6_hook(void *priv, st
  		nf_ct_acct_update(flow->ct, tuplehash->tuple.dir, skb->len);
  
  #ifdef CONFIG_NF_FLOW_TABLE_XFRM

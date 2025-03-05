@@ -4,7 +4,7 @@ import containerQueriesPlugin from '@tailwindcss/container-queries'
 
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./applications/**/*.{vue,js,ts}', './vuci-ui-core/src/index.html', './vuci-ui-core/src/src/**/*.{vue,js,ts}', './vuci-ui-core/src/ui-core/**/*.{vue,js,ts}'],
+  content: ['./applications/**/*.{vue,js,ts,mdx}', './vuci-ui-core/src/index.html', './vuci-ui-core/src/src/**/*.{vue,js,ts,mdx}', './vuci-ui-core/src/ui-core/**/*.{vue,js,ts,mdx}'],
   safelist: [
     {
       pattern: /text-body-.*/

@@ -29,7 +29,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  		usbnet_defer_kevent (dev, EVENT_RX_MEMORY);
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -2741,6 +2741,8 @@ static inline int pskb_trim(struct sk_bu
+@@ -2742,6 +2742,8 @@ static inline int pskb_trim(struct sk_bu
  extern struct sk_buff *__netdev_alloc_skb_ip_align(struct net_device *dev,
  		unsigned int length, gfp_t gfp);
  
@@ -38,7 +38,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  
  /**
   *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
-@@ -2840,6 +2842,9 @@ void *netdev_alloc_frag(unsigned int fra
+@@ -2841,6 +2843,9 @@ void *netdev_alloc_frag(unsigned int fra
  struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int length,
  				   gfp_t gfp_mask);
  
@@ -119,7 +119,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  #endif /* __LINUX_USB_USBNET_H */
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -491,6 +491,54 @@ skb_fail:
+@@ -492,6 +492,54 @@ skb_fail:
  }
  EXPORT_SYMBOL(__netdev_alloc_skb);
  
@@ -174,7 +174,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  /**
   *	__napi_alloc_skb - allocate skbuff for rx in a specific NAPI instance
   *	@napi: napi instance this buffer was allocated for
-@@ -571,6 +619,22 @@ struct sk_buff *__netdev_alloc_skb_ip_al
+@@ -572,6 +620,22 @@ struct sk_buff *__netdev_alloc_skb_ip_al
  }
  EXPORT_SYMBOL(__netdev_alloc_skb_ip_align);
  

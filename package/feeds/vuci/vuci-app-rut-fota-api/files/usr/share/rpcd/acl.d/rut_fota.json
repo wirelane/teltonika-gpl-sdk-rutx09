@@ -1,13 +1,1 @@
-{
-    "system/flashops/fota": {
-        "read": {
-            "api": {
-                "/fota/*": ["*"],
-                "/dfota/config/*": ["*"]
-            }
-        },
-        "write": {
-			"api": ["/fota/*", "/dfota/config/*"]
-        }
-    }
-}
+{"system/flashops/fota":{"read":{"api":{"/fota/*":["*"],"/dfota/config/*":["*"]}},"write":{"api":["/fota/*","/dfota/config/*"]}}}

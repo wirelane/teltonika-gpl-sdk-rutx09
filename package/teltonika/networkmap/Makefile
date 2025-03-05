@@ -31,4 +31,9 @@ define Package/networkmap/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/networkmap $(1)/usr/libexec/rpcd/
 endef
 
+define Package/networkmap/postinst
+#!/bin/sh
+[ -n "$$IPKG_INSTROOT" ] || /etc/init.d/rpcd reload
+endef
+
 $(eval $(call BuildPackage,networkmap))

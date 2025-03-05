@@ -8,7 +8,8 @@ include ../api.mk
 
 define Package/$(PKG_NAME)/install
 	$(call Package/$(PKG_NAME)/install/Default,$(1))
-	$(INSTALL_BIN) ./files/usr/lib/lua/api/network/supplicant_control.lua $(1)/usr/lib/lua/api/network/supplicant_control.lua
+	files_dir="./files"; if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
+	$(INSTALL_BIN) "$$$$files_dir"/usr/lib/lua/api/network/supplicant_control.lua $(1)/usr/lib/lua/api/network/supplicant_control.lua
 endef
 
 # call BuildPackage - OpenWrt buildroot signature

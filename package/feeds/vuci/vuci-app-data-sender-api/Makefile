@@ -9,20 +9,17 @@ CUSTOM_INSTALL=1
 include ../api.mk
 
 define InstallLuaFile
-	if [[ -n "$${CONFIG_VUCI_COMPILE_LUA}" ]] && [[ -f $$(PKG_BUILD_DIR)/files/usr/lib/lua/api/services/$(1).lua ]]; then \
-		$$(CP) $$(PKG_BUILD_DIR)/files/usr/lib/lua/api/services/$(1).lua $(2)/usr/lib/lua/api/services/$(1).lua; \
-	elif [[ -f ./files/usr/lib/lua/api/services/$(1).lua ]]; then \
-		$$(INSTALL_BIN) ./files/usr/lib/lua/api/services/$(1).lua $(2)/usr/lib/lua/api/services/$(1).lua; \
-	fi
+	files_dir="./files"; if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
+	$(CP) "$$$$files_dir"/usr/lib/lua/api/services/$(1).lua $(2)/usr/lib/lua/api/services/$(1).lua;
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/lib/lua/api/services
-	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
-	$(INSTALL_DIR) $(1)/usr/lib/lua/vuci
-	$(INSTALL_BIN) ./files/usr/lib/lua/vuci/ds_update_list.lua $(1)/usr/lib/lua/vuci/ds_update_list.lua
-	$(CP) ./files/usr/share/rpcd/acl.d/datasender.json $(1)/usr/share/rpcd/acl.d/datasender.json
-	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
+	files_dir="./files"; if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
+	$(INSTALL_DIR) $(1)/usr/lib/lua/api/services; \
+	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d; \
+	$(INSTALL_DIR) $(1)/usr/lib/lua/vuci; \
+	$(INSTALL_BIN) "$$$$files_dir"/usr/lib/lua/vuci/ds_update_list.lua $(1)/usr/lib/lua/vuci/ds_update_list.lua; \
+	$(CP) "$$$$files_dir"/usr/share/rpcd/acl.d/datasender.json $(1)/usr/share/rpcd/acl.d/datasender.json;
 	$(call InstallLuaFile,data_sender_collections,$(1))
 	$(call InstallLuaFile,data_sender_inputs,$(1))
 	$(call InstallLuaFile,data_sender_outputs,$(1))
@@ -31,11 +28,8 @@ define Package/$(PKG_NAME)/install
 endef
 
 define InstallLuaModuleFile
-	if [[ -n "$${CONFIG_VUCI_COMPILE_LUA}" ]] && [[ -f $$(PKG_BUILD_DIR)/files/usr/lib/lua/api/services/$(1)/$(2).lua ]]; then \
-		$$(CP) $$(PKG_BUILD_DIR)/files/usr/lib/lua/api/services/$(1)/$(2).lua $(3)/usr/lib/lua/api/services/$(1)/$(2).lua; \
-	elif [[ -f ./files/usr/lib/lua/api/services/$(1)/$(2).lua ]]; then \
-		$$(INSTALL_BIN) ./files/usr/lib/lua/api/services/$(1)/$(2).lua $(3)/usr/lib/lua/api/services/$(1)/$(2).lua; \
-	fi
+	files_dir="./files"; if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
+	$(CP) "$$$$$$$$files_dir"/usr/lib/lua/api/services/$(1)/$(2).lua $(3)/usr/lib/lua/api/services/$(1)/$(2).lua;
 endef
 
 define GenerateDataToServerModule

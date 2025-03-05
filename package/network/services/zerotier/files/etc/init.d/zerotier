@@ -14,7 +14,7 @@ setup_network() {
 	local secret="$2"
 	local node_id="$3"
 	local args=""
-	local network_id allow_global allow_managed allow_default
+	local network_id allow_global allow_managed allow_default custom_planet_file
 
 	config_get enabled "$1" 'enabled' 0
 	config_get network_id $cfg 'network_id'
@@ -23,6 +23,7 @@ setup_network() {
 	config_get allow_managed $cfg 'allow_managed' '1'
 	config_get allow_default $cfg 'allow_default'
 	config_get bridge_to $cfg 'bridge_to'
+	config_get custom_planet_file "$cfg" "custom_planet_file"
 
 	[ "$enabled" -eq 0 ] && return 1
 
@@ -43,6 +44,7 @@ setup_network() {
 	# an (empty) config file will cause ZT to join a network
 	touch "${path}/networks.d/${network_id}.conf"
 	touch "${path}/networks.d/${network_id}.local.conf"
+	[ -e "$custom_planet_file" ] && cp "$custom_planet_file" "${path}/planet"
 
 	[ "$allow_default" = "1" ] && {
 		sysctl -w "net.ipv4.conf.all.rp_filter=2" >/dev/null

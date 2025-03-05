@@ -213,9 +213,23 @@ default_prerm() {
 	return $ret
 }
 
+
+set_config_owner() {
+	local pkgname="$1"
+	local uname="$2"
+	local gname="$3"
+
+	[ -e "$root/usr/lib/opkg/info/${pkgname}.conffiles" ] || return
+
+	while IFS= read -r filepath; do
+		chown "$uname:$gname" "$filepath"
+	done < "$root/usr/lib/opkg/info/${pkgname}.conffiles"
+}
+
 add_group_and_user() {
 	local pkgname="$1"
 	local rusers="$(sed -ne 's/^Require-User: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
+	local owner=0
 
 	if [ -n "$rusers" ]; then
 		local tuple oIFS="$IFS"
@@ -243,9 +257,70 @@ add_group_and_user() {
 				group_add_user "$gname" "$uname"
 			fi
 
+			[ "$owner" -eq 0 ] && {
+				set_config_owner "$pkgname" "$uname" "$gname"
+				owner=1
+			}
+
 			unset uid gid uname gname
 		done
 	fi
+}
+
+add_user_groups() {
+	local pkgname="$1"
+	local groups="$(sed -ne 's/^UserGroups: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
+
+	[ -n "$groups" ] || return
+
+	local uname gnames gname
+	local tuple oIFS="$IFS"
+
+	IFS=":"
+	set -- $groups; uname="$1"; gnames="$2"
+	IFS="$oIFS"
+
+	[ -n "$uname" ] || return
+	for gname in $gnames; do
+		group_exists "$gname" && group_add_user "$gname" "$uname"
+	done
+}
+
+set_capabilities() {
+	local pkgname="$1"
+	local caps="$(sed -ne 's/^Capabilities: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
+
+	[ -n "$caps" ] || return
+
+	local caps bin oIFS="$IFS"
+
+	IFS=":"
+	set -- $caps; bin="$1"; caps="$2"
+	IFS="$oIFS"
+
+	[ -n "$bin" ] || [ -n "$caps" ]  return
+	[ -e "$root/$bin" ] || return
+
+	/usr/sbin/setcap "$caps" "$root/$bin"
+}
+
+set_suid() {
+	local pkgname="$1"
+	local suid="$(sed -ne 's/^SetUID: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
+
+	[ -n "$suid" ] || return
+
+	local suid bin oIFS="$IFS"
+
+	IFS=":"
+	set -- $suid; bin="$1"; suid="$2"
+	IFS="$oIFS"
+
+	[ -n "$bin" ] || [ -n "$suid" ]  return
+	[ -e "$root/$bin" ] || return
+
+	chown "$suid:$suid" "$root/$bin"
+	chmod +s "$root/$bin"
 }
 
 default_postinst() {
@@ -255,6 +330,9 @@ default_postinst() {
 	local ret=0
 
 	add_group_and_user "${pkgname}"
+	set_suid "${pkgname}"
+	set_capabilities "${pkgname}"
+	add_user_groups "${pkgname}"
 
 	if [ -f "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" ]; then
 		( . "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" )
@@ -271,16 +349,16 @@ default_postinst() {
 			kmodloader
 		fi
 
+		if grep -m1 -q -s "^/usr/share/acl.d" "$filelist"; then
+			kill -1 $(pgrep ubusd)
+		fi
+
 		if grep -m1 -q -s "^/etc/sysctl.d/" "$filelist"; then
 			/etc/init.d/sysctl restart
 		fi
 
 		if grep -m1 -q -s "^/etc/uci-defaults/" "$filelist"; then
-			[ -d /tmp/.uci ] || mkdir -p /tmp/.uci
-			for i in $(grep -s "^/etc/uci-defaults/" "$filelist"); do
-				( [ -f "$i" ] && cd "$(dirname $i)" && . "$i" ) && rm -f "$i"
-			done
-			uci commit
+			uci_apply_defaults
 		fi
 
 		rm -fr /tmp/luci-indexcache
@@ -370,7 +448,7 @@ group_add_next() {
 		return
 	fi
 	gids=$(cut -d: -f3 ${IPKG_INSTROOT}/etc/group)
-	gid=65536
+	gid=1000
 	while echo "$gids" | grep -q "^$gid$"; do
 		gid=$((gid + 1))
 	done
@@ -398,7 +476,7 @@ user_add() {
 	local rc
 	[ -z "$uid" ] && {
 		uids=$(cut -d: -f3 ${IPKG_INSTROOT}/etc/passwd)
-		uid=65536
+		uid=1000
 		while echo "$uids" | grep -q "^$uid$"; do
 			uid=$((uid + 1))
 		done
@@ -499,6 +577,27 @@ uci_apply_defaults() {
 	apply_defaults "$top_dir"
 
 	uci commit
+}
+
+sync_permissions_and_ownerships() {
+	src_dir="/rom/etc/config"
+	dest_dir="/etc/config"
+
+	for src_file in "$src_dir"/*; do
+		[ -f "$src_file" ] || continue
+		dest_file="$dest_dir/$(basename "$src_file")"
+		[ -f "$dest_file" ] || continue
+
+		permissions=$(ls -l "$src_file" | awk '{k=0;for(i=0;i<=8;i++)k+=((substr($1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf("%0o ",k)}')
+		chmod $permissions "$dest_file"
+		chown "$(ls -n "$src_file" | awk '{print $3 ":" $4}')" "$dest_file"
+	done
+}
+
+fix_permissions()
+{
+	chmod $1 "$2"
+	chown "$3" "$2"
 }
 
 [ -z "$IPKG_INSTROOT" ] && [ -f /lib/config/uci.sh ] && . /lib/config/uci.sh

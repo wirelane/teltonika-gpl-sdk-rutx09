@@ -8,6 +8,7 @@ DB_PATH=/var/hotspot.db
 DB_PATH_FLASH=/etc/chilli/hotspot.db
 KMOD_PATH=lib/iptables/libxt_coova.so
 PROG="/usr/sbin/chilli"
+GENERATED_IPS=""
 [ -x "$PROG" ] || PROG="/usr/local$PROG"
 
 set_conf() {
@@ -31,19 +32,28 @@ config_cb() {
 
 	case "$1" in
 	chilli)
-		option_cb() {
-			set_chilli "$@"
-		}
-		list_cb() {
-			set_chilli_list "$@"
-		}
-		if [ "$chilli_inst" != "" ]; then
+		local enabled="$(uci_get chilli "$chilli_inst" enabled 0)"
+		[ "$enabled" -eq 1 ] && {
+			option_cb() {
+				set_chilli "$@"
+			}
+			list_cb() {
+				set_chilli_list "$@"
+			}
 			chilli_conf="/var/run/chilli_${chilli_inst}.conf"
 			if [ -e "$chilli_conf" ]; then
 				rm -f "$chilli_conf"
 			fi
-			eval "start_chilli_$chilli_inst=0"
-		fi
+			eval "start_chilli_$chilli_inst=1"
+		} || {
+			option_cb() {
+				return
+			}
+			list_cb() {
+				return
+			}
+			return 0
+		}
 		;;
 	*)
 		option_cb() {
@@ -90,15 +100,12 @@ set_dyn_limits() {
 
 set_chilli() {
 	local option=$1 value=$2
-	local route port
+	local route
 
 	case "$1" in
 	# UCI settings
 	network)
 		eval "dhcpif_$CONFIG_SECTION=$2"
-		;;
-	enabled)
-		[ "$2" = "1" ] && eval "start_chilli_$CONFIG_SECTION=1"
 		;;
 	# boolean settings
 	debug | dhcpbroadcast | nodynip | vlanlocation | locationstopstart | locationcopycalled | \
@@ -136,18 +143,22 @@ set_chilli() {
 		esac
 		;;
 	_landingpage)
-		[ "$value" = "int" ] && {
-			local _protocol=$(uci -q get chilli."${CONFIG_SECTION}"._protocol)
-			local uamlisten=$(uci -q get chilli."${CONFIG_SECTION}".uamlisten)
-			local net=$(uci -q get chilli."${CONFIG_SECTION}".net)
-			local mode=$(uci -q get chilli."${CONFIG_SECTION}"._mode)
+		case "$value" in
+		int)
+			local net="$(uci_get chilli "${CONFIG_SECTION}" net "192.168.182.0/24")"
+			local uamlisten="$(uci_get chilli "${CONFIG_SECTION}" uamlisten "192.168.182.1")"
+			local _protocol="$(uci_get chilli "${CONFIG_SECTION}" _protocol)"
+			local _mode="$(uci_get chilli "${CONFIG_SECTION}" _mode)"
+			local port=$(uci_get uhttpd hotspot listen_http 81)
 
-			# Coovachilli default if not IP is set
-			net="${net:-192.168.182.0/24}"
-			uamlisten="${uamlisten:-192.168.182.1}"
-			kmod_enabled "$CONFIG_SECTION" && uamlisten="$(increment_ip "$uamlisten" "${net##*/}")"
+			kmod_enabled "$CONFIG_SECTION" && {
+				local result="$(increment_ip "$uamlisten" "${net##*/}" "$GENERATED_IPS")"
+				uamlisten="${result%%;*}"
+				GENERATED_IPS="${result#*;}"
+				eval "uamlisten_$CONFIG_SECTION=$uamlisten"
+			}
 
-			case "$mode" in
+			case "$_mode" in
 			sms_otp)
 				route="smsauth"
 				;;
@@ -159,51 +170,49 @@ set_chilli() {
 				;;
 			esac
 
-			local subdomain=$(uci -q get chilli."${CONFIG_SECTION}".subdomain)
-			local domain=$(uci -q get chilli."${CONFIG_SECTION}".domain)
-			[ -n "$subdomain" ] && [ -n "$domain" ] && {
-				set_conf "uamallowed" "${subdomain}.${domain}:${port:-81},${subdomain}.${domain}:444"
-				uamlisten="${subdomain}.${domain}"
-			}
-			uci -q set uhttpd.hotspot.rfc1918_filter="0"
-
 			[ "$_protocol" = "https" ] && {
-				port=444
+				local sslca sslcert sslkey
+				port=$(uci_get uhttpd hotspot listen_https 444)
 				set_conf_bool "uamuissl" 1
 
-				local sslca=$(uci -q get chilli."${CONFIG_SECTION}"._device_sslcafile)
-				local sslcert=$(uci -q get chilli."${CONFIG_SECTION}"._device_sslcertfile)
-				local sslkey=$(uci -q get chilli."${CONFIG_SECTION}"._device_sslkeyfile)
-				[ -z "$sslca" ] && sslca=$(uci -q get chilli."${CONFIG_SECTION}".sslcafile)
-				[ -z "$sslcert" ] && sslcert=$(uci -q get chilli."${CONFIG_SECTION}".sslcertfile)
-				[ -z "$sslkey" ] && sslkey=$(uci -q get chilli."${CONFIG_SECTION}".sslkeyfile)
+				local sslca="$(uci_get chilli "${CONFIG_SECTION}" _device_sslcafile "$(uci_get chilli "${CONFIG_SECTION}" sslcafile)")"
+				local sslcert="$(uci_get chilli "${CONFIG_SECTION}" _device_sslcertfile "$(uci_get chilli "${CONFIG_SECTION}" sslcertfile)")"
+				local sslkey="$(uci_get chilli "${CONFIG_SECTION}" _device_sslkeyfile "$(uci_get chilli "${CONFIG_SECTION}" sslkeyfile)")"
 
 				[ -n "$sslcert" ] && [ -n "$sslkey" ] && {
 					[ -n "$sslca" ] && {
 						local fullchain="/var/run/chilli_${CONFIG_SECTION}_cert.pem"
 						cat "$sslcert" "$sslca" > "$fullchain"
-						uci -q set uhttpd.hotspot.cert="$fullchain"
+						uci_set uhttpd hotspot cert "$fullchain"
 					} || {
-						uci -q set uhttpd.hotspot.cert="$sslcert"
+						uci_set uhttpd hotspot cert "$sslcert"
 					}
-					uci -q set uhttpd.hotspot.key="$sslkey"
+					uci_set uhttpd hotspot key "$sslkey"
 				}
-				uci -q set uhttpd.hotspot.enable_https="1"
-			} || {
-				uci -q set uhttpd.hotspot.enable_https="0"
+				uci_set uhttpd hotspot enable_https "1"
 			}
 
-			uci -q commit uhttpd
-			/etc/init.d/uhttpd reload
+			local subdomain="$(uci_get chilli "${CONFIG_SECTION}" subdomain)"
+			local domain="$(uci_get chilli "${CONFIG_SECTION}" domain)"
+			[ -n "$subdomain" ] && [ -n "$domain" ] && {
+				set_conf "uamallowed" "${subdomain}.${domain}:${port}"
+				uamlisten="${subdomain}.${domain}"
+			}
+			uci_set uhttpd hotspot rfc1918_filter "0"
+
+			uci_commit uhttpd
+			/etc/init.d/uhttpd reload &
 
 			set_conf "uamserver" \
-				"${_protocol:-http}://${uamlisten}:${port:-81}/cgi-bin/hotspot/${route:-userpass}"
-		}
-		[ "$value" = "ext" ] && {
-			local server=$(uci -q get chilli."${CONFIG_SECTION}".uamserver)
-			local https=$(uci -q get chilli."${CONFIG_SECTION}"._https)
-			[[ "$server" = "https://"* ]] && [ "$https" = "1" ] && set_conf_bool "uamuissl" 1
-		}
+				"${_protocol:-http}://${uamlisten}:${port}/cgi-bin/hotspot/${route:-userpass}"
+			;;
+		ext)
+			local uamserver="$(uci_get chilli "${CONFIG_SECTION}" uamserver)"
+			local _https="$(uci_get chilli "${CONFIG_SECTION}" _https)"
+
+			[[ "$uamserver" = "https://"* ]] && [ "$_https" = "1" ] && set_conf_bool "uamuissl" 1
+			;;
+		esac
 		;;
 	_success)
 		case "$value" in
@@ -239,7 +248,20 @@ set_chilli() {
 		set_conf "uamaliasname" "$2"
 		set_conf_bool "domaindnslocal" 1
 		;;
-	_* | uamdomain_* | conup | condown | uamlisten | net | macup | macdown) ;;
+	mac_case)
+		[ "$2" = "lower" ] && set_conf_bool "maclower" 1
+		;;
+	mac_delimiter)
+		case $2 in
+		colon)
+			set_conf "macdelimiter" "1"
+			;;
+		none)
+			set_conf "macdelimiter" "2"
+			;;
+		esac
+		;;
+	_* | uamdomain_* | conup | condown | uamlisten | net | macup | macdown | enabled | conrestart) ;;
 
 	*)
 		set_conf "$@"
@@ -301,6 +323,9 @@ get_dhcp_interface() {
 increment_ip() {
 	local next_ipaddr="$1"
 	local next_prefix="$2"
+	local generated_ips="$3"
+
+	reset_cb
 
 	local next_network
 	calculate_next_ip() {
@@ -324,7 +349,14 @@ increment_ip() {
 		next_network="$NETWORK"
 	}
 
-	check_available() {
+	check_generated_ips() {
+		for ip in $generated_ips; do
+			[ "$ip" = "$next_ipaddr" ] && return 1
+		done
+		return 0
+	}
+
+	check_available_network() {
 		local section="$1"
 		local ipaddr netmask
 
@@ -337,15 +369,48 @@ increment_ip() {
 		local changed=0
 		while [ "$changed" -eq 0 ]; do
 			eval "$(ipcalc.sh "$ipaddr" "$netmask")"
-			[ "$NETWORK" == "$next_network" ] && calculate_next_ip || changed=1
+			[ "$NETWORK" == "$next_network" ] && {
+				generated_ips="$generated_ips $next_ipaddr"
+				calculate_next_ip
+			} || changed=1
+		done
+	}
+
+	check_available_chilli() {
+		local section="$1"
+		local net netmask
+
+		config_get net "$section" net
+		[ -z "$net" ] && return
+
+		local changed=0
+		while [ "$changed" -eq 0 ]; do
+			eval "$(ipcalc.sh "$net")"
+			[ "$NETWORK" == "$next_network" ] && {
+				generated_ips="$generated_ips $next_ipaddr"
+				calculate_next_ip
+			} || changed=1
 		done
 	}
 
 	calculate_next_ip
-	config_load network
-	config_foreach check_available interface
 
-	echo "$next_ipaddr"
+	while :; do
+		if check_generated_ips; then
+			break
+		else
+			calculate_next_ip
+		fi
+	done
+
+	config_load chilli
+	config_foreach check_available_chilli chilli
+
+	config_load network
+	config_foreach check_available_network interface
+
+	generated_ips="$generated_ips $next_ipaddr"
+	echo "$next_ipaddr;$generated_ips"
 }
 
 kmod_enabled() {
@@ -373,7 +438,14 @@ add_kmod_conf() {
 		return
 	}
 
-	set_conf "uamlisten" "$(increment_ip "$uamlisten" "${net##*/}")"
+	local uamlisten_cfg=$(eval "echo \$uamlisten_$cfg")
+	[ -z "$uamlisten_cfg" ] && {
+		local result="$(increment_ip "$uamlisten" "${net##*/}" "$GENERATED_IPS")"
+		uamlisten_cfg="${result%%;*}"
+		GENERATED_IPS="${result#*;}"
+	}
+
+	set_conf "uamlisten" "$uamlisten_cfg"
 	set_conf "dhcplisten" "$uamlisten"
 	set_conf "kname" "$cfg"
 }
@@ -402,12 +474,18 @@ start_chilli() {
 	local network=$(eval "echo \$dhcpif_$cfg")
 	local uamdomainfile macaddr wifi_id interface int=0 pid_file
 
+	[ "$start_chilli" = "1" ] || return
+
+	chilli_conf="/var/run/chilli_${cfg}.conf"
+
 	add_kmod_conf "$cfg"
 
 	add_con_script "conup" "$cfg"
 	add_con_script "condown" "$cfg"
 	add_con_script "macup" "$cfg"
 	add_con_script "macdown" "$cfg"
+
+	set_conf "conrestart" "/etc/chilli/conrestart.sh"
 
 	config_get uamdomainfile "$cfg" "uamdomainfile"
 
@@ -421,7 +499,7 @@ start_chilli() {
 		done
 	}
 
-	[ "$start_chilli" = "0" ] || [ "$int" = "0" ] && return
+	[ "$int" = "0" ] && return
 	[ -z "$dhcpif" ] && get_dhcp_interface dhcpif "$network"
 	[ -z "$dhcpif" ] && return
 	[ -n "$chilli_group" ] && config_foreach set_dyn_limits group "$chilli_group" "dyn"
@@ -455,10 +533,11 @@ start_chilli() {
 
 start_service() {
 	config_load chilli
+	reset_cb
 	config_foreach start_chilli chilli "$@"
 }
 
-stop_service() {
+service_stopped() {
 	rm -f /var/run/chilli_*
 	[ -f ${DB_PATH} ] && cp ${DB_PATH} ${DB_PATH_FLASH}
 }

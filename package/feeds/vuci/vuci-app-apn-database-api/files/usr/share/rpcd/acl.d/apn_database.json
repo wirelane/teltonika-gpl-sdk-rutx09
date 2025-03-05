@@ -1,14 +1,1 @@
-{
-  "network/mobile/apn_database": {
-    "read": {
-      "api": {
-        "/apn_database/*": ["*"]
-      }
-    },
-    "write": {
-      "api": ["/apn_database/*"]
-    },
-    "source": ["/apn_database/*"],
-    "exception": ["/apn_database/config/*"]
-  }
-}
+{"network/mobile/apn_database":{"read":{"api":{"/apn_database/*":["*"]}},"write":{"api":["/apn_database/*"]},"source":["/apn_database/*"],"exception":["/apn_database/config/*"]}}

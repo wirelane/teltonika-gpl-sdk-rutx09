@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ddns-scripts
-PKG_VERSION:=2024-10-30
+PKG_VERSION:=2025-02-06
 PKG_RELEASE:=1
 
 
@@ -28,6 +28,7 @@ define Package/ddns-scripts/Default
     CATEGORY:=Network
     SUBMENU:=IP Addresses and Names
     PKGARCH:=all
+    USERID:=ddns=1024:ddns=1024
 endef
 
 ###### *************************************************************************
@@ -172,6 +173,8 @@ define Package/ddns-scripts/preinst
 	exit 0	# suppress errors
 endef
 define Package/ddns-scripts/install
+	$(INSTALL_DIR)  $(1)/usr/lib/ddns $(1)/usr/share/acl.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ddns_acl.json $(1)/usr/share/acl.d/ddns.json
 	$(INSTALL_DIR)	$(1)/etc/uci-defaults
 	$(INSTALL_BIN)	$(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/
 	$(INSTALL_DIR)  $(1)/etc/hotplug.d/iface

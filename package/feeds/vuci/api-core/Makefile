@@ -7,6 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=api-core
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-nda-source
+PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -68,7 +69,6 @@ define install_closed_gpl
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/network
 
 	$(CP) $(GPL_FILES_DIR)/etc/config/vuci $(PKG_GPL_BUILD_DIR)/files/etc/config
-	$(CP) $(GPL_FILES_DIR)/lib/config.d/899-generate-menu $(PKG_GPL_BUILD_DIR)/files/lib/config.d
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
 	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
 	$(CP) $(GPL_FILES_DIR)/sbin/tls_generate_lua.lua $(PKG_GPL_BUILD_DIR)/files/sbin
@@ -91,10 +91,10 @@ endef
 
 
 
+# GPL has no PKG_BUILD_DIR in api-core so we need to use ./files dir
 define Package/api-core/install
-	files_dir="./files" ; \
-	if [[ -d "$(PKG_BUILD_DIR)/files" ]] && [[ -n "$(CONFIG_VUCI_COMPILE_LUA)" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
-	echo $$$$files_dir ; \
+	files_dir="./files"; \
+	if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
 	$(INSTALL_DIR) -D $(1)/www/cgi-bin \
 				$(1)/bin \
 				$(1)/sbin \
@@ -114,7 +114,6 @@ define Package/api-core/install
 				$(1)/etc/vuci-uploads ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/config/vuci $(1)/etc/config/vuci ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/bin/trigger_vuci_routes_reload $(1)/bin/trigger_vuci_routes_reload ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/lib/config.d/899-generate-menu $(1)/lib/config.d/899-generate-menu ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server.init $(1)/etc/init.d/event_server ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/tls_generate_lua.lua $(1)/sbin/tls_generate_lua ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/event_server.lua $(1)/sbin/event_server ; \
@@ -132,7 +131,6 @@ define Package/api-core/install
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/network/* $(1)/usr/lib/lua/api/network
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/vuci.so $(1)/usr/lib/lua
-	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 
 	# remove some core api files if none of these features are supported
 	$(if $(or $(CONFIG_IO_SUPPORT),\

@@ -20,6 +20,7 @@ start_service() {
 		procd_append_param file /lib/uci/upload/cbid.mqtt_pub.mqtt_pub.keyfile
 		procd_set_param command /usr/sbin/mqtt_pub
 		procd_set_param respawn ${respawn_threshold:-0} ${respawn_timeout:-60} ${respawn_retry:-0}
+		procd_set_param user mqtt_pub
 		procd_close_instance
 	fi
 }

@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=troubleshoot
-PKG_VERSION:=1.3
+PKG_VERSION:=1.4
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -27,6 +27,7 @@ define Package/troubleshoot/install
 	$(CP) ./files/troubleshoot/kernel.sh $(1)/lib/troubleshoot
 	$(CP) ./files/troubleshoot/logdb.sh $(1)/lib/troubleshoot
 	$(CP) ./files/troubleshoot/network.sh $(1)/lib/troubleshoot
+	$(CP) ./files/troubleshoot/poeman.sh $(1)/lib/troubleshoot
 
 	$(if $(CONFIG_MOBILE_SUPPORT),\
 		$(CP) ./files/troubleshoot/modem.sh ./files/troubleshoot/esim.sh $(1)/lib/troubleshoot)

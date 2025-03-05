@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=7.12.1.1
+PKG_SOURCE_VERSION:=7.13
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \
@@ -21,6 +21,7 @@ define Package/gsmd
 	CATEGORY:=Network
 	TITLE:=Simple server to route AT commands to modem
 	DEPENDS:= +libubus +libubox +libblobmsg-json +modems +kmod-usb-serial-option +libmnfinfo
+	USERID:=gsm:gsm
 endef
 
 define Package/gsmctl
@@ -90,6 +91,15 @@ define Build/InstallDev
 endef
 
 
+define Package/gsmd/postinst
+	#!/bin/sh
+
+	. "$${IPKG_INSTROOT}/lib/functions.sh"
+
+	# add gsm user to dialout group to read network cfg
+	group_add_user dialout gsm
+endef
+
 define Package/libgsm/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libgsm/libgsm.so $(1)/usr/lib/
@@ -98,7 +108,7 @@ endef
 
 define Package/gsmd/install
 	$(INSTALL_DIR) $(1)/bin $(1)/usr/sbin $(1)/etc/config/ $(1)/etc/init.d/ $(1)/usr/share/usb/ \
-		$(1)/usr/share/iface/ $(1)/usr/share/gsm/ $(1)/lib/preinit/
+		$(1)/usr/share/iface/ $(1)/usr/share/gsm/ $(1)/usr/share/acl.d $(1)/lib/preinit/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gsmd/gsmd $(1)/usr/sbin/gsmd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/board_modem $(1)/bin/board_modem
 
@@ -111,10 +121,12 @@ define Package/gsmd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/fill_modem.hotplug $(1)/usr/share/gsm/2-fill-modem-info
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/notify_send_sms.hotplug $(1)/usr/share/gsm/4-notify-send-sms
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/notify_sim_state.hotplug $(1)/usr/share/gsm/4-notify-sim-state
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/gsm.json $(1)/usr/share/acl.d/gsm.json
+
 	if [ $(CONFIG_MULTI_DEVICE_QUIRK) ]; then \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/validate_cefs.hotplug $(1)/usr/share/gsm/5-validate-cefs; \
 	fi;
-	$(INSTALL_CONF) /dev/null $(1)/etc/config/simcard
+	$(INSTALL_CONF_USR) /dev/null $(1)/etc/config/simcard
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot gsmd ./gsmd.openrc $(1))

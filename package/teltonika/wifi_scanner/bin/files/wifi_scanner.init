@@ -52,6 +52,7 @@ start_service() {
 	config_load wifi_scanner
 	config_get two_g_enabled wifi_scan two_g_enabled 0
 	config_get five_g_enabled wifi_scan five_g_enabled 0
+	config_get interval wifi_scan interval 1
 
 	[ "$two_g_enabled" != "0" -o "$five_g_enabled" != "0" ] || return
 
@@ -77,8 +78,9 @@ start_service() {
 	[ -n "$ifnames" ] && wpa_cli_mgmt REGISTER_FRAME "$ifnames"
 
 	procd_open_instance
+	procd_set_param user wifi_scanner
 	procd_set_param respawn
-	procd_set_param command "$BIN" -t "$two_g_enabled" -f "$five_g_enabled"
+	procd_set_param command "$BIN" -t "$two_g_enabled" -f "$five_g_enabled" -i "$interval"
 	procd_close_instance
 }
 

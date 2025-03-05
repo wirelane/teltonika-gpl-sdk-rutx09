@@ -27,6 +27,7 @@ setup_json() {
 		ucidef_add_dot1x_server_capabilities false false "single_port"
 		;;
 	x86*)
+	        ucidef_set_board_platform "X86_64"
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_set_hwinfo usb ethernet hw_nat nat_offloading multi_tag port_link gigabit_port xfrm-offload
 		;;
@@ -46,7 +47,7 @@ platform="$(cat /proc/device-tree/platform)" 2>/dev/null
 
 board_config_update
 setup_json
-ucidef_set_board_platform "$platform"
+[ -n "$platform" ] && ucidef_set_board_platform "$platform"
 ucidef_check_esim
 board_config_flush
 

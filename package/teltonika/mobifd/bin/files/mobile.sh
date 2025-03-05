@@ -514,7 +514,7 @@ notify_mtu_diff(){
 	local current_mtu="$3"
 	[ -n "$operator_mtu" ] && [ "$operator_mtu" != "$current_mtu" ] && {
 		echo "Notifying WebUI that operator ($operator_mtu) and configuration MTU ($current_mtu) differs"
-		touch "/tmp/vuci/mtu_${interface_name}_${operator_mtu}"
+		ubus send vuci.notify "{\"event\": \"mtu\", \"data\": {\"iface_name\": \"$interface_name\", \"operator_mtu\": \"$operator_mtu\"}}"
 	}
 }
 

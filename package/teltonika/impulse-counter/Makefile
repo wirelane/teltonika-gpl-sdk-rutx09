@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=impulse-counter
-PKG_VERSION:=2025-01-08
-PKG_SOURCE_VERSION:=7.11
+PKG_VERSION:=2025-02-20
+PKG_SOURCE_VERSION:=7.13
 PKG_LICENSE:=Teltonika-closed
 
 
@@ -13,11 +13,11 @@ define Package/$(PKG_NAME)
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Impulse counter
-	DEPENDS:=+libubox +libuci +libtlt_uci +libubus +libblobmsg-json +lsqlite3 +libtlt-logger
+	DEPENDS:=+libubox +libuci +libtlt_uci +libubus +libblobmsg-json +lsqlite3 +libtlt-logger +iomand
 endef
 
 define Package/$(PKG_NAME)/description
-	impulse counter maintains impulse count database by Teltonika.
+	Impulse counter application is used to count impulse signals and store them in a database.
 endef
 
 
@@ -51,6 +51,8 @@ define Package/$(PKG_NAME)/prerm
 	#!/bin/sh
 	. /lib/functions.sh
 	. /lib/config/uci.sh
+
+	rm -f /tmp/impulse_counter.db
 
 	[ -f "/etc/config/data_sender" ] || return 0
 

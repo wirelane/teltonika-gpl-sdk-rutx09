@@ -94,11 +94,15 @@ endef
 
 define Build/check-size
 	@imagesize="$$(stat -c%s $@)"; \
+	$(if $(filter $(1),999m),echo "INFO: Image file $@ size before padding: $$imagesize" >&2;) \
 	limitsize="$$(($(subst k,* 1024,$(subst m, * 1024k,$(if $(1),$(1),$(IMAGE_SIZE))))))"; \
 	[ $$limitsize -ge $$imagesize ] || { \
-		echo "WARNING: Image file $@ is too big: $$imagesize > $$limitsize" >&2; \
+		echo -n "WARNING: Image file $@ is too big: $$imagesize > $$limitsize"; \
+		initial_imagesize="$$(grep -oP ' size before padding: \K\d+' '$(BUILD_LOG_DIR)/target/linux/install.txt' 2>/dev/null)"; \
+		[ -z "$$initial_imagesize" ] || echo ". Compressed rootFS size before padding exceeded the limit by $$(($(subst k,* 1024,$(if $(BLOCKSIZE),$(BLOCKSIZE),64k)) - $$imagesize + $$initial_imagesize)) bytes"; \
+		echo; \
 		rm -f $@; \
-	}
+	} >&2
 endef
 
 define Build/initrd_compression

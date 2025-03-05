@@ -19,7 +19,6 @@ DEFAULT_PACKAGES:=\
 	libgcc \
 	netifd \
 	uci \
-	libbrand-versioning \
 	mnfinfo
 
 ifneq ($(CONFIG_SELINUX),)

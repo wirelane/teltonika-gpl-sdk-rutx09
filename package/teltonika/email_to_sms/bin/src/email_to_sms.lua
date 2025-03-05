@@ -8,6 +8,7 @@ local MAX_MODEM_CNT = 12
 local MSG_SIZE = 1024
 local MAX_SIZE = 61440
 local MAX_MESSAGE_TO_READ = 32
+local CRONTAB_PATH = "/etc/crontabs/ets"
 
 local function get_cfg(opt)
 	return uci:get("email_to_sms", "pop3", opt)
@@ -165,7 +166,9 @@ local function main()
 	end
 
 	local ssl = tonumber(get_cfg("ssl")) == 1
-	local ssl_verify = tonumber(get_cfg("ssl_verify")) == 1
+	local ssl_verify_cfg = get_cfg("ssl_verify")
+	local ssl_verify = tonumber(ssl_verify_cfg) == 1
+
 	local mbox = pop3.new()
 	if ssl then
 		local ok, err = mbox:open_tls(some_mail.host, some_mail.port, nil, ssl_verify)
@@ -204,40 +207,43 @@ local function main()
 end
 
 local function start()
-	local reboot = 0
-	local find = util.exec("grep -q /usr/bin/email_to_sms /etc/crontabs/root; echo $?")
-	if tonumber(find) == 0 then
-		os.execute("sed -i '\\/usr\\/bin\\/email_to_sms/d' /etc/crontabs/root")
-		reboot = 1
+	if tonumber(enabled) ~= 1 then
+		return 0
 	end
-	if tonumber(enabled) == 1 then
-		local command = ""
-		local time_format = get_cfg("time")
-		if time_format == "min" then
-			local min_number = get_cfg("min")
-			command = 'echo "*/' .. tonumber(min_number) .. ' * * * * lua /usr/bin/email_to_sms read" >>/etc/crontabs/root'
-		elseif time_format == "hour" then
-			local hour_number = get_cfg("hour")
-			command = 'echo "0 */' ..tonumber(hour_number) .. ' * * * lua /usr/bin/email_to_sms read" >>/etc/crontabs/root'
-		elseif time_format == "day" then
-			local day_number = get_cfg("day")
-			command = 'echo "0 0 */' .. tonumber(day_number) .. ' * * lua /usr/bin/email_to_sms read" >>/etc/crontabs/root'
-		end
-		reboot = 1
-		print(command)
-		os.execute(command)
+
+	local file = io.open(CRONTAB_PATH, "w")
+	if file == nil then
+		perror("Failed to open file")
+
+		return 1
 	end
-	if tonumber(reboot) == 1 then
-		os.execute("/etc/init.d/cron restart")
+
+	local rule = ""
+	local time_format = get_cfg("time")
+	if time_format == "min" then
+		local min_number = get_cfg("min")
+		rule = "*/" .. tonumber(min_number) .. " * * * *"
+	elseif time_format == "hour" then
+		local hour_number = get_cfg("hour")
+		rule = "0 */" ..tonumber(hour_number) .. " * * *"
+	elseif time_format == "day" then
+		local day_number = get_cfg("day")
+		rule = "0 0 */" .. tonumber(day_number) .. " * *"
+	else
+		perror("Unknown time format")
+	
+		return 1
 	end
+
+	file:write(rule .. " lua /usr/bin/email_to_sms read")
+	file:close()
+
+	os.execute("/etc/init.d/cron reload")
 end
 
 local function stop()
-	local find = util.exec("grep -q /usr/bin/email_to_sms /etc/crontabs/root; echo $?")
-	if tonumber(find) == 0 then
-		os.execute("sed -i '\\/usr\\/bin\\/email_to_sms/d' /etc/crontabs/root")
-		os.execute("/etc/init.d/cron restart")
-	end
+	os.remove(CRONTAB_PATH)
+	os.execute("/etc/init.d/cron reload")
 end
 
 

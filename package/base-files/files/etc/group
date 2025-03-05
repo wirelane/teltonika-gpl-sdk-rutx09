@@ -7,6 +7,7 @@ dialout:x:20:
 audio:x:29:
 www-data:x:33:
 ftp:x:55:
+log:x:99:
 users:x:100:
 network:x:101:
 nogroup:x:65534:

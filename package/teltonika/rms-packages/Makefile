@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rms-packages
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-02-14
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.15
+PKG_SOURCE_VERSION:=3.16
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -39,8 +39,15 @@ define Package/rms_json
 	CATEGORY:=Base system
 	TITLE:=Collects and prints out information about device.
 	DEPENDS:=+libuci +MOBILE_SUPPORT:libgsm +GPS_SUPPORT:libgps +libmnfinfo +libblobmsg-json +libubus \
-		+libubox +libjson-c +MOBILE_SUPPORT:libmdcollect +IO_SUPPORT:iomand +libboardjson +libtlt_uci \
-		+libsqlite3
+		+libubox +libjson-c +MOBILE_SUPPORT:libmdcollect +IO_SUPPORT:iomand +libboardjson +libtlt_uci
+endef
+
+define Package/rms-json-hotspot
+	SUBMENU:=RMS
+	SECTION:=base
+	CATEGORY:=Base system
+	TITLE+=Hotspot information collector for RMS JSON
+	DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libsqlite3
 endef
 
 ifeq ($(CONFIG_GATEWAY_DEVICE), y)
@@ -79,6 +86,11 @@ define Package/rms_json/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rms_json/rms_json $(1)/sbin/rms_json
 endef
 
+define Package/rms-json-hotspot/install
+	$(INSTALL_DIR) $(1)/usr/lib/rms_json
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rms_json/rms-json-hotspot.so $(1)/usr/lib/rms_json/rms-json-hotspot.so
+endef
+
 define Package/librms/install
 	$(INSTALL_DIR) $(1)/usr/lib/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/librms/librms.so $(1)/usr/lib/
@@ -86,4 +98,5 @@ endef
 
 $(eval $(call BuildPackage,rms_mqtt))
 $(eval $(call BuildPackage,rms_json))
+$(eval $(call BuildPackage,rms-json-hotspot))
 $(eval $(call BuildPackage,librms))

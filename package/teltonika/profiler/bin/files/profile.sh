@@ -15,7 +15,7 @@ EXCEPTIONS="etc/config/rms_connect_timer etc/config/profiles etc/crontabs/root e
 
 EXTRA_FILES="/etc/firewall.user /etc/profile_version"
 
-KNOWN_CLEANS="/etc/config/iojuggler"
+KNOWN_CLEANS="/etc/config/event_juggler"
 
 log() {
 	logger -s -t "$(basename "$0")" "$1"
@@ -313,6 +313,9 @@ change_config() {
 	rm -f "$md5file"
 	apply_config "$md5file"
 
+	# rpcd scripts set a umask of 077 while script expects 022
+	umask 022
+
 	mkdir -p "$TMP_DIR"
 	tar xzf "$archive" -C "$TMP_DIR" 2>&- || {
 		log "Unable to extract '$archive'"
@@ -329,7 +332,13 @@ change_config() {
 
 	#Fixing legacy profiles
 	remove_exceptions_from_file "$TMP_DIR"
-	cp -r "$TMP_DIR"/* /
+
+	# the /etc/config folder itself is not added into the archive
+	# so we need to restore the permissions to what we expect
+	chown 100:users "$TMP_DIR"/etc/config/
+	chmod 777 "$TMP_DIR"/etc/config/
+
+	cp -pr "$TMP_DIR"/* /
 
 	#Apply uci defaults only if profile is created on different FW version.
 	cmp -s "${TMP_DIR}${PROFILE_VERSION_FILE}" /etc/version || {

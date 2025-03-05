@@ -1,14 +1,1 @@
-{
-	"services/cloud_solutions/thingworx": {
-		"description": "ThingWorx",
-		"read": {
-			"api": {
-				"/thingworx/*": ["*"],
-				"/interfaces/config/*": ["name", "proto"]
-			}
-		},
-		"write": {
-			"api": ["/thingworx/*"]
-		}
-	}
-}
+{"services/cloud_solutions/thingworx":{"description":"ThingWorx","read":{"api":{"/thingworx/*":["*"],"/interfaces/config/*":["name","proto"]}},"write":{"api":["/thingworx/*"]}}}

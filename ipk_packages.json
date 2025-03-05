@@ -89,8 +89,7 @@
 	},
 	"vuci-app-ntpd-ui": {
 		"vuci_dep": "vuci-app-ntpd-api",
-		"packages_dep": "libcap",
-		"base_dep": "ntpd",
+		"base_dep": "libcap ntpd",
 		"name": "ntpd"
 	},
 	"vuci-app-webfilter-ui": {
@@ -115,7 +114,7 @@
 	},
 	"vuci-app-samba-ui": {
 		"base_dep": "samba36-server libuuid1 libblkid1 libcomerr0 libext2fs2 libss2 e2fsprogs fmt-usb-msd exfat-mkfs storage-memory-expansion",
-		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-exfat kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage block-mount",
+		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-exfat kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage kmod-fuse block-mount",
 		"vuci_dep": "vuci-app-memory-expansion-api vuci-app-usb-tools-api vuci-app-memory-expansion-ui vuci-app-usb-tools-ui vuci-app-samba-api",
 		"name": "network_shares"
 	},
@@ -130,7 +129,7 @@
 		"name": "wake_on_lan"
 	},
 	"vuci-app-coovachilli-ui": {
-		"base_dep": "libtltchilli coova-chilli tc-tiny libjson-c libcurl",
+		"base_dep": "libtltchilli coova-chilli tc-tiny libjson-c libcurl rms-json-hotspot",
 		"vuci_dep": "vuci-app-coovachilli-api vuci-app-landingpage tlt_hs_theme_default vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"kmod_dep": "kmod-ipt-coova kmod-ifb kmod-sched-core",
 		"name": "hotspot"
@@ -145,9 +144,9 @@
 		"name": "speedtest"
 	},
 	"vuci-app-port-mirroring-ui": {
-		"base_dep": "software-port-mirroring tc-tiny",
+		"base_dep": "software-port-mirroring tc-tiny ebtables",
 		"vuci_dep": "vuci-app-software-port-mirroring-api",
-		"kmod_dep": "kmod-sched-core",
+		"kmod_dep": "kmod-sched-core kmod-ebtables",
 		"name": "port_mirroring"
 	},
 	"vuci-app-sqm-ui": {
@@ -174,8 +173,7 @@
 	},
 	"vuci-app-ddns-ui": {
 		"vuci_dep": "vuci-app-ddns-api",
-		"base_dep": "tlt-ddns ddns-scripts ddns-scripts_nsupdate ddns-scripts_no-ip_com ddns-scripts_cloudflare.com-v4 curl",
-		"packages_dep": "snsupdate",
+		"base_dep": "snsupdate tlt-ddns ddns-scripts ddns-scripts_nsupdate ddns-scripts_no-ip_com ddns-scripts_cloudflare.com-v4 curl",
 		"kmod_dep": "libatomic1",
 		"name": "ddns"
 	},
@@ -185,6 +183,7 @@
 	"vuci-app-ulog-ui": {
 		"vuci_dep": "vuci-app-ulog-api",
 		"base_dep": "ulogd ulogd-mod-extra ulogd-mod-nflog libnfnetlink0 libnetfilter-log1 libmnl0 tlt-ulogd",
+		"kmod_dep": "iptables-mod-nflog kmod-nfnetlink-log kmod-nfnetlink kmod-ipt-nflog",
 		"name": "traffic_logging"
 	},
 	"vuci-app-modbus-server-ui": {
@@ -212,7 +211,7 @@
 	},
 	"vuci-app-opcua-ui": {
 		"vuci_dep": "vuci-app-opcua-api data-sender-api-mod-opcua",
-		"base_dep": "opcua_client open62541 libtlt_utils data-sender-mod-opcua libcfgx",
+		"base_dep": "opcua_client open62541 data-sender-mod-opcua libcfgx",
 		"name": "opc_ua_client"
 	},
 	"vuci-app-opcua-server-ui": {
@@ -222,7 +221,7 @@
 	},
 	"vuci-app-dlms-ui": {
 		"vuci_dep": "vuci-app-dlms-api data-sender-api-mod-dlms",
-		"base_dep": "dlms_client libdlms libtlt_utils libtlt_termios1.0 libgpiod libcfgx data-sender-mod-dlms",
+		"base_dep": "dlms_client libdlms libtlt_termios1.0 libgpiod libcfgx data-sender-mod-dlms",
 		"kmod_dep": "kmod-tlt-gpio",
 		"name": "dlms_client"
 	},
@@ -233,50 +232,50 @@
 		"name": "failover"
 	},
 	"frr-vtysh": {
-		"base_dep": "frr frr-libfrr libjson-c5 libyang libpcre2 libreadline8 libncurses6 terminfo more",
+		"base_dep": "frr frr-libfrr libcap libjson-c5 libyang libpcre2 libreadline8 libncurses6 terminfo more",
 		"kmod_dep": "libc libatomic1 libpthread",
-		"packages_dep": "libcap librt",
+		"packages_dep": "librt",
 		"name": "frr_vtysh"
 	},
 	"vuci-app-dynamic-routes-bgp-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-bgpd libjson-c5 libyang libpcre2",
+		"base_dep": "frr frr-zebra frr-libfrr frr-bgpd libcap libjson-c5 libyang libpcre2",
 		"kmod_dep": "libc libatomic1 libpthread kmod-tcpmd5sig",
-		"packages_dep": "libcap librt",
+		"packages_dep": "librt",
 		"vuci_dep": "vuci-app-dynamic-routes-bgp-api",
 		"name": "bgp_daemon"
 	},
 	"vuci-app-dynamic-routes-eigrp-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-eigrpd libjson-c5 libyang libpcre2",
+		"base_dep": "frr frr-zebra frr-libfrr frr-eigrpd libcap libjson-c5 libyang libpcre2",
 		"kmod_dep": "libc libatomic1 libpthread",
-		"packages_dep": "libcap librt",
+		"packages_dep": "librt",
 		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api",
 		"name": "eigrp_daemon"
 	},
 	"vuci-app-dynamic-routes-nhrp-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-nhrp libjson-c5 libyang libpcre2 libcares",
-		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit",
-		"packages_dep": "libcap librt",
+		"base_dep": "frr frr-zebra frr-libfrr frr-nhrp libcap libjson-c5 libyang libpcre2 libcares",
+		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
+		"packages_dep": "librt",
 		"vuci_dep": "vuci-app-dynamic-routes-nhrp-api",
 		"name": "nhrp_daemon"
 	},
 	"vuci-app-dynamic-routes-ospf-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-ospfd libjson-c5 libyang libpcre2",
+		"base_dep": "frr frr-zebra frr-libfrr frr-ospfd libcap libjson-c5 libyang libpcre2",
 		"kmod_dep": "libc libatomic1 libpthread",
-		"packages_dep": "libcap librt",
+		"packages_dep": "librt",
 		"vuci_dep": "vuci-app-dynamic-routes-ospf-api",
 		"name": "ospf_daemon"
 	},
 	"vuci-app-dynamic-routes-rip-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-ripd libjson-c5 libyang libpcre2",
+		"base_dep": "frr frr-zebra frr-libfrr frr-ripd libcap libjson-c5 libyang libpcre2",
 		"kmod_dep": "libc libatomic1 libpthread",
-		"packages_dep": "libcap librt",
+		"packages_dep": "librt",
 		"vuci_dep": "vuci-app-dynamic-routes-rip-api",
 		"name": "rip_daemon"
 	},
 	"frr-staticd": {
-		"base_dep": "frr frr-zebra frr-libfrr libjson-c5 libyang libpcre2",
+		"base_dep": "frr frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2",
 		"kmod_dep": "libc libatomic1 libpthread",
-		"packages_dep": "libcap librt",
+		"packages_dep": "librt",
 		"name": "static_daemon"
 	},
 	"vuci-app-dynamic-routes-bgp5-ui": {
@@ -293,7 +292,7 @@
 	},
 	"vuci-app-dynamic-routes-nhrp5-ui": {
 		"base_dep": "frr5 frr5-zebra frr5-libfrr libcares frr5-watchfrr frr5-nhrp",
-		"kmod_dep": "libc iptables-mod-hashlimit kmod-ipt-hashlimit",
+		"kmod_dep": "libc iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
 		"vuci_dep": "vuci-app-dynamic-routes-nhrp5-api",
 		"name": "nhrp_daemon"
 	},
@@ -310,16 +309,16 @@
 		"name": "rip_daemon"
 	},
 	"vuci-app-dmvpn-ui": {
-		"base_dep": "frr frr-nhrp frr-zebra frr-libfrr libjson-c5 libyang libpcre2 dmvpn",
-		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit",
-		"packages_dep": "libcap librt",
+		"base_dep": "frr frr-nhrp frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2 dmvpn",
+		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
+		"packages_dep": "librt",
 		"vuci_dep": "vuci-app-dmvpn-api vuci-app-dynamic-routes-nhrp-ui vuci-app-dynamic-routes-nhrp-api",
 		"name": "dmvpn"
 	},
 	"vuci-app-dmvpn5-ui": {
 		"base_dep": "frr5 frr5-nhrp frr5-watchfrr frr5-zebra frr5-libfrr dmvpn_frr5",
 		"vuci_dep": "vuci-app-dmvpn5-api vuci-app-dynamic-routes-nhrp5-ui vuci-app-dynamic-routes-nhrp5-api",
-		"kmod_dep": "iptables-mod-hashlimit kmod-ipt-hashlimit",
+		"kmod_dep": "iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
 		"name": "dmvpn"
 	},
 	"vuci-app-udprelay-ui": {
@@ -405,17 +404,77 @@
 	"vuci-i18n-portuguese": {
 		"name": "portuguese_language_support"
 	},
+	"modem_updater-offline": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_offline"
+	},
 	"modem_updater": {
 		"base_dep": "libusb-1.0-0 libffi",
 		"packages_dep": "libattr",
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_updater"
 	},
+	"quectel_flash": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_quectel_flash"
+	},
+	"QDLoader": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_qdloader"
+	},
+	"Meig_Firehose": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_meig_firehose"
+	},
+	"fbfdownloader": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_fbfdownloader"
+	},
+	"uxfp": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_uxfp"
+	},
+	"qdownload": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_updater_qdownload"
+	},
+	"modem_logger-offline": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_logger_offline"
+	},
 	"modem_logger": {
 		"base_dep": "libusb-1.0-0 libffi",
 		"packages_dep": "libattr",
 		"kmod_dep": "libstdcpp6",
 		"name": "modem_logger"
+	},
+	"qlog": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_logger_qlog"
+	},
+	"qc_trace_collector": {
+		"base_dep": "libusb-1.0-0 libffi",
+		"packages_dep": "libattr",
+		"kmod_dep": "libstdcpp6",
+		"name": "modem_logger_qc_trace_collector"
 	},
 	"tpm2-tools": {
 		"base_dep": "libopenssl libcurl",
@@ -447,6 +506,11 @@
 		"base_dep": "libpam libpam-mod-deny libpam-mod-permit libpam-mod-umask libpam-mod-unix pam-radius pam-tacacs libtacacs pam",
 		"vuci_dep": "vuci-app-pamd-api",
 		"name": "pam"
+	},
+	"vuci-app-networkmap-ui": {
+		"base_dep": "networkmap",
+		"vuci_dep": "vuci-app-networkmap-api",
+		"name": "topology"
 	},
 	"vuci-app-email-relay-ui": {
 		"vuci_dep": "vuci-app-email-relay-api",
@@ -483,7 +547,9 @@
 		"vuci_dep": "vuci-app-internet-api"
 	},
 	"iperf3": {
-		"name": "iperf3"
+		"name": "iperf3",
+		"kmod_dep": "libatomic1",
+		"base_dep": "libiperf3"
 	},
 	"vuci-app-vxlan-ui": {
 		"name": "vxlan",
@@ -502,14 +568,20 @@
 		"base_dep": "ca-certificates libseccomp dockerd containerd runc tini"
 	},
 	"vuci-app-port-security-ui":{
-		"name": "802.1x_server",
+		"name": "802.1X",
 		"kmod_dep": "kmod-sched-core kmod-sched-act-vlan kmod-dummy kmod-sched-flower",
 		"vuci_dep": "vuci-app-port-security-api",
-		"base_dep": "radius_test dsa-dot1x-server tc-tiny hostapd-common libucode20220812 ucode ucode-mod-fs ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uloop wpad-openssl"
+		"base_dep": "radius_test dsa-dot1x-server tc-tiny hostapd-common libucode20220812 ucode ucode-mod-fs ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uloop wpad-openssl dot1x-client"
 	},
 	"strongswan-pki": {
 		"base_dep": "strongswan-libtls strongswan-mod-pkcs7 strongswan-mod-curl",
 		"name": "scep"
+	},
+	"vuci-app-bfd-ui": {
+		"base_dep": "bfdd-frr frr-bfdd frr frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread",
+		"name":"bfd",
+		"vuci_dep": "vuci-app-bfd-api"
 	},
 	"letsencrypt": {
 		"base_dep": "curl",
@@ -524,5 +596,41 @@
 		"name": "mobile_post_get",
 		"vuci_dep": "vuci-app-mobile-post-get-api",
 		"base_dep": "post-get post-get-mobile libtlt_uci"
+	},
+	"vuci-app-eoip-ui": {
+		"base_dep": "eoip",
+		"vuci_dep": "vuci-app-eoip-api",
+		"name": "eoip"
+	},
+	"vuci-app-p910nd-ui": {
+		"base_dep": "p910nd",
+		"kmod_dep": "kmod-usb-printer",
+		"vuci_dep": "vuci-app-p910nd-api",
+		"name": "printer_server"
+	},
+	"vuci-app-impulse-counter-ui": {
+		"base_dep": "impulse-counter libtlt_uci iomand data-sender-mod-impulse_counter",
+		"kmod_dep": "kmod-tlt-pulse-counter",
+		"vuci_dep": "vuci-app-impulse-counter-api data-sender-api-mod-impulse_counter",
+		"name": "impulse_counter"
+	},
+	"vuci-app-email-to-sms-ui" : {
+		"name": "email_to_sms",
+		"vuci_dep": "vuci-app-email-to-sms-api",
+		"base_dep": "email_to_sms lua-pop3",
+		"packages_dep": "lua-md5"
+	},
+	"vuci-app-openconnect-ui": {
+		"base_dep": "openconnect libxml2 vpnc-scripts p11-kit libp11 libtasn1",
+		"vuci_dep": "vuci-app-openconnect-api",
+		"name": "openconnect"
+	},
+	"wpa-cli": {
+		"base_dep": "wpad wpad-openssl wpad-basic wpad-basic-openssl wpad-mini",
+		"name": "wpa_cli"
+	},
+	"iptables-mod-nat-extra": {
+		"kmod_dep": "kmod-ipt-nat-extra",
+		"name": "iptables_nat_extra"
 	}
 }

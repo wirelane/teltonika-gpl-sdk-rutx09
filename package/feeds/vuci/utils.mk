@@ -20,3 +20,10 @@ define CompileLua
 		fi ;\
 	done
 endef
+
+define MinifyLua
+	$(FIND) $(1) -type f -name '*.lua' | while read src; do \
+		if LUA_PATH="$(STAGING_DIR_HOSTPKG)/lib/lua/5.1/?.lua" luasrcdiet --noopt-binequiv --noopt-emptylines -o "$$$$src.o" "$$$$src"; \
+		then mv "$$$$src.o" "$$$$src"; fi; \
+	done
+endef

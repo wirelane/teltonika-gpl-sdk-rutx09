@@ -60,7 +60,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
   */
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -2738,6 +2738,10 @@ static inline int pskb_trim(struct sk_bu
+@@ -2739,6 +2739,10 @@ static inline int pskb_trim(struct sk_bu
  	return (len < skb->len) ? __pskb_trim(skb, len) : 0;
  }
  
@@ -71,7 +71,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  /**
   *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
   *	@skb: buffer to alter
-@@ -2869,16 +2873,6 @@ static inline struct sk_buff *dev_alloc_
+@@ -2870,16 +2874,6 @@ static inline struct sk_buff *dev_alloc_
  }
  
  
@@ -127,7 +127,7 @@ Signed-off-by: Felix Fietkau <nbd@nbd.name>
  
  #include <net/protocol.h>
  #include <net/dst.h>
-@@ -554,6 +555,22 @@ skb_fail:
+@@ -555,6 +556,22 @@ skb_fail:
  }
  EXPORT_SYMBOL(__napi_alloc_skb);
  

@@ -1,17 +1,1 @@
-{
-  "system/maintenance/troubleshoot": {
-    "description": "troubleshoot",
-    "read": {
-      "api": {
-        "/logging/*": ["*"],
-        "/modems/status/*": ["id", "name", "index", "builtin", "primary", "offline"],
-        "/troubleshoot/*": ["*"],
-        "/usb_tools/mount/options/*": ["mountpoint"],
-        "/interfaces/basic/status/*": ["id", "name", "interface", "device", "subdevices"]
-      }
-    },
-    "write": {
-      "api": ["/logging/*", "/troubleshoot/*", "/diagnostics/actions/*", "/modems/*"]
-    }
-  }
-}
+{"system/maintenance/troubleshoot":{"description":"troubleshoot","read":{"api":{"/logging/*":["*"],"/modems/status/*":["id","name","index","builtin","primary","offline"],"/troubleshoot/*":["*"],"/usb_tools/mount/options/*":["mountpoint"],"/interfaces/basic/status/*":["id","name","interface","device","subdevices"],"/basic/network/devices/status/*":["id","name"]}},"write":{"api":["/logging/*","/troubleshoot/*","/diagnostics/actions/*","/modems/*"]}}}

@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 PKG_NAME:=frr
 PKG_VERSION:=8.4.2
-PKG_RELEASE:=10
+PKG_RELEASE:=11
 PKG_SOURCE_DATE:=2023-02-17
 
 PKG_SOURCE_PROTO:=git
@@ -349,7 +349,7 @@ $(eval $(call BuildDaemon,eigrpd,))
 $(eval $(call BuildDaemon,fabricd,))
 $(eval $(call BuildDaemon,isisd,))
 $(eval $(call BuildDaemon,ldpd,))
-$(eval $(call BuildDaemon,nhrp,+libcares))
+$(eval $(call BuildDaemon,nhrp,+libcares +iptables-mod-hashlimit +iptables-mod-nflog))
 $(eval $(call BuildDaemon,ospfd,))
 $(eval $(call BuildDaemon,ospf6d,@IPV6))
 $(eval $(call BuildDaemon,pathd,))

@@ -22,8 +22,6 @@ topology
 OPENVPN_BOOLS='
 client
 nobind
-persist_key
-persist_tun
 tls_client
 duplicate_cn
 client_to_client
@@ -37,7 +35,6 @@ OPENVPN_SKIP='
 up
 down
 client_config_dir
-script_security
 status
 auth_user_pass
 auth_user_pass_verify

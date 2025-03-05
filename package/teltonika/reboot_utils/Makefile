@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=reboot_utils
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-03-05
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.8
+PKG_SOURCE_VERSION:=3.6
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -17,29 +17,45 @@ PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/periodic_reboot
-	SECTION:=base
+define Package/reboot_utils/default
+	SECTION:=utils
 	CATEGORY:=Base system
-	TITLE:=Periodic reboot by Teltonika
 endef
 
-define Package/periodic_reboot/conffiles
+define Package/reboot_utils
+	$(Package/reboot_utils/default)
+	TITLE:=Reboot utilities
+	MENU:=1
+endef
+
+define Package/reboot_utils-periodic
+	$(Package/reboot_utils/default)
+	TITLE:=Periodic reboot by Teltonika
+	DEPENDS:=reboot_utils
+endef
+
+define Package/reboot_utils-periodic/conffiles
 /etc/config/periodic_reboot
 endef
 
-define Package/ping_reboot
-	SECTION:=base
-	CATEGORY:=Base system
+define Package/reboot_utils-ping
+	$(Package/reboot_utils/default)
 	TITLE:=ping_reboot
+	DEPENDS:=reboot_utils
 endef
 
-define Package/ping_reboot/conffiles
+define Package/reboot_utils-ping/conffiles
 /etc/config/ping_reboot
 endef
 
 
 
-define Package/periodic_reboot/install
+define Package/reboot_utils/install
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	# $(INSTALL_DATA) $(PKG_BUILD_DIR)/files/preboot.json $(1)/usr/share/acl.d/
+endef
+
+define Package/reboot_utils-periodic/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/etc/reboot_utils
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/periodic_reboot.conf $(1)/etc/config/periodic_reboot
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/periodic_reboot.init $(1)/etc/init.d/periodic_reboot
@@ -47,7 +63,7 @@ define Package/periodic_reboot/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/periodic_reboot_init.sh $(1)/etc/reboot_utils
 endef
 
-define Package/ping_reboot/install
+define Package/reboot_utils-ping/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/config/ $(1)/etc/reboot_utils
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ping_reboot.init $(1)/etc/init.d/ping_reboot
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ping_reboot.conf $(1)/etc/config/ping_reboot
@@ -55,5 +71,6 @@ define Package/ping_reboot/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ping_reboot_init.sh $(1)/etc/reboot_utils
 endef
 
-$(eval $(call BuildPackage,periodic_reboot))
-$(eval $(call BuildPackage,ping_reboot))
+$(eval $(call BuildPackage,reboot_utils))
+$(eval $(call BuildPackage,reboot_utils-periodic))
+$(eval $(call BuildPackage,reboot_utils-ping))

@@ -87,7 +87,7 @@ Submitted-by: Felix Fietkau <nbd@nbd.name>
  
 --- a/net/bridge/br_device.c
 +++ b/net/bridge/br_device.c
-@@ -529,6 +529,8 @@ void br_dev_setup(struct net_device *dev
+@@ -534,6 +534,8 @@ void br_dev_setup(struct net_device *dev
  	br->bridge_hello_time = br->hello_time = 2 * HZ;
  	br->bridge_forward_delay = br->forward_delay = 15 * HZ;
  	br->bridge_ageing_time = br->ageing_time = BR_DEFAULT_AGEING_TIME;

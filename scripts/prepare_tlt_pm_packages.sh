@@ -132,7 +132,7 @@ unpack_and_prepare() {
 		}
 	}
 
-	"$top_dir/scripts/ipkg-build" -u "$SIGN_FILE_LIST" -m "" "$tmp_pkg_dir" "$dest" || {
+	fakeroot "$top_dir/scripts/ipkg-build" -u "$SIGN_FILE_LIST" -m "" "$tmp_pkg_dir" "$dest" || {
 		printf "$(c red)ipkg-build exited with code %d$(c none)\n" $?
 		rm -fr "$tmp_pkg_dir"
 		return 1
@@ -151,7 +151,7 @@ pack() {
 	if find_ipk "$d_fullname" ./ >/dev/null; then
 		printf "Reused an already packaged %s\n" "$d_fullname"
 	else
-		"$top_dir/scripts/ipkg-build" -p -m "" "${dirs[tmp_pm]}/$d" "$dest_path" || {
+		fakeroot "$top_dir/scripts/ipkg-build" -p -m "" "${dirs[tmp_pm]}/$d" "$dest_path" || {
 			printf "$(c red)ipkg-build exited with code %d$(c none)\n" $?
 			return 1
 		}
@@ -181,6 +181,11 @@ find_ipk() {
 check_config() {
 	local pkg=$1
 	local state=$2
+
+	case "$pkg" in
+	libiwinfo-*) check_config "libiwinfo" "y" || pkg=libiwinfo ;;
+	libiwinfo*) pkg=libiwinfo ;;
+	esac
 
 	case $state in
 	m | y) state="=$state" ;;

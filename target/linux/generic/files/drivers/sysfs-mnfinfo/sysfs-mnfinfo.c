@@ -29,7 +29,7 @@
 
 #define GEN_MNF_ENTRIES(_field)                                                                              \
 	{                                                                                                    \
-		.is_set = false,                                                                             \
+		.is_set	    = false,                                                                         \
 		.is_visible = false,                                                                         \
 		.name	    = __stringify(_field),                                                           \
 		.dt_len	    = 0,                                                                             \
@@ -71,6 +71,8 @@ static ssize_t mnf_attr_show(struct kobject *kobj, struct kobj_attribute *attr, 
 static int mnfinfo_probe(struct platform_device *pdev);
 static int mnfinfo_remove(struct platform_device *pdev);
 
+static int probed = false;
+
 static struct mnfinfo_entry mnf_data[] = { LIST_MNF_FIELDS(GEN_MNF_ENTRIES) };
 
 LIST_MNF_FIELDS(GEN_KOBJ_ATTR_RO)
@@ -78,6 +80,47 @@ LIST_MNF_FIELDS(GEN_KOBJ_ATTR_RO)
 static struct attribute *g_mnfinfo_attr[] = {
 	LIST_MNF_FIELDS(LIST_KOBJ_ATTR) NULL,
 };
+
+static char mnf_device_name[16] __initdata    = "";
+static char mnf_device_hwver[16] __initdata   = "";
+static char mnf_device_hwbranch[8] __initdata = "";
+static char mnf_is_fullhwver[2] __initdata    = "";
+
+static int __init mnf_device_setup(char *str)
+{
+	if (str) {
+		strlcpy(mnf_device_name, str, sizeof(mnf_device_name));
+	}
+	return 1;
+}
+__setup("device=", mnf_device_setup);
+
+static int __init mnf_hwver_setup(char *str)
+{
+	if (str) {
+		strlcpy(mnf_device_hwver, str, sizeof(mnf_device_hwver));
+	}
+	return 1;
+}
+__setup("hwver=", mnf_hwver_setup);
+
+static int __init mnf_hwbranch_setup(char *str)
+{
+	if (str) {
+		strlcpy(mnf_device_hwbranch, str, sizeof(mnf_device_hwver));
+	}
+	return 1;
+}
+__setup("hwbranch=", mnf_hwbranch_setup);
+
+static int __init mnf_is_full_hwver_setup(char *str)
+{
+	if (str) {
+		mnf_is_fullhwver[0] = str[0];
+	}
+	return 1;
+}
+__setup("is_full_hwver=", mnf_is_full_hwver_setup);
 
 static ssize_t mnf_attr_show(struct kobject *kobj, struct kobj_attribute *attr, char *buffer)
 {
@@ -130,11 +173,13 @@ static struct platform_driver mnf_driver = {
 	},
 };
 
-static const char *get_data_of(const char *name) {
+static const char *get_data_of(const char *name)
+{
 	struct mnfinfo_entry *e;
 
 	for (e = mnf_data; e < e + ARRAY_SIZE(mnf_data); e++)
-		if (!strcmp(e->name, name)) return e->data;
+		if (!strcmp(e->name, name))
+			return e->data;
 
 	return NULL;
 }
@@ -159,9 +204,9 @@ static void fix_rs_allign(struct mnfinfo_entry *e)
 {
 	int i;
 	u8 c, *buf;
-	int off = 0;
+	int off	   = 0;
 	bool found = false;
-	buf = e->data;
+	buf	   = e->data;
 
 	for (i = 0; i < e->dt_len; i++) {
 		c = buf[i];
@@ -190,7 +235,8 @@ static int fix_mac_type(struct mnfinfo_entry *e, size_t len, const char *def)
 
 	memcpy(tmp, e->data, sizeof(tmp));
 
-	snprintf(e->data, e->dt_len, "%02X%02X%02X%02X%02X%02X", tmp[0], tmp[1], tmp[2], tmp[3], tmp[4], tmp[5]);
+	snprintf(e->data, e->dt_len, "%02X%02X%02X%02X%02X%02X", tmp[0], tmp[1], tmp[2], tmp[3], tmp[4],
+		 tmp[5]);
 	return 0;
 }
 
@@ -201,59 +247,77 @@ static int fix_sim_count(void)
 	struct mnfinfo_entry *e;
 
 	for (e = mnf_data; e < e + ARRAY_SIZE(mnf_data); e++)
-		if (!strcmp(e->name, "sim_count") && e->data) break;
-	if (e == e + ARRAY_SIZE(mnf_data)) return 1;
+		if (!strcmp(e->name, "sim_count") && e->data)
+			break;
+	if (e == e + ARRAY_SIZE(mnf_data))
+		return 1;
 
-	if ((simcfg = get_data_of("sim_cfg")) == NULL) return 1;
+	if ((simcfg = get_data_of("sim_cfg")) == NULL)
+		return 1;
 	for (simcnt = 0; simcnt < 4; simcnt++, simcfg += 8) {
 		if (*simcfg < '0' || *simcfg > '2') {
-			if(simcnt == 0) return 1;
-			else break;
+			if (simcnt == 0)
+				return 1;
+			else
+				break;
 		}
 	}
 	snprintf(e->data, e->dt_len, "%d", simcnt);
 	return 0;
 }
 
+static void disable_sim_presence(char *simcfg, size_t len)
+{
+	size_t i;
+
+	for (i = 0; i < len; i++) {
+		if (i == 5 || i == 13 || i == 21 || i == 29)
+			simcfg[i] = '0'; // sim_presence set to N/A
+	}
+}
+
 static int fix_simcfg_type(struct mnfinfo_entry *e, size_t len, const char *def, bool keep_sim_presence)
 {
 	size_t i;
 	char *simcfg;
-	if ((simcfg = e->data) == NULL) return 1;
+	if ((simcfg = e->data) == NULL)
+		return 1;
 
 	for (i = 0; i < len; i++) {
 		if ((*simcfg < '0' || *simcfg > '2') && *simcfg != '_') {
-			if(i == 0) {
-				if(!def) return 1;
+			if (i == 0) {
+				if (!def)
+					return 1;
 				snprintf(simcfg, e->dt_len, "%s", def);
+				goto end;
 			} else
 				*simcfg = 0;
 		}
-		/* temporary disable sim_presence */
-		if (!keep_sim_presence && (i == 5 || i == 13 || i == 21 || i == 29))
-			*simcfg = '0'; // sim_presence set to N/A
-		/* temporary disable sim_presence */
 		simcfg++;
 	}
 	e->is_set = true;
+end:
+	if (!keep_sim_presence)
+		disable_sim_presence(e->data, len);
+
 	return 0;
 }
 
 static int fix_ascii_type(struct mnfinfo_entry *e, size_t len, const char *def)
 {
 	char *buf = e->data;
-
 	if (!*buf || !isascii(*buf)) {
 		if (!def) {
 			*buf = 0;
 			return 1;
-		}
-		else snprintf(e->data, e->dt_len, "%s", def);
+		} else
+			snprintf(e->data, e->dt_len, "%s", def);
 		return 0;
 	}
 
 	for (buf++; buf < (e->data + len); buf++)
-		if (!*buf || !isascii(*buf)) *buf = 0;
+		if (!*buf || !isascii(*buf))
+			*buf = 0;
 
 	return 0;
 }
@@ -266,13 +330,14 @@ static int fix_alnum_type(struct mnfinfo_entry *e, size_t len, const char *def)
 		if (!def) {
 			*buf = 0;
 			return 1;
-		}
-		else snprintf(e->data, e->dt_len, "%s", def);
+		} else
+			snprintf(e->data, e->dt_len, "%s", def);
 		return 0;
 	}
 
 	for (buf++; buf < (e->data + len); buf++)
-		if (!*buf || !isalnum(*buf)) *buf = 0;
+		if (!*buf || !isalnum(*buf))
+			*buf = 0;
 
 	return 0;
 }
@@ -285,13 +350,14 @@ static int fix_digit_type(struct mnfinfo_entry *e, size_t len, const char *def)
 		if (!def) {
 			*buf = 0;
 			return 1;
-		}
-		else snprintf(e->data, e->dt_len, "%s", def);
+		} else
+			snprintf(e->data, e->dt_len, "%s", def);
 		return 0;
 	}
 
 	for (buf++; buf < (e->data + len); buf++)
-		if (!*buf || !isdigit(*buf)) *buf = 0;
+		if (!*buf || !isdigit(*buf))
+			*buf = 0;
 
 	return 0;
 }
@@ -380,25 +446,102 @@ static int find_trailling_data(struct mtd_info *mtd, loff_t from, size_t len, si
 
 const char *mnf_info_get_device_name(void)
 {
-	return get_data_of("name");
+	const char *str = get_data_of("name");
+
+	if (!probed && !str) {
+		pr_debug("%s:%d reading early mnf name=%s\n", __func__, __LINE__, mnf_device_name);
+		return mnf_device_name[0] ? mnf_device_name : NULL;
+	} else {
+		return str;
+	}
 }
 EXPORT_SYMBOL(mnf_info_get_device_name);
 
-const char *mnf_info_get_hw_version(void)
+int mnf_info_get_full_hw_version(void)
 {
-	return get_data_of("hwver");
-}
-EXPORT_SYMBOL(mnf_info_get_hw_version);
+	const char *str = get_data_of("hwver");
+	int cur_hwver = 0, cur_hwver_lo = 0;
 
-const char *mnf_info_get_hw_lo_version(void)
-{
-	return get_data_of("hwver_lo");
+	if (!probed && !str) {
+		/* sysfs-mnfinfo is not yet probed. But hwver may be passed by bootloader */
+		if (mnf_is_fullhwver[0]) {
+			/* Major (2 bytes) + Minor (2 bytes) */
+			pr_debug("%s:%d reading early mnf hwver (Major + Minor) %s\n", __func__, __LINE__,
+				 mnf_device_hwver);
+
+			if (kstrtoint(mnf_device_hwver, 10, &cur_hwver)) {
+				pr_debug("%s:%d Failed to parse \"%s\" as full hw version\n", __func__,
+				       __LINE__, str);
+				return -EINVAL;
+			}
+
+			return cur_hwver;
+		} else {
+			/* Main (2 bytes) + RF (2 bytes) or empty (2 bytes) + Main (2 bytes) */
+			if (kstrtoint(mnf_device_hwver, 10, &cur_hwver)) {
+				pr_debug("%s:%d Failed to parse \"%s\" as Main + RF hw version\n", __func__,
+				       __LINE__, str);
+				return -EINVAL;
+			}
+
+			/* hwver V0 - prototypes */
+			if (!cur_hwver) {
+				pr_debug("%s:%d Prototype hw version found\n", __func__, __LINE__);
+				return cur_hwver;
+			}
+
+			/* Remove RF version if needed */
+			if (cur_hwver > 99)
+				cur_hwver /= 100;
+
+			/* We do now know minor hw version in this case soo set it to 0 */
+			cur_hwver *= 100;
+
+			return cur_hwver;
+		}
+	} else {
+		/* build full hwver from major and minor versions stored in flash */
+		pr_debug("%s:%d Reading late mnf hwver (%s) %s\n", __func__, __LINE__, "Main + RF", str);
+
+		if (kstrtoint(str, 10, &cur_hwver)) {
+			pr_debug("%s:%d Failed to parse \"%s\" as full hw version\n", __func__, __LINE__, str);
+			return -EINVAL;
+		}
+
+		/* hwver V0 - prototypes */
+		if (!cur_hwver) {
+			pr_debug("%s:%d Prototype hw version found\n", __func__, __LINE__);
+			return cur_hwver;
+		}
+
+		/* Remove RF version if needed */
+		if (cur_hwver > 99)
+			cur_hwver /= 100;
+
+		str = get_data_of("hwver_lo");
+		if (kstrtoint(str, 10, &cur_hwver_lo))
+			cur_hwver_lo = 0;
+
+		if (cur_hwver_lo > 99)
+			cur_hwver_lo /= 100;
+
+		cur_hwver = 100 * cur_hwver + cur_hwver_lo;
+
+		return cur_hwver;
+	}
 }
-EXPORT_SYMBOL(mnf_info_get_hw_lo_version);
+EXPORT_SYMBOL(mnf_info_get_full_hw_version);
 
 const char *mnf_info_get_branch(void)
 {
-	return get_data_of("branch");
+	const char *str = get_data_of("branch");
+
+	if (!probed && !str) {
+		pr_debug("%s:%d reading early mnf branch=%s\n", __func__, __LINE__, mnf_device_hwbranch);
+		return mnf_device_hwbranch[0] ? mnf_device_hwbranch : NULL;
+	} else {
+		return str;
+	}
 }
 EXPORT_SYMBOL(mnf_info_get_branch);
 
@@ -413,9 +556,8 @@ static int parse_prop(struct device_node *node)
 	struct device_node *mtdnode;
 	struct mtd_info *mtd;
 	size_t retlen;
-	int status, size, i, z, di;
-	const char *part, *def, *type, *str, *dev_name, *branch;
-	int arr_hwver[4], cur_hwver, cur_hwver_lo;
+	int status, size;
+	const char *part, *def, *type;
 	const __be32 *list, *min_rlen;
 	phandle phandle;
 	bool strip, right_side_alligned, keep_sim_presence;
@@ -423,62 +565,26 @@ static int parse_prop(struct device_node *node)
 
 	for (e = mnf_data; e < e + ARRAY_SIZE(mnf_data); e++) {
 		if (!strcmp(e->name, node->name)) {
-			if(e->is_set) return 0;
+			if (e->is_set)
+				return 0;
 			break;
 		}
 	}
 
-	di = of_property_count_strings(node, "tlt-mnf,device");
-	if (di > 0 && (dev_name = mnf_info_get_device_name())) {
-		of_property_read_string_array(node, "tlt-mnf,device", &str, di);
-		for (i = 0; i < di; i++, str++) {
-			for (z=0; z < strlen(str); z++)
-				if (str[z] != '*' && str[z] != dev_name[z]) break;
-			if (z == strlen(str)) goto devcompat;
-		}
-		pr_debug("Property \"%s\" is incompatible with %s\n", node->full_name, dev_name);
+#ifdef CONFIG_OF
+	if (!of_device_is_mnf_compatible(node)) {
+		pr_debug("Incompatible device \"%s\" \n", node->full_name);
 		return 0;
 	}
-devcompat:
+#endif //CONFIG_OF
 
-	if (of_property_read_u32_array(node, "tlt-mnf,hwver", arr_hwver, 2) == 0) {
-		str = mnf_info_get_hw_version();
-		if (kstrtoint(str, 10, &cur_hwver) != 0 || cur_hwver == 0) goto hvcompat;
-		if (cur_hwver > 99) cur_hwver /= 100;
-
-		str = mnf_info_get_hw_lo_version();
-		if (kstrtoint(str, 10, &cur_hwver_lo) != 0) cur_hwver_lo = 0;
-		if (cur_hwver_lo > 99) cur_hwver_lo /= 100;
-
-		cur_hwver = 100 * cur_hwver + cur_hwver_lo;
-
-		if (arr_hwver[0] <= cur_hwver && cur_hwver <= arr_hwver[1])
-			goto hvcompat;
-		pr_debug("Property \"%s\" is incompatible with hw v%d\n", node->full_name, cur_hwver);
-		return 0;
-	}
-
-hvcompat:
-	di = of_property_count_strings(node, "tlt-mnf,branch");
-	if (di > 0 && (branch = mnf_info_get_branch())) {
-		of_property_read_string_array(node, "tlt-mnf,branch", &str, di);
-		for (i = 0; i < di; i++, str++) {
-			for (z=0; z < strlen(str); z++)
-				if (str[z] != '*' && str[z] != branch[z]) break;
-			if (z == strlen(str)) goto brcompat;
-		}
-		pr_err("Property \"%s\" is incompatible with branch [%s]\n", node->full_name, branch);
-		return 0;
-	}
-
-brcompat:
 	if (e->data) {
 		pr_debug("Data buffer of %s is not empty. Clearing... \n", e->name);
 		kfree(e->data);
 		e->data = NULL;
 	}
 
-	def = of_get_property(node, "default", NULL);
+	def  = of_get_property(node, "default", NULL);
 	list = of_get_property(node, "reg", &size);
 	if (!list && def) {
 		// If not "reg" property was found, then we assume that value is hardcoded directly in "default" property
@@ -486,7 +592,8 @@ brcompat:
 		e->dt_len = strlen(def) + 1;
 		e->data	  = kzalloc(e->dt_len, GFP_KERNEL);
 		if (!e->data) {
-			return -1;
+			pr_err("Memory allocation failure\n");
+			return -ENOMEM;
 		}
 
 		strcpy(e->data, def);
@@ -609,6 +716,8 @@ static int mnfinfo_probe(struct platform_device *pdev)
 		if (e->in_log)
 			pr_info(" %-9s: %s\n", e->name, e->data);
 	}
+
+	probed = true;
 
 	return 0;
 }

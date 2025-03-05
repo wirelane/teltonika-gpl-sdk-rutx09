@@ -1,0 +1,9 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+for file in $(grep -sl SetUID /usr/lib/opkg/info/*.control); do
+	file="${file##*/}"
+	file="${file%.control}"
+	set_suid "$file"
+done

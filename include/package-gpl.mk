@@ -140,7 +140,8 @@ define gpl_install_orig_w_patch
 	cd "$(1)"; \
 	check_size upstream; \
 	check_size src; \
-	diff_txt="$$(diff --recursive --unified --new-file --no-dereference upstream/ src/)"; \
+	$(if $(UPSTREAM_TO_LOCAL_SRC),rm "upstream/Makefile";) \
+	diff_txt="$$(diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ src/)"; \
 	[ -z "$$diff_txt" ] || { \
 		mkdir -p "$(1)/patches"; \
 		echo "$$diff_txt" >"$(1)/patches/000_tlt.patch"; \

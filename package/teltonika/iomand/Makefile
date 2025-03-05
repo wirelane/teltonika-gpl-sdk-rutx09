@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iomand
 
-PKG_SOURCE_VERSION:=2.22.5
+PKG_SOURCE_VERSION:=2.23.0
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -16,7 +16,7 @@ define Package/iomand
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Daemon providing I/O related functionality.
-	DEPENDS:=+libuci +libubus +libubox +libcgi +libmnfinfo +libtlt-logger +liblog +libgpiod +gpiod-tools +kmod-tlt-pulse-counter
+	DEPENDS:=+libuci +libubus +libubox +libcgi +libmnfinfo +libtlt-logger +liblog +libgpiod +kmod-tlt-pulse-counter
 	ABI_VERSION:=1.0
 endef
 
@@ -37,8 +37,6 @@ define Package/iomand/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/etc
 
 	$(if $(CONFIG_IO_SUPPORT), \
-		$(INSTALL_BIN) $(PKG_BUILD_DIR)/scheduler $(1)/usr/bin/scheduler; \
-		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ioman_scheduler.init $(1)/etc/init.d/ioman_scheduler; \
 		$(CP) $(PKG_BUILD_DIR)/files/99_sms_utils-iomand $(1)/etc/uci-defaults/etc; \
 	)
 endef

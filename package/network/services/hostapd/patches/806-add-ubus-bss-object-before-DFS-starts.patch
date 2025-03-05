@@ -1,8 +1,6 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/hostapd.c	2023-11-06 11:29:17.484183616 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.c	2023-11-06 11:29:31.000000000 +0200
-@@ -1215,8 +1215,13 @@
+--- a/src/ap/hostapd.c
++++ b/src/ap/hostapd.c
+@@ -1215,8 +1215,13 @@ static int hostapd_start_beacon(struct h
  	if (hapd->driver && hapd->driver->set_operstate)
  		hapd->driver->set_operstate(hapd->drv_priv, 1);
  
@@ -18,7 +16,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.c
  
  	return 0;
  }
-@@ -2307,6 +2312,8 @@
+@@ -2307,6 +2312,8 @@ static int hostapd_setup_interface_compl
  		goto fail;
  
  	hostapd_ubus_add_iface(iface);
@@ -27,11 +25,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.c
  	wpa_printf(MSG_DEBUG, "Completing interface initialization");
  	if (iface->freq) {
  #ifdef NEED_AP_MLME
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.h
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/hostapd.h	2023-11-06 11:29:17.484183616 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.h	2023-11-06 11:29:17.480183638 +0200
-@@ -193,6 +193,8 @@
+--- a/src/ap/hostapd.h
++++ b/src/ap/hostapd.h
+@@ -193,6 +193,8 @@ struct hostapd_data {
  	struct hostapd_ubus_bss ubus;
  	struct hostapd_ucode_bss ucode;
  	int interface_added; /* virtual interface added for this BSS */
@@ -40,11 +36,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/hostapd.h
  	unsigned int started:1;
  	unsigned int disabled:1;
  	unsigned int reenable_beacon:1;
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ubus.c	2023-11-06 11:29:17.484183616 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c	2023-11-06 11:29:31.000000000 +0200
-@@ -1723,6 +1723,8 @@
+--- a/src/ap/ubus.c
++++ b/src/ap/ubus.c
+@@ -1723,6 +1723,8 @@ void hostapd_ubus_add_bss(struct hostapd
  	obj->n_methods = bss_object_type.n_methods;
  	ret = ubus_add_object(ctx, obj);
  	hostapd_ubus_ref_inc();
@@ -53,11 +47,17 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
  }
  
  void hostapd_ubus_free_bss(struct hostapd_data *hapd)
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ucode.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ucode.c	2023-11-06 11:29:17.484183616 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ucode.c	2023-11-06 11:29:17.480183638 +0200
-@@ -777,6 +777,8 @@
+@@ -1741,6 +1743,7 @@ void hostapd_ubus_free_bss(struct hostap
+ 	if (obj->id) {
+ 		ubus_remove_object(ctx, obj);
+ 		hostapd_ubus_ref_dec();
++		hapd->ubus_added = 0;
+ 	}
+ 
+ 	free(name);
+--- a/src/ap/ucode.c
++++ b/src/ap/ucode.c
+@@ -777,6 +777,8 @@ void hostapd_ucode_add_bss(struct hostap
  	uc_value_push(ucv_get(val));
  	ucv_put(wpa_ucode_call(2));
  	ucv_gc(vm);
@@ -66,3 +66,14 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ucode.c
  }
  
  void hostapd_ucode_reload_bss(struct hostapd_data *hapd)
+@@ -804,7 +806,9 @@ void hostapd_ucode_free_bss(struct hosta
+ 	hapd->ucode.idx = 0;
+ 	if (wpa_ucode_call_prepare("bss_remove"))
+ 		return;
+-
++	
++	hapd->ucode_added = 0;
++	
+ 	uc_value_push(ucv_string_new(hapd->conf->iface));
+ 	uc_value_push(ucv_get(val));
+ 	ucv_put(wpa_ucode_call(2));

@@ -1,23 +1,23 @@
 {
-  "services/usb_tools": {
-    "title": "USB Tools",
+  "services/sd_usb_tools": {
+    "title": "SD & USB Tools",
     "index": 70
   },
-  "services/usb_tools/samba": {
+  "services/sd_usb_tools/samba": {
     "title": "Network Shares",
     "index": 30
   },
-  "services/usb_tools/samba/general": {
+  "services/sd_usb_tools/samba/general": {
     "title": "General",
-    "acls": ["services/usb_tools/samba/general"],
+    "acls": ["services/sd_usb_tools/samba/general"],
     "view": "services/Samba",
     "index": 10,
     "files": ["/etc/config/samba"],
     "main_page": true
   },
-  "services/usb_tools/samba/users": {
+  "services/sd_usb_tools/samba/users": {
     "title": "Users",
-    "acls": ["services/usb_tools/samba/users"],
+    "acls": ["services/sd_usb_tools/samba/users"],
     "view": "services/SambaUsers",
     "index": 20,
     "files": ["/etc/config/samba"]

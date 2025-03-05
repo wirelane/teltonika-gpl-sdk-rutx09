@@ -28,6 +28,8 @@ define Package/relayd
   SUBMENU:=Routing and Redirection
   TITLE:=Transparent routing / relay daemon
   DEPENDS:=+libubox +libubus
+  USERID:=relayd:relayd
+  CAP:=/usr/sbin/relayd:cap_net_admin,cap_net_raw=ep
 endef
 
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
@@ -45,6 +47,9 @@ define Package/relayd/install
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/etc/config/relayd $(1)/etc/config/
+
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) ./files/relayd_acl.json $(1)/usr/share/acl.d/relayd_acl.json
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11
 	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.11/10-move-relayd-from-network-conf

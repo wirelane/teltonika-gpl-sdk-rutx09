@@ -1,462 +1,12 @@
-diff --recursive --unified --new-file --no-dereference upstream/Makefile src/Makefile
---- upstream/Makefile	2022-10-27 12:48:35.000000000 +0000
-+++ src/Makefile	1970-01-01 00:00:00.000000000 +0000
-@@ -1,446 +0,0 @@
--#
--# Copyright (C) 2008-2018 OpenWrt.org
--#
--# This is free software, licensed under the GNU General Public License v2.
--#
--
--include $(TOPDIR)/rules.mk
--
--PKG_NAME:=ddns-scripts
--# Version == major.minor.patch
--# increase on new functionality (minor) or patches (patch)
--PKG_VERSION:=2.7.8
--# Release == build
--# increase on changes of services files or tld_names.dat
--PKG_RELEASE:=3
--
--PKG_LICENSE:=GPL-2.0
--PKG_MAINTAINER:=
--
--include $(INCLUDE_DIR)/package.mk
--
--# no default dependencies
--PKG_DEFAULT_DEPENDS=
--
--define Package/ddns-scripts/Default
--    SECTION:=net
--    CATEGORY:=Network
--    SUBMENU:=IP Addresses and Names
--    PKGARCH:=all
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts
--    $(call Package/ddns-scripts/Default)
--    TITLE:=Dynamic DNS Client scripts (with IPv6 support)
--endef
--# shown in LuCI package description
--define Package/ddns-scripts/description
--    Dynamic DNS Client scripts (with IPv6 support) - Info: https://openwrt.org/docs/guide-user/services/ddns/client
--endef
--# shown in menuconfig <Help>
--define Package/ddns-scripts/config
--	help
--		A highly configurable set of scripts for doing dynamic dns updates.
--		  - IPv6 support
--		  - DNS server support
--		  - Glue Record support (require BIND host or KNOT host)
--		  - DNS requests via TCP
--		  - Proxy server support
--		  - log file support
--		  - support to run once
--		Version: $(PKG_VERSION)-$(PKG_RELEASE)
--		Info   : https://openwrt.org/docs/guide-user/services/ddns/client
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_cloudflare.com-v4
--    $(call Package/ddns-scripts/Default)
--    TITLE:=CloudFlare.com API v4 (requires cURL)
--    DEPENDS:=ddns-scripts +curl
--endef
--define Package/ddns-scripts_cloudflare.com-v4/description
--    Dynamic DNS Client scripts extension for CloudFlare.com API-v4 (require/install cURL)
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_freedns_42_pl
--    $(call Package/ddns-scripts/Default)
--    TITLE:=DDNS extension for FreeDNS.42.pl (requires cURL)
--    DEPENDS:=ddns-scripts +curl
--endef
--define Package/ddns-scripts_freedns_42_pl/description
--    Dynamic DNS Client scripts extension for freedns.42.pl
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_godaddy.com-v1
--    $(call Package/ddns-scripts/Default)
--    TITLE:=GoDaddy.com (require cURL)
--    DEPENDS:=ddns-scripts +curl
--endef
--define Package/ddns-scripts_godaddy.com-v1/description
--    Dynamic DNS Client scripts extension for GoDaddy.com (require/install cURL)
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_no-ip_com
--    $(call Package/ddns-scripts/Default)
--    TITLE:=DDNS extension for No-IP.com
--    DEPENDS:=ddns-scripts
--endef
--define Package/ddns-scripts_no-ip_com/description
--    Dynamic DNS Client scripts extension for No-IP.com
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_nsupdate
--    $(call Package/ddns-scripts/Default)
--    TITLE:=DDNS extension using Bind nsupdate
--    DEPENDS:=ddns-scripts +bind-client
--endef
--define Package/ddns-scripts_nsupdate/description
--    Dynamic DNS Client scripts extension for direct updates using Bind nsupdate
--endef
--define Package/ddns-scripts_nsupdate/config
--    help
--	The script directly updates a PowerDNS (or maybe bind server) via nsupdate
--	from bind-client package. It requires
--	"option dns_server" to be set to the server to be used by nsupdate.
--	"option username" should be set to the key name and
--	"option password" to the base64 encoded shared secret.
--
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_route53-v1
--    $(call Package/ddns-scripts/Default)
--    TITLE:=Amazon AWS Route 53 API v1
--    DEPENDS:=ddns-scripts +curl +openssl-util
--endef
--define Package/ddns-scripts_route53-v1/description
--	Dynamic DNS Client scripts extension for Amazon AWS Route53. Note: You
--	must also install ca-certificate or ca-bundle.
--	It requires:
--	"option username" to be a valid AWS access key id
--	"option password" to be the matching AWS secret key id
--	"option domain" to contain the hosted zone ID
--endef
--
--###### *************************************************************************
--define Build/Configure
--endef
--define Build/Compile
--	$(CP) ./files $(PKG_BUILD_DIR)
--	# ensure that VERSION inside dynamic_dns_functions.sh reflect PKG_VERSION of Makefile
--	$(SED) '/^VERSION=*/s/.*/VERSION="$(PKG_VERSION)-$(PKG_RELEASE)"/' $(PKG_BUILD_DIR)/files/dynamic_dns_functions.sh
--	# remove comments, white spaces and empty lines
--	for FILE in `find $(PKG_BUILD_DIR)/files -type f`; do \
--		$(SED) 's/^[[:space:]]*//' \
--		-e '/^#[[:space:]]\|^#$$$$/d' \
--		-e 's/[[:space:]]#[[:space:]].*$$$$//' \
--		-e 's/[[:space:]]*$$$$//' \
--		-e '/^\/\/[[:space:]]/d'	\
--		-e '/^[[:space:]]*$$$$/d'	$$$$FILE; \
--	done
--endef
--
--define Package/ddns-scripts/conffiles
--/etc/config/ddns
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts/install
--	$(INSTALL_DIR)  $(1)/etc/uci-defaults
--	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns
--	$(INSTALL_DIR)  $(1)/etc/hotplug.d/iface
--	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/ddns.hotplug $(1)/etc/hotplug.d/iface/95-ddns
--	$(INSTALL_DIR)  $(1)/etc/init.d
--	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/ddns.init $(1)/etc/init.d/ddns
--	$(INSTALL_DIR)  $(1)/etc/config
--	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/ddns.config $(1)/etc/config/ddns
--
--	$(INSTALL_DIR)  $(1)/etc/ddns
--	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/services* $(1)/etc/ddns
--
--	$(INSTALL_DIR)  $(1)/usr/lib/ddns
--	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/dynamic_dns_*.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts/postinst
--	#!/bin/sh
--	# if NOT run buildroot and PKG_UPGRADE then (re)start service if enabled
--	[ -z "$${IPKG_INSTROOT}" -a "$${PKG_UPGRADE}" = "1" ] && {
--		[ -x /etc/uci-defaults/ddns ] && \
--			/etc/uci-defaults/ddns && \
--				rm -f /etc/uci-defaults/ddns >/dev/null 2>&1
--		/etc/init.d/ddns enabled && \
--			/etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts/prerm
--	#!/bin/sh
--	# if run within buildroot exit
--	[ -n "$${IPKG_INSTROOT}" ] && exit 0
--	# stop running scripts
--	/etc/init.d/ddns stop
--	/etc/init.d/ddns disable
--	# clear LuCI indexcache
--	rm -f /tmp/luci-indexcache >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_cloudflare.com-v4/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_cloudflare.com-v4/install
--	$(INSTALL_DIR) $(1)/etc/uci-defaults
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns_cloudflare.com-v4
--	$(INSTALL_DIR) $(1)/usr/lib/ddns
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/update_cloudflare_com_v4.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts_cloudflare.com-v4/postinst
--	#!/bin/sh
--	# remove old services file entries
--	/bin/sed -i '/cloudflare\.com-v4/d' $${IPKG_INSTROOT}/etc/ddns/services		>/dev/null 2>&1
--	/bin/sed -i '/cloudflare\.com-v4/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	# and create new
--	printf "%s\\t%s\\n" '"cloudflare.com-v4"' '"update_cloudflare_com_v4.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
--	printf "%s\\t%s\\n" '"cloudflare.com-v4"' '"update_cloudflare_com_v4.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services_ipv6
--	# on real system restart service if enabled
--	[ -z "$${IPKG_INSTROOT}" ] && {
--		[ -x /etc/uci-defaults/ddns_cloudflare.com-v4 ] && \
--			/etc/uci-defaults/ddns_cloudflare.com-v4 && \
--				rm -f /etc/uci-defaults/ddns_cloudflare.com-v4 >/dev/null 2>&1
--		/etc/init.d/ddns enabled && \
--			/etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_cloudflare.com-v4/prerm
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop				>/dev/null 2>&1
--	# remove services file entries
--	/bin/sed -i '/cloudflare\.com-v4/d' $${IPKG_INSTROOT}/etc/ddns/services		>/dev/null 2>&1
--	/bin/sed -i '/cloudflare\.com-v4/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_freedns_42_pl/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_freedns_42_pl/install
--	$(INSTALL_DIR) $(1)/etc/uci-defaults
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns_freedns_42_pl
--	$(INSTALL_DIR) $(1)/usr/lib/ddns
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/update_freedns_42_pl.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts_freedns_42_pl/postinst
--	#!/bin/sh
--	# remove old services file entries
--	/bin/sed -i '/freedns\.42\.pl/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
--	# and create new
--	printf "%s\\t%s\\n" '"freedns.42.pl"' '"update_freedns_42_pl.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
--	# on real system restart service if enabled
--	[ -z "$${IPKG_INSTROOT}" ] && {
--		[ -x /etc/uci-defaults/ddns_freedns_42_pl ] && \
--			/etc/uci-defaults/ddns_freedns_42_pl && \
--				rm -f /etc/uci-defaults/ddns_freedns_42_pl >/dev/null 2>&1
--		/etc/init.d/ddns enabled && \
--			/etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_freedns_42_pl/prerm
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop		>/dev/null 2>&1
--	# remove services file entries
--	/bin/sed -i '/freedns\.42\.pl/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_godaddy.com-v1/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_godaddy.com-v1/install
--	$(INSTALL_DIR) $(1)/etc/uci-defaults
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns_godaddy.com-v1
--	$(INSTALL_DIR) $(1)/usr/lib/ddns
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/update_godaddy_com_v1.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts_godaddy.com-v1/postinst
--	#!/bin/sh
--	# remove old services file entries
--	/bin/sed -i '/godaddy\.com-v1/d' $${IPKG_INSTROOT}/etc/ddns/services		>/dev/null 2>&1
--	/bin/sed -i '/godaddy\.com-v1/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	# and create new
--	printf "%s\\t%s\\n" '"godaddy.com-v1"' '"update_godaddy_com_v1.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
--	printf "%s\\t%s\\n" '"godaddy.com-v1"' '"update_godaddy_com_v1.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services_ipv6
--	# on real system restart service if enabled
--	[ -z "$${IPKG_INSTROOT}" ] && {
--		[ -x /etc/uci-defaults/ddns_godaddy.com-v1 ] && \
--			/etc/uci-defaults/ddns_godaddy.com-v1 && \
--				rm -f /etc/uci-defaults/ddns_godaddy.com-v1 >/dev/null 2>&1
--		/etc/init.d/ddns enabled \
--			&& /etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_godaddy.com-v1/prerm
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop				>/dev/null 2>&1
--	# remove services file entries
--	/bin/sed -i '/godaddy\.com-v1/d' $${IPKG_INSTROOT}/etc/ddns/services		>/dev/null 2>&1
--	/bin/sed -i '/godaddy\.com-v1/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_no-ip_com/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_no-ip_com/install
--	$(INSTALL_DIR) $(1)/etc/uci-defaults
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns_no-ip_com
--	$(INSTALL_DIR) $(1)/usr/lib/ddns
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/update_no-ip_com.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts_no-ip_com/postinst
--	#!/bin/sh
--	# remove old services file entries
--	/bin/sed -i '/no-ip\.com/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
--	# and create new
--	printf "%s\\t%s\\n" '"no-ip.com"' '"update_no-ip_com.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
--	# on real system restart service if enabled
--	[ -z "$${IPKG_INSTROOT}" ] && {
--		[ -x /etc/uci-defaults/ddns_no-ip_com ] && \
--			/etc/uci-defaults/ddns_no-ip_com && \
--				rm -f /etc/uci-defaults/ddns_no-ip_com >/dev/null 2>&1
--		/etc/init.d/ddns enabled && \
--			/etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_no-ip_com/prerm
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop		>/dev/null 2>&1
--	# remove services file entries
--	/bin/sed -i '/no-ip\.com/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_nsupdate/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_nsupdate/install
--	$(INSTALL_DIR) $(1)/etc/uci-defaults
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns_nsupdate
--	$(INSTALL_DIR) $(1)/usr/lib/ddns
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/update_nsupdate.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts_nsupdate/postinst
--	#!/bin/sh
--	# remove old services file entries
--	/bin/sed -i '/bind-nsupdate/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
--	/bin/sed -i '/bind-nsupdate/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	# and create new
--	printf "%s\\t%s\\n" '"bind-nsupdate"' '"update_nsupdate.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
--	printf "%s\\t%s\\n" '"bind-nsupdate"' '"update_nsupdate.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services_ipv6
--	# on real system restart service if enabled
--	[ -z "$${IPKG_INSTROOT}" ] && {
--		[ -x /etc/uci-defaults/ddns_nsupdate ] && \
--			/etc/uci-defaults/ddns_nsupdate && \
--				rm -f /etc/uci-defaults/ddns_nsupdate >/dev/null 2>&1
--		/etc/init.d/ddns enabled && \
--			/etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_nsupdate/prerm
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop			>/dev/null 2>&1
--	# remove services file entries
--	/bin/sed -i '/bind-nsupdate/d' $${IPKG_INSTROOT}/etc/ddns/services	>/dev/null 2>&1
--	/bin/sed -i '/bind-nsupdate/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--define Package/ddns-scripts_route53-v1/preinst
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop >/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_route53-v1/install
--	$(INSTALL_DIR) $(1)/etc/uci-defaults
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/ddns_route53-v1
--	$(INSTALL_DIR) $(1)/usr/lib/ddns
--	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/update_route53_v1.sh $(1)/usr/lib/ddns
--endef
--define Package/ddns-scripts_route53-v1/postinst
--	#!/bin/sh
--	# remove old services file entries
--	/bin/sed -i '/route53-v1/d' $${IPKG_INSTROOT}/etc/ddns/services		>/dev/null 2>&1
--	/bin/sed -i '/route53-v1/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	# and create new
--	printf "%s\\t%s\\n" '"route53-v1"' '"update_route53_v1.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services
--	printf "%s\\t%s\\n" '"route53-v1"' '"update_route53_v1.sh"' >> $${IPKG_INSTROOT}/etc/ddns/services_ipv6
--	# on real system restart service if enabled
--	[ -z "$${IPKG_INSTROOT}" ] && {
--		[ -x /etc/uci-defaults/ddns_route53-v1 ] && \
--			/etc/uci-defaults/ddns_route53-v1 && \
--				rm -f /etc/uci-defaults/route53.com-v1 >/dev/null 2>&1
--		/etc/init.d/ddns enabled \
--			&& /etc/init.d/ddns start >/dev/null 2>&1
--	}
--	exit 0	# suppress errors
--endef
--define Package/ddns-scripts_route53-v1/prerm
--	#!/bin/sh
--	# if NOT run buildroot then stop service
--	[ -z "$${IPKG_INSTROOT}" ] && /etc/init.d/ddns stop				>/dev/null 2>&1
--	# remove services file entries
--	/bin/sed -i 'route53-v1/d' $${IPKG_INSTROOT}/etc/ddns/services		>/dev/null 2>&1
--	/bin/sed -i 'route53-v1/d' $${IPKG_INSTROOT}/etc/ddns/services_ipv6	>/dev/null 2>&1
--	exit 0	# suppress errors
--endef
--
--###### *************************************************************************
--$(eval $(call BuildPackage,ddns-scripts))
--$(eval $(call BuildPackage,ddns-scripts_cloudflare.com-v4))
--$(eval $(call BuildPackage,ddns-scripts_freedns_42_pl))
--$(eval $(call BuildPackage,ddns-scripts_godaddy.com-v1))
--$(eval $(call BuildPackage,ddns-scripts_no-ip_com))
--$(eval $(call BuildPackage,ddns-scripts_nsupdate))
--$(eval $(call BuildPackage,ddns-scripts_route53-v1))
-diff --recursive --unified --new-file --no-dereference upstream/README.md src/README.md
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/README.md	2024-10-30 08:03:31.000000000 +0000
++++ src/README.md	2025-01-30 10:01:32.000000000 +0000
 @@ -0,0 +1,2 @@
 +# ddns-scripts
 +
-diff --recursive --unified --new-file --no-dereference upstream/files/ddns.config src/files/ddns.config
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.config src/files/ddns.config
 --- upstream/files/ddns.config	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.config	2024-10-30 08:03:31.000000000 +0000
++++ src/files/ddns.config	2025-01-30 10:01:32.000000000 +0000
 @@ -1,15 +1,15 @@
  #
 -# Please read https://openwrt.org/docs/guide-user/base-system/ddns
@@ -493,9 +43,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.confi
 -	option ip_source	"network"
 -	option ip_network	"wan6"
 -
-diff --recursive --unified --new-file --no-dereference upstream/files/ddns.defaults src/files/ddns.defaults
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.defaults src/files/ddns.defaults
 --- upstream/files/ddns.defaults	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.defaults	2024-10-30 08:03:31.000000000 +0000
++++ src/files/ddns.defaults	2025-01-30 10:01:32.000000000 +0000
 @@ -1,39 +1,39 @@
  #!/bin/sh
  
@@ -671,10 +221,10 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.defau
  	unset g_pslfile g_pslerr g_cfgfile
  	return 1
  }
-diff --recursive --unified --new-file --no-dereference upstream/files/ddns.hotplug src/files/ddns.hotplug
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.hotplug src/files/ddns.hotplug
 --- upstream/files/ddns.hotplug	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.hotplug	2024-10-30 08:03:31.000000000 +0000
-@@ -1,11 +1,18 @@
++++ src/files/ddns.hotplug	2025-01-30 10:01:32.000000000 +0000
+@@ -1,11 +1,19 @@
 -#!/bin/sh
 +#!/bin/sh /etc/rc.common
  
@@ -698,15 +248,16 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.hotpl
 +
 +config_load ddns
 +config_foreach check_enabled service
++config_get ddns_logdir "global" "ddns_logdir" "/var/log/ddns"
 +
-+if [ "$enabled" = "1" ]; then
-+    $PROG -- stop
-+    $PROG -- start
++if [ "$enabled" = "1" ] && [ -d "$ddns_logdir" ] ; then
++	su ddns -s /bin/sh -pc "$PROG -- stop"
++	su ddns -s /bin/sh -pc "$PROG -- start"
 +fi
-diff --recursive --unified --new-file --no-dereference upstream/files/ddns.init src/files/ddns.init
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.init src/files/ddns.init
 --- upstream/files/ddns.init	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.init	2024-10-30 08:03:31.000000000 +0000
-@@ -1,27 +1,39 @@
++++ src/files/ddns.init	2025-01-30 10:01:32.000000000 +0000
+@@ -1,27 +1,52 @@
  #!/bin/sh /etc/rc.common
 +
  START=95
@@ -721,21 +272,34 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.init 
 +
 +
 +check_enabled() {
-+        [ "$STATUS" = "1" ] && return
-+        config_get STATUS "$1" "enabled"
++		[ "$STATUS" = "1" ] && return
++		config_get STATUS "$1" "enabled"
  }
  
 -reload() {
 -	/usr/lib/ddns/dynamic_dns_updater.sh -- reload
 -	return 0
 +start_service() {
-+        config_load "ddns"
-+        config_foreach check_enabled service
-+        [ "$STATUS" != "1" ] && return
++		ddns_rundir=$(uci -q get ddns.global.ddns_rundir) || ddns_rundir="/var/run/ddns"
++		[ -d "$ddns_rundir" ] || mkdir -p -m755 "$ddns_rundir"
++		chown ddns:ddns "$ddns_rundir"
++		chmod g+s "$ddns_rundir"
++		# ddns log dir only gets created after ddns rundir is fully preapred.
++		# this way hotplug.d can check if logdir is created and be sure that 
++		# rundir will be usable for pidfiles by the ddns user
++		ddns_logdir=$(uci -q get ddns.global.ddns_logdir) || ddns_logdir="/var/log/ddns"
++		[ -d "$ddns_logdir" ] || mkdir -p -m755 "$ddns_logdir"
++		chown ddns:ddns "$ddns_logdir"
++		chmod g+s "$ddns_logdir"
 +
-+        procd_open_instance
-+        procd_set_param command $PROG -- start
-+        procd_close_instance
++		config_load "ddns"
++		config_foreach check_enabled service
++		[ "$STATUS" != "1" ] && return
++		procd_open_instance
++		procd_set_param user ddns
++		procd_set_param env PATH='/usr/local/usr/sbin:/usr/local/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
++		procd_set_param command $PROG -- start
++		procd_close_instance
  }
  
 -restart() {
@@ -743,26 +307,42 @@ diff --recursive --unified --new-file --no-dereference upstream/files/ddns.init 
 -	sleep 1	# give time to shutdown
 -	/usr/lib/ddns/dynamic_dns_updater.sh -- start
 +stop_service() {
-+        $PROG -- stop
-+        sleep 1
++		su ddns -s /bin/sh -pc "$PROG -- stop"
++		sleep 1
  }
  
 -start() {
 -	/usr/lib/ddns/dynamic_dns_updater.sh -- start
 +reload_service() {
-+        pgrep -f $PROG | xargs kill
-+        start
++		pgrep -f $PROG | xargs kill
++		start
  }
  
 -stop() {
 -	/usr/lib/ddns/dynamic_dns_updater.sh -- stop
 -	return 0
 +service_triggers() {
-+        procd_add_reload_trigger "ddns"
++		procd_add_reload_trigger "ddns"
  }
-diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dns_functions.sh src/files/dynamic_dns_functions.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns_acl.json src/files/ddns_acl.json
+--- upstream/files/ddns_acl.json	1970-01-01 00:00:00.000000000 +0000
++++ src/files/ddns_acl.json	2025-01-30 10:01:32.000000000 +0000
+@@ -0,0 +1,12 @@
++{
++	"user": "ddns",
++	"publish": [],
++	"subscribe": [],
++	"send": [],
++	"listen": [],
++	"access": {
++		"network.interface.*": {
++			"methods": ["status"]
++		}
++	}
++}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_functions.sh src/files/dynamic_dns_functions.sh
 --- upstream/files/dynamic_dns_functions.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_functions.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/dynamic_dns_functions.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -21,10 +21,12 @@
  . /lib/functions/network.sh
  
@@ -800,7 +380,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  # CURL_PROXY not empty then Proxy support available
  CURL_PROXY=$(find /lib /usr/lib -name libcurl.so* -exec strings {} 2>/dev/null \; | grep -im1 "all_proxy")
  
-@@ -86,7 +95,7 @@
+@@ -86,15 +95,13 @@
  
  # Global configuration settings
  # allow NON-public IP's
@@ -809,7 +389,15 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  
  # directory to store run information to.
  ddns_rundir=$(uci -q get ddns.global.ddns_rundir) || ddns_rundir="/var/run/ddns"
-@@ -179,9 +188,9 @@
+-[ -d $ddns_rundir ] || mkdir -p -m755 $ddns_rundir
+ 
+ # directory to store log files
+ ddns_logdir=$(uci -q get ddns.global.ddns_logdir) || ddns_logdir="/var/log/ddns"
+-[ -d $ddns_logdir ] || mkdir -p -m755 $ddns_logdir
+ 
+ # number of lines to before rotate logfile
+ ddns_loglines=$(uci -q get ddns.global.ddns_loglines) || ddns_loglines=250
+@@ -179,9 +186,9 @@
  		config_get __IFACE "$__SECTIONID" interface "wan"
  		[ -z "$__EVENTIF" -o "$__IFACE" = "$__EVENTIF" ] || continue
  		if [ $VERBOSE -eq 0 ]; then	# start in background
@@ -821,7 +409,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		fi
  	done
  }
-@@ -234,18 +243,18 @@
+@@ -234,18 +241,18 @@
  		__EXIT=0
  	}
  	shift	# remove loglevel
@@ -846,7 +434,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		5)	__CMD="logger -p user.notice -t ddns-scripts[$$] $SECTION_ID: $__MSG"
  			__MSG=" $__TIME  note : $__MSG" ;;
  		6)	__CMD="logger -p user.info -t ddns-scripts[$$] $SECTION_ID: $__MSG"
-@@ -275,11 +284,11 @@
+@@ -275,11 +282,11 @@
  	[ $__LEVEL -eq 7 ] && return	# no syslog for debug messages
  	__CMD=$(echo -e "$__CMD" | tr -d '\n' | tr '\t' '     ')        # remove \n \t chars
  	[ $__EXIT  -eq 1 ] && {
@@ -860,7 +448,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  
  	return
  }
-@@ -294,32 +303,12 @@
+@@ -294,32 +301,12 @@
  urlencode() {
  	# $1	Name of Variable to store encoded string to
  	# $2	string to encode
@@ -896,7 +484,19 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  
  	eval "$1=\"$__ENC\""	# transfer back to variable
  	return 0
-@@ -347,7 +336,7 @@
+@@ -338,25 +325,25 @@
+ 	[ $use_ipv6 -ne 0 ] && __FILE="/etc/ddns/services_ipv6"	# IPv6
+ 
+ 	# workaround with variables; pipe create subshell with no give back of variable content
+-	mkfifo pipe_$$
++	mkfifo /tmp/pipe_$$
+ 	# only grep without # or whitespace at linestart | remove "
+-#	grep -v -E "(^#|^[[:space:]]*$)" $__FILE | sed -e s/\"//g > pipe_$$ &
+-	sed '/^#/d; /^[ \t]*$/d; s/\"//g' $__FILE  > pipe_$$ &
++#	grep -v -E "(^#|^[[:space:]]*$)" $__FILE | sed -e s/\"//g > /tmp/pipe_$$ &
++	sed '/^#/d; /^[ \t]*$/d; s/\"//g' $__FILE  > /tmp/pipe_$$ &
+ 
+ 	while read __SERVICE __DATA __ANSWER; do
  		if [ "$__SERVICE" = "$service_name" ]; then
  			# check if URL or SCRIPT is given
  			__URL=$(echo "$__DATA" | grep "^http")
@@ -905,7 +505,19 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  
  			eval "$1=\"$__URL\""
  			eval "$2=\"$__SCRIPT\""
-@@ -474,6 +463,27 @@
+ 			eval "$3=\"$__ANSWER\""
+-			rm pipe_$$
++			rm /tmp/pipe_$$
+ 			return 0
+ 		fi
+-	done < pipe_$$
+-	rm pipe_$$
++	done < /tmp/pipe_$$
++	rm /tmp/pipe_$$
+ 
+ 	eval "$1=\"\""	# no service match clear variables
+ 	eval "$2=\"\""
+@@ -474,6 +461,27 @@
  	return $status
  }
  
@@ -933,7 +545,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  # verify given host and port is connectable
  # $1	Host/IP to verify
  # $2	Port to verify
-@@ -726,8 +736,6 @@
+@@ -726,8 +734,6 @@
  	# 2nd choice is cURL IPv4/IPv6/HTTPS
  	# libcurl might be compiled without Proxy or HTTPS Support
  	elif [ -n "$CURL" ]; then
@@ -942,7 +554,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		__PROG="$CURL -RsS -o $DATFILE --stderr $ERRFILE"
  		# check HTTPS support
  		[ -z "$CURL_SSL" -a $use_https -eq 1 ] && \
-@@ -902,16 +910,40 @@
+@@ -902,16 +908,41 @@
  	write_log 7 "Detect local IP on '$ip_source'"
  
  	while : ; do
@@ -958,6 +570,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
 +			write_log 7 "#> $__RUNPROG __DATA '$ip_network'"
 +
 +			ifconfig_name="$(ubus call network.interface.$ip_network status | grep -m 1 "device" | cut -f 4 -d '"' | tr -d $'\n')"
++			[ -z "$ifconfig_name" ] && ip link show dev "$ip_network" 2>/dev/null && ifconfig_name="$ip_network"
 +			if [ $use_ipv6 -eq 0 ]; then
 +				ifconfig_ip="$(ifconfig | grep -A1 $ifconfig_name | grep 'inet addr:' | cut -f 2 -d ':' | cut -f 1 -d ' ' | tr -d $'\n')"
 +			else
@@ -988,7 +601,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			if [ -n "$(which ip)" ]; then		# ip program installed
  				write_log 7 "#> ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE"
  				ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE
-@@ -989,7 +1021,7 @@
+@@ -989,7 +1020,7 @@
  			fi
  			[ $use_ipv6 -eq 0 ] && __DATA="$__DATA4" || __DATA="$__DATA6"
  			[ -n "$__DATA" ] && write_log 7 "Local IP '$__DATA' detected on interface '$ip_interface'"
@@ -997,7 +610,7 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			write_log 7 "#> $ip_script >$DATFILE 2>$ERRFILE"
  			eval $ip_script >$DATFILE 2>$ERRFILE
  			__ERR=$?
-@@ -1000,7 +1032,7 @@
+@@ -1000,7 +1031,7 @@
  				write_log 3 "$ip_script Error: '$__ERR'"
  				write_log 7 "$(cat $ERRFILE)"		# report error
  			fi
@@ -1006,7 +619,30 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  			do_transfer "$ip_url"
  			# use correct regular expression
  			[ $use_ipv6 -eq 0 ] \
-@@ -1204,17 +1236,17 @@
+@@ -1152,14 +1183,20 @@
+ 			fi
+ 			[ -n "$__DATA" ] && {
+ 				write_log 7 "Registered IP '$__DATA' detected"
+-				[ -z "$IPFILE" ] || echo "$__DATA" > $IPFILE
++				[ -z "$IPFILE" ] || {
++					rm -f $IPFILE
++					echo "$__DATA" > $IPFILE
++				}
+ 				eval "$1=\"$__DATA\""	# valid data found
+ 				return 0		# leave here
+ 			}
+ 			write_log 4 "NO valid IP found"
+ 			__ERR=127
+ 		fi
+-		[ -z "$IPFILE" ] || echo "" > $IPFILE
++		[ -z "$IPFILE" ] || {
++			rm -f $IPFILE
++			echo "" > $IPFILE
++		}
+ 
+ 		[ -n "$LUCI_HELPER" ] && return $__ERR	# no retry if called by LuCI helper script
+ 		[ -n "$2" ] && return $__ERR		# $2 is given -> no retry
+@@ -1204,17 +1241,17 @@
  
  	case $1 in
  		 0)	if [ $__ERR -eq 0 ]; then
@@ -1031,9 +667,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		 *)	write_log 13 "Unhandled signal '$1' in 'trap_handler()'";;
  	esac
  
-diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dns_lucihelper.sh src/files/dynamic_dns_lucihelper.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_lucihelper.sh src/files/dynamic_dns_lucihelper.sh
 --- upstream/files/dynamic_dns_lucihelper.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_lucihelper.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/dynamic_dns_lucihelper.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -10,7 +10,8 @@
  # variables in big chars beginning with "__" are local defined inside functions only
  # set -vx  	#script debugger
@@ -1062,9 +698,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		[ -n "$proxy" -a "$ip_source" = "web" ] && {
  			# proxy defined, used for ip_source=web
  			export HTTP_PROXY="http://$proxy"
-diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dns_updater.sh src/files/dynamic_dns_updater.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_updater.sh src/files/dynamic_dns_updater.sh
 --- upstream/files/dynamic_dns_updater.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_updater.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/dynamic_dns_updater.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -193,7 +193,7 @@
  [ "$ip_source" = "network" -a -z "$ip_network" -a $use_ipv6 -eq 1 ] && ip_network="wan6" # IPv6: default wan6
  [ "$ip_source" = "web" -a -z "$ip_url" -a $use_ipv6 -eq 0 ] && ip_url="http://checkip.dyndns.com"
@@ -1158,9 +794,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/dynamic_dn
  		PID_SLEEP=$!
  		wait $PID_SLEEP	# enable trap-handler
  		PID_SLEEP=0
-diff --recursive --unified --new-file --no-dereference upstream/files/services src/files/services
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services src/files/services
 --- upstream/files/services	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services	2024-10-30 08:03:31.000000000 +0000
++++ src/files/services	2025-01-30 10:01:32.000000000 +0000
 @@ -43,13 +43,15 @@
  
  "able.or.kr"		"http://able.or.kr/ddns/src/update.php?hostname=[DOMAIN]&myip=[IP]&ddnsuser=[USERNAME]&pwd=[PASSWORD]"
@@ -1196,9 +832,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/services s
  
  "strato.com"		"http://[USERNAME]:[PASSWORD]@dyndns.strato.com/nic/update?hostname=[DOMAIN]&myip=[IP]"	"good|nochg"
  
-diff --recursive --unified --new-file --no-dereference upstream/files/services_ipv6 src/files/services_ipv6
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services_ipv6 src/files/services_ipv6
 --- upstream/files/services_ipv6	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services_ipv6	2024-10-30 08:03:31.000000000 +0000
++++ src/files/services_ipv6	2025-01-30 10:01:32.000000000 +0000
 @@ -38,10 +38,10 @@
  #.no-ip.com / noip.com	!!! Please install additional package "ddns-scripts_no-ip_com"
  #.route53-v1		!!! Please install additional package "ddns-scripts_route53-v1"
@@ -1214,9 +850,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/services_i
  
  "all-inkl.com"		"http://[USERNAME]:[PASSWORD]@dyndns.kasserver.com/?myip=[IP]"
  
-diff --recursive --unified --new-file --no-dereference upstream/files/update_cloudflare_com_v4.sh src/files/update_cloudflare_com_v4.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_cloudflare_com_v4.sh src/files/update_cloudflare_com_v4.sh
 --- upstream/files/update_cloudflare_com_v4.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_cloudflare_com_v4.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/update_cloudflare_com_v4.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -15,7 +15,7 @@
  # option password  - cloudflare api key, you can get it from cloudflare.com/my-account/
  # option domain    - "hostname@yourdomain.TLD"	# syntax changed to remove split_FQDN() function and tld_names.dat.gz
@@ -1304,9 +940,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_clo
  
  return 0
 -
-diff --recursive --unified --new-file --no-dereference upstream/files/update_no-ip_com.sh src/files/update_no-ip_com.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_no-ip_com.sh src/files/update_no-ip_com.sh
 --- upstream/files/update_no-ip_com.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_no-ip_com.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/update_no-ip_com.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -9,31 +9,33 @@
  # provider did not reactivate records, if no IP change was recognized
  # so we send a dummy (localhost) and a seconds later we send the correct IP addr
@@ -1357,9 +993,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_no-
  grep -E "good|nochg" $DATFILE >/dev/null 2>&1
  return $?	# "0" if "good" or "nochg" found
 -
-diff --recursive --unified --new-file --no-dereference upstream/files/update_nsupdate.sh src/files/update_nsupdate.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_nsupdate.sh src/files/update_nsupdate.sh
 --- upstream/files/update_nsupdate.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_nsupdate.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/update_nsupdate.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -19,8 +19,9 @@
  local __RRTYPE __PW __TCP
  local __PROG=$(which nsupdate)			# BIND nsupdate ?
@@ -1379,9 +1015,9 @@ diff --recursive --unified --new-file --no-dereference upstream/files/update_nsu
 +write_log 7 "(s/k)nsupdate reports:${N}$(cat $ERRFILE)"
  
  return 0
-diff --recursive --unified --new-file --no-dereference upstream/files/update_route53_v1.sh src/files/update_route53_v1.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_route53_v1.sh src/files/update_route53_v1.sh
 --- upstream/files/update_route53_v1.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_route53_v1.sh	2024-10-30 08:03:31.000000000 +0000
++++ src/files/update_route53_v1.sh	2025-01-30 10:01:32.000000000 +0000
 @@ -1,46 +1,44 @@
  #!/bin/sh
 -#.Distributed under the terms of the GNU General Public License (GPL) version 2.0

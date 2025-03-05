@@ -1,4 +1,4 @@
-From 2c9f4349543b8d4501a6dbcd33ca022712eba041 Mon Sep 17 00:00:00 2001
+From 7a6f5918e3ecad95d7b7da1ff21c9e3b3a79ee67 Mon Sep 17 00:00:00 2001
 From: Joris Vaisvila <joris.vaisvila@teltonika.lt>
 Date: Tue, 20 Aug 2024 13:28:48 +0300
 Subject: [PATCH] dynamic wired VLANs
@@ -7,9 +7,9 @@ Subject: [PATCH] dynamic wired VLANs
  hostapd/config_file.c | 36 ++++++++++++++++++++++++++++++++++++
  src/ap/ap_config.h    |  4 ++++
  src/ap/hostapd.h      |  1 +
- src/ap/ieee802_1x.c   | 22 ++++++++++++++++++----
+ src/ap/ieee802_1x.c   | 26 ++++++++++++++++++++++----
  src/ap/vlan_init.c    |  3 ++-
- 5 files changed, 61 insertions(+), 5 deletions(-)
+ 5 files changed, 65 insertions(+), 5 deletions(-)
 
 diff --git a/hostapd/config_file.c b/hostapd/config_file.c
 index f138681..a2941f8 100644
@@ -86,7 +86,7 @@ index 0807fb1..00c47c0 100644
  
  
 diff --git a/src/ap/ieee802_1x.c b/src/ap/ieee802_1x.c
-index f9d05d1..096f2fc 100644
+index f9d05d1..c92d1b7 100644
 --- a/src/ap/ieee802_1x.c
 +++ b/src/ap/ieee802_1x.c
 @@ -2097,10 +2097,11 @@ ieee802_1x_receive_auth(struct radius_msg *msg, struct radius_msg *req,
@@ -148,15 +148,26 @@ index f9d05d1..096f2fc 100644
  
  	if (hapd->mld_first_bss) {
  		wpa_printf(MSG_DEBUG,
-@@ -2617,6 +2629,8 @@ int ieee802_1x_init(struct hostapd_data *hapd)
+@@ -2617,6 +2629,9 @@ int ieee802_1x_init(struct hostapd_data *hapd)
  	}
  #endif /* CONFIG_WEP */
  
-+	eloop_register_timeout(0, 500000, guest_vlan, hapd, NULL);
++	if (hapd->conf->wired_vlans && hapd->conf->guest_vlan > 0)
++		eloop_register_timeout(0, 500000, guest_vlan, hapd, NULL);
 +
  	return 0;
  }
  
+@@ -2643,6 +2658,9 @@ void ieee802_1x_deinit(struct hostapd_data *hapd)
+ 		return;
+ 	}
+ 
++	if (hapd->conf->wired_vlans && hapd->conf->guest_vlan > 0)
++		eloop_cancel_timeout(guest_vlan, hapd, NULL);
++
+ #ifdef CONFIG_WEP
+ 	eloop_cancel_timeout(ieee802_1x_rekey, hapd, NULL);
+ #endif /* CONFIG_WEP */
 diff --git a/src/ap/vlan_init.c b/src/ap/vlan_init.c
 index b69f3de..38900bb 100644
 --- a/src/ap/vlan_init.c
@@ -179,5 +190,5 @@ index b69f3de..38900bb 100644
  			wpa_printf(MSG_ERROR, "VLAN: Could not remove VLAN "
  				   "iface: %s: %s",
 -- 
-2.46.0
+2.48.1
 

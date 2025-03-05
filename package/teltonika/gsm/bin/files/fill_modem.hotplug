@@ -39,12 +39,12 @@ compare_changes() {
 	local modem_func="$2"
 	local id="$3"
 
-	local revision modem_func_id multi_apn operator_scan dhcp_filter dynamic_mtu ipv6 volte csd wwan_gnss_conflict framed_routing low_signal_reconnect auto_5g_mode verizon_disable_5g_sa
+	local revision modem_func_id multi_apn operator_scan dhcp_filter dynamic_mtu ipv6 volte csd wwan_gnss_conflict framed_routing low_signal_reconnect auto_5g_mode
 	revision="$(jsonfilter -s "$info" -qe '$.cache.firmware')"
 	modem_func_id="$(jsonfilter -s "$modem_func" -e '@.id')"
 
 	json_load "$info"
-	json_get_vars multi_apn operator_scan dhcp_filter dynamic_mtu ipv6 volte csd wwan_gnss_conflict framed_routing low_signal_reconnect auto_5g_mode
+	json_get_vars multi_apn operator_scan dhcp_filter dynamic_mtu ipv6 volte csd wwan_gnss_conflict framed_routing low_signal_reconnect auto_5g_mode verizon_disable_5g_sa
 
 	# Set value to 0 if it is empty (gsm info does not contain the value) because boardjson contains true/false
 	[ -z "$multi_apn" ] && {
@@ -89,7 +89,6 @@ compare_changes() {
 	[ -z "$verizon_disable_5g_sa" ] && {
 		verizon_disable_5g_sa=0
 	}
-
 	# Compare gsm info values with board.json values
 	[ "$b_multi_apn" -ne "$multi_apn" ] || [ "$b_operator_scan" -ne "$operator_scan" ] || [ "$b_dhcp_filter" -ne "$dhcp_filter" ] || [ "$b_dynamic_mtu" -ne "$dynamic_mtu" ] || [ "$b_ipv6" -ne "$ipv6" ] ||
 	[ "$b_volte" -ne "$volte" ] || [ "$b_csd" -ne "$csd" ] || [ "$b_wwan_gnss_conflict" -ne "$wwan_gnss_conflict" ] || [ "$b_framed_routing" -ne "$framed_routing" ] || [ "$b_low_signal_reconnect" -ne "$low_signal_reconnect" ] ||

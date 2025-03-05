@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_RELEASE:=11
+PKG_RELEASE:=12
 
 PKG_SOURCE_DATE:=2022-02-17
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -91,7 +91,7 @@ define Package/firewall/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_CONF) ./files/firewall.hotplug $(1)/etc/hotplug.d/iface/20-firewall
 	$(INSTALL_DIR) $(1)/etc/config/
-	$(INSTALL_CONF) ./files/$(FIREWALL_CONFIG) $(1)/etc/config/firewall
+	$(INSTALL_CONF_USR) ./files/$(FIREWALL_CONFIG) $(1)/etc/config/firewall
 
 	$(SED) "s#%%OFFLOADING%%#"$(OFFLOADING)"#g" $(1)/etc/config/firewall
 	$(SED) "s#%%WAN_NETWORK%%#"$(WAN_NETWORK)"#g" $(1)/etc/config/firewall

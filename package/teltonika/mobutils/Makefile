@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobutils
 
-PKG_SOURCE_VERSION:=3.12
+PKG_SOURCE_VERSION:=3.14
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -20,12 +20,15 @@ define Package/mobutils/Default
 	CATEGORY:=Base system
 	DEPENDS:=+libuci +libtlt_uci +libubus +libubox +libtlt-logger \
 		+libmnfinfo
+	USERID:=mobutils:mobutils
 endef
 
 define Package/mobutils
 	$(call Package/mobutils/Default)
 	TITLE:=Mobile utilities
 	MENU:=1
+	USER_GROUPS:=mobutils:network gsm
+	CAP:=/usr/sbin/sms_utils:cap_net_raw,cap_dac_read_search+eip
 endef
 
 define Package/mobutils-call_utilities
@@ -37,6 +40,10 @@ endef
 
 define Package/mobutils/conffiles
 /etc/config/sms_gateway
+endef
+
+define Package/mobutils/config
+	source "$(SOURCE)/Config.in"
 endef
 
 define Package/mobutils-call_utilities/conffiles
@@ -70,6 +77,9 @@ TARGET_LDFLAGS += -lcrypt
 endif
 
 CONFIGURE_ARGS += \
+	$(if $(CONFIG_MOBILE_UTILS_TEST),--enable-test-mode)
+
+CONFIGURE_ARGS += \
 	$(if $(CONFIG_SMS_UTILS_HANDLER_IO),--enable-io) \
 	$(if $(CONFIG_SMS_UTILS_HANDLER_GPS),--enable-gps) \
 	$(if $(CONFIG_SMS_UTILS_HANDLER_WIFI),--enable-wifi) \
@@ -78,10 +88,11 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_SMS_UTILS_HANDLER_EXEC),--enable-exec) \
 	$(if $(CONFIG_SMS_UTILS_HANDLER_API),--enable-api) \
 	$(if $(CONFIG_SMS_UTILS_HANDLER_ESIM),--enable-esim) \
+	$(if $(CONFIG_SMS_UTILS_HANDLER_WOL),--enable-wol) \
 	$(if $(CONFIG_SMS_FWD_HANDLER_HTTP),--enable-fwd-http) \
 	$(if $(CONFIG_SMS_FWD_HANDLER_REPLY),--enable-fwd-reply) \
 	$(if $(CONFIG_SMS_FWD_HANDLER_SMS),--enable-fwd-sms) \
-	$(if $(CONFIG_SMS_FWD_HANDLER_SMTP),--enable-fwd-smtp) \
+	$(if $(CONFIG_SMS_FWD_HANDLER_SMTP),--enable-fwd-smtp)
 
 CONFIGURE_ARGS += \
 	$(if $(CONFIG_CALL_UTILS_HANDLER_WIFI),--enable-call-wifi) \
@@ -90,15 +101,16 @@ CONFIGURE_ARGS += \
 
 
 define Package/mobutils/install
-	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/sms_gateway.conf $(1)/etc/config/sms_gateway
+	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/share/acl.d
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/sms_gateway.conf $(1)/etc/config/sms_gateway
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mobutils.json $(1)/usr/share/acl.d/mobutils.json
 endef
 
 define Package/mobutils-call_utilities/install
 	$(INSTALL_DIR) $(1)/sbin/ $(1)/etc/config/ $(1)/etc/init.d/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/call_utils $(1)/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/call_utils/files/call_utils.init $(1)/etc/init.d/call_utils
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/call_utils/files/call_utils.conf $(1)/etc/config/call_utils
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/call_utils/files/call_utils.conf $(1)/etc/config/call_utils
 endef
 
 define Package/mobutils-sms_utilities/install
@@ -112,7 +124,7 @@ define Package/mobutils-sms_utilities/install
 	$(CP) $(PKG_BUILD_DIR)/files/99_sms_utils-mobutils_3 $(1)/etc/uci-defaults/etc
 	$(CP) $(PKG_BUILD_DIR)/files/99_sms_gateway $(1)/etc/uci-defaults/etc
 
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.conf $(1)/etc/config/sms_utils;
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.conf $(1)/etc/config/sms_utils;
 
 	$(if  $(CONFIG_DUAL_SIM_SUPPORT), \
 		cat $(PKG_BUILD_DIR)/sms_utils/files/dualsim.conf >> $(1)/etc/config/sms_utils)

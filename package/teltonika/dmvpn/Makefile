@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=DMVPN
 PKG_VERSION:=2021-02-11
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -20,7 +20,7 @@ define Package/dmvpn
 	DEPENDS:=+kmod-gre +IPV6:kmod-gre6 +resolveip +libpthread +ip \
 		+kmod-crypto-authenc +kmod-ipsec +kmod-ipsec4 +IPV6:kmod-ipsec6 \
 		+kmod-ipt-ipsec +iptables-mod-ipsec \
-		+frr-nhrp +iptables-mod-hashlimit
+		+frr-nhrp
 endef
 
 define Package/dmvpn/description

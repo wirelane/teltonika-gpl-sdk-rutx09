@@ -1,5 +1,11 @@
 #!/bin/sh
 . /usr/share/libubox/jshn.sh
+
+[ -f /usr/share/modem_logger/modem_logger_installer ] && {
+    . /usr/share/modem_logger/modem_logger_installer
+    ONLINE="1"
+}
+
 DEBUG_LOG="1"
 DEBUG_ECHO="0"
 SSHFS_PATH="/usr/bin/sshfs"
@@ -402,6 +408,14 @@ start_logging(){
         available_loggers
         exit 1
     fi
+
+    [ "$ONLINE" = "1" ] && {
+        checkIfLoggerExists "$LOGGER_PATH" || {
+            echo "[ERROR] Failed to get logger. Exiting."
+            available_loggers
+            exit 1
+        }
+    }
 
     if [ ! -f "$LOGGER_PATH" ]; then
         echo "[ERROR] Logger not found in $LOGGER_PATH. Exiting."

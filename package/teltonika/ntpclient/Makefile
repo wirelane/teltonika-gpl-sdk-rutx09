@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ntpclient
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-02-14
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2015_365
@@ -27,6 +27,8 @@ define Package/ntpclient
   CATEGORY:=Network
   TITLE:=NTP (Network Time Protocol) client
   DEPENDS:=+librt +libubus +libubox +libblobmsg-json +libuci +MOBILE_SUPPORT:libgsm
+  USERID:=ntpclient:ntpclient
+  CAP:=/usr/sbin/ntpclient:cap_sys_time=ep
 endef
 
 define Package/ntpclient/description
@@ -37,19 +39,19 @@ define Package/ntpclient/conffiles
 /etc/config/ntpclient
 endef
 
-MAKE_FLAGS += all adjtimex
+MAKE_FLAGS += all
 
 define Package/ntpclient/install
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/hotplug.d/iface $(1)/etc/hotplug.d/net $(1)/etc/config $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/hotplug.d/iface $(1)/etc/hotplug.d/net \
+			$(1)/etc/config $(1)/usr/sbin $(1)/usr/share/acl.d
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ntpclient.hotplug $(1)/etc/hotplug.d/iface/20-ntpclient
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ntpclient.init $(1)/etc/init.d/ntpclient
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/ntpclient.config $(1)/etc/config/ntpclient
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ntpclient.json $(1)/usr/share/acl.d/
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ntpclient $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/adjtimex $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/rate.awk $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,ntpclient))

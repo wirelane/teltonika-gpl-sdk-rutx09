@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rpcd
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE_DATE:=2021-03-11
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -75,7 +75,7 @@ define Package/rpcd/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/rpcd.config $(1)/etc/config/rpcd
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
-	$(INSTALL_BIN) ./files/lan_info $(1)/usr/libexec/rpcd/
+	$(INSTALL_BIN) ./files/libexec/* $(1)/usr/libexec/rpcd/
 
 	$(if $(CONFIG_WIFI_SUPPORT),\
 		$(SED) "s@%%WIRELESS_CHANNEL_ANALYSIS_ACL%%@list read '!status/wireless/channel_analysis*'@g" \
@@ -103,6 +103,9 @@ define Package/rpcd/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11
 	$(INSTALL_DATA) ./files/uci-defaults/7.11/99_rpcd_sesitive_info_flag $(1)/etc/uci-defaults/7.11/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.13
+	$(INSTALL_DATA) ./files/uci-defaults/7.13/99_rpcd_increase_timeout $(1)/etc/uci-defaults/7.13/
+	$(INSTALL_DATA) ./files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths $(1)/etc/uci-defaults/7.13/
 endef
 
 

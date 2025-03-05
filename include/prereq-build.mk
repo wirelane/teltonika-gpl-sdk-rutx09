@@ -218,3 +218,6 @@ $(eval $(call SetupHostCommand,gperf,Please install 'gperf', \
 
 $(eval $(call SetupHostCommand,cmake,Please install 'cmake', \
 	cmake --version 2>&1 ))
+
+$(eval $(call SetupHostCommand,fakeroot,Please install fakeroot >= 1.28, \
+	fakeroot --version | grep -E "fakeroot version 1\.(2[8-9]|[3-9][0-9+])"))

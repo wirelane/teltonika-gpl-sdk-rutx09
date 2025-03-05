@@ -6,9 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_client
-PKG_VERSION:=2025-02-11
-PKG_SOURCE_VERSION:=7.12.3
+PKG_VERSION:=2025-02-20
+PKG_SOURCE_VERSION:=7.13
 PKG_LICENSE:=Teltonika-closed
+TARGET_CFLAGS += "-DCACHE_HASH=\\\"$(PKG_SOURCE_VERSION)\\\""
 
 include $(INCLUDE_DIR)/package.mk
 

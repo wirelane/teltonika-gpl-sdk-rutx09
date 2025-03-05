@@ -1,8 +1,0 @@
-{
-  "network/internet_status": {
-    "title": "Internet Status",
-    "index": 150,
-    "view": "network/Internet",
-    "acls": ["network/internet_status"]
-  }
-}

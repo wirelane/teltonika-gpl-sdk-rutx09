@@ -7,12 +7,8 @@
             "title": "OPC UA Client",
             "index": 10,
             "view": "services/Opcua",
-            "acls": [
-                "services/opcua/opcua_client"
-            ],
-            "files": [
-                "/etc/config/opcua_client"
-            ],
+            "acls": ["services/opcua/opcua_client"],
+            "files": ["/etc/config/opcua_client"],
             "i18nfile": true
         }
 }

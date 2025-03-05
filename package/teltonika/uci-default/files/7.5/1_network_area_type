@@ -57,7 +57,8 @@ add_area_type() {
 	esac
 
 	# checking interface protocol, assuming that static = lan and everything else = wan
-	[ "$proto" = "static" ] && lan=$((lan + 1)) || wan=$((wan + 1))
+	[ "$proto" = "static" ] && lan=$((lan + 1))
+	[ ! "$proto" = "none" ] && [ ! "$proto" = "static" ] && [ -n "$proto" ] && wan=$((wan + 99))
 
 	# checking if interface name starts with lan, wan or mob (mobile)
 	[ "${section:0:3}" = "lan" ] && lan=$((lan + 1))

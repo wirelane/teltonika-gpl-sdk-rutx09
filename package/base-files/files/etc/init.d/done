@@ -2,6 +2,7 @@
 # Copyright (C) 2006 OpenWrt.org
 
 START=16
+REBOOT_FILE_PATH="/log/reboot"
 
 _check_paths() {
 	for sub_path in $1; do
@@ -61,6 +62,38 @@ handle_reboot() {
 	fi
 }
 
+add_event() {
+	ubus call log write_ext "{
+			\"event\":\"$1\",
+			\"sender\":\"Startup\",
+			\"table\":1,
+			${2:+\"priority\":$2,}
+			\"write_db\":1
+		}"
+}
+
+add_startup_event() {
+	if [ -f "$REBOOT_FILE_PATH" ]; then
+		#Some applications need an indication that the device has rebooted.
+		#move the file to a temporary location instead of deleting it
+		mv "$REBOOT_FILE_PATH" /tmp/reboot
+	else
+		add_event "Device startup after unexpected shutdown"
+	fi
+
+	add_event "Device startup completed" 5
+}
+
+set_tty_duplex() {
+	# Configure the DUPLEX pin as an output and set it low for RS485
+	# Temporary workaround until a proper fix is implemented in tlt-gpio
+	output=$(gpiofind GPIO_RS485_RX_EN)
+
+	[ -z "$output" ] && return
+
+	gpioset $output="0"
+}
+
 boot() {
 	mount_root done
 	rm -f /sysupgrade.tgz && sync
@@ -84,4 +117,7 @@ boot() {
 
 		index=$((index + 1))
 	done
+
+	add_startup_event
+	set_tty_duplex
 }

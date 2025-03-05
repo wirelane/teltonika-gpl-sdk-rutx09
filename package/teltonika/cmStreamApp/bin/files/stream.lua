@@ -75,6 +75,11 @@ function init()
 	local modem_id  = nil
 
 	SERVICE = get_service()
+	if not SERVICE then
+		srError('Service not found')
+		return 1
+	end
+
 	local device = uci:get("system", "system", "devicename") or ""
 	if device == "" then
 		device = mnf:get_name() or ""
@@ -149,11 +154,14 @@ function get_service()
 	local server = c8y.server
 	local service
 
-	if string.find(server, "cumulocity") then
-		service = "cumulocity"
-	else
-		service = "cloudofthings"
-	end
+	uci:foreach("iot", "iot", function(s)
+		if s["server"] and string.find(server, s["server"], nil, true) and
+		   s["enabled"] == "1" then
+			srInfo('Service found: '..s[".name"])
+			service = s[".name"]
+			return false
+		end
+	end)
 
 	return service
 end

@@ -51,7 +51,7 @@ define Device/teltonika_rutx
 	DEVICE_PACKAGES += kmod-usb-uhci
 
 	# Uncaterizored stuff
-	DEVICE_PACKAGES.basic := kmod-r2ec stm32flasher crconf
+	DEVICE_PACKAGES.basic := kmod-r2ec stm32flasher
 
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	KERNEL_IN_UBI := 1

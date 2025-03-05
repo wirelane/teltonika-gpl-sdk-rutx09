@@ -2,8 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=data-sender
+PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.12
+PKG_SOURCE_VERSION:=1.15
 
 PKG_FIXUP:=autoreconf
 
@@ -22,317 +23,125 @@ endef
 
 define Package/data-sender
   $(call Package/data-sender/Default)
-  DEPENDS:=+libuci +libtlt-logger +libubox +libblobmsg-json +libubus +libjson-c
+  DEPENDS:=+libuci +libtlt-logger +libubox +libblobmsg-json +libubus +libjson-c $(DS_DEPS)
   TITLE:=Data sender daemon by Teltonika
   MENU:=1
+  USERID:=ds:ds
 endef
 
 define Package/data-sender/config
   source "$(SOURCE)/Config.in"
 endef
 
-define Package/data-sender-mod-bluetooth
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for bluetooth data gathering
-endef
-
-define Package/data-sender-mod-modbus
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for modbus data gathering
-endef
-
-define Package/data-sender-mod-modbus-alarm
+define RegisterPlugin
+  define Package/data-sender-mod-$(1)
 	$(call Package/data-sender/Default)
-	DEPENDS:=data-sender +libsqlite3
-	TITLE:=Input plugin for modbus alarm gathering
+	DEPENDS:=data-sender $(2)
+	TITLE:=$(3)
+	ifeq ($(CONFIG_PACKAGE_data-sender-mod-$(1)),y)
+		DS_DEPS+=$(2)
+	endif
+  endef
+
+  CONFIGURE_ARGS += $(if $(CONFIG_PACKAGE_data-sender-mod-$(1)), --with-mod-$(1)=$(CONFIG_PACKAGE_data-sender-mod-$(1)))
 endef
 
-define Package/data-sender-mod-dnp3
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for DNP3 data gathering
-endef
-
-define Package/data-sender-mod-opcua
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for OPC UA data gathering
-endef
-
-define Package/data-sender-mod-impulse_counter
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for impulse counter data gathering
-endef
-
-define Package/data-sender-mod-mbus
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for M-Bus data gathering
-endef
-
-define Package/data-sender-mod-wifiscan
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for wifi scaner data gathering
-endef
-
-define Package/data-sender-mod-mnfinfo
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libmnfinfo
-  TITLE:=Input plugin for manufacturer information
-endef
-
-define Package/data-sender-mod-gsm
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libgsm
-  TITLE:=Input plugin for gsm information
-endef
-
-define Package/data-sender-mod-sms_in
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libgsm +liburc
-  TITLE:=SMS input plugin
-endef
-
-define Package/data-sender-mod-mdcollect
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libgsm +libmdcollect
-  TITLE:=Input plugin for data usage information
-endef
-
-define Package/data-sender-mod-gps
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libgps
-  TITLE:=Input plugin for GPS data gathering
-endef
-
-define Package/data-sender-mod-chilli
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libuci +libtltchilli
-  TITLE:=Input plugin for CoovaChilli Hotspot data gathering
-endef
-
-define Package/data-sender-mod-io
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libuci +libubus +iomand
-  TITLE:=Input plugin for Input/Output data gathering
-endef
-
-define Package/data-sender-mod-format-custom
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libblobmsg-json
-  TITLE:=Format plugin for data concatenation
-endef
-
-define Package/data-sender-mod-format-csv
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Format plugin for CSV formating
-endef
-
-define Package/data-sender-mod-format-none
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Format plugin for plain serialization
-endef
-
-define Package/data-sender-mod-http
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libcurl
-  TITLE:=Output plugin for sending data over http
-endef
-
-define Package/data-sender-mod-mqtt-out
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libmosquitto
-  TITLE:=Output plugin for sending data over MQTT
-endef
-
-define Package/data-sender-mod-socket
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Output plugin for sending data over a UNIX socket
-endef
-
-define Package/data-sender-mod-sms
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libgsm
-  TITLE:=Output plugin for sending data over SMS
-endef
-
-define Package/data-sender-mod-smtp
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libcurl +libuci +@LIBCURL_SMTP
-  TITLE:=Output plugin for sending data over SMTP
-endef
-
-define Package/data-sender-mod-nflog
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libnetfilter-log +libxtables
-  TITLE:=Input plugin for NFLOG
-endef
-
-define Package/data-sender-mod-eventlog
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Events log input plugin
-endef
-
-define Package/data-sender-mod-lua-in
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +liblua
-  TITLE:=LUA input plugin for custom scripts
-endef
-
-define Package/data-sender-mod-lua_out
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +liblua
-  TITLE:=LUA output plugin for custom scrip
-endef
-
-define Package/data-sender-mod-ftp
- $(call Package/data-sender/Default)
- DEPENDS:=data-sender +libcurl
- TITLE:=Output plugin for sending data over FTP
-endef
-
-define Package/data-sender-mod-base
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Base input plugin
-endef
-
-define Package/data-sender-mod-lua_format
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +liblua
-  TITLE:=LUA filter plugin for custom formating
-endef
-
-define Package/data-sender-mod-telegram
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libcurl +libopenssl
-  TITLE:=Output plugin for sending data over Telegram
-endef
-
-define Package/data-sender-mod-ubus
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libubus
-  TITLE:=Output plugin for sending data over UBUS
-endef
-
-define Package/data-sender-mod-file
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Output plugin for writing data to a file
-  PKG_ROUTER:=$(call device_shortname)
-endef
-
-define Package/data-sender-mod-dlms
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libsqlite3
-  TITLE:=Input plugin for M-Bus data gathering
-endef
-
-define Package/data-sender-mod-mqtt-in
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +libmosquitto
-  TITLE:=Input plugin for subscribing MQTT data
-endef
-
-define Package/data-sender-mod-lua_filter
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender +liblua
-  TITLE:=Filter plugin for LUA scripts
-endef
-
-define Package/data-sender-mod-cmp
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Filter plugin for data comparison
-endef
-
-define Package/data-sender-mod-stdin
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Input plugin for reading data from stdin
-endef
-
-define Package/data-sender-mod-stdout
-  $(call Package/data-sender/Default)
-  DEPENDS:=data-sender
-  TITLE:=Output plugin for writing data to stdout
-endef
-
+$(eval $(call RegisterPlugin,bluetooth,+libsqlite3,Input plugin for bluetooth data gathering))
+$(eval $(call RegisterPlugin,modbus,+libsqlite3,Input plugin for modbus data gathering))
+$(eval $(call RegisterPlugin,modbus-alarm,+libsqlite3,Input plugin for modbus alarm gathering))
+$(eval $(call RegisterPlugin,dnp3,+libsqlite3,Input plugin for DNP3 data gathering))
+$(eval $(call RegisterPlugin,opcua,+libsqlite3,Input plugin for OPC UA data gathering))
+$(eval $(call RegisterPlugin,impulse_counter,+libsqlite3,Input plugin for impulse counter data gathering))
+$(eval $(call RegisterPlugin,mbus,+libsqlite3,Input plugin for M-Bus data gathering))
+$(eval $(call RegisterPlugin,wifiscan,+libsqlite3,Input plugin for wifi scaner data gathering))
+$(eval $(call RegisterPlugin,mnfinfo,+libmnfinfo,Input plugin for manufacturer information))
+$(eval $(call RegisterPlugin,gsm,+libgsm,Input plugin for gsm information))
+$(eval $(call RegisterPlugin,sms_in,+libgsm  +liburc,Input plugin for SMS input))
+$(eval $(call RegisterPlugin,mdcollect,+libgsm +libmdcollect,Input plugin for data usage information))
+$(eval $(call RegisterPlugin,gps,+libgps,Input plugin for GPS data gathering))
+$(eval $(call RegisterPlugin,chilli,+libuci +libtltchilli,Input plugin for CoovaChilli Hotspot data gathering))
+$(eval $(call RegisterPlugin,io,+iomand,Input plugin for Input/Output data gathering))
+$(eval $(call RegisterPlugin,format-custom,+libblobmsg-json,Format plugin for data concatenation))
+$(eval $(call RegisterPlugin,format-csv,+libblobmsg-json,Format plugin for CSV formating))
+$(eval $(call RegisterPlugin,format-none,+libblobmsg-json,Format plugin for plain serialization))
+$(eval $(call RegisterPlugin,http,+libcurl,Output plugin for sending data over http))
+$(eval $(call RegisterPlugin,mqtt-out,+libmosquitto,Output plugin for sending data over MQTT))
+$(eval $(call RegisterPlugin,socket,,Output plugin for sending data over a UNIX socket))
+$(eval $(call RegisterPlugin,sms,+libgsm,Output plugin for sending data over SMS))
+$(eval $(call RegisterPlugin,smtp,+libcurl +libuci +@LIBCURL_SMTP,Output plugin for sending data over SMTP))
+$(eval $(call RegisterPlugin,nflog,+libnetfilter-log +libxtables,Input plugin for NFLOG))
+$(eval $(call RegisterPlugin,eventlog,,Input plugin for events log))
+$(eval $(call RegisterPlugin,lua-in,+liblua,Input plugin for custom scripts))
+$(eval $(call RegisterPlugin,lua_out,+liblua,Output plugin for custom scripts))
+$(eval $(call RegisterPlugin,ftp,+libcurl,Output plugin for sending data over FTP))
+$(eval $(call RegisterPlugin,base,,Base input plugin))
+$(eval $(call RegisterPlugin,lua_format,+liblua,Output plugin for custom formating))
+$(eval $(call RegisterPlugin,telegram,+libcurl +libopenssl,Output plugin for sending data over Telegram))
+$(eval $(call RegisterPlugin,ubus,,Output plugin for sending data over UBUS))
+$(eval $(call RegisterPlugin,file,,Output plugin for writing data to a file))
+$(eval $(call RegisterPlugin,dlms,+libsqlite3,Input plugin for M-Bus data gathering))
+$(eval $(call RegisterPlugin,mqtt-in,+libmosquitto,Input plugin for subscribing MQTT data))
+$(eval $(call RegisterPlugin,lua_filter,+liblua,Filter plugin for LUA scripts))
+$(eval $(call RegisterPlugin,cmp,,Filter plugin for data comparison))
+$(eval $(call RegisterPlugin,stdin,,Input plugin for reading data from stdin))
+$(eval $(call RegisterPlugin,stdout,,Output plugin for writing data to stdout))
+$(eval $(call RegisterPlugin,syslog,,Input plugin for syslog data gathering))
 
 CONFIGURE_ARGS += \
 		--with-max_instances=$(CONFIG_PACKAGE_DATA_SENDER_COLLECTIONS) \
 		--with-max_inputs=$(CONFIG_PACKAGE_DATA_SENDER_INPUTS) \
 		$(if $(CONFIG_PACKAGE_DATA_SENDER_BASE64),--enable-base64) \
 		$(if $(CONFIG_PACKAGE_DATA_SENDER_SCHEDULER),--enable-scheduler) \
-		$(if $(CONFIG_PACKAGE_DATA_SENDER_DEBUG),--enable-debug) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-gps),--enable-gps) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-gsm),--enable-gsm) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-socket),--enable-socket) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-sms),--enable-sms) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-smtp),--enable-smtp) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-chilli),--enable-chilli) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-io),--enable-io) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-modbus),--enable-modbus) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-modbus-alarm),--enable-modbus_alarm) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-mbus),--enable-mbus) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-dnp3),--enable-dnp3) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-opcua),--enable-opcua) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-impulse_counter),--enable-impulse_counter) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-bluetooth),--enable-bluetooth) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-wifiscan),--enable-wifiscan) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-nflog),--enable-nflog) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-mdcollect),--enable-mdcollect) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-lua-in),--enable-lua) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-lua_out),--enable-lua_out) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-lua_format),--enable-lua_format) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-format-csv),--enable-csv) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-format-none),--enable-none) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-telegram),--enable-telegram) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-ftp),--enable-ftp) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-file),--enable-file) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-dlms),--enable-dlms) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-mqtt-out),--enable-mqtt_out) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-mqtt-in),--enable-mqtt_in) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-lua_filter),--enable-lua_filter) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-cmp),--enable-cmp_filter) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-stdin),--enable-stdin) \
-		$(if $(CONFIG_PACKAGE_data-sender-mod-stdout),--enable-stdout)
+		$(if $(CONFIG_PACKAGE_DATA_SENDER_DEBUG),--enable-debug)
 
 
 define Package/data-sender/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin \
-			$(1)/lib/troubleshoot $(1)/lib/data_sender
+			$(1)/lib/troubleshoot $(1)/lib/data_sender $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender.init $(1)/etc/init.d/data_sender
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/datasender $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender_troubleshoot.sh \
 			$(1)/lib/troubleshoot/data_sender.sh
 	$(CP) $(PKG_BUILD_DIR)/files/libdata_sender.sh $(1)/lib/data_sender/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/data_sender.json $(1)/usr/share/acl.d/
 endef
 
 define BuildPlugin
   define Package/data-sender-mod-$(1)/install
-	$(INSTALL_DIR) $$(1)/usr/lib/data_sender
+	$(INSTALL_DIR) $$(1)/usr/lib/data_sender $$(1)/usr/share/acl.d
+
+	if [ "$(CONFIG_PACKAGE_data-sender-mod-$(1))" = "m" ]; then \
 	for m in $(2); do \
 		$(CP) $(PKG_INSTALL_DIR)/usr/lib/data_sender/ds_$$$$$$$${m}.so $$(1)/usr/lib/data_sender/ ; \
-	done
+	done; \
+	fi
 	if [ -n "$(3)" ] && [ -d "$(PKG_BUILD_DIR)/files/modules/$(3)" ]; then \
 		$(INSTALL_DIR) $$(1)/etc/data_sender/modules/$(3) ; \
 		$(CP) $(PKG_BUILD_DIR)/files/modules/$(3)/* $$(1)/etc/data_sender/modules/$(3)/ ; \
 	fi
+	if [ -e "$(PKG_BUILD_DIR)/files/acl.d/$(1).json" ]; then \
+			$(CP) $(PKG_BUILD_DIR)/files/acl.d/$(1).json $$(1)/usr/share/acl.d/ds_$(1).json; \
+  fi
   endef
+
+ifeq ($$(CONFIG_PACKAGE_data-sender-mod-$(1)),m)
+  ifeq ($(wildcard $(PKG_BUILD_DIR)/files/acl.d/$(1).json),)
+  define Package/data-sender-mod-$(1)/postinst
+#!/bin/sh
+
+[ -z "$$$${IPKG_INSTROOT}" ] || exit 0
+
+#Relaod ubusd acl rules
+pid=$$$$(pidof ubusd)
+[ -z "$$$$pid" ] || kill -HUP $$$$pid
+  endef
+  endif
+endif
+
   $$(eval $$(call BuildPackage,data-sender-mod-$(1)))
 endef
 
-$(eval $(call BuildPackage,data-sender))
 $(eval $(call BuildPlugin,bluetooth,input_bluetooth))
 $(eval $(call BuildPlugin,modbus,input_modbus))
 $(eval $(call BuildPlugin,modbus-alarm,input_modbus_alarm))
@@ -372,3 +181,5 @@ $(eval $(call BuildPlugin,lua_filter,filter_lua))
 $(eval $(call BuildPlugin,cmp,filter_cmp))
 $(eval $(call BuildPlugin,stdin,input_stdin))
 $(eval $(call BuildPlugin,stdout,output_stdout))
+$(eval $(call BuildPlugin,syslog,input_syslog))
+$(eval $(call BuildPackage,data-sender))

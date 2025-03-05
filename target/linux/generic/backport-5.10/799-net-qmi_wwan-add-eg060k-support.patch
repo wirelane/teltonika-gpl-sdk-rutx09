@@ -1,7 +1,7 @@
 --- a/drivers/net/usb/qmi_wwan.c
 +++ b/drivers/net/usb/qmi_wwan.c
-@@ -1046,6 +1046,7 @@ static const struct usb_device_id produc
- 	},
+@@ -1047,6 +1047,7 @@ static const struct usb_device_id produc
+ 	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0122)},	/* Quectel RG650V */
  	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0125)},	/* Quectel EC25, EC20 R2.0  Mini PCIe */
  	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0306)},	/* Quectel EP06/EG06/EM06 */
 +	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x030b)},	/* Quectel EG060K */

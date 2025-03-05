@@ -1,9 +1,0 @@
-#!/bin/sh
-
-generate_https_redirect() {
-  if [ ! -f /tmp/.ksrestored ]; then
-    uci -q set uhttpd.main.redirect_https=1
-  fi
-}
-
-conf_register_hook generate_https_redirect

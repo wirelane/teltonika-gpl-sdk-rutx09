@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.gitignore
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitignore src/.gitignore
 --- upstream/.gitignore	2016-12-15 17:28:43.000000000 +0000
 +++ src/.gitignore	1970-01-01 00:00:00.000000000 +0000
 @@ -1,132 +0,0 @@
@@ -134,9 +134,9 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.
 -debian/coova-chilli.substvars
 -debian/coova-chilli/
 -debian/files
-diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml src/.gitlab-ci.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-01-06 07:47:07.000000000 +0000
++++ src/.gitlab-ci.yml	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -158,9 +158,9 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml s
 +  extends: .semgrep_info
 +  needs:
 +    - job: semgrep_errors
-diff --recursive --unified --new-file --no-dereference upstream/Makefile.am src/Makefile.am
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/Makefile.am src/Makefile.am
 --- upstream/Makefile.am	2016-12-15 17:28:43.000000000 +0000
-+++ src/Makefile.am	2025-01-06 07:47:07.000000000 +0000
++++ src/Makefile.am	2025-01-09 09:43:53.000000000 +0000
 @@ -9,3 +9,6 @@
  if WITH_MINIPORTAL
  SUBDIRS += miniportal
@@ -168,9 +168,9 @@ diff --recursive --unified --new-file --no-dereference upstream/Makefile.am src/
 +#if WITH_UBUS
 +#SUBDIRS += lchilli
 +#endif
-diff --recursive --unified --new-file --no-dereference upstream/README.md src/README.md
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	2016-12-15 17:28:43.000000000 +0000
-+++ src/README.md	2025-01-06 07:47:07.000000000 +0000
++++ src/README.md	2025-01-09 09:43:53.000000000 +0000
 @@ -27,3 +27,14 @@
    `make`
  
@@ -186,9 +186,9 @@ diff --recursive --unified --new-file --no-dereference upstream/README.md src/RE
 +--- | --- | --- | ---
 +chilli | list | `{"ip":"String","mac":"String","sessionid":"String"}` | List sessions. Params: `ip` - ip address (optional), mac - mac address (optional), sessionid - session ID (optional).
 +chilli | logout | `{"ip":"String","mac":"String","sessionid":"String"}` | Logoff active user. Params: `ip` - ip address (optional), mac - mac address (optional), sessionid - session ID (optional). At least one parameter required.
-diff --recursive --unified --new-file --no-dereference upstream/changelog src/changelog
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/changelog src/changelog
 --- upstream/changelog	1970-01-01 00:00:00.000000000 +0000
-+++ src/changelog	2025-01-06 07:47:07.000000000 +0000
++++ src/changelog	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,9 @@
 +# 2019-12-19
 +	*New
@@ -199,9 +199,9 @@ diff --recursive --unified --new-file --no-dereference upstream/changelog src/ch
 +		* New session param added "expirationtime"
 +		* TOS requirement added
 +		* Configurable url params added
-diff --recursive --unified --new-file --no-dereference upstream/conf/down.sh.in src/conf/down.sh.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/down.sh.in src/conf/down.sh.in
 --- upstream/conf/down.sh.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/conf/down.sh.in	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/down.sh.in	2025-01-09 09:43:53.000000000 +0000
 @@ -5,12 +5,75 @@
  
  TUNTAP=$(basename $DEV)
@@ -278,9 +278,9 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/down.sh.in 
      
      # site specific stuff optional
      [ -e @SYSCONFDIR@/chilli/ipdown.sh ] && . @SYSCONFDIR@/chilli/ipdown.sh
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/cloud4wi src/conf/profiles/configs/cloud4wi
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/configs/cloud4wi src/conf/profiles/configs/cloud4wi
 --- upstream/conf/profiles/configs/cloud4wi	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/cloud4wi	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/configs/cloud4wi	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,33 @@
 +config group
 +	option name 'default'
@@ -315,9 +315,9 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option paramuserurl 'redirect_url'
 +	option param1 'version'
 +	option param1value ''
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/default src/conf/profiles/configs/default
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/configs/default src/conf/profiles/configs/default
 --- upstream/conf/profiles/configs/default	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/default	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/configs/default	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,19 @@
 +config group
 +	option name 'default'
@@ -338,9 +338,9 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option _landingpage 'int'
 +	option _success 'uam'
 +	option _protocol 'http'
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/hotspotsystems src/conf/profiles/configs/hotspotsystems
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/configs/hotspotsystems src/conf/profiles/configs/hotspotsystems
 --- upstream/conf/profiles/configs/hotspotsystems	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/hotspotsystems	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/configs/hotspotsystems	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,26 @@
 +config group
 +	option name 'default'
@@ -368,9 +368,9 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option radiusserver1 'radius.hotspotsystem.com'
 +	option radiusserver2 'radius2.hotspotsystem.com'
 +	option radiussecret 'hotsys123'
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/configs/purple src/conf/profiles/configs/purple
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/configs/purple src/conf/profiles/configs/purple
 --- upstream/conf/profiles/configs/purple	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/configs/purple	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/configs/purple	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,31 @@
 +config group
 +	option name 'default'
@@ -403,33 +403,33 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/co
 +	option radiussecret '6n8!5ETGb^nd'
 +	option radiusnasid 'guest'
 +	option swapoctets '1'
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/uamdomains/uamdomainfile_cloud4wi src/conf/profiles/uamdomains/uamdomainfile_cloud4wi
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/uamdomains/uamdomainfile_cloud4wi src/conf/profiles/uamdomains/uamdomainfile_cloud4wi
 --- upstream/conf/profiles/uamdomains/uamdomainfile_cloud4wi	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/uamdomains/uamdomainfile_cloud4wi	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/uamdomains/uamdomainfile_cloud4wi	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,5 @@
 +cloud4wi.com
 +facebook.com
 +facebook.net
 +flinkedin.com
 +licdn.com
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/uamdomains/uamdomainfile_hs src/conf/profiles/uamdomains/uamdomainfile_hs
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/uamdomains/uamdomainfile_hs src/conf/profiles/uamdomains/uamdomainfile_hs
 --- upstream/conf/profiles/uamdomains/uamdomainfile_hs	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/uamdomains/uamdomainfile_hs	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/uamdomains/uamdomainfile_hs	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,2 @@
 +hotspotsystem.com
 +facebook.com
-diff --recursive --unified --new-file --no-dereference upstream/conf/profiles/uamdomains/uamdomainfile_purple src/conf/profiles/uamdomains/uamdomainfile_purple
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/profiles/uamdomains/uamdomainfile_purple src/conf/profiles/uamdomains/uamdomainfile_purple
 --- upstream/conf/profiles/uamdomains/uamdomainfile_purple	1970-01-01 00:00:00.000000000 +0000
-+++ src/conf/profiles/uamdomains/uamdomainfile_purple	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/profiles/uamdomains/uamdomainfile_purple	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,5 @@
 +purpleportal.net
 +venuewifi.com
 +cloudfront.net
 +openweathermap.org
 +stripe.com
-diff --recursive --unified --new-file --no-dereference upstream/conf/up.sh.in src/conf/up.sh.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/conf/up.sh.in src/conf/up.sh.in
 --- upstream/conf/up.sh.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/conf/up.sh.in	2025-01-06 07:47:07.000000000 +0000
++++ src/conf/up.sh.in	2025-01-09 09:43:53.000000000 +0000
 @@ -2,6 +2,7 @@
  
  TUNTAP=$(basename $DEV)
@@ -613,9 +613,9 @@ diff --recursive --unified --new-file --no-dereference upstream/conf/up.sh.in sr
 +
 +# site specific stuff optional
 +[ -e @ETCCHILLI@/ipup.sh ] && . @ETCCHILLI@/ipup.sh
-diff --recursive --unified --new-file --no-dereference upstream/configure.ac src/configure.ac
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/configure.ac src/configure.ac
 --- upstream/configure.ac	2016-12-15 17:28:43.000000000 +0000
-+++ src/configure.ac	2025-01-06 07:47:07.000000000 +0000
++++ src/configure.ac	2025-01-09 09:43:53.000000000 +0000
 @@ -154,8 +154,17 @@
     AC_DEFINE(ENABLE_CHILLIQUERY,1,[Define to enable chilli_query])
  fi
@@ -703,9 +703,9 @@ diff --recursive --unified --new-file --no-dereference upstream/configure.ac src
  		 bstring/Makefile 
  		 conf/Makefile
  		 debian/Makefile
-diff --recursive --unified --new-file --no-dereference upstream/doc/attributes src/doc/attributes
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/attributes src/doc/attributes
 --- upstream/doc/attributes	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/attributes	2025-01-06 07:47:07.000000000 +0000
++++ src/doc/attributes	2025-01-09 09:43:53.000000000 +0000
 @@ -8,7 +8,7 @@
  Service-Type      :     6 : Integer : X : - : X : - : - : Set to Login (1) for normal authentication requests.  The Access-Accept message from the radius server for configuration management messages must also be set to Administrative-User.
  Framed-IP-Address : 	8 : IPaddr  : X : X : X : - : - : IP address of the user, which is configurable during MAC authentication in the Access-Accept.
@@ -715,9 +715,9 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/attributes s
  Reply-Message     :    18 : String  : - : X : - : - : - : Reason of reject if present.
  State             :    24 : String  : X : X : - : - : - : Sent to chilli in Access-Accept or Access-Challenge. Used transparently in subsequent Access-Request.
  Class             :    25 : String  : - : X : X : - : - : Copied transparently by chilli from Access-Accept to Accounting-Request.
-diff --recursive --unified --new-file --no-dereference upstream/doc/chilli.conf.5.in src/doc/chilli.conf.5.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/chilli.conf.5.in src/doc/chilli.conf.5.in
 --- upstream/doc/chilli.conf.5.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/chilli.conf.5.in	2025-01-06 07:47:07.000000000 +0000
++++ src/doc/chilli.conf.5.in	2025-01-09 09:43:53.000000000 +0000
 @@ -889,11 +889,6 @@
  .RE
  
@@ -730,9 +730,9 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/chilli.conf.
  .BI postauthproxy " ipaddress"
  Used with
  .B postauthproxyport
-diff --recursive --unified --new-file --no-dereference upstream/doc/chilli_query.1.in src/doc/chilli_query.1.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/chilli_query.1.in src/doc/chilli_query.1.in
 --- upstream/doc/chilli_query.1.in	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/chilli_query.1.in	2025-01-06 07:47:07.000000000 +0000
++++ src/doc/chilli_query.1.in	2025-01-09 09:43:53.000000000 +0000
 @@ -115,6 +115,10 @@
  Sets the max output data limit of the session.
  
@@ -744,9 +744,9 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/chilli_query
  .BI maxbwup " <bandwidth>"
  Sets the max up bandwidth of the session.
  
-diff --recursive --unified --new-file --no-dereference upstream/doc/dictionary.coovachilli src/doc/dictionary.coovachilli
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/dictionary.coovachilli src/doc/dictionary.coovachilli
 --- upstream/doc/dictionary.coovachilli	2016-12-15 17:28:43.000000000 +0000
-+++ src/doc/dictionary.coovachilli	2025-01-06 07:47:07.000000000 +0000
++++ src/doc/dictionary.coovachilli	2025-01-09 09:43:53.000000000 +0000
 @@ -54,6 +54,7 @@
  ATTRIBUTE	CoovaChilli-Location		       25	string
  ATTRIBUTE	CoovaChilli-Old-Location		       26	string
@@ -755,9 +755,9 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/dictionary.c
  
  ATTRIBUTE	CoovaChilli-Sys-Uptime		       40	integer
  ATTRIBUTE	CoovaChilli-Sys-LoadAvg		       41	string
-diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.c src/json/linkhash.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/json/linkhash.c src/json/linkhash.c
 --- upstream/json/linkhash.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/json/linkhash.c	2025-01-06 07:47:07.000000000 +0000
++++ src/json/linkhash.c	2025-01-09 09:43:53.000000000 +0000
 @@ -52,15 +52,6 @@
  	return 0;
  }
@@ -774,9 +774,9 @@ diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.c 
  static unsigned long lh_ptr_hash(const void *k)
  {
  	/* CAW: refactored to be 64bit nice */
-diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.h src/json/linkhash.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/json/linkhash.h src/json/linkhash.h
 --- upstream/json/linkhash.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/json/linkhash.h	2025-01-06 07:47:07.000000000 +0000
++++ src/json/linkhash.h	2025-01-09 09:43:53.000000000 +0000
 @@ -294,21 +294,6 @@
  extern int lh_table_length(struct lh_table *t);
  
@@ -799,9 +799,9 @@ diff --recursive --unified --new-file --no-dereference upstream/json/linkhash.h 
   * Resizes the specified table.
   *
   * @param t Pointer to table to resize.
-diff --recursive --unified --new-file --no-dereference upstream/src/Makefile.am src/src/Makefile.am
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/Makefile.am src/src/Makefile.am
 --- upstream/src/Makefile.am	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/Makefile.am	2025-01-06 07:47:07.000000000 +0000
++++ src/src/Makefile.am	2025-01-09 09:43:53.000000000 +0000
 @@ -12,34 +12,35 @@
  tun.h ippool.h md5.h redir.h dhcp.h iphash.h \
  radius_wispr.h radius_coovachilli.h ssl.h dns.h net.h \
@@ -918,9 +918,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/Makefile.am 
  endif
  
  if WITH_NETFILTER_COOVA
-diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src/src/chilli.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/chilli.c src/src/chilli.c
 --- upstream/src/chilli.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/chilli.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/chilli.c	2025-01-09 09:43:53.000000000 +0000
 @@ -20,10 +20,13 @@
  
  #include "chilli.h"
@@ -972,7 +972,31 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #else
    clockid_t cid = CLOCK_REALTIME;
  #endif
-@@ -553,7 +561,7 @@
+@@ -547,13 +555,31 @@
+   return d;
+ }
+ 
++const char *get_mac_format() {
++  if (_options.maclower) {
++    switch (_options.macdelimiter) {
++      case MAC_DELIM_DASH: return MAC_FMT_LOWER_DASH;
++      case MAC_DELIM_COLON: return MAC_FMT_LOWER_COLON;
++      case MAC_DELIM_NONE: return MAC_FMT_LOWER_NONE;
++    }
++    return MAC_FMT_LOWER_DASH;
++  }
++
++  switch (_options.macdelimiter) {
++    case MAC_DELIM_DASH: return MAC_FMT_UPPER_DASH;
++    case MAC_DELIM_COLON: return MAC_FMT_UPPER_COLON;
++    case MAC_DELIM_NONE: return MAC_FMT_UPPER_NONE;
++  }
++  return MAC_FMT_UPPER_DASH;
++}
++
+ uint8_t* chilli_called_station(struct session_state *state) {
+ #ifdef ENABLE_LOCATION
+   if (_options.location_copy_called && state->redir.calledlen) {
      return state->redir.called;
    }
  #endif
@@ -981,7 +1005,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  }
  
  static void set_sessionid(struct app_conn_t *appconn, char full) {
-@@ -569,7 +577,7 @@
+@@ -569,7 +595,7 @@
  #ifdef ENABLE_SESSIONID
    if (full) {
      uint8_t * his = appconn->hismac;
@@ -990,7 +1014,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      snprintf(appconn->s_state.chilli_sessionid,
  		  sizeof(appconn->s_state.chilli_sessionid),
  		  "SES-"
-@@ -738,17 +746,17 @@
+@@ -738,17 +764,17 @@
        break;
  
      case VAL_ULONG:
@@ -1011,7 +1035,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        v = s;
        break;
  
-@@ -772,10 +780,47 @@
+@@ -772,10 +798,47 @@
    }
  }
  
@@ -1060,7 +1084,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
    if ((status = chilli_fork(CHILLI_PROC_SCRIPT, script)) < 0) {
      syslog(LOG_ERR, "%s: forking %s", strerror(errno), script);
-@@ -790,6 +835,11 @@
+@@ -790,6 +853,11 @@
    if (_options.layer3)
      set_env("LAYER3", VAL_STRING, "1", 0);
  #endif
@@ -1072,7 +1096,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    set_env("DEV", VAL_STRING, tun(tun, 0).devname, 0);
    set_env("NET", VAL_IN_ADDR, &appconn->net, 0);
    set_env("MASK", VAL_IN_ADDR, &appconn->mask, 0);
-@@ -812,12 +862,13 @@
+@@ -812,12 +880,13 @@
    set_env("ACCT_INTERIM_INTERVAL", VAL_USHORT, &appconn->s_params.interim_interval, 0);
    set_env("WISPR_LOCATION_ID", VAL_STRING, _options.radiuslocationid, 0);
    set_env("WISPR_LOCATION_NAME", VAL_STRING, _options.radiuslocationname, 0);
@@ -1088,7 +1112,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    set_env("INPUT_OCTETS", VAL_ULONG64, &appconn->s_state.input_octets, 0);
    set_env("OUTPUT_OCTETS", VAL_ULONG64, &appconn->s_state.output_octets, 0);
    set_env("INPUT_PACKETS", VAL_ULONG64, &appconn->s_state.input_packets, 0);
-@@ -826,6 +877,18 @@
+@@ -826,6 +895,18 @@
    set_env("SESSION_TIME", VAL_ULONG, &sessiontime, 0);
    sessiontime = mainclock_diffu(appconn->s_state.last_up_time);
    set_env("IDLE_TIME", VAL_ULONG, &sessiontime, 0);
@@ -1107,7 +1131,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
    if (loc) {
      set_env("LOCATION", VAL_STRING, loc, 0);
-@@ -1037,6 +1100,7 @@
+@@ -1037,6 +1118,7 @@
  
  static int dnprot_terminate(struct app_conn_t *appconn) {
    appconn->s_state.authenticated = 0;
@@ -1115,7 +1139,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #ifdef ENABLE_SESSIONSTATE
    appconn->s_state.session_state = 0;
  #endif
-@@ -1085,7 +1149,25 @@
+@@ -1085,7 +1167,25 @@
    return 0;
  }
  
@@ -1129,19 +1153,19 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
 +
 +	char sms_text[256] = { 0 };
 +	float left	   = (used > limit) ? 0 : (float)(limit - used) / 1000000.f;
-+
+ 
 +	sprintf(sms_text, WARNING_FMT, direction, left, "MB");
 +	syslog(LOG_INFO, "%s(%d): Sending SMS: %s\n", __FUNCTION__, __LINE__, sms_text);
 +
 +	chilli_send_sms_async(phone, sms_text, _options.modemid);
- 
++
 +	return 0;
 +}
 +#endif
  
  /* Check for:
   * - Session-Timeout
-@@ -1104,12 +1186,50 @@
+@@ -1104,12 +1204,50 @@
    interimtime = mainclock_diffu(conn->s_state.interim_time);
  
    if (conn->s_state.authenticated == 1) {
@@ -1192,7 +1216,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        terminate_appconn(conn, RADIUS_TERMINATE_CAUSE_SESSION_TIMEOUT);
      }
      else if ((conn->s_params.sessionterminatetime) &&
-@@ -1118,6 +1238,8 @@
+@@ -1118,6 +1256,8 @@
        conn->s_state.session_state =
            RADIUS_VALUE_COOVACHILLI_SESSION_LOGOUT_TIME_REACHED;
  #endif
@@ -1201,7 +1225,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        terminate_appconn(conn, RADIUS_TERMINATE_CAUSE_SESSION_TIMEOUT);
      }
      else if ((conn->s_params.idletimeout) &&
-@@ -1126,6 +1248,8 @@
+@@ -1126,6 +1266,8 @@
        conn->s_state.session_state =
            RADIUS_VALUE_COOVACHILLI_SESSION_IDLE_TIMEOUT_REACHED;
  #endif
@@ -1210,7 +1234,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        terminate_appconn(conn, RADIUS_TERMINATE_CAUSE_IDLE_TIMEOUT);
      }
      else if ((conn->s_params.maxinputoctets) &&
-@@ -1134,6 +1258,8 @@
+@@ -1134,6 +1276,8 @@
        conn->s_state.session_state =
            RADIUS_VALUE_COOVACHILLI_SESSION_IN_DATALIMIT_REACHED;
  #endif
@@ -1219,7 +1243,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        terminate_appconn(conn, RADIUS_TERMINATE_CAUSE_SESSION_TIMEOUT);
      }
      else if ((conn->s_params.maxoutputoctets) &&
-@@ -1142,6 +1268,8 @@
+@@ -1142,6 +1286,8 @@
        conn->s_state.session_state =
            RADIUS_VALUE_COOVACHILLI_SESSION_OUT_DATALIMIT_REACHED;
  #endif
@@ -1228,7 +1252,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        terminate_appconn(conn, RADIUS_TERMINATE_CAUSE_SESSION_TIMEOUT);
      }
      else if ((conn->s_params.maxtotaloctets) &&
-@@ -1151,6 +1279,8 @@
+@@ -1151,6 +1297,8 @@
        conn->s_state.session_state =
            RADIUS_VALUE_COOVACHILLI_SESSION_TOTAL_DATALIMIT_REACHED;
  #endif
@@ -1237,7 +1261,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        terminate_appconn(conn, RADIUS_TERMINATE_CAUSE_SESSION_TIMEOUT);
      }
      else if ((conn->s_params.interim_interval) &&
-@@ -1172,7 +1302,57 @@
+@@ -1172,7 +1320,57 @@
  
        acct_req(ACCT_USER, conn, RADIUS_STATUS_TYPE_INTERIM_UPDATE);
      }
@@ -1295,7 +1319,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #ifdef ENABLE_GARDENACCOUNTING
    interimtime = mainclock_diffu(conn->s_state.garden_interim_time);
    if (_options.uamgardendata &&
-@@ -1206,6 +1386,11 @@
+@@ -1206,6 +1404,11 @@
      session_interval(&admin_session);
    }
  
@@ -1307,7 +1331,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    for (conn = firstusedconn; conn; conn=conn->next) {
      if (conn->inuse != 0) {
        if (
-@@ -1216,6 +1401,10 @@
+@@ -1216,6 +1419,10 @@
  	syslog(LOG_WARNING, "No downlink protocol");
  	continue;
        }
@@ -1318,7 +1342,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        session_interval(conn);
      }
    }
-@@ -1229,6 +1418,10 @@
+@@ -1229,6 +1436,10 @@
      }
    }
  
@@ -1329,7 +1353,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return 0;
  }
  
-@@ -1296,6 +1489,9 @@
+@@ -1296,6 +1507,9 @@
  		     struct session_state *state) {
    char *sessionid = state->sessionid;
    char mac[MACSTRLEN+1];
@@ -1339,7 +1363,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
    switch(pack->code) {
      case RADIUS_CODE_ACCESS_REQUEST:
-@@ -1422,6 +1618,11 @@
+@@ -1422,6 +1636,11 @@
    if (hisip && hisip->s_addr) {
      radius_addattr(radius, pack, RADIUS_ATTR_FRAMED_IP_ADDRESS, 0, 0,
  		   ntohl(hisip->s_addr), NULL, 0);
@@ -1351,7 +1375,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    }
  
    radius_addattr(radius, pack, RADIUS_ATTR_NAS_PORT_TYPE, 0, 0,
-@@ -1470,6 +1671,19 @@
+@@ -1470,6 +1689,19 @@
    }
  #endif
  
@@ -1371,7 +1395,16 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    /* Include NAS-Identifier if given in configuration options */
    if (_options.radiusnasid) {
      radius_addattr(radius, pack, RADIUS_ATTR_NAS_IDENTIFIER, 0, 0, 0,
-@@ -1796,6 +2010,7 @@
+@@ -1562,7 +1794,7 @@
+   }
+ 
+   /* Include his MAC address */
+-  snprintf(mac, sizeof(mac), MAC_FMT, MAC_ARG(dhcpconn->hismac));
++  snprintf(mac, sizeof(mac), get_mac_format(), MAC_ARG(dhcpconn->hismac));
+ 
+   if (!username) {
+ 
+@@ -1796,6 +2028,7 @@
        switch(type) {
  #ifdef ENABLE_GARDENACCOUNTING
          case ACCT_GARDEN:
@@ -1379,7 +1412,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
            snprintf(conn->s_state.garden_sessionid,
                          sizeof(conn->s_state.garden_sessionid),
                          "UAM-%s-%.8x%.8x", inet_ntoa(conn->hisip),
-@@ -1813,6 +2028,9 @@
+@@ -1813,6 +2046,9 @@
            conn->s_state.output_packets = 0;
            conn->s_state.input_octets = 0;
            conn->s_state.output_octets = 0;
@@ -1389,7 +1422,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
            break;
        }
        break;
-@@ -1838,7 +2056,7 @@
+@@ -1838,7 +2074,7 @@
    /*
     *  Return if there is no RADIUS accounting for this session.
     */
@@ -1398,7 +1431,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      return 0;
  
    /*
-@@ -2324,6 +2542,8 @@
+@@ -2324,6 +2560,8 @@
    if (!(appconn->s_params.flags & REQUIRE_UAM_AUTH)) {
      /* This is the one and only place state is switched to authenticated */
      appconn->s_state.authenticated = 1;
@@ -1407,7 +1440,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
  #ifdef ENABLE_SESSIONSTATE
      appconn->s_state.session_state =
-@@ -2352,12 +2572,15 @@
+@@ -2352,12 +2590,15 @@
  
      /* if (!(appconn->s_params.flags & IS_UAM_REAUTH))*/
      acct_req(ACCT_USER, appconn, RADIUS_STATUS_TYPE_START);
@@ -1427,7 +1460,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      }
    }
  
-@@ -2481,7 +2704,7 @@
+@@ -2481,7 +2722,7 @@
  	length += hdrlen;
  
  	copy_mac6(ethh->dst, dstmac);
@@ -1436,7 +1469,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  	ethh->prot = htons(PKT_ETH_PROTO_IP);
  
  	dhcp_send(dhcp, -1, dstmac, packet, length);
-@@ -2958,7 +3181,7 @@
+@@ -2958,7 +3199,7 @@
  
        if (_options.locationupdate) {
  	runscript(appconn, _options.locationupdate,
@@ -1445,7 +1478,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        }
  
        if (_options.location_stop_start) {
-@@ -3050,6 +3273,7 @@
+@@ -3050,6 +3291,7 @@
      appconn->s_state.input_octets = 0;
      appconn->s_state.output_packets = 0;
      appconn->s_state.output_octets = 0;
@@ -1453,7 +1486,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
      acct_req(ACCT_USER, appconn, RADIUS_STATUS_TYPE_START);
    }
-@@ -3853,7 +4077,7 @@
+@@ -3853,7 +4095,7 @@
  
    if (_options.macdown) {
      syslog(LOG_DEBUG, "%s(%d): Calling MAC down script: %s", __FUNCTION__, __LINE__, _options.macdown);
@@ -1462,7 +1495,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    }
  
    if (!dhcpconn || !dhcpconn->is_reserved) {
-@@ -3926,7 +4150,6 @@
+@@ -3926,7 +4168,6 @@
  }
  
  void session_param_defaults(struct session_params *params) {
@@ -1470,7 +1503,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    if (_options.defsessiontimeout && !params->sessiontimeout)
      params->sessiontimeout = _options.defsessiontimeout;
  
-@@ -3941,6 +4164,52 @@
+@@ -3941,6 +4182,52 @@
  
    if (_options.definteriminterval && !params->interim_interval)
      params->interim_interval = _options.definteriminterval;
@@ -1523,7 +1556,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  }
  
  void
-@@ -4044,6 +4313,14 @@
+@@ -4044,6 +4331,14 @@
    else if (!reconfig)
      params->maxtotaloctets = 0;
  
@@ -1538,7 +1571,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
    /* Max input gigawords */
    if (!radius_getattr(pack, &attr, RADIUS_ATTR_VENDOR_SPECIFIC,
-@@ -4961,6 +5238,70 @@
+@@ -4961,6 +5256,70 @@
  }
  #endif
  
@@ -1609,7 +1642,16 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  /***********************************************************
   *
   * dhcp callback functions
-@@ -5063,7 +5404,11 @@
+@@ -5038,7 +5397,7 @@
+ 	if (_options.macallowlocal) {
+ 	  char mac[MACSTRLEN+1];
+ 
+-	  snprintf(mac, sizeof(mac), MAC_FMT, MAC_ARG(conn->hismac));
++	  snprintf(mac, sizeof(mac), get_mac_format(), MAC_ARG(conn->hismac));
+ 
+ 	  strlcpy(appconn->s_state.redir.username, mac, USERNAMESIZE);
+ 
+@@ -5063,7 +5422,11 @@
  	  /*
  	   *  Otherwise, authenticate with RADIUS.
  	   */
@@ -1622,7 +1664,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
  	  allocate = !_options.strictmacauth;
  	  domacauth = 0;
-@@ -5077,7 +5422,11 @@
+@@ -5077,7 +5440,11 @@
  	 */
  	appconn->dnprot = DNPROT_MAC;
  
@@ -1635,7 +1677,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
  	allocate = !_options.strictmacauth;
  	domacauth = 0;
-@@ -5085,8 +5434,11 @@
+@@ -5085,8 +5452,11 @@
      }
    }
  
@@ -1647,7 +1689,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      if (!allocate)
        return -1;
  
-@@ -5151,17 +5503,27 @@
+@@ -5151,17 +5521,27 @@
  		   &_options.dns1, &_options.dns2);
    }
  
@@ -1679,7 +1721,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    }
  
    /* If IP was requested before authentication it was UAM */
-@@ -5171,6 +5533,8 @@
+@@ -5171,6 +5551,8 @@
    if (_options.dhcpnotidle)
      appconn->s_state.last_up_time = mainclock.tv_sec;
  
@@ -1688,7 +1730,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return 0;
  }
  
-@@ -5229,12 +5593,6 @@
+@@ -5229,12 +5611,6 @@
  
    conn->authstate = DHCP_AUTH_NONE; /* TODO: Not yet authenticated */
  
@@ -1701,7 +1743,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return 0;
  }
  
-@@ -5279,20 +5637,23 @@
+@@ -5279,20 +5655,23 @@
  }
  #endif
  
@@ -1736,7 +1778,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
  int chilli_getinfo(struct app_conn_t *appconn, bstring b, int fmt) {
    uint32_t sessiontime = 0;
-@@ -5374,6 +5735,11 @@
+@@ -5374,6 +5753,11 @@
                        appconn->s_params.maxtotaloctets, _options.swapoctets);
          bconcat(b, tmp);
  
@@ -1748,7 +1790,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #ifdef ENABLE_LEAKYBUCKET
          /* adding: max-bandwidth-up max-bandwidth-down */
          if (appconn->s_state.bucketupsize) {
-@@ -5553,10 +5919,12 @@
+@@ -5553,10 +5937,12 @@
        appconn->s_params.maxinputoctets =
        appconn->s_params.maxoutputoctets =
        appconn->s_params.maxtotaloctets =
@@ -1761,7 +1803,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  }
  
  int terminate_appconn(struct app_conn_t *appconn, int terminate_cause) {
-@@ -5580,11 +5948,15 @@
+@@ -5580,11 +5966,15 @@
        }
      }
  #endif
@@ -1778,7 +1820,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      }
  
      acct_req(ACCT_USER, appconn, RADIUS_STATUS_TYPE_STOP);
-@@ -5622,6 +5994,8 @@
+@@ -5622,6 +6012,8 @@
  
    appconn = (struct app_conn_t*) conn->peer;
  
@@ -1787,7 +1829,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
    return session_disconnect(appconn, conn, term_cause);
  }
  
-@@ -6143,9 +6517,12 @@
+@@ -6143,9 +6535,12 @@
          appconn->s_state.session_state =
              RADIUS_VALUE_COOVACHILLI_SESSION_USER_LOGOUT_URL;
  #endif
@@ -1800,7 +1842,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        }
  
        appconn->uamabort = 0;
-@@ -6191,57 +6568,75 @@
+@@ -6191,57 +6586,75 @@
    return 0;
  }
  
@@ -1916,7 +1958,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  int chilli_cmd(struct cmdsock_request *req, bstring s, int sock) {
  
  #ifdef HAVE_NETFILTER_COOVA
-@@ -6482,6 +6877,14 @@
+@@ -6482,6 +6895,14 @@
              bconcat(s, tmp);
            }
  
@@ -1931,7 +1973,44 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #ifdef ENABLE_GARDENACCOUNTING
            if (_options.uamgardendata) {
              bassignformat(tmp,
-@@ -7070,6 +7473,17 @@
+@@ -6944,12 +7365,35 @@
+ 
+           switch(req->type) {
+             case CMDSOCK_LOGIN:
+-              auth_radius(appconn, uname, req->d.sess.password, 0, 0);
++              if (_options.localusers) {
++                if (authenticator_chilli(appconn, (uint8_t *) req->d.sess.password) == ACCESS_ACCEPTED) {
++                  session_param_defaults(&appconn->s_params);
++                  dnprot_accept(appconn);
++                } else if (_options.registerusers) {
++                  if (dynamic_user_authenticator_chilli(appconn, (uint8_t *) req->d.sess.password) == ACCESS_ACCEPTED) {
++                    dnprot_accept(appconn);
++                  }
++                }
++              } else if (_options.smsusers) {
++                if (sms_user_authenticator_chilli(appconn, (uint8_t *) req->d.sess.password) == ACCESS_ACCEPTED) {
++                  session_param_defaults(&appconn->s_params);
++                  dnprot_accept(appconn);
++                }
++              } else if (_options.macusers) {
++                if (mac_user_authenticator_chilli(appconn, (uint8_t *)req->d.sess.password) == ACCESS_ACCEPTED) {
++                  dnprot_accept(appconn);
++                }
++              } else {
++                auth_radius(appconn, uname, req->d.sess.password, 0, 0);
++              }
+               break;
+             case CMDSOCK_AUTHORIZE:
+               dnprot_accept(appconn);
+               break;
+             case CMDSOCK_UPDATE:
++              if (_options.conrestart) {
++                runscript(appconn, _options.conrestart, 0, 0, NULL);
++              }
+               break;
+           }
+         }
+@@ -7070,6 +7514,17 @@
  }
  #endif
  
@@ -1949,7 +2028,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  #if XXX_IO_DAEMON
  int chilli_io(int fd_ctrl_r, int fd_ctrl_w, int fd_pkt_r, int fd_pkt_w) {
    int maxfd = 0;
-@@ -7190,7 +7604,11 @@
+@@ -7190,7 +7645,11 @@
      if (conn->is_reserved && conn->peer) {
        appconn = (struct app_conn_t *)conn->peer;
        if (!appconn->s_state.authenticated) {
@@ -1962,7 +2041,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
        }
      }
      conn = conn->next;
-@@ -7216,6 +7634,12 @@
+@@ -7216,6 +7675,12 @@
  }
  #endif
  
@@ -1975,7 +2054,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  int chilli_main(int argc, char **argv) {
    select_ctx sctx;
    int status;
-@@ -7398,6 +7822,8 @@
+@@ -7398,6 +7863,8 @@
      ssdp.s_addr = inet_addr(SSDP_MCAST_ADDR);
  #endif
  
@@ -1984,7 +2063,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      syslog(LOG_INFO, "CoovaChilli %s. "
             "Copyright 2002-2005 Mondru AB. Licensed under GPL. "
             "Copyright 2006-2012 David Bird (Coova Technologies). "
-@@ -7438,8 +7864,13 @@
+@@ -7438,8 +7905,13 @@
  
      tun_set_cb_ind(tun, cb_tun_ind);
  
@@ -1999,7 +2078,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
      /* Allocate ippool for dynamic IP address allocation */
      if (ippool_new(&ippool,
-@@ -7467,6 +7898,11 @@
+@@ -7467,6 +7939,11 @@
        exit(1);
      }
  
@@ -2011,7 +2090,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
      dhcp_set_cb_request(dhcp, cb_dhcp_request);
      dhcp_set_cb_connect(dhcp, cb_dhcp_connect);
      dhcp_set_cb_disconnect(dhcp, cb_dhcp_disconnect);
-@@ -7547,6 +7983,14 @@
+@@ -7547,6 +8024,14 @@
        return -1;
      }
  #endif
@@ -2026,7 +2105,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
      if (_options.radsec) {
  #ifdef ENABLE_CHILLIRADSEC
-@@ -7714,10 +8158,25 @@
+@@ -7714,10 +8199,25 @@
  #ifdef ENABLE_CHILLIQUERY
      net_select_reg(&sctx, cmdsock, SELECT_READ,
                     (select_callback)cmdsock_accept, 0, cmdsock);
@@ -2053,18 +2132,17 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
        if (reload_config) {
  
-@@ -7821,6 +8280,10 @@
+@@ -7856,6 +8356,9 @@
+     if (ippool)
+       ippool_free(ippool);
  
-     syslog(LOG_INFO, "CoovaChilli shutting down");
- 
-+    if (g_ubus_event_ctx) {
++    if (g_ubus_event_ctx)
 +      ubus_free(g_ubus_event_ctx);
-+    }
 +
-     if (_options.seskeepalive) {
- #ifdef ENABLE_BINSTATFILE
-       if (printstatus() != 0)
-@@ -7863,6 +8326,10 @@
+     /*
+      *  Terminate not-so-nicely
+      */
+@@ -7863,6 +8366,10 @@
  #ifdef ENABLE_CHILLIQUERY
      cmdsock_shutdown();
  #endif
@@ -2075,9 +2153,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.c src
  
  #ifdef ENABLE_CHILLIREDIR
      if (redir_pid > 0) {
-diff --recursive --unified --new-file --no-dereference upstream/src/chilli.h src/src/chilli.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/chilli.h src/src/chilli.h
 --- upstream/src/chilli.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/chilli.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/chilli.h	2025-01-09 09:43:53.000000000 +0000
 @@ -35,11 +35,31 @@
  #include "net.h"
  #include "md5.h"
@@ -2195,9 +2273,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli.h src
  
  /* utils.c */
  int statedir_file(char *dst, int dlen, char *file, char *deffile);
-diff --recursive --unified --new-file --no-dereference upstream/src/chilli_limits.h src/src/chilli_limits.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/chilli_limits.h src/src/chilli_limits.h
 --- upstream/src/chilli_limits.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/chilli_limits.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/chilli_limits.h	2025-01-09 09:43:53.000000000 +0000
 @@ -112,20 +112,18 @@
  #endif
  
@@ -2221,9 +2299,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/chilli_limit
  #define MAX_REGEX_PASS_THROUGHS            8 /* Max number of allowed UAM pass-throughs */
  #define MAX_UAM_DOMAINS                   32 /* Max number of allowed UAM domains */
  #define MACOK_MAX                         16
-diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo src/src/cmdline.ggo
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cmdline.ggo src/src/cmdline.ggo
 --- upstream/src/cmdline.ggo	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/cmdline.ggo	2025-01-06 07:47:07.000000000 +0000
++++ src/src/cmdline.ggo	2025-01-09 09:43:53.000000000 +0000
 @@ -30,7 +30,7 @@
  option  "gid"         - "GID to run as, after being started as root" int default="0" no
  
@@ -2233,7 +2311,15 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
  option "dhcpstart"   - "Network DHCP Starting IP"      int default="0" no
  option "dhcpend"     - "Network DHCP Ending IP"        int default="0" no
  option "dhcpbroadcast" - "Always broadcast DHCP responses" flag off
-@@ -99,6 +99,7 @@
+@@ -46,6 +46,7 @@
+ option "ipdown"      - "Script to run after link-down" string no
+ option "conup"       - "Script to run after user logon"  string no
+ option "condown"     - "Script to run after user logoff" string no
++option "conrestart"  - "Script to run when changed session info" string no
+ option "macup"       - "Script to run after initial DHCP"  string no
+ option "macdown"     - "Script to run after DHCP release" string no
+ option "vlanupdate"  - "Script to run after 802.1Q/VLAN id assignment" string no
+@@ -99,6 +100,7 @@
  option "coaport"            - "Radius disconnect port to listen to" int default="0" no
  option "coanoipcheck"       - "Allow radius disconnect from any IP" flag   off
  option "noradallow"         - "Allow all sessions when RADIUS is not available" flag   off
@@ -2241,7 +2327,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
  
  
  # Radius proxy parameters
-@@ -166,6 +167,36 @@
+@@ -166,6 +168,36 @@
  option "defbandwidthmaxdown" - "Default WISPr-Bandwidth-Max-Down if not returned by RADIUS" long default="0" no
  option "defbandwidthmaxup" - "Default WISPr-Bandwidth-Max-Up if not returned by RADIUS" long default="0" no
  option "definteriminterval" - "Default interim-interval for accounting if not returned by RADIUS" int default="300" no
@@ -2278,7 +2364,16 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
  
  option "bwbucketupsize" - "Define the up-bound 'leaky bucket' size" int default="0" no
  option "bwbucketdnsize" - "Define the down-bound 'leaky bucket' size" int default="0" no
-@@ -211,7 +242,12 @@
+@@ -178,6 +210,8 @@
+ option "macallowed"  - "List of allowed MAC addresses" string no multiple
+ option "macsuffix"   - "Suffix to add to the MAC address" string no
+ option "macpasswd"   - "Password used when performing MAC authentication" string no
++option "maclower"     - "MAC address in lower case" flag   off
++option "macdelimiter"  - "MAC address delimiter" int default="0" no
+ option "macallowlocal" - "Do not use RADIUS for authenticating the macallowed" flag off
+ option "strictmacauth" - "Be strict about MAC Auth (no DHCP reply until we get RADIUS reply)" flag off
+ option "strictdhcp"    - "Be strict about only allocating dyn-pool from DHCP" flag off
+@@ -211,7 +245,12 @@
  option "swapoctets"    - "Swap the meaning of input/output octets/packets" flag   off
  option "usestatusfile" - "Use the status file to keep track of sessions" string no
  option "statusfilesave" - "Aggressively save the status of sessions to status file" flag off
@@ -2292,7 +2387,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
  option "postauthproxy" - "IP of an upstream transparent proxy" string no
  option "postauthproxyport" - "Port of an upstream transparent proxy" int default="0" no
  option "postauthproxyssl" - "Send SSL to upstream transparent proxy" flag off
-@@ -267,6 +303,7 @@
+@@ -267,6 +306,7 @@
  
  option "ipwhitelist" - "Binary IP White List file" string no
  option "uamdomainfile" - "Load uamdomains (regex) from file" string no
@@ -2300,7 +2395,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
  
  option "layer3" - "Layer3 only" flag off
  option "ipsrcallowed"  - "List of allowed source IP addresses, for Layer3" string no multiple
-@@ -295,3 +332,34 @@
+@@ -295,3 +335,34 @@
  option "ipv6mode" - "IPv6 mode is either 6and4 (default), 4to6, or 6to4" string no
  option "ipv6only" - "Enable IPv6-Only" flag off
  
@@ -2335,9 +2430,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.ggo 
 +
 +option "testtime"    - "Disables CLOCK_MONOTONIC and use CLOCK_REALTIME instead" flag   off
 +
-diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.mini.c src/src/cmdline.mini.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cmdline.mini.c src/src/cmdline.mini.c
 --- upstream/src/cmdline.mini.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/cmdline.mini.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/cmdline.mini.c	2025-01-09 09:43:53.000000000 +0000
 @@ -57,7 +57,7 @@
  		       void *d, char is_cmdline) {
    struct opt_def_t * opt = &opts[o];
@@ -2416,9 +2511,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdline.mini
    return result;
  }
  
-diff --recursive --unified --new-file --no-dereference upstream/src/cmdsock.c src/src/cmdsock.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cmdsock.c src/src/cmdsock.c
 --- upstream/src/cmdsock.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/cmdsock.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/cmdsock.c	2025-01-09 09:43:53.000000000 +0000
 @@ -47,7 +47,7 @@
  	cmdsock = -1;
        } else {
@@ -2428,9 +2523,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/cmdsock.c sr
  	    syslog(LOG_ERR, "%d could not chown() %s",
                     errno, _options.cmdsocket);
  	  }
-diff --recursive --unified --new-file --no-dereference upstream/src/database.c src/src/database.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/database.c src/src/database.c
 --- upstream/src/database.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/database.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/database.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,326 @@
 +#include <inttypes.h>
 +#include "chilli.h"
@@ -2758,9 +2853,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/database.c s
 +
 +    return ret;
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/database.h src/src/database.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/database.h src/src/database.h
 --- upstream/src/database.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/database.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/database.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,43 @@
 +//
 +// Created by darius on 19.5.23.
@@ -2805,9 +2900,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/database.h s
 +int dbcheck_session(struct redir_conn_t *conn);
 +
 +#endif //RUTX_DATABASE_H
-diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.c src/src/dhcp.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/dhcp.c src/src/dhcp.c
 --- upstream/src/dhcp.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/dhcp.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/dhcp.c	2025-01-09 09:43:53.000000000 +0000
 @@ -50,7 +50,7 @@
      struct chilli_peer *p;
      chilli_peers = (struct chilli_peer *)calloc(8, sizeof(struct chilli_peer));
@@ -3156,9 +3251,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.c src/s
  
      p_dot1x = pkt_dot1xhdr(p);
      p_eap = pkt_eappkt(p);
-diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.h src/src/dhcp.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/dhcp.h src/src/dhcp.h
 --- upstream/src/dhcp.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/dhcp.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/dhcp.h	2025-01-09 09:43:53.000000000 +0000
 @@ -300,7 +300,7 @@
  int dhcp_decaps(struct dhcp_t *this, int idx);
  int dhcp_relay_decaps(struct dhcp_t *this, int idx);
@@ -3168,9 +3263,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/dhcp.h src/s
  
  #if defined (__FreeBSD__) || defined (__APPLE__) || defined (__OpenBSD__) || defined (__NetBSD__)
  int dhcp_receive(struct dhcp_t *this, int idx);
-diff --recursive --unified --new-file --no-dereference upstream/src/dns.c src/src/dns.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/dns.c src/src/dns.c
 --- upstream/src/dns.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/dns.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/dns.c	2025-01-09 09:43:53.000000000 +0000
 @@ -136,7 +136,11 @@
  	     int isReq, int *qmatch, int *modified, int mode) {
  
@@ -3219,9 +3314,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/dns.c src/sr
    }
  
    if (antidnstunnel && !required) {
-diff --recursive --unified --new-file --no-dereference upstream/src/garden.c src/src/garden.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/garden.c src/src/garden.c
 --- upstream/src/garden.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/garden.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/garden.c	2025-01-09 09:43:53.000000000 +0000
 @@ -478,7 +478,7 @@
    if (p3 == NULL)
       return 0;
@@ -3273,9 +3368,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/garden.c src
  }
  
  #endif
-diff --recursive --unified --new-file --no-dereference upstream/src/gsm.c src/src/gsm.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/gsm.c src/src/gsm.c
 --- upstream/src/gsm.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/gsm.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/gsm.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,61 @@
 +
 +#ifdef HAVE_SYSLOG_H
@@ -3338,9 +3433,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/gsm.c src/sr
 +
 +	exit(0);
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/gsm.h src/src/gsm.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/gsm.h src/src/gsm.h
 --- upstream/src/gsm.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/gsm.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/gsm.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,20 @@
 +
 +#ifndef RUTX_GSM_H
@@ -3362,9 +3457,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/gsm.h src/sr
 +
 +#endif //RUTX_GSM_H
 +
-diff --recursive --unified --new-file --no-dereference upstream/src/linux/libxt_coova.c src/src/linux/libxt_coova.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/linux/libxt_coova.c src/src/linux/libxt_coova.c
 --- upstream/src/linux/libxt_coova.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/linux/libxt_coova.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/linux/libxt_coova.c	2025-01-09 09:43:53.000000000 +0000
 @@ -126,7 +126,7 @@
  	.extra_opts    = coova_opts,
  };
@@ -3374,9 +3469,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/linux/libxt_
  {
  	xtables_register_match(&coova_mt_reg);
  	xtables_register_match(&coova_mt6_reg);
-diff --recursive --unified --new-file --no-dereference upstream/src/linux/xt_coova.c src/src/linux/xt_coova.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/linux/xt_coova.c src/src/linux/xt_coova.c
 --- upstream/src/linux/xt_coova.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/linux/xt_coova.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/linux/xt_coova.c	2025-01-09 09:43:53.000000000 +0000
 @@ -91,8 +91,12 @@
  
  #ifdef CONFIG_PROC_FS
@@ -3491,9 +3586,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/linux/xt_coo
  #endif /* CONFIG_PROC_FS */
  
  static struct xt_match coova_mt_reg[] __read_mostly = {
-diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c src/src/main-opt.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main-opt.c src/src/main-opt.c
 --- upstream/src/main-opt.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-opt.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main-opt.c	2025-01-09 09:43:53.000000000 +0000
 @@ -24,6 +24,10 @@
  #include "system.h"
  #include "chilli.h"
@@ -3528,7 +3623,16 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
  #ifdef EX_OPT_FEATURES
  #include EX_OPT_FEATURES
  #endif
-@@ -435,6 +448,37 @@
+@@ -415,6 +428,8 @@
+   _options.swapoctets = args_info.swapoctets_flag;
+   _options.chillixml = args_info.chillixml_flag;
+   _options.macauth = args_info.macauth_flag;
++  _options.macdelimiter = args_info.macdelimiter_arg;
++  _options.maclower = args_info.maclower_flag;
+   _options.macreauth = args_info.macreauth_flag;
+   _options.macauthdeny = args_info.macauthdeny_flag;
+   _options.uamport = args_info.uamport_arg;
+@@ -435,6 +450,37 @@
    _options.defbandwidthmaxdown = args_info.defbandwidthmaxdown_arg;
    _options.defbandwidthmaxup = args_info.defbandwidthmaxup_arg;
    _options.defidletimeout = args_info.defidletimeout_arg;
@@ -3566,7 +3670,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
    _options.radiusnasporttype = args_info.radiusnasporttype_arg;
    _options.radiusauthport = args_info.radiusauthport_arg;
    _options.radiusacctport = args_info.radiusacctport_arg;
-@@ -469,6 +513,7 @@
+@@ -469,6 +515,7 @@
    _options.dhcp_broadcast = args_info.dhcpbroadcast_flag;
    _options.dhcpgwport = args_info.dhcpgatewayport_arg;
    _options.noc2c = args_info.noc2c_flag;
@@ -3574,7 +3678,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
    _options.tcpwin = args_info.tcpwin_arg;
    _options.tcpmss = args_info.tcpmss_arg;
    _options.max_clients = args_info.maxclients_arg;
-@@ -477,10 +522,14 @@
+@@ -477,10 +524,14 @@
    _options.uamdomain_ttl = args_info.uamdomainttl_arg;
    _options.seskeepalive = args_info.seskeepalive_flag;
    _options.uamallowpost = args_info.uamallowpost_flag;
@@ -3589,7 +3693,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
  #if(_debug_ && !defined(ENABLE_CHILLIREDIR))
    if (_options.redir)
      syslog(LOG_ERR, "chilli_redir not implemented. build with --enable-chilliredir");
-@@ -718,6 +767,12 @@
+@@ -718,6 +769,12 @@
    syslog(LOG_DEBUG, "DHCP Listen: %s", inet_ntoa(_options.dhcplisten));
    syslog(LOG_DEBUG, "UAM Listen: %s", inet_ntoa(_options.uamlisten));
  
@@ -3602,7 +3706,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
    if (args_info.rfc7710uri_given) {
      /*
       * When given, but set to an empty string, the feature is disabled.
-@@ -757,40 +812,49 @@
+@@ -757,40 +814,49 @@
  	goto end_processing;
      }
  
@@ -3680,7 +3784,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
      }
    }
  
-@@ -1205,7 +1269,7 @@
+@@ -1205,7 +1271,7 @@
  
      syslog(LOG_DEBUG, "Macallowed #%d: %s", numargs, args_info.macallowed_arg[numargs]);
  
@@ -3689,7 +3793,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
      p1 = p3;
      if ((p2 = strchr(p1, ','))) {
        *p2 = '\0';
-@@ -1317,7 +1381,7 @@
+@@ -1317,7 +1383,7 @@
  	char s[256];
  
  	if (sscanf(args_info.extadmvsa_arg[numargs],
@@ -3698,7 +3802,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
  	  char *idx = strchr(s, ':');
  	  _options.extadmvsa[numargs].attr_vsa = i[0];
  	  _options.extadmvsa[numargs].attr = i[1];
-@@ -1329,7 +1393,7 @@
+@@ -1329,7 +1395,7 @@
                      idx + 1, sizeof(_options.extadmvsa[numargs].data));
  	  }
  	} else if (sscanf(args_info.extadmvsa_arg[numargs],
@@ -3707,7 +3811,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
  	  char *idx = strchr(s, ':');
  	  _options.extadmvsa[numargs].attr = i[0];
  	  if (idx) *idx = 0;
-@@ -1358,7 +1422,14 @@
+@@ -1358,7 +1424,14 @@
    _options.wwwdir = STRDUP(args_info.wwwdir_arg);
    _options.wwwbin = STRDUP(args_info.wwwbin_arg);
    _options.uamui = STRDUP(args_info.uamui_arg);
@@ -3723,7 +3827,15 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
    _options.uamurl = STRDUP(args_info.uamserver_arg);
    _options.uamaaaurl = STRDUP(args_info.uamaaaurl_arg);
    _options.uamhomepage = STRDUP(args_info.uamhomepage_arg);
-@@ -1409,6 +1480,43 @@
+@@ -1391,6 +1464,7 @@
+   _options.ipdown = STRDUP(args_info.ipdown_arg);
+   _options.conup = STRDUP(args_info.conup_arg);
+   _options.condown = STRDUP(args_info.condown_arg);
++  _options.conrestart = STRDUP(args_info.conrestart_arg);
+   _options.macup = STRDUP(args_info.macup_arg);
+   _options.macdown = STRDUP(args_info.macdown_arg);
+   _options.pidfile = STRDUP(args_info.pidfile_arg);
+@@ -1409,6 +1483,43 @@
    _options.locationupdate = STRDUP(args_info.locationupdate_arg);
  #endif
    _options.nochallenge = args_info.nochallenge_flag;
@@ -3767,9 +3879,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-opt.c s
  #ifdef EX_OPT_MAIN
  #include EX_OPT_MAIN
  #endif
-diff --recursive --unified --new-file --no-dereference upstream/src/main-proxy.c src/src/main-proxy.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main-proxy.c src/src/main-proxy.c
 --- upstream/src/main-proxy.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-proxy.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main-proxy.c	2025-01-09 09:43:53.000000000 +0000
 @@ -325,7 +325,7 @@
  	    switch(attrs[i].t) {
                case 0: /*integer*/
@@ -3779,9 +3891,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-proxy.c
                    if (v > 0) {
                      radius_addattr(radius, &req->radius_res, attrs[i].a, attrs[i].v, attrs[i].va, v, NULL, 0);
  #if(_debug_)
-diff --recursive --unified --new-file --no-dereference upstream/src/main-query.c src/src/main-query.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main-query.c src/src/main-query.c
 --- upstream/src/main-query.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-query.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main-query.c	2025-01-09 09:43:53.000000000 +0000
 @@ -150,6 +150,11 @@
      sizeof(request.d.sess.params.maxoutputoctets),
      &request.d.sess.params.maxoutputoctets,
@@ -3851,9 +3963,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-query.c
  
              if (request.type != CMDSOCK_ROUTE_GW)
                request.type = CMDSOCK_ROUTE_SET;
-diff --recursive --unified --new-file --no-dereference upstream/src/main-redir.c src/src/main-redir.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main-redir.c src/src/main-redir.c
 --- upstream/src/main-redir.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-redir.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main-redir.c	2025-01-09 09:43:53.000000000 +0000
 @@ -396,7 +396,7 @@
  	    if (!strncasecmp(hdr, "content-length:", 15)) {
  	      char c = hdr[l];
@@ -3872,9 +3984,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-redir.c
      }
  
      if (conn_setup(&req->conn, httpreq->host, port,
-diff --recursive --unified --new-file --no-dereference upstream/src/main-response.c src/src/main-response.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main-response.c src/src/main-response.c
 --- upstream/src/main-response.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-response.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main-response.c	2025-01-09 09:43:53.000000000 +0000
 @@ -97,7 +97,7 @@
      return usage(argv[0]);
  
@@ -3884,9 +3996,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-respons
  
    /* challenge - argv 1 */
    if (strlen(argv[idx+1]) >= sizeof(buffer))
-diff --recursive --unified --new-file --no-dereference upstream/src/main-rtmon.c src/src/main-rtmon.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main-rtmon.c src/src/main-rtmon.c
 --- upstream/src/main-rtmon.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main-rtmon.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main-rtmon.c	2025-01-09 09:43:53.000000000 +0000
 @@ -70,7 +70,7 @@
      } else if (strcmp(argv[i], "-file")==0) {
        chilli_conf = argv[i+1];
@@ -3896,9 +4008,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main-rtmon.c
      }
    }
  
-diff --recursive --unified --new-file --no-dereference upstream/src/main.c src/src/main.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main.c src/src/main.c
 --- upstream/src/main.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/main.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/main.c	2025-01-09 09:43:53.000000000 +0000
 @@ -83,14 +83,14 @@
  
  #if defined(__linux__)
@@ -3916,9 +4028,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/main.c src/s
        perror("ioprio_set");
      }
    }
-diff --recursive --unified --new-file --no-dereference upstream/src/md5.h src/src/md5.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/md5.h src/src/md5.h
 --- upstream/src/md5.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/md5.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/md5.h	2025-01-09 09:43:53.000000000 +0000
 @@ -22,11 +22,22 @@
  #include "system.h"
  
@@ -3942,9 +4054,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/md5.h src/sr
  
  #elif HAVE_CYASSL
  #include <cyassl/openssl/md5.h>
-diff --recursive --unified --new-file --no-dereference upstream/src/ms_chap.c src/src/ms_chap.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ms_chap.c src/src/ms_chap.c
 --- upstream/src/ms_chap.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/ms_chap.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/ms_chap.c	2025-01-09 09:43:53.000000000 +0000
 @@ -41,6 +41,10 @@
  #include <openssl/md4.h>
  #include <openssl/md5.h>
@@ -4291,9 +4403,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ms_chap.c sr
  
    memcpy(CurrentSessionKey, Digest, LengthOfDesiredKey);
  }
-diff --recursive --unified --new-file --no-dereference upstream/src/mssl/httpsClient.c src/src/mssl/httpsClient.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/mssl/httpsClient.c src/src/mssl/httpsClient.c
 --- upstream/src/mssl/httpsClient.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/mssl/httpsClient.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/mssl/httpsClient.c	2025-01-09 09:43:53.000000000 +0000
 @@ -156,7 +156,7 @@
  	  err_exit("Out of memory");
  	break;
@@ -4303,9 +4415,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/mssl/httpsCl
  	  err_exit("Bogus port specified");
  	break;
        case 's':
-diff --recursive --unified --new-file --no-dereference upstream/src/net.c src/src/net.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/net.c src/src/net.c
 --- upstream/src/net.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/net.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/net.c	2025-01-09 09:43:53.000000000 +0000
 @@ -939,7 +939,8 @@
    if (len < 0) {
      switch (errno) {
@@ -4349,9 +4461,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/net.c src/sr
      /* Enable reception and transmission of broadcast frames */
      option = 1;
      if (net_setsockopt(netif->fd, SOL_SOCKET, SO_BROADCAST,
-diff --recursive --unified --new-file --no-dereference upstream/src/net.h src/src/net.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/net.h src/src/net.h
 --- upstream/src/net.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/net.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/net.h	2025-01-09 09:43:53.000000000 +0000
 @@ -177,6 +177,7 @@
    struct pollfd pfds[MAX_SELECT];
  #endif
@@ -4376,9 +4488,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/net.h src/sr
    select_ctx *sctx;
  
    uint8_t flags;
-diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.c src/src/oauth2.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/oauth2.c src/src/oauth2.c
 --- upstream/src/oauth2.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/oauth2.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/oauth2.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,828 @@
 +#include <inttypes.h>
 +#include "chilli.h"
@@ -5208,9 +5320,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.c src
 +	}
 +	oauth2_init_session(session);
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.h src/src/oauth2.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/oauth2.h src/src/oauth2.h
 --- upstream/src/oauth2.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/oauth2.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/oauth2.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,58 @@
 +#ifndef OAUTH2_H
 +#define OAUTH2_H
@@ -5270,9 +5382,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/oauth2.h src
 +void oauth2_clean_session(_oauth2_session *session);
 +
 +#endif //OAUTH2_H
-diff --recursive --unified --new-file --no-dereference upstream/src/options.c src/src/options.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/options.c src/src/options.c
 --- upstream/src/options.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/options.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/options.c	2025-01-09 09:43:53.000000000 +0000
 @@ -113,7 +113,8 @@
  
    chilli_binconfig(file, sizeof(file), 0);
@@ -5303,7 +5415,15 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
    return options_fromfd(fd, bt);
  }
  
-@@ -311,6 +314,12 @@
+@@ -274,6 +277,7 @@
+   if (!option_s_l(bt, &o.ipdown)) return 0;
+   if (!option_s_l(bt, &o.conup)) return 0;
+   if (!option_s_l(bt, &o.condown)) return 0;
++  if (!option_s_l(bt, &o.conrestart)) return 0;
+   if (!option_s_l(bt, &o.macup)) return 0;
+   if (!option_s_l(bt, &o.macdown)) return 0;
+ #ifdef ENABLE_IEEE8021Q
+@@ -311,6 +315,12 @@
    if (!option_s_l(bt, &o.macsuffix)) return 0;
    if (!option_s_l(bt, &o.macpasswd)) return 0;
  
@@ -5316,7 +5436,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
    if (!option_s_l(bt, &o.uamsecret)) return 0;
    if (!option_s_l(bt, &o.uamurl)) return 0;
    if (!option_s_l(bt, &o.uamaaaurl)) return 0;
-@@ -320,7 +329,6 @@
+@@ -320,7 +330,6 @@
    if (!option_s_l(bt, &o.wwwdir)) return 0;
    if (!option_s_l(bt, &o.wwwbin)) return 0;
    if (!option_s_l(bt, &o.uamui)) return 0;
@@ -5324,7 +5444,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
  #ifdef HAVE_SSL
    if (!option_s_l(bt, &o.sslkeyfile)) return 0;
    if (!option_s_l(bt, &o.sslkeypass)) return 0;
-@@ -371,6 +379,29 @@
+@@ -371,6 +380,29 @@
        return 0;
    }
  
@@ -5354,7 +5474,15 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
  #ifdef EX_OPTIONS_LOAD
  #include EX_OPTIONS_LOAD
  #endif
-@@ -511,6 +542,12 @@
+@@ -473,6 +505,7 @@
+   if (!option_s_s(bt, &o.ipdown)) return 0;
+   if (!option_s_s(bt, &o.conup)) return 0;
+   if (!option_s_s(bt, &o.condown)) return 0;
++  if (!option_s_s(bt, &o.conrestart)) return 0;
+   if (!option_s_s(bt, &o.macup)) return 0;
+   if (!option_s_s(bt, &o.macdown)) return 0;
+ #ifdef ENABLE_IEEE8021Q
+@@ -511,6 +544,12 @@
    if (!option_s_s(bt, &o.macsuffix)) return 0;
    if (!option_s_s(bt, &o.macpasswd)) return 0;
  
@@ -5367,7 +5495,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
    if (!option_s_s(bt, &o.uamsecret)) return 0;
    if (!option_s_s(bt, &o.uamurl)) return 0;
    if (!option_s_s(bt, &o.uamaaaurl)) return 0;
-@@ -520,7 +557,6 @@
+@@ -520,7 +559,6 @@
    if (!option_s_s(bt, &o.wwwdir)) return 0;
    if (!option_s_s(bt, &o.wwwbin)) return 0;
    if (!option_s_s(bt, &o.uamui)) return 0;
@@ -5375,7 +5503,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
  #ifdef HAVE_SSL
    if (!option_s_s(bt, &o.sslkeyfile)) return 0;
    if (!option_s_s(bt, &o.sslkeypass)) return 0;
-@@ -571,6 +607,28 @@
+@@ -571,6 +609,28 @@
        return 0;
    }
  
@@ -5404,7 +5532,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
  #ifdef EX_OPTIONS_SAVE
  #include EX_OPTIONS_SAVE
  #endif
-@@ -661,7 +719,8 @@
+@@ -661,7 +721,8 @@
  int reload_options(int argc, char **argv) {
    bstring bt = bfromcstr("");
    int ok = options_load(argc, argv, bt);
@@ -5414,10 +5542,18 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.c sr
    bdestroy(bt);
    return ok;
  }
-diff --recursive --unified --new-file --no-dereference upstream/src/options.h src/src/options.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/options.h src/src/options.h
 --- upstream/src/options.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/options.h	2025-01-06 07:47:07.000000000 +0000
-@@ -188,7 +188,10 @@
++++ src/src/options.h	2025-01-09 09:43:53.000000000 +0000
+@@ -63,6 +63,7 @@
+   char * ipdown;                 /* Script to run after link-down */
+   char * conup;                  /* Script to run after session/connection-up */
+   char * condown;                /* Script to run after session/connection-down */
++  char * conrestart;             /* Script to run after session info changed */
+   char * macup;
+   char * macdown;
+   int txqlen;
+@@ -188,7 +189,10 @@
    uint16_t forcedns2_port;        /* Port to force DNS to */
  #endif
  
@@ -5428,15 +5564,18 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.h sr
    uint8_t layer3;                   /* Layer3 only support */
    uint8_t allowdyn:1;               /* Allow dynamic address allocation */
    uint8_t allowstat:1;              /* Allow static address allocation */
-@@ -240,6 +243,7 @@
+@@ -240,6 +244,10 @@
    uint8_t uamauthedallowed:1;
    uint8_t postauth_proxyssl:1;
    uint8_t nochallenge:1;
 +  uint8_t successuserurl:1;         /* Do not return to the UAM server on success, original url instead */
++  uint8_t maclower:1;
++
++  uint16_t macdelimiter;
  
  #ifdef USING_MMAP
    uint8_t mmapring:1;
-@@ -338,6 +342,36 @@
+@@ -338,6 +346,36 @@
    uint64_t defbandwidthmaxup;
    uint32_t defidletimeout;
    uint16_t definteriminterval;
@@ -5473,7 +5612,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.h sr
  
    uint32_t challengetimeout;
    uint32_t challengetimeout2;
-@@ -363,7 +397,16 @@
+@@ -363,7 +401,16 @@
    char *wwwdir;
    char *wwwbin;
    char *uamui;
@@ -5491,7 +5630,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.h sr
  
    /* Admin RADIUS Authentication & Configuration */
    char *adminuser;
-@@ -388,6 +431,7 @@
+@@ -388,6 +435,7 @@
  
  #ifdef ENABLE_UAMDOMAINFILE
    char *uamdomainfile;
@@ -5499,7 +5638,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.h sr
  #endif
  
    /* Command-Socket */
-@@ -426,6 +470,37 @@
+@@ -426,6 +474,37 @@
    char *moddir;
  #endif
  
@@ -5537,9 +5676,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/options.h sr
    char * _data; /* actual data buffer for loaded options */
  };
  
-diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5crypt.c src/src/passwd_md5crypt.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/passwd_md5crypt.c src/src/passwd_md5crypt.c
 --- upstream/src/passwd_md5crypt.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_md5crypt.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/passwd_md5crypt.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,293 @@
 +#include "chilli.h"
 +#include <assert.h>
@@ -5834,9 +5973,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5cr
 +// 	free(salt);
 +// 	return NULL;
 +// }
-diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5crypt.h src/src/passwd_md5crypt.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/passwd_md5crypt.h src/src/passwd_md5crypt.h
 --- upstream/src/passwd_md5crypt.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_md5crypt.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/passwd_md5crypt.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,11 @@
 +#ifndef PASSWD_MD5CRYPT_H__
 +#define PASSWD_MD5CRYPT_H__
@@ -5849,9 +5988,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_md5cr
 +// char *extract_salt(char *hash);
 +
 +#endif /* passwd_md5crypt.h */
-diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacrypt.c src/src/passwd_shacrypt.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/passwd_shacrypt.c src/src/passwd_shacrypt.c
 --- upstream/src/passwd_shacrypt.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_shacrypt.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/passwd_shacrypt.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,406 @@
 +#include <assert.h>
 +#include <openssl/rand.h>
@@ -6259,9 +6398,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacr
 +	free(hash_id);
 +	return hash_type;
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacrypt.h src/src/passwd_shacrypt.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/passwd_shacrypt.h src/src/passwd_shacrypt.h
 --- upstream/src/passwd_shacrypt.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/passwd_shacrypt.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/passwd_shacrypt.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,18 @@
 +#ifndef PASSWD_SHA512CRYPT_H__
 +#define PASSWD_SHA512CRYPT_H__
@@ -6281,9 +6420,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/passwd_shacr
 +hash_type get_hash_type(char *hash);
 +
 +#endif /* passwd_sha512crypt.h */
-diff --recursive --unified --new-file --no-dereference upstream/src/patricia.c src/src/patricia.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/patricia.c src/src/patricia.c
 --- upstream/src/patricia.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/patricia.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/patricia.c	2025-01-09 09:43:53.000000000 +0000
 @@ -264,7 +264,7 @@
  #endif /* HAVE_IPV6 */
  
@@ -6293,9 +6432,35 @@ diff --recursive --unified --new-file --no-dereference upstream/src/patricia.c s
      /* *cp = '\0'; */
      /* copy the string to save. Avoid destroying the string */
      assert (cp - string < MAXLINE);
-diff --recursive --unified --new-file --no-dereference upstream/src/radius.c src/src/radius.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pkt.h src/src/pkt.h
+--- upstream/src/pkt.h	2016-12-15 17:28:43.000000000 +0000
++++ src/src/pkt.h	2025-01-09 09:43:53.000000000 +0000
+@@ -560,7 +560,20 @@
+ #define pkt_buffer_is_eth(pb)  ((pb)->offset == PKT_BUFFER_ETHOFF)
+ #define pkt_buffer_is_vlan(pb) ((pb)->offset == PKT_BUFFER_VLANOFF)
+ 
+-#define MAC_FMT "%.2X-%.2X-%.2X-%.2X-%.2X-%.2X"
+-#define MAC_ARG(x) (x)[0],(x)[1],(x)[2],(x)[3],(x)[4],(x)[5]
++#define MAC_DELIM_DASH	0
++#define MAC_DELIM_COLON 1
++#define MAC_DELIM_NONE	2
++
++#define MAC_FMT_UPPER_DASH  "%.2X-%.2X-%.2X-%.2X-%.2X-%.2X"
++#define MAC_FMT_UPPER_COLON "%.2X:%.2X:%.2X:%.2X:%.2X:%.2X"
++#define MAC_FMT_UPPER_NONE  "%.2X%.2X%.2X%.2X%.2X%.2X"
++
++#define MAC_FMT_LOWER_DASH  "%.2x-%.2x-%.2x-%.2x-%.2x-%.2x"
++#define MAC_FMT_LOWER_COLON "%.2x:%.2x:%.2x:%.2x:%.2x:%.2x"
++#define MAC_FMT_LOWER_NONE  "%.2x%.2x%.2x%.2x%.2x%.2x"
++
++#define MAC_FMT MAC_FMT_UPPER_DASH
++
++#define MAC_ARG(x) (x)[0], (x)[1], (x)[2], (x)[3], (x)[4], (x)[5]
+ 
+ #endif
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/radius.c src/src/radius.c
 --- upstream/src/radius.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/radius.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/radius.c	2025-01-09 09:43:53.000000000 +0000
 @@ -25,6 +25,9 @@
  
  #define deeplog 0
@@ -6368,9 +6533,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/radius.c src
  
  /*
   * radius_authcheck()
-diff --recursive --unified --new-file --no-dereference upstream/src/radius.h src/src/radius.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/radius.h src/src/radius.h
 --- upstream/src/radius.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/radius.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/radius.h	2025-01-09 09:43:53.000000000 +0000
 @@ -202,9 +202,9 @@
    struct in_addr addr0;
    struct in_addr addr1;
@@ -6407,9 +6572,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/radius.h src
    int debug;                     /* Print debug messages */
  
    int (*cb_ind)       (struct radius_t *radius, struct radius_packet_t *pack,
-diff --recursive --unified --new-file --no-dereference upstream/src/radius_coovachilli.h src/src/radius_coovachilli.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/radius_coovachilli.h src/src/radius_coovachilli.h
 --- upstream/src/radius_coovachilli.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/radius_coovachilli.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/radius_coovachilli.h	2025-01-09 09:43:53.000000000 +0000
 @@ -49,6 +49,7 @@
  #define	RADIUS_ATTR_COOVACHILLI_LOCATION                  25 /* string */
  #define	RADIUS_ATTR_COOVACHILLI_OLD_LOCATION              26 /* string */
@@ -6433,9 +6598,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/radius_coova
 +#define RADIUS_VALUE_COOVACHILLI_SESSION_USER_EXPIRED	          18
  
  #endif	/* !_RADIUS_COOVACHILLI_H */
-diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/src/redir.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/redir.c src/src/redir.c
 --- upstream/src/redir.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/redir.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/redir.c	2025-01-09 09:43:53.000000000 +0000
 @@ -18,21 +18,24 @@
   *
   */
@@ -7156,7 +7321,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +        if (redir_getparam(redir, httpreq->qs, "email", bt)) {
 +          if (_options.debug)
 +            syslog(LOG_ERR, "No email found in signup request");
-+
+ 
 +          conn->response = REDIR_SIGNUP_FAILED;
 +          bdestroy(bt);
 +          return -1;
@@ -7167,7 +7332,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +        if (redir_getparam(redir, httpreq->qs, "phone", bt)) {
 +          if (_options.debug)
 +            syslog(LOG_ERR, "No phone found in signup request");
- 
++
 +          conn->response = REDIR_SIGNUP_FAILED;
 +          bdestroy(bt);
 +          return -1;
@@ -7326,8 +7491,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 -  FILE *f;
 +void session_param_from_config(struct session_params *params, const char *group_name) {
 +  const char *tmp = NULL;
- 
--  if (!_options.localusers) return 0;
++
 +  struct uci_context *uci_ctx = uci_alloc_context();
 +  if (!uci_ctx) {
 +    syslog(LOG_ERR, "Failed to allocate uci context");
@@ -7368,7 +7532,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +
 +    tmp = uci_lookup_option_string(uci_ctx, s, "uploadbandwidth");
 +    params->bandwidthmaxup = tmp ? strtoull(tmp, NULL, 0) : 0;
-+
+ 
+-  if (!_options.localusers) return 0;
 +    tmp = uci_lookup_option_string(uci_ctx, s, "period");
 +    params->period = tmp ? strtol(tmp, NULL, 0) : 3;
 +
@@ -7485,8 +7650,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +  if (!(db = sqlopen(_options.usersdbpath))) {
 +    syslog(LOG_INFO, "%s: sqlopen() failed opening %s!", strerror(errno), _options.usersdbpath);
 +    return ACCESS_DENIED;
-   }
- 
++  }
++
 +  escape_cstr(conn->s_state.redir.username, username_escaped);
 +  if (_options.debug)
 +    syslog(LOG_INFO, "%s(%d): looking for %s", __FUNCTION__, __LINE__, conn->s_state.redir.username);
@@ -7551,8 +7716,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +      conn->s_state.redir.auth_mode = AUTH_LOCAL_USER;
 +      session_param_from_config(&conn->s_params, user.group);
 +    }
-+  }
-+
+   }
+ 
 +  if (_options.debug)
 +    syslog(LOG_DEBUG, "%s(%d): user %s %s", __FUNCTION__, __LINE__,
 +      conn->s_state.redir.username,
@@ -7590,7 +7755,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
    }/**/
  
    switch (conn->authdata.type){
-@@ -3019,86 +3648,351 @@
+@@ -3019,85 +3648,438 @@
              user_password[m] =
                  conn->authdata.v.papmsg.password[m] ^ chap_challenge[n];
        }
@@ -7660,21 +7825,12 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +
 +  if (!_options.usersdbpath)
 +    return ACCESS_DENIED;
-+
-+  if (_options.debug)
-+    syslog(LOG_INFO, "%s(%d): checking %s for user %s", __FUNCTION__, __LINE__,
-+      _options.usersdbpath, conn->s_state.redir.username);
-+
-+  if (!(db = sqlopen(_options.usersdbpath))) {
-+    syslog(LOG_INFO, "%s: sqlopen() failed opening %s!", strerror(errno), _options.usersdbpath);
-+    return ACCESS_DENIED;
-+  }
  
-+  escape_cstr(conn->s_state.redir.username, email_escaped);
    if (_options.debug)
 -    syslog(LOG_DEBUG, "%s(%d): looking for %s", __FUNCTION__, __LINE__, conn->s_state.redir.username);
 -  usernamelen = strlen(conn->s_state.redir.username);
-+    syslog(LOG_INFO, "%s(%d): looking for %s", __FUNCTION__, __LINE__, conn->s_state.redir.username);
++    syslog(LOG_INFO, "%s(%d): checking %s for user %s", __FUNCTION__, __LINE__,
++      _options.usersdbpath, conn->s_state.redir.username);
  
 -  line=(char*)malloc(sz);
 -  while ((len = getline(&line, &sz, f)) > 0) {
@@ -7682,21 +7838,30 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 -      char *pl=line,  /* pointer to current line */
 -          *pu=u,     /* pointer to username     */
 -          *pp=p;     /* pointer to password     */
-+  if (!usr_get_user(db, &user, email_escaped) &&
-+	    !strncmp(user.email, email_escaped, USER_EMAILSIZE)) {
++  if (!(db = sqlopen(_options.usersdbpath))) {
++    syslog(LOG_INFO, "%s: sqlopen() failed opening %s!", strerror(errno), _options.usersdbpath);
++    return ACCESS_DENIED;
++  }
  
 -      /* username until the first ':' */
 -      while (*pl && *pl != ':')	*pu++ = *pl++;
-+    if (conn->authdata.type == REDIR_AUTH_PAP) {
-+#ifdef HAVE_OPENSSL
-+    char *salt = extract_salt(user.password);
-+    char *plain_password = strndup((char *)user_password, sizeof(user.password));
++  escape_cstr(conn->s_state.redir.username, email_escaped);
++  if (_options.debug)
++    syslog(LOG_INFO, "%s(%d): looking for %s", __FUNCTION__, __LINE__, conn->s_state.redir.username);
  
 -      /* skip over ':' otherwise error */
 -      if (*pl == ':') pl++;
 -      else {
 -	syslog(LOG_WARNING, "not a valid localusers line: %s", line);
 -	continue;
++  if (!usr_get_user(db, &user, email_escaped) &&
++	    !strncmp(user.email, email_escaped, USER_EMAILSIZE)) {
++
++    if (conn->authdata.type == REDIR_AUTH_PAP) {
++#ifdef HAVE_OPENSSL
++    char *salt = extract_salt(user.password);
++    char *plain_password = strndup((char *)user_password, sizeof(user.password));
++
 +    if (salt) {
 +      user_password	 = (uint8_t *)hash_sha512_with_salt(plain_password, salt);
 +
@@ -7716,7 +7881,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +          // When hashing fails, make sure password check fails too
 +          user_password = (uint8_t *)strdup("");
 +        }
-       }
++      }
 +}
 +#endif
 +      if (!strncmp((char *)user_password, user.password, sizeof(user.password))) {
@@ -7730,8 +7895,10 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +        }
 +#endif
 +        match = ACCESS_ACCEPTED;
-+      }
-+
+       }
+ 
+-      /* password until the next ':' */
+-      while (*pl && *pl != ':' && *pl != '\n') *pp++ = *pl++;
 +#ifdef HAVE_OPENSSL
 +      // If salt is not NULL that means that user_password was changed to point to newly allocated memory and we need to free it.
 +      if (salt) {
@@ -7745,8 +7912,8 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +      match = auth_chap(conn, context, chap_challenge, user_password, user.password);
 +    }
  
--      /* password until the next ':' */
--      while (*pl && *pl != ':' && *pl != '\n') *pp++ = *pl++;
+-      *pu = 0; /* null terminate */
+-      *pp = 0;
 +    if (match == ACCESS_ACCEPTED) {
 +      conn->s_state.redir.user_time = user.user_time;
 +      conn->s_state.redir.auth_mode = AUTH_DYN_USER;
@@ -7755,18 +7922,16 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +    }
 +  }
  
--      *pu = 0; /* null terminate */
--      *pp = 0;
+-      if (usernamelen == strlen(u) &&
+-	  !strncmp(conn->s_state.redir.username, u, usernamelen)) {
 +  if (_options.debug)
 +    syslog(LOG_DEBUG, "%s(%d): user %s %s", __FUNCTION__, __LINE__,
 +      conn->s_state.redir.username, match ? "found" : "not found");
  
--      if (usernamelen == strlen(u) &&
--	  !strncmp(conn->s_state.redir.username, u, usernamelen)) {
-+  sqlclose(db);
- 
 -        if (_options.debug)
 -          syslog(LOG_DEBUG, "%s(%d): found %s, checking password", __FUNCTION__, __LINE__, u);
++  sqlclose(db);
++
 +  return match;
 +}
  
@@ -7988,12 +8153,99 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +
 +  oauth2_clean_session(&oauth2_session);
 +  return ACCESS_ACCEPTED;
- }
++}
 +#endif
++
++int authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password) {
++  struct redir_conn_t conn;
++  memset(&conn, 0, sizeof(conn));
++
++  struct redir_conn_t *conn_ptr = &conn;
++
++  memcpy(&conn_ptr->hismac, &appconn->hismac, sizeof(appconn->hismac));
++  memcpy(&conn_ptr->hisip, &appconn->hisip, sizeof(appconn->hisip));
++
++  memcpy(&conn_ptr->s_params, &appconn->s_params, sizeof(appconn->s_params));
++  memcpy(&conn_ptr->s_state, &appconn->s_state, sizeof(appconn->s_state));
++
++  conn_ptr->authdata.type = REDIR_AUTH_PAP;
++  
++  int ret = authenticator(NULL, conn_ptr, NULL, user_password, NULL);
++
++  memcpy(&appconn->s_params, &conn_ptr->s_params, sizeof(conn_ptr->s_params));
++  memcpy(&appconn->s_state, &conn_ptr->s_state, sizeof(conn_ptr->s_state));
++
++  return ret;
++}
++
++int dynamic_user_authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password) {
++  struct redir_conn_t conn;
++  memset(&conn, 0, sizeof(conn));
++
++  struct redir_conn_t *conn_ptr = &conn;
++
++  memcpy(&conn_ptr->hismac, &appconn->hismac, sizeof(appconn->hismac));
++  memcpy(&conn_ptr->hisip, &appconn->hisip, sizeof(appconn->hisip));
++
++  memcpy(&conn_ptr->s_params, &appconn->s_params, sizeof(appconn->s_params));
++  memcpy(&conn_ptr->s_state, &appconn->s_state, sizeof(appconn->s_state));
++
++  conn_ptr->authdata.type = REDIR_AUTH_PAP;
++  
++  int ret = dynamic_user_authenticator(NULL, conn_ptr, NULL, user_password, NULL);
++
++  memcpy(&appconn->s_params, &conn_ptr->s_params, sizeof(conn_ptr->s_params));
++  memcpy(&appconn->s_state, &conn_ptr->s_state, sizeof(conn_ptr->s_state));
++
++  return ret;
++}
++
++int sms_user_authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password) {
++  struct redir_conn_t conn;
++  memset(&conn, 0, sizeof(conn));
++
++  struct redir_conn_t *conn_ptr = &conn;
++
++  memcpy(&conn_ptr->hismac, &appconn->hismac, sizeof(appconn->hismac));
++  memcpy(&conn_ptr->hisip, &appconn->hisip, sizeof(appconn->hisip));
++
++  memcpy(&conn_ptr->s_params, &appconn->s_params, sizeof(appconn->s_params));
++  memcpy(&conn_ptr->s_state, &appconn->s_state, sizeof(appconn->s_state));
++
++  conn_ptr->authdata.type = REDIR_AUTH_PAP;
++  
++  int ret = sms_user_authenticator(NULL, conn_ptr, NULL, user_password, NULL);
++
++  memcpy(&appconn->s_params, &conn_ptr->s_params, sizeof(conn_ptr->s_params));
++  memcpy(&appconn->s_state, &conn_ptr->s_state, sizeof(conn_ptr->s_state));
++
++  return ret;
++}
++
++int mac_user_authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password) {
++  struct redir_conn_t conn;
++  memset(&conn, 0, sizeof(conn));
++
++  struct redir_conn_t *conn_ptr = &conn;
++
++  memcpy(&conn_ptr->hismac, &appconn->hismac, sizeof(appconn->hismac));
++  memcpy(&conn_ptr->hisip, &appconn->hisip, sizeof(appconn->hisip));
++
++  memcpy(&conn_ptr->s_params, &appconn->s_params, sizeof(appconn->s_params));
++  memcpy(&conn_ptr->s_state, &appconn->s_state, sizeof(appconn->s_state));
++
++  conn_ptr->authdata.type = REDIR_AUTH_PAP;
++  
++  int ret = mac_user_authenticator(NULL, conn_ptr, NULL, user_password, NULL);
++
++  memcpy(&appconn->s_params, &conn_ptr->s_params, sizeof(conn_ptr->s_params));
++  memcpy(&appconn->s_state, &conn_ptr->s_state, sizeof(conn_ptr->s_state));
++
++  return ret;
+ }
  
  /* redir_accept() does the following:
-    1) forks a child process
-@@ -3345,7 +4239,7 @@
+@@ -3345,7 +4327,7 @@
  
    /* We are forked when the redir_request is null */
    int forked = (rreq == 0);
@@ -8002,7 +8254,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
  
    memset(&httpreq,0,sizeof(httpreq));
-@@ -3397,6 +4291,7 @@
+@@ -3397,6 +4379,7 @@
    memset(hexchal, 0, sizeof(hexchal));
    memset(&conn, 0, sizeof(conn));
    memset(&msg, 0, sizeof(msg));
@@ -8010,7 +8262,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
    socket.fd[0] = infd;
    socket.fd[1] = outfd;
-@@ -3561,8 +4456,8 @@
+@@ -3561,8 +4544,8 @@
                                  || isWPAD
  #endif
                                  )) {
@@ -8021,7 +8273,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
            size_t namelen = strlen(filename);
            int parse = 0;
  
-@@ -3582,7 +4477,7 @@
+@@ -3582,7 +4565,7 @@
              } else
  #endif
              {
@@ -8030,7 +8282,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
                int cnt = 0;
                for (p=filename; *p; p++) {
                  if (*p == '.' || *p == '_'|| *p == '-' || *p == '/') {
-@@ -3889,6 +4784,18 @@
+@@ -3889,6 +4872,18 @@
  
    /* default hexchal for use in replies */
    redir_chartohex(conn.s_state.redir.uamchal, hexchal, REDIR_MD5LEN);
@@ -8049,7 +8301,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
    switch (conn.type) {
  
-@@ -3897,21 +4804,17 @@
+@@ -3897,21 +4892,17 @@
  
        /* Was client was already logged on? */
        if (state == 1) {
@@ -8074,7 +8326,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
                        &conn.hisip, httpreq.qs);
  
            return redir_main_exit(&socket, forked, rreq);
-@@ -3920,11 +4823,11 @@
+@@ -3920,11 +4911,11 @@
  
        /* Did the challenge expire? */
        if (_options.challengetimeout2 &&
@@ -8090,7 +8342,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
          redir_memcopy(REDIR_CHALLENGE);
          redir_msg_send(REDIR_MSG_OPT_REDIR);
-@@ -3936,74 +4839,204 @@
+@@ -3936,74 +4927,204 @@
          return redir_main_exit(&socket, forked, rreq);
        }
  
@@ -8193,17 +8445,17 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
 -          termstate = REDIR_TERM_RADIUS;
 +			termstate = REDIR_TERM_RADIUS;
- 
--          if (optionsdebug)
--            syslog(LOG_DEBUG, "%s(%d): redir_accept: Sending RADIUS request", __FUNCTION__, __LINE__);
++
 +			if (optionsdebug)
 +				syslog(LOG_DEBUG, "%s(%d): redir_accept: Sending RADIUS request", __FUNCTION__, __LINE__);
  
--          redir_radius(redir, &address->sin_addr, &conn, reauth);
--          termstate = REDIR_TERM_REPLY;
+-          if (optionsdebug)
+-            syslog(LOG_DEBUG, "%s(%d): redir_accept: Sending RADIUS request", __FUNCTION__, __LINE__);
 +			redir_radius(redir, &address->sin_addr, &conn, reauth);
 +			termstate = REDIR_TERM_REPLY;
-+
+ 
+-          redir_radius(redir, &address->sin_addr, &conn, reauth);
+-          termstate = REDIR_TERM_REPLY;
 +      if (conn.response != REDIR_SUCCESS) {
 +        mac_block_invoke("push_mac", &conn);
 +      }
@@ -8272,14 +8524,14 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
 +
 +        if (_options.debug)
 +          syslog(LOG_DEBUG, "%s(%d): handling Access-Reject", __FUNCTION__, __LINE__);
-+
+ 
 +        if (!hasnexturl) {
 +          if (_options.challengetimeout)
 +            redir_memcopy(REDIR_CHALLENGE);
 +        } else {
 +          msg.mtype = REDIR_NOTYET;
 +        }
- 
++
 +        redir_reply(redir, &socket, &conn, conn.response,
 +                    NULL,
 +                    0, hexchal, NULL, conn.s_state.redir.userurl, conn.reply,
@@ -8342,7 +8594,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
          conn.s_params.flags &= ~REQUIRE_UAM_SPLASH;
  
          if (reauth) {
-@@ -4015,18 +5048,28 @@
+@@ -4015,18 +5136,28 @@
          if (_options.debug)
            syslog(LOG_DEBUG, "%s(%d): handling Access-Accept", __FUNCTION__, __LINE__);
  
@@ -8373,7 +8625,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
          int hasnexturl = (strlen((char *)conn.s_params.url) > 5);
  
          if (_options.debug)
-@@ -4034,9 +5077,9 @@
+@@ -4034,9 +5165,9 @@
  
          if (!hasnexturl) {
            if (_options.challengetimeout)
@@ -8385,7 +8637,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
          }
  
          redir_reply(redir, &socket, &conn, conn.response,
-@@ -4148,6 +5191,316 @@
+@@ -4148,6 +5279,316 @@
          return redir_main_exit(&socket, forked, rreq);
        }
  
@@ -8702,7 +8954,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
      case REDIR_MSDOWNLOAD:
        snprintf(buffer, bufsize, "HTTP/1.0 403 Forbidden\r\n\r\n");
        redir_write(&socket, buffer, strlen(buffer));
-@@ -4314,11 +5667,8 @@
+@@ -4314,11 +5755,8 @@
      redir_memcopy(REDIR_CHALLENGE);
      redir_msg_send(REDIR_MSG_OPT_REDIR);
    }
@@ -8716,9 +8968,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.c src/
  
  #if(_debug_ > 1)
    if (_options.debug)
-diff --recursive --unified --new-file --no-dereference upstream/src/redir.h src/src/redir.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/redir.h src/src/redir.h
 --- upstream/src/redir.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/redir.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/redir.h	2025-01-09 09:43:53.000000000 +0000
 @@ -45,6 +45,11 @@
  #define REDIR_SPLASH          8
  #define REDIR_MACREAUTH       9
@@ -8797,9 +9049,19 @@ diff --recursive --unified --new-file --no-dereference upstream/src/redir.h src/
  
    char *url;
    char *homepage;
-diff --recursive --unified --new-file --no-dereference upstream/src/session.c src/src/session.c
+@@ -353,4 +394,9 @@
+ 
+ ssize_t redir_write(struct redir_socket_t *sock, char *buf, size_t len);
+ 
++int authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password);
++int dynamic_user_authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password);
++int sms_user_authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password);
++int mac_user_authenticator_chilli(struct app_conn_t *appconn, uint8_t *user_password);
++
+ #endif	/* !_REDIR_H */
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/session.c src/src/session.c
 --- upstream/src/session.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/session.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/session.c	2025-01-09 09:43:53.000000000 +0000
 @@ -68,16 +68,16 @@
    bcatcstr(json,"\",\"userName\":\"");
    bcatcstr(json,state->redir.username);
@@ -8833,9 +9095,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/session.c sr
  
    bdestroy(tmp);
    return 0;
-diff --recursive --unified --new-file --no-dereference upstream/src/session.h src/src/session.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/session.h src/src/session.h
 --- upstream/src/session.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/session.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/session.h	2025-01-09 09:43:53.000000000 +0000
 @@ -25,7 +25,6 @@
  #include "garden.h"
  
@@ -8957,9 +9219,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/session.h sr
 +#endif
  
  #endif
-diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.c src/src/sqlite.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/sqlite.c src/src/sqlite.c
 --- upstream/src/sqlite.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/sqlite.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/sqlite.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,73 @@
 +
 +#include "sqlite.h"
@@ -9034,9 +9296,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.c src
 +
 +    return (count == 0) ? SQL_FAIL : SQL_SUCCESS;
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.h src/src/sqlite.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/sqlite.h src/src/sqlite.h
 --- upstream/src/sqlite.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/sqlite.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/sqlite.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,19 @@
 +//
 +// Created by darius on 19.5.23.
@@ -9057,9 +9319,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/sqlite.h src
 +int sqltable_exists(sqlite3 *db, char *table_name);
 +
 +#endif //RUTX_SQLITE_H
-diff --recursive --unified --new-file --no-dereference upstream/src/ssl.c src/src/ssl.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ssl.c src/src/ssl.c
 --- upstream/src/ssl.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/ssl.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/ssl.c	2025-01-09 09:43:53.000000000 +0000
 @@ -35,11 +35,13 @@
      if (openssl_init == 0) {
        openssl_init = 1;
@@ -9118,9 +9380,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ssl.c src/sr
    if (env->engine) ENGINE_free(env->engine);
  #endif
  #endif
-diff --recursive --unified --new-file --no-dereference upstream/src/ssl.h src/src/ssl.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ssl.h src/src/ssl.h
 --- upstream/src/ssl.h	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/ssl.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/ssl.h	2025-01-09 09:43:53.000000000 +0000
 @@ -41,6 +41,7 @@
  #include <openssl/ssl.h>
  #include <openssl/pem.h>
@@ -9129,9 +9391,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ssl.h src/sr
  #elif HAVE_CYASSL
  #include <stdio.h>
  #include <stdlib.h>
-diff --recursive --unified --new-file --no-dereference upstream/src/statusfile.c src/src/statusfile.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/statusfile.c src/src/statusfile.c
 --- upstream/src/statusfile.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/statusfile.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/statusfile.c	2025-01-09 09:43:53.000000000 +0000
 @@ -324,7 +324,7 @@
    file = fopen(filedest, "w");
    if (!file) { syslog(LOG_ERR, "%s: could not open file %s", strerror(errno), filedest); return -1; }
@@ -9165,9 +9427,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/statusfile.c
  	      appconn->s_params.sessiontimeout,
  	      appconn->s_params.sessionterminatetime);
      }
-diff --recursive --unified --new-file --no-dereference upstream/src/tun.c src/src/tun.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/tun.c src/src/tun.c
 --- upstream/src/tun.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/tun.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/tun.c	2025-01-09 09:43:53.000000000 +0000
 @@ -1184,9 +1184,11 @@
  #endif
  
@@ -9183,9 +9445,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/tun.c src/sr
  #endif
  
    if (execl(
-diff --recursive --unified --new-file --no-dereference upstream/src/ubus.c src/src/ubus.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ubus.c src/src/ubus.c
 --- upstream/src/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ubus.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/ubus.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,625 @@
 +
 +#include "chilli.h"
@@ -9813,9 +10075,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ubus.c src/s
 +	return ssid;
 +}
 \ No newline at end of file
-diff --recursive --unified --new-file --no-dereference upstream/src/ubus.h src/src/ubus.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ubus.h src/src/ubus.h
 --- upstream/src/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ubus.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/ubus.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,39 @@
 +
 +#ifndef _CHILLI_UBUS_H
@@ -9856,9 +10118,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/ubus.h src/s
 +const char* find_ssid_by_ifname(const char *ifname);
 +
 +#endif //_CHILLI_UBUS_H
-diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/src/users.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/users.c src/src/users.c
 --- upstream/src/users.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/users.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/users.c	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,695 @@
 +#include "chilli.h"
 +#include <uci.h>
@@ -10555,9 +10817,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.c src/
 +	sqlclose(db);
 +	return ret;
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/src/users.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/users.h src/src/users.h
 --- upstream/src/users.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/users.h	2025-01-06 07:47:07.000000000 +0000
++++ src/src/users.h	2025-01-09 09:43:53.000000000 +0000
 @@ -0,0 +1,182 @@
 +
 +#ifndef RUTX_USERS_H
@@ -10741,9 +11003,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/users.h src/
 +int alter_tables();
 +
 +#endif //RUTX_USERS_H
-diff --recursive --unified --new-file --no-dereference upstream/src/util.c src/src/util.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/util.c src/src/util.c
 --- upstream/src/util.c	2016-12-15 17:28:43.000000000 +0000
-+++ src/src/util.c	2025-01-06 07:47:07.000000000 +0000
++++ src/src/util.c	2025-01-09 09:43:53.000000000 +0000
 @@ -117,6 +117,54 @@
    return 0;
  }

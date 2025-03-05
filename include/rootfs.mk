@@ -132,6 +132,7 @@ define prepare_rootfs
 	$(call mklibs,$(1))
 	$(if $(CONFIG_GENERATE_PROMPT_HEADER),$(call generate_banner,$(1)))
 	$(TOPDIR)/scripts/gen-board-info.sh $(TOPDIR)/.config $(1) true
+	echo "$(TLT_VERSION)" > $(1)/etc/version
 	$(call symlink_usr_share,$(1))
 	$(if $(SOURCE_DATE_EPOCH),find $(1)/ -mindepth 1 -execdir touch -hcd "@$(SOURCE_DATE_EPOCH)" "{}" +)
 endef

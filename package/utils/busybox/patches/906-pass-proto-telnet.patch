@@ -1,0 +1,13 @@
+Index: busybox-1.34.1/networking/telnetd.c
+===================================================================
+--- busybox-1.34.1.orig/networking/telnetd.c
++++ busybox-1.34.1/networking/telnetd.c
+@@ -574,6 +574,8 @@ make_new_session(
+ 	if (G.port) {
+ 		login_argv[3] = "-P";
+ 		login_argv[4] = G.port;
++		login_argv[5] = "-R";
++		login_argv[6] = "Telnet";
+ 		login_argv[5] = NULL;
+ 	}
+ #endif

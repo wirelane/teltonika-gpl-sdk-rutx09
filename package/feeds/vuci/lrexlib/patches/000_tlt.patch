@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.gitignore
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitignore src/.gitignore
 --- upstream/.gitignore	2021-12-28 20:05:16.000000000 +0000
 +++ src/.gitignore	1970-01-01 00:00:00.000000000 +0000
 @@ -1,10 +0,0 @@
@@ -12,7 +12,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.
 -release-notes
 -/*.rockspec
 -/luarocks
-diff --recursive --unified --new-file --no-dereference upstream/ChangeLog.old src/ChangeLog.old
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ChangeLog.old src/ChangeLog.old
 --- upstream/ChangeLog.old	2021-12-28 20:05:16.000000000 +0000
 +++ src/ChangeLog.old	1970-01-01 00:00:00.000000000 +0000
 @@ -1,845 +0,0 @@
@@ -861,9 +861,9 @@ diff --recursive --unified --new-file --no-dereference upstream/ChangeLog.old sr
 -	* lbitlib.c: File removed.
 -	* Makefile: Removed parts related to lbitlib.c.
 -	* make_bcc.mak: File added.
-diff --recursive --unified --new-file --no-dereference upstream/Makefile src/Makefile
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/Makefile src/Makefile
 --- upstream/Makefile	2021-12-28 20:05:16.000000000 +0000
-+++ src/Makefile	2025-02-13 06:31:03.058236715 +0000
++++ src/Makefile	2025-03-05 15:32:26.999279571 +0000
 @@ -1,54 +1,26 @@
 -# Makefile for lrexlib
 +WFLAGS=-Wall -Wextra -Wno-unused-parameter
@@ -936,7 +936,7 @@ diff --recursive --unified --new-file --no-dereference upstream/Makefile src/Mak
 -	rm -f release-notes
 +	$(RM) ./*.o
 +	$(RM) ./*.so
-diff --recursive --unified --new-file --no-dereference upstream/NEWS src/NEWS
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/NEWS src/NEWS
 --- upstream/NEWS	2021-12-28 20:05:16.000000000 +0000
 +++ src/NEWS	1970-01-01 00:00:00.000000000 +0000
 @@ -1,189 +0,0 @@
@@ -1129,7 +1129,7 @@ diff --recursive --unified --new-file --no-dereference upstream/NEWS src/NEWS
 -  * The table of substring matches contains false in the positions
 -    correspondent to non-matched subpatterns.
 -
-diff --recursive --unified --new-file --no-dereference upstream/README.rst src/README.rst
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.rst src/README.rst
 --- upstream/README.rst	2021-12-28 20:05:16.000000000 +0000
 +++ src/README.rst	1970-01-01 00:00:00.000000000 +0000
 @@ -1,56 +0,0 @@
@@ -1189,14 +1189,14 @@ diff --recursive --unified --new-file --no-dereference upstream/README.rst src/R
 -.. _Reference Manual: http://rrthomas.github.io/lrexlib/manual.html
 -.. _LuaForge Project Page: http://luaforge.net/projects/lrexlib/
 -.. _Download: https://github.com/rrthomas/lrexlib/downloads
-diff --recursive --unified --new-file --no-dereference upstream/doc/.gitignore src/doc/.gitignore
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/.gitignore src/doc/.gitignore
 --- upstream/doc/.gitignore	2021-12-28 20:05:16.000000000 +0000
 +++ src/doc/.gitignore	1970-01-01 00:00:00.000000000 +0000
 @@ -1,3 +0,0 @@
 -index.txt
 -index.html
 -manual.html
-diff --recursive --unified --new-file --no-dereference upstream/doc/SciTE.properties src/doc/SciTE.properties
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/SciTE.properties src/doc/SciTE.properties
 --- upstream/doc/SciTE.properties	2021-12-28 20:05:16.000000000 +0000
 +++ src/doc/SciTE.properties	1970-01-01 00:00:00.000000000 +0000
 @@ -1,4 +0,0 @@
@@ -1204,7 +1204,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/SciTE.proper
 -
 -command.compile.*.txt=make -B $(FileName).html
 -command.build.*.txt=make
-diff --recursive --unified --new-file --no-dereference upstream/doc/html4css1.css src/doc/html4css1.css
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/html4css1.css src/doc/html4css1.css
 --- upstream/doc/html4css1.css	2021-12-28 20:05:16.000000000 +0000
 +++ src/doc/html4css1.css	1970-01-01 00:00:00.000000000 +0000
 @@ -1,279 +0,0 @@
@@ -1487,7 +1487,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/html4css1.cs
 -
 -ul.auto-toc {
 -  list-style-type: none }
-diff --recursive --unified --new-file --no-dereference upstream/doc/license.html src/doc/license.html
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/license.html src/doc/license.html
 --- upstream/doc/license.html	2021-12-28 20:05:16.000000000 +0000
 +++ src/doc/license.html	1970-01-01 00:00:00.000000000 +0000
 @@ -1,20 +0,0 @@
@@ -1511,7 +1511,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/license.html
 -</body>
 -</html>
 -
-diff --recursive --unified --new-file --no-dereference upstream/doc/lrexlib.css src/doc/lrexlib.css
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/lrexlib.css src/doc/lrexlib.css
 --- upstream/doc/lrexlib.css	2021-12-28 20:05:16.000000000 +0000
 +++ src/doc/lrexlib.css	1970-01-01 00:00:00.000000000 +0000
 @@ -1,33 +0,0 @@
@@ -1548,7 +1548,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/lrexlib.css 
 -  margin: 0;
 -  padding: 0;
 -}
-diff --recursive --unified --new-file --no-dereference upstream/doc/manual.txt src/doc/manual.txt
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/doc/manual.txt src/doc/manual.txt
 --- upstream/doc/manual.txt	2021-12-28 20:05:16.000000000 +0000
 +++ src/doc/manual.txt	1970-01-01 00:00:00.000000000 +0000
 @@ -1,1073 +0,0 @@
@@ -2625,7 +2625,7 @@ diff --recursive --unified --new-file --no-dereference upstream/doc/manual.txt s
 -  #. Methods tfind_ and exec_: 2 values are returned on failure
 -  #. (PCRE) exec_: the returned table may additionally contain *named
 -     subpatterns*
-diff --recursive --unified --new-file --no-dereference upstream/mkrockspecs.lua src/mkrockspecs.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/mkrockspecs.lua src/mkrockspecs.lua
 --- upstream/mkrockspecs.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/mkrockspecs.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,50 +0,0 @@
@@ -2679,7 +2679,7 @@ diff --recursive --unified --new-file --no-dereference upstream/mkrockspecs.lua 
 -    os.execute ("luarocks lint " .. specfile)
 -  end
 -end
-diff --recursive --unified --new-file --no-dereference upstream/rockspecs.lua src/rockspecs.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/rockspecs.lua src/rockspecs.lua
 --- upstream/rockspecs.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/rockspecs.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,157 +0,0 @@
@@ -2840,9 +2840,9 @@ diff --recursive --unified --new-file --no-dereference upstream/rockspecs.lua sr
 -},
 -
 -} -- close wrapper table
-diff --recursive --unified --new-file --no-dereference upstream/src/algo.h src/src/algo.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/algo.h src/src/algo.h
 --- upstream/src/algo.h	2021-12-28 20:05:16.000000000 +0000
-+++ src/src/algo.h	2025-02-13 06:31:03.058236715 +0000
++++ src/src/algo.h	2025-03-05 15:32:26.999279571 +0000
 @@ -1,6 +1,7 @@
  /* algo.h */
  /* See Copyright Notice in the file LICENSE */
@@ -2858,7 +2858,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/algo.h src/s
  }
 +
 +#endif
-diff --recursive --unified --new-file --no-dereference upstream/src/gnu/lgnu.c src/src/gnu/lgnu.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/gnu/lgnu.c src/src/gnu/lgnu.c
 --- upstream/src/gnu/lgnu.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/gnu/lgnu.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,314 +0,0 @@
@@ -3176,7 +3176,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/gnu/lgnu.c s
 -  alg_register(L, r_methods, r_functions, "GNU regexes");
 -  return 1;
 -}
-diff --recursive --unified --new-file --no-dereference upstream/src/oniguruma/lonig.c src/src/oniguruma/lonig.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/oniguruma/lonig.c src/src/oniguruma/lonig.c
 --- upstream/src/oniguruma/lonig.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/oniguruma/lonig.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,378 +0,0 @@
@@ -3558,7 +3558,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/oniguruma/lo
 -  alg_register(L, r_methods, r_functions, "Oniguruma");
 -  return 1;
 -}
-diff --recursive --unified --new-file --no-dereference upstream/src/oniguruma/lonig_f.c src/src/oniguruma/lonig_f.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/oniguruma/lonig_f.c src/src/oniguruma/lonig_f.c
 --- upstream/src/oniguruma/lonig_f.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/oniguruma/lonig_f.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,540 +0,0 @@
@@ -4102,7 +4102,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/oniguruma/lo
 -  return get_flags (L, fps);
 -}
 -
-diff --recursive --unified --new-file --no-dereference upstream/src/pcre/lpcre.c src/src/pcre/lpcre.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pcre/lpcre.c src/src/pcre/lpcre.c
 --- upstream/src/pcre/lpcre.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/pcre/lpcre.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,485 +0,0 @@
@@ -4591,7 +4591,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/pcre/lpcre.c
 -
 -  return 1;
 -}
-diff --recursive --unified --new-file --no-dereference upstream/src/pcre/lpcre_f.c src/src/pcre/lpcre_f.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pcre/lpcre_f.c src/src/pcre/lpcre_f.c
 --- upstream/src/pcre/lpcre_f.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/pcre/lpcre_f.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,228 +0,0 @@
@@ -4823,9 +4823,9 @@ diff --recursive --unified --new-file --no-dereference upstream/src/pcre/lpcre_f
 -  return get_flags (L, fps);
 -}
 -
-diff --recursive --unified --new-file --no-dereference upstream/src/pcre2/lpcre2.c src/src/pcre2/lpcre2.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pcre2/lpcre2.c src/src/pcre2/lpcre2.c
 --- upstream/src/pcre2/lpcre2.c	2021-12-28 20:05:16.000000000 +0000
-+++ src/src/pcre2/lpcre2.c	2025-02-13 06:31:03.058236715 +0000
++++ src/src/pcre2/lpcre2.c	2025-03-05 15:32:26.999279571 +0000
 @@ -1,502 +1,502 @@
 -/* lpcre2.c - Lua binding of PCRE2 library */
 -/* See Copyright Notice in the file LICENSE */
@@ -5831,7 +5831,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/pcre2/lpcre2
 +
 +  return 1;
 +}
-diff --recursive --unified --new-file --no-dereference upstream/src/tre/ltre.c src/src/tre/ltre.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/tre/ltre.c src/src/tre/ltre.c
 --- upstream/src/tre/ltre.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/tre/ltre.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,351 +0,0 @@
@@ -6186,7 +6186,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/tre/ltre.c s
 -#endif
 -  return 1;
 -}
-diff --recursive --unified --new-file --no-dereference upstream/src/tre/ltre_w.c src/src/tre/ltre_w.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/tre/ltre_w.c src/src/tre/ltre_w.c
 --- upstream/src/tre/ltre_w.c	2021-12-28 20:05:16.000000000 +0000
 +++ src/src/tre/ltre_w.c	1970-01-01 00:00:00.000000000 +0000
 @@ -1,274 +0,0 @@
@@ -6464,7 +6464,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/tre/ltre_w.c
 -    else break;
 -  }
 -}
-diff --recursive --unified --new-file --no-dereference upstream/test/README src/test/README
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/README src/test/README
 --- upstream/test/README	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/README	1970-01-01 00:00:00.000000000 +0000
 @@ -1,7 +0,0 @@
@@ -6475,7 +6475,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/README src/
 --a use the external "Alien" library for "buffer subject" tests,
 -   rather than the internal function
 --v gives verbose output
-diff --recursive --unified --new-file --no-dereference upstream/test/common_sets.lua src/test/common_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/common_sets.lua src/test/common_sets.lua
 --- upstream/test/common_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/common_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,333 +0,0 @@
@@ -6812,7 +6812,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/common_sets
 -    set_f_gsub8     (lib),
 -  }
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/emacs_sets.lua src/test/emacs_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/emacs_sets.lua src/test/emacs_sets.lua
 --- upstream/test/emacs_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/emacs_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,54 +0,0 @@
@@ -6870,7 +6870,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/emacs_sets.
 -    set_f_split     (lib, flags),
 -  }
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/gnu_sets.lua src/test/gnu_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/gnu_sets.lua src/test/gnu_sets.lua
 --- upstream/test/gnu_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/gnu_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,52 +0,0 @@
@@ -6926,7 +6926,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/gnu_sets.lu
 -    set_f_gmatch    (lib),
 -  }
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/luatest.lua src/test/luatest.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/luatest.lua src/test/luatest.lua
 --- upstream/test/luatest.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/luatest.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,152 +0,0 @@
@@ -7082,7 +7082,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/luatest.lua
 -  test_method = test_method,
 -  test_set = test_set,
 -}
-diff --recursive --unified --new-file --no-dereference upstream/test/oniguruma_sets.lua src/test/oniguruma_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/oniguruma_sets.lua src/test/oniguruma_sets.lua
 --- upstream/test/oniguruma_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/oniguruma_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,177 +0,0 @@
@@ -7263,7 +7263,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/oniguruma_s
 -  end
 -  return sets
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/pat2pcre.lua src/test/pat2pcre.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/pat2pcre.lua src/test/pat2pcre.lua
 --- upstream/test/pat2pcre.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/pat2pcre.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,83 +0,0 @@
@@ -7350,7 +7350,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/pat2pcre.lu
 -end
 -
 -return pat2pcre
-diff --recursive --unified --new-file --no-dereference upstream/test/pcre_sets.lua src/test/pcre_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/pcre_sets.lua src/test/pcre_sets.lua
 --- upstream/test/pcre_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/pcre_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,195 +0,0 @@
@@ -7549,7 +7549,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/pcre_sets.l
 -  end
 -  return sets
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/pcre_sets2.lua src/test/pcre_sets2.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/pcre_sets2.lua src/test/pcre_sets2.lua
 --- upstream/test/pcre_sets2.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/pcre_sets2.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,200 +0,0 @@
@@ -7753,7 +7753,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/pcre_sets2.
 -  return sets
 -end
 -
-diff --recursive --unified --new-file --no-dereference upstream/test/posix_sets.lua src/test/posix_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/posix_sets.lua src/test/posix_sets.lua
 --- upstream/test/posix_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/posix_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,63 +0,0 @@
@@ -7820,7 +7820,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/posix_sets.
 -    set_m_tfind  (lib, flags),
 -  }
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/runtest.lua src/test/runtest.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/runtest.lua src/test/runtest.lua
 --- upstream/test/runtest.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/runtest.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,116 +0,0 @@
@@ -7940,13 +7940,13 @@ diff --recursive --unified --new-file --no-dereference upstream/test/runtest.lua
 -  end
 -  print ("Total number of failures: " .. nerr)
 -end
-diff --recursive --unified --new-file --no-dereference upstream/test/scite.properties src/test/scite.properties
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/scite.properties src/test/scite.properties
 --- upstream/test/scite.properties	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/scite.properties	1970-01-01 00:00:00.000000000 +0000
 @@ -1,2 +0,0 @@
 -eol.mode=LF
 -
-diff --recursive --unified --new-file --no-dereference upstream/test/spencer_sets.lua src/test/spencer_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/spencer_sets.lua src/test/spencer_sets.lua
 --- upstream/test/spencer_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/spencer_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,116 +0,0 @@
@@ -8066,7 +8066,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/spencer_set
 -  }
 -end
 -
-diff --recursive --unified --new-file --no-dereference upstream/test/tre_sets.lua src/test/tre_sets.lua
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/tre_sets.lua src/test/tre_sets.lua
 --- upstream/test/tre_sets.lua	2021-12-28 20:05:16.000000000 +0000
 +++ src/test/tre_sets.lua	1970-01-01 00:00:00.000000000 +0000
 @@ -1,354 +0,0 @@
@@ -8424,7 +8424,7 @@ diff --recursive --unified --new-file --no-dereference upstream/test/tre_sets.lu
 -    set_f_wgsub8     (lib),
 -  }
 -end
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/Makefile src/windows/mingw/Makefile
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/Makefile src/windows/mingw/Makefile
 --- upstream/windows/mingw/Makefile	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/Makefile	1970-01-01 00:00:00.000000000 +0000
 @@ -1,35 +0,0 @@
@@ -8463,7 +8463,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/Ma
 -	del *.o *.def *.dll
 -
 -.PHONY: all build test install clean
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/_mingw.mak src/windows/mingw/_mingw.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/_mingw.mak src/windows/mingw/_mingw.mak
 --- upstream/windows/mingw/_mingw.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/_mingw.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,81 +0,0 @@
@@ -8548,7 +8548,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/_m
 -
 -$(BININSTALL): $(BIN)
 -	copy /Y $< $@
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/docs.mak src/windows/mingw/docs.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/docs.mak src/windows/mingw/docs.mak
 --- upstream/windows/mingw/docs.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/docs.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,13 +0,0 @@
@@ -8565,7 +8565,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/do
 -
 -all clean:
 -	cd ..\..\doc && $(MAKE) $(ALLVAR) $@
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/rex_gnu.mak src/windows/mingw/rex_gnu.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/rex_gnu.mak src/windows/mingw/rex_gnu.mak
 --- upstream/windows/mingw/rex_gnu.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/rex_gnu.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,18 +0,0 @@
@@ -8587,7 +8587,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/re
 -
 -lgnu.o    : common.h algo.h
 -common.o  : common.h
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/rex_onig.mak src/windows/mingw/rex_onig.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/rex_onig.mak src/windows/mingw/rex_onig.mak
 --- upstream/windows/mingw/rex_onig.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/rex_onig.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,19 +0,0 @@
@@ -8610,7 +8610,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/re
 -lonig.o   : common.h algo.h
 -lonig_f.o : common.h
 -common.o  : common.h
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/rex_pcre.mak src/windows/mingw/rex_pcre.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/rex_pcre.mak src/windows/mingw/rex_pcre.mak
 --- upstream/windows/mingw/rex_pcre.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/rex_pcre.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,19 +0,0 @@
@@ -8633,7 +8633,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/re
 -lpcre.o   : common.h algo.h
 -lpcre_f.o : common.h
 -common.o  : common.h
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/rex_pcre2.mak src/windows/mingw/rex_pcre2.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/rex_pcre2.mak src/windows/mingw/rex_pcre2.mak
 --- upstream/windows/mingw/rex_pcre2.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/rex_pcre2.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,20 +0,0 @@
@@ -8657,7 +8657,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/re
 -lpcre2.o   : common.h algo.h
 -lpcre2_f.o : common.h
 -common.o   : common.h
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/rex_spencer.mak src/windows/mingw/rex_spencer.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/rex_spencer.mak src/windows/mingw/rex_spencer.mak
 --- upstream/windows/mingw/rex_spencer.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/rex_spencer.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,18 +0,0 @@
@@ -8679,7 +8679,7 @@ diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/re
 -
 -lposix.o  : common.h algo.h
 -common.o  : common.h
-diff --recursive --unified --new-file --no-dereference upstream/windows/mingw/rex_tre.mak src/windows/mingw/rex_tre.mak
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/windows/mingw/rex_tre.mak src/windows/mingw/rex_tre.mak
 --- upstream/windows/mingw/rex_tre.mak	2021-12-28 20:05:16.000000000 +0000
 +++ src/windows/mingw/rex_tre.mak	1970-01-01 00:00:00.000000000 +0000
 @@ -1,26 +0,0 @@

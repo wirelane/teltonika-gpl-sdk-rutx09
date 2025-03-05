@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/.builds/freebsd.yml src/.builds/freebsd.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.builds/freebsd.yml src/.builds/freebsd.yml
 --- upstream/.builds/freebsd.yml	2020-10-27 08:39:57.000000000 +0000
 +++ src/.builds/freebsd.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,16 +0,0 @@
@@ -18,7 +18,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.builds/freebsd.
 -        autoreconf -i
 -        ./configure
 -        make
-diff --recursive --unified --new-file --no-dereference upstream/.builds/ubuntu.yml src/.builds/ubuntu.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.builds/ubuntu.yml src/.builds/ubuntu.yml
 --- upstream/.builds/ubuntu.yml	2020-10-27 08:39:57.000000000 +0000
 +++ src/.builds/ubuntu.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,20 +0,0 @@
@@ -42,7 +42,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.builds/ubuntu.y
 -        autoreconf -i
 -        ./configure
 -        make
-diff --recursive --unified --new-file --no-dereference upstream/.github/FUNDING.yml src/.github/FUNDING.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.github/FUNDING.yml src/.github/FUNDING.yml
 --- upstream/.github/FUNDING.yml	2020-10-27 08:39:57.000000000 +0000
 +++ src/.github/FUNDING.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,12 +0,0 @@
@@ -58,7 +58,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.github/FUNDING.
 -issuehunt: # Replace with a single IssueHunt username
 -otechie: # Replace with a single Otechie username
 -custom: 
-diff --recursive --unified --new-file --no-dereference upstream/.github/workflows/codeql-analysis.yml src/.github/workflows/codeql-analysis.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.github/workflows/codeql-analysis.yml src/.github/workflows/codeql-analysis.yml
 --- upstream/.github/workflows/codeql-analysis.yml	2020-10-27 08:39:57.000000000 +0000
 +++ src/.github/workflows/codeql-analysis.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,64 +0,0 @@
@@ -126,7 +126,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.github/workflow
 -
 -    - name: Perform CodeQL Analysis
 -      uses: github/codeql-action/analyze@v1
-diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.gitignore
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitignore src/.gitignore
 --- upstream/.gitignore	2020-10-27 08:39:57.000000000 +0000
 +++ src/.gitignore	1970-01-01 00:00:00.000000000 +0000
 @@ -1,32 +0,0 @@
@@ -162,7 +162,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitignore src/.
 -.project
 -.settings/
 -cov-int/
-diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml src/.gitlab-ci.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
 +++ src/.gitlab-ci.yml	2024-03-07 10:35:39.000000000 +0000
 @@ -0,0 +1,20 @@
@@ -187,7 +187,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml s
 +  needs:
 +    - job: semgrep_errors
 \ No newline at end of file
-diff --recursive --unified --new-file --no-dereference upstream/.travis.yml src/.travis.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.travis.yml src/.travis.yml
 --- upstream/.travis.yml	2020-10-27 08:39:57.000000000 +0000
 +++ src/.travis.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,28 +0,0 @@
@@ -219,7 +219,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.travis.yml src/
 -env:
 -  global:
 -    secure: EQkiZmA76dy+HEDY+x76DGDs65Pr33Dgt+k4G5p75vIFVSZoN2s4s/6gvaofRYrqbiC7XqxmeOIx7BXXo2OJVbKRAMVU5iBux4IYDZ++Oe8a4p06qeRXytbLIS20YwmeqhkgEik5o25lL2gH1V5gdlPWwnFcx8h1/ExuD5ow/jubfNrrahekzPcRBZjZk9JDOBDtt8eDF2PQsuyH3VFMyqPjdt5qJPKVcZ29QL9eAWuF/5ctZ0zPvY3Jd+jBSXhRjwoPK8L6PRFkjT3gG8ucUBm+tX0hxB1IUkWvnH8WpgvFT4cMgquqAG5Fq98BigZVGnvo31fVbe/6g/PZzUJdXe3/zfVAfj1spdIGJnIQDcpdLrQiAywkQlZ/n6GSVuh6lHMj8B9YeEg2qyFZ6moCoYsOpmN5sz6e1xFmw4oDT8x5c5XmK1+VJQ3EKLiJbM06/9hYCELtMDvlmWsoq3qa3Y6218Gnult+u+iwHtPEl320h07KDC0rO/jC7dniN9cZ1paFKYV3YjaB/bbacHMjEUo802oxcu2Btqa8ciX4jbkOAn2FbtDcfzzjrv39mEshqALkb0acY6EWVDpLxUWcZbXJ/yISdael6ZTmYcXpV8Ec5kYSwFsSmRh3xSdhPz4pkGnz4csU4dBhJaTnj1uVJlH2/3JdoAYjtMtzZPypMZM=
-diff --recursive --unified --new-file --no-dereference upstream/SECURITY.md src/SECURITY.md
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/SECURITY.md src/SECURITY.md
 --- upstream/SECURITY.md	1970-01-01 00:00:00.000000000 +0000
 +++ src/SECURITY.md	2024-03-07 10:35:39.000000000 +0000
 @@ -0,0 +1,12 @@
@@ -235,7 +235,7 @@ diff --recursive --unified --new-file --no-dereference upstream/SECURITY.md src/
 +or [pull request](https://github.com/kravietz/pam_tacplus/pulls) with fixes.
 +
 +For high severity issues please [contact Paweł Krawczyk](https://krvtz.net/pages/contact.html), numerous secure means of communication are supported.
-diff --recursive --unified --new-file --no-dereference upstream/configure.ac src/configure.ac
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/configure.ac src/configure.ac
 --- upstream/configure.ac	2020-10-27 08:39:57.000000000 +0000
 +++ src/configure.ac	2024-03-07 10:35:39.000000000 +0000
 @@ -37,7 +37,7 @@
@@ -247,7 +247,7 @@ diff --recursive --unified --new-file --no-dereference upstream/configure.ac src
  AC_CHECK_LIB(crypto, RAND_pseudo_bytes,
              [AC_DEFINE([HAVE_RAND_PSEUDO_BYTES], [1], [Define to 1 if you have the `RAND_pseudo_bytes' function.])])
  AC_CHECK_LIB(crypto, RAND_bytes,
-diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/authen_s.c src/libtac/lib/authen_s.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/libtac/lib/authen_s.c src/libtac/lib/authen_s.c
 --- upstream/libtac/lib/authen_s.c	2020-10-27 08:39:57.000000000 +0000
 +++ src/libtac/lib/authen_s.c	2024-03-07 10:35:39.000000000 +0000
 @@ -27,6 +27,8 @@
@@ -300,7 +300,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/authe
  
  		digest_chap(digest, id, pass, pass_len, chal, chal_len);
  
-diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/cont_s.c src/libtac/lib/cont_s.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/libtac/lib/cont_s.c src/libtac/lib/cont_s.c
 --- upstream/libtac/lib/cont_s.c	2020-10-27 08:39:57.000000000 +0000
 +++ src/libtac/lib/cont_s.c	2024-03-07 10:35:39.000000000 +0000
 @@ -20,6 +20,8 @@
@@ -312,7 +312,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/cont_
  # include <openssl/md5.h>
  #else
  # include "md5.h"
-diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/crypt.c src/libtac/lib/crypt.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/libtac/lib/crypt.c src/libtac/lib/crypt.c
 --- upstream/libtac/lib/crypt.c	2020-10-27 08:39:57.000000000 +0000
 +++ src/libtac/lib/crypt.c	2024-03-07 10:35:39.000000000 +0000
 @@ -27,6 +27,8 @@
@@ -375,7 +375,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/crypt
  
              /* At the beginning of every block (16 bytes, i.e. the size
               * of an MD5 digest), generate a new pad to XOR against.
-diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/md5.h src/libtac/lib/md5.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/libtac/lib/md5.h src/libtac/lib/md5.h
 --- upstream/libtac/lib/md5.h	2020-10-27 08:39:57.000000000 +0000
 +++ src/libtac/lib/md5.h	2024-03-07 10:35:39.000000000 +0000
 @@ -46,7 +46,5 @@
@@ -386,7 +386,7 @@ diff --recursive --unified --new-file --no-dereference upstream/libtac/lib/md5.h
 -
  #define __MD5_INCLUDE__
  #endif /* __MD5_INCLUDE__ */
-diff --recursive --unified --new-file --no-dereference upstream/pam_tacplus.c src/pam_tacplus.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pam_tacplus.c src/pam_tacplus.c
 --- upstream/pam_tacplus.c	2020-10-27 08:39:57.000000000 +0000
 +++ src/pam_tacplus.c	2024-03-07 10:35:39.000000000 +0000
 @@ -56,6 +56,7 @@
@@ -397,7 +397,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pam_tacplus.c sr
  
  /* copy a server's information into active_server */
  static void set_active_server (const tacplus_server_t *tac_svr)
-diff --recursive --unified --new-file --no-dereference upstream/support.c src/support.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/support.c src/support.c
 --- upstream/support.c	2020-10-27 08:39:57.000000000 +0000
 +++ src/support.c	2024-03-07 10:35:39.000000000 +0000
 @@ -300,7 +300,7 @@
@@ -422,7 +422,7 @@ diff --recursive --unified --new-file --no-dereference upstream/support.c src/su
              if (tac_timeout == LONG_MAX) {
                  _pam_log(LOG_ERR, "timeout parameter cannot be parsed as integer: %s", *argv);
                  tac_timeout = 0;
-diff --recursive --unified --new-file --no-dereference upstream/tacc.c src/tacc.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/tacc.c src/tacc.c
 --- upstream/tacc.c	2020-10-27 08:39:57.000000000 +0000
 +++ src/tacc.c	2024-03-07 10:35:39.000000000 +0000
 @@ -11,7 +11,6 @@

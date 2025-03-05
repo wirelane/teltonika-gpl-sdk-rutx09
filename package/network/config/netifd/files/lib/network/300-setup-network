@@ -384,6 +384,8 @@ apply_switch_options() {
 
 create_network_conf() {
         touch /etc/config/network
+	chmod 666 /etc/config/network
+	chown network:network /etc/config/network
 }
 
 conf_file_register_hook create_network_conf /etc/config/network

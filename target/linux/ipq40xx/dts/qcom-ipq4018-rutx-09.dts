@@ -198,4 +198,19 @@
 	sim_cfg {
 		default = "2111000_2112000";
 	};
+
+	sim_cfg@1 {
+		tlt-mnf,hwver = <1200 9999>;
+		reg = <&config 0x120 0x20>;
+		type = "simcfg";
+		default = "2112110_2111010_2122210";
+	};
+
+	simpin3 {
+		tlt-mnf,hwver = <1200 9999>;
+		reg = <&config_rw 0x20 0x8>;
+		type = "digit";
+		default = "";
+	};
 };
+

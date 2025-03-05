@@ -132,7 +132,6 @@ ports_info_cb() {
 	[ "$3" == "reset" ] || compare_md_states "$disabled $speed $duplex $autoneg $advert" "$section" "$f_path" || return 1
 
 	/sbin/swconfig dev switch0 port "$port_num" set disable "$disabled"
-	/sbin/swconfig dev switch0 set apply
 
 	[ "$disabled" = "1" ] && return 1
 
@@ -142,7 +141,7 @@ ports_info_cb() {
 	# Set values as is if not present in config
 	[ "$speed" == "speed " ] && speed="speed $(/sbin/swconfig dev switch0 port "$port_num" get speed)"
 	[ "$duplex" == "duplex " ] && duplex="duplex $(/sbin/swconfig dev switch0 port "$port_num" get duplex)"
-	[ "$autoneg" == "autoneg " ] && autoneg="autoneg $(/sbin/swconfig dev switch0 port "$port_num" get autoneg)"
+	[ "$autoneg" == "autoneg " ] && autoneg="autoneg $(/sbin/swconfig dev switch0 port "$port_num" get aneg)"
 
 	/sbin/swconfig dev "switch0" port "$port_num" set link "$speed $duplex $autoneg"
 	[ "$autoneg" = "autoneg on" ] && [ -n "$advert" ] && /sbin/swconfig dev "switch0" port "$port_num" set advert "$advert"

@@ -445,6 +445,8 @@ detect_mac80211() {
 
 		[ "$mode_band" = "5g"  ] && {
 			chanlist="set wireless.radio${devidx}.channels='36-165'"
+		} || {
+			chanlist="set wireless.radio${devidx}.channels='1-13'"
 		}
 
 		[ -z "$cust_mac" ] && cust_mac=${router_mac_end}

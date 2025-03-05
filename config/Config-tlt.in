@@ -75,7 +75,6 @@ config EVENTS_SUBSYSTEM
 	maintainer "Apps/Apps1"
 	depends on !AP_DEVICE
 	default y
-	imply PACKAGE_events_reporting
 	imply PACKAGE_vuci-app-events-reporting-ui
 	imply BUSYBOX_CONFIG_PASSWD
 	help
@@ -89,8 +88,6 @@ config REBOOT_UTILS
 	bool "Auto Reboot"
 	maintainer "Apps/Apps1"
 	default y
-	imply PACKAGE_periodic_reboot
-	imply PACKAGE_ping_reboot
 	imply PACKAGE_vuci-app-auto-reboot-ui
 	help
 		Periodic device reboot and automatic reboot on failed ping/wget requests
@@ -154,6 +151,7 @@ config POE_SUPPORT
 	bool
 	maintainer "Embedded/BBU"
 	imply PACKAGE_poeman
+	imply PACKAGE_gpiod-tools
 	help
 		Power over ethernet control service
 
@@ -170,6 +168,17 @@ config PAM_SUPPORT
 		Enables authorization for SSH and WebUI access using RADIUS or TACACS+ server
 	detail
 		Features: Authorization service priority, external users support, required/requisite/sufficient/optional types
+
+
+config ENCHANCED_SECURITY_SUPPORT
+	bool "Enhanced Security"
+	label "System"
+	maintainer "Apps/Apps1"
+	default y
+	imply PACKAGE_libcap-bin
+	imply KERNEL_UBIFS_FS_SECURITY
+	imply KERNEL_JFFS2_FS_SECURITY
+	imply KERNEL_EXT4_FS_SECURITY if x86_64
 
 #
 # crypto, hardware acceleration
@@ -197,7 +206,6 @@ config CORE_NETWORK_PACKAGES
 	default y
 	maintainer "Networks/Core"
 	imply PACKAGE_ip-full
-	imply PACKAGE_iptables-mod-nflog
 	imply PACKAGE_kmod-br-netfilter if AP_DEVICE
 	imply PACKAGE_vuci-app-topology-api
 	imply PACKAGE_vuci-app-network-ui if !AP_DEVICE
@@ -226,7 +234,6 @@ config ADVANCED_NETWORK
 	imply BUSYBOX_DEFAULT_ARPING
 	imply PACKAGE_vuci-app-dhcp-ui
 	imply PACKAGE_odhcpd-ipv6only
-	imply PACKAGE_6rd
 	imply PACKAGE_vuci-app-routes-ui
 	imply PACKAGE_vuci-app-dns-ui
 	imply PACKAGE_vuci-app-vlan-ui
@@ -239,7 +246,6 @@ config FIREWALL_SUPPORT
 	depends on !AP_DEVICE
 	default y
 	imply PACKAGE_vuci-app-firewall-ui
-	imply PACKAGE_iptables-mod-nat-extra
 	imply PACKAGE_iptables-mod-conntrack-extra
 	imply PACKAGE_kmod-nf-nathelper-extra
 	imply PACKAGE_kmod-nf-nathelper
@@ -255,11 +261,28 @@ config FIREWALL_SUPPORT
 		Attack prevention: DDOS prevention, SYN flood protection, SSH attack prevention, HTTP/HTTPS attack prevention, port scan prevention (SYN-FIN, SYN-RST, X-mas, NULL flags, FIN scan attacks)
 		Conntrack helpers: FTP, PPTP, SIP, SNMP, TFTP, IRC
 
-config NFTABLES_SUPORT
+config IPTABLES_NAT_EXTRA_SUPPORT
+	tristate
+	maintainer "Networks/Core"
+	label "Network"
+	depends on !AP_DEVICE && PKG_SUPPORT
+	default m
+	imply PACKAGE_iptables-mod-nat-extra
+	help
+		iptables extensions for extra NAT targets. Adds targets: MIRROR and NETMAP
+
+config NFTABLES_SUPPORT
 	bool
 	depends on !HAS_DOWNSTREAM_KERNEL
 	default y
 	imply PACKAGE_kmod-nft-netdev
+
+config NFTABLES_NOJSON_SUPPORT
+	tristate
+	maintainer "Embedded/PoC"
+	depends on NFTABLES_SUPPORT
+	default m if SMALL_FLASH
+	default y
 	imply PACKAGE_nftables-nojson
 
 config VRF_SUPPORT
@@ -326,7 +349,7 @@ config STRONGSWAN_SUPPORT
 		Key exchange: IKEv1, IKEv2
 		Modes: Tunnel, Transport, XFRM
 		Encryption methods: 14 encryption methods (3DES, DES, AES128, AES192, AES256,
-		AES128GCM8, AES192GCM8, AES256GCM8, AES128GCM12, AES192GCM12, AES256GCM12, AES128GCM16, 
+		AES128GCM8, AES192GCM8, AES256GCM8, AES128GCM12, AES192GCM12, AES256GCM12, AES128GCM16,
 		AES192GCM16, AES256GCM16)
 		Authentication algorithms: MD5, SHA1, SHA256, SHA348, SHA512
 
@@ -357,7 +380,7 @@ config TPM_TSS
 	tristate "TPM TCG library"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !LARGE_FLASH
+	default m if !NAND_SUPPORT
 	default y
 	imply PACKAGE_tpm2-tss
 	help
@@ -368,7 +391,7 @@ config TPM_TOOLS
 	tristate "TPM tools"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !LARGE_FLASH
+	default m if !NAND_SUPPORT
 	default y
 	imply PACKAGE_tpm2-tools
 	help
@@ -382,7 +405,7 @@ config TPM_OPENSSL
 	tristate "TPM OpenSSL"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !LARGE_FLASH
+	default m if !NAND_SUPPORT
 	default y
 	imply PACKAGE_tpm2-openssl
 	help
@@ -399,7 +422,7 @@ config GRE_SUPPORT
 	imply PACKAGE_gkeepalive
 	imply PACKAGE_vuci-app-gre-ui
 	help
-		GRE is a tunneling technology that defines how to encapsulate data packets of one 
+		GRE is a tunneling technology that defines how to encapsulate data packets of one
 		network protocol with another network protocol
 	detail
 		Modes: Tunnel, GRE tunnel over IPSec
@@ -413,18 +436,18 @@ config OPENVPN_SUPPORT
 	imply PACKAGE_openvpn-openssl
 	imply PACKAGE_vuci-app-openvpn-ui
 	help
-		OpenVPN is a VPN system that implements techniques to create secure point-to-point 
+		OpenVPN is a VPN system that implements techniques to create secure point-to-point
 		or site-to-site connections
 	detail
 		Role: Client and server support
 		Type: Tunnel (TUN) or Bridged (TAP)
 		External providers: NordVPN, ExpressVPN
 		Authentication methods: Static key, TLS, password, PKCS#12
-		Encryption methods:  27 encryption methods (DES-CBC 64, RC2-CBC 128, DES-EDE-CBC 128, 
-		DES-EDE3-CBC 192, DESX-CBC 192, BF-CBC 128, RC2-40-CBC 40, CAST5-CBC 128, RC2-64-CBC 64, 
-		AES-128-CBC 128, AES-128-CFB 128, AES-128-CFB1 128, AES-128-CFB8 128, AES-128-OFB 128, 
-		AES-128-GCM 128, AES-192-CFB 192, AES-192-CFB1 192, AES-192-CFB8 192, AES-192-OFB 192, 
-		AES-192-CBC 192, AES-192-GCM 192, AES-256-GCM 256, AES-256-CFB 256, AES-256-CFB1 256, 
+		Encryption methods:  27 encryption methods (DES-CBC 64, RC2-CBC 128, DES-EDE-CBC 128,
+		DES-EDE3-CBC 192, DESX-CBC 192, BF-CBC 128, RC2-40-CBC 40, CAST5-CBC 128, RC2-64-CBC 64,
+		AES-128-CBC 128, AES-128-CFB 128, AES-128-CFB1 128, AES-128-CFB8 128, AES-128-OFB 128,
+		AES-128-GCM 128, AES-192-CFB 192, AES-192-CFB1 192, AES-192-CFB8 192, AES-192-OFB 192,
+		AES-192-CBC 192, AES-192-GCM 192, AES-256-GCM 256, AES-256-CFB 256, AES-256-CFB1 256,
 		AES-256-CFB8 256, AES-256-OFB 256, AES-256-CBC 256)
 
 config SSTP_SUPPORT
@@ -447,7 +470,7 @@ config DMVPN_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-dmvpn-ui
 	help
-		DMVPN provides the capability for creating a dynamic-mesh VPN network without having to 
+		DMVPN provides the capability for creating a dynamic-mesh VPN network without having to
 		pre-configure (static) all possible tunnel end-point peers
 	detail
 		Modes: Spoke, Hub
@@ -462,7 +485,7 @@ config DMVPN_FRR5_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-dmvpn5-ui
 	help
-		DMVPN provides the capability for creating a dynamic-mesh VPN network without having to 
+		DMVPN provides the capability for creating a dynamic-mesh VPN network without having to
 		pre-configure (static) all possible tunnel end-point peers
 	detail
 		Modes: Spoke, Hub
@@ -505,7 +528,7 @@ config L2TPv3_SUPPORT
 	maintainer "SysApp"
 	default y
 	help
-		L2TPv3 is a tunneling protocol that can be used as an alternative protocol to Multiprotocol 
+		L2TPv3 is a tunneling protocol that can be used as an alternative protocol to Multiprotocol
 		Label Switching (MPLS) for encapsulation of multiprotocol Layer 2 communications traffic over IP networks
 
 config ZEROTIER_SUPPORT
@@ -550,6 +573,26 @@ config TAILSCALE_SUPPORT
 	help
 		Tailscale is a zero config VPN for building secure networks
 
+config EOIP_SUPPORT
+	tristate "EoIP"
+	label "VPN"
+	maintainer "SysApp"
+	depends on PKG_SUPPORT
+	default m
+	imply PACKAGE_vuci-app-eoip-ui
+	help
+		Ethernet over IP (EoIP) Tunneling is a MikroTik RouterOS protocol based on GRE RFC 1701 that creates an Ethernet tunnel between two routers on top of an IP connection
+
+config OPENCONNECT_SUPPORT
+	tristate "OpenConnect"
+	label "VPN"
+	maintainer "SysApp"
+	depends on !SMALL_FLASH && PKG_SUPPORT
+	default m
+	imply PACKAGE_vuci-app-openconnect-ui
+	help
+		OpenConnect is a cross-platform multi-protocol SSL VPN client which supports a number of VPN protocols
+
 #
 # network routing
 #
@@ -565,7 +608,7 @@ config PORT_MIRRORING_SUPPORT
 	imply PACKAGE_vuci-app-port-mirroring-api if !USES_SOFT_PORT_MIRROR
 	imply PACKAGE_vuci-app-software-port-mirroring-api if USES_SOFT_PORT_MIRROR
 	help
-		Port mirroring is used on a network switch to send a copy of network packets seen on one switch 
+		Port mirroring is used on a network switch to send a copy of network packets seen on one switch
 		port to a network monitoring connection on another switch port
 
 config RELAYD_SUPPORT
@@ -679,16 +722,6 @@ config WOL_SUPPORT
 	detail
 		Modes: Broadcast, wake on boot, wake all saved devices
 
-config BRIDGE_SUPPORT
-	bool
-	maintainer "Networks/Core"
-	depends on !AP_DEVICE && !BASIC_ROUTER
-	default y
-	imply PACKAGE_bridge
-	imply PACKAGE_ebtables
-	imply PACKAGE_kmod-ebtables-ipv4
-	imply PACKAGE_kmod-ebtables-watchers
-
 config TCP_DUMP_SUPPORT
 	tristate "Tcpdump"
 	maintainer "SysApp"
@@ -741,6 +774,7 @@ config NF_LOGGING_SUPPORT
 	default m if !NAND_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-ulog-ui
+	imply PACKAGE_iptables-mod-nflog
 	help
 		Netfilter userpace logging that provides the ability to set up periodic transfers of the selected traffic log to an FTP server
 
@@ -750,6 +784,13 @@ config IPTABLES_FILTER_EXTENSION
 	depends on PKG_SUPPORT
 	default m
 	imply PACKAGE_iptables-mod-filter
+
+config SU_SUPPORT
+	bool "su"
+	default y
+	imply BUSYBOX_CONFIG_SU
+	help
+		su allows to run a command as another user
 
 config DDNS_SUPPORT
 	tristate "Dynamic DNS"
@@ -936,7 +977,7 @@ config HTTPS_DNS_PROXY_SUPPORT
 config GREENGRASS_SUPPORT
 	tristate
 	maintainer "Apps/Apps1"
-	depends on PKG_SUPPORT && arm_v7 && NAND_SUPPORT && !GATEWAY_DEVICE
+	depends on (PKG_SUPPORT && arm_v7 && NAND_SUPPORT && !GATEWAY_DEVICE) || x86_64
 	default m
 	imply BUSYBOX_CONFIG_ADDGROUP
 	imply BUSYBOX_CONFIG_FEATURE_ADDUSER_TO_GROUP
@@ -1002,8 +1043,8 @@ config MOBILE_SUPPORT
 		VoLTE: Provides control of VoLTE service*
 		SMS limit: Offers control over the number of SMS messages that can be sent within a certain period
 		USSD: Ensures sending and reading Unstructured Supplementary Service Data messages*
-		Status: IMSI, ICCID, operator, operator state, data connection state, network type, bandwidth, connected band, 
-		signal strength (RSSI), SINR, RSRP, RSRQ, EC/IO, RSCP, mobile signal graphs, data sent/received, LAC, TAC, 
+		Status: IMSI, ICCID, operator, operator state, data connection state, network type, bandwidth, connected band,
+		signal strength (RSSI), SINR, RSRP, RSRQ, EC/IO, RSCP, mobile signal graphs, data sent/received, LAC, TAC,
 		cell ID, ARFCN, UARFCN, EARFCN, MCC, and MNC*
 		Deny data on roaming: Offers mobile data prohibition when module registers on a roaming network
 		Low signal reconnect: Ensures mobile data reconnection in case of poor signal*
@@ -1067,7 +1108,14 @@ config MODEM_UPDATER_SUPPORT
 	maintainer "Networks/Mobile"
 	depends on PKG_SUPPORT && MOBILE_SUPPORT
 	default m
+	imply PACKAGE_modem_updater-offline if !x86_64
 	imply PACKAGE_modem_updater
+	imply PACKAGE_quectel_flash
+	imply PACKAGE_Meig_Firehose
+	imply PACKAGE_QDLoader
+	imply PACKAGE_fbfdownloader
+	imply PACKAGE_uxfp
+	imply PACKAGE_qdownload
 	help
 		Modem updater allows to upgrade/downgrade module firmware
 	detail
@@ -1084,7 +1132,6 @@ config MOBILE_UTILS_SUPPORT
 	imply PACKAGE_mobutils-call_utilities if !TARGET_sdxlemur
 	imply PACKAGE_vuci-app-call-utilities-ui if !TARGET_sdxlemur
 	imply PACKAGE_mobutils-sms_utilities
-	imply PACKAGE_email_to_sms
 	imply SMS_UTILS_HANDLER_IO if IO_SUPPORT
 	imply SMS_UTILS_HANDLER_WIFI if WIFI_SUPPORT
 	imply SMS_UTILS_HANDLER_GPS if GPS_SUPPORT
@@ -1102,6 +1149,15 @@ config MOBILE_UTILS_SUPPORT
 		Post/Get: Rules that perform certain actions when they are activated by a HTTP GET request
 	detail if !TARGET_sdxlemur && !TARGET_sdxnightjar
 		Call Utilities: Rules that perform certain actions when they are activated by a call
+
+config EMAIL_TO_SMS_SUPPORT
+	tristate
+	maintainer "Apps/Apps1"
+	depends on MOBILE_SUPPORT
+	default m if SMALL_FLASH && PKG_SUPPORT
+	default y
+	imply PACKAGE_vuci-app-email-to-sms-ui
+	imply PACKAGE_email_to_sms
 
 config POST_GET_IO_SUPPORT
 	tristate
@@ -1173,7 +1229,10 @@ config MODEM_LOGGER_SUPPORT
 	maintainer "Networks/Mobile"
 	depends on PKG_SUPPORT && MOBILE_SUPPORT
 	default m
+	imply PACKAGE_modem_logger-offline if !x86_64
 	imply PACKAGE_modem_logger
+	imply PACKAGE_qlog
+	imply PACKAGE_qc_trace_collector
 	help
 		Modem logger allows to gather mobile module logs
 	detail
@@ -1211,10 +1270,9 @@ config WIFI_SUPPORT
 	bool "WiFi"
 	maintainer "Networks/Core"
 	imply PACKAGE_iwinfo
-	imply PACKAGE_wireless-tools
+	imply PACKAGE_wireless-tools if USES_VENDOR_WIFI_DRIVER
 	imply PACKAGE_vuci-app-channel-analysis-ui
 	imply PACKAGE_wpad-openssl if !USES_VENDOR_WIFI_DRIVER
-	imply PACKAGE_wpa-cli if !USES_VENDOR_WIFI_DRIVER
 	imply PACKAGE_vuci-app-wireless-ui
 	imply PACKAGE_vuci-app-multi-ap-ui
 	imply PACKAGE_multiple_ap if !AP_DEVICE
@@ -1256,6 +1314,15 @@ config WIFI_SCANNER_SUPPORT
 	help
 		WiFi Scanner scans and collects information about wireless devices in surrounding area
 
+config WPA_CLI_SUPPORT
+	tristate "WPA CLI"
+	maintainer "Networks/Core"
+	depends on WIFI_SUPPORT && !USES_VENDOR_WIFI_DRIVER
+	default m if SMALL_FLASH && PKG_SUPPORT
+	default y
+	imply PACKAGE_wpa-cli
+	help
+		WPA Supplicant command line control utility
 
 config HOTSPOT_SUPPORT
 	tristate "HotSpot"
@@ -1269,15 +1336,16 @@ config HOTSPOT_SUPPORT
 	help
 		HotSpot is a wireless access point that adds management features for wireless networks
 	detail
-		Features: Captive portal (Hotspot), internal/external Radius server, SMS/SSO/MAC authorization, internal/external 
-		landing page, walled garden, user scripts, URL parameters, user groups, individual user or group 
-		limitations, user management, 9 default customizable themes and option to upload and download 
+		Features: Captive portal (Hotspot), internal/external Radius server, SMS/SSO/MAC authorization, internal/external
+		landing page, walled garden, user scripts, URL parameters, user groups, individual user or group
+		limitations, user management, 9 default customizable themes and option to upload and download
 		customised hotspot themes
 
 config DOT1X_CLIENT_SUPPORT
-	bool "802.1X Client"
+	tristate "802.1X Client"
 	maintainer "SysApp"
 	depends on HAS_DOT1X_CLIENT
+	default m if !NAND_SUPPORT && !x86_64 && !(INDUSTRIAL_AP || AP_DEVICE || DSA_SUPPORT || GATEWAY_DEVICE)
 	default y
 	imply PACKAGE_vuci-app-port-security-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-dot1x-client-tap-ui if AP_DEVICE
@@ -1291,10 +1359,10 @@ config DOT1X_CLIENT_SUPPORT
 config DOT1X_SERVER_SUPPORT
 	tristate "802.1X Server"
 	maintainer "SysApp"
-	depends on HAS_DOT1X_SERVER || x86_64
+	depends on !(INDUSTRIAL_AP || AP_DEVICE) && HAS_DOT1X_SERVER || x86_64
 	default y if HAS_SINGLE_ETH_PORT || DSA_SUPPORT || x86_64
 	default m
-	imply PACKAGE_dsa-dot1x-server 
+	imply PACKAGE_dsa-dot1x-server
 	imply PACKAGE_radius_test
 	imply PACKAGE_vuci-app-port-security-ui
 	help
@@ -1374,10 +1442,10 @@ config APP_SAMBA
 
 
 config PRINTER_SUPPORT
-	bool "Printer Server"
+	tristate "Printer Server"
 	maintainer "Apps/Apps2"
-	depends on USB_SUPPORT_EXTERNAL
-	default y
+	depends on USB_SUPPORT_EXTERNAL && PKG_SUPPORT
+	default m
 	imply PACKAGE_kmod-usb-printer
 	imply PACKAGE_p910nd
 	imply PACKAGE_vuci-app-p910nd-ui
@@ -1473,6 +1541,7 @@ config IO_SUPPORT
 	depends on HAS_IO
 	default y
 	imply PACKAGE_input_output
+	imply PACKAGE_gpiod-tools
 
 config IO_UTILS
 	bool "Input/Output"
@@ -1480,8 +1549,8 @@ config IO_UTILS
 	maintainer "Apps/Apps1"
 	depends on IO_SUPPORT
 	default y
-	imply PACKAGE_iojuggler
 	imply PACKAGE_vuci-app-io-ui
+	imply PACKAGE_io_scheduler
 	help
 		Input/Output controlling and monitoring utilities
 	detail
@@ -1495,7 +1564,6 @@ config POWER_CONTROL_SUPPORT
 	maintainer "Apps/Apps1"
 	depends on HAS_POWER_CONTROL
 	default y
-	imply PACKAGE_iojuggler
 	imply PACKAGE_vuci-app-power-control-ui
 	help
 		Power Control monitoring with device shut down configuration on low battery and ignition changes
@@ -1679,11 +1747,12 @@ config MBUS_SUPPORT
 		Modes: Client, Gateway
 		Gateway: Ability to communicate with Mbus meter via IP network
 		Maximum devices: The M-Bus interface can support up to 250 client devices and can power up to 6 client devices
-		
+
 config IMPULSE_COUNTER_SUPPORT
-	bool "IMPULSE_COUNTER"
+	tristate "Impulse Counter"
 	maintainer "Apps/Apps2"
-	depends on HAS_IO
+	depends on HAS_IO && PKG_SUPPORT
+	default m if SMALL_FLASH
 	default y
 	imply PACKAGE_vuci-app-impulse-counter-ui
 	imply PACKAGE_impulse-counter
@@ -1775,7 +1844,6 @@ config CORE_UI_PACKAGES
 	imply PACKAGE_vuci-app-setup-wizard-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-side-widget-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-services-status-ui if !AP_DEVICE
-	imply PACKAGE_vuci-advanced-mode if !AP_DEVICE && !INDUSTRIAL_AP
 	imply PACKAGE_vuci-app-uscripts-ui if !AP_DEVICE
 	imply BUSYBOX_CONFIG_PASSWD
 	imply BUSYBOX_CONFIG_CHPASSWD
@@ -1849,15 +1917,34 @@ config PORT_EVENTS_SUPPORT
 	imply PACKAGE_port_eventsd
 
 config NETWORK_MAP_SUPPORT
-	bool "Topology"
+	tristate "Topology"
 	label "Network"
 	maintainer "SysApp"
-	default y
 	depends on !AP_DEVICE
-	imply PACKAGE_networkmap
+	default m if SMALL_FLASH && PKG_SUPPORT
+	default y
 	imply PACKAGE_vuci-app-networkmap-ui
 	help
 		Displays network devices that belong to the same network
+
+config EVENT_JUGGLER_SUPPORT
+	tristate "Event juggler support"
+	default y
+	depends on !AP_DEVICE
+	select PACKAGE_event-juggler
+	select PACKAGE_vuci-app-event-juggler-ui
+	select PACKAGE_EVENT_JUGGLER_EVENT_GPS if GPS_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_EVENT_GSM if MOBILE_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_EVENT_IO if IO_SUPPORT || POWER_CONTROL_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_EVENT_QUOTA if MOBILE_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_SIM_SWITCH if DUAL_SIM_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_SMS if MOBILE_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_OUT if IO_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_WIFI if WIFI_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_MODEM if MOBILE_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_CONNECTION if MOBILE_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_CONDITION_IO if IO_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_CONDITION_GPS if GPS_SUPPORT
 
 config MULTI_LANGUAGE_SUPPORT
 	tristate "Multi Language"
@@ -1899,7 +1986,6 @@ config DATA_SENDER_SUPPORT
 	imply PACKAGE_data-sender-api-mod-mdcollect if MOBILE_SUPPORT
 	imply PACKAGE_data-sender-api-mod-bluetooth if BLUETOOTH_SUPPORT
 	imply PACKAGE_data-sender-api-mod-mbus if MBUS_SUPPORT
-	imply PACKAGE_data-sender-api-mod-impulse_counter if IMPULSE_COUNTER_SUPPORT
 	imply PACKAGE_data-sender-api-mod-http
 	imply PACKAGE_data-sender-api-mod-mqtt-in
 	imply PACKAGE_data-sender-api-mod-mqtt-out
@@ -1937,6 +2023,15 @@ config JOOL_SUPPORT
 	label "Network"
 	help
 		NAT64 is an IPv6 transition mechanism that facilitates communication between IPv6 and IPv4 hosts by using a form of network address translation
+
+config BFD_FRR_SUPPORT
+	tristate
+	maintainer "Networks/Core"
+	depends on PKG_SUPPORT && FRR_SUPPORT
+	default m
+	help
+		Protocol intended to detect faults in the bidirectional path between two forwarding engines
+	imply PACKAGE_vuci-app-bfd-ui
 
 config JSON_RPC
 	tristate "JSON-RPC"

@@ -1,13 +1,9 @@
 {
-  "services/usb_tools/p910nd": {
+  "services/sd_usb_tools/p910nd": {
     "title": "Printer Server",
     "index": 20,
     "view": "services/P910nd",
-    "acls": [
-      "services/usb_tools/p910nd"
-    ],
-    "files": [
-      "/etc/config/p910nd"
-    ]
+    "acls": ["services/sd_usb_tools/p910nd"],
+    "files": ["/etc/config/p910nd"]
   }
 }

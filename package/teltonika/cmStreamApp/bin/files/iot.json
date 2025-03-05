@@ -1,0 +1,25 @@
+{
+	"user": "iot",
+	"access": {
+		"gsm": {
+			"methods": [
+				"info"
+			]
+		},
+		"gsm.modem*": {
+			"methods": [
+				"info",
+				"get_service_provider",
+				"get_signal_query",
+				"get_net_reg_stat",
+				"get_network_info",
+				"get_iccid"
+			]
+		},
+		"file": {
+			"methods": [
+				"exec"
+			]
+		}
+	}
+}

@@ -5,6 +5,13 @@ STOP=10
 USE_PROCD=1
 
 CRONTAB_FILE=/etc/crontabs/root
+ENABLED=0
+
+check_if_enabled() {
+    local enable
+    config_get enable "$1" enable 0
+    [ "$enable" -eq 1 ] && ENABLED=1
+}
 
 clear_crontab() {
     sed -i '/sbin\/ping_reboot/d' ${CRONTAB_FILE} 2>/dev/null
@@ -12,6 +19,12 @@ clear_crontab() {
 
 start_service() {
     clear_crontab
+
+    config_load ping_reboot
+    config_foreach check_if_enabled "ping_reboot"
+
+    [ "$ENABLED" -eq 0 ] && return
+
     /etc/reboot_utils/ping_reboot_init.sh &
 }
 

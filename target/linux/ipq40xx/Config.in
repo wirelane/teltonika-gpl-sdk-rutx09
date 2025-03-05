@@ -6,5 +6,7 @@ config DEFAULT_TARGET_OPTIONS
 	default y
 	select KERNEL_MTD_UBI
 	select KERNEL_MTD_UBI_BLOCK
+	select PACKAGE_crconf
+	select PACKAGE_kmod-crypto-user
 
 endmenu

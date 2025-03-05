@@ -261,7 +261,7 @@ do_save_conffiles() {
 		[ -d /etc/profiles ] && echo "/etc/profiles"
 		[ -d /etc/certificates ] && echo "/etc/certificates"
 
-		cmp -s /etc/ssl/certs/ca-certificates.crt /rom/etc/ssl/certs/ca-certificates.crt || 
+		cmp -s /etc/ssl/certs/ca-certificates.crt /rom/etc/ssl/certs/ca-certificates.crt ||
 				echo "/etc/ssl/certs/ca-certificates.crt"
 
 		[ -e /etc/privoxy/user_action_luci ] && echo "/etc/privoxy/user_action_luci"
@@ -270,6 +270,7 @@ do_save_conffiles() {
 			find "/etc/openvpn/" -name "askpass_*"						# OpenVPN PKCS password files
 			find "/etc/openvpn/" -name "*.ovpn" | grep -v "template"	# OpenVPN configurations created from templates, excluding templates themselves
 		}
+		[ -d /etc/tailscale ] && find "/etc/tailscale/" -name "tailscaled.state"
 		[ -d /greengrass/certs ] && {
 			find /greengrass/certs/ -name "*.cert.pem"					# AWS Greengrass certificate
 			find /greengrass/certs/ -name "*.key"						# AWS Greengrass private and public keys
@@ -386,7 +387,7 @@ remove_prepare() {
 	TMP_CONFIG_PATH="/tmp/original_config"
 
 	mkdir -p "$TMP_CONFIG_PATH"
-	cp -f "${CONFIG_PATH}/${config}" "${TMP_CONFIG_PATH}/"
+	cp -af "${CONFIG_PATH}/${config}" "${TMP_CONFIG_PATH}/"
 	config_load "$config"
 }
 
@@ -498,6 +499,47 @@ restore_rms_ids() {
 	uci -c "/tmp/new_config_dir/etc/config" commit rms_mqtt
 }
 
+merge_file() {
+	file1="$1"
+	file2="$2"
+	output_file="$3"
+
+	merge_col4() {
+		echo "$1,$2" | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/^,//;s/,$//'
+	}
+
+	while IFS=: read -r col1 col2 col3 col4; do
+		file1_data="$file1_data\n$col1:$col2:$col3:$col4"
+	done <"$file1"
+
+	while IFS=: read -r col1 col2 col3 col4; do
+		file2_data="$file2_data\n$col1:$col2:$col3:$col4"
+	done <"$file2"
+
+	for line1 in $(echo -e "$file1_data"); do
+		col1=$(echo "$line1" | cut -d: -f1)
+		col2=$(echo "$line1" | cut -d: -f2)
+		col3=$(echo "$line1" | cut -d: -f3)
+		col4=$(echo "$line1" | cut -d: -f4)
+
+		line2=$(echo -e "$file2_data" | grep "^$col1:")
+		[ -z "$line2" ] && {
+			echo "$line1" >>"$output_file"
+			continue
+		}
+		col4_2=$(echo "$line2" | cut -d: -f4)
+		merged_col4=$(merge_col4 "$col4" "$col4_2")
+		echo "$col1:$col2:$col3:$merged_col4" >>"$output_file"
+		file2_data=$(echo -e "$file2_data" | grep -v "^$col1:")
+	done
+
+	for line2 in $(echo -e "$file2_data"); do
+		echo "$line2" >>"$output_file"
+	done
+
+	sed -i '/^:::/d' "$output_file"
+}
+
 apply_backup() {
 	restore_rms_ids
 	restore_sme_fstab
@@ -505,15 +547,17 @@ apply_backup() {
 	/etc/init.d/mdcollectd stop
 	/etc/init.d/simcard reload >/dev/null 2>/dev/null
 	rm -f /tmp/new_config_dir/etc/config/hwinfo /tmp/new_config_dir/etc/inittab 2>/dev/null
-	cp -rf /tmp/new_config_dir/etc/ / 2>/dev/null
-	cp -rf /tmp/new_config_dir/usr/ / 2>/dev/null
-	cp -r /rom/etc/uci-defaults/* /etc/uci-defaults/ 2>/dev/null
+	cp -af /tmp/new_config_dir/etc/ / 2>/dev/null
+	cp -af /tmp/new_config_dir/usr/ / 2>/dev/null
+	cp -a /rom/etc/uci-defaults/* /etc/uci-defaults/ 2>/dev/null
 	rm -rf /tmp/new_config_dir
 	cp /rom/etc/shadow /rom/etc/passwd /rom/etc/group /tmp/
 	missing_lines /tmp/passwd /etc/passwd >> /etc/passwd
-	missing_lines /tmp/group /etc/group >> /etc/group
+	merge_file /tmp/group /etc/group /etc/group
 	missing_lines /tmp/shadow /etc/shadow >> /etc/shadow
 	rm /tmp/passwd /tmp/shadow /tmp/group
+	sync_permissions_and_ownerships
+	fix_permissions 660 "/etc/config/network" "network:network"
 }
 
 backup_size_validation() {
@@ -543,7 +587,7 @@ clean_tmp_dir() {
 			rm -f "$file"
 		fi
 	done
-	
+
 	rm -f /tmp/sysupgrade.meta
 	rm -f /tmp/sysupgrade.ucert
 }
@@ -625,7 +669,7 @@ if [ -n "$CONF_RESTORE" ]; then
 		v "Error restoring backup"
 		exit "$ret"
 	}
-	
+
 	fwtool_check_backup /tmp/new_config_dir
 	backup_valid=$?
 	#Just validate and exit
@@ -641,7 +685,7 @@ if [ -n "$CONF_RESTORE" ]; then
 			rm -rf /tmp/new_config_dir
 			v "Backup archive is not valid."
 			echo "$backup_valid"
-			
+
 			exit $backup_valid
 		fi
 	}

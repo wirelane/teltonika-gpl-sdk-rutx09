@@ -1,4 +1,4 @@
-diff --recursive --unified --new-file --no-dereference upstream/.github/workflows/ci-deb.yml src/.github/workflows/ci-deb.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.github/workflows/ci-deb.yml src/.github/workflows/ci-deb.yml
 --- upstream/.github/workflows/ci-deb.yml	2024-07-25 15:40:53.000000000 +0000
 +++ src/.github/workflows/ci-deb.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,180 +0,0 @@
@@ -182,7 +182,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.github/workflow
 -      with:
 -        limit-access-to-actor: true
 -      if: ${{ github.ref == 'refs/heads/ci-debug' && failure() }}
-diff --recursive --unified --new-file --no-dereference upstream/.github/workflows/ci-rpm.yml src/.github/workflows/ci-rpm.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.github/workflows/ci-rpm.yml src/.github/workflows/ci-rpm.yml
 --- upstream/.github/workflows/ci-rpm.yml	2024-07-25 15:40:53.000000000 +0000
 +++ src/.github/workflows/ci-rpm.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,281 +0,0 @@
@@ -467,7 +467,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.github/workflow
 -      with:
 -        limit-access-to-actor: true
 -      if: ${{ github.ref == 'refs/heads/ci-debug' && failure() }}
-diff --recursive --unified --new-file --no-dereference upstream/.github/workflows/ci.yml src/.github/workflows/ci.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.github/workflows/ci.yml src/.github/workflows/ci.yml
 --- upstream/.github/workflows/ci.yml	2024-07-25 15:40:53.000000000 +0000
 +++ src/.github/workflows/ci.yml	1970-01-01 00:00:00.000000000 +0000
 @@ -1,223 +0,0 @@
@@ -694,7 +694,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.github/workflow
 -      with:
 -        limit-access-to-actor: true
 -      if: ${{ github.ref == 'refs/heads/ci-debug' && failure() }}
-diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml src/.gitlab-ci.yml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
 +++ src/.gitlab-ci.yml	2024-08-05 11:22:57.000000000 +0000
 @@ -0,0 +1,20 @@
@@ -719,7 +719,7 @@ diff --recursive --unified --new-file --no-dereference upstream/.gitlab-ci.yml s
 +  needs:
 +    - job: semgrep_errors
 \ No newline at end of file
-diff --recursive --unified --new-file --no-dereference upstream/README.rst src/README.rst
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.rst src/README.rst
 --- upstream/README.rst	1970-01-01 00:00:00.000000000 +0000
 +++ src/README.rst	2024-08-05 11:22:57.000000000 +0000
 @@ -0,0 +1,51 @@
@@ -774,14 +774,14 @@ diff --recursive --unified --new-file --no-dereference upstream/README.rst src/R
 +
 +.. |BuildStatus| image:: https://travis-ci.org/FreeRADIUS/pam_radius.png?branch=master
 +.. _BuildStatus: https://travis-ci.org/FreeRADIUS/pam_radius
-diff --recursive --unified --new-file --no-dereference upstream/VERSION src/VERSION
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/VERSION src/VERSION
 --- upstream/VERSION	2024-07-25 15:40:53.000000000 +0000
 +++ src/VERSION	2024-08-05 11:22:57.000000000 +0000
 @@ -1 +1 @@
 -3.0.0
 \ No newline at end of file
 +3.0.0
-diff --recursive --unified --new-file --no-dereference upstream/debian/.gitignore src/debian/.gitignore
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/.gitignore src/debian/.gitignore
 --- upstream/debian/.gitignore	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/.gitignore	1970-01-01 00:00:00.000000000 +0000
 @@ -1,4 +0,0 @@
@@ -789,7 +789,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/.gitignor
 -files
 -libpam-radius-auth/
 -libpam-radius-auth.install
-diff --recursive --unified --new-file --no-dereference upstream/debian/changelog.in src/debian/changelog.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/changelog.in src/debian/changelog.in
 --- upstream/debian/changelog.in	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/changelog.in	1970-01-01 00:00:00.000000000 +0000
 @@ -1,5 +0,0 @@
@@ -798,13 +798,13 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/changelog
 -  * Initial Debian version.
 -
 - -- Network RADIUS SARL <info@networkradius.com>  Tue, 2 Nov 2021 11:37:12 -0300
-diff --recursive --unified --new-file --no-dereference upstream/debian/clean src/debian/clean
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/clean src/debian/clean
 --- upstream/debian/clean	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/clean	1970-01-01 00:00:00.000000000 +0000
 @@ -1,2 +0,0 @@
 -config.log
 -src/config.h
-diff --recursive --unified --new-file --no-dereference upstream/debian/control src/debian/control
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/control src/debian/control
 --- upstream/debian/control	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/control	1970-01-01 00:00:00.000000000 +0000
 @@ -1,26 +0,0 @@
@@ -834,7 +834,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/control s
 - machine to become a RADIUS client for authentication and accounting
 - requests. You will, however, need to supply your own RADIUS server to
 - perform the actual authentication
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.NEWS src/debian/libpam-radius-auth.NEWS
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.NEWS src/debian/libpam-radius-auth.NEWS
 --- upstream/debian/libpam-radius-auth.NEWS	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.NEWS	1970-01-01 00:00:00.000000000 +0000
 @@ -1,5 +0,0 @@
@@ -843,7 +843,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-ra
 -  Initial Version
 -
 - -- Network RADIUS SARL <info@networkradius.com>  Tue, 2 Nov 2021 11:37:12 -0300
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.doc-base src/debian/libpam-radius-auth.doc-base
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.doc-base src/debian/libpam-radius-auth.doc-base
 --- upstream/debian/libpam-radius-auth.doc-base	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.doc-base	1970-01-01 00:00:00.000000000 +0000
 @@ -1,12 +0,0 @@
@@ -859,27 +859,27 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-ra
 -Format: HTML
 -Index: /usr/share/doc/libpam-radius-auth/index.html
 -Files: /usr/share/doc/libpam-radius-auth/*
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.docs src/debian/libpam-radius-auth.docs
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.docs src/debian/libpam-radius-auth.docs
 --- upstream/debian/libpam-radius-auth.docs	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.docs	1970-01-01 00:00:00.000000000 +0000
 @@ -1,3 +0,0 @@
 -README.md
 -USAGE
 -index.html
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.examples src/debian/libpam-radius-auth.examples
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.examples src/debian/libpam-radius-auth.examples
 --- upstream/debian/libpam-radius-auth.examples	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.examples	1970-01-01 00:00:00.000000000 +0000
 @@ -1,2 +0,0 @@
 -debian/pam_example
 -pam_radius_auth.conf
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.install.in src/debian/libpam-radius-auth.install.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.install.in src/debian/libpam-radius-auth.install.in
 --- upstream/debian/libpam-radius-auth.install.in	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.install.in	1970-01-01 00:00:00.000000000 +0000
 @@ -1,3 +0,0 @@
 -debian/pam-configs/radius usr/share/pam-configs
 -pam_radius_auth.conf      etc
 -pam_radius_auth.so        lib/@DEB_HOST_MULTIARCH@/security
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.postinst src/debian/libpam-radius-auth.postinst
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.postinst src/debian/libpam-radius-auth.postinst
 --- upstream/debian/libpam-radius-auth.postinst	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.postinst	1970-01-01 00:00:00.000000000 +0000
 @@ -1,10 +0,0 @@
@@ -893,7 +893,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-ra
 -#DEBHELPER#
 -
 -exit 0
-diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-radius-auth.prerm src/debian/libpam-radius-auth.prerm
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/libpam-radius-auth.prerm src/debian/libpam-radius-auth.prerm
 --- upstream/debian/libpam-radius-auth.prerm	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/libpam-radius-auth.prerm	1970-01-01 00:00:00.000000000 +0000
 @@ -1,11 +0,0 @@
@@ -908,14 +908,14 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/libpam-ra
 -#DEBHELPER#
 -
 -exit 0
-diff --recursive --unified --new-file --no-dereference upstream/debian/lintian-overrides src/debian/lintian-overrides
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/lintian-overrides src/debian/lintian-overrides
 --- upstream/debian/lintian-overrides	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/lintian-overrides	1970-01-01 00:00:00.000000000 +0000
 @@ -1,3 +0,0 @@
 -# It contains the radius secret, which should not be in a
 -# "world readable" file.
 -libpam-radius-auth: non-standard-file-perm etc/pam_radius_auth.conf 0600 != 0644
-diff --recursive --unified --new-file --no-dereference upstream/debian/pam-configs/radius src/debian/pam-configs/radius
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/pam-configs/radius src/debian/pam-configs/radius
 --- upstream/debian/pam-configs/radius	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/pam-configs/radius	1970-01-01 00:00:00.000000000 +0000
 @@ -1,11 +0,0 @@
@@ -930,7 +930,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/pam-confi
 -Account-Type: Additional
 -Account:
 -        [success=ok new_authtok_reqd=done ignore=ignore user_unknown=ignore authinfo_unavail=ignore default=bad] pam_radius_auth.so
-diff --recursive --unified --new-file --no-dereference upstream/debian/pam_example src/debian/pam_example
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/pam_example src/debian/pam_example
 --- upstream/debian/pam_example	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/pam_example	1970-01-01 00:00:00.000000000 +0000
 @@ -1,64 +0,0 @@
@@ -998,7 +998,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/pam_examp
 -If it fails the system will prompt again for a password. This time
 -provide the local one.
 -
-diff --recursive --unified --new-file --no-dereference upstream/debian/pam_sshd_example src/debian/pam_sshd_example
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/pam_sshd_example src/debian/pam_sshd_example
 --- upstream/debian/pam_sshd_example	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/pam_sshd_example	1970-01-01 00:00:00.000000000 +0000
 @@ -1,16 +0,0 @@
@@ -1018,7 +1018,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/pam_sshd_
 -session    required     pam_env.so user_readenv=1 envfile=/etc/default/locale
 -session [success=ok ignore=ignore module_unknown=ignore default=bad]        pam_selinux.so open
 -@include common-password
-diff --recursive --unified --new-file --no-dereference upstream/debian/rules src/debian/rules
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/rules src/debian/rules
 --- upstream/debian/rules	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/rules	1970-01-01 00:00:00.000000000 +0000
 @@ -1,59 +0,0 @@
@@ -1081,12 +1081,12 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/rules src
 -override_dh_fixperms:
 -	dh_fixperms
 -	chmod 600 debian/libpam-radius-auth/etc/pam_radius_auth.conf
-diff --recursive --unified --new-file --no-dereference upstream/debian/source/format src/debian/source/format
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/source/format src/debian/source/format
 --- upstream/debian/source/format	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/source/format	1970-01-01 00:00:00.000000000 +0000
 @@ -1 +0,0 @@
 -3.0 (quilt)
-diff --recursive --unified --new-file --no-dereference upstream/debian/source/options src/debian/source/options
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/source/options src/debian/source/options
 --- upstream/debian/source/options	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/source/options	1970-01-01 00:00:00.000000000 +0000
 @@ -1,5 +0,0 @@
@@ -1095,13 +1095,13 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/source/op
 -extend-diff-ignore=config\.status
 -extend-diff-ignore=config\.guess
 -
-diff --recursive --unified --new-file --no-dereference upstream/debian/upstream/metadata src/debian/upstream/metadata
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/upstream/metadata src/debian/upstream/metadata
 --- upstream/debian/upstream/metadata	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/upstream/metadata	1970-01-01 00:00:00.000000000 +0000
 @@ -1,2 +0,0 @@
 -Repository-Browse: https://github.com/FreeRADIUS/pam_radius 
 -Bug-Submit: https://github.com/FreeRADIUS/pam_radius/issues
-diff --recursive --unified --new-file --no-dereference upstream/debian/watch src/debian/watch
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/debian/watch src/debian/watch
 --- upstream/debian/watch	2024-07-25 15:40:53.000000000 +0000
 +++ src/debian/watch	1970-01-01 00:00:00.000000000 +0000
 @@ -1,10 +0,0 @@
@@ -1115,7 +1115,7 @@ diff --recursive --unified --new-file --no-dereference upstream/debian/watch src
 -      dversionmangle=s/\+dfsg(\.?\d+)?$//" \
 -      https://github.com/FreeRADIUS/pam_radius/ \
 -      refs/tags/release_(\d+)_(\d+)_(\d)
-diff --recursive --unified --new-file --no-dereference upstream/m4/ax_cc.m4 src/m4/ax_cc.m4
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/m4/ax_cc.m4 src/m4/ax_cc.m4
 --- upstream/m4/ax_cc.m4	2024-07-25 15:40:53.000000000 +0000
 +++ src/m4/ax_cc.m4	2024-08-05 11:22:57.000000000 +0000
 @@ -88,7 +88,6 @@
@@ -1134,7 +1134,7 @@ diff --recursive --unified --new-file --no-dereference upstream/m4/ax_cc.m4 src/
              #else
        	    count = sysconf(_SC_NPROCESSORS_ONLN);
              #endif
-diff --recursive --unified --new-file --no-dereference upstream/pam_radius_auth.spec src/pam_radius_auth.spec
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/pam_radius_auth.spec src/pam_radius_auth.spec
 --- upstream/pam_radius_auth.spec	1970-01-01 00:00:00.000000000 +0000
 +++ src/pam_radius_auth.spec	2024-08-05 11:22:57.000000000 +0000
 @@ -0,0 +1,50 @@
@@ -1188,7 +1188,7 @@ diff --recursive --unified --new-file --no-dereference upstream/pam_radius_auth.
 +%changelog
 +* Mon Jun 03 2002 Richie Laager <rlaager@wiktel.com> 1.3.15-0
 +- Inital RPM Version
-diff --recursive --unified --new-file --no-dereference upstream/redhat/pam_radius_auth.spec src/redhat/pam_radius_auth.spec
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/redhat/pam_radius_auth.spec src/redhat/pam_radius_auth.spec
 --- upstream/redhat/pam_radius_auth.spec	2024-07-25 15:40:53.000000000 +0000
 +++ src/redhat/pam_radius_auth.spec	1970-01-01 00:00:00.000000000 +0000
 @@ -1,73 +0,0 @@
@@ -1265,7 +1265,7 @@ diff --recursive --unified --new-file --no-dereference upstream/redhat/pam_radiu
 -%changelog
 -* Thu Nov 4 2021 Network RADIUS SARL <info@networkradius.com> - %{_version}
 -- Initial Debian version.
-diff --recursive --unified --new-file --no-dereference upstream/redhat/pam_sshd_example src/redhat/pam_sshd_example
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/redhat/pam_sshd_example src/redhat/pam_sshd_example
 --- upstream/redhat/pam_sshd_example	2024-07-25 15:40:53.000000000 +0000
 +++ src/redhat/pam_sshd_example	1970-01-01 00:00:00.000000000 +0000
 @@ -1,15 +0,0 @@
@@ -1284,7 +1284,7 @@ diff --recursive --unified --new-file --no-dereference upstream/redhat/pam_sshd_
 -session  required   pam_namespace.so
 -session  optional   pam_keyinit.so force revoke
 -session  include    password-auth
-diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/extra-packages.debian.control src/scripts/ci/extra-packages.debian.control
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/scripts/ci/extra-packages.debian.control src/scripts/ci/extra-packages.debian.control
 --- upstream/scripts/ci/extra-packages.debian.control	2024-07-25 15:40:53.000000000 +0000
 +++ src/scripts/ci/extra-packages.debian.control	1970-01-01 00:00:00.000000000 +0000
 @@ -1,5 +0,0 @@
@@ -1293,7 +1293,7 @@ diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/extra
 -Build-Depends:
 -  libpam0g-dev,
 -  sshpass
-diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/setup-freeradius.sh src/scripts/ci/setup-freeradius.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/scripts/ci/setup-freeradius.sh src/scripts/ci/setup-freeradius.sh
 --- upstream/scripts/ci/setup-freeradius.sh	2024-07-25 15:40:53.000000000 +0000
 +++ src/scripts/ci/setup-freeradius.sh	1970-01-01 00:00:00.000000000 +0000
 @@ -1,93 +0,0 @@
@@ -1390,7 +1390,7 @@ diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/setup
 -	}
 -}
 -EOF
-diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/setup-pam_radius.sh src/scripts/ci/setup-pam_radius.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/scripts/ci/setup-pam_radius.sh src/scripts/ci/setup-pam_radius.sh
 --- upstream/scripts/ci/setup-pam_radius.sh	2024-07-25 15:40:53.000000000 +0000
 +++ src/scripts/ci/setup-pam_radius.sh	1970-01-01 00:00:00.000000000 +0000
 @@ -1,27 +0,0 @@
@@ -1421,7 +1421,7 @@ diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/setup
 -[::1]         testing123  5
 -127.0.0.1     testing123  5
 -EOF
-diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/setup-sshd.sh src/scripts/ci/setup-sshd.sh
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/scripts/ci/setup-sshd.sh src/scripts/ci/setup-sshd.sh
 --- upstream/scripts/ci/setup-sshd.sh	2024-07-25 15:40:53.000000000 +0000
 +++ src/scripts/ci/setup-sshd.sh	1970-01-01 00:00:00.000000000 +0000
 @@ -1,38 +0,0 @@
@@ -1463,7 +1463,7 @@ diff --recursive --unified --new-file --no-dereference upstream/scripts/ci/setup
 -EOF
 -
 -mkdir -p /run/sshd
-diff --recursive --unified --new-file --no-dereference upstream/src/config.h.in src/src/config.h.in
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.h.in src/src/config.h.in
 --- upstream/src/config.h.in	2024-07-25 15:40:53.000000000 +0000
 +++ src/src/config.h.in	2024-08-05 11:22:57.000000000 +0000
 @@ -242,4 +242,4 @@
@@ -1473,7 +1473,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/config.h.in 
 -#undef PAM_RADIUS_VERSION_RELEASE
 \ No newline at end of file
 +#undef PAM_RADIUS_VERSION_RELEASE
-diff --recursive --unified --new-file --no-dereference upstream/src/pam_radius_auth.c src/src/pam_radius_auth.c
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pam_radius_auth.c src/src/pam_radius_auth.c
 --- upstream/src/pam_radius_auth.c	2024-07-25 15:40:53.000000000 +0000
 +++ src/src/pam_radius_auth.c	2024-08-05 11:22:57.000000000 +0000
 @@ -34,6 +34,8 @@
@@ -1510,7 +1510,7 @@ diff --recursive --unified --new-file --no-dereference upstream/src/pam_radius_a
  	/* not all servers understand this service type, but some do */
  	add_int_attribute(request, PW_USER_SERVICE_TYPE, PW_AUTHENTICATE_ONLY);
  
-diff --recursive --unified --new-file --no-dereference upstream/src/pam_radius_auth.h src/src/pam_radius_auth.h
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pam_radius_auth.h src/src/pam_radius_auth.h
 --- upstream/src/pam_radius_auth.h	2024-07-25 15:40:53.000000000 +0000
 +++ src/src/pam_radius_auth.h	2024-08-05 11:22:57.000000000 +0000
 @@ -24,7 +24,6 @@

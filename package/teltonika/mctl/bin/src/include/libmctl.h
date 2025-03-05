@@ -11,6 +11,26 @@
 #define MCTL_CLEAR "0"
 #define MCTL_SET   "1"
 
+#define LOG(...)                                                                                             \
+	do {                                                                                                 \
+		fprintf(stdout, ##__VA_ARGS__);                                                              \
+		fflush(stdout);                                                                              \
+	} while (0);
+
+#define ERR(fmt, ...)                                                          \
+	do {                                                                   \
+		fprintf(stdout, "[%s:%d] error: " fmt, __func__, __LINE__,     \
+			##__VA_ARGS__);                                        \
+		fflush(stdout);                                                \
+	} while (0);
+
+#define DBG(...)                                                                                             \
+	do {                                                                                                 \
+		if (DEBUG_LV)                                                                                \
+			fprintf(stdout, ##__VA_ARGS__);                                                      \
+		fflush(stdout);                                                                              \
+	} while (0);
+
 typedef enum {
 	MCTL_OPT_CHECK,
 	MCTL_OPT_SKIP,

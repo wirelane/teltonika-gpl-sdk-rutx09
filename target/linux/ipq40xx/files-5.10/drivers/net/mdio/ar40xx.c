@@ -56,6 +56,15 @@ ar40xx_sw_reset_switch(struct switch_dev *dev);
 
 static int ar40xx_cpuport_setup(struct ar40xx_priv *priv);
 
+static bool
+ar40xx_set_autolink_disable(struct ar40xx_priv *priv, int port, u16 port_phy_status);
+
+static void
+ar40xx_set_autolink_enable(struct ar40xx_priv *priv, int port, u16 port_phy_status);
+
+static bool
+ar40xx_link_up_poll(struct ar40xx_priv *priv, int port, u16 *port_phy_status);
+
 static struct ar40xx_priv *ar40xx_priv;
 
 #define MIB_DESC(_s , _o, _n)	\
@@ -629,10 +638,14 @@ ar40xx_sw_set_linkdown(struct switch_dev *dev,
 {
 	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
 
+	mutex_lock(&priv->qm_lock);
+
 	if (val->value.i == 1)
 		ar40xx_port_phy_linkdown(priv);
 	else
 		ar40xx_phy_init(priv);
+
+	mutex_unlock(&priv->qm_lock);
 
 	return 0;
 }
@@ -695,19 +708,35 @@ ar40xx_sw_set_port_state(struct switch_dev *dev,
 	struct mii_bus *bus = priv->mii_bus;
 	int port = val->port_vlan;
 	u32 reg;
+	int ret;
+	u16 port_phy_status;
 
 	if (port <= AR40XX_PORT_CPU || port >= AR40XX_NUM_PORTS)
 		return -EINVAL;
 
+	mutex_lock(&priv->qm_lock);
+
+	port_phy_status = mdiobus_read(bus, port - 1, AR40XX_PHY_SPEC_STATUS);
+
 	reg = mdiobus_read(bus, port - 1, MII_BMCR);
 
 	if(val->value.i == 1) {
+		ar40xx_set_autolink_disable(priv, port - 1, port_phy_status);
+
 		reg |= BMCR_PDOWN;
+		ret = mdiobus_write(bus, port - 1, MII_BMCR, reg);
 	} else {
 		reg &= ~BMCR_PDOWN;
+		ret = mdiobus_write(bus, port - 1, MII_BMCR, reg);
+
+		if (FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, port_phy_status) &&
+			ar40xx_link_up_poll(priv, port - 1, &port_phy_status))
+				ar40xx_set_autolink_enable(priv, port, port_phy_status);
 	}
 
-	return mdiobus_write(bus, port - 1, MII_BMCR, reg);
+	mutex_unlock(&priv->qm_lock);
+
+	return ret;
 }
 
 static int
@@ -1002,80 +1031,110 @@ ar40xx_sw_get_port_link(struct switch_dev *dev, int port,
 	return 0;
 }
 
+static bool
+ar40xx_link_up_poll(struct ar40xx_priv *priv, int port, u16 *port_phy_status)
+{
+	u32 retries = 500;
+	struct mii_bus *bus = priv->mii_bus;
+	u32 link = 0;
+
+	while (retries--) {
+		usleep_range(9000, 11000);
+
+		*port_phy_status = mdiobus_read(bus, port, AR40XX_PHY_SPEC_STATUS);
+		link = FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, *port_phy_status);
+
+		if (link)
+			return true;
+	}
+
+	dev_info(&bus->dev, "No link in phy %d after 5s \n", port);
+	return false;
+}
+
+static void
+ar40xx_set_autolink_enable(struct ar40xx_priv *priv, int port, u16 port_phy_status)
+{
+	u32 speed, duplex;
+	u32 reg, val;
+
+	speed = FIELD_GET(AR40XX_PHY_SPEC_STATUS_SPEED, port_phy_status);
+	duplex = FIELD_GET(AR40XX_PHY_SPEC_STATUS_DUPLEX, port_phy_status);
+
+	reg = AR40XX_REG_PORT_STATUS(port);
+	val = ar40xx_read(priv, reg);
+
+	val &= ~(AR40XX_PORT_DUPLEX | AR40XX_PORT_SPEED);
+	val |= speed | (duplex ? BIT(6) : 0);
+	ar40xx_write(priv, reg, val);
+	/* clock switch need such time
+	 * to avoid glitch
+	 */
+	usleep_range(100, 200);
+	ar40xx_write(priv, reg, val | AR40XX_PORT_AUTO_LINK_EN);
+}
+
+static bool
+ar40xx_set_autolink_disable(struct ar40xx_priv *priv, int port, u16 port_phy_status)
+{
+	u32 link;
+	struct mii_bus *bus;
+	bus = priv->mii_bus;
+	u32 reg;
+
+	link = FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, port_phy_status);
+
+	if(link & AR40XX_PORT_LINK_UP) {
+		reg = AR40XX_REG_PORT_STATUS(port+1);
+		ar40xx_rmw(priv, reg, AR40XX_PORT_AUTO_LINK_EN, 0);
+		return true;
+	}
+
+	return false;
+}
+
 static int ar40xx_sw_delay_reset(struct switch_dev *dev, const struct switch_attr *attr,
 			struct switch_val *value)
 {
 	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
 	struct mii_bus *bus;
 	int i;
-	u16 val;
+	u32 reg;
+	u16 port_phy_status;
+
+	u32 link[AR40XX_NUM_PORTS-2];
 
 	bus = priv->mii_bus;
 
+	mutex_lock(&priv->qm_lock);
+
 	for (i = 0; i < AR40XX_NUM_PORTS - 2; i++) {
-		mdiobus_write(bus, i, MII_BMCR, BMCR_PDOWN);
+		port_phy_status = mdiobus_read(bus, i, AR40XX_PHY_SPEC_STATUS);
 
-		ar40xx_phy_dbg_read(priv, i, 0x3d, &val);
-		val &= ~0x0040;
-		ar40xx_phy_dbg_write(priv, i, 0x3d, val);
+		link[i] = FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, port_phy_status);
 
-		ar40xx_phy_dbg_read(priv, i, 0x0b, &val);
-		val &= ~0x2400;
-		ar40xx_phy_dbg_write(priv, i, 0x0b, val);
+		if(link[i] & AR40XX_PORT_LINK_UP) {
+			reg = AR40XX_REG_PORT_STATUS(i+1);
+			ar40xx_rmw(priv, reg, AR40XX_PORT_AUTO_LINK_EN, 0);
+		}
+
+		mdiobus_modify(bus, i, MII_BMCR, 0, BMCR_PDOWN);
 	}
 
 	msleep(1000 * value->value.i);
 
 	for (i = 0; i < AR40XX_NUM_PORTS - 2; i++) {
-		mdiobus_write(bus, i, MII_ADVERTISE,
-			      ADVERTISE_ALL | ADVERTISE_PAUSE_CAP | ADVERTISE_PAUSE_ASYM);
-		mdiobus_write(bus, i, MII_CTRL1000, CTL1000_PREFER_MASTER | ADVERTISE_1000FULL);
-		mdiobus_write(bus, i, MII_BMCR, BMCR_RESET | BMCR_ANENABLE);
-		ar40xx_phy_dbg_read(priv, i, AR40XX_PHY_DEBUG_0, &val);
-		val &= ~AR40XX_PHY_MANU_CTRL_EN;
-		ar40xx_phy_dbg_write(priv, i, AR40XX_PHY_DEBUG_0, val);
+		mdiobus_modify(bus, i, MII_BMCR, BMCR_PDOWN, 0);
+
+		if((link[i] & AR40XX_PORT_LINK_UP) &&
+			ar40xx_link_up_poll(priv, i, &port_phy_status)) {
+				ar40xx_set_autolink_enable(priv, i+1, port_phy_status);
+		}
 	}
 
-	ar40xx_phy_poll_reset(priv);
+	mutex_unlock(&priv->qm_lock);
 
 	return 0;
-}
-
-static void ar40xx_port_linkdown(struct switch_dev *dev, int port)
-{
-	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
-	struct mii_bus *bus;
-	u16 val;
-
-	if (port < 0 || port >= AR40XX_NUM_PORTS - 2)
-		return -EINVAL;
-
-	bus = priv->mii_bus;
-
-	mdiobus_write(bus, port, MII_BMCR, BMCR_PDOWN);
-
-	ar40xx_phy_dbg_read(priv, port, 0x3d, &val);
-	val &= ~0x0040;
-	ar40xx_phy_dbg_write(priv, port, 0x3d, val);
-
-	ar40xx_phy_dbg_read(priv, port, 0x0b, &val);
-	val &= ~0x2400;
-	ar40xx_phy_dbg_write(priv, port, 0x0b, val);
-}
-
-static void ar40xx_port_reset_enable(struct switch_dev *dev, int port)
-{
-	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
-	u16 val;
-
-	if (port < 0 || port >= AR40XX_NUM_PORTS - 2)
-		return -EINVAL;
-
-	ar40xx_phy_dbg_read(priv, port, AR40XX_PHY_DEBUG_0, &val);
-	val &= ~AR40XX_PHY_MANU_CTRL_EN;
-	ar40xx_phy_dbg_write(priv, port, AR40XX_PHY_DEBUG_0, val);
-
-	ar40xx_phy_poll_reset(priv);
 }
 
 static int
@@ -1170,6 +1229,7 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 	struct mii_bus *bus = priv->mii_bus;
 	u32 status;
 	int ret;
+	u16 port_phy_status;
 
 	if (!priv || !bus)
 		return -ENODEV;
@@ -1177,15 +1237,25 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 	if (port <= AR40XX_PORT_CPU || port >= AR40XX_NUM_PORTS || !link)
 		return -EINVAL;
 
+
+	mutex_lock(&priv->qm_lock);
 	port -= 1; // Convert physical port index to equivalent register index
+
 	status = mdiobus_read(bus, port, MII_BMCR);
 
-	ar40xx_port_linkdown(dev, port);
+	port_phy_status = mdiobus_read(bus, port, AR40XX_PHY_SPEC_STATUS);
+	ar40xx_set_autolink_disable(priv, port, port_phy_status);
 
 	if (link->aneg) {
 		status |= BMCR_ANENABLE | BMCR_ANRESTART | BMCR_FULLDPLX | BMCR_SPEED1000;
 		ret = mdiobus_write(bus, port, MII_BMCR, status);
-		ar40xx_port_reset_enable(dev, port);
+
+		if (FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, port_phy_status) &&
+			ar40xx_link_up_poll(priv, port, &port_phy_status))
+				ar40xx_set_autolink_enable(priv, port + 1, port_phy_status);
+
+		mutex_unlock(&priv->qm_lock);
+
 		return ret;
 	} else {
 		status &= ~BMCR_ANENABLE;
@@ -1215,7 +1285,13 @@ ar40xx_sw_set_port_link(struct switch_dev *dev, int port,
 	}
 
 	ret = mdiobus_write(bus, port, MII_BMCR, status);
-	ar40xx_port_reset_enable(dev, port);
+
+	if (FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, port_phy_status) &&
+		ar40xx_link_up_poll(priv, port, &port_phy_status))
+			ar40xx_set_autolink_enable(priv, port + 1, port_phy_status);
+
+	mutex_unlock(&priv->qm_lock);
+
 	return ret;
 }
 
@@ -1362,24 +1438,33 @@ static int ar40xx_set_port_speed_advertisement(struct switch_dev *dev, const str
 	u16 reg_advert1000;
 	u16 reg_bmcr;
 	long advert;
+	u16 port_phy_status;
 
 	if (port <= AR40XX_PORT_CPU || port >= AR40XX_NUM_PORTS)
 		return -EINVAL;
 
-	reg_advert100  = mdiobus_read(bus, val->port_vlan - 1, MII_ADVERTISE);
-	reg_advert1000 = mdiobus_read(bus, val->port_vlan - 1, MII_CTRL1000);
-	reg_bmcr       = mdiobus_read(bus, val->port_vlan - 1, MII_BMCR);
+	port = port - 1;
+
+	mutex_lock(&priv->qm_lock);
+
+	port_phy_status = mdiobus_read(bus, port, AR40XX_PHY_SPEC_STATUS);
+
+	reg_advert100  = mdiobus_read(bus, port, MII_ADVERTISE);
+	reg_advert1000 = mdiobus_read(bus, port, MII_CTRL1000);
+	reg_bmcr       = mdiobus_read(bus, port, MII_BMCR);
 
 	reg_advert100 &= ~(ADVERTISE_10HALF | ADVERTISE_10FULL | ADVERTISE_100HALF | ADVERTISE_100FULL);
 	reg_advert1000 &= ~(ADVERTISE_1000FULL);
 	reg_bmcr |= BMCR_ANRESTART;
 
 	if (!strstr(val->value.s, "0x") || (strlen(val->value.s) != 4)) {
+		mutex_unlock(&priv->qm_lock);
 		return -EINVAL;
 	}
 	kstrtol(val->value.s, 16, &advert);
 
 	if (advert & ~ADVERT_ALL) {
+		mutex_unlock(&priv->qm_lock);
 		return -EINVAL;
 	}
 
@@ -1389,10 +1474,17 @@ static int ar40xx_set_port_speed_advertisement(struct switch_dev *dev, const str
 	reg_advert100 |= advert & ADVERT_100FULL ? ADVERTISE_100FULL : 0;
 	reg_advert1000 |= advert & ADVERT_1000FULL ? ADVERTISE_1000FULL : 0;
 
-	mdiobus_write(bus, val->port_vlan - 1, MII_ADVERTISE, reg_advert100);
-	mdiobus_write(bus, val->port_vlan - 1, MII_CTRL1000, reg_advert1000);
-	mdiobus_write(bus, val->port_vlan - 1, MII_BMCR, reg_bmcr);
+	ar40xx_set_autolink_disable(priv, port, port_phy_status);
 
+	mdiobus_write(bus, port, MII_ADVERTISE, reg_advert100);
+	mdiobus_write(bus, port, MII_CTRL1000, reg_advert1000);
+	mdiobus_write(bus, port, MII_BMCR, reg_bmcr);
+
+	if (FIELD_GET(AR40XX_PHY_SPEC_STATUS_LINK, port_phy_status) &&
+		ar40xx_link_up_poll(priv, port, &port_phy_status))
+			ar40xx_set_autolink_enable(priv, port + 1, port_phy_status);
+
+	mutex_unlock(&priv->qm_lock);
 	return 0;
 }
 

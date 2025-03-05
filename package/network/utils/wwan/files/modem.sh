@@ -222,10 +222,14 @@ add_sim_switch_config(){
 add_quota_limit_config(){
 	local interface="$1"
 	touch /etc/config/quota_limit
+	chown "network:network" "/etc/config/quota_limit"
+	chmod 666 "/etc/config/quota_limit"
 
 	[ -z "$(uci_get quota_limit "$interface")" ] && {
 		uci_add quota_limit interface "$interface"
 		uci_commit quota_limit
+		chown "network:network" "/tmp/.uci/quota_limit"
+		chmod 666 "/tmp/.uci/quota_limit"
 	}
 }
 

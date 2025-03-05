@@ -247,7 +247,7 @@ define DownloadMethod/rawgit
 	[ \! -d $(SUBDIR) ] && \
 	(git clone $(OPTS) $(URL) $(SUBDIR) || git clone $(OPTS) $(PKG_UPSTREAM_URL) $(SUBDIR)) && \
 	(cd $(SUBDIR) && git checkout $(VERSION) && \
-		git submodule update --init --recursive) && \
+		git submodule update --init --recursive && echo $(VERSION) > .gitver ) && \
 	echo "Packing checkout..." && \
 	export TAR_TIMESTAMP=`cd $(SUBDIR) && git log -1 --format='@%ct'` && \
 	find "$(SUBDIR)" -type d -name '.git' | xargs rm -fr && \

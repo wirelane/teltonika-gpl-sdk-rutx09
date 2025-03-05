@@ -1,6 +1,11 @@
 #!/bin/ash
 . /usr/share/libubox/jshn.sh
 
+[ -f /usr/share/modem_updater/modem_updater_installer ] && {
+    . /usr/share/modem_updater/modem_updater_installer
+    ONLINE="1"
+}
+
 ### Static defines
 
 HOSTNAME="modemfota.teltonika-networks.com"
@@ -16,6 +21,15 @@ MEIG_ASR_FLASHER="fbfdownloader"
 QUECTEL_FLASHER="quectel_flash"
 QUECTEL_ASR_FLASHER="QDLoader"
 TELIT_FLASHER="uxfp"
+EIGENCOMM_FLASHER="qdownload"
+
+### Flasher opkg packages names
+MEIG_FLASHER_PKG="Meig_Firehose"
+MEIG_ASR_FLASHER_PKG="fbfdownloader"
+QUECTEL_FLASHER_PKG="quectel_flash"
+QUECTEL_ASR_FLASHER_PKG="QDLoader"
+TELIT_FLASHER_PKG="uxfp"
+EIGENCOMM_FLASHER_PKG="qdownload"
 
 ##############################################################################
 
@@ -30,6 +44,7 @@ DEVICE=""
 SKIP_VALIDATION="0"
 FW_PATH="/tmp/firmware/"
 FLASHER_PATH=""
+FLASHER_FILE=""
 LEGACY_MODE="0"
 TTY_PORT=""
 TTY_CMD_PORT="/dev/ttyUSB2"
@@ -232,7 +247,7 @@ find_modem_edl_device() {
         idVendor=$(cat "$entry/idVendor") >/dev/null 2>&1
         [ "$idVendor" = "05c6" ] || [ "$idVendor" = "1bc7" ] || continue
         idProduct=$(cat "$entry/idProduct") >/dev/null 2>&1
-        [ "$idProduct" = "9008" ] || [ "$idProduct" = "9010" ] || continue
+        [ "$idProduct" = "9008" ] || [ "$idProduct" = "9010" ] || [ "$idProduct" = "9330" ] || continue
         [ "$sys_path" != "" ] && {
             echo "[WARN] Found multiple devices in EDL mode!"
             sys_path=""
@@ -461,6 +476,9 @@ setDevice() {
         RG500U*)
             DEVICE="QuectelUNISOC"
             ;;
+        EG915Q*)
+            DEVICE="QuectelEIGENCOMM"
+            ;;
         *) ;;
         esac
     fi
@@ -498,14 +516,22 @@ setFlasherPath() {
     #setdevice
     if [ "$DEVICE" = "Quectel" ]; then
         FLASHER_PATH="/usr/bin/$QUECTEL_FLASHER"
+        FLASHER_FILE="$QUECTEL_FLASHER_PKG"
     elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "QuectelUNISOC" ]; then
         FLASHER_PATH="/usr/bin/$QUECTEL_ASR_FLASHER"
+        FLASHER_FILE="$QUECTEL_ASR_FLASHER_PKG"
     elif [ "$DEVICE" = "Meiglink" ]; then
         FLASHER_PATH="/usr/bin/$MEIG_FLASHER"
+        FLASHER_FILE="$MEIG_FLASHER_PKG"
     elif [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
         FLASHER_PATH="/usr/bin/$MEIG_ASR_FLASHER"
+        FLASHER_FILE="$MEIG_ASR_FLASHER_PKG"
     elif [ "$DEVICE" = "Telit" ]; then
         FLASHER_PATH="/usr/bin/$TELIT_FLASHER"
+        FLASHER_FILE="$TELIT_FLASHER_PKG"
+    elif [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
+        FLASHER_PATH="/usr/bin/$EIGENCOMM_FLASHER"
+        FLASHER_FILE="$EIGENCOMM_FLASHER_PKG"
     fi
 }
 
@@ -536,7 +562,7 @@ get_fw_list() {
         MODEM=$(parse_from_ubus_rsp "firmware")
     fi
 
-    if [ "$DEVICE" = "Quectel" ]; then
+    if [ "$DEVICE" = "Quectel" ] || [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
         MODEM_SHORT=$(echo "$MODEM" | cut -b -8)
     elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "QuectelUNISOC" ]; then
         MODEM_SHORT=$(echo "$MODEM" | cut -b -8)
@@ -580,7 +606,7 @@ check_blocked_quectel() {
 
     # Downgrade from embargo FW
     ([[ "$from" =~ $R1 ]] || [[ "$from" =~ $R2 ]]) &&
-    !([[ "$to" =~ $R1 ]] || [[ "$to" =~ $R2 ]]) && return 0
+        !([[ "$to" =~ $R1 ]] || [[ "$to" =~ $R2 ]]) && return 0
 
     return 1
 }
@@ -604,6 +630,15 @@ slm750_blocked_fw() {
     return 0
 }
 
+# Checks SLM828G version string if it has a downgrade prevention
+# Only firmwares version >= 57 should have it
+slm828g_blocked_fw() {
+    local fw_string="$1"
+    local version="$(echo "$fw_string" | awk -F '[-_.]' '{print $4}')"
+    [ "${version:-0}" -lt 57 ] && return 1
+    return 0
+}
+
 # Returns 0 if firmware can not be downgraded due to embargo
 check_blocked_meiglink() {
     local from="$1"
@@ -611,6 +646,7 @@ check_blocked_meiglink() {
     local model="${1%%[-_.]*}"
     [ "$model" == "SLM750" ] && slm750_blocked_fw $from && ! slm750_blocked_fw $to && return 0
     [ "$model" == "SLM770A" ] && slm770a_blocked_fw $from && ! slm770a_blocked_fw $to && return 0
+    [ "$model" == "SLM828G" ] && slm828g_blocked_fw $from && ! slm828g_blocked_fw $to && return 0
     return 1
 }
 
@@ -661,7 +697,7 @@ common_validation() {
     fi
 
     if [ "$DEVICE" = "Quectel" ] || [ "$DEVICE" = "Meiglink" ] || [ "$DEVICE" = "QuectelASR" ] ||
-        [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "QuectelUNISOC" ] || [ "$DEVICE" = "Telit" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
+        [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "QuectelUNISOC" ] || [ "$DEVICE" = "Telit" ] || [ "$DEVICE" = "TeltonikaASR" ] || [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
         debug "[INFO] DEVICE is compatible."
     else
         if [ "$SKIP_VALIDATION" = "0" ]; then
@@ -678,12 +714,10 @@ common_validation() {
         MODEM_FW=$(parse_from_ubus_rsp "firmware")
         UNDERSCORE_MODEM_FW=$(echo "$MODEM_FW" | tr '.-' '_')
         UNDERSCORE_VERSION=$(echo "$VERSION" | tr '.-' '_')
-        case "$UNDERSCORE_MODEM_FW" in
-        *$UNDERSCORE_VERSION*)
+        if [[ "$UNDERSCORE_VERSION" =~ "$UNDERSCORE_MODEM_FW" ]]; then
             echo "[ERROR] Specified firmware is already installed. Exiting.."
             graceful_exit
-            ;;
-        esac
+        fi
         #Quectel
         if [ "$DEVICE" = "Quectel" ]; then
             exec_ubus_call "$MODEM_N" "get_firmware"
@@ -728,8 +762,9 @@ common_validation() {
 ### Generic methods (Mainly for Qualcomm devices)
 
 generic_validation() {
-    #User has specified tty port for non legacy mode (it will not be used)
+    local retval
 
+    #User has specified tty port for non legacy mode (it will not be used)
     if [ "$TTY_PORT" != "" ] &&
         [ "$LEGACY_MODE" = "0" ] && [ "$DEVICE" != "Telit" ]; then
         echo "[WARN] Warning you specified ttyUSB port but it will not be used for non legacy(fastboot) flash!"
@@ -748,7 +783,14 @@ generic_validation() {
 
     setFlasherPath
 
-    if [ ! -f "$FLASHER_PATH" ]; then
+    if [ "$ONLINE" = "1" ]; then
+        checkIfFlasherFileExists "$FLASHER_FILE" "$FLASHER_PATH"
+        retval=$?
+        if [ $retval -eq 1 ]; then
+            echo "[ERROR] Flasher download unsuccessful."
+            graceful_exit
+        fi
+    elif [ ! -f "$FLASHER_PATH" ]; then
         echo "[ERROR] Flasher not found. You need to use \"-r\" option to install missing dependencies."
         helpFunction
         graceful_exit
@@ -787,10 +829,31 @@ generic_prep() {
     #check if connection is working
     [ $USER_PATH -eq 0 ] && validate_connection
 
-    [ $USER_PATH -eq 0 ] && {
+    if [ $USER_PATH -eq 0 ] && [ "$DEVICE" != "QuectelEIGENCOMM" ]; then
         setup_ssh
         mount_sshfs
-    }
+    elif [ "$DEVICE" = "QuectelEIGENCOMM" ] && [ $USER_PATH -eq 0 ]; then
+        UPDATE_ARCHIVE="/tmp/modem_update.tar.gz"
+        echo "[INFO] Downloading firmware"
+
+        if [ -f "$UPDATE_ARCHIVE" ]; then
+            echo "[INFO] Overwriting $UPDATE_ARCHIVE"
+        fi
+
+        curl -Ss --ssl-reqd https://$HOSTNAME/"$VERSION.tar.gz" \
+            --output "$UPDATE_ARCHIVE" --connect-timeout 300
+
+        if grep -Fq '<head><title>404 Not Found</title></head>' "$UPDATE_ARCHIVE"; then
+            echo "[ERROR] firmware download failed."
+            graceful_exit
+        fi
+
+        [ -f $FW_PATH ] || mkdir -p $FW_PATH
+        # Extract the firmware
+        debug "[INFO] Extracting firmware to $FW_PATH"
+        tar -xzf "$UPDATE_ARCHIVE" -C "$FW_PATH"
+    fi
+
     debug "[INFO] Checking firmware path"
 
     verify_auto_fw_path
@@ -849,9 +912,61 @@ generic_flash() {
         fi
     fi
 
+    if [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
+        FLASH_PORT="/dev/ttyACM0"
+        # Generate required configuration file
+        "$FLASHER_PATH" -u "$FW_PATH" >/dev/null 2>&1
+
+        # Check if local.ini exists
+        [ -f "$FW_PATH/local.ini" ] || {
+            echo "[ERROR] local.ini not found in $FW_PATH"
+            graceful_exit
+        }
+
+        # Check if modem_boot gpio exists
+        [ -e "/sys/class/gpio/modem_boot" ] || {
+            echo "[ERROR] /sys/class/gpio/modem_boot not found"
+            graceful_exit
+        }
+
+        # Short USB_BOOT
+        echo 1 >/sys/class/gpio/modem_boot/value
+
+        # Restart the modem
+        mctl -d -r -n $MODEM_N
+        retval=$?
+        if [ $retval -eq 1 ]; then
+            echo "[ERROR] Unable to restart modem."
+            echo 0 > /sys/class/gpio/modem_boot/value
+            graceful_exit
+        fi
+
+        TIMEOUT=30
+        ELAPSED=0
+
+        echo "[INFO] Waiting for $FLASH_PORT to appear..."
+        while [ ! -e "$FLASH_PORT" ]; do
+            sleep 1
+            ELAPSED=$((ELAPSED + 1))
+
+            if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+                echo "[ERROR] Timeout: $FLASH_PORT did not appear within $TIMEOUT seconds."
+                echo 0 > /sys/class/gpio/modem_boot/value
+                graceful_exit
+                break
+            fi
+        done
+
+        # Disconnect USB_BOOT
+        echo 0 > /sys/class/gpio/modem_boot/value
+
+        # Flash the firmware
+        "$FLASHER_PATH" -p "$FLASH_PORT" -c "$FW_PATH/local.ini" -B "BL AP CP" -r
+    fi
+
     sleep 10
 
-    [ $USER_PATH -eq 0 ] && umount "$FW_PATH"
+    [ $USER_PATH -eq 0 ] && [ "$DEVICE" != "QuectelEIGENCOMM" ] && umount "$FW_PATH"
 }
 
 generic_start() {
@@ -936,7 +1051,14 @@ ASR_validation() {
 
     setFlasherPath
 
-    if [ ! -f "$FLASHER_PATH" ]; then
+    if [ "$ONLINE" = "1" ]; then
+        checkIfFlasherFileExists "$FLASHER_FILE" "$FLASHER_PATH"
+        retval=$?
+        if [ $retval -eq 1 ]; then
+            echo "[ERROR] Flasher download unsuccessful."
+            graceful_exit
+        fi
+    elif [ ! -f "$FLASHER_PATH" ]; then
         echo "[ERROR] Flasher not found. You need to use \"-r\" option to install missing dependencies."
         helpFunction
         graceful_exit
@@ -1025,7 +1147,7 @@ helpFunction() {
     printf "\t-i \t <MODEM_N> Modem USB ID. eg.: 1-1 3-1 etc.\n"
     printf "\t-f \t Force upgrade start without extra validation. USE AT YOUR OWN RISK.\n"
     printf "\t-l \t Legacy mode for quectel modems(Fastboot).\n"
-    printf "\t-d \t <name> Manually set device Vendor (Quectel, QuectelASR, QuectelUNISOC, Meiglink, MeiglinkASR, TeltonikaASR or Telit).\n"
+    printf "\t-d \t <name> Manually set device Vendor (Quectel, QuectelASR, QuectelUNISOC, QuectelEIGENCOMM, Meiglink, MeiglinkASR, TeltonikaASR or Telit).\n"
     printf "\t-t \t <ttyUSBx> ttyUSBx port.\n"
     printf "\t-D \t debug\n"
 }

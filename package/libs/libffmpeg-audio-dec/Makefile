@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libffmpeg-audio-dec
 PKG_VERSION:=4.3.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_VERSION:=4.3.1
 PKG_SOURCE:=ffmpeg-$(PKG_SOURCE_VERSION).tar.xz

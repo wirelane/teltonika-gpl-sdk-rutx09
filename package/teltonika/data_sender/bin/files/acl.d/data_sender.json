@@ -1,0 +1,4 @@
+{
+	"user": "ds",
+	"publish": [ "datasender.collection.*" ]
+}

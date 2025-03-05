@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
-PKG_RELEASE:=7
+PKG_RELEASE:=9
 
 PKG_SOURCE_VERSION=15346de8d3ba422002496526ee24c62a3601ab8c
 PKG_SOURCE_DATE:=2021-03-21
@@ -83,6 +83,8 @@ define Package/uhttpd/conffiles
 /etc/config/uhttpd
 /etc/uhttpd.crt
 /etc/uhttpd.key
+/etc/uhttpd-ca.crt
+/etc/uhttpd-ca.key
 endef
 
 ifneq ($(CONFIG_USE_GLIBC),)
@@ -93,6 +95,8 @@ TARGET_LDFLAGS += -lcrypt
 
 CMAKE_OPTIONS += -DTLS_SUPPORT=on
 
+OPTION_HTTPS_SED_SCRIPT := sed -i "/config.*main/a\\\toption redirect_https '1'" $(1)
+
 define Package/uhttpd/install
   $(INSTALL_DIR) $(1)/www/cgi-bin/custom
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -102,7 +106,8 @@ define Package/uhttpd/install
 	$(VERSION_SED_SCRIPT) $(1)/etc/config/uhttpd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uhttpd $(1)/usr/sbin/uhttpd
-
+	$(if $(TLT_PLATFORM_RUTX), \
+		$(OPTION_HTTPS_SED_SCRIPT) $(1)/etc/config/uhttpd)
 	$(if $(CONFIG_USE_OPENRC), \
 		$(OPENRC_INSTALL) boot uhttpd ./files/uhttpd.openrc $(1))
 endef

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mwan3
 PKG_VERSION:=2.10.12
-PKG_RELEASE:=3
+PKG_RELEASE:=5
 PKG_MAINTAINER:=Florian Eckert <fe@dev.tdt.de>, \
 		Aaron Goodman <aaronjg@alumni.stanford.edu>
 PKG_LICENSE:=GPL-2.0-only
@@ -67,7 +67,7 @@ define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)/files/
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 	$(CP) ./files/* $(PKG_BUILD_DIR)/files/
-	$(Build/Patch)	
+	$(Build/Patch)
 endef
 
 define Build/Compile
@@ -82,8 +82,8 @@ endef
 define Package/mwan3/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(if $(wildcard $(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)), \
-		$(INSTALL_CONF) "$(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)" $(1)/etc/config/mwan3, \
-		$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/etc/config/mwan3 $(1)/etc/config/mwan3)
+		$(INSTALL_CONF_USR) "$(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)" $(1)/etc/config/mwan3, \
+		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/etc/config/mwan3 $(1)/etc/config/mwan3)
 
 	$(INSTALL_DIR) $(1)/usr/share/mwan3
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/usr/share/15-mwan3 \

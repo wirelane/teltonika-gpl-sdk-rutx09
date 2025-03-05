@@ -24,12 +24,13 @@ RUN apt update && apt upgrade -y \
 	build-essential \
 	bzip2 \
 	ca-certificates \
-	curl \
 	cmake \
+	curl \
 	default-jdk \
 	device-tree-compiler \
 	devscripts \
 	ecj \
+	fakeroot \
 	file \
 	flex \
 	fuse \
@@ -40,24 +41,24 @@ RUN apt update && apt upgrade -y \
 	gettext \
 	git \
 	gnupg \
-	groff \
 	gperf \
+	groff \
 	help2man \
-	java-wrappers \
 	java-propose-classpath \
+	java-wrappers \
 	jq \
 	libc6-dev \
-	libffi-dev \
 	libexpat-dev \
+	libffi-dev \
+	liblz4-dev \
 	libncurses5-dev \
 	libpcre3-dev \
 	libpython3-dev \
 	libsqlite3-dev \
 	libssl-dev \
 	libxml-parser-perl \
-	lz4 \
-	liblz4-dev \
 	libzstd-dev \
+	lz4 \
 	make \
 	ocaml \
 	ocaml-findlib \
@@ -66,10 +67,10 @@ RUN apt update && apt upgrade -y \
 	pkg-config \
 	psmisc \
 	python-is-python3 \
-	python3.11 \
-	python3.11-dev \
 	python3-setuptools \
 	python3-yaml \
+	python3.11 \
+	python3.11-dev \
 	rsync \
 	sharutils \
 	subversion \

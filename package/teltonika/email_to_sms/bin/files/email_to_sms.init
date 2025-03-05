@@ -5,9 +5,8 @@ START=70
 STOP=40
 
 start_service() {
-	procd_open_instance
-	procd_set_param command lua /usr/bin/email_to_sms start
-	procd_close_instance
+	mkdir -p /var/run/ets
+	/usr/bin/email_to_sms start
 }
 
 stop_service() {
@@ -19,7 +18,7 @@ service_triggers()
 	procd_add_reload_trigger "email_to_sms"
 }
 
-
-restart () {
-	/usr/bin/email_to_sms start
+reload_service () {
+	stop
+	start
 }

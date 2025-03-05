@@ -56,6 +56,7 @@ start_relay() {
 
 	procd_open_instance
 	procd_set_param command "$PROG"
+	procd_set_param user relayd
 
 	for ifn in $resolved_ifnames; do
 		procd_append_param command -I "$ifn"

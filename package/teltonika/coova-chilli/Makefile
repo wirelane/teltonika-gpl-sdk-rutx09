@@ -9,11 +9,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2025-01-06
+PKG_VERSION:=2025-02-17
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.4
 PKG_SOURCE_URL:=https://codeload.github.com/coova/coova-chilli/tar.gz/refs/tags/$(PKG_SOURCE_VERSION)?
@@ -49,7 +49,7 @@ define Package/coova-chilli
   CATEGORY:=Network
   DEPENDS:=+libuci +libtlt_uci +kmod-tun +librt +COOVACHILLI_CYASSL:libcyassl +COOVACHILLI_OPENSSL:libopenssl \
 	+COOVACHILLI_DATABASE:libsqlite3 +MOBILE_SUPPORT:libgsm +libubus +libubox +libtltchilli +libjson-c +COOVACHILLI_CURL:libcurl \
-	+COOVACHILLI_KMOD:kmod-ipt-coova
+	+COOVACHILLI_KMOD:kmod-ipt-coova +rms-json-hotspot
   TITLE:=Wireless LAN HotSpot controller (Coova Chilli Version)
   URL:=https://coova.github.io/
   MENU:=1
@@ -135,6 +135,30 @@ endef
 
 define Package/coova-chilli/conffiles
 /etc/config/chilli
+/etc/chilli/users.db
+endef
+
+# This is needed to clear the 'Event Juggler' cache because the coova-chilli package is not installed by default on some devices.
+# After installation, 'Event Juggler' will update and contain the latest cached data.
+define RemoveEventJugglerCachedData
+#!/bin/sh
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+FILE_PATH="/tmp/event_juggler/plugin_data.json"
+
+if [ -f "$${FILE_PATH}" ]; then
+    rm -f "$${FILE_PATH}"
+fi
+
+exit 0
+endef
+
+define Package/coova-chilli/postinst
+$(RemoveEventJugglerCachedData)
+endef
+
+define Package/coova-chilli/postrm
+$(RemoveEventJugglerCachedData)
 endef
 
 define Package/coova-chilli/install
@@ -144,6 +168,7 @@ define Package/coova-chilli/install
 	$(CP) $(PKG_INSTALL_DIR)/etc/chilli/* $(1)/etc/chilli/
 	$(INSTALL_BIN) files/conup.sh $(1)/etc/chilli/
 	$(INSTALL_BIN) files/condown.sh $(1)/etc/chilli/
+	$(INSTALL_BIN) files/conrestart.sh $(1)/etc/chilli/
 	$(INSTALL_BIN) files/macup.sh $(1)/etc/chilli/
 	$(INSTALL_BIN) files/macdown.sh $(1)/etc/chilli/
 	$(INSTALL_BIN) files/users.db $(1)/etc/chilli/
@@ -165,6 +190,10 @@ define Package/coova-chilli/install
 	$(INSTALL_BIN) files/wireless.sh $(1)/etc/chilli/
 	$(INSTALL_DATA) files/chilli.upgrade $(1)/lib/upgrade/keep.d/chilli
 	$(INSTALL_DATA) files/hotspot.sh $(1)/lib/troubleshoot/
+	$(if $(filter m,$(CONFIG_PACKAGE_coova-chilli)), \
+		echo 1 > $(1)/etc/chilli/limit, \
+		echo 5 > $(1)/etc/chilli/limit \
+	)
 endef
 
 $(eval $(call BuildPackage,coova-chilli))

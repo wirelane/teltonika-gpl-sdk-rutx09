@@ -6,6 +6,7 @@
 
 USE_PROCD=1
 START=80
+STOPPING=0
 
 PROG="/usr/sbin/tailscale"
 [ -x "$PROG" ] || PROG="/usr/local${PROG}"
@@ -110,8 +111,12 @@ start_service() {
 	config_get exit_node_ip "settings" exit_node_ip ""
 	config_get login_server "settings" login_server ""
 
-	${PROG}d --cleanup 1>/dev/null 2>&1
+	if [ -n "$(pgrep -f "${PROG}d ")" ] && [ "$STOPPING" = 0 ]; then 
+		log "info" "Clean up system state"
+		${PROG}d --cleanup 1>/dev/null 2>&1
+	fi
 
+	log "info" "Service starting"
 	procd_open_instance
 	procd_set_param command ${PROG}d
 
@@ -128,7 +133,6 @@ start_service() {
 	procd_set_param stderr "$std_err"
 
 	procd_close_instance
-	log "info" "Service started"
 	[ -e "/tmp/state/tailscale" ] && : >/tmp/state/tailscale/err
 
 	#Connect the device when tailscale service started
@@ -136,14 +140,20 @@ start_service() {
 }
 
 stop_service() {
-	$PROG down
-	${PROG}d --cleanup 1>/dev/null 2>&1
+	log "info" "Service stopping"
+	STOPPING=1
+	[ -n "$(pgrep -f "${PROG}d ")" ] && {
+		log "info" "Disconnect from Tailscale"
+		$PROG down
+		log "info" "Clean up system state"
+		${PROG}d --cleanup 1>/dev/null 2>&1
+	}
 	if grep -q "tailscale" /tmp/resolv.conf.d/resolv.conf.auto; then
 		mv /tmp/resolv.conf.d/resolv.conf.auto.backup /tmp/resolv.conf.d/resolv.conf.auto
 		rm /tmp/resolv.conf.d/resolv.conf.tailscale
 		log "info" "Added default DNS"
 	fi
-	log "info" "Service stopped"
+	[ -e "/tmp/state/tailscale" ] && : >/tmp/state/tailscale/status
 }
 
 reload_service() {

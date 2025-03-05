@@ -1,15 +1,1 @@
-{
-  "services/ddns": {
-    "description": "ddns configuration",
-    "read": {
-      "api": {
-        "/ddns/*": ["*"],
-        "/interfaces/config/*": ["id"]
-      }
-    },
-    "write": {
-      "api": ["/ddns/*"]
-    },
-    "source": [ "/ddns/*"]
-  }
-}
+{"services/ddns":{"description":"ddns configuration","read":{"api":{"/ddns/*":["*"],"/interfaces/config/*":["id"],"/openvpn/config/*":["type","id","name"]}},"write":{"api":["/ddns/*"]},"source":["/ddns/*"]}}

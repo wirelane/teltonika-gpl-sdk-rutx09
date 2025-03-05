@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=9
+PKG_RELEASE:=11
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=e5ccbfc69ecf297590341ae8b461edba9d8e964c
@@ -27,6 +27,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_hostapd \
 	CONFIG_PACKAGE_hostapd-basic \
 	CONFIG_PACKAGE_hostapd-mini \
+	CONFIG_PACKAGE_hostapd-micro-nac-openssl \
 	CONFIG_WPA_RFKILL_SUPPORT \
 	CONFIG_DRIVER_WEXT_SUPPORT \
 	CONFIG_DRIVER_11N_SUPPORT \
@@ -185,6 +186,16 @@ define Package/hostapd-mini/description
  This package contains a minimal IEEE 802.1x/WPA Authenticator (WPA-PSK only).
 endef
 
+define Package/hostapd-micro-nac-openssl
+$(call Package/hostapd/Default,$(1))
+  TITLE+= (.1x NAC only)
+  VARIANT:=micro-nac-openssl
+  DEPENDS+=+PACKAGE_hostapd-micro-nac-openssl:libopenssl
+endef
+
+define Package/hostapd-micro-nac-openssl/description
+ This package contains a minimal IEEE 802.1x NAC.
+endef
 
 define Package/wpad/Default
   SECTION:=net
@@ -365,6 +376,10 @@ define Package/wpa-cli
   DEPENDS:=@$(subst $(space),||,$(foreach pkg,$(SUPPLICANT_PROVIDERS),PACKAGE_$(pkg)))
   TITLE:=WPA Supplicant command line control utility
   VARIANT:=*
+  ifeq (m, $(CONFIG_PACKAGE_wpa-cli))
+    PKG_TLT_NAME:=WPA CLI
+    PKG_ROUTER:=$(TLT_PLATFORM_NAME)
+  endif
 endef
 
 define Package/eapol-test/Default
@@ -543,6 +558,7 @@ endef
 Package/hostapd-basic/install = $(Package/hostapd/install)
 Package/hostapd-basic-openssl/install = $(Package/hostapd/install)
 Package/hostapd-mini/install = $(Package/hostapd/install)
+Package/hostapd-micro-nac-openssl/install = $(Package/hostapd/install)
 Package/hostapd-openssl/install = $(Package/hostapd/install)
 
 ifneq ($(LOCAL_TYPE),supplicant)
@@ -609,6 +625,7 @@ $(eval $(call BuildPackage,hostapd))
 $(eval $(call BuildPackage,hostapd-basic))
 $(eval $(call BuildPackage,hostapd-basic-openssl))
 $(eval $(call BuildPackage,hostapd-mini))
+$(eval $(call BuildPackage,hostapd-micro-nac-openssl))
 $(eval $(call BuildPackage,hostapd-openssl))
 $(eval $(call BuildPackage,wpad))
 $(eval $(call BuildPackage,wpad-mesh-openssl))

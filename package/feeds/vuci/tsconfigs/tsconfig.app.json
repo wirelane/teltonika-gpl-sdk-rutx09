@@ -40,7 +40,8 @@
     "../vuci-ui-core/**/*",
     "../.vucix/vuci.d.ts",
     "../docs/**/*",
-    "../"
+    "../",
+    "../.storybook/**/*",
   ],
   "exclude": [
     "../node_modules",

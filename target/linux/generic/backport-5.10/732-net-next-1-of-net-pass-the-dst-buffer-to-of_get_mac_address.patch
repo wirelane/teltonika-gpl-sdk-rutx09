@@ -287,7 +287,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	/* get phy addr and create mdio */
 --- a/drivers/net/ethernet/arc/emac_main.c
 +++ b/drivers/net/ethernet/arc/emac_main.c
-@@ -857,7 +857,6 @@ int arc_emac_probe(struct net_device *nd
+@@ -862,7 +862,6 @@ int arc_emac_probe(struct net_device *nd
  	struct device_node *phy_node;
  	struct phy_device *phydev = NULL;
  	struct arc_emac_priv *priv;
@@ -295,7 +295,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	unsigned int id, clock_frequency, irq;
  	int err;
  
-@@ -942,11 +941,8 @@ int arc_emac_probe(struct net_device *nd
+@@ -947,11 +946,8 @@ int arc_emac_probe(struct net_device *nd
  	}
  
  	/* Get MAC address from device tree */
@@ -334,7 +334,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	}
 --- a/drivers/net/ethernet/broadcom/bcmsysport.c
 +++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2469,7 +2469,6 @@ static int bcm_sysport_probe(struct plat
+@@ -2473,7 +2473,6 @@ static int bcm_sysport_probe(struct plat
  	struct bcm_sysport_priv *priv;
  	struct device_node *dn;
  	struct net_device *dev;
@@ -342,7 +342,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	u32 txq, rxq;
  	int ret;
  
-@@ -2564,12 +2563,10 @@ static int bcm_sysport_probe(struct plat
+@@ -2568,12 +2567,10 @@ static int bcm_sysport_probe(struct plat
  	}
  
  	/* Initialize netdevice members */
@@ -396,8 +396,8 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	    !core->bus->drv_gmac_cmn.core) {
 --- a/drivers/net/ethernet/broadcom/bgmac-platform.c
 +++ b/drivers/net/ethernet/broadcom/bgmac-platform.c
-@@ -173,7 +173,7 @@ static int bgmac_probe(struct platform_d
- 	struct device_node *np = pdev->dev.of_node;
+@@ -174,7 +174,7 @@ static int bgmac_probe(struct platform_d
+ 	struct device_node *phy_node;
  	struct bgmac *bgmac;
  	struct resource *regs;
 -	const u8 *mac_addr;
@@ -405,7 +405,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  
  	bgmac = bgmac_alloc(&pdev->dev);
  	if (!bgmac)
-@@ -192,11 +192,10 @@ static int bgmac_probe(struct platform_d
+@@ -193,11 +193,10 @@ static int bgmac_probe(struct platform_d
  	bgmac->dev = &pdev->dev;
  	bgmac->dma_dev = &pdev->dev;
  
@@ -854,7 +854,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  	int err;
  
  	printk(KERN_NOTICE "PXA168 10/100 Ethernet Driver\n");
-@@ -1435,12 +1434,8 @@ static int pxa168_eth_probe(struct platf
+@@ -1432,12 +1431,8 @@ static int pxa168_eth_probe(struct platf
  
  	INIT_WORK(&pep->tx_timeout_task, pxa168_eth_tx_timeout_task);
  
@@ -871,7 +871,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  		if (!is_valid_ether_addr(dev->dev_addr)) {
 --- a/drivers/net/ethernet/marvell/sky2.c
 +++ b/drivers/net/ethernet/marvell/sky2.c
-@@ -4725,7 +4725,7 @@ static struct net_device *sky2_init_netd
+@@ -4726,7 +4726,7 @@ static struct net_device *sky2_init_netd
  {
  	struct sky2_port *sky2;
  	struct net_device *dev = alloc_etherdev(sizeof(*sky2));
@@ -880,7 +880,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  
  	if (!dev)
  		return NULL;
-@@ -4795,10 +4795,8 @@ static struct net_device *sky2_init_netd
+@@ -4796,10 +4796,8 @@ static struct net_device *sky2_init_netd
  	 * 1) from device tree data
  	 * 2) from internal registers set by bootloader
  	 */
@@ -967,7 +967,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  		eth_hw_addr_random(ndev);
 --- a/drivers/net/ethernet/qualcomm/qca_spi.c
 +++ b/drivers/net/ethernet/qualcomm/qca_spi.c
-@@ -902,7 +902,7 @@ qca_spi_probe(struct spi_device *spi)
+@@ -901,7 +901,7 @@ qca_spi_probe(struct spi_device *spi)
  	struct net_device *qcaspi_devs = NULL;
  	u8 legacy_mode = 0;
  	u16 signature;
@@ -976,7 +976,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
  
  	if (!spi->dev.of_node) {
  		dev_err(&spi->dev, "Missing device tree\n");
-@@ -979,12 +979,8 @@ qca_spi_probe(struct spi_device *spi)
+@@ -975,12 +975,8 @@ qca_spi_probe(struct spi_device *spi)
  
  	spi_set_drvdata(spi, qcaspi_devs);
  

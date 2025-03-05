@@ -909,6 +909,8 @@ typedef enum {
 	LGSM_UBUS_SET_FAST_SHUTDOWN_INFO,
 	LGSM_UBUS_GET_SIGNAL_API_SELECTION_STATE,
 	LGSM_UBUS_SET_SIGNAL_API_SELECTION_STATE,
+	LGSM_UBUS_SET_RPLMN_STATE,
+	LGSM_UBUS_GET_RPLMN_STATE,
 	LGSM_UBUS_DISABLE_NR5G_SA,
 	//------
 	__LGSM_UBUS_MAX,
@@ -1544,6 +1546,8 @@ typedef enum {
 	LGSM_LABEL_FROUTING_STATE_T,
 	LGSM_LABEL_FAST_SHUTDOWN_STATE_T,
 	LGSM_LABEL_SIGNAL_API_SELECTION_STATE_T,
+	LGSM_LABEL_GET_RPLMN_STATE_T,
+	LGSM_LABEL_SET_RPLMN_STATE_T,
 	LGSM_LABEL_ERROR,
 } lgsm_resp_label_t;
 
@@ -3299,6 +3303,16 @@ lgsm_err_t lgsm_deattach(struct ubus_context *ctx, func_t *resp, const char *usb
 lgsm_err_t lgsm_set_signal_api_selection_state(struct ubus_context *ctx, bool enabled, func_t *resp,
 					       uint32_t modem_num);
 
+/**
+ * Set RPLMN selection state
+ * @param[ptr]  ctx   	    Ubus ctx.
+ * @param[in]   enabled	    RPLMN state enabled.
+ * @param[char] resp   	    Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_rplmn_state(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
+
 /******************
 *  GET HANDLERS  *
 ******************/
@@ -3965,6 +3979,13 @@ void handle_get_usbcfg_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed)
    * @param[ptr]   parsed    Parsed union readable information.
    */
 void handle_get_signal_api_selection_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+   * Parse RPLMN API selection state method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_rplmn_state_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 /*********************
 *  STRUCT HANDLERS  *
 *********************/

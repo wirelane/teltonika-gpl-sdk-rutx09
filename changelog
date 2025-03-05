@@ -1,26 +1,178 @@
-# 2025-02-06 00.07.12.3
+# 2025-03-05 00.07.13.1
+
+### Fix
+
+* Auto Reboot: fixed an issue causing the device to reboot immediately (ID: 24311)
+
+# 2025-02-28 00.07.13
 
 ### New
 
-* Modbus Client: added an endpoint that returns status for a single Modbus request (ID: 23443)
-
-### Fix
-
-* Network: fixed occasional network hangs when using wired LAN with "Hardware flow offloading" enabled for RUTM family, ATRM family (ID: 23196)
-* Network: fixed possible network hangs when using wired LAN with "Hardware flow offloading" enabled for RUTC50 (ID: 23196)
-
-# 2025-02-04 00.07.12.2
+* 802.1X Client: added service for TRB2M family, OTD140, RUT14X family, RUT2M family, RUT301, RUT361, RUT9M family (ID: 22397)
+* 802.1X Server: added service for RUTC50 (ID: 20858)
+* BFD: added service (ID: 6924)
+* EoIP: added service (ID: 22001)
+* Events juggler: added service (ID: 5761)
+* Mobile: added "dm.jplat.net" APN for HIS carrier (ID: 22549)
+* Mobile: added "internet.telia.iot" APN for Telia carrier (ID: 22115)
+* Mobile: added "mobile.iot" APN for Elisa carrier (ID: 22115)
+* Mobile: added bandwidth rate limiting control when a specified data usage threshold is reached (ID: 16714)
+* OpenConnect: added service (ID: 23471)
+* Realtime Traffic: added historical data support for wireless devices (ID: 15267)
+* Update Firmware: added link to FW & SDK download page (ID: 22320)
 
 ### Improvements
 
-* Update Firmware: optimized modem firmware validation and update sequence for TRB1 family (ID: 22765)
+* Access Control: improved UX when disabling HTTP and HTTPS local access settings (ID: 22671)
+* Administration: added confirmation prompt when changing profiles (ID: 21499)
+* Administration: updated hostname validation to allow numeric-only hostname (ID: 23241)
+* Bluetooth: added status of scan availability (ID: 11058)
+* DNP3 Client: moved page to basic mode (ID: 21880)
+* Dynamic DNS: added support for using local openvpn interface ip address (ID: 22355)
+* Dynamic routes: added validation for NHRP to prevent using same interface on multiple instances (ID: 21959)
+* Firewall: added possibility to manually specify conntrack helper for a port forward rule (ID: 20171)
+* Firewall: moved IPtables NAT extra to package manager (ID: 22877)
+* Hotspot: added MAC address delimiter and case setting for Radius MAC authentication (ID: 21160)
+* Hotspot: added support for multiple instances for RUTX family, RUTM family, RUTC family (ID: 21160)
+* Hotspot: improved API validations (ID: 22218)
+* Input/Output: updated pin block naming (ID: 18058)
+* IPsec: added ChaCha20-Poly1305 encryption algorithm (ID: 14551)
+* IPsec: added periodic connection check (ID: 22574)
+* IPsec: improved performance for RUTX family (ID: 21526)
+* IPsec: improved performance when using GCM encryption for RUTM family, ATRM family, OTD500 (ID: 21526)
+* Mobile: added inactive eSIM profile display for RUTM52, RUT241, RUTM54, OTD500 (ID: 21975)
+* Mobile: added multi-modem support to the SIM switch for RUTM52, RUTX12, RUTM56 (ID: 19712)
+* Mobile: improved data limit and SMS limit SIM switch rule behavior for OTD family, TRB256, TRB246, RUTC family, RUT9M family, RUT206, ATRM family, RUT241, RUT971, RUT976, RUTM family, RUTX family (ID: 19712)
+* Mobile: improved eSIM profile delete functionality for RUTM52, RUT241, RUTM54, OTD500 (ID: 20803)
+* Mobile: improved handling for the maximum number of active interfaces (ID: 21909)
+* Mobile: improved operator name parsing from SPN file (ID: 23429)
+* Mobile: improved SIM detection and SIM switching for RUT9M family, RUTE family, RUTX09, RUTX11 (ID: 23742)
+* Mobile: improved SIM switch service behavior when changing configuration for OTD family, TRB246, TRB256, RUTC family, RUT9M family, RUT206, ATRM family, RUT241, RUT971, RUT976, RUTM family, RUTX family (ID: 19712)
+* Mobile: updated 5G bands selection to display 5G mode for ATRM family, OTD500, RUTC family, RUT971, RUT976, RUTM20, RUTM30, RUTM50, RUTM51, RUTM52, RUTM54, RUTM55, RUTM56, RUTM59, RUTX50, TRB5 family, RUT271 (ID: 19784)
+* Modbus Client: added ability to choose where to save database (ID: 21366)
+* Modbus Client: added store on data change mode (ID: 19940)
+* Modbus Client: moved page to basic mode (ID: 21880)
+* MQTT Modbus Gateway: improved constant $$NAME that can be defined in system configuration (ID: 22224)
+* Network: moved "Use port as LAN" and "Use port as WAN" actions to  advanced mode for TRB2 family, TRB2M family, TRB5 family, TRB1 family (ID: 5663)
+* Network: moved "Use WAN port as LAN" option to advanced mode for ATRM family, RUT14X family, RUT2M family, RUT30X family, RUT36X family, RUT9M family, RUTC family, RUTM family, RUTX family, TCR1 family (ID: 5663)
+* Network: moved wpa_cli to package manager for Router family (ID: 22877)
+* OpenVPN: enabled DCO support for CHACHA20-POLY1305 cipher for ATRM family, DAP family, OTD family, RUT14X family, RUT2M family, RUT301, RUT361, RUT9M family, RUTC family, RUTM family, RUTX family, TRB2M family (ID: 21526)
+* OpenVPN: improved performance when using DCO-supported ciphers for ATRM family, OTD500, RUTC family, RUTM family, RUTX family (ID: 21526)
+* OpenVPN: improved statuses for instances (ID: 21063)
+* OpenVPN: removed 'persist-tun' and 'persist-key' options from default configuration (ID: 21063)
+* Package Manager: added confirmation prompt when closing uploaded package modal (ID: 19007)
+* SD & USB Tools: renamed "USB Tools" service to "SD & USB Tools" in WebUI for more accurate description (ID: 23351)
+* Security: changed password policy to require at least one special character (ID: 23435)
+* SMS Gateway: moved Email to SMS service to Package manager (ID: 22878)
+* SMS Utilities: added a new option "Send response SMS" which allows receiving action response message (ID: 21740)
+* SMS Utilities: changed format of ADC and ACL status (ID: 21711)
+* Static Routes: improved descriptions for routing rules (ID: 22062)
+* System Users: changed username validation to allow dots and underscores for Router family (ID: 22464)
+* Tailscale: optimized starting and stopping functions (ID: 22259)
+* Topology: moved to package manager (ID: 22877)
+* Update Firmware: added link to changelog page (ID: 12516)
+* VRF: moved page from Network sub-menu to Network > Routing (ID: 22618)
+* WebUI: removed basic/advanced mode (ID: 19154)
+* WebUI: updated Teltonika logo (ID: 22499)
+* Wireless: added rotating log files for wireless services (ID: 21799)
+* Zerotier: added ability to upload a custom planet file (ID: 21925)
 
 ### Fix
 
-* IPsec: fixed kernel warnings when custom NAT rules are used with "IPsec Software Flow Offload" enabled for DAP family, OTD family, RUT14X family, RUT2M family, RUT30X family, RUT361, RUT9M family, RUTC family, RUTM family, RUTX family, TRB2M family (ID: 22793)
-* Mobile: fixed provider name parsing from SPN file (ID: 23011)
-* OpenVPN: fixed an issue with config file parsing when carriage return characters were present (ID: 22918)
-* OpenVPN: fixed parsing of the 'Protocol','Port' and 'LZO' options from the config file (ID: 22918)
+* 802.1X Server: fixed a segfault that sometimes occurs when port state changes to down (ID: 23118)
+* Access Control: fixed "redirect_https" option reset after device reboot (ID: 23195)
+* Access Control: fixed default HTTPS CA certificate generation (ID: 775)
+* BACnet: fixed require of 'bbmd_port' option in API (ID: 22709)
+* Data to Server: fixed "Invert filter" option to be hidden when using "DLMS" type and "Data filtering" option is selected to "All" (ID: 23280)
+* Data to Server: fixed loading of the LUA modules for TAP family (ID: 22524)
+* Data to Server: fixed the OPC UA, DLMS, MBUS, and impulse counter inverted filtering logic (ID: 21945)
+* Date & Time: fixed time synchronization with the browser when using Europe/Kyiv timezone (ID: 17943)
+* Devices: fixed error handling for deleting non-existent bridge sections (ID: 22142)
+* DHCP: fixed an issue where DHCP Relay mode did not work with an active IPv4 mobile connection (ID: 23790)
+* DLMS: fixed an issue where DLMS service could not read extended register type COSEM objects and display incorrect scaler value (ID: 22582)
+* DLMS: fixed an issue where non-persistent connections did not close properly (ID: 22803)
+* DLMS: fixed device option data type validation for connections endpoints (ID: 22225)
+* DLMS: fixed DLMS endpoint parameter validation (ID: 22040)
+* DMVPN: fixed NHRP multicast NFLOG group option not setting (ID: 23205)
+* Events Reporting: fixed WebUI sub type notice bug (ID: 22733)
+* Firewall: fixed automatic conntrack helper not being assigned for port forward rules in some cases (ID: 20171)
+* Firewall: fixed incorrectly restricted AF23 value for traffic rule's DSCP option (ID: 22518)
+* Firewall: fixed traffic rules "start_date" and "stop_date" option validations failing due to incorrect format (ID: 22163)
+* GPS: fixed 'Add TAVL rule' section visibility when there is nothing left to add (ID: 17844)
+* GPS: fixed error display for din_status option (ID: 22519)
+* GPS: fixed Save & Apply issue after AVL secondary rule deletion (ID: 23487)
+* Hotspot: fixed bandwidth limits setting with "chilli_query" command (ID: 22583)
+* Hotspot: fixed preserving Hotspot users between firmware upgrades for TRB2M family, TRB5 family, TRB1 family, TCR1 family, RUT9M family, RUT2M family, DAP family, OTD family, RUT14X family, RUT30X family, RUT36X family (ID: 22990)
+* Impulse Counter: fixed pin name display (ID: 21912)
+* Input/Output: fixed DOUT gpio for RUT271 (ID: 23742)
+* Input/Output: fixed the 1-Wire control pin issue for TRB141 (ID: 23500)
+* IPsec: fixed connections not terminating if instance is disabled (ID: 22484)
+* IPsec: fixed route based ipsec mode (ID: 23326)
+* IPsec: fixed status display when compatibility mode is used (ID: 22484)
+* L2TP: fixed occasional device hangs when routing L2TP traffic with "Software flow offload" enabled for ATRM family, DAP family, OTD family, RUT14X family, RUT2M family, RUT30X family, RUT36X family, RUT9M family, RUTC family, RUTM family, RUTX family, TCR1 family, TRB160, TRB2 family, TRB2M family, TRB501 (ID: 17897)
+* Mobile: fixed attachment issues with specific operators for TRB500 (ID: 21281)
+* Mobile: fixed data limit not being reset for TRB500 (ID: 23272)
+* Mobile: fixed module crashing issues with specific operators for TRB500 (ID: 21281)
+* Mobile: fixed parsing of 70 MHz bandwidth in 5G networks for RUTM51 (ID: 23375)
+* Mobile: fixed parsing of large data from the module's serial port (ID: 23354)
+* Mobile: fixed signal values being presented with no SIM card on RG255C modem for RUT971, RUT976, RUT271 (ID: 22444)
+* Modbus Client: fixed alarm issues related to modem (ID: 23426)
+* Modbus Client: fixed API error when 'function' option is not present in alarms/requests configuration POST request (ID: 22271)
+* Modbus Client: fixed email alarm action when TLS is enabled (ID: 22922)
+* Modbus Client: fixed reusing connection in Modbus client Modbus request alarm action (ID: 22722)
+* MQTT Modbus Gateway: fixed client ID validation (ID: 23397)
+* Multi WAN: fixed pings being lost for backup wired wan interfaces (ID: 22783)
+* Network Shares: fixed deleting of multiple users in one request (ID: 22154)
+* Network: fixed a name duplication validation error that occurred between the network interface and the VRF instance for Router family (ID: 22086)
+* Network: fixed API failing to sort specific network interface configurations (ID: 22100)
+* Network: fixed DHCP lease sometimes not updating when changing mobile mode (ID: 22889)
+* Network: fixed ethernet switch port state change tracking logic for RUT2M family, RUT9M family, RUT14X family, RUT361, TRB2M family, TAP100, OTD140, RUT301 (ID: 21974)
+* Network: fixed forwarding DNS queries through wrong VLAN for TAP family (ID: 23193)
+* Network: fixed interface remove button disable state being shown only after status is loaded for Router family (ID: 22530)
+* Network: fixed interfaces being displayed in the wrong page after updating with keep settings for Router family (ID: 21890)
+* Network: fixed LAN interfaces sometimes not getting IPv6 prefix assigned on creation for Router family (ID: 22710)
+* Network: fixed possible Ethernet port hang after network reload for RUTX family (ID: 22276)
+* Network: fixed VLAN management hijacking the wireless network under certain conditions for TAP family (ID: 22806)
+* NHRP: fixed missing dependencies for Router family (ID: 23282)
+* OpenVPN: fixed issues related to warnings when using external services (ID: 23168)
+* Package Manager: fixed possible config migration issues for installed packages (ID: 23105)
+* Package Manager: fixed spinner position in package table (ID: 22532)
+* RMS: fixed the "Connection state" status displayed as JSON when device language was set to anything other than English (ID: 20102)
+* RMS: fixed the display of connected Hotspot clients when the radios of the Hotspot interface are modified (ID: 22887)
+* SMPP: fixed the "TLS/SSL" option to be visible even when the configuration is not enabled (ID: 20366)
+* SNMP: fixed validation to prevent creating or editing analog_type trap instances in devices that do not support this functionality (ID: 23175)
+* Speed Test: added server-list filter to remove servers from Belarus (ID: 22550)
+* Static Routes: fixed missing route type validation for API (ID: 21868)
+* Tailscale: fixed the issue of keeping the instance connection after a firmware upgrade (ID: 23060)
+* Update Firmware: fixed unnecessary FOTA requests when FOTA is disabled (ID: 22261)
+* VXLAN: made "Remote address" field required (ID: 22469)
+* Wireless: fixed 2.4 GHz radio channel configuration error on WiFi setup for RUTX family (ID: 22433)
+* Wireless: fixed automatic channel selection failing in Japan regulatory domain (ID: 22628)
+* Wireless: fixed inaccurate Hotspot error when saving SSIDs page (ID: 23254)
+* Wireless: fixed memory leak in wireless service caused by AP configuration reloads (ID: 23133)
+* Wireless: fixed new network edit not opening after network with same name deleted (ID: 16193)
+* Wireless: fixed the missing firewall zone assignment for the created Wi-Fi interface for Router family (ID: 22867)
+* Wireless: fixed WiFi services setup failures with AP+STA configuration on 2.4 GHz and 5 GHz radios simultaneously (ID: 21673)
+
+### CVE Patches
+
+* CVE-2022-49043 (ID: 23206)
+* CVE-2024-5290 (ID: 19843)
+* CVE-2024-9287 (ID: 22914)
+* CVE-2024-11053 (ID: 22566)
+* CVE-2024-34459 (ID: 23206)
+* CVE-2024-36618 (ID: 22120)
+* CVE-2024-53580 (ID: 22801)
+* CVE-2024-56171 (ID: 23900)
+* CVE-2025-24928 (ID: 23900)
+* CVE-2025-27113 (ID: 23900)
+
+### Updates
+
+* iperf3: updated version to  3.17.1 (ID: 22801)
+* Kernel: updated version to  5.4.289 for TRB2 family, TRB1 family, RUT300, RUT360, TCR1 family (ID: 7140)
+* Kernel: updated version to  5.10.233 for RUTX family, RUTM family, OTD500, TAP200, ATRM family (ID: 7140)
+* Kernel: updated version to  5.15.176 for RUTC family, TRB2M family, RUT14X family, OTD140, RUT2M family, RUT301, RUT361, RUT9M family, TAP100, TAP400, DAP family (ID: 7140)
 
 # 2025-01-17 00.07.12
 
@@ -215,6 +367,45 @@
 * Kernel: updated version to  5.4.285 for TRB2 family, TRB1 family, RUT300, RUT360, TCR1 family (ID: 7140)
 * Kernel: updated version to  5.10.229 for RUTX family, RUTM family, OTD500, TAP200, ATRM family (ID: 7140)
 * Kernel: updated version to  5.15.171 for RUTC family, TRB2M family, RUT14X family, OTD140, RUT2M family, RUT301, RUT361, RUT9M family, TAP100, TAP400, DAP family (ID: 7140)
+
+# 2025-01-06 00.07.06.17
+
+### Improvements
+
+* Mobile: improved operator name parsing when information is unavailable on the SIM card (ID: 22506)
+
+# 2024-12-12 00.07.11.3
+
+### Fix
+
+* Input/Output: fixed issues causing fault messages on service close (ID: 22398)
+* Ledman: fixed green-red tech leds blinking indefinitely after reboot before manual mobile connection restart for RUT9M family (ID: 22418)
+* Network: fixed possible memory leak when "IPsec software flow offload" is enabled for DAP family, OTD140, RUT14X family, RUT2M family, RUT301, RUT361, RUT9M family, RUTC family, TRB2M family (ID: 22349)
+* Wireguard: fixed field validation after firmware upgrade (ID: 22075)
+
+# 2024-12-04 00.07.11.2
+
+### Fix
+
+* IPsec: fixed connection status display (ID: 22085)
+* IPsec: fixed issue with multiple global secrets of same type (ID: 22222)
+* IPsec: fixed loading connections using AEAD algorithms (ID: 22068)
+* IPsec: fixed Local source IP option (ID: 22097)
+* OpenVPN: fixed the certificate file selection issue in the server configuration (ID: 22030)
+
+# 2024-11-27 00.07.11.1
+
+### New
+
+* Update Firmware: added support for new image format for RUTC family (ID: 20576)
+
+### Fix
+
+* Boot: fixed not working 3G LED in bootloader for RUTM52 (ID: 21892)
+* Hotspot: fixed limits not working for "MAC authentication", "Single sign-on" and "SMS OTP" modes (ID: 21985)
+* Ledman: fixed issue when network type LEDs are blinking when data connection is established (ID: 21733)
+* Memory Expansion: fixed USB flash drive recognition for RUT301 (ID: 21950)
+* Tailscale: fixed the segmentation fault that occurred after installing the package (ID: 21984)
 
 # 2024-11-25 00.07.11
 

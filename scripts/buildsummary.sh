@@ -56,6 +56,14 @@ get_target() {
 	grep CONFIG_TARGET_PROFILE "$BUILD_CONF_FILE" | sed 's/.*="\(.*\)"/\1/'
 }
 
+get_vuci_version() {
+	git -C feeds/vuci describe --always
+}
+
+get_vuci_date() {
+	git -C feeds/vuci show --no-patch --format=%ci HEAD
+}
+
 get_fw_file() {
 	xargs basename <"$TMP_DIR"/last_built.fw
 }
@@ -76,6 +84,7 @@ echo -ne "\
  \t${YELLOW}• System${NC}   ${GREEN}$(get_buildsys)${NC}
  \t${YELLOW}• Target${NC}   ${GREEN}$(get_target)${NC}
  \t${YELLOW}• Built${NC}    ${GREEN}${PKG_NUM} out of ${PKG_MAX} packages${NC} in ${BLUE}${PKG_BUILD_TIME}${NC}
+ \t${YELLOW}• Vuci${NC}     ${GREEN}$(get_vuci_version)${NC} (${BLUE}$(get_vuci_date)${NC})
  \t${YELLOW}• File${NC}     ${GREEN}$(get_fw_file)${NC}
  \t${YELLOW}• Finished${NC} in ${BLUE}${TOTAL_BUILD_TIME}${NC}
 \n" >"$PKG_INFO_CACHE"

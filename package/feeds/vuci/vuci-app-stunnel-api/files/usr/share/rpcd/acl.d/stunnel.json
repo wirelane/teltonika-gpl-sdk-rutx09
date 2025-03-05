@@ -1,15 +1,1 @@
-{
-	"services/vpn/stunnel": {
-		"description": "stunnel configuration",
-		"read": {
-			"api": {
-				"/stunnel/*": ["*"]
-			}
-		},
-		"write": {
-			"api": [
-				"/stunnel/*"
-			]
-		}
-	}
-}
+{"services/vpn/stunnel":{"description":"stunnel configuration","read":{"api":{"/stunnel/*":["*"]}},"write":{"api":["/stunnel/*"]}}}

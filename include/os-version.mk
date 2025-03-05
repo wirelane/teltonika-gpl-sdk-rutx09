@@ -22,4 +22,10 @@ export TLT_VERSION
 export TLT_VERSION_FILE
 
 endif # TLT_VERSION
+
+ifdef CI_COMMIT_TAG
+FW_TAG=$(CI_COMMIT_TAG)
+export FW_TAG
+endif
+
 endif # prereq, tmp/info/.files

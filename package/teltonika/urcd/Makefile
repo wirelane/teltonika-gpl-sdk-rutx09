@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=urcd
 
-PKG_SOURCE_VERSION:=1.3
+PKG_SOURCE_VERSION:=1.5
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -20,13 +20,16 @@ define Package/urcd
 	TITLE:=GSM URC manager
 	DEPENDS:= +libubus +libubox +libgsm +liburc +libuci \
 		+libtlt-logger +libboardjson +liblog
+	USERID:=urcd:urcd
+	CAP:=/usr/sbin/urcd:cap_setuid,cap_setgid=ep
 endef
 
 
 define Package/urcd/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/urcd $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/urcd.init $(1)/etc/init.d/urcd
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/urcd.json $(1)/usr/share/acl.d/
 endef
 
 $(eval $(call BuildPackage,urcd))

@@ -1,0 +1,111 @@
+--- a/service/instance.c
++++ b/service/instance.c
+@@ -38,6 +38,7 @@
+ 
+ #define UJAIL_BIN_PATH "/sbin/ujail"
+ #define CGROUP_BASEDIR "/sys/fs/cgroup/services"
++#define HOMEDIR "/var/run"
+ 
+ enum {
+ 	INSTANCE_ATTR_COMMAND,
+@@ -69,6 +70,7 @@ enum {
+ 	INSTANCE_ATTR_TMPOVERLAYSIZE,
+ 	INSTANCE_ATTR_BUNDLE,
+ 	INSTANCE_ATTR_WATCHDOG,
++	INSTANCE_ATTR_HOMEDIR,
+ 	__INSTANCE_ATTR_MAX
+ };
+ 
+@@ -102,6 +104,7 @@ static const struct blobmsg_policy insta
+ 	[INSTANCE_ATTR_TMPOVERLAYSIZE] = { "tmpoverlaysize", BLOBMSG_TYPE_STRING },
+ 	[INSTANCE_ATTR_BUNDLE] = { "bundle", BLOBMSG_TYPE_STRING },
+ 	[INSTANCE_ATTR_WATCHDOG] = { "watchdog", BLOBMSG_TYPE_ARRAY },
++	[INSTANCE_ATTR_HOMEDIR] = { "homedir", BLOBMSG_TYPE_BOOL}
+ };
+ 
+ enum {
+@@ -379,6 +382,19 @@ instance_writepid(struct service_instanc
+ }
+ 
+ static void
++instance_create_homedir(struct service_instance *in)
++{
++	char homedir_buf[256] = { 0 };
++	
++	snprintf(homedir_buf, sizeof(homedir_buf), "%s/%s", HOMEDIR, in->srv->name);
++	mkdir(homedir_buf, 0740);
++	
++	if (chown(homedir_buf, in->uid, in->gr_gid)) {
++		ERROR("failed to chown(%s)\n", homedir_buf);
++	}
++}
++
++static void
+ instance_run(struct service_instance *in, int _stdout, int _stderr)
+ {
+ 	struct blobmsg_list_node *var;
+@@ -574,6 +590,10 @@ instance_start(struct service_instance *
+ 	pid = fork();
+ 	if (pid < 0)
+ 		return;
++	
++	if (in->homedir) {
++		instance_create_homedir(in);
++	}
+ 
+ 	if (!pid) {
+ 		uloop_done();
+@@ -973,6 +993,9 @@ instance_config_changed(struct service_i
+ 
+ 	if (in->watchdog.freq != in_new->watchdog.freq)
+ 		return true;
++	
++	if (in->homedir != in_new->homedir)
++		return true;
+ 
+ 	return false;
+ }
+@@ -1375,6 +1398,9 @@ instance_config_parse(struct service_ins
+ 			DEBUG(3, "invalid watchdog timeout (%d) given, using default (30)\n", vals[1]);
+ 		}
+ 	}
++	
++	if (tb[INSTANCE_ATTR_HOMEDIR])
++		in->homedir = blobmsg_get_bool(tb[INSTANCE_ATTR_HOMEDIR]);
+ 
+ 	return true;
+ }
+@@ -1438,6 +1464,7 @@ instance_config_move(struct service_inst
+ 	in->uid = in_src->uid;
+ 	in->pw_gid = in_src->pw_gid;
+ 	in->gr_gid = in_src->gr_gid;
++	in->homedir = in_src->homedir;
+ 
+ 	in->has_jail = in_src->has_jail;
+ 	in->jail.procfs = in_src->jail.procfs;
+@@ -1638,6 +1665,15 @@ void instance_dump(struct blob_buf *b, s
+ 
+ 	if (in->group)
+ 		blobmsg_add_string(b, "group", in->group);
++	
++	if (in->homedir) {
++		char *homedir_buf = NULL;
++		
++		if (asprintf(&homedir_buf, "%s/%s", HOMEDIR, in->srv->name) > 0) {
++			blobmsg_add_string(b, "homedir", homedir_buf);
++			free(homedir_buf);
++		}
++	}
+ 
+ 	if (in->has_jail) {
+ 		void *r = blobmsg_open_table(b, "jail");
+--- a/service/instance.h
++++ b/service/instance.h
+@@ -79,6 +79,7 @@ struct service_instance {
+ 	bool require_jail;
+ 	bool immediately;
+ 	bool no_new_privs;
++	bool homedir;
+ 	struct jail jail;
+ 	char *seccomp;
+ 	char *capabilities;

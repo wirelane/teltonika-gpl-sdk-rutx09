@@ -39,7 +39,7 @@
   },
   {
     "name": "RUTE",
-    "devices": ["RUT206", "RUT271", "RUT976"]
+    "devices": ["RUT206", "RUT271", "RUT971", "RUT976"]
   },
   {
     "name": "RUT2M",
@@ -83,6 +83,6 @@
   },
   {
     "name": "TRB2M",
-    "devices": ["TRB256", "TRB246"]
+    "devices": ["TRB246", "TRB247", "TRB256"]
   }
 ]

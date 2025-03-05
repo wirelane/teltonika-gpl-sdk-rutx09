@@ -18,6 +18,7 @@ CONFIG_FILE_EIGRP="$BASE_DIR/eigrp.conf"
 CONFIG_FILE_NHRP="$BASE_DIR/nhrp.conf"
 CONFIG_FILE_LDP="$BASE_DIR/ldp.conf"
 CONFIG_FILE_STATIC="$BASE_DIR/static.conf"
+CONFIG_FILE_BFD="$BASE_DIR/bfd.conf"
 
 mkdir -p /var/etc/frr
 
@@ -117,6 +118,8 @@ daemons_check_enabled() {
 }
 
 daemons_launch() {
+
+
 	# Checks daemons_enabled variable and if not empty launches Zebra and Staticd
 	# Loops through daemons_enabled variable and launches enabled daemons one by one
 	local daemon
@@ -886,6 +889,22 @@ ldp_parse_general() {
 	xappend      "$CONFIG_FILE_LDP" "address-family ipv4"
 	xappend	     "$CONFIG_FILE_LDP" "discovery transport-address" "$transport_address"
 	xappend_list "$CONFIG_FILE_LDP" "interface" "$interface"
+}
+
+#################################################
+#                  bfd functions                #
+#################################################
+
+bfd_parse_config() {
+
+	bfd_utils_parse_config() { return 0; }
+
+	bfd_get_status() { return 1; }
+
+	. /etc/frr/bfd_utils.sh
+
+	bfd_get_status && enable_vty "$CONFIG_FILE_BFD" "bfd"
+	bfd_utils_parse_config
 }
 
 #################################################

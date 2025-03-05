@@ -1,14 +1,1 @@
-{
-  "network/wireless/relayd": {
-    "read": {
-      "api": {
-        "/relayd/*": ["*"],
-        "/interfaces/config/*": ["id", "name", "proto"],
-        "/wireless/interfaces/config/*": ["mode", "network", "ssid", "mesh_id"]
-      }
-    },
-    "write": {
-      "api": ["/relayd/*"]
-    }
-  }
-}
+{"network/wireless/relayd":{"read":{"api":{"/relayd/*":["*"],"/interfaces/config/*":["id","name","proto"],"/wireless/interfaces/config/*":["mode","network","ssid","mesh_id"]}},"write":{"api":["/relayd/*"]}}}

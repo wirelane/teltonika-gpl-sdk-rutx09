@@ -3,14 +3,59 @@
 START=13
 STOP=50
 USE_PROCD=1
+TMPDIR="/tmp/mobile/"
+OPERCTL_CFG="/etc/config/operctl"
+RS_MODEM_CFG="/etc/config/rs_modem"
+CALL_UTILS_CFG="/etc/config/call_utils"
+NETWORK_CFG="/etc/config/network"
+SIMCARD_CFG="/etc/config/simcard"
+FIREWALL_CFG="/etc/config/firewall"
+SIM_SWITCH_CFG="/etc/config/sim_switch"
+MWAN3_CFG="/etc/config/mwan3"
+LPAC_JSON="/etc/lpac_config.json"
+
+# tmp/.uci fixes as other aops (with root access) can modify the uci file so the permission might be root
+UCIMWAN3="/tmp/.uci/mwan3"
+UCINETWORK="/tmp/.uci/network"
+UCISIMSWITCH="/tmp/.uci/sim_switch"
+UCIFIREWALL="/tmp/.uci/firewall"
+UCISIMCARD="/tmp/.uci/simcard"
 
 start_service() {
     [ -h "/etc/hotplug.d/gsm/5-remove-operlist" ] || ln -s /usr/share/gsm/5-remove-operlist /etc/hotplug.d/gsm/5-remove-operlist &>/dev/null
+
+    [ -d "$TMPDIR" ] || {
+        mkdir -p "$TMPDIR"
+    }
+    chown gsm:gsm "$TMPDIR"
+
+    chown gsm:gsm /log/sim_*_pin 2>/dev/null
+    chmod 664 /log/sim_*_pin 2>/dev/null
+
+    # As of now I and Jokubas did not manage to add the user from makefile
+    # When we will figure out how to add user from makefile these will be removed
+    # - Marius
+    [ -f "$OPERCTL_CFG" ] && chown gsm:gsm "$OPERCTL_CFG"
+    [ -f "$RS_MODEM_CFG" ] && chown modem_control:modem_control "$RS_MODEM_CFG"
+    [ -f "$CALL_UTILS_CFG" ] && chown mobutils:mobutils "$CALL_UTILS_CFG"
+    [ -f "$NETWORK_CFG" ] && chown network:network "$NETWORK_CFG"
+    [ -f "$SIMCARD_CFG" ] && chown gsm:gsm "$SIMCARD_CFG"
+    [ -f "$FIREWALL_CFG" ] && chown network:network "$FIREWALL_CFG"
+    [ -f "$MWAN3_CFG" ] && chown network:network "$MWAN3_CFG"
+    [ -f "$SIM_SWITCH_CFG" ] && chown gsm:gsm "$SIM_SWITCH_CFG"
+    [ -f "$LPAC_JSON" ] && chown gsm:gsm "$LPAC_JSON"
+
+    [ -f "$UCIMWAN3" ] && chown network:network "$UCIMWAN3" && chmod 666 "$UCIMWAN3"
+    [ -f "$UCINETWORK" ] && chown network:network "$UCINETWORK" && chmod 666 "$UCINETWORK"
+    [ -f "$UCIFIREWALL" ] && chown network:network "$UCIFIREWALL" && chmod 666 "$UCIFIREWALL"
+    [ -f "$UCISIMSWITCH" ] && chown gsm:gsm "$UCISIMSWITCH" && chmod 666 "$UCISIMSWITCH"
+    [ -f "$UCISIMCARD" ] && chown gsm:gsm "$UCISIMCARD" && chmod 666 "$UCISIMCARD"
 
     procd_open_instance
     procd_set_param command "/usr/sbin/mobifd"
     procd_set_param respawn
     procd_set_param stderr 1
+    procd_set_param user gsm
     procd_close_instance
 }
 

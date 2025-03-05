@@ -30,6 +30,8 @@ define Package/igmpproxy
   DEPENDS:=+USE_GLIBC:librt
   TITLE:=Multicast Routing Daemon
   URL:=http://sourceforge.net/projects/igmpproxy
+  USERID:=igmpproxy:igmpproxy
+  CAP:=/usr/sbin/igmpproxy:cap_net_raw=ep
 endef
 
 define Package/igmpproxy/description
