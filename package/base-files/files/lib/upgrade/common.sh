@@ -351,3 +351,19 @@ find_hw_mod() {
 	echo "$hw_mods" | grep -q "$1"
 }
 
+common_check_hw_support_broken() {
+	local mob_cfg_file="/sys/mnf_info/mob_cfg"
+
+	{ ! prepare_metadata_hw_mods "$1"; } && return 1
+
+	grep -q '^0001$' "$mob_cfg_file" && { ! find_hw_mod "blv1"; } && {
+		return 1
+	}
+
+	if type 'platform_check_hw_support_broken' >/dev/null 2>/dev/null; then
+		platform_check_hw_support_broken "$1" >&2
+		return $?
+	fi
+
+	return 0
+}

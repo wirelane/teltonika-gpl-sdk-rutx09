@@ -1,8 +1,14 @@
-# 2025-03-05 00.07.13.1
+# 2025-03-13 00.07.13.1
+
+### Improvements
+
+* Modem: increased SLM750 modem power-up stability (ID: 24282)
 
 ### Fix
 
-* Auto Reboot: fixed an issue causing the device to reboot immediately (ID: 24311)
+* 802.1X Client: fixed 802.1x client not working when upgrading from an older firmware (ID: 24476)
+* Multi WAN: fixed occasional IPsec startup issue after reboot with Multi WAN enabled (ID: 23763)
+* Python3: fixed package installation for RUTE family (ID: 24465)
 
 # 2025-02-28 00.07.13
 

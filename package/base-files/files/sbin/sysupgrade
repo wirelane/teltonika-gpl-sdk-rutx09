@@ -739,10 +739,11 @@ json_load "$(/usr/libexec/validate_firmware_image "$IMAGE")" || {
 	exit 1
 }
 
+json_get_var forceable "forceable"
 json_get_var fw_version "fw_version"
 json_get_var hw_support "hw_support"
 [ "$hw_support" -eq 0 ] && {
-	if [ $FORCE -eq 1 ]; then
+	if [ "$FORCE" -eq 1 ] && [ "$forceable" -eq 1 ]; then
 		echo "This firmware is unsupported by hardware but --force given - will update anyway!" >&2
 	else
 		echo "This firmware is unsupported by hardware" >&2
@@ -754,7 +755,7 @@ json_get_var hw_support "hw_support"
 
 json_get_var valid "valid"
 [ "$valid" -eq 0 ] && {
-	if [ $FORCE -eq 1 ]; then
+	if [ "$FORCE" -eq 1 ] && [ "$forceable" -eq 1 ]; then
 		echo "Image check failed but --force given - will update anyway!" >&2
 	else
 		echo "Image check failed." >&2

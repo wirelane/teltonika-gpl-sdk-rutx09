@@ -147,7 +147,7 @@ static int set_fs_bootargs(int *fs_on_nand)
 		return -EINVAL;
 	}
 
-	return run_command("setenv bootargs ${bootargs} ${fsbootargs} rootwait", 0);
+	return run_command("setenv bootargs ${mnf_bootargs} ${bootargs} ${fsbootargs} rootwait", 0);
 }
 
 int config_select(unsigned int addr, const char **config, char *rcmd, int rcmd_size)

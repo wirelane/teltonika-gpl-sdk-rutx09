@@ -56,7 +56,8 @@
 	ACT(simpin4, ##__VA_ARGS__)                                                                          \
 	ACT(wpass, ##__VA_ARGS__)                                                                            \
 	ACT(pass, ##__VA_ARGS__)                                                                             \
-	ACT(blver, ##__VA_ARGS__)
+	ACT(blver, ##__VA_ARGS__)                                                                            \
+	ACT(mob_cfg, ##__VA_ARGS__)
 
 struct mnfinfo_entry {
 	bool is_set;
@@ -471,7 +472,7 @@ int mnf_info_get_full_hw_version(void)
 
 			if (kstrtoint(mnf_device_hwver, 10, &cur_hwver)) {
 				pr_debug("%s:%d Failed to parse \"%s\" as full hw version\n", __func__,
-				       __LINE__, str);
+					 __LINE__, str);
 				return -EINVAL;
 			}
 
@@ -480,7 +481,7 @@ int mnf_info_get_full_hw_version(void)
 			/* Main (2 bytes) + RF (2 bytes) or empty (2 bytes) + Main (2 bytes) */
 			if (kstrtoint(mnf_device_hwver, 10, &cur_hwver)) {
 				pr_debug("%s:%d Failed to parse \"%s\" as Main + RF hw version\n", __func__,
-				       __LINE__, str);
+					 __LINE__, str);
 				return -EINVAL;
 			}
 
@@ -504,7 +505,8 @@ int mnf_info_get_full_hw_version(void)
 		pr_debug("%s:%d Reading late mnf hwver (%s) %s\n", __func__, __LINE__, "Main + RF", str);
 
 		if (kstrtoint(str, 10, &cur_hwver)) {
-			pr_debug("%s:%d Failed to parse \"%s\" as full hw version\n", __func__, __LINE__, str);
+			pr_debug("%s:%d Failed to parse \"%s\" as full hw version\n", __func__, __LINE__,
+				 str);
 			return -EINVAL;
 		}
 

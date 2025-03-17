@@ -355,18 +355,22 @@ static void mnf_to_env_var(unsigned mnf_offset, unsigned mnf_len, int (*mnf_vali
 	struct spi_flash *f = nand_info[CONFIG_IPQ_SPI_NOR_INFO_IDX].priv;
 
 	char buff[mnf_len + 1];
+	unsigned i;
 
 	if (!f || spi_flash_read(f, 0x2F0000 + mnf_offset, mnf_len, buff)) {
 		return;
 	}
 
-	for (unsigned i = 0; i < mnf_len; i++) {
+	for (i = 0; i < mnf_len; i++) {
+		if (!buff[i] || buff[i] == 0xff)
+			break;
+
 		if (!mnf_validation_func(buff[i])) {
 			return;
 		}
 	}
 
-	buff[mnf_len] = '\0';
+	buff[i] = '\0';
 	setenv(env_name, buff);
 }
 
@@ -394,6 +398,44 @@ int board_late_init(void)
 	// do the same validation as libmnfinfo does
 	mnf_to_env_var(0x10, 12, is_it_ascii, "mnf_name");
 	mnf_to_env_var(0x50, 4, is_it_a_digit, "mnf_hwver");
+	mnf_to_env_var(0x54, 4, is_it_a_digit, "mnf_hwver_lo");
+	mnf_to_env_var(0x58, 4, is_it_ascii, "mnf_hwbranch");
+
+	const char *mnf_name = getenv("mnf_name");
+	const char *mnf_hwver = getenv("mnf_hwver");
+	const char *mnf_hwver_lo = getenv("mnf_hwver_lo");
+	const char *mnf_hwbranch = getenv("mnf_hwbranch");
+
+	long hwver_hi = 0;
+	if (mnf_hwver) {
+		hwver_hi = simple_strtol(mnf_hwver, NULL, 10);
+		if (hwver_hi > 99) {
+			hwver_hi /= 100;
+		}
+	}
+
+	long hwver_lo = 0;
+	if (mnf_hwver_lo) {
+		hwver_lo = simple_strtol(mnf_hwver_lo, NULL, 10);
+		if (hwver_lo > 99) {
+			hwver_lo /= 100;
+		}
+	}
+
+	hwver_hi = 100 * hwver_hi + hwver_lo;
+
+	setenv_ulong("mnf_hwver_full", hwver_hi);
+
+	char bootargs[256];
+	snprintf(bootargs, sizeof(bootargs),
+		 "%s%s %s%s hwver=%ld is_full_hwver=1",
+		 mnf_name ? "device=" : "",
+		 mnf_name ? mnf_name: "",
+		 mnf_hwbranch ? "hwbranch=" : "",
+		 mnf_hwbranch ? mnf_hwbranch: "",
+		 hwver_hi);
+
+	setenv("mnf_bootargs", bootargs);
 
 	return 0;
 }
@@ -1668,10 +1710,24 @@ void set_led_configuration(void)
 {
 #ifdef CONFIG_SHIFT_REG
 	const char *mnf_name = getenv("mnf_name");
+	const char *mnf_hwver = getenv("mnf_hwver");
+	const char *mnf_hwver_full = getenv("mnf_hwver_full");
+
+	// Don't set anything if device has stm32
+	if (expecting_stm32(mnf_name, mnf_hwver)) {
+		return;
+	}
+
+	int hwver = atoi(mnf_hwver_full);
+
 	u32 rutx09_led_animation_conf[] = {RUTX09_SIM1_LED, RUTX09_SIM2_LED, RUTX09_WAN_ETH_LED,
 					RUTX09_3G_LED, RUTX09_4G_LED, RUTX09_SSID_1_LED,
 					RUTX09_SSID_2_LED, RUTX09_SSID_3_LED,
 					RUTX09_SSID_4_LED, RUTX09_SSID_5_LED};
+	u32 rutx09_v13_led_animation_conf[] = {RUTX09_V13_SIM1_LED, RUTX09_V13_SIM2_LED, RUTX09_V13_WAN_ETH_LED,
+					RUTX09_V13_3G_LED, RUTX09_V13_4G_LED, RUTX09_V13_SSID_1_LED,
+					RUTX09_V13_SSID_2_LED, RUTX09_V13_SSID_3_LED,
+					RUTX09_V13_SSID_4_LED, RUTX09_V13_SSID_5_LED};
 
 	u32 rutx10_led_animation_conf[] = {RUTX10_WIFI_24_LED, RUTX10_WIFI_5_LED};
 
@@ -1679,6 +1735,10 @@ void set_led_configuration(void)
 					RUTX11_WAN_ETH_WIFI_5_LED, RUTX11_3G_LED, RUTX11_4G_LED,
 					RUTX11_SSID_1_LED, RUTX11_SSID_2_LED, RUTX11_SSID_3_LED,
 					RUTX11_SSID_4_LED, RUTX11_SSID_5_LED};
+	u32 rutx11_v13_led_animation_conf[] = {RUTX11_V13_SIM1_LED, RUTX11_V13_SIM2_LED, RUTX11_V13_WAN_WIFI_WIFI_24_LED,
+					RUTX11_V13_WAN_ETH_WIFI_5_LED, RUTX11_V13_3G_LED, RUTX11_V13_4G_LED,
+					RUTX11_V13_SSID_1_LED, RUTX11_V13_SSID_2_LED, RUTX11_V13_SSID_3_LED,
+					RUTX11_V13_SSID_4_LED, RUTX11_V13_SSID_5_LED};
 
 	u32 rutx12_led_animation_conf[] = {RUTX12_SIM1_LED, RUTX12_SIM2_LED, RUTX12_WAN_WIFI_WIFI_24_LED,
 					RUTX12_WAN_ETH_WIFI_5_LED, RUTX12_3G_1_LED, RUTX12_4G_1_LED,
@@ -1702,23 +1762,30 @@ void set_led_configuration(void)
 	const char *shiftreg_models[] = {"RUTX09", "RUTX10", "RUTX11", "RUTX12",
 					"RUTX14", "RUTXR1", "RUTX50"};
 
-	// Don't set anything if device has stm32
-	if (expecting_stm32(mnf_name, getenv("mnf_hwver"))) {
-		return;
-	}
-
 	if (!strncmp(mnf_name, shiftreg_models[0], 6)) {
-		shiftreg_array_copy(rutx09_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx09_led_animation_conf));
-		shiftreg_all_led_on = RUTX09_ALL_LED_ON;
-		shiftreg_all_led_off = RUTX09_ALL_LED_OFF;
+		if (hwver >= 1300) {
+			shiftreg_array_copy(rutx09_v13_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx09_v13_led_animation_conf));
+			shiftreg_all_led_on = RUTX09_V13_ALL_LED_ON;
+			shiftreg_all_led_off = RUTX09_V13_ALL_LED_OFF;
+		} else {
+			shiftreg_array_copy(rutx09_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx09_led_animation_conf));
+			shiftreg_all_led_on = RUTX09_ALL_LED_ON;
+			shiftreg_all_led_off = RUTX09_ALL_LED_OFF;
+		}
 	} else if (!strncmp(mnf_name, shiftreg_models[1], 6)) {
 		shiftreg_array_copy(rutx10_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx10_led_animation_conf));
 		shiftreg_all_led_on = RUTX10_ALL_LED_ON;
 		shiftreg_all_led_off = RUTX10_ALL_LED_OFF;
 	} else if (!strncmp(mnf_name, shiftreg_models[2], 6)) {
-		shiftreg_array_copy(rutx11_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx11_led_animation_conf));
-		shiftreg_all_led_on = RUTX11_ALL_LED_ON;
-		shiftreg_all_led_off = RUTX11_ALL_LED_OFF;
+		if (hwver >= 1300) {
+			shiftreg_array_copy(rutx11_v13_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx11_v13_led_animation_conf));
+			shiftreg_all_led_on = RUTX11_V13_ALL_LED_ON;
+			shiftreg_all_led_off = RUTX11_V13_ALL_LED_OFF;
+		} else {
+			shiftreg_array_copy(rutx11_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx11_led_animation_conf));
+			shiftreg_all_led_on = RUTX11_ALL_LED_ON;
+			shiftreg_all_led_off = RUTX11_ALL_LED_OFF;
+		}
 	} else if (!strncmp(mnf_name, shiftreg_models[3], 6)) {
 		shiftreg_array_copy(rutx12_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx12_led_animation_conf));
 		shiftreg_all_led_on = RUTX12_ALL_LED_ON;

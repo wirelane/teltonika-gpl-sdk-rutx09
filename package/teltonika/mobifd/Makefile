@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobifd
 
-PKG_SOURCE_VERSION:=7.13.0.3
+PKG_SOURCE_VERSION:=7.13.2
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -40,9 +40,7 @@ define Package/mobifd/conffiles
 /etc/config/operctl
 endef
 
-TARGET_CFLAGS += $(if $(CONFIG_MOBIFD_DEBUG),-DMOBIFD_DEBUG) \
-		 $(if $(CONFIG_MOBIFD_WHITELIST_AFRICA),-DMOBIFD_WHITELIST_AFRICA) \
-		 $(if $(CONFIG_MOBIFD_WHITELIST_AFRICA_EU),-DMOBIFD_WHITELIST_AFRICA_EU)
+TARGET_CFLAGS += $(if $(CONFIG_MOBIFD_DEBUG),-DMOBIFD_DEBUG)
 
 
 define Package/mobifd/install

@@ -20,6 +20,7 @@ legacy_supported_message=$(SUPPORTED_DEVICES) - Image version mismatch: image $(
 	$(if $(DEVICE_COMPAT_MESSAGE),Reason: $(DEVICE_COMPAT_MESSAGE),Please check documentation ...)
 
 metadata_devices=$(if $(1),$(subst "$(space)","$(comma)",$(strip $(foreach v,$(1),"$(call json_quote,$(v))"))))
+# Keep in mind that during fw validation some bootloaders will read up to 512 or 4096 bytes of this metadata .json
 metadata_json = \
 	'{ $(if $(IMAGE_METADATA),$(IMAGE_METADATA)$(comma)) \
 		"metadata_version": "1.1", \
@@ -47,10 +48,7 @@ metadata_json = \
 					"$(firstword $(subst %,": ,$(data))) \
 					["$(subst :," $(comma)",$(lastword $(subst %,": ,$(data))))"],)},) \
 		$(subst $(comma)},},"hw_mods": { \
-			$(foreach data, \
-				$(HW_MODS), \
-					"$(firstword $(subst %,": ,$(data))) \
-					"$(subst :," $(comma)",$(lastword $(subst %,": ,$(data))))",)}) \
+			$(shell i=1; for t in $(HW_MODS); do if [ $$i -gt 1 ]; then printf ", "; fi; printf "\"mod%d\": \"%s\"" "$$i" "$$t"; i=$$((i+1)); done)}) \
 	}'
 
 version_json = '{"version":"$(call json_quote,$(TLT_VERSION))"}'
@@ -161,15 +159,14 @@ define Build/finalize-tlt-master-stendui
 
 	$(eval UBOOT_INSERTION=$(shell cat ${BIN_DIR}/u-boot_version))
 	$(if $(UBOOT_INSERTION), $(eval UBOOT_INSERTION=_UBOOT_$(UBOOT_INSERTION)))
-	$(CP) $@ $(BIN_DIR)/tltFws/$(TLT_VERSION_FILE)$(UBOOT_INSERTION)_MASTER_STENDUI$(word 1,$(1))$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).bin
-endef
-
-define Build/finalize-tlt-master-stendui-ex
-	[ -d $(BIN_DIR)/tltFws ] || mkdir -p $(BIN_DIR)/tltFws
-
-	$(eval UBOOT_INSERTION=$(shell cat ${BIN_DIR}/u-boot_version))
-	$(if $(UBOOT_INSERTION), $(eval UBOOT_INSERTION=_UBOOT_$(UBOOT_INSERTION)))
-	$(CP) $@ $(BIN_DIR)/tltFws/$(if $(1),$(1)_)$(TLT_VERSION_FILE)$(UBOOT_INSERTION)_MASTER_STENDUI$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).bin
+	$(if $(2), \
+		$(eval TLT_VERSION_PREFIX := $(word 1,$(subst _, ,$(TLT_VERSION_FILE)))) \
+		$(eval TLT_VERSION_SUFFIX := $(patsubst $(TLT_VERSION_PREFIX)_%,%,$(TLT_VERSION_FILE))) \
+		$(eval FULL_VERSION_FILE := $(TLT_VERSION_PREFIX)_$(2)_$(TLT_VERSION_SUFFIX)) \
+	,
+		$(eval FULL_VERSION_FILE := $(TLT_VERSION_FILE)) \
+	)
+	$(CP) $@ $(BIN_DIR)/tltFws/$(FULL_VERSION_FILE)$(UBOOT_INSERTION)_MASTER_STENDUI$(word 1,$(1))$(if $(findstring 1,$(FAKE_RELEASE_BUILD)),_FAKE).bin
 endef
 
 define Build/kernel-bin

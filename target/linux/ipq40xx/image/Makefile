@@ -24,6 +24,7 @@ define Device/Default
 	IMAGES := sysupgrade.bin
 	IMAGE/sysupgrade.bin = sysupgrade-tar | append-metadata
 	IMAGE/sysupgrade.bin/squashfs :=
+	HW_MODS := blv1
 endef
 
 define Device/teltonika_rutx
@@ -64,7 +65,7 @@ define Device/teltonika_rutx
 	DEVICE_MODEM_VENDORS := Quectel
 
 	HW_SUPPORT := io_expander%stm32:shiftreg_1
-	HW_MODS := mod1%W25N02KV mod2%NAND_GD5F2GXX mod3%EG060K mod4%RUTX_V12
+	HW_MODS += W25N02KV NAND_GD5F2GXX EG060K RUTX_V12
 
 	INCLUDED_DEVICES := \
 		TEMPLATE_teltonika_rutx08 \

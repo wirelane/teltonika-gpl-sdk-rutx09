@@ -83,6 +83,13 @@ fwtool_check_passwd_warning "$1" >&2
 	notify_firmware_passwd_warning
 }
 
+common_check_hw_support_broken "$1" >&2
+[ "$?" -ne 0 ] &&  {
+	notify_firmware_hw_unsupported
+	notify_firmware_broken
+	fwtool_msg "Firmware is not supported by this device" "16"
+}
+
 if type 'platform_check_hw_support' >/dev/null 2>/dev/null; then
 	platform_check_hw_support "$1" >&2
 	[ "$?" -ne 0 ] &&  {

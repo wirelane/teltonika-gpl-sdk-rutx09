@@ -1,6 +1,8 @@
 #include <common.h>
+#include <linux/ctype.h>
 #include <exports.h>
 #include <fwtool.h>
+#include <mnf_info.h>
 
 #define FWIMAGE_MAGIC		0x46577830 /* FWx0 */
 
@@ -12,10 +14,45 @@ struct fwimage_trailer {
 	uint32_t size;
 };
 
+static int check_modX_blv1(const char *ptr)
+{
+	const char mob_cfg[8] = { 0 };
+
+	mnf_get_field("mob_cfg", mob_cfg);
+
+	if (strcmp("0001", mob_cfg)) {
+		return 0;
+	}
+
+	while ((ptr = strstr(ptr, "\"mod"))) {
+		ptr += 4; // Move past "mod"
+
+		// Ensure next characters are digits (X in modX)
+		if (!isdigit(*ptr))
+			continue;
+		while (isdigit(*ptr))
+			ptr++; // Skip all digits
+
+		if (!strncmp(ptr, "\": \"blv1\"", 9)) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
+static int validate_hw_mods(char *buf)
+{
+	if (check_modX_blv1(buf))
+		return 1;
+
+	return 0;
+}
+
 int fwtool_validate_manifest(void *ptr, unsigned int length)
 {
 	struct fwimage_trailer tr = { 0 };
-	char buffer[512] = { 0 };
+	char buffer[4096] = { 0 };
 	int offset, len;
 
 	if (sizeof(tr) * 2 > length) {
@@ -57,6 +94,11 @@ int fwtool_validate_manifest(void *ptr, unsigned int length)
 	}
 
 	if (!strstr(buffer, DEVICE_MODEL_MANIFEST)) {
+		return FWTOOL_ERROR_INVALID_FILE;
+	}
+
+	if (validate_hw_mods(buffer)) {
+		printf("Unsupported hw\n");
 		return FWTOOL_ERROR_INVALID_FILE;
 	}
 

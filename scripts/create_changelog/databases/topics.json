@@ -1,5 +1,10 @@
 [
   {
+    "category": "System",
+    "name": "Modem",
+    "depends": []
+  },
+  {
     "category": "Services",
     "name": "OpenConnect",
     "depends": [

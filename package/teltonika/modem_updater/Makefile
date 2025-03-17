@@ -120,6 +120,9 @@ define Package/modem_updater-offline/install
 	$(if $(findstring Telit,$(CONFIG_DEVICE_MODEM_VENDORS)),
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/telit_uxfp/uxfp/linux/uxfp $(1)/usr/bin/uxfp
 	)
+	$(if $(findstring Teltonika,$(CONFIG_DEVICE_MODEM_VENDORS)),
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/fbfdownloader/fbfdownloader $(1)/usr/bin/fbfdownloader
+	)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modem_updater.sh $(1)/usr/bin/modem_updater
 
 endef

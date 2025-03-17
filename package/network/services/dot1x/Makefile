@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dot1x
 PKG_RELEASE:=5
-PKG_VERSION:=2025-01-04
+PKG_VERSION:=2025-03-13
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -19,6 +19,7 @@ define Package/dot1x-client
 	TITLE:=802.1X Client
 	DEPENDS:=+wpad-openssl
 	USERID:=dot1x_client:dot1x_client
+	USER_GROUPS:=dot1x_client:network users
 endef
 
 
