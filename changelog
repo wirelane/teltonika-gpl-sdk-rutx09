@@ -1,3 +1,11 @@
+# 2025-03-20 00.07.13.3
+
+### Fix
+
+* Ledman: fixed power led indications for TRB160 (ID: 24610)
+* Multi WAN: fixed internet not being reachable from device when main WAN is down (ID: 24277)
+* RMS: fixed connection retry interval count (ID: 24470)
+
 # 2025-03-13 00.07.13.1
 
 ### Improvements
