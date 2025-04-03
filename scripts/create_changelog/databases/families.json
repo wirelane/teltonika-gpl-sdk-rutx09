@@ -23,23 +23,24 @@
     "name": "RUTM",
     "devices": [
       "RUTM08",
-      "RUTM51",
-      "RUTM50",
-      "RUTM11",
-      "RUTM10",
       "RUTM09",
-      "RUTM52",
-      "RUTM56",
-      "RUTM59",
-      "RUTM30",
+      "RUTM10",
+      "RUTM11",
       "RUTM20",
+      "RUTM30",
+      "RUTM31",
+      "RUTM50",
+      "RUTM51",
+      "RUTM52",
       "RUTM54",
-      "RUTM55"
+      "RUTM55",
+      "RUTM56",
+      "RUTM59"
     ]
   },
   {
     "name": "RUTE",
-    "devices": ["RUT206", "RUT271", "RUT971", "RUT976"]
+    "devices": ["RUT206", "RUT271", "RUT276", "RUT971", "RUT976"]
   },
   {
     "name": "RUT2M",

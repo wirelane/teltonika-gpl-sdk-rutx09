@@ -29,6 +29,7 @@ PKG_BUILD_FLAGS:=gc-sections
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=COPYING COPYRIGHT.GPL
 PKG_CPE_ID:=cpe:/a:openvpn:openvpn
+TARGET_CFLAGS+= -D_GNU_SOURCE
 
 include $(INCLUDE_DIR)/package.mk
 

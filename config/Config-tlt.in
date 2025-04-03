@@ -567,7 +567,7 @@ config TAILSCALE_SUPPORT
 	tristate "Tailscale"
 	label "VPN"
 	maintainer "SysApp"
-	depends on !SMALL_FLASH && PKG_SUPPORT && ( !GATEWAY_DEVICE || BYPASS_OFFLOAD_FEATURE || USB_GADGET_SUPPORT)
+	depends on !SMALL_FLASH && !64MB_RAM && (!128MB_RAM || USB_GADGET_SUPPORT) && PKG_SUPPORT && ( !GATEWAY_DEVICE || BYPASS_OFFLOAD_FEATURE || USB_GADGET_SUPPORT )
 	default m
 	imply PACKAGE_vuci-app-tailscale-ui
 	help

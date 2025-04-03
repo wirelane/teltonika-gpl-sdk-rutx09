@@ -1,3 +1,16 @@
+# 2025-04-01 00.07.13.4
+
+### Improvements
+
+* RutOS: updated libubox (ID: 24562)
+
+### Fix
+
+* Mobile: fixed handling of 18 character long ICCID for eSIM (ID: 24686)
+* Network: fixed Ethernet lockups when sending certain malformed IPv4/IPv6 packets for RUTX family (ID: 16738)
+* RutOS: fixed occasional ubus page fault after package install (ID: 24562)
+* RutOS: fixed user group duplicate entries after applying backup (ID: 24822)
+
 # 2025-03-20 00.07.13.3
 
 ### Fix

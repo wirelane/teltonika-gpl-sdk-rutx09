@@ -90,6 +90,7 @@ sub target_config_features(@) {
 		/^gateway$/ and $ret .= "\tselect GATEWAY_DEVICE\n";
 		/^access-point$/ and $ret .= "\tselect AP_DEVICE\n";
 		/^64mb_ram$/ and $ret .= "\tselect 64MB_RAM\n";
+		/^128mb_ram$/ and $ret .= "\tselect 128MB_RAM\n";
 		/^ledman-lite$/ and $ret .= "\tselect LEDMAN_LITE\n";
 		/^sw-offload$/ and $ret .= "\tselect SW_OFFLOAD\n";
 		/^hw-offload$/ and $ret .= "\tselect HW_OFFLOAD\n";

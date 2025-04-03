@@ -51,6 +51,7 @@ merge_file() {
 	done
 
 	for line2 in $(echo -e "$file2_data"); do
+		grep -q "$line2" "$output_file" && continue
 		echo "$line2" >>"$output_file"
 	done
 

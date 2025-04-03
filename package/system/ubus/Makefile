@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubus
-PKG_RELEASE:=3
+PKG_RELEASE:=6
 
 PKG_SOURCE_DATE:=2021-06-30
 PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))

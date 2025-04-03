@@ -193,6 +193,9 @@ config GATEWAY_DEVICE
 config 64MB_RAM
 	bool
 
+config 128MB_RAM
+	bool
+
 config TPM_SUPPORT
 	bool
 	

@@ -534,6 +534,7 @@ merge_file() {
 	done
 
 	for line2 in $(echo -e "$file2_data"); do
+		grep -q "$line2" "$output_file" && continue
 		echo "$line2" >>"$output_file"
 	done
 
@@ -553,9 +554,10 @@ apply_backup() {
 	rm -rf /tmp/new_config_dir
 	cp /rom/etc/shadow /rom/etc/passwd /rom/etc/group /tmp/
 	missing_lines /tmp/passwd /etc/passwd >> /etc/passwd
-	merge_file /tmp/group /etc/group /etc/group
+	merge_file /tmp/group /etc/group /tmp/group_merged
 	missing_lines /tmp/shadow /etc/shadow >> /etc/shadow
-	rm /tmp/passwd /tmp/shadow /tmp/group
+	cp /tmp/group_merged /etc/group
+	rm /tmp/passwd /tmp/shadow /tmp/group /tmp/group_merged
 	sync_permissions_and_ownerships
 	fix_permissions 660 "/etc/config/network" "network:network"
 }
