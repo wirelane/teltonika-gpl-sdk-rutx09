@@ -55,7 +55,7 @@ struct ar40xx_priv {
 	int mib_next_port;
 	u64 *mib_stats;
 
-	char buf[2048];
+	char buf[16384];
 	char buf2[16]; // for ar40xx_get_port_speed_advertisement()
 
 	/* all fields below will be cleared on reset */

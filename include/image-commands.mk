@@ -53,6 +53,10 @@ metadata_json = \
 
 version_json = '{"version":"$(call json_quote,$(TLT_VERSION))"}'
 
+define Build/prepend-metadata-nofwtool
+	$(if $(SUPPORTED_DEVICES),-echo $(call metadata_json) | dd of=$@ bs=1 conv=notrunc)
+endef
+
 define Build/append-metadata
 	$(if $(SUPPORTED_DEVICES),-echo $(call metadata_json) | fwtool -I - $@)
 	[ -z "$(CONFIG_SIGNED_IMAGES)" -o ! -s "$(BUILD_KEY)" -o ! -s "$(BUILD_KEY).ucert" -o ! -s "$@" ] || { \
@@ -94,6 +98,7 @@ define Build/check-size
 	@imagesize="$$(stat -c%s $@)"; \
 	$(if $(filter $(1),999m),echo "INFO: Image file $@ size before padding: $$imagesize" >&2;) \
 	limitsize="$$(($(subst k,* 1024,$(subst m, * 1024k,$(if $(1),$(1),$(IMAGE_SIZE))))))"; \
+	$(if $(CONFIG_PROD_IMAGE),,limitsize=$$(($$limitsize + 256);)) \
 	[ $$limitsize -ge $$imagesize ] || { \
 		echo -n "WARNING: Image file $@ is too big: $$imagesize > $$limitsize"; \
 		initial_imagesize="$$(grep -oP ' size before padding: \K\d+' '$(BUILD_LOG_DIR)/target/linux/install.txt' 2>/dev/null)"; \
@@ -129,12 +134,39 @@ define Build/fit
 		$(if $(DEVICE_FDT_NUM),-n $(DEVICE_FDT_NUM)) \
 		$(if $(DEVICE_DTS_DELIMITER),-l $(DEVICE_DTS_DELIMITER)) \
 		$(if $(DEVICE_DTS_LOADADDR),-s $(DEVICE_DTS_LOADADDR)) \
+		$(if $(DEVICE_MDTB_NAME),-M $(DEVICE_MDTB_NAME)) \
 		$(if $(DEVICE_DTS_OVERLAY),$(foreach dtso,$(DEVICE_DTS_OVERLAY), -O $(dtso):$(KERNEL_BUILD_DIR)/image-$(dtso).dtbo)) \
 		-c $(if $(DEVICE_DTS_CONFIG),$(DEVICE_DTS_CONFIG),"config@1") \
 		-A $(LINUX_KARCH) -v $(LINUX_VERSION)
 	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage $(if $(findstring external,$(word 3,$(1))),\
 		-E -B 0x1000 $(if $(findstring static,$(word 3,$(1))),-p 0x1000)) -f $@.its $@.new
 	@mv $@.new $@
+endef
+
+define Build/fit-append
+	$(TOPDIR)/scripts/mkits.sh \
+		-D $(DEVICE_NAME) -o $@.its -k $(IMAGE_KERNEL) \
+		-C $(word 1,$(1)) \
+		$(if $(word 2,$(1)),\
+			$(if $(findstring 11,$(if $(DEVICE_DTS_OVERLAY),1)$(if $(findstring $(KERNEL_BUILD_DIR)/image-,$(word 2,$(1))),,1)), \
+				-d $(KERNEL_BUILD_DIR)/image-$$(basename $(word 2,$(1))), \
+				-d $(word 2,$(1)))) \
+		$(if $(findstring with-rootfs,$(word 3,$(1))),-r $(IMAGE_ROOTFS)) \
+		$(if $(findstring with-initrd,$(word 3,$(1))), \
+			$(if $(CONFIG_TARGET_ROOTFS_INITRAMFS_SEPARATE), \
+				-i $(KERNEL_BUILD_DIR)/initrd.cpio$(strip $(call Build/initrd_compression)))) \
+		-a $(KERNEL_LOADADDR) -e $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		$(if $(DEVICE_FDT_NUM),-n $(DEVICE_FDT_NUM)) \
+		$(if $(DEVICE_DTS_DELIMITER),-l $(DEVICE_DTS_DELIMITER)) \
+		$(if $(DEVICE_DTS_LOADADDR),-s $(DEVICE_DTS_LOADADDR)) \
+		$(if $(DEVICE_MDTB_NAME),-M $(DEVICE_MDTB_NAME)) \
+		$(if $(DEVICE_DTS_OVERLAY),$(foreach dtso,$(DEVICE_DTS_OVERLAY), -O $(dtso):$(KERNEL_BUILD_DIR)/image-$(dtso).dtbo)) \
+		-c $(if $(DEVICE_DTS_CONFIG),$(DEVICE_DTS_CONFIG),"config@1") \
+		-A $(LINUX_KARCH) -v $(LINUX_VERSION)
+	PATH=$(LINUX_DIR)/scripts/dtc:$(PATH) mkimage $(if $(findstring external,$(word 3,$(1))),\
+		-E -B 0x1000 $(if $(findstring static,$(word 3,$(1))),-p 0x1000)) -f $@.its $@.new
+	cat $@.new >> $@
+	rm $@.new
 endef
 
 define Build/gzip

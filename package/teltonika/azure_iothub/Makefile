@@ -2,9 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=azure_iothub
-PKG_VERSION:=2025-02-14
+PKG_VERSION:=2025-04-17
 
-PKG_SOURCE_VERSION:=3.5
+PKG_SOURCE_VERSION:=3.4
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -19,7 +19,7 @@ define Package/azure_iothub
 		 +libubox +libazure-iot-sdk-c +libmnfinfo +liblua +libtlt_uci \
 		 +libapi
 	TITLE:=Azure IoT Hub client
-	USERID:=azure:azure
+	USERID:=azure=537:azure=537
 endef
 
 define Package/azure_iothub/description
@@ -41,11 +41,12 @@ endef
 
 
 define Package/azure_iothub/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DIR) $(1)/usr/lib/az_plugins
+	$(INSTALL_DIR) $(1)/lib
+	$(INSTALL_DIR) $(1)/lib/azure/plugins
+	$(INSTALL_DIR) $(1)/lib/azure
 
-	$(CP) $(PKG_BUILD_DIR)/libaz_plugin_handler/*.so $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/plugins/*.so $(1)/usr/lib/az_plugins/
+	$(CP) $(PKG_BUILD_DIR)/libaz_plugin_handler/*.so $(1)/lib/
+	$(CP) $(PKG_BUILD_DIR)/plugins/*.so $(1)/lib/azure/plugins/
 
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/azure_iothub $(1)/sbin/azure_iothub
@@ -66,6 +67,8 @@ define Package/azure_iothub/install
 
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/azure_iothub.json $(1)/usr/share/acl.d/azure_iothub.json
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/azure_iothub.permtab $(1)/etc/permtab.d/azure_iothub
 endef
 
 define Package/azure_iothub/prerm
@@ -100,16 +103,6 @@ define Package/azure_iothub/prerm
 	uci_commit data_sender 2> /dev/null
 	/etc/init.d/data_sender reload 2> /dev/null || true
 
-endef
-
-define Package/azure_iothub/postinst
-#!/bin/sh
-
-[ -z "$${IPKG_INSTROOT}" ] || exit 0
-
-#Relaod ubusd acl rules
-pid=$$(pidof ubusd)
-[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,azure_iothub))

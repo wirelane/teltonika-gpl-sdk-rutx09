@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=package_restore
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-04-17
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.11
+PKG_SOURCE_VERSION:=3.12
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -41,7 +41,6 @@ define Package/package_restore/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/package_restore.config $(1)/etc/config/package_restore
 	
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/tlt_opkg.conf $(1)/etc/tlt_opkg.conf
 
 endef
 

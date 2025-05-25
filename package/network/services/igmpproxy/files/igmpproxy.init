@@ -3,7 +3,7 @@
 
 START=99
 USE_PROCD=1
-PROG=/usr/sbin/igmpproxy
+PROG=/usr/local/usr/sbin/igmpproxy
 WORKDIR="/var/run/igmpproxy"
 CONFIGFILE="$WORKDIR/igmpproxy.conf"
 
@@ -15,11 +15,6 @@ igmp_header() {
 	[ $verbose = "0" ] && logopts="-d"
 	[ $verbose = "2" ] && logopts="-v"
 	[ $verbose = "3" ] && logopts="-v -v"
-
-	[ -d "$WORKDIR" ] || {
-		mkdir -p "$WORKDIR"
-		chown igmpproxy:igmpproxy "$WORKDIR"
-	}
 
 	rm -f /var/run/igmpproxy/igmpproxy.conf
 

@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=storage-memory-expansion
-PKG_VERSION:=2023-07-25
+PKG_VERSION:=2025-04-29
 PKG_RELEASE:=1
 
 PKG_LICENSE:=Teltonika-closed

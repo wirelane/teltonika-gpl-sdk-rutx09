@@ -11,7 +11,7 @@ call_handle_reboot() {
 	json_select args
 	json_get_values args
 
-	echo "$args" | xargs /sbin/reboot &> /dev/null
+	printf -- "$args" | xargs /sbin/reboot &>/dev/null
 	ret=$?
 
 	json_init
@@ -44,6 +44,14 @@ call_handle_userdefaults() {
 	json_dump
 }
 
+call_handle_poweroff() {
+
+	json_init
+	/sbin/poweroff &> /dev/null
+	json_add_int "res" "$?"
+	json_dump
+}
+
 main() {
 	case "$1" in
 	list)
@@ -60,6 +68,9 @@ main() {
 		json_add_object "userdefaults"
 		json_close_object
 
+		json_add_object "poweroff"
+		json_close_object
+
 		json_dump
 		;;
 	call)
@@ -67,6 +78,7 @@ main() {
 		reboot) call_handle_reboot ;;
 		firstboot) call_handle_firstboot ;;
 		userdefaults) call_handle_userdefaults ;;
+		poweroff) call_handle_poweroff ;;
 		esac
 		;;
 	esac

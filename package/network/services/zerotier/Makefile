@@ -9,11 +9,9 @@ PKG_NAME:=zerotier
 PKG_VERSION:=1.14.0
 PKG_RELEASE:=3
 
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=1.14.0
-PKG_SOURCE_URL:=https://github.com/zerotier/ZeroTierOne.git
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_VERSION)?
 PKG_HASH:=7191623a81b0d1b552b9431e8864dd3420783ee518394ac1376cee6aaf033291
 
 PKG_MAINTAINER:=Moritz Warning <moritzwarning@web.de>
@@ -23,6 +21,7 @@ PKG_LICENSE_FILES:=LICENSE.txt
 PKG_ASLR_PIE:=0
 PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=gc-sections
+PKG_CPE_ID:=cpe:/a:zerotier:zerotierone
 
 include $(INCLUDE_DIR)/package.mk
 

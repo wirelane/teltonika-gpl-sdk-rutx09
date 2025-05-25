@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ppp
-PKG_RELEASE:=4
+PKG_RELEASE:=6
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=cd5b0f0543cad042df126cf8ad1a238e5d13dd17
@@ -227,12 +227,12 @@ define Package/ppp/install
 	$(INSTALL_DATA) ./files/etc/ppp/filter $(1)/etc/ppp/
 	$(INSTALL_DATA) ./files/etc/ppp/options $(1)/etc/ppp/
 	$(LN) /tmp/resolv.conf.ppp $(1)/etc/ppp/resolv.conf
-	$(INSTALL_DIR) $(1)/lib/netifd/proto
-	$(INSTALL_BIN) ./files/ppp.sh $(1)/lib/netifd/proto/
-	$(LN) /lib/netifd/proto/ppp.sh $(1)/lib/netifd/proto/pppoe.sh
-	$(LN) /lib/netifd/proto/ppp.sh $(1)/lib/netifd/proto/pppoa.sh
-	$(LN) /lib/netifd/proto/ppp.sh $(1)/lib/netifd/proto/pptp.sh
-	$(LN) /lib/netifd/proto/ppp.sh $(1)/lib/netifd/proto/sstp.sh
+	$(INSTALL_DIR) $(1)/lib/netifd $(1)/usr/local/usr/lib/netifd/proto
+	$(INSTALL_BIN) ./files/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/
+	$(LN) /usr/local/usr/lib/netifd/proto/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/pppoe.sh
+	$(LN) /usr/local/usr/lib/netifd/proto/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/pppoa.sh
+	$(LN) /usr/local/usr/lib/netifd/proto/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/pptp.sh
+	$(LN) /usr/local/usr/lib/netifd/proto/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/sstp.sh
 	if [ -e "./files/lib/netifd/ppp-up-$(call device_shortname)" ]; then \
 		$(INSTALL_BIN) ./files/lib/netifd/ppp-up-$(call device_shortname) $(1)/lib/netifd/ppp-up; \
 	else \
@@ -279,8 +279,6 @@ define Package/ppp-mod-pptp/install
 	$(INSTALL_DIR) $(1)/usr/lib/pppd/$(PKG_RELEASE_VERSION)
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/lib/pppd/$(PKG_RELEASE_VERSION)/pptp.so \
 		$(1)/usr/lib/pppd/$(PKG_RELEASE_VERSION)/
-	$(INSTALL_DIR) $(1)/etc/ppp
-	$(INSTALL_DATA) ./files/etc/ppp/options.pptp $(1)/etc/ppp/
 endef
 
 define Package/ppp-mod-passwordfd/install

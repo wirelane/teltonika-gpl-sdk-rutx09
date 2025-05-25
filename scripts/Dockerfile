@@ -48,6 +48,7 @@ RUN apt update && apt upgrade -y \
 	java-wrappers \
 	jq \
 	libc6-dev \
+	libcap2-bin \
 	libexpat-dev \
 	libffi-dev \
 	liblz4-dev \
@@ -60,6 +61,7 @@ RUN apt update && apt upgrade -y \
 	libzstd-dev \
 	lz4 \
 	make \
+	mkisofs \
 	ocaml \
 	ocaml-findlib \
 	ocaml-nox \
@@ -73,6 +75,7 @@ RUN apt update && apt upgrade -y \
 	python3.11-dev \
 	rsync \
 	sharutils \
+	sudo \
 	subversion \
 	swig \
 	u-boot-tools \
@@ -89,3 +92,8 @@ RUN curl -L -o- https://deb.nodesource.com/setup_"$NODE_MAJOR".x | bash - \
 	&& rm -rf /var/lib/apt/lists/*
 
 RUN ln -s /usr/bin/python3.11-config /usr/bin/python3-config
+
+RUN echo "ALL ALL=(ALL) NOPASSWD: /usr/sbin/setcap" > /etc/sudoers.d/1-setcap
+
+ARG USERNAME
+RUN echo "${USERNAME}:*:19639:0:99999:7:::" >> /etc/shadow

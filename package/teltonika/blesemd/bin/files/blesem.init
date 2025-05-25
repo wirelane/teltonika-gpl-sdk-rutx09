@@ -20,6 +20,7 @@ start_service() {
 		procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
 		procd_set_param file /etc/config/blesem
 		procd_set_param file /etc/config/ble_devices
+		procd_set_param user blesemd
 
 		procd_close_instance
 	fi

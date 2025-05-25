@@ -9,8 +9,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
-PKG_VERSION:=2025-02-17
-PKG_RELEASE:=4
+PKG_VERSION:=2025-03-25
+PKG_RELEASE:=1
 PKG_BUILD_DEPENDS:=zlib
 
 PKG_SOURCE_PROTO:=git
@@ -34,6 +34,9 @@ define Package/shellinabox
   CATEGORY:=Network
   TITLE:=SSH over HTTP
   DEPENDS:=+zlib +libopenssl +libubus
+  USERID:=shellinabox:shellinabox
+  CAP:=/usr/sbin/shellinaboxd:cap_net_bind_service=ep
+  SUID:=/usr/sbin/shellinaboxd:shellinabox
 endef
 
 define Package/shellinabox/description
@@ -66,11 +69,12 @@ define Package/shellinabox/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/www/cgi-bin
-	
-	$(INSTALL_CONF) files/cli.conf $(1)/etc/config/cli
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_CONF_USR) files/cli.conf $(1)/etc/config/cli
 	$(INSTALL_BIN) files/shellinabox.init $(1)/etc/init.d/shellinabox
 	$(INSTALL_BIN) files/shellinabox.sh $(1)/www/cgi-bin/cli
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/shellinaboxd $(1)/usr/sbin/shellinaboxd
+	$(INSTALL_DATA) files/shellinabox.json $(1)/usr/share/acl.d/
 
 endef
 

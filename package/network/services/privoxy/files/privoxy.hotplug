@@ -5,7 +5,7 @@
 # only start if boot_delay is done
 [ -f /tmp/privoxy.hotplug ] || exit 0
 
-PIDFILE=/var/run/privoxy.pid
+PIDFILE=/var/run/privoxy/privoxy.pid
 
 _PID=$(cat $PIDFILE 2>/dev/null)
 kill -1 $_PID 2>/dev/null

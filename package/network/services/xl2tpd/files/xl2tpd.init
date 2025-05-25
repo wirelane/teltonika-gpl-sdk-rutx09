@@ -5,12 +5,11 @@ START=60
 USE_PROCD=1
 
 BIN=/usr/sbin/xl2tpd
-RUN_D="/var/run/xl2tpd"
-PID_F="/var/run/xl2tpd.pid"
-CHAP_SECRETS=/var/etc/xl2tp-chap-secrets
-SECRETS=/var/etc/xl2tp-secrets
-CONFIG=/var/etc/xl2tpd.conf
-OPTIONS=/var/etc/options.xl2tpd
+BIN6="/usr/sbin/xl2tpd6"
+[ -x "$BIN6" ] || BIN6="/usr/local${BIN6}"
+TMP_DIR="/var/run/xl2tpd"
+CONFIG=${TMP_DIR}/xl2tpd.conf
+OPTIONS=${TMP_DIR}/options.xl2tpd
 SERVER=
 BIND_STOP=
 
@@ -24,23 +23,21 @@ check_bind()
 	local section="$1"
 	local tunnel="$2"
 	local remote="${section%%_*}"
-	local bind
+	local bind status
 
 	config_get bind $section bind_to
 	[ "$bind" = "$tunnel" ] || return 1
 
-	if [ "$PLUTO_VERB" = "up-host" ]
-	then
+	if [ "$PLUTO_VERB" = "up-host" ]; then
 		return 1
-	elif [ "$PLUTO_VERB" = "down-host" ]
-	then
+	elif [ "$PLUTO_VERB" = "down-host" ]; then
 		BIND_STOP="yes"
-		return 1
 	else
-		lines=$(ipsec status "${remote}-${section}" | wc -l)
-		[ "$lines" -gt 2 ] && return 1
-	        BIND_STOP="yes"
+		status=$(swanctl --list-sas 2>/dev/null)
+		if ! echo "$status" | grep "${section}: " | grep -q 'INSTALLED'; then
+			BIND_STOP="yes"
 		fi
+	fi
 }
 
 add_pppd_opts() {
@@ -49,7 +46,7 @@ add_pppd_opts() {
 
 setup_config() {
 	local section="$1"
-	local enabled localip start limit type auth_chap auth_pap auth_mschap2 chap
+	local enabled localip remoteipstart remoteipend type auth_chap auth_pap auth_mschap2 chap
 
 	config_get enabled "$section" enabled 0
 	config_get type "$section" type
@@ -59,7 +56,6 @@ setup_config() {
 
 	config_load ipsec
 	config_foreach check_bind connection "$section"
-	[ "$BIND_STOP" = "yes" ] && return 1
 	
 	config_load xl2tpd
 	config_get localip "$section" localip
@@ -73,11 +69,10 @@ setup_config() {
 	fi
 
 	[ -n "$remoteip" ] && [ -n "$localip" ] && {
-		SERVER=/var/etc/xl2tpd.conf
+		SERVER=1
 		echo "local ip = $localip" >> $CONFIG
 		echo "ip range = $remoteip" >> $CONFIG
 		echo "ms-dns $localip" >> $OPTIONS
-		counter=$(( counter + 1 ))
 	}
 
 	config_get auth_chap "$1" auth_chap "1"
@@ -109,7 +104,7 @@ setup_config() {
 	[ "$chap" = "1" ] && echo "challenge = yes" >> "$CONFIG"
 
 	config_get auth "$section" auth
-	[ -n "$auth" ] && echo "* * $auth" >> $SECRETS
+	[ -n "$auth" ] && echo "* * $auth" >> ${TMP_DIR}/xl2tp-secrets
 
 	config_list_foreach "$section" "pppd_options" add_pppd_opts
 }
@@ -125,7 +120,7 @@ setup_login() {
 	[ -n "$username" ] || return 0
 	[ -n "$password" ] || return 0
 
-	echo "$username xl2tp-server $password ${remoteip:-*}" >> $CHAP_SECRETS
+	echo "$username xl2tp-server $password ${remoteip:-*}" >> ${TMP_DIR}/xl2tp-chap-secrets
 }
 
 count_clients(){
@@ -137,43 +132,59 @@ count_clients(){
 
 	[ "$proto" = "l2tp" ] && [ "$disabled" = "0" ] && {
 		config_get auth "$section" auth;
-		[ -n "$auth" ] && echo "* * $auth" >> $SECRETS;
+		[ -n "$auth" ] && echo "* * $auth" >> ${TMP_DIR}/xl2tp-secrets;
 		counter=$(( counter + 1 ));
 	}
 }
 
 start_service() {
+	local ip6="$1"
 	local counter=0
-	> $SECRETS
+	mkdir -p ${TMP_DIR}
 	config_load network
 	config_foreach count_clients interface
-	[ -z "$(uci -q get xl2tpd.@service[0])" ] && [ "$counter" -eq 0 ] && return
+	[ "$(uci -q get xl2tpd.@service[0].enabled)" != "1" ] && [ "$counter" -eq 0 ] && return
 
-	mkdir -p /var/etc
 	cp /etc/xl2tpd/xl2tpd.conf $CONFIG
 	cp /etc/ppp/options.xl2tpd $OPTIONS
 	config_load xl2tpd
 	config_foreach setup_config service
+	[ "$BIND_STOP" = "yes" ] && return 1
 
-	[ "$counter" -gt 0 ] || return
 	config_foreach setup_login login
+	[ "$(uci -q get xl2tpd.@service[0].use_ipv6)" = "1" ] && ip6=6
 
-	rm -rf "$RUN_D"
-	mkdir -p "$RUN_D"
+	if [ "$ip6" = "6" ]; then
+		procd_open_instance
+		procd_set_param command $BIN6 -D -l -p ${TMP_DIR}/xl2tpd6.pid ${SERVER:+-c $CONFIG} -C /var/run/xl2tpd/l2tp6-control
+		procd_set_param stdout 1
+		procd_set_param stderr 1
+		procd_set_param respawn
+		procd_close_instance
 
-	procd_open_instance
-	procd_set_param command $BIN -D -l -p $PID_F ${SERVER:+-c $SERVER}
-	procd_set_param stdout 1 # forward stdout of the command to logd
-	procd_set_param stderr 1 # same for stderr
-	procd_set_param respawn
-	procd_close_instance
+		if [ "$counter" -gt 0 ]; then
+			procd_open_instance
+			procd_set_param command $BIN -D -l -p ${TMP_DIR}/xl2tpd.pid ${SERVER:+-c $CONFIG}
+			procd_set_param stdout 1
+			procd_set_param stderr 1
+			procd_set_param respawn
+			procd_close_instance
+		fi
+	else
+		procd_open_instance
+		procd_set_param command $BIN -D -l -p ${TMP_DIR}/xl2tpd.pid ${SERVER:+-c $CONFIG}
+		procd_set_param stdout 1 # forward stdout of the command to logd
+		procd_set_param stderr 1 # same for stderr
+		procd_set_param respawn
+		procd_close_instance
+	fi
 
 	mkdir -p /tmp/state/l2tp
 	[ -n "$SERVER" ] && date "+%s" > /tmp/state/l2tp/uptime
 }
 
 stop_service() {
-	rm -rf "$RUN_D" "$PID_F" "$CONFIG" "$CHAP_SECRETS" "/tmp/state/l2tp/uptime"
+	rm -rf "$TMP_DIR" "/tmp/state/l2tp/uptime"
 }
 
 reload_service() {

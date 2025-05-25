@@ -424,6 +424,19 @@ ucidef_set_poe_chip() {
 }
 
 ucidef_check_path() {
+	local hwver_str="$4"
+	[ -n "$hwver_str" ] && {
+		local hwver_cur_hi="$(cat /sys/mnf_info/hwver | cut -b 3-4)"
+		local hwver_cur_lo="$(cat /sys/mnf_info/hwver_lo 2>/dev/null | cut -b 3-4)"
+		local hwver_cur="$(expr $hwver_cur_hi \* 100 + $hwver_cur_lo)"
+
+		hwver_from="$(echo "$hwver_str" | cut -d '-' -f 1 | awk -F "." '{print $1*100+$2%100}')"
+		hwver_to="$(echo "$hwver_str" | cut -d '-' -f 2 | awk -F "." '{print $1*100+$2%100}')"
+
+		[ "$hwver_cur" -lt "$hwver_from" ]  && return
+		[ "$hwver_cur" -gt "$hwver_to" ] && [ "$hwver_to" -ne 0 ] && return
+	}
+
 	json_select_array "checks"
 		json_add_object
 			json_add_string name "$1"

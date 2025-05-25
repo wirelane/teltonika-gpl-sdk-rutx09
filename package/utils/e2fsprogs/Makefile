@@ -35,53 +35,12 @@ define Package/e2fsprogs
   SUBMENU:=Filesystem
   TITLE:=Ext2/3/4 filesystem utilities
   URL:=http://e2fsprogs.sourceforge.net/
-  DEPENDS:=+libuuid +libext2fs
+  DEPENDS:=+libuuid +libblkid
 endef
 
 define Package/e2fsprogs/description
  This package contains essential ext2 filesystem utilities which consists of
  e2fsck, mke2fs and most of the other core ext2 filesystem utilities.
-endef
-
-define Package/libext2fs
-  SECTION:=libs
-  CATEGORY:=Libraries
-  TITLE:=ext2/3/4 filesystem library
-  URL:=http://e2fsprogs.sourceforge.net/
-  DEPENDS:=+libuuid +libblkid +libss +libcomerr
-  ABI_VERSION:=2
-endef
-
-define Package/libext2fs/description
- libext2fs is a library which can access ext2, ext3 and ext4 filesystems.
-endef
-
-define Package/libss
-  SECTION:=libs
-  CATEGORY:=Libraries
-  TITLE:=command-line interface parsing library
-  URL:=http://e2fsprogs.sourceforge.net/
-  DEPENDS:=+libcomerr
-  ABI_VERSION:=2
-endef
-
-define Package/libss/description
-  This pacakge contains libss, a command-line interface parsing library
-  bundled with e2fsprogs.
-endef
-
-define Package/libcomerr
-  SECTION:=libs
-  CATEGORY:=Libraries
-  TITLE:=common error description library
-  URL:=http://e2fsprogs.sourceforge.net/
-  DEPENDS:=+libuuid
-  ABI_VERSION:=0
-endef
-
-define Package/libcomerr/description
-  This package contains libcom_err, the common error description library
-  bundled with e2fsprogs.
 endef
 
 define Package/tune2fs
@@ -148,7 +107,7 @@ TARGET_CFLAGS += $(FPIC)
 
 CONFIGURE_ARGS += \
 	--disable-testio-debug \
-	--enable-elf-shlibs	\
+	--disable-elf-shlibs	\
 	--disable-libuuid	\
 	--disable-libblkid	\
 	--disable-uuidd		\
@@ -178,7 +137,7 @@ define Build/Compile
 		BUILDCC="$(HOSTCC)" \
 		DESTDIR="$(PKG_INSTALL_DIR)" \
 		ELF_OTHER_LIBS="$(TARGET_LDFLAGS) -luuid" \
-		SYSLIBS="$(TARGET_LDFLAGS) -ldl -L$(PKG_BUILD_DIR)/lib/ -l:libcom_err.so.0.0" \
+		SYSLIBS="$(TARGET_LDFLAGS) -ldl -L$(PKG_BUILD_DIR)/lib/ -l:libcom_err.a" \
 		V=$(if $(findstring c,$(OPENWRT_VERBOSE)),1,) \
 		all
 endef
@@ -187,23 +146,6 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_BUILD_DIR)/lib/ext2fs/ext2fs.pc $(1)/usr/lib/pkgconfig
 	$(CP) $(PKG_BUILD_DIR)/lib/et/com_err.pc $(1)/usr/lib/pkgconfig
-
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/libext2fs.{so,a}* $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/libcom_err.{so,a}* $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/libss.{so,a}* $(1)/usr/lib
-
-	$(INSTALL_DIR) $(1)/usr/include/ext2fs
-	$(CP) $(PKG_BUILD_DIR)/lib/ext2fs/*.h $(1)/usr/include/ext2fs
-	$(INSTALL_DIR) $(1)/usr/include/et
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/lib/et/*.h $(1)/usr/include/et
-	# Apparently there is some confusion
-	echo "#include <et/com_err.h>" > $(1)/usr/include/com_err.h
-	$(INSTALL_DIR) $(1)/usr/include/ss
-	$(CP) \
-		$(PKG_BUILD_DIR)/lib/ss/ss.h \
-		$(PKG_BUILD_DIR)/lib/ss/ss_err.h \
-		$(1)/usr/include/ss/
 endef
 
 define Package/e2fsprogs/install
@@ -212,28 +154,6 @@ define Package/e2fsprogs/install
 	$(LN) mke2fs $(1)/usr/sbin/mkfs.ext2
 	$(LN) mke2fs $(1)/usr/sbin/mkfs.ext3
 	$(LN) mke2fs $(1)/usr/sbin/mkfs.ext4
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libe2p.so.* $(1)/usr/lib/
-endef
-
-define Package/libcomerr/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libcom_err.so.* $(1)/usr/lib/
-endef
-
-define Package/libss/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libss.so.* $(1)/usr/lib/
-endef
-
-define Package/libext2fs/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libext2fs.so.* $(1)/usr/lib/
-endef
-
-define Package/libext2fs/install_lib
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/lib/ext2fs/libext2fs.a $(1)/usr/lib/libext2fs_pic.a
 endef
 
 define Package/tune2fs/install
@@ -287,9 +207,6 @@ define Package/lsattr/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/lsattr $(1)/usr/bin/
 endef
 
-$(eval $(call BuildPackage,libcomerr))
-$(eval $(call BuildPackage,libss))
-$(eval $(call BuildPackage,libext2fs))
 $(eval $(call BuildPackage,e2fsprogs))
 $(eval $(call BuildPackage,tune2fs))
 $(eval $(call BuildPackage,resize2fs))

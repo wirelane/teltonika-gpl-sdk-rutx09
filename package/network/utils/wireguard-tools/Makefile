@@ -12,7 +12,7 @@ include $(INCLUDE_DIR)/kernel.mk
 PKG_NAME:=wireguard-tools
 
 PKG_VERSION:=1.0.20210223
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_VERSION:=1.0.20210223
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
@@ -57,8 +57,8 @@ define Package/wireguard-tools/install
 	$(INSTALL_DIR) $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/wg $(1)/usr/bin/
 	$(INSTALL_BIN) ./files/wireguard_watchdog $(1)/usr/bin/
-	$(INSTALL_DIR) $(1)/lib/netifd/proto/
-	$(INSTALL_BIN) ./files/wireguard.sh $(1)/lib/netifd/proto/
+	$(INSTALL_DIR) $(1)/usr/local/usr/lib/netifd/proto/
+	$(INSTALL_BIN) ./files/wireguard.sh $(1)/usr/local/usr/lib/netifd/proto/
 	$(INSTALL_DIR) $(1)/usr/share/wireguard
 	$(INSTALL_BIN) ./files/18-wireguard $(1)/usr/share/wireguard
 endef

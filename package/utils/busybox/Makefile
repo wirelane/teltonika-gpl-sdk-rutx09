@@ -46,7 +46,7 @@ define Package/busybox/Default
   TITLE:=Core utilities for embedded Linux
   URL:=http://busybox.net/
   DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
-  USERID:=ntp=123:ntp=123
+  USERID:=ntp=547:ntp=547
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_FEATURE_SUID),)
   SUID:=/bin/busybox:root
 endif
@@ -62,6 +62,8 @@ define Package/telnet
   CATEGORY:=Base system
   TITLE:=Telnet server
   DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
+  USERID:=telnetd:telnetd
+  CAP:=/usr/sbin/telnetd:cap_net_bind_service=ep
 endef
 
 define Package/busybox/description
@@ -128,41 +130,50 @@ define Build/Compile
 		all install \
 	)
 	cd $(PKG_BUILD_DIR) && \
+	cp .config .config.orig && \
 	sed -i 's/^# CONFIG_TELNET is not set/CONFIG_TELNET=y/' .config || true; \
-	sed -i 's/^# CONFIG_TELNETD is not set/CONFIG_TELNETD=y/' .config || true; \
 	sed -i 's/^# CONFIG_FEATURE_TELNET_TTYPE is not set/CONFIG_FEATURE_TELNET_TTYPE=y/' .config || true; \
 	sed -i 's/^# CONFIG_FEATURE_TELNET_AUTOLOGIN is not set/CONFIG_FEATURE_TELNET_AUTOLOGIN=y/' .config || true; \
 	sed -i 's/^# CONFIG_FEATURE_TELNET_WIDTH is not set/CONFIG_FEATURE_TELNET_WIDTH=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNETD_STANDALONE is not set/CONFIG_FEATURE_TELNETD_STANDALONE=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNETD_INETD_WAIT is not set/CONFIG_FEATURE_TELNETD_INETD_WAIT=y/' .config || true; \
-	cp .config .config.orig && \
-	./make_single_applets.sh TELNETD && \
-	cp busybox_config_TELNETD .config && \
-	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
-	mv busybox busybox_TELNETD; \
-	cp .config.orig .config && \
 	./make_single_applets.sh TELNET && \
 	cp busybox_config_TELNET .config && \
 	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
-	mv busybox busybox_TELNET
+	mv busybox busybox_TELNET; \
+	sed -i 's/^# CONFIG_TELNETD is not set/CONFIG_TELNETD=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNETD_STANDALONE is not set/CONFIG_FEATURE_TELNETD_STANDALONE=y/' .config || true; \
+	sed -i 's/^# CONFIG_FEATURE_TELNETD_INETD_WAIT is not set/CONFIG_FEATURE_TELNETD_INETD_WAIT=y/' .config || true; \
+	./make_single_applets.sh TELNETD && \
+	cp busybox_config_TELNETD .config && \
+	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
+	mv busybox busybox_TELNETD && \
+	sed -i 's/^# CONFIG_LOGIN is not set/CONFIG_LOGIN=y/' .config || true; \
+	./make_single_applets.sh LOGIN && \
+	cp busybox_config_LOGIN .config && \
+	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
+	mv busybox busybox_LOGIN && \
+	cp .config.orig .config
 endef
 
 define Package/telnet/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/telnetd.conf $(1)/etc/config/telnetd
+	$(INSTALL_CONF_USR) ./files/telnetd.conf $(1)/etc/config/telnetd
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/telnetd $(1)/etc/init.d/telnetd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_TELNETD $(1)/usr/sbin/telnetd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_TELNET $(1)/usr/bin/telnet
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/telnetd.permtab $(1)/etc/permtab.d/telnetd
 endef
 
 define Package/busybox/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/bin
 	$(CP) $(PKG_INSTALL_DIR)/* $(1)/
+	$(INSTALL_SUID) $(PKG_BUILD_DIR)/busybox_LOGIN $(1)/bin/login
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_CROND),)
 	$(INSTALL_BIN) ./files/cron $(1)/etc/init.d/cron
 endif

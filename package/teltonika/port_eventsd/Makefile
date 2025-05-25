@@ -6,8 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=port_eventsd
+PKG_RELEASE=2
 
-PKG_SOURCE_VERSION:=1.12
+PKG_SOURCE_VERSION:=1.13
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

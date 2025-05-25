@@ -8,8 +8,6 @@ alias logger="logger -s -t sme.sh"
 usb_msd_fs="ext4"
 usb_msd_label="RUTOS_overlay"
 pending_reboot="/tmp/.sme_pending_reboot"
-orig_overlay="/rwm"
-conf_backup="pre_sme.tgz"
 mmc_driver='/etc/modules-late.d/mmc-spi'
 uuid_file='.sme_uuid'
 sme_maj_min='/tmp/.sme_major_minor'
@@ -54,7 +52,7 @@ rm_overlay_entry_exit_on_fail() {
 	config_get uuid "$1" uuid
 	config_get target "$1" target
 	config_get is_rootfs "$1" is_rootfs 0
-	[[ $is_rootfs -eq 0 && "$target" != "/overlay" && "$uuid" != $UUID ]] && \
+	[[ $is_rootfs -eq 0 && "$target" != "/ext" && "$uuid" != $UUID ]] && \
 		return 0
 
 	uci delete fstab.$1 || {
@@ -68,12 +66,9 @@ fstab_entries() {
 	config_foreach rm_overlay_entry_exit_on_fail mount
 
 	uci batch <<-EOF
-		set fstab.rwm="mount"
-		set fstab.rwm.device="$(awk -e '/\s\/overlay\s/{print $1}' /etc/mtab)"
-		set fstab.rwm.target=$orig_overlay
 		set fstab.overlay="mount"
 		set fstab.overlay.uuid=$UUID
-		set fstab.overlay.target="/overlay"
+		set fstab.overlay.target="/ext"
 		set fstab.overlay.sme="1"
 		set fstab.log="mount"
 		set fstab.log.enabled="0"
@@ -120,9 +115,16 @@ fix_legacy_fstab() {
 	mount -t $usb_msd_fs /dev/sda1 /mnt/sda1
 	rm -rf /mnt/sda1/* /mnt/sda1/.[!.]* /mnt/sda1/..?*
 	fstab_entries
-	cp -a /overlay/. /mnt/sda1
+	cp -a /overlay/root/. /mnt/sda1
 	umount /mnt/sda1
 	rmdir /mnt/sda1
+}
+
+migrate_fstab() {
+	echo " - running fstab migrations -"
+	uci delete fstab.rwm && uci commit fstab
+	sed -i 's/\/overlay/\/ext/' /etc/config/fstab
+	sync
 }
 
 expand() {
@@ -150,15 +152,12 @@ expand() {
 		return 1
 	}
 
-	sysupgrade --create-backup $MOUNT/$conf_backup && chmod -w $MOUNT/$conf_backup || \
-		logger "warning: failed to backup config: it won't be restored on shrinkage"
-
 	fstab_entries || {
 		logger "failed, couldn't modify fstab"
 		return 1
 	}
 
-	cp -a /overlay/./ $MOUNT/ || {
+	cp -a /overlay/root/./ $MOUNT/ || {
 		logger "failed, couldn't copy overlay files"
 		return 1
 	}
@@ -207,13 +206,7 @@ shrink() {
 		return 1
 	}
 
-	local $(block_info_vars $(uci -q get fstab.overlay.uuid))
-
-	cp $MOUNT/$conf_backup $orig_overlay/sysupgrade.tgz || \
-		logger "warning: config backup not found: original config won't be restored"
-
-	rm -f $orig_overlay/upper/etc/config/fstab
-	fs_state_ready $orig_overlay
+	uci delete fstab.overlay && uci commit fstab
 
 	sync
 	touch $pending_reboot
@@ -224,7 +217,7 @@ shrink() {
 is_expanded() {
 	[ "$(uci -q get fstab.overlay.sme)" != "1" ] && return 1
 	local $(block_info_vars $(uci -q get fstab.overlay.uuid))
-	[ "$MOUNT" = "/overlay" ]
+	[ "$MOUNT" = "/ext" ]
 }
 
 mk_sd_node() {
@@ -272,6 +265,10 @@ preboot() {
 		return 0
 	fi
 
+	if grep -q "rwm" /etc/config/fstab; then
+		migrate_fstab
+	fi
+
 	[ "$(uci -q get fstab.overlay.sme)" = "1" ] || return 0
 
 	[ -e "$mmc_driver" ] && /sbin/kmodloader "$mmc_driver"
@@ -289,17 +286,15 @@ preboot() {
 	mount -t $usb_msd_fs $DEVICE $mnt || return 2
 	cd $mnt
 
-	find -maxdepth 1 -mindepth 1 ! -name "$conf_backup" -exec rm -rf {} \;
+	find -maxdepth 1 -mindepth 1 -exec rm -rf {} \;
 
-	cp -a /overlay/./ ./ || return 3
+	cp -a /overlay/root/./ ./ || return 3
 	fs_state_ready $mnt || return 4
-	fs_state_ready /overlay || return 5
 
 	cd -
 	sync
 	umount $mnt
 	mount_root
-	umount /rom/overlay
 	return 0
 }
 

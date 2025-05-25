@@ -31,7 +31,7 @@ define Package/p910nd
   SUBMENU:=Printing
   TITLE:=A small non-spooling printer server
   URL:=https://github.com/kenyapcomau/p910nd
-  USERID:=p910nd=393:lp=7
+  USERID:=p910nd=585:p910nd=585
 endef
 
 define Package/p910nd/conffiles
@@ -52,13 +52,11 @@ MAKE_FLAGS += \
 	CFLAGS="$(TARGET_CFLAGS) -DLOCKFILE_DIR=\"\\\"/tmp\"\\\""
 
 define Package/p910nd/install
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/permtab.d $(1)/etc/init.d $(1)/etc/hotplug.d/usbmisc
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/p910nd $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./files/p910nd.config $(1)/etc/config/p910nd
-	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_CONF_USR) ./files/p910nd.conf $(1)/etc/config/p910nd
+	$(INSTALL_DATA) ./files/p910nd.permtab $(1)/etc/permtab.d/p910nd
 	$(INSTALL_BIN) ./files/p910nd.init $(1)/etc/init.d/p910nd
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/usbmisc
 	$(INSTALL_BIN) ./files/p910nd.hotplug $(1)/etc/hotplug.d/usbmisc/20-p910nd
 endef
 

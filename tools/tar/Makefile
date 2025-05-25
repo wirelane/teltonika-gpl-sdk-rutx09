@@ -11,6 +11,8 @@ PKG_CPE_ID:=cpe:/a:gnu:tar
 PKG_VERSION:=1.32
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
+PKG_UPSTREAM_VERSION:=1.32
+PKG_UPSTREAM_URL_FILE:=tar-$(PKG_UPSTREAM_VERSION).tar.xz
 PKG_SOURCE_URL:=@GNU/tar
 PKG_HASH:=d0d3ae07f103323be809bc3eac0dcc386d52c5262499fe05511ac4788af1fdd8
 
@@ -27,7 +29,6 @@ HOSTCXX := $(HOSTCXX_NOCACHE)
 HOST_CONFIGURE_ARGS += \
 	--without-posix-acls \
 	--without-selinux \
-	--without-xattrs \
 	--disable-acl \
 	--disable-nls
 

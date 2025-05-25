@@ -30,7 +30,7 @@ define Package/mosquitto/default
   URL:=http://www.mosquitto.org/
   MAINTAINER:=Karl Palsson <karlp@etactica.com>
   DEPENDS:= +librt +ubus +libubox +libuci
-  USERID:=mosquitto=200:mosquitto=200
+  USERID:=mosquitto=553:mosquitto=553
 endef
 
 define Package/mosquitto-ssl

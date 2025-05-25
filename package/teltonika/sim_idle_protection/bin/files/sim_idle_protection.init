@@ -11,10 +11,12 @@ service_triggers() {
 handle_cron() {
 	local section="$1"
 	local TIME=""
+	local esim_param=""
 
 	config_get enab "$section" "enable"
 	config_get modem "$section" "modem"
 	config_get position "$section" "position"
+	config_get esim_profile "$section" "esim_profile"
 
 	if [ $enab -eq 1 ]; then
 		config_get hour "$section" "hour"
@@ -29,10 +31,12 @@ handle_cron() {
 			TIME="$minute $hour * * $weekday"
 		fi
 
-		sed -i "/sim_idle_protection.sh -s sim$position -m $modem/d" /etc/crontabs/root
-		echo "$TIME /sbin/sim_idle_protection.sh -s sim$position -m $modem" >>/etc/crontabs/root
+		[ -n "$esim_profile" ] && esim_param=" -p $esim_profile"
+
+		sed -i "/sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}/d" /etc/crontabs/root
+		echo "$TIME sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}" >> /etc/crontabs/root
 	else
-		sed -i "/sim_idle_protection.sh -s sim$position -m $modem/d" /etc/crontabs/root
+		sed -i "/sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}/d" /etc/crontabs/root
 	fi
 }
 

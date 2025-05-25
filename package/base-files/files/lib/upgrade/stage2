@@ -38,13 +38,13 @@ switch_to_ramfs() {
 		pivot_root mount_root reboot sync kill sleep		\
 		md5sum hexdump cat zcat bzcat dd tar			\
 		ls basename find cp mv rm mkdir rmdir mknod touch chmod \
-		'[' printf wc grep awk sed cut				\
+		'[' printf wc grep awk sed cut tr head			\
 		mtd partx losetup mkfs.ext4 nandwrite flash_erase	\
 		ubiupdatevol ubiattach ubiblock ubiformat		\
 		ubidetach ubirsvol ubirmvol ubimkvol			\
 		snapshot snapshot_tool date jshn dtbtool dtc mkbootimg	\
 		ubinize-image.sh sysupgrade-tar.sh which ubinize mktemp	\
-		dumpimage ledman fwtool fitblk \
+		dumpimage ledman fwtool fitblk block \
 		$RAMFS_COPY_BIN
 	do
 		local file="$(command -v "$binary" 2>/dev/null)"

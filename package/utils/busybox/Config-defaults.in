@@ -1344,10 +1344,10 @@ config BUSYBOX_DEFAULT_GETTY
 	default y
 config BUSYBOX_DEFAULT_LOGIN
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_LOGIN_SESSION_AS_CHILD
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_LOGIN_SCRIPTS
 	bool
 	default n
@@ -1656,7 +1656,7 @@ config BUSYBOX_DEFAULT_MKDOSFS
 	default n
 config BUSYBOX_DEFAULT_MKFS_VFAT
 	bool
-	default n
+	default USES_BOOT_PART
 config BUSYBOX_DEFAULT_MKSWAP
 	bool
 	default n

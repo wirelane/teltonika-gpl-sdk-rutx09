@@ -1,0 +1,2 @@
+/etc/config/chilli      chilli:chilli       666       -
+/etc/chilli             chilli:chilli       -         r

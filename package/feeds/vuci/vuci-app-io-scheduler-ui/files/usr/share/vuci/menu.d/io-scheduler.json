@@ -1,0 +1,12 @@
+{
+  "services/io": {
+    "index": 50,
+    "title": "Input/Output"
+  },
+  "services/io/scheduler": {
+    "view": "services/IoScheduler",
+    "index": 30,
+    "title": "Scheduler",
+    "acls": ["services/io/scheduler"]
+  }
+}

@@ -13,7 +13,7 @@ sms_utils_cb() {
 
 is_ios_enabled || {
 	/etc/init.d/ioman disable
-	/etc/init.d/ioman_scheduler disable
+	[ -f "/etc/init.d/ioman_scheduler" ] && /etc/init.d/ioman_scheduler disable
 	rm -f /etc/config/ioman
 
 	config_load "sms_utils"

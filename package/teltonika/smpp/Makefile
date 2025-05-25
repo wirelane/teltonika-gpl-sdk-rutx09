@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=smppd
-PKG_VERSION:=2025-02-14
+PKG_VERSION:=2025-04-17
 
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=1.9
+PKG_SOURCE_VERSION:=1.10
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -23,7 +23,7 @@ define Package/smpp
 	TITLE:=SMPP Transceiver
 	DEPENDS:=+libsmpp34 +libubox +libtlt-logger +libgsm +liburc \
 		+libubus +libboardjson
-	USERID:=smppd:smppd
+	USERID:=smppd=520:smppd=520
 endef
 
 define Package/smpp/description
@@ -38,12 +38,13 @@ endef
 
 define Package/smpp/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config \
-		$(1)/usr/share/acl.d
+		$(1)/usr/share/acl.d $(1)/etc/permtab.d
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smppd $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/smpp.init $(1)/etc/init.d/smpp
 	$(CP) $(PKG_BUILD_DIR)/files/smpp.conf $(1)/etc/config/smpp
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/smpp.json $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/smpp.permtab $(1)/etc/permtab.d/
 endef
 
 $(eval $(call BuildPackage,smpp))

@@ -22,6 +22,7 @@ PKG_CPE_ID:=cpe:/a:strongswan:davici
 
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
+PKG_BUILD_DEPENDS:=libgpg-error
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk

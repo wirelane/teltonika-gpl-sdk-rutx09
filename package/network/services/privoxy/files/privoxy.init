@@ -6,11 +6,13 @@ START=99
 STOP=01
 USE_PROCD=1
 
-TMP_DIR=/var/run
+LOG_DIR=/var/log/privoxy
+TMP_DIR=/var/run/privoxy
 UNDO_FILE=${TMP_DIR}/privoxy_firewall.sh
 CONFIG_FILE=${TMP_DIR}/privoxy.config
 PID_FILE=${TMP_DIR}/privoxy.pid
-DAEMON=privoxy
+DAEMON=/usr/sbin/privoxy
+[ -x "$DAEMON" ] || DAEMON="/usr/local$DAEMON"
 USER_ACTION_FILE=${TMP_DIR}/user.action
 PORT=
 
@@ -116,7 +118,9 @@ start_service() {
 	[ "$enabled" -eq 1 ] || return
 
 	# Clear URL list file
-	echo "" >$USER_ACTION_FILE
+	rm -f "$USER_ACTION_FILE" "$CONFIG_FILE"
+	touch "$USER_ACTION_FILE" "$CONFIG_FILE"
+	chown privoxy:privoxy "$USER_ACTION_FILE" "$CONFIG_FILE"
 	config_load privoxy
 	[ -n "$PORT" ] && {
 		config_load chilli
@@ -127,6 +131,7 @@ start_service() {
 	procd_set_param command $DAEMON --no-daemon --pidfile $PID_FILE $CONFIG_FILE
 	#procd_set_param respawn
 	procd_set_param file $CONFIG_FILE
+	procd_set_param user privoxy
 	procd_set_param stdout 1
 	procd_set_param stderr 1
 	procd_close_instance

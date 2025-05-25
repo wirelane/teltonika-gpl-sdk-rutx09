@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tlt-minidlna
 PKG_VERSION:=2022-08-29
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=0a6e10e821e920e0fedfc86850cdf90f131b1e5b
@@ -38,6 +38,7 @@ define Package/tlt-minidlna
   	+libid3tag +libflac +libvorbis +libuuid +libubus \
 	+libubox $(ICONV_DEPENDS) $(INTL_DEPENDS)
   USERID:=minidlna:minidlna
+  CAP:=/usr/bin/minidlna:cap_net_bind_service=ep
 endef
 
 define Package/tlt-minidlna/description
@@ -66,11 +67,15 @@ define Package/tlt-minidlna/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/minidlna.init $(1)/etc/init.d/minidlna
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/minidlna.config $(1)/etc/config/minidlna
+	$(INSTALL_CONF_USR) ./files/minidlna.config $(1)/etc/config/minidlna
 	$(INSTALL_DIR) $(1)/etc/sysctl.d
 	$(INSTALL_CONF) ./files/minidlna.sysctl $(1)/etc/sysctl.d/30-minidlna.conf
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/block
 	$(INSTALL_CONF) ./files/minidlna.hotplug $(1)/etc/hotplug.d/block/20-minidlna-rescan
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) ./files/minidlna.json $(1)/usr/share/acl.d/minidlna.json
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/dlna.permtab $(1)/etc/permtab.d/dlna
 endef
 
 $(eval $(call BuildPackage,tlt-minidlna))

@@ -64,10 +64,10 @@
 				"get_status"
 			]
 		},
-		"profile": {
+		"system": {
 			"methods": [
-				"list",
-				"change"
+				"list_profiles",
+				"change_profile"
 			]
 		},
 		"ip_block": {
@@ -123,6 +123,6 @@
 			"methods": [
 				"status"
 			]
-		},
+		}
 	}
 }

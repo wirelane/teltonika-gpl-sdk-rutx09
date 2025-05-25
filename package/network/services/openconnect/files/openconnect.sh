@@ -2,7 +2,7 @@
 
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
-	. ../netifd-proto.sh
+	. /lib/netifd/netifd-proto.sh
 	init_proto "$@"
 }
 
@@ -166,9 +166,9 @@ proto_openconnect_setup() {
 	logger -t openconnect "executing 'openconnect $cmdline'"
 
 	if [ -f "$pwfile" ]; then
-		eval "proto_run_command '$config' /usr/sbin/openconnect-wrapper '$pwfile' $cmdline"
+		eval "proto_run_command '$config' openconnect-wrapper '$pwfile' $cmdline"
 	else
-		eval "proto_run_command '$config' /usr/sbin/openconnect $cmdline"
+		eval "proto_run_command '$config' openconnect $cmdline"
 	fi
 }
 

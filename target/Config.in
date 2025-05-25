@@ -232,6 +232,9 @@ config EMMC_SUPPORT
 config NO_WIRED_WAN
 	bool
 
+config TEST_IMAGE
+	bool
+
 # Architecture selection
 
 config aarch64
@@ -346,5 +349,9 @@ config ARCH
 config BYPASS_MOBILE_COUNTERS
 	bool
 
+config RESET_BUTTON_SUPPORT
+	bool
+
 config NETWORKS_EXTERNAL
 	bool
+

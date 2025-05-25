@@ -81,8 +81,9 @@ ifeq ($(BUILD_VARIANT),mini)
 endif
 
 define Package/tcpdump/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/tcpdump $(1)/usr/sbin/
+  $(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_tcpdump)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/sbin $(1)/etc/init.d/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/tcpdump $(DEST_DIR)/usr/sbin/
 	$(INSTALL_BIN) ./files/tcpdebug.init $(1)/etc/init.d/tcpdebug
 endef
 

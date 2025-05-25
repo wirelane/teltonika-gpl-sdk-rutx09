@@ -51,10 +51,6 @@ fwtool_check_signature() {
 		return 1
 	fi
 
-	local ver="$(fwtool_get_fw_version "$1")"
-	local major="$(echo $ver | awk -F . '{print $2 }')"
-	local minor="$(echo $ver | awk -F . '{print $3 }')"
-
 	fwtool -q -T -s /dev/null "$1" | \
 		fwcert -m - -x "/tmp/sysupgrade.ucert" -P /etc/proprietary_keys &>/dev/null
 
@@ -66,9 +62,13 @@ fwtool_get_fw_version() {
 
 	. /usr/share/libubox/jshn.sh
 
-	if ! fwtool -q -i /tmp/sysupgrade.meta "$1"; then
-		v "Firmware metadata not found"
-		return 1
+	if part_magic_cd "$1"; then
+		dd if="$1" of=/tmp/sysupgrade.meta bs=32K count=1 2>/dev/null
+	else
+		if ! fwtool -q -i /tmp/sysupgrade.meta "$1"; then
+			v "Firmware metadata not found"
+			return 1
+		fi
 	fi
 
 	json_load "$(cat /tmp/sysupgrade.meta)" || {
@@ -145,14 +145,18 @@ fwtool_check_image() {
 	local vb=$(echo $blver | grep '\-vb')
 	local device_name=$(mnf_info -n | cut -c1-4 2>/dev/null)
 
-	if ! fwtool -q -i /tmp/sysupgrade.meta "$1"; then
-		fwtool_msg "Image metadata not present" "4"
-		[ "$REQUIRE_IMAGE_METADATA" = 1 -a "$FORCE" != 1 ] && {
-			fwtool_msg "Use sysupgrade -F to override this check when downgrading or flashing to vendor firmware" "3"
-		}
-		[ "$REQUIRE_IMAGE_METADATA" = 1 ] && return 1
-		[ -n "$vb" ] && return 1
-		return 0
+	if part_magic_cd "$1"; then
+		dd if="$1" of=/tmp/sysupgrade.meta bs=32K count=1 2>/dev/null
+	else
+		if ! fwtool -q -i /tmp/sysupgrade.meta "$1"; then
+			fwtool_msg "Image metadata not present" "4"
+			[ "$REQUIRE_IMAGE_METADATA" = 1 -a "$FORCE" != 1 ] && {
+				fwtool_msg "Use sysupgrade -F to override this check when downgrading or flashing to vendor firmware" "3"
+			}
+			[ "$REQUIRE_IMAGE_METADATA" = 1 ] && return 1
+			[ -n "$vb" ] && return 1
+			return 0
+		fi
 	fi
 
 	json_load_file /etc/board.json || {
@@ -229,7 +233,7 @@ fwtool_check_image() {
 	json_get_keys dev_keys
 	for k in $dev_keys; do
 		json_get_var dev "$k"
-		if [ "$dev" = "$device" ]; then
+		if [ "$dev" = "$device" ] || [ "$dev" = "*" ]; then
 			# allow flashing firmwares with lower major compat version on RUTC devices
 			if [ "$device_name" = "RUTC" ] && [ ${imagecompat%.*} -le ${devicecompat%.*} ]; then
 				return 0

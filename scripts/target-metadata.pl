@@ -60,7 +60,7 @@ sub target_config_features(@) {
 		/^dot1x-client$/ and $ret .= "\tselect HAS_DOT1X_CLIENT\n";
 		/^dot1x-server$/ and $ret .= "\tselect HAS_DOT1X_SERVER\n";
 		/^power-control$/ and $ret .= "\tselect HAS_POWER_CONTROL\n";
-		/^single-port$/ and $ret .= "\tselect HAS_SINGLE_ETH_PORT\n";
+		/^single_port$/ and $ret .= "\tselect HAS_SINGLE_ETH_PORT\n";
 		/^wifi$/ and $ret .= "\tselect WIFI_SUPPORT\n";
 		/^guest-wifi$/ and $ret .= "\tselect WIFI_GUEST_NETWORK_SUPPORT\n";
 		/^bt$/ and $ret .= "\tselect BLUETOOTH_SUPPORT\n";
@@ -69,10 +69,11 @@ sub target_config_features(@) {
 		/^custom-data-limit$/ and $ret .= "\tselect CUSTOM_DATA_LIMIT\n";
 		/^dualsim$/ and $ret .= "\tselect DUAL_SIM_SUPPORT\n";
 		/^tpm$/ and $ret .= "\tselect TPM_SUPPORT\n";
+		/^reset_button$/ and $ret .= "\tselect RESET_BUTTON_SUPPORT\n";
 		/^rndis$/ and $ret .= "\tselect RNDIS_SUPPORT\n";
 		/^ncm$/ and $ret .= "\tselect USB_NCM_SUPPORT\n";
 		/^poe$/ and $ret .= "\tselect POE_SUPPORT\n";
-		/^networks-external$/ and $ret .= "\tselect NETWORKS_EXTERNAL\n";
+		/^networks_external$/ and $ret .= "\tselect NETWORKS_EXTERNAL\n";
 		/^port-mirror$/ and $ret .= "\tselect HAS_PORT_MIRRORING\n";
 		/^usb-port$/ and $ret .= "\tselect USB_SUPPORT_EXTERNAL\n";
 		/^smp$/ and $ret .= "\tselect SMP_SUPPORT\n";
@@ -88,7 +89,7 @@ sub target_config_features(@) {
 		/^impulse_counter$/ and $ret .= "\tselect IMPULSE_COUNTER_SUPPORT\n";
 		/^multi-device$/ and $ret .= "\tselect MULTI_DEVICE_QUIRK\n";
 		/^gateway$/ and $ret .= "\tselect GATEWAY_DEVICE\n";
-		/^access-point$/ and $ret .= "\tselect AP_DEVICE\n";
+		/^access_point$/ and $ret .= "\tselect AP_DEVICE\n";
 		/^64mb_ram$/ and $ret .= "\tselect 64MB_RAM\n";
 		/^128mb_ram$/ and $ret .= "\tselect 128MB_RAM\n";
 		/^ledman-lite$/ and $ret .= "\tselect LEDMAN_LITE\n";
@@ -103,9 +104,10 @@ sub target_config_features(@) {
 		/^hi-storage$/ and $ret .= "\tselect HIGH_STORAGE\n";
 		/^esim-p$/ and $ret .= "\tselect ESIM_SUPPORT\n";
 		/^framed-routing$/ and $ret .= "\tselect FRAMED_ROUTING\n";
-		/^industrial-access-point$/ and $ret .= "\tselect INDUSTRIAL_AP\n";
+		/^industrial_access_point$/ and $ret .= "\tselect INDUSTRIAL_AP\n";
 		/^emmc$/ and $ret .= "\tselect EMMC_SUPPORT\n";
-		/^no-wired-wan$/ and $ret .= "\tselect NO_WIRED_WAN\n"
+		/^no-wired-wan$/ and $ret .= "\tselect NO_WIRED_WAN\n";
+		/^test-image$/ and $ret .= "\tselect TEST_IMAGE\n"
 	}
 	return $ret;
 }
@@ -237,7 +239,7 @@ EOF
 	print <<EOF;
 choice
 	prompt "Target System"
-	default TARGET_ipq40xx
+	default TARGET_mdm9x07
 	reset if !DEVEL
 
 EOF
@@ -517,6 +519,19 @@ EOF
 		foreach my $profile (@$profiles) {
 			next unless $profile->{modem_vendor};
 			print "\tdefault \"$profile->{modem_vendor}\" if (TARGET_$target->{conf}_$profile->{id} || TARGET_DEVICE_$target->{conf}_$profile->{id})\n";
+		}
+	}
+
+	print <<EOF;
+
+config DEVICE_MODEM_LIST
+	string
+EOF
+	foreach my $target (@target) {
+		my $profiles = $target->{profiles};
+		foreach my $profile (@$profiles) {
+			next unless $profile->{modem_list};
+			print "\tdefault \"$profile->{modem_list}\" if (TARGET_$target->{conf}_$profile->{id} || TARGET_DEVICE_$target->{conf}_$profile->{id})\n";
 		}
 	}
 

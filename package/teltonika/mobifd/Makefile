@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobifd
 
-PKG_SOURCE_VERSION:=7.13.4
+PKG_SOURCE_VERSION:=7.14.1.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -24,7 +24,7 @@ define Package/mobifd
 	TITLE:=GSM Modem manager
 	DEPENDS:= +libubus +libubox +libgsm +liburc +libuci +libtlt_uci +libtlt-logger \
 			+libsqlite3 +libmnfinfo +libboardjson +liblpac
-	USERID:=gsm:gsm
+	USERID:=gsm=509:gsm=509
 	CAP:=/usr/sbin/mobifd:cap_setuid,cap_setgid=ep
 endef
 
@@ -44,7 +44,7 @@ TARGET_CFLAGS += $(if $(CONFIG_MOBIFD_DEBUG),-DMOBIFD_DEBUG)
 
 
 define Package/mobifd/install
-	$(INSTALL_DIR) $(1)/usr/share/gsm/ $(1)/lib/config.d $(1)/usr/libexec/rpcd/ $(1)/usr/share/acl.d/
+	$(INSTALL_DIR) $(1)/usr/share/gsm/ $(1)/lib/config.d $(1)/usr/libexec/rpcd/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config/ $(1)/etc/init.d/ $(1)/etc/uci-defaults/etc $(1)/lib/functions
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mobifd $(1)/usr/sbin/mobifd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rpcd/rpc-ping $(1)/usr/libexec/rpcd/rpc-ping
@@ -56,21 +56,12 @@ define Package/mobifd/install
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/02_simcard $(1)/etc/uci-defaults/etc/02_simcard
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/106_operctl $(1)/etc/uci-defaults/etc/106_operctl
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/107_network_service_mode $(1)/etc/uci-defaults/etc/107_network_service_mode
+	$(CP) $(PKG_BUILD_DIR)/files/defaults/108_network_band_for_low_power $(1)/etc/uci-defaults/etc/108_network_band_for_low_power
 	$(CP) $(PKG_BUILD_DIR)/files/hotplug/remove_operlist.hotplug $(1)/usr/share/gsm/5-remove-operlist
+	$(CP) $(PKG_BUILD_DIR)/files/permtab.d/mobifd $(1)/etc/permtab.d/mobifd
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot mobifd ./mobifd.openrc $(1))
-endef
-
-define Package/mobifd/postinst
-	#!/bin/sh
-
-	. "$${IPKG_INSTROOT}/lib/functions.sh"
-
-	# add gsm user to network group to allow reading simcard cfg
-	group_add_user log gsm
-	group_add_user network gsm
-	group_add_user users gsm
 endef
 
 define Build/Test

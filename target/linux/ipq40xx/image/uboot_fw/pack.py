@@ -438,11 +438,13 @@ class FlashScript(object):
         if not verbose:
             self.redirect("nulldev")
 
-    def end(self):
+    def end(self, reset_env):
         """Generate code, to indicate successful completion of script."""
         self.echo("Erasing events_log partition ... ")
         self.append("sf probe; sf erase 0x00310000 +0x0090000", fatal=False)
         self.echo("[ done ]")
+        if reset_env:
+            self.append('env default -f; env save', fatal=False)
         self.append("exit 0\n", fatal=False)
 
     def start_if(self, var, value):
@@ -812,7 +814,7 @@ class Pack(object):
         if part_info == None and self.flinfo.type != 'norplusnand':
             print("Flash type is norplusemmc")
         else:
-            script.end()
+            script.end(self.reset_env)
 
     def __gen_script(self, script_fp, info_fp, script, images, flinfo):
         """Generate the script to flash the multi-image blob.
@@ -1129,7 +1131,7 @@ class Pack(object):
 
 
 
-    def main_bconf(self, flash_type, images_dname, out_fname, brdconfig):
+    def main_bconf(self, flash_type, images_dname, out_fname, brdconfig, reset_env):
         """Start the packing process, using board config.
 
         flash_type -- string, indicates flash type, 'nand' or 'nor' or 'emmc' or 'norplusnand'
@@ -1139,6 +1141,7 @@ class Pack(object):
         self.flash_type = flash_type
         self.images_dname = images_dname
         self.img_fname = out_fname
+        self.reset_env = reset_env
 
         self.__create_fnames()
 
@@ -1266,6 +1269,7 @@ class ArgParser(object):
         self.bconf_fname = "boardconfig"
         self.part_fname = None
         self.fconf_fname = None
+        self.reset_env = False
 
     def __init_pagesize(self, pagesize):
         """Set the pagesize, from the command line argument.
@@ -1413,9 +1417,10 @@ class ArgParser(object):
         fconf_fname = None
         bconf = False
         bconf_fname = None
+        reset_env = False
 
         try:
-            opts, args = getopt(argv[1:], "Bib:hp:t:o:c:m:f:F:")
+            opts, args = getopt(argv[1:], "Bib:hp:t:o:c:m:f:F:E")
         except GetoptError as e:
             raise UsageError(e.msg)
 
@@ -1440,6 +1445,8 @@ class ArgParser(object):
                 bconf = True
             elif option == "-F":
                 bconf_fname = value
+            elif option == "-E":
+                reset_env = True
 
         if len(args) != 1:
             raise UsageError("insufficient arguments")
@@ -1462,6 +1469,8 @@ class ArgParser(object):
         self.bconf = bconf
         if bconf_fname != None:
             self.bconf_fname = bconf_fname
+
+        self.reset_env = reset_env
 
     def usage(self, msg):
         """Print error message and command usage information.
@@ -1531,7 +1540,7 @@ def main():
     pack = Pack()
     if parser.bconf:
         pack.main_bconf(parser.flash_info.type, parser.images_dname,
-                        parser.out_fname, parser.bconf_fname)
+                        parser.out_fname, parser.bconf_fname, parser.reset_env)
     else:
         pack.main(parser.flash_info, parser.images_dname,
                   parser.out_fname, parser.part_fname,

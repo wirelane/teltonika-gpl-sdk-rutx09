@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. ../netifd-proto.sh
+. /lib/netifd/netifd-proto.sh
 init_proto "$@"
 
 proto_dhcpv6_init_config() {

@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_client
-PKG_VERSION:=2025-02-20
-PKG_SOURCE_VERSION:=7.13
+PKG_VERSION:=2025-04-17
+PKG_SOURCE_VERSION:=7.14.2
 PKG_LICENSE:=Teltonika-closed
 TARGET_CFLAGS += "-DCACHE_HASH=\\\"$(PKG_SOURCE_VERSION)\\\""
 
@@ -144,6 +144,11 @@ define Package/$(PKG_NAME)/prerm
 	config_foreach foreach_server tcp_server
 	config_foreach foreach_server rtu_server
 	exit 0
+endef
+
+define Package/$(PKG_NAME)/postrm
+	#!/bin/sh
+	/etc/init.d/rpcd reload
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

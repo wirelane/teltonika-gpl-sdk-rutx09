@@ -3,7 +3,9 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=Python
 PKG_VERSION:=2.7.18
 
-PKG_SOURCE_URL:=https://www.python.org/ftp/python/${PKG_VERSION}
+PKG_UPSTREAM_VERSION:=2.7.18
+PKG_UPSTREAM_URL_FILE:=Python-$(PKG_UPSTREAM_VERSION).tar.xz
+PKG_SOURCE_URL:=https://www.python.org/ftp/python/${PKG_UPSTREAM_VERSION}
 PKG_HASH:=b62c0e7937551d0cc02b8fd5cb0f544f9405bafc9a54d3808ed4594812edef43
 
 PKG_LICENSE:=Python/2.0

@@ -5,14 +5,14 @@
 
 APP_NAME="ftp_upload.sh"
 CONFIG_GET="uci -q get ulogd.ftp"
-LOG_FILE="/tmp/ftp_log"
+WORK_DIR="/var/run/ulogd"
+LOG_FILE="${WORK_DIR}/ftp_log"
 LOGGER="logger -t $APP_NAME -s"
 CLIENT=$(which ftpput)
 
 
 config_load ulogd
 config_get host ftp host
-config_get sname ftp sname "/var/log/ulogd_wifi.log"
 config_get dname ftp dname "traffic_log.tar.gz"
 config_get username ftp username
 config_get password ftp password
@@ -23,8 +23,11 @@ config_get extra_name_info ftp extra_name_info
 config_get custom_string ftp custom_string
 config_get remote_file_path ftp remote_file_path
 
+config_get sname ftp sname
+[ -z "$sname" ] && config_get sname emu1 file "/var/run/ulogd/ulogd_wifi.log"
+
 archive_file(){
-	tar -czf /tmp/$2 $1
+	tar -czf "${WORK_DIR}/${2}" "$1"
 	rotate_log $1
 }
 
@@ -58,7 +61,7 @@ esac
 
 prefix=$(date +20%y%m%d_%H%M%S)
 DEST_NAME="${prefix}${EXTRA:+_$EXTRA}_${dname}"
-DEST_FILE="/tmp/$DEST_NAME"
+DEST_FILE="${WORK_DIR}/${DEST_NAME}"
 
 archive_file "$sname" "$DEST_NAME"
 

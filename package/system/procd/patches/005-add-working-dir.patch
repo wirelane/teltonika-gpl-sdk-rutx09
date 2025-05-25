@@ -33,7 +33,7 @@
 +	char homedir_buf[256] = { 0 };
 +	
 +	snprintf(homedir_buf, sizeof(homedir_buf), "%s/%s", HOMEDIR, in->srv->name);
-+	mkdir(homedir_buf, 0740);
++	umask(0); mkdir(homedir_buf, 0775); // preinit won't make homedir right after package install
 +	
 +	if (chown(homedir_buf, in->uid, in->gr_gid)) {
 +		ERROR("failed to chown(%s)\n", homedir_buf);

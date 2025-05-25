@@ -213,6 +213,10 @@ start_service() {
 	if [ "$enabled" == "1" ]; then
 		[ "$custom_enabled" == "0" ] && fill_mosquitto_config
 
+		if [ ! -x "$APP" ]; then
+			APP="/usr/local$APP"
+		fi
+
 		procd_open_instance
 		procd_set_param file /etc/config/mosquitto
 		procd_set_param command $APP -c $CONFIG

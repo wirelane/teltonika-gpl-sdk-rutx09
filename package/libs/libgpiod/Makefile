@@ -93,6 +93,7 @@ define Package/gpiod-tools/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpiofind $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpioget $(1)/usr/bin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpioset $(1)/usr/bin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/bin/gpioinfo $(1)/usr/bin/
 endef
 
 define Package/gpiod-tools-full/install

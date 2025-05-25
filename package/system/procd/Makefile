@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=procd
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=$(AUTORELEASE).3
 
 PKG_SOURCE_DATE:=2021-02-23
 CMAKE_INSTALL:=1
@@ -118,6 +118,10 @@ endif
 
 ifdef CONFIG_PACKAGE_procd-ujail
   CMAKE_OPTIONS += -DJAIL_SUPPORT=1
+endif
+
+ifdef CONFIG_PACKAGE_profiler
+  CMAKE_OPTIONS += -DPROFILE_SUPPORT=1
 endif
 
 SECCOMP=$(if $(CONFIG_PACKAGE_procd-seccomp),1,0)

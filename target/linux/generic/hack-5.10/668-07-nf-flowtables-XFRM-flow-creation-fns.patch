@@ -197,7 +197,7 @@ Adds 'flow_offload_add_xfrm' for submitting a 'nf_flow_xfrm' to be offloaded.
  	list_add(&flowtable->list, &flowtables);
 --- a/net/netfilter/xt_FLOWOFFLOAD.c
 +++ b/net/netfilter/xt_FLOWOFFLOAD.c
-@@ -675,8 +675,8 @@ flowoffload_tg(struct sk_buff *skb, cons
+@@ -679,8 +679,8 @@ flowoffload_tg(struct sk_buff *skb, cons
  
  	table = &flowtable[!!(info->flags & XT_FLOWOFFLOAD_HW)];
  

@@ -30,6 +30,11 @@ setup_login() {
 	echo "${username} pptp-server \"${password}\" ${remoteip:-*}" >> $CHAP_SECRETS
 }
 
+append_options() {
+	local arg="$1"
+	[ -n "$arg" ] && echo "$arg" | sed -e 's/^[ \t]*//' >>"$OPTIONS"
+}
+
 setup_config() {
 	local enabled localip remoteip type idle dns1 dns2
 
@@ -41,12 +46,14 @@ setup_config() {
 	config_get idle "$1" idle
 	config_get dns1 "$1" dns1
 	config_get dns2 "$1" dns2
+	config_get mppe "$1" mppe
+	config_get mppe_encryption "$1" mppe_encryption
 
 	counter=$(( counter + 1 ))
 
 	mkdir -p /var/etc
 	cp /etc/pptpd.conf $CONFIG
-	cp /etc/ppp/options.pptpd $OPTIONS
+	echo -e "# MAIN PARAMETERS" > "$OPTIONS"
 
 	config_get localip "$1" localip
 	config_get remoteipstart "$1" start
@@ -58,15 +65,40 @@ setup_config() {
 		config_get remoteip "$1" remoteip
 	fi
 
-	[ -n "$localip" ] && echo "localip  $localip" >> $CONFIG
-	[ -n "$remoteip" ] && echo "remoteip  $remoteip" >> $CONFIG
+	{
+		echo "${localip:+localip  $localip}"
+		echo "${remoteip:+remoteip  $remoteip}"
+	} >> "$CONFIG"
 
-	[ -n "$idle" ] && echo "idle $idle" >> $OPTIONS
-	[ -n "$dns1" ] && echo "ms-dns $dns1" >> $OPTIONS
-	[ -n "$dns2" ] && echo "ms-dns $dns2" >> $OPTIONS
+	{
+		echo "${idle:+idle  $idle}"
+		echo "${dns1:+ms-dns  $dns1}"
+		echo "${dns2:+ms-dns  $dns2}"
+		[ -z "$dns1" ] && [ -z "$dns2" ] && echo "ms-dns $localip"
+		[ "$mppe" = "none" ] && echo "nomppe"
+	} >> "$OPTIONS"
 
-	[ -z "$dns1" ] && [ -z "$dns2" ] && echo "ms-dns $localip" >> $OPTIONS
+	if [ "$mppe" != "none" ]; then
+		encryptions="no40,no56,no128"
+		if [ -n "$mppe_encryption" ]; then
+			for enc in $mppe_encryption; do
+				encryptions=$(echo "$encryptions" | sed -e "s/,*no$enc//g" -e 's/^,//')
+			done
+		fi
+		[ "$mppe" = "stateful" ] && mppe=""
+		echo "mppe required${encryptions:+,$encryptions}${mppe:+,$mppe}" >>"$OPTIONS"
+	fi
 
+	{
+		echo -e "\n# ADDITIONAL PARAMETERS"
+		echo "ip-up-script /etc/ppp/pptpd-up"
+		echo "ifname pptp"
+		echo "name \"pptp-server\""
+		echo "chap-secrets /var/etc/pptpd-chap-secrets"
+	} >> "$OPTIONS"
+
+	echo -e "\n# CUSTOM PARAMETERS" >> $OPTIONS
+	config_list_foreach "$1" "pptp_options" append_options
 	return 0
 }
 

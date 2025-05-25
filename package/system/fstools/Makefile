@@ -34,12 +34,14 @@ include $(INCLUDE_DIR)/cmake.mk
 CMAKE_OPTIONS += $(if $(CONFIG_FSTOOLS_UBIFS_EXTROOT),-DCMAKE_UBIFS_EXTROOT=y)
 CMAKE_OPTIONS += $(if $(CONFIG_FSTOOLS_OVL_MOUNT_FULL_ACCESS_TIME),-DCMAKE_OVL_MOUNT_FULL_ACCESS_TIME=y)
 CMAKE_OPTIONS += $(if $(CONFIG_FSTOOLS_OVL_MOUNT_COMPRESS_ZLIB),-DCMAKE_OVL_MOUNT_COMPRESS_ZLIB=y)
+CMAKE_OPTIONS += -DCMAKE_FS_ROOTFS_READONLY=y
 
 define Package/fstools
   SECTION:=base
   CATEGORY:=Base system
   DEPENDS:=+ubox +NAND_SUPPORT:ubi-utils
   TITLE:=OpenWrt filesystem tools
+  USERID:=mount:mount
   MENU:=1
 endef
 
@@ -65,6 +67,13 @@ define Package/fstools/config
 		default n
 		help
 			This option enables the compression using zlib on the storage device.
+
+	config FSTOOLS_FS_ROOTFS_READONLY
+		depends on PACKAGE_fstools
+		bool "Mount rootfs in read-only mode"
+		default y
+		help
+			This option enables mouting rootfs in read-only mode.
 endef
 
 define Package/snapshot-tool

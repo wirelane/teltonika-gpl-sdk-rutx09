@@ -15,6 +15,15 @@
                 },
                 "file": {
                         "methods": [ "write" ]
+                },
+                "ioman.therm.temp*": {
+                        "methods": [ "status" ]
+                },
+                "sim": {
+                        "methods": [ "get" ]
+                },
+                "mctl": {
+                        "methods": [ "reboot" ]
                 }
         },
         "publish": [ "gsm", "gsm.modem*" ],

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . /lib/functions.sh
-. ../netifd-proto.sh
+. /lib/netifd/netifd-proto.sh
 
 [ -f "/lib/functions/mobile.sh" ] && \
 	. /lib/functions/mobile.sh
@@ -26,7 +26,7 @@ proto_trb_qmapv5_setup() { echo "wwan[$$] qmapv5 proto is missing"; }
 [ -f ./ncm.sh ] && . ./ncm.sh
 [ -f ./qmi.sh ] && . ./qmi.sh
 [ -f ./qmux.sh ] && . ./qmux.sh
-[ -f ./pppmobile.sh ] && { . ./ppp.sh; . ./pppmobile.sh; }
+[ -f ./pppmobile.sh ] && [ -f ./ppp.sh ] && { . ./ppp.sh; . ./pppmobile.sh; }
 [ -f ./directip.sh ] && . ./directip.sh
 [ -f ./qmapv5.sh ] && . ./qmapv5.sh
 

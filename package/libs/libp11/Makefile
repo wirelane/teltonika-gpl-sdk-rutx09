@@ -11,8 +11,9 @@ PKG_NAME:=libp11
 PKG_VERSION:=0.4.12
 PKG_RELEASE:=1
 
-PKG_SOURCE_URL:=https://github.com/OpenSC/libp11/releases/download/$(PKG_NAME)-$(PKG_VERSION)/
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_VERSION:=0.4.12
+PKG_SOURCE:=libp11-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=https://github.com/OpenSC/libp11/releases/download/$(PKG_NAME)-$(PKG_SOURCE_VERSION)/
 PKG_HASH:=1e1a2533b3fcc45fde4da64c9c00261b1047f14c3f911377ebd1b147b3321cfd
 
 PKG_MAINTAINER:=Daniel Golle <daniel@makrotopia.org>

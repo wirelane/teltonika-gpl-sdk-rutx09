@@ -89,6 +89,17 @@ define KernelPackage/jool/description
   This package provides the kernel module for Jool.
 endef
 
+define Package/jool/conffiles
+/etc/config/jool
+endef
+
+define Package/jool/postinst
+	#!/bin/sh
+	[ -z "$${IPKG_INSTROOT}" ] || exit 0
+	/etc/init.d/firewall reload >/dev/null 2>&1
+	exit 0 
+endef
+
 CONFIGURE_ARGS += \
 	--disable-shared \
 	--without-bash-completion-dir
@@ -102,9 +113,10 @@ define Package/jool/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/jool		$(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/joold		$(1)/usr/bin/
 
-	$(INSTALL_DIR) $(1)/usr/lib/iptables
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/iptables/libxt_JOOL.so \
-		$(1)/usr/lib/iptables
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_jool)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/iptables
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/local/usr/lib/iptables/libxt_JOOL.so \
+		$(DEST_DIR)/usr/lib/iptables
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/jool.config $(1)/etc/config/jool

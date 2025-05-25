@@ -4,18 +4,20 @@
 . /lib/functions.sh
 . /lib/upgrade/common.sh
 
-TMP_DIR="/tmp/tmp_root/"
-TAR_PATH=/etc/profiles/
 export CONFFILES=/tmp/profile.conffiles
 RM_CONFFILES=/tmp/rm_profile.conffiles
 PROFILE_VERSION_FILE=/etc/profile_version
 EXCEPTIONS="etc/config/rms_connect_timer etc/config/profiles etc/crontabs/root etc/hosts etc/config/luci etc/config/vuci
 	etc/inittab etc/group etc/passwd etc/profile etc/shadow etc/shells etc/sysctl.conf etc/rc.local  etc/config/teltonika
-	etc/default-config"
+	etc/default-config etc/dropbear/dropbear_ecdsa_host_key etc/dropbear/dropbear_ed25519_host_key"
 
 EXTRA_FILES="/etc/firewall.user /etc/profile_version"
 
 KNOWN_CLEANS="/etc/config/event_juggler"
+
+TMP_PATH="/tmp/tmp_root/"
+MAIN_PATH="$(uci_get profiles general path /etc/profiles)"
+CURRENT_PROFILE="$(uci_get profiles general profile default)"
 
 log() {
 	logger -s -t "$(basename "$0")" "$1"
@@ -43,9 +45,9 @@ add_uci_conffiles() {
 	fi
 
 	misc_files=$(sed -ne '/^[[:space:]]*$/d; /^#/d; p' \
-		/etc/sysupgrade.conf /lib/upgrade/keep.d/* 2>/dev/null)
+		/etc/sysupgrade.conf /lib/upgrade/keep.d/* /usr/local/lib/upgrade/keep.d/* 2>/dev/null)
 
-	[ -n "$opkg_command" ] && eval "$opkg_command" >"$file"
+	[ -n "$opkg_command" ] && eval "$opkg_command" | sed 's|^/usr/local/etc/|/etc/|' >"$file"
 	#Do not qoute ${misc_files} !!!!
 	# shellcheck disable=2086 # Splitting is intended here
 	[ -n "$misc_files" ] && find ${misc_files} -type f -o -type l 2>/dev/null >>"$file"
@@ -79,13 +81,82 @@ add_extras() {
 	printf "%s\n" $EXTRA_FILES >>"$CONFFILES"
 }
 
+is_switch() {
+	[ "$(jsonfilter -q -i /etc/board.json -e '@.hwinfo.switch')" = "true" ]
+}
+
+remove_section() {
+	local section="$1"
+	local config="$2"
+	local option="$3"
+	local value
+
+	config_get value "$section" "$option" ""
+	[ -n "$value" ] && uci_remove "$config" "$section"
+}
+
+remove_option() {
+	local section="$1"
+	local config="$2"
+	local option="$3"
+	local value
+
+	config_get value "$section" "$option" ""
+	[ -n "$value" ] && uci_remove "$config" "$section" "$option"
+}
+
+config_remove_if_exists() {
+	local config="$1"
+	local section="$2"
+	local option="$3"
+	local action="$4"
+
+	config_load "$config"
+	config_foreach "$action" "$section" "$config" "$option"
+	uci_commit "$config"
+}
+
+update_tmp_md5_config() {
+	local profile="$1"
+	local cfg_name="$2"
+	local md5_file="/etc/profiles/${profile}.md5"
+
+	local cfg_file="${TMP_PATH}etc/config/$cfg_name"
+	[ -f "$cfg_file" ] && {
+		sed -i "/$cfg_name/d" "$md5_file"
+		md5sum "$cfg_file" | sed "s|$TMP_PATH|/|" >>"$md5_file"
+	}
+}
+
+__fix_conf_files() {
+	local profile="$1"
+	local uci_dir="$UCI_CONFIG_DIR"
+
+	# Set global uci config dir
+	UCI_CONFIG_DIR="${TMP_PATH}etc/config"
+
+	local network_action="remove_section"
+	is_switch && {
+		network_action="remove_option"
+		config_remove_if_exists "tswconfig" "switch_port" "macaddr" "remove_option"
+		update_tmp_md5_config "$profile" "tswconfig"
+	}
+
+	config_remove_if_exists "network" "device" "macaddr" "$network_action"
+	update_tmp_md5_config "$profile" "network"
+
+	# Revert global uci config dir
+	UCI_CONFIG_DIR="$uci_dir"
+}
+
 __add_conf_files() {
 	local profile="$1" filelist="$2"
 	local cfg_name misc_files keep_files
 
-	for i in $(grep -s "^/etc/config/" "$filelist"); do
+	for i in $(grep -sE "^/etc/config/|^/usr/local/etc/config/" "$filelist"); do
+		i="${i#/usr/local}"
 		cfg_name=$(basename "$i")
-		local destination_file="${TMP_DIR}/etc/config/$cfg_name"
+		local destination_file="${TMP_PATH}etc/config/$cfg_name"
 		# Check if the file already exists in the destination directory
 		[ -s "$destination_file" ] && continue
 		cp "$i" "$destination_file"
@@ -93,30 +164,31 @@ __add_conf_files() {
 		md5sum "$i" >>"/etc/profiles/${profile}.md5"
 	done
 
-	keep_files=$(grep -s "^/lib/upgrade/keep.d/" "$filelist")
+	keep_files=$(grep -sE "^/lib/upgrade/keep.d/|^/usr/local/lib/upgrade/keep.d/" "$filelist")
 	[ -z "$keep_files" ] && return
 
 	misc_files=$(sed -ne '/^[[:space:]]*$/d; /^#/d; p' ${keep_files} 2>/dev/null)
 	[ -n "$misc_files" ] &&
-		find ${misc_files} -type f -o -type l >/tmp/keep_files
+		find ${misc_files} -type f -o -type l >/tmp/keep_files 2> /dev/null
 }
 
 __rm_conf_files() {
 	local profile=$1 filelist=$2
 	local cfg_name keep_files
 
-	for i in $(grep -s "^/etc/config/" "$filelist"); do
+	for i in $(grep -sE "^/etc/config/|^/usr/local/etc/config/" "$filelist"); do
+		i="${i#/usr/local}"
 		cfg_name=$(basename "$i")
 
-		rm -f "${TMP_DIR}/etc/config/${cfg_name}"
+		rm -f "${TMP_PATH}etc/config/${cfg_name}"
 		sed -i "/$cfg_name/d" "/etc/profiles/${profile}.md5"
 	done
 
-	keep_files=$(grep -s "^/lib/upgrade/keep.d/" "$filelist")
+	keep_files=$(grep -sE "^/lib/upgrade/keep.d/|^/usr/local/lib/upgrade/keep.d/" "$filelist")
 	[ -z "$keep_files" ] && return
 
 	for i in $(sed -ne '/^[[:space:]]*$/d; /^#/d; p' ${keep_files} 2>/dev/null); do
-		rm -rf "${TMP_DIR:?}/${i:1}"
+		rm -rf "${TMP_PATH:?}${i:1}"
 	done
 }
 
@@ -125,18 +197,20 @@ __update_tar() {
 	local filelist=$2
 	local profile name
 
-	mkdir -p "$TMP_DIR"
 	for profile in /etc/profiles/*.tar.gz; do
-		tar xzf "$profile" -C "$TMP_DIR"
+		mkdir -p "$TMP_PATH"
+		tar xzf "$profile" -C "$TMP_PATH"
 		name=$(basename "$profile" .tar.gz)
 		$cb "$name" "$filelist"
 		[ -e "/tmp/keep_files" ] && keep=" -T /tmp/keep_files"
 
-		tar cz${keep} -f "$profile" -C "$TMP_DIR" "."
-		rm -rf "${TMP_DIR:?}/*" /tmp/keep_files
+		tar cz${keep} -f "$profile" -C "$TMP_PATH" "."
+		rm -rf "$TMP_PATH" /tmp/keep_files
 	done
+}
 
-	rm -rf "$TMP_DIR"
+fix_configs() {
+	__update_tar __fix_conf_files "$1"
 }
 
 install_pkg() {
@@ -154,7 +228,7 @@ do_save_conffiles() {
 	[ -z "$(rootfs_type)" ] && {
 		log "Cannot save config while running from ramdisk."
 		ask_bool 0 "Abort" && exit
-		return 0
+		return 1
 	}
 
 	add_uci_conffiles "$CONFFILES"
@@ -163,8 +237,10 @@ do_save_conffiles() {
 	echo -en "\n" >>"$CONFFILES"
 	add_extras
 	cp /etc/version "$PROFILE_VERSION_FILE"
+
 	tar czf "$conf_tar" -T "$CONFFILES" 2>/dev/null
 	rm -f "$CONFFILES" "$PROFILE_VERSION_FILE"
+	return 0
 }
 
 create_md5() {
@@ -218,7 +294,7 @@ uci_apply_defaults() {
 	chmod -R +x "$top_dir/"
 	[ -z "$(ls -A "$top_dir/")" ] && return 0
 
-	local old_version="$(cat "${TMP_DIR}${PROFILE_VERSION_FILE}")"
+	local old_version="$(cat "${TMP_PATH}${PROFILE_VERSION_FILE}")"
 	local new_version="$(cat /etc/version)"
 
 	[ -z "$old_version" ] && old_version="$new_version"
@@ -255,19 +331,11 @@ uci_apply_defaults() {
 }
 
 call_config_event() {
-	echo "apply $1"
-	ubus call service event "{ \"type\": \"config.change\", \"data\": { \"package\": \"$1\" }}"
+	/bin/ubus call service event "{ \"type\": \"config.change\", \"data\": { \"package\": \"$1\" }}"
 }
 
 apply_config() {
-	local config_check_path="/var/run/config.check"
 	local md5file="${1:-/var/run/config.md5}"
-
-	rm -rf "${config_check_path}"
-	mkdir -p "${config_check_path}"
-
-	cp /etc/config/* ${config_check_path}/
-	rm ${config_check_path}/profiles
 
 	[ -f "$md5file" ] && {
 		local network=0
@@ -284,9 +352,7 @@ apply_config() {
 		[ "$network" -eq 1 ] && call_config_event "network"
 	}
 
-	md5sum "${config_check_path}"/* >"$md5file"
-	rm -rf "${config_check_path}"
-
+	find /etc/config -type f ! -name 'profiles' -exec md5sum {} + >"$md5file"
 	return 0
 }
 
@@ -294,13 +360,13 @@ change_config() {
 	local md5file="/var/run/config.md5"
 	local new="$1"
 
-	uci -q get "profiles.$new" >/dev/null || {
+	uci_get "profiles" "$new" || {
 		log "Profile '$new' not found"
 		return 1
 	}
 
-	local archive
-	archive="${TAR_PATH}$(uci -q get "profiles.${new}.archive")" || {
+	local archive="${MAIN_PATH}$(uci_get profiles $name archive)"
+	[ -f "$archive" ] || {
 		log "Unable to retrieve profile '$new' archive name"
 		return 1
 	}
@@ -316,48 +382,47 @@ change_config() {
 	# rpcd scripts set a umask of 077 while script expects 022
 	umask 022
 
-	mkdir -p "$TMP_DIR"
-	tar xzf "$archive" -C "$TMP_DIR" 2>&- || {
+	mkdir -p "$TMP_PATH"
+	tar xzf "$archive" -C "$TMP_PATH" 2>&- || {
 		log "Unable to extract '$archive'"
 		return 1
 	}
 
-	cmp -s "${TMP_DIR}${PROFILE_VERSION_FILE}" /etc/version || {
-		#Legacy profiles do not have some config files so we need to reset
-		#these files before applying profile
+	cmp -s "${TMP_PATH}${PROFILE_VERSION_FILE}" /etc/version || {
+		# Legacy profiles do not have some config files so we need to reset
+		# these files before applying profile
 		for file in $KNOWN_CLEANS; do
 			cp "/rom$file" "$file"
 		done
 	}
 
-	#Fixing legacy profiles
-	remove_exceptions_from_file "$TMP_DIR"
+	# Fixing legacy profiles
+	remove_exceptions_from_file "$TMP_PATH"
 
 	# the /etc/config folder itself is not added into the archive
 	# so we need to restore the permissions to what we expect
 	chown 100:users "$TMP_DIR"/etc/config/
 	chmod 777 "$TMP_DIR"/etc/config/
 
-	cp -pr "$TMP_DIR"/* /
+	cp -af "$TMP_PATH"/* /
 
-	#Apply uci defaults only if profile is created on different FW version.
-	cmp -s "${TMP_DIR}${PROFILE_VERSION_FILE}" /etc/version || {
-		uci_apply_defaults
-	}
-
-	rm -rf "$TMP_DIR"
-	uci -q set "profiles.general.profile=$new" 2>&- || {
+	rm -rf "$TMP_PATH"
+	uci_set "profiles" "general" "profile" "$new" || {
 		log "Unable to set new profile via uci"
 		return 1
 	}
 
-	uci -q commit profiles 2>&- || {
+	uci_commit "profiles" || {
 		log "Unable to commit new profile changes via uci"
 		return 1
 	}
 
-	apply_config "$md5file"
-	mkdir -p /tmp/vuci && touch /tmp/vuci/profile_changed
+	(
+		uci_apply_defaults
+		apply_config "$md5file"
+		/bin/ubus send vuci.notify '{"event":"profile_changed"}'
+	) &
+	return 0
 }
 
 diff() {
@@ -381,30 +446,288 @@ rm_conffiles() {
 	rm $(cat $RM_CONFFILES)
 }
 
+handle_profile_list() {
+	local config="$1"
+
+	config_get updated "$config" updated
+
+	[ $LIST_COUNT -gt 0 ] && {
+		echo ","
+	}
+
+	echo "{"
+	echo "\"name\": \"$config\","
+	echo "\"updated\": $updated,"
+
+	if [ "$config" = "$CURRENT_PROFILE" ]; then
+		echo "\"active\": 1"
+	else
+		echo "\"active\": 0"
+	fi
+	echo "}"
+
+	LIST_COUNT=$((LIST_COUNT + 1))
+}
+
+check_profile_exists() {
+	local config="$1"
+	local new_name="$2"
+
+	[ "$config" = "$new_name" ] && {
+		echo "{\"status\": 1, \"error\": \"profile '$new_name' already exists\"}"
+		exit 1
+	}
+
+	local id
+	config_get id "$config" id 0
+
+	local next_id=$((id + 1))
+	[ $next_id -gt $NEXT_PROFILE_ID ] && NEXT_PROFILE_ID=$next_id
+}
+
+check_name() {
+	local name="$1"
+	local length=$(echo -n "$name" | wc -m)
+
+	[ $length -lt 1 ] && {
+		echo '{"status": 22, "error": "no argument provided"}'
+		exit 1
+	}
+
+	# check name len
+	# limit set to be the same as-is in the webUI.
+	[ $length -gt 20 ] && {
+		echo '{"status": 22, "error": "given profile name too long (limit: 20 characters)"}'
+		exit 1
+	}
+
+	# Sanitize input
+	local sanitized=$(echo $name | sed 's/ /_/g; s/[^a-zA-Z0-9_]//g')
+
+	# Breaks if name is invalid.
+	# better to inform the user of their mistake, rather
+	# than contiuing on after making changes to user input,
+	# since this ubus object will likely only be called from
+	# other scripts/programs
+	[ "$sanitized" != "$name" ] && {
+		echo '{"status": 22, "error": "invalid profile name"}'
+		exit 1
+	}
+}
+
+# Checks if a name matches the reserved names in /etc/profiles
+check_default() {
+	local name="$1"
+
+	# Check if names won't interfere with the default profile files in /etc/profiles
+	[ "$name" = "default" ] || [ "$name" = "template" ] && {
+		echo '{"status": 22, "error": "profile name cannot be '\''template'\'' or '\''default'\''"}'
+		exit 1
+	}
+}
+
+call_handle_create() {
+	local name="$1"
+	local options="$2"
+
+	# Skip validation if option -s is passed
+	[ "$options" = "-s" ] || {
+		check_name "$name"
+		check_default "$name"
+	}
+
+	config_load profiles
+
+	NEXT_PROFILE_ID=0
+	config_foreach check_profile_exists profile "$name"
+
+	local now="$(date +%s)"
+	local archive="${name}_${now}.tar.gz"
+	local md5file="${name}_${now}.md5"
+
+	[ "$name" = "default" ] || [ "$name" = "template" ] && {
+		archive="${name}.tar.gz"
+		md5file="${name}.md5"
+	}
+
+	[ "$name" = "default" ] && NEXT_PROFILE_ID=0
+
+	# Create new config in uci
+	uci_add profiles profile "$name"
+	uci_set profiles "$name" id "$NEXT_PROFILE_ID"
+	uci_set profiles "$name" updated "$now"
+	uci_set profiles "$name" archive "$archive"
+	uci_set profiles "$name" md5file "$md5file"
+
+	uci_commit profiles
+
+	# Create profile from template if option -t is passed
+	[ "$options" = "-t" ] && {
+		local template_archive="${MAIN_PATH}template.tar.gz"
+		local template_md5file="${MAIN_PATH}template.md5"
+
+		[ -f "$template_archive" ] || {
+			echo '{"status": 3, "error": "template not found"}'
+			exit 1
+		}
+
+		cp -af "$template_archive" "${MAIN_PATH}${archive}"
+		cp -af "$template_md5file" "${MAIN_PATH}${md5file}"
+
+		echo '{ "status": 0, "id": '"$NEXT_PROFILE_ID"', "updated": '"$now"', "archive": "'"$archive"'", "md5file": "'"$md5file"'" }'
+		exit 0
+	}
+
+	do_save_conffiles "${MAIN_PATH}${archive}"
+	create_md5 "${MAIN_PATH}${md5file}"
+
+	uci commit
+
+	echo '{ "status": 0, "id": '"$NEXT_PROFILE_ID"', "updated": '"$now"', "archive": "'"$archive"'", "md5file": "'"$md5file"'" }'
+}
+
+call_handle_update() {
+	local options="$1"
+
+	local prof_archive="${MAIN_PATH}/$(uci_get profiles "$CURRENT_PROFILE" archive)"
+	local prof_md5="${MAIN_PATH}/$(uci_get profiles "$CURRENT_PROFILE" md5file)"
+
+	[ -f "$prof_archive" ] || {
+		echo '{ "status": 3, "error": "error updating current profile"}'
+		exit 1
+	}
+
+	rm -f "$prof_archive"
+	[ -f "$prof_md5" ] && rm -f "$prof_md5"
+
+	local now="$(date +%s)"
+
+	config_load profiles
+	uci_set profiles "$CURRENT_PROFILE" updated "$now"
+	uci_commit profiles
+
+	do_save_conffiles "$prof_archive"
+	create_md5 "$prof_md5"
+
+	[ -f "$prof_archive" ] || {
+		echo '{ "status": 3, "error": "error updating current profile"}'
+		exit 1
+	}
+
+	[ "$options" = "-q" ] || echo '{ "status": 0 }'
+}
+
+call_handle_change() {
+	local name="$1"
+	local options="$2"
+
+	check_name "$name"
+
+	local scheduler="$(uci_get profiles general enabled "0")"
+	[ "$options" != "-f" ] && [ "$scheduler" = "1" ] && {
+		echo '{ "status": 1, "error": "can not change profile, scheduler is enabled"}'
+		exit 1
+	}
+
+	call_handle_update -q
+
+	local archive="$(uci_get profiles $name archive)"
+	if [ -n "$archive" ]; then
+		change_config "$name" &>/dev/null || {
+			echo '{ "status": 4, "error": "error changing profile"}'
+			exit 1
+		}
+		echo '{ "status": 0 }'
+	else
+		echo '{ "status": 2, "error": "profile not found"}'
+		exit 1
+	fi
+}
+
+call_handle_remove() {
+	local name="$1"
+
+	config_load profiles
+
+	check_name "$name"
+	check_default "$name"
+
+	local archive_path="${MAIN_PATH}$(uci_get profiles $name archive \".\")"
+	local md5file_path="${MAIN_PATH}$(uci_get profiles $name md5file \".\")"
+
+	local err_chk=0
+	[ -f "$archive_path" ] && rm -f "$archive_path" || err_chk=1
+	[ -f "$md5file_path" ] && rm -f "$md5file_path" || err_chk=1
+
+	[ $err_chk -eq 1 ] && {
+		echo '{"status": 5, "error": "encountered errors while removing profile"}'
+		exit 1
+	}
+
+	uci_remove profiles "$name"
+
+	# profile currently in use is being removed,
+	# reset to default.
+	[ "$name" = "$CURRENT_PROFILE" ] && {
+		change_config "default" &>/dev/null
+	}
+
+	uci_commit profiles
+	uci commit
+
+	echo '{ "status": 0 }'
+}
+
+call_handle_list() {
+	LIST_COUNT=0
+
+	echo '{ "profiles": ['
+	config_load profiles
+	config_foreach handle_profile_list profile
+	echo ']}'
+}
+
+call_handle_diff() {
+	local name="$1"
+
+	check_name "$name"
+
+	local md5file_path="${MAIN_PATH}$(uci_get profiles $name md5file \".\")"
+	[ -f "$md5file_path" ] || {
+		echo '{"status": 2, "error": "could not find profile"}'
+		exit 1
+	}
+
+	echo '{ "status": 0, "diff": ['
+	diff "${MAIN_PATH}${name}"*.md5 | sed 's/^/\"/; s/$/\",/'
+	echo ']}'
+}
+
 [ -z "$1" ] && exit
 
 case "$1" in
 -b)
-	do_save_conffiles "$2"
-	;;
--m)
-	create_md5 "$2"
-	;;
--a)
-	apply_config "$2"
+	call_handle_create "$2" "$3"
 	;;
 -c)
-	change_config "$2"
-	;;
--d)
-	[ -f "$2" ] && diff "$2"
+	call_handle_change "$2" "$3"
 	;;
 -u)
-	uci_apply_defaults
+	call_handle_update
+	;;
+-d)
+	call_handle_diff "$2"
 	;;
 -r)
-	rm_conffiles
+	call_handle_remove "$2"
 	;;
+-l)
+	call_handle_list
+	;;
+-f)
+	fix_configs
+	;;
+# Used in "/lib/functions.sh"
 -i)
 	install_pkg "$2"
 	;;

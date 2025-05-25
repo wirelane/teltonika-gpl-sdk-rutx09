@@ -8,7 +8,7 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-sim-idle-protection-ui))
 	APP_APP_NAME:=sim_idle_protection
 	APP_TLT_NAME:=SIM Idle Protection
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
-	APP_HW_INFO:=dual_sim
+	APP_HW_INFO:=dual_sim/esim
 endif
 
 define Package/vuci-app-sim-idle-protection-ui/description

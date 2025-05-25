@@ -45,7 +45,7 @@ define Package/dnsmasq/Default
   TITLE:=DNS and DHCP server
   URL:=http://www.thekelleys.org.uk/dnsmasq/
   DEPENDS:=+libubus +AP_DEVICE:libpcre
-  USERID:=dnsmasq=453:dnsmasq=453
+  USERID:=dnsmasq:dnsmasq
 endef
 
 define Package/dnsmasq
@@ -173,9 +173,9 @@ define Package/dnsmasq/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/dnsmasq $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/config
 	if [ -e "./files/dhcp.conf-$(call device_shortname)" ]; then \
-		$(INSTALL_CONF) "./files/dhcp.conf-$(call device_shortname)" $(1)/etc/config/dhcp; \
+		$(INSTALL_CONF_USR) "./files/dhcp.conf-$(call device_shortname)" $(1)/etc/config/dhcp; \
 	else \
-		$(INSTALL_CONF) ./files/dhcp.conf $(1)/etc/config/dhcp; \
+		$(INSTALL_CONF_USR) ./files/dhcp.conf $(1)/etc/config/dhcp; \
 	fi;
 	$(INSTALL_CONF) ./files/dnsmasq.conf $(1)/etc/dnsmasq.conf
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -185,6 +185,8 @@ define Package/dnsmasq/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/ntp
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/tftp
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/dnsmasq.permtab $(1)/etc/permtab.d/dnsmasq
 	$(INSTALL_DATA) ./files/dnsmasqsec.hotplug $(1)/etc/hotplug.d/ntp/25-dnsmasqsec
 	$(INSTALL_CONF) ./files/dnsmasq_ifup.hotplug $(1)/etc/hotplug.d/iface/25-dnsmasq_ifup
 	if [ -e "./files/dnsmasq_hostname.hotplug-$(call device_shortname)" ]; then \

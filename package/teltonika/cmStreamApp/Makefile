@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=cmStreamApp
-PKG_VERSION:=2025-02-18
+PKG_VERSION:=2025-04-17
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.5
+PKG_SOURCE_VERSION:=2.3
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -22,7 +22,7 @@ define Package/cmStreamApp
 	CATEGORY:=Network
 	TITLE:=Cumulocity - Cloud of Things stream application.
 	DEPENDS:=+libsera +libuci +MOBILE_SUPPORT:libgsm +libmnfinfo
-	USERID:=iot:iot
+	USERID:=iot=503:iot=503
 endef
 
 define Package/cmStreamApp/description
@@ -37,33 +37,24 @@ endef
 
 
 define Package/cmStreamApp/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/cmStreamApp $(1)/usr/bin/cmStreamApp
+	$(INSTALL_DIR) $(1)/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/cmStreamApp $(1)/bin/cmStreamApp
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iot.init $(1)/etc/init.d/iot
-	$(INSTALL_DIR) $(1)/usr/lib/lua/cm
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/srtemplate $(1)/usr/lib/lua/cm/srtemplate.txt
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/stream.lua $(1)/usr/lib/lua/cm/stream.lua
+	$(INSTALL_DIR) $(1)/lib/lua/cm
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/srtemplate $(1)/lib/lua/cm/srtemplate.txt
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/stream.lua $(1)/lib/lua/cm/stream.lua
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iot $(1)/etc/config/iot
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iot.hotplug $(1)/etc/hotplug.d/iface/97-iot
-	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/usr/share/acl.d $(1)/etc/permtab.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/iot.json $(1)/usr/share/acl.d/iot.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/iot.permtab $(1)/etc/permtab.d/iot
 
 	if [ ! $(CONFIG_HNAT) ]; then \
-		$(SED) "s#Teltonika-Networks_RUTX#Teltonika-Networks_$(call device_shortname)#g" $(1)/usr/lib/lua/cm/srtemplate.txt; \
+		$(SED) "s#Teltonika-Networks_RUTX#Teltonika-Networks_$(call device_shortname)#g" $(1)/lib/lua/cm/srtemplate.txt; \
 	fi;
-endef
-
-define Package/cmStreamApp/postinst
-#!/bin/sh
-
-[ -z "$${IPKG_INSTROOT}" ] || exit 0
-
-#Relaod ubusd acl rules
-pid=$$(pidof ubusd)
-[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,cmStreamApp))

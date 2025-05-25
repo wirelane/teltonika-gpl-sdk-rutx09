@@ -15,8 +15,10 @@ is_true() {
 	[ -n "$var" ] && [ "$var" -eq 1 ]
 }
 
+# TODO: maybe there's a generic way to check if a package is installed since these dirs
+#  are configured by /etc/opkg.conf
 is_installed() {
-	[ -f "/usr/lib/opkg/info/${1}.control" ]
+	[ -f "/usr/lib/opkg/info/${1}.control" ] || [ -f "/usr/local/usr/lib/opkg/info/${1}.control" ]
 }
 
 is_switch() {

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd
 PKG_VERSION:=1.3.16
-PKG_RELEASE:=5
+PKG_RELEASE:=8
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -88,14 +88,11 @@ define Package/xl2tpd/install
 	$(INSTALL_BIN) ./files/xl2tpd-up $(1)/etc/ppp/
 	$(INSTALL_BIN) ./files/xl2tpd-down $(1)/etc/ppp/
 
-	$(INSTALL_DIR) $(1)/lib/netifd/proto
-	$(INSTALL_BIN) ./files/l2tp.sh $(1)/lib/netifd/proto/
+	$(INSTALL_DIR) $(1)/lib/netifd $(1)/usr/local/usr/lib/netifd/proto
+	$(INSTALL_BIN) ./files/l2tp.sh $(1)/usr/local/usr/lib/netifd/proto/
 
 	$(INSTALL_BIN) ./files/l2tp-up $(1)/lib/netifd/
 	$(INSTALL_BIN) ./files/l2tp-down $(1)/lib/netifd/
-
-	$(INSTALL_DIR) $(1)/usr/share/l2tp
-	$(INSTALL_BIN) ./files/19-l2tp.hotplug $(1)/usr/share/l2tp/19-l2tp.hotplug
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/00-l2tp_slow_retry.hotplug $(1)/etc/hotplug.d/iface/00-l2tp_slow_retry

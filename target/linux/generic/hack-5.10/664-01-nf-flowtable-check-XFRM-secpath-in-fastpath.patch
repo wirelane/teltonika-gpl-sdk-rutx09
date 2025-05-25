@@ -185,7 +185,7 @@ distinguish packets originating from diferent SA's.
  	return 0;
  }
  
-@@ -571,6 +575,9 @@ static int nf_flow_tuple_ipv6(struct sk_
+@@ -572,6 +576,9 @@ static int nf_flow_tuple_ipv6(struct sk_
  	tuple->iifidx		= dev->ifindex;
  	nf_flow_tuple_encap(skb, tuple);
  

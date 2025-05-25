@@ -41,7 +41,7 @@
          char *pubkey_plugin_options;
 --- a/svr-auth.c
 +++ b/svr-auth.c
-@@ -169,18 +169,26 @@ void recv_msg_userauth_request() {
+@@ -147,18 +147,26 @@ void recv_msg_userauth_request() {
  		}
  	}
  	
@@ -70,7 +70,7 @@
  
  #if DROPBEAR_SVR_PAM_AUTH
  	if (!svr_opts.noauthpass &&
-@@ -190,6 +198,7 @@ void recv_msg_userauth_request() {
+@@ -168,6 +176,7 @@ void recv_msg_userauth_request() {
  				strncmp(methodname, AUTH_METHOD_PASSWORD,
  					AUTH_METHOD_PASSWORD_LEN) == 0) {
  			svr_auth_pam(valid_user);
@@ -80,7 +80,7 @@
  	}
 --- a/svr-authpam.c
 +++ b/svr-authpam.c
-@@ -296,3 +296,129 @@ cleanup:
+@@ -296,3 +296,145 @@ cleanup:
  }
  
  #endif /* DROPBEAR_SVR_PAM_AUTH */
@@ -182,8 +182,24 @@
 +	}
 +
 +	if (external_auth && data.privilege && data.privilege == external_auth) {
-+		fill_passwd("root");
-+	} else if (!valid_user) {
++		char *user = NULL;
++		struct passwd *pw = NULL;
++		while ((pw = getpwent()) != NULL) {
++			if (strcmp(pw->pw_shell, "/bin/ash") == 0) {
++				user = m_strdup(pw->pw_name);
++				break;
++			}
++		}
++		endpwent();
++
++		if (user != NULL) {
++			fill_passwd(user);
++			m_free(user);
++			valid_user = 1;
++		}
++	}
++
++	if (!valid_user) {
 +		dropbear_log(LOG_WARNING, "Bad UBUS PAM password attempt for '%s' from %s",
 +				ses.authstate.username,
 +				svr_ses.addrstring);
@@ -316,7 +332,7 @@
  	addnewvar("PATH", DEFAULT_PATH);
 --- a/svr-session.c
 +++ b/svr-session.c
-@@ -236,7 +236,7 @@ void svr_dropbear_exit(int exitcode, con
+@@ -235,7 +235,7 @@ void svr_dropbear_exit(int exitcode, con
  		/* user has authenticated */
  		snprintf(fullmsg, sizeof(fullmsg),
  				"Exit (%s)%s: %s", 

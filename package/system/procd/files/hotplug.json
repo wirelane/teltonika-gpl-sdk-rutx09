@@ -9,7 +9,7 @@
 				[
 					[ "if",
 						[ "eq", "DEVNAME",
-							[ "null", "full", "ptmx", "zero", "tty", "net", "random", "urandom" ]
+							[ "null", "full", "ptmx", "zero", "tty", "net", "random", "urandom", "fuse" ]
 						],
 						[
 							[ "makedev", "/dev/%DEVNAME%", "0666" ],
@@ -31,6 +31,22 @@
 					[ "if",
 						[ "regex", "DEVNAME", "^smd" ],
 						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+					],
+					[ "if",
+						[ "regex", "DEVNAME", "^diag" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+					],
+					[ "if",
+						[ "eq", "DEVNAME", "net/tun" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+					],
+					[ "if",
+						[ "regex", "DEVNAME", "^bus/usb/[0-9]{3}/[0-9]{3}$" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+					],
+					[ "if",
+						[ "regex", "DEVNAME", "^gpiochip" ],
+						[ "makedev", "/dev/%DEVNAME%", "0666", "gpio" ]
 					],
 					[ "if",
 						[ "has", "DEVNAME" ],

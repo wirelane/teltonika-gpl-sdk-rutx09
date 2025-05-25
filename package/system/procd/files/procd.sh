@@ -48,10 +48,13 @@ _PROCD_SERVICE=
 procd_lock() {
 	local basescript=$(readlink "$initscript")
 	local service_name="$(basename ${basescript:-$initscript})"
+	local old_umask="$(umask)"
 
 	flock -n 1000 &> /dev/null
 	if [ "$?" != "0" ]; then
+		umask 002
 		exec 1000>"$IPKG_INSTROOT/var/lock/procd_${service_name}.lock"
+		umask "$old_umask"
 		flock 1000
 		if [ "$?" != "0" ]; then
 			logger "warning: procd flock for $service_name failed"
@@ -186,7 +189,7 @@ _procd_add_jail() {
 	json_add_string name "$1"
 
 	shift
-	
+
 	for a in $@; do
 		case $a in
 		log)	json_add_boolean "log" "1";;

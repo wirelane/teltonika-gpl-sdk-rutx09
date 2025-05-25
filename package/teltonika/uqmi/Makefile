@@ -66,20 +66,20 @@ define Build/InstallDev
 endef
 
 define Package/uqmi/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/usr/bin $(1)/lib/netifd/proto
+	$(INSTALL_DIR) $(1)/sbin $(1)/usr/bin $(1)/lib/netifd $(1)/usr/local/usr/lib/netifd/proto
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uqmi $(1)/sbin/
 	$(INSTALL_BIN) ./files/dhcp_mobile.script $(1)/lib/netifd/
 	$(INSTALL_BIN) ./files/uqmi_shared_functions.sh $(1)/lib/netifd/ ; \
 	$(INSTALL_BIN) ./files/qmux_track.sh $(1)/usr/bin/qmuxtrack ; \
 
 	$(if $(CONFIG_BASEBAND_SUPPORT), \
-		$(INSTALL_BIN) ./files/connm.sh $(1)/lib/netifd/proto ; \
+		$(INSTALL_BIN) ./files/connm.sh $(1)/usr/local/usr/lib/netifd/proto ; \
 	, \
-		$(INSTALL_BIN) ./files/qmi.sh $(1)/lib/netifd/proto ; \
-		$(INSTALL_BIN) ./files/qmux.sh $(1)/lib/netifd/proto)
+		$(INSTALL_BIN) ./files/qmi.sh $(1)/usr/local/usr/lib/netifd/proto ; \
+		$(INSTALL_BIN) ./files/qmux.sh $(1)/usr/local/usr/lib/netifd/proto)
 
 	$(if $(or $(CONFIG_RNDIS_SUPPORT),$(CONFIG_USB_NCM_SUPPORT)), \
-		$(INSTALL_BIN) ./files/ncm.sh $(1)/lib/netifd/proto ; \
+		$(INSTALL_BIN) ./files/ncm.sh $(1)/usr/local/usr/lib/netifd/proto ; \
 		$(INSTALL_BIN) ./files/ncm_conn.sh $(1)/usr/bin/ncm_conn.sh)
 endef
 

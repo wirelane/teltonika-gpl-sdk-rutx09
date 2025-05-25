@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=impulse-counter
-PKG_VERSION:=2025-02-20
-PKG_SOURCE_VERSION:=7.13
+PKG_VERSION:=2025-04-15
+PKG_SOURCE_VERSION:=7.14
 PKG_LICENSE:=Teltonika-closed
 
 
@@ -29,7 +29,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/impulse_counter $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/impulse_counter.init $(1)/etc/init.d/impulse_counter
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/impulse_counter.conf $(1)/etc/config/impulse_counter
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/impulse_counter.conf $(1)/etc/config/impulse_counter
 endef
 
 define Package/$(PKG_NAME)/postinst
@@ -115,6 +115,11 @@ define Package/$(PKG_NAME)/prerm
 
 	config_foreach start_impulse_counter_in "input"
 	/etc/init.d/data_sender reload 2> /dev/null || true
+endef
+
+define Package/$(PKG_NAME)/postrm
+	#!/bin/sh
+	/etc/init.d/rpcd reload
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

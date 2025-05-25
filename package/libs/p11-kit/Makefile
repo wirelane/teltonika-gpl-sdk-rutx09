@@ -11,8 +11,9 @@ PKG_NAME:=p11-kit
 PKG_VERSION:=0.25.3
 PKG_RELEASE:=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://github.com/p11-glue/p11-kit/releases/download/$(PKG_VERSION)
+PKG_SOURCE_VERSION:=0.25.3
+PKG_SOURCE:=p11-kit-$(PKG_SOURCE_VERSION).tar.xz
+PKG_SOURCE_URL:=https://github.com/p11-glue/p11-kit/releases/download/$(PKG_SOURCE_VERSION)
 PKG_HASH:=d8ddce1bb7e898986f9d250ccae7c09ce14d82f1009046d202a0eb1b428b2adc
 
 PKG_MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>

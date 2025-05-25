@@ -28,6 +28,7 @@ define Package/sshfs
 	CATEGORY:=Network
 	SUBMENU:=Filesystem
 	URL:=https://github.com/libfuse/sshfs
+	SUID:=/usr/bin/fusermount3:root
 endef
 
 define Package/sshfs/description
@@ -39,11 +40,12 @@ define Package/sshfs/conffiles
 endef
 
 define Package/sshfs/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/sshfs $(1)/usr/bin/
 	$(INSTALL_BIN) ./files/sshfs.config $(1)/etc/config/sshfs
 	$(INSTALL_BIN) ./files/sshfs.init $(1)/etc/init.d/sshfs
 	$(INSTALL_BIN) ./files/run_sshfs_application.sh $(1)/usr/sbin/run_sshfs_application.sh
+	$(INSTALL_BIN) ./files/permtab.d/sshfs $(1)/etc/permtab.d/sshfs
 endef
 
 $(eval $(call BuildPackage,sshfs))

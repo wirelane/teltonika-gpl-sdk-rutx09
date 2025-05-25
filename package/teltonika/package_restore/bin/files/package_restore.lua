@@ -10,7 +10,7 @@ local OpkgPkg = require "vuci.opkg_pkg"
 local PACKAGE_FILE = "/etc/package_restore.txt"
 local BACKUP_PACKAGES = "/etc/backup_packages/"
 local FAILED_PACKAGES = "/etc/failed_packages"
-local THIRD_PARTY_FEEDS = "--force_feeds /etc/opkg/openwrt/distfeeds.conf -f /etc/tlt_opkg.conf"
+local THIRD_PARTY_FEEDS = "--force_feeds /etc/opkg/openwrt/distfeeds.conf"
 local TLT_PACKAGES = "/var/opkg-lists/tlt_packages"
 local TIME_OF_SLEEP = 10
 local MAX_RETRIES = 3
@@ -83,7 +83,7 @@ end
 if #app_names == 0 and #third_party_pkg_names == 0 then os.exit(0) end
 
 while true do
-	opkg_cmd("opkg -f /etc/tlt_opkg.conf update" .. (ERROR_SENT and " 2> /dev/null" or ""))
+	opkg_cmd("opkg update" .. (ERROR_SENT and " 2> /dev/null" or ""))
 	ERROR_SENT = true
 	if fs.access(TLT_PACKAGES) then
 		local tlt_packages_stat = fs.stat(TLT_PACKAGES)

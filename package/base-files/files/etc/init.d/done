@@ -24,16 +24,26 @@ handle_usbhub_reset() {
 		gpio_path="/sys/class/gpio/$3/value"
 		[ ! -f "$gpio_path" ] && echo "Error: Couldn't find $3 gpio" && return
 
+		echo "Powering off modem(s)" > dev/kmsg
+		mctl -s -d -a
 		for count in $(seq 3); do
 			echo "USB hub not detected, resetting" > /dev/kmsg
 			echo 1 > $gpio_path
 			sleep 1
 			echo 0 > $gpio_path
 			sleep 2
-			_check_paths "$2" && echo "$1 passed" && return
+			_check_paths "$2" && {
+				echo "$1 passed"
+				echo "Powering on modems" > dev/kmsg
+				mctl -p -d -a &
+				return
+			}
 		done
 
+
 		echo "$1 failed"
+		echo "Powering on modems" > dev/kmsg
+		mctl -p -d -a &
 }
 
 handle_reboot() {
@@ -96,7 +106,7 @@ set_tty_duplex() {
 
 boot() {
 	mount_root done
-	rm -f /sysupgrade.tgz && sync
+	rm -f /overlay/sysupgrade.tgz && sync
 
 	index=1
 	while : ; do

@@ -90,6 +90,9 @@ define Package/snmpd
 $(call Package/net-snmp/Default)
   DEPENDS:=+libnetsnmp +libopenssl
   TITLE:=Open source SNMP implementation (daemon)
+  USERID:=snmpd=545:snmpd=545
+  USER_GROUPS:=snmpd:chilli gsm network
+  CAP:=/usr/sbin/snmpd:cap_net_bind_service=ep
 endef
 
 define Package/snmpd/description
@@ -267,14 +270,17 @@ define Package/snmpd/conffiles
 endef
 
 define Package/snmpd/install
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./files/snmpd.conf $(1)/etc/config/snmpd
+	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/share/acl.d
+	$(INSTALL_CONF_USR) ./files/snmpd.conf $(1)/etc/config/snmpd
+	$(INSTALL_DATA) ./files/snmpd.json $(1)/usr/share/acl.d/snmpd.json
 	$(INSTALL_DIR) $(1)/etc/snmp
-	$(LN) /var/run/snmpd.conf $(1)/etc/snmp/
+	$(LN) /var/run/snmpd/snmpd.conf $(1)/etc/snmp/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/snmpd.init $(1)/etc/init.d/snmpd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/snmpd $(1)/usr/sbin/snmpd
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/snmpd.permtab $(1)/etc/permtab.d/snmpd
 endef
 
 define Package/snmptrapd/install

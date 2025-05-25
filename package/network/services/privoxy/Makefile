@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=privoxy
 PKG_VERSION:=3.0.32
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_VERSION:=3.0.32
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-stable-src.tar.gz
@@ -57,7 +57,7 @@ define Package/privoxy
   SUBMENU:=Web Servers/Proxies
   TITLE:=Privoxy WEB Proxy
   URL:=http://www.privoxy.org/
-  USERID:=privoxy=8118:privoxy=8118
+  USERID:=privoxy=543:privoxy=543
   MENU:=1
   DEPENDS:=+!PRIVOXY_no_pcre:libpcre +!PRIVOXY_no_pthread:libpthread +!PRIVOXY_no_zlib:zlib
 endef
@@ -130,9 +130,10 @@ endef
 
 define Package/privoxy/install
 	$(INSTALL_DIR) \
-		$(1)/usr/sbin\
-		$(1)/etc/privoxy\
-		$(1)/etc/privoxy/templates
+		$(1)/usr/sbin \
+		$(1)/etc/privoxy \
+		$(1)/etc/privoxy/templates \
+		$(1)/etc/uci-defaults/7.14
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/privoxy $(1)/usr/sbin/
 	find ./files/templates -maxdepth 1 -type f \
 		-exec $(INSTALL_DATA) -t $(1)/etc/privoxy/templates {} \;
@@ -143,11 +144,14 @@ define Package/privoxy/install
 		$(1)/lib/upgrade/keep.d \
 		$(1)/etc/init.d \
 		$(1)/etc/hotplug.d/iface \
-		$(1)/etc/config
+		$(1)/etc/config \
+		$(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/privoxy.permtab $(1)/etc/permtab.d/privoxy
 	$(INSTALL_DATA) ./files/privoxy.upgrade $(1)/lib/upgrade/keep.d/privoxy
 	$(INSTALL_BIN)  ./files/privoxy.init $(1)/etc/init.d/privoxy
 	$(INSTALL_BIN)  ./files/privoxy.hotplug $(1)/etc/hotplug.d/iface/95-privoxy
-	$(INSTALL_CONF) ./files/privoxy.conf $(1)/etc/config/privoxy
+	$(INSTALL_CONF_USR) ./files/privoxy.conf $(1)/etc/config/privoxy
+	$(INSTALL_BIN) ./files/migrations/99_fix_privoxy_paths $(1)/etc/uci-defaults/7.14/
 endef
 
 define Package/privoxy/postinst

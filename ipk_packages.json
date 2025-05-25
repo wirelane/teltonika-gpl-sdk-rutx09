@@ -30,11 +30,6 @@
 		"packages_dep":"libev",
 		"name": "https_dns_proxy"
 	},
-	"vuci-app-greengrass-ui": {
-		"base_dep": "bash libncurses6 libreadline8 terminfo greengrass",
-		"vuci_dep": "vuci-app-greengrass-api",
-		"name": "aws_greengrass_core"
-	},
 	"vuci-app-dnp3-ui": {
 		"vuci_dep": "vuci-app-dnp3-api data-sender-api-mod-dnp3",
 		"base_dep": "dnp3 opendnp3 data-sender-mod-dnp3 libtlt_termios1.0 libgpiod libcfgx",
@@ -113,7 +108,7 @@
 		"name": "snmp"
 	},
 	"vuci-app-samba-ui": {
-		"base_dep": "samba36-server libuuid1 libblkid1 libcomerr0 libext2fs2 libss2 e2fsprogs fmt-usb-msd exfat-mkfs storage-memory-expansion",
+		"base_dep": "samba36-server libuuid1 libblkid1 e2fsprogs fmt-usb-msd exfat-mkfs storage-memory-expansion",
 		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-exfat kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage kmod-fuse block-mount",
 		"vuci_dep": "vuci-app-memory-expansion-api vuci-app-usb-tools-api vuci-app-memory-expansion-ui vuci-app-usb-tools-ui vuci-app-samba-api",
 		"name": "network_shares"
@@ -129,7 +124,7 @@
 		"name": "wake_on_lan"
 	},
 	"vuci-app-coovachilli-ui": {
-		"base_dep": "libtltchilli coova-chilli tc-tiny libjson-c libcurl rms-json-hotspot",
+		"base_dep": "libtltchilli coova-chilli libcap tc-tiny libjson-c libcurl rms-json-hotspot",
 		"vuci_dep": "vuci-app-coovachilli-api vuci-app-landingpage tlt_hs_theme_default vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"kmod_dep": "kmod-ipt-coova kmod-ifb kmod-sched-core",
 		"name": "hotspot"
@@ -168,7 +163,6 @@
 	"vuci-app-upnp-ui": {
 		"vuci_dep": "vuci-app-upnp-api",
 		"base_dep": "libuuid1 miniupnpd",
-		"packages_dep": "libcap-ng",
 		"name": "upnp"
 	},
 	"vuci-app-ddns-ui": {
@@ -397,6 +391,9 @@
 	"vuci-i18n-turkish": {
 		"name": "turkish_language_support"
 	},
+	"vuci-i18n-ukrainian": {
+		"name": "ukrainian_language_support"
+	},
 	"7zip": {
 		"kmod_dep": "libstdcpp6",
 		"name": "7-zip"
@@ -487,7 +484,7 @@
 		"name": "tpm2_openssl"
 	},
 	"tpm2-tss": {
-		"base_dep": "curl libgcrypt libjson-c libusb-1.0 libuuid libopenssl",
+		"base_dep": "curl libgcrypt libjson-c libusb-1.0-0 libuuid libopenssl",
 		"name": "tpm2_tss"
 	},
 	"vuci-app-sshfs-ui": {
@@ -508,7 +505,7 @@
 		"name": "pam"
 	},
 	"vuci-app-networkmap-ui": {
-		"base_dep": "networkmap",
+		"base_dep": "networkmap libpcap libpthread",
 		"vuci_dep": "vuci-app-networkmap-api",
 		"name": "topology"
 	},
@@ -568,7 +565,7 @@
 		"base_dep": "ca-certificates libseccomp dockerd containerd runc tini"
 	},
 	"vuci-app-port-security-ui":{
-		"name": "802.1X",
+		"name": "802.1x",
 		"kmod_dep": "kmod-sched-core kmod-sched-act-vlan kmod-dummy kmod-sched-flower",
 		"vuci_dep": "vuci-app-port-security-api",
 		"base_dep": "radius_test dsa-dot1x-server tc-tiny hostapd-common libucode20220812 ucode ucode-mod-fs ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uloop wpad-openssl dot1x-client"
@@ -587,19 +584,15 @@
 		"base_dep": "curl",
 		"name": "letsencrypt"
 	},
-	"vuci-app-io-post-get-ui" : {
-		"name": "io_post_get",
-		"vuci_dep": "vuci-app-io-post-get-api",
-		"base_dep": "post-get post-get-io libtlt_uci"
-	},
-	"vuci-app-mobile-post-get-ui" : {
-		"name": "mobile_post_get",
-		"vuci_dep": "vuci-app-mobile-post-get-api",
-		"base_dep": "post-get post-get-mobile libtlt_uci"
+	"vuci-app-io-scheduler-ui": {
+		"base_dep": "io_scheduler iomand",
+		"vuci_dep": "vuci-app-io-scheduler-api",
+		"name": "io_scheduler"
 	},
 	"vuci-app-eoip-ui": {
-		"base_dep": "eoip",
+		"base_dep": "eoip tc-tiny",
 		"vuci_dep": "vuci-app-eoip-api",
+		"kmod_dep": "kmod-sched-flower kmod-ifb kmod-sched-core",
 		"name": "eoip"
 	},
 	"vuci-app-p910nd-ui": {
@@ -619,6 +612,10 @@
 		"vuci_dep": "vuci-app-email-to-sms-api",
 		"base_dep": "email_to_sms lua-pop3",
 		"packages_dep": "lua-md5"
+	},
+	"xl2tpd6": {
+		"kmod_dep": "libpthread kmod-l2tp kmod-l2tp-eth kmod-l2tp-ip",
+		"name": "l2tpv6_support"
 	},
 	"vuci-app-openconnect-ui": {
 		"base_dep": "openconnect libxml2 vpnc-scripts p11-kit libp11 libtasn1",

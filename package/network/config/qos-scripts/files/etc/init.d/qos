@@ -16,18 +16,18 @@ service_triggers()
 {
 	procd_add_reload_trigger "qos"
 	procd_add_validation validate_qos_section
-	qos-start
+	/usr/local/usr/bin/qos-start
 }
 
 start_service() {
-	qos-start
+	/usr/local/usr/bin/qos-start
 }
 
 stop_service() {
-	qos-stop
+	/usr/local/usr/bin/qos-stop
 }
 
 reload_service() {
-	qos-stop
-	qos-start
+	/usr/local/usr/bin/qos-stop
+	/usr/local/usr/bin/qos-start
 }

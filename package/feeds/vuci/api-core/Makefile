@@ -20,7 +20,7 @@ define Package/api-core
 		+uhttpd-mod-ubus +lua +libubox-lua +libubus-lua \
 		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
 		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto +lua_extra_validators \
-		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec
+		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci
 endef
 
 define Package/api-core/config

@@ -1,7 +1,7 @@
 [ -e /tmp/.failsafe ] && export FAILSAFE=1
 
 [ -f /etc/banner ] && {
-	DEVICE="$(mnf_info -n 2>/dev/null | cut -c -6)"
+	DEVICE="$(/sbin/mnf_info -n 2>/dev/null | cut -c -6)"
 	[ -n "$DEVICE" ] || DEVICE="Unknown"
 
 	cat /etc/banner | sed                    \
@@ -17,7 +17,7 @@ fgrep -sq '/ overlay ro,' /proc/mounts && {
 
 export PATH="%PATH%"
 export HOME=$(grep -e "^${USER:-root}:" /etc/passwd | cut -d ":" -f 6)
-export HOME=${HOME:-/root}
+export HOME=${HOME:-/usr/local/home/root}
 export PS1='\u@\h:\w\$ '
 export ENV=/etc/shinit
 

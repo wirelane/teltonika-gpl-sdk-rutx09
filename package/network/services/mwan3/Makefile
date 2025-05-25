@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mwan3
 PKG_VERSION:=2.10.12
-PKG_RELEASE:=6
+PKG_RELEASE:=10
 PKG_MAINTAINER:=Florian Eckert <fe@dev.tdt.de>, \
 		Aaron Goodman <aaronjg@alumni.stanford.edu>
 PKG_LICENSE:=GPL-2.0-only
@@ -80,38 +80,39 @@ define Build/Compile
 endef
 
 define Package/mwan3/install
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_mwan3)),,/usr/local))
 	$(INSTALL_DIR) $(1)/etc/config
 	$(if $(wildcard $(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)), \
 		$(INSTALL_CONF_USR) "$(PKG_BUILD_DIR)/files/etc/config/mwan3-$(call device_shortname)" $(1)/etc/config/mwan3, \
 		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/etc/config/mwan3 $(1)/etc/config/mwan3)
 
-	$(INSTALL_DIR) $(1)/usr/share/mwan3
+	$(INSTALL_DIR) $(DEST_DIR)/usr/share/mwan3
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/usr/share/15-mwan3 \
-		$(1)/usr/share/mwan3/
+		$(DEST_DIR)/usr/share/mwan3/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/usr/share/16-mwan3-user \
-		$(1)/usr/share/mwan3/
+		$(DEST_DIR)/usr/share/mwan3/
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/etc/init.d/mwan3 \
 		$(1)/etc/init.d/
 
-	$(INSTALL_DIR) $(1)/lib/mwan3
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/mwan3
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/lib/mwan3/common.sh \
-		$(1)/lib/mwan3/
+		$(DEST_DIR)/usr/lib/mwan3/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/lib/mwan3/mwan3.sh \
-		$(1)/lib/mwan3/
+		$(DEST_DIR)/usr/lib/mwan3/
 
-	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
+	$(INSTALL_DIR) $(DEST_DIR)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/usr/libexec/rpcd/mwan3 \
-		$(1)/usr/libexec/rpcd/
+		$(DEST_DIR)/usr/libexec/rpcd/
 
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(DEST_DIR)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/usr/sbin/mwan3 \
-		$(1)/usr/sbin/
+		$(DEST_DIR)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/usr/sbin/mwan3rtmon \
-		$(1)/usr/sbin/
+		$(DEST_DIR)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/usr/sbin/mwan3track \
-		$(1)/usr/sbin/
+		$(DEST_DIR)/usr/sbin/
 
 	$(INSTALL_DIR) $(1)/etc/mwan3
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/etc/mwan3/mwan3.user \
@@ -122,7 +123,7 @@ define Package/mwan3/install
 	$(if $(CONFIG_NO_WIRED_WAN), \
 		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mwan3-no-wan.defaults $(1)/etc/uci-defaults/)
 
-	$(CP) $(PKG_BUILD_DIR)/libwrap_mwan3_sockopt.so.1.0 $(1)/lib/mwan3/
+	$(CP) $(PKG_BUILD_DIR)/libwrap_mwan3_sockopt.so.1.0 $(DEST_DIR)/usr/lib/mwan3/
 endef
 
 $(eval $(call BuildPackage,mwan3))

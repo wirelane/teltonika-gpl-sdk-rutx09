@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mdcollect
-PKG_VERSION:=2024-12-02
-PKG_RELEASE:=2
+PKG_VERSION:=2025-03-17
+PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-closed
 
-PKG_SOURCE_VERSION:=7.13
+PKG_SOURCE_VERSION:=7.14
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -45,7 +45,7 @@ endef
 define Package/mdcollectd/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ \
 		$(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mdcollectd.config $(1)/etc/config/mdcollectd
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/mdcollectd.config $(1)/etc/config/mdcollectd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mdcollectd.init $(1)/etc/init.d/mdcollectd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mdcollectd $(1)/usr/bin/mdcollectd
 endef

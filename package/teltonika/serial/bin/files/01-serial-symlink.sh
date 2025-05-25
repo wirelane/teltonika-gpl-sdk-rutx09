@@ -41,6 +41,7 @@ add_symlink() {
 	}
 
 	ln -s "$tty_dev" "$usb_serial${csum:0:8}" # /dev/usb_serial_7e97db3b
+	chgrp -h dialout "$usb_serial${csum:0:8}"
 	kinfo "Creating $tty_dev -> $usb_serial${csum:0:8} symlink..."
 }
 
@@ -66,6 +67,7 @@ handle_symlink() {
 	case "$ACTION" in
 	add)
 		ln -s "$tty_dev" "$1"
+		chgrp -h dialout "$1"
 		kinfo "Creating $tty_dev -> $1 symlink..."
 		;;
 	remove)

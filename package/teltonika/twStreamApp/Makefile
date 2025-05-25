@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=twStreamApp
-PKG_VERSION:=2025-02-14
+PKG_VERSION:=2025-04-17
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.9
+PKG_SOURCE_VERSION:=1.10
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -25,7 +25,7 @@ define Package/twStreamApp
   CATEGORY:=Network
   TITLE:=ThingWorx Stream application.
   DEPENDS:=+libtwCSdk +MOBILE_SUPPORT:libgsm +libtlt_uci +libuci +libopenssl +libubus
-  USERID:=tws:tws
+  USERID:=tws=517:tws=517
 endef
 
 define Package/twStreamApp/description
@@ -51,17 +51,8 @@ define Package/twStreamApp/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iottw $(1)/etc/config/iottw
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/tws.json $(1)/usr/share/acl.d/tws.json
-endef
-
-
-define Package/twStreamApp/postinst
-#!/bin/sh
-
-[ -z "$${IPKG_INSTROOT}" ] || exit 0
-
-#Relaod ubusd acl rules
-pid=$$(pidof ubusd)
-[ -z "$$pid" ] || kill -HUP $$pid
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/tws.permtab $(1)/etc/permtab.d/tws
 endef
 
 $(eval $(call BuildPackage,twStreamApp))

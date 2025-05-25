@@ -28,8 +28,8 @@ lcfg_stat lcfg_parse_section_uci_ext(struct lcfg_context *ctx, struct uci_sectio
  * @param mask mask of the options to save
  * @return uint64_t 0 on success, mask of the options that failed to save
  */
-uint64_t lcfg_save_uci(struct uci_context *uci, struct uci_section *s, const struct lcfg_opt *options,
-		       void *data, uint64_t mask);
+uint64_t lcfg_save_uci(struct uci_context *uci, const struct uci_section *s,
+		const struct lcfg_opt *options, void *data, uint64_t mask);
 
 /**
  * @brief build a hash over an options

@@ -44,6 +44,9 @@ if [ "$$(uci get vuci.main.set_main_language)" = '1' ]; then
 	uci set vuci.main.lang="$(LANGUAGE)"
 	uci delete vuci.main.set_main_language
 fi
+if [ ! -L /www/i18n ]; then
+    ln -s /usr/local/www/i18n /www/i18n
+fi
 exit 0
 endef
 

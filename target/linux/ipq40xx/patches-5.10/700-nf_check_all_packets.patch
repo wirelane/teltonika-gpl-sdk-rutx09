@@ -1,6 +1,6 @@
 --- a/net/netfilter/xt_FLOWOFFLOAD.c
 +++ b/net/netfilter/xt_FLOWOFFLOAD.c
-@@ -938,6 +938,7 @@ static int init_flowtable(struct xt_flow
+@@ -942,6 +942,7 @@ static int init_flowtable(struct xt_flow
  {
  	INIT_DELAYED_WORK(&tbl->work, xt_flowoffload_hook_work);
  	tbl->ft.type = &flowtable_inet;
@@ -8,7 +8,7 @@
  
  	return nf_flow_table_init(&tbl->ft);
  }
-@@ -956,7 +957,7 @@ static int __init xt_flowoffload_tg_init
+@@ -960,7 +961,7 @@ static int __init xt_flowoffload_tg_init
  	if (ret)
  		goto cleanup;
  

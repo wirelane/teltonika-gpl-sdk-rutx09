@@ -31,8 +31,8 @@ define Build/Configure
 endef
 
 define Package/xfrm/install
-	$(INSTALL_DIR) $(1)/lib/netifd/proto
-	$(INSTALL_BIN) ./files/xfrm.sh $(1)/lib/netifd/proto/xfrm.sh
+	$(INSTALL_DIR) $(1)/usr/local/usr/lib/netifd/proto
+	$(INSTALL_BIN) ./files/xfrm.sh $(1)/usr/local/usr/lib/netifd/proto/xfrm.sh
 endef
 
 $(eval $(call BuildPackage,xfrm))

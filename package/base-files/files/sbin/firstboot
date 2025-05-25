@@ -37,8 +37,9 @@ if [ "$FACTORY" = "1" ]; then
         if [ -e /sbin/esim_delete_profiles ]; then
                 esim_delete_profiles
         fi
-        # wipe all from log
-        rm -fr /log/*
+        # wipe all from log except boostrap profiles
+        find "/log" ! -name "boot_*_iccid" -type f -exec rm -f {} +
+        
 else
         # reset SMS limit database
         rm /log/sms.db  &>/dev/null

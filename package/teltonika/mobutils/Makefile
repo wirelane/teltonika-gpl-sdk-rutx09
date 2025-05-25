@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobutils
 
-PKG_SOURCE_VERSION:=3.14
+PKG_SOURCE_VERSION:=3.13
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -20,7 +20,7 @@ define Package/mobutils/Default
 	CATEGORY:=Base system
 	DEPENDS:=+libuci +libtlt_uci +libubus +libubox +libtlt-logger \
 		+libmnfinfo
-	USERID:=mobutils:mobutils
+	USERID:=mobutils=513:mobutils=513
 endef
 
 define Package/mobutils

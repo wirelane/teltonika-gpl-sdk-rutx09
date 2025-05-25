@@ -53,10 +53,11 @@ endef
 
 CONFIGURE_ARGS += \
 	--with-java-runtime-library=gnuclasspath \
-	--with-classpath-install-dir=/usr \
+	--with-classpath-install-dir=/usr/local/usr \
 	--disable-int-inlining \
 	--disable-shared \
-	--without-pic
+	--without-pic \
+	--prefix=/usr/local/usr
 
 MAKE_FLAGS += \
 	GLIBJ_ZIP=$(STAGING_DIR)/usr/share/classpath/glibj.zip

@@ -12,8 +12,6 @@ __private lcfg_stat lcfg_str_list_to_cfg_cust(void *ptr, const char *str, const 
 __private lcfg_stat llcfg_options_check(struct lcfg_context *ctx, const struct lcfg_opt *options,
 					uint64_t res, void *dst);
 
-__private lcfg_stat lcfg_validate_range(const struct lcfg_opt *option, const char *str);
-
 __private void lcfg_set_default(const struct lcfg_opt *option, void *dst);
 
 __private lcfg_stat lcfg_parse_option(struct lcfg_context *ctx, const struct lcfg_opt *option,

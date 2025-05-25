@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=esim-lpac
 
-PKG_SOURCE_VERSION:=1.3.11
+PKG_SOURCE_VERSION:=1.4.1
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -60,8 +60,8 @@ define Package/lua_lpac/install
 endef
 
 define Package/rpc_esim/install
-	$(INSTALL_DIR) $(1)/usr/lib/rpcd
-	$(CP) $(PKG_BUILD_DIR)/rpc/rpc_esim.so $(1)/usr/lib/rpcd
+	$(INSTALL_DIR) $(1)/usr/lib/rpcd/shared
+	$(CP) $(PKG_BUILD_DIR)/rpc/rpc_esim.so $(1)/usr/lib/rpcd/shared
 endef
 
 define Package/esim-lpac/install

@@ -299,7 +299,7 @@ cls_var() {
 }
 
 tcrules() {
-	_dir=/usr/lib/qos
+	_dir=/usr/local/usr/lib/qos
 	[ -e $_dir/tcrules.awk ] || _dir=.
 	echo "$cstr" | awk \
 		-v device="$dev" \

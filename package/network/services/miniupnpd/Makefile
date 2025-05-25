@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=miniupnpd
 PKG_VERSION:=2.3.4
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
 PKG_SOURCE_VERSION:=2.3.4
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -33,10 +33,12 @@ include $(INCLUDE_DIR)/version.mk
 define Package/miniupnpd
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+iptables +libip4tc +IPV6:libip6tc +IPV6:ip6tables +libuuid +libcap-ng
+  DEPENDS:=+iptables +libip4tc +IPV6:libip6tc +IPV6:ip6tables +libuuid
   TITLE:=Lightweight UPnP IGD, NAT-PMP & PCP daemon
   SUBMENU:=Firewall
   URL:=https://miniupnp.tuxfamily.org/
+  USERID:=upnpd=544:upnpd=544
+  CAP:=/usr/sbin/miniupnpd:cap_net_broadcast,cap_net_admin,cap_net_raw,cap_net_bind_service=ep
 endef
 
 define Package/miniupnpd/description
@@ -69,15 +71,21 @@ define Package/miniupnpd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_DIR) $(1)/usr/local/share/miniupnpd
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.4
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.14
+	$(INSTALL_DIR) $(1)/etc/permtab.d
 
+	$(INSTALL_DATA) ./files/miniupnpd.permtab $(1)/etc/permtab.d/miniupnpd
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/miniupnpd $(1)/usr/sbin/miniupnpd
 	$(INSTALL_BIN) ./files/miniupnpd.init $(1)/etc/init.d/miniupnpd
-	$(INSTALL_CONF) ./files/upnpd.config $(1)/etc/config/upnpd
+	$(INSTALL_CONF_USR) ./files/upnpd.config $(1)/etc/config/upnpd
 	$(INSTALL_DATA) ./files/miniupnpd.hotplug $(1)/etc/hotplug.d/iface/50-miniupnpd
-	$(INSTALL_DATA) ./files/firewall.include $(1)/usr/local/share/miniupnpd/firewall.include
-	$(INSTALL_DATA) ./files/miniupnpd.defaults $(1)/etc/uci-defaults/
+	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_port_range $(1)/etc/uci-defaults/7.4/
+	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_lease_file $(1)/etc/uci-defaults/7.14/
+
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_miniupnpd)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/share/miniupnpd
+	$(INSTALL_DATA) ./files/firewall.include $(DEST_DIR)/share/miniupnpd/firewall.include
 endef
 
 $(eval $(call BuildPackage,miniupnpd))

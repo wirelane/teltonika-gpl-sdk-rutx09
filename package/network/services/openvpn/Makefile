@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=openvpn
 
 PKG_VERSION:=2.6.9
-PKG_RELEASE:=5
+PKG_RELEASE:=7
 
 PKG_HASH:=e08d147e15b4508dfcd1d6618a1f21f1495f9817a8dadc1eddf0532fa116d7e3
 
@@ -40,7 +40,7 @@ define Package/openvpn/Default
   URL:=http://openvpn.net
   SUBMENU:=VPN
   MENU:=1
-  DEPENDS:=+kmod-tun +libcap-ng +OPENVPN_$(1)_ENABLE_LZO:liblzo +OPENVPN_$(1)_ENABLE_LZ4:liblz4 +OPENVPN_$(1)_ENABLE_IPROUTE2:ip \
+  DEPENDS:=+kmod-tun +libcap +OPENVPN_$(1)_ENABLE_LZO:liblzo +OPENVPN_$(1)_ENABLE_LZ4:liblz4 +OPENVPN_$(1)_ENABLE_IPROUTE2:ip \
 	+OPENVPN_$(1)_ENABLE_DCO:libnl-genl +OPENVPN_$(1)_ENABLE_DCO:kmod-ovpn-dco-v2 $(3) +libubus +libubox
   VARIANT:=$(1)
   PROVIDES:=openvpn openvpn-crypto

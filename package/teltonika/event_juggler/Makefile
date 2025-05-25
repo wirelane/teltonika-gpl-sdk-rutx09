@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.0
+PKG_SOURCE_VERSION:=1.1
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf
@@ -20,6 +20,8 @@ define Package/event-juggler
 	CATEGORY:=Base system
 	MENU:=1
 	TITLE:=Event juggler package
+	USERID:=juggler=516:juggler=516
+	USER_GROUPS:=juggler:gsm profiler rms
 	DEPENDS:=+libubox +libubus +libuci +libtlt-logger +libblobmsg-json +libparam \
 			+libcfg +libcurl +liblua +libmosquitto +libtlt_smtp +libtlt_uci \
 			+PACKAGE_EVENT_JUGGLER_EVENT_GSM:liburc \
@@ -34,6 +36,10 @@ endef
 
 define Package/event-juggler/config
 	source "$(SOURCE)/Config.in"
+endef
+
+define Package/event_juggler/conffiles
+/etc/config/event_juggler
 endef
 
 CONFIGURE_ARGS += \
@@ -78,7 +84,7 @@ endef
 
 define Package/event-juggler/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/sbin/ \
-		$(1)/etc/uci-defaults/7.13 $(1)/lib/troubleshoot
+		$(1)/etc/uci-defaults/7.13 $(1)/lib/troubleshoot $(1)/usr/share/acl.d/
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/event_juggler $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/event_juggler.init $(1)/etc/init.d/event_juggler
@@ -89,6 +95,7 @@ define Package/event-juggler/install
 			$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/event_juggler.conf $(1)/etc/config/event_juggler;)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/event_juggler_troubleshoot.sh \
 			$(1)/lib/troubleshoot/event_juggler.sh
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/event_juggler.json $(1)/usr/share/acl.d/
 
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_LUA),$(call InstallLuaActionExamples,$(1)))
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_LUA),$(call InstallLuaConditionExamples,$(1)))

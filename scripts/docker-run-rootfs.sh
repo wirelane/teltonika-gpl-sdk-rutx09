@@ -5,7 +5,7 @@
 SELF="$0"
 ROOTFS_PATH="$(pwd)/bin/targets/x86/64-glibc/openwrt-x86-64-teltonika_x86_64-rootfs.tar.gz"
 NETWORK_ENABLE="${NETWORK_ENABLE:-0}"
-NETWORK_PREFIX="${NETWORK_PREFIX:-192.168.33}"
+NETWORK_PREFIX="${NETWORK_PREFIX:-192.168.1}"
 IMAGE_NAME="openwrt-rootfs:$NETWORK_PREFIX"
 NETWORK_NAME="none"
 
@@ -34,19 +34,17 @@ EOF
 parse_args() {
 	while [ "$#" -gt 0 ]; do
 		case "$1" in
-			--rootfs) ROOTFS_PATH="$2"; shift 2 ;;
-			--network|-n) NETWORK_ENABLE=1; shift ;;
-			--prebuild|-p) PREBUILD=1; shift ;;
-			--nat|-m) NAT_MASQUERADE=1; shift ;;
-			--help|-h)
-				usage
-				exit 0
-				;;
-			*)
-				DOCKER_EXTRA="$DOCKER_EXTRA $1"
-				shift
-				;;
+		--rootfs) ROOTFS_PATH="$2" && shift ;;
+		--network | -n) NETWORK_ENABLE=1 ;;
+		--prebuild | -p) PREBUILD=1 ;;
+		--nat | -m) NAT_MASQUERADE=1 ;;
+		--help | -h)
+			usage
+			exit 0
+			;;
+		*) DOCKER_EXTRA="$DOCKER_EXTRA $1" ;;
 		esac
+		shift
 	done
 }
 
@@ -56,7 +54,7 @@ parse_args "$@"
 
 if [ -z "$PREBUILD" ]; then
 	DOCKERFILE="$(mktemp -p $(dirname $ROOTFS_PATH))"
-	cat <<EOT > "$DOCKERFILE"
+	cat <<EOT >"$DOCKERFILE"
 	FROM scratch
 	ADD $(basename $ROOTFS_PATH) /
 	RUN echo "console::askfirst:/usr/libexec/login.sh" >> /etc/inittab; \
@@ -79,16 +77,16 @@ if [ "$NETWORK_ENABLE" = 1 ]; then
 	LAN_IP="$NETWORK_PREFIX.1"
 	if [ -z "$(docker network ls | grep $NETWORK_NAME)" ]; then
 		docker network create \
-		  -o "com.docker.network.bridge.name"="br-rutos-docker" \
-		  --driver=bridge \
-		  --subnet="$NETWORK_PREFIX.0/24" \
-		  --ip-range="$NETWORK_PREFIX.0/24" \
-		  --gateway="$NETWORK_PREFIX.2" \
-		  "$NETWORK_NAME"
+			-o "com.docker.network.bridge.name"="br-rutos-docker" \
+			--driver=bridge \
+			--subnet="$NETWORK_PREFIX.0/24" \
+			--ip-range="$NETWORK_PREFIX.0/24" \
+			--gateway="$NETWORK_PREFIX.2" \
+			"$NETWORK_NAME"
 		echo "[*] Created $NETWORK_NAME network "
 
 		cleanup() {
-			while docker network inspect "$NETWORK_NAME" &>/dev/null; do
+			while docker network inspect "$NETWORK_NAME" 1>/dev/null 2>&1; do
 				docker network rm "$NETWORK_NAME" && break
 				sleep 1
 			done

@@ -29,7 +29,8 @@ define Package/relayd
   TITLE:=Transparent routing / relay daemon
   DEPENDS:=+libubox +libubus
   USERID:=relayd:relayd
-  CAP:=/usr/sbin/relayd:cap_net_admin,cap_net_raw=ep
+  $(eval CAP_DIR:=$(if $(findstring m,$(CONFIG_PACKAGE_relayd)),,/usr/local))
+  CAP:=$(CAP_DIR)/usr/sbin/relayd:cap_net_admin,cap_net_raw=ep
 endef
 
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include
@@ -39,20 +40,24 @@ define Package/relayd/conffiles
 endef
 
 define Package/relayd/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/relayd $(1)/usr/sbin/relayd
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_relayd)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/relayd $(DEST_DIR)/usr/sbin/relayd
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/etc/init.d/relayd $(1)/etc/init.d/
 
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/etc/config/relayd $(1)/etc/config/
+	$(INSTALL_CONF_USR) ./files/etc/config/relayd $(1)/etc/config/
 
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) ./files/relayd_acl.json $(1)/usr/share/acl.d/relayd_acl.json
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11
 	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.11/10-move-relayd-from-network-conf
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/relayd.permtab $(1)/etc/permtab.d/relayd
 endef
 
 $(eval $(call BuildPackage,relayd))

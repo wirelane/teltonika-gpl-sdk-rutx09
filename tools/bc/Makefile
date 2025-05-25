@@ -10,6 +10,8 @@ PKG_NAME:=bc
 PKG_VERSION:=1.06.95
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_UPSTREAM_VERSION:=1.06.95
+PKG_UPSTREAM_URL_FILE:=bc-$(PKG_UPSTREAM_VERSION).tar.bz2
 PKG_SOURCE_URL:=http://alpha.gnu.org/gnu/bc \
 	http://gnualpha.uib.no/bc/ \
 	http://mirrors.fe.up.pt/pub/gnu-alpha/bc/ \

@@ -15,7 +15,7 @@ index 22f0dd5..a5614d8 100644
  			unlink(filename);
  			UCI_THROW(ctx, UCI_ERR_IO);
  		}
-+		chown(path, statbuf.st_uid, statbuf.st_gid);
++		chown(path, getuid() ? (uid_t)-1 : statbuf.st_uid, statbuf.st_gid);
  		free(path);
  	}
  	uci_close_stream(f1);

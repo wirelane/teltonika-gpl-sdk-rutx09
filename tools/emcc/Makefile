@@ -3,6 +3,8 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=emsdk
 PKG_VERSION:=3.1.31
 
+PKG_UPSTREAM_VERSION:=3.1.31
+PKG_UPSTREAM_URL_FILE:=emsdk-$(PKG_UPSTREAM_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/emscripten-core/emsdk/archive/refs/tags/
 PKG_SOURCE_URL_FILE:=$(PKG_VERSION).tar.gz
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz

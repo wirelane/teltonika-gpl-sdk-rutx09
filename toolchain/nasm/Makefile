@@ -7,7 +7,9 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=nasm
 PKG_VERSION:=2.15.05
 
-PKG_SOURCE_URL:=https://www.nasm.us/pub/nasm/releasebuilds/$(PKG_VERSION)/
+PKG_UPSTREAM_VERSION:=2.15.05
+PKG_UPSTREAM_URL_FILE:=nasm-$(PKG_UPSTREAM_VERSION).tar.xz
+PKG_SOURCE_URL:=https://www.nasm.us/pub/nasm/releasebuilds/$(PKG_UPSTREAM_VERSION)/
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
 
 PKG_HASH:=3caf6729c1073bf96629b57cee31eeb54f4f8129b01902c73428836550b30a3f

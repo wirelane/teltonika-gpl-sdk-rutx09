@@ -4,7 +4,7 @@
 
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
-	. ../netifd-proto.sh
+	. /lib/netifd/netifd-proto.sh
 	init_proto "$@"
 }
 

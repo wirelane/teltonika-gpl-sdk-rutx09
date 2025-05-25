@@ -224,6 +224,10 @@ struct lbjson_board {
 	char *model_name;
 	char *model_platform;
 
+	// bridge info (Will only be set on switches)
+	char *bridge_name;
+	char *bridge_macaddr;
+
 	// network info
 	int network_count;
 	struct lbjson_network networks[BJSON_NETWORK_MAX];

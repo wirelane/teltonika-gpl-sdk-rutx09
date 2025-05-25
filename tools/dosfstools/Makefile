@@ -12,7 +12,9 @@ PKG_CPE_ID:=cpe:/a:dosfstools_project:dosfstools
 PKG_VERSION:=4.1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=https://github.com/dosfstools/dosfstools/releases/download/v$(PKG_VERSION)/ \
+PKG_UPSTREAM_VERSION:=4.1
+PKG_UPSTREAM_URL_FILE:=dosfstools-$(PKG_UPSTREAM_VERSION).tar.xz
+PKG_SOURCE_URL:=https://github.com/dosfstools/dosfstools/releases/download/v$(PKG_UPSTREAM_VERSION)/ \
 		http://fossies.org/linux/misc
 PKG_HASH:=e6b2aca70ccc3fe3687365009dd94a2e18e82b688ed4e260e04b7412471cc173
 

@@ -1,8 +1,8 @@
 #!/bin/sh
 title=""
 paragraph=""
-shell_cert="/tmp/certificate.pem"
-shell_banner="/tmp/shellinabox.banner"
+shell_cert="/var/run/shellinabox/certificate.pem"
+shell_banner="/var/run/shellinabox/shellinabox.banner"
 uhttpd_cert=$(uci -q get uhttpd.main.cert)
 uhttpd_key=$(uci -q get uhttpd.main.key)
 key_type=$(uci get uhttpd.defaults.key_type)
@@ -53,10 +53,11 @@ if [ "$enable" -eq "1" ] && [ "$wan_deny" -eq "0" ]; then
 			fi
 
 			mv "$tmp_cert_file" "$shell_cert"
+			chown shellinabox:shellinabox "$shell_cert"
 			exec 3<"$shell_cert"
-			/usr/sbin/shellinaboxd --disable-ssl-menu --cgi="${port}" -u 0 -g 0 --cert-fd=3 $banner_opt
+			/usr/sbin/shellinaboxd --disable-ssl-menu --cgi="${port}" --cert-fd=3 $banner_opt
 		else
-			/usr/sbin/shellinaboxd -t --cgi="${port}" -u 0 -g 0 $banner_opt
+			/usr/sbin/shellinaboxd -t --cgi="${port}" $banner_opt
 		fi
 	else
 		title="Too many active shell instances!"

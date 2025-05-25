@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=odhcpd
-PKG_RELEASE:=$(AUTORELEASE)
+PKG_RELEASE:=$(AUTORELEASE).1
 
 PKG_SOURCE_DATE:=2021-07-18
 
@@ -31,6 +31,8 @@ define Package/odhcpd/default
   CATEGORY:=Network
   TITLE:=OpenWrt DHCPv6(-PD)/RA Server & Relay
   DEPENDS:=+libubox +libuci +libubus +libnl-tiny
+  USERID:=odhcpd:odhcpd
+  CAP:=/usr/sbin/odhcpd:cap_net_admin,cap_net_raw,cap_net_bind_service=ep
 endef
 
 define Package/odhcpd/default/description
@@ -99,6 +101,8 @@ define Package/odhcpd/install
 	$(INSTALL_BIN) ./files/odhcpd-update $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/odhcpd.init $(1)/etc/init.d/odhcpd
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) ./files/odhcpd_acl.json $(1)/usr/share/acl.d/odhcpd_acl.json
 endef
 
 Package/odhcpd-ipv6only/install = $(Package/odhcpd/install)

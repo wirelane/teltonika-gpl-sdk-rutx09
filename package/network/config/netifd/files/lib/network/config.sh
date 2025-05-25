@@ -157,6 +157,7 @@ check_dsa_switch() {
 
 		if json_select lan; then
 			json_get_values ports ports
+			json_get_var lan_dev device
 			json_select ..
 		fi
 
@@ -175,6 +176,17 @@ check_dsa_switch() {
 			set network._$device.ifname="$device"
 			set network._"$device"_mtu="device"
 			set network._"$device"_mtu.name="$device"
+		EOF
+	}
+
+	[ -n "$lan_dev" ] && {
+		uci -q batch <<-EOF
+			set network._$lan_dev="port"
+			set network._$lan_dev.enabled="1"
+			set network._$lan_dev.autoneg="on"
+			set network._$lan_dev.ifname="$lan_dev"
+			set network._"$lan_dev"_mtu="device"
+			set network._"$lan_dev"_mtu.name="$lan_dev"
 		EOF
 	}
 

@@ -11,7 +11,7 @@ of this hook(whenever that comes to be) should look a bit nicer.
 
 --- a/net/netfilter/xt_FLOWOFFLOAD.c
 +++ b/net/netfilter/xt_FLOWOFFLOAD.c
-@@ -708,6 +708,156 @@ static struct xt_target offload_tg_reg _
+@@ -712,6 +712,156 @@ static struct xt_target offload_tg_reg _
  	.me		= THIS_MODULE,
  };
  
@@ -168,7 +168,7 @@ of this hook(whenever that comes to be) should look a bit nicer.
  static int flow_offload_netdev_event(struct notifier_block *this,
  				     unsigned long event, void *ptr)
  {
-@@ -807,8 +957,14 @@ static int __init xt_flowoffload_tg_init
+@@ -811,8 +961,14 @@ static int __init xt_flowoffload_tg_init
  	if (ret)
  		goto cleanup2;
  
@@ -183,7 +183,7 @@ of this hook(whenever that comes to be) should look a bit nicer.
  cleanup2:
  	nf_flow_table_free(&flowtable[1].ft);
  cleanup:
-@@ -819,6 +975,7 @@ cleanup:
+@@ -823,6 +979,7 @@ cleanup:
  static void __exit xt_flowoffload_tg_exit(void)
  {
  	xt_unregister_target(&offload_tg_reg);

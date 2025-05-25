@@ -63,6 +63,11 @@ define Package/libcap-bin/config
     help
       Set the capsh shell.
     default "/bin/sh"
+  config PACKAGE_libcap-bin-install-capsh
+    bool "Install capsh"
+    help
+      Set to install the `capsh` binary as part of the `libcap-bin` package.
+    default n
   endif
 endef
 
@@ -111,10 +116,12 @@ endef
 
 define Package/libcap-bin/install
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(CP) $(PKG_INSTALL_DIR)/sbin/capsh     $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/sbin/getcap    $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/sbin/getpcaps  $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/sbin/setcap    $(1)/usr/sbin/
+	$(if $(CONFIG_PACKAGE_libcap-bin-install-capsh), \
+		$(CP) $(PKG_INSTALL_DIR)/sbin/capsh $(1)/usr/sbin/ \
+	)
 endef
 
 $(eval $(call BuildPackage,libcap))

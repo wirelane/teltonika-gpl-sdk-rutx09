@@ -5,7 +5,7 @@
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
 	. /lib/functions/network.sh
-	. ../netifd-proto.sh
+	. /lib/netifd/netifd-proto.sh
 	init_proto "$@"
 }
 
@@ -290,19 +290,47 @@ proto_pptp_init_config() {
 	proto_config_add_string "interface"
 	proto_config_add_boolean "client_to_client"
 	proto_config_add_boolean "defaultroute"
+	proto_config_add_boolean "disabled"
+	proto_config_add_string "mppe"
+	proto_config_add_array "mppe_encryption"
 	available=1
 	no_device=1
 	lasterror=1
 }
 
+append_pptp_options() {
+	local opt="$1"
+	local options="$2"
+	[ -n "$opt" ] && echo "$opt" | sed -e 's/^[ \t]*//' >> "$options"
+}
+
 proto_pptp_setup() {
 	local config="$1"
-	local iface="$2"
+	local ifname="pptp-$config"
+	mkdir -p /var/etc/pptp
+	local options="/var/etc/pptp/options.${ifname}"
+	: > "$options"
 
-	local ip serv_addr server interface s mwan_enabled status num gw metric device proto defaultroute
-	local mwan_enable=0
+	local ip serv_addr server interface s mwan_enabled status num gw metric device proto defaultroute encryptions opts mppe
+	local mwan_enabled=0
 	local i=1
-	json_get_vars server defaultroute
+	json_get_vars server defaultroute mppe
+	json_get_values opts mppe_encryption
+	if [ "$mppe" != "none" ]; then
+		encryptions="no40,no56,no128"
+		for opt in $opts; do
+			encryptions=$(echo "$encryptions" | sed -e "s/,*no$opt//g" -e 's/^,//')
+		done
+		[ "$mppe" = "stateful" ] && mppe=""
+		echo "mppe required${encryptions:+,$encryptions}${mppe:+,$mppe}" >>"$options"
+	else
+		echo "nomppe" >> "$options"
+	fi
+
+	config_load network
+	config_list_foreach "$config" "pptp_options" append_pptp_options "$options"
+	[ -e "$options" ] && options="file $options" || options=
+
 	[ -n "$server" ] && {
 		status="$(ubus call mwan3 status | jsonfilter -e '@.interfaces.*.status' 2>/dev/null)"
 		for s in $status; do
@@ -346,7 +374,7 @@ proto_pptp_setup() {
 	ppp_generic_setup "$config" \
 		plugin pptp.so \
 		pptp_server $server \
-		file /etc/ppp/options.pptp
+		$options
 }
 
 proto_pptp_teardown() {
@@ -466,5 +494,7 @@ proto_sstp_teardown() {
 	[ -f /usr/lib/pppd/*/pppoe.so ] && add_protocol pppoe
 	[ -f /usr/lib/pppd/*/pppoatm.so ] && add_protocol pppoa
 	[ -f /usr/lib/pppd/*/pptp.so ] && add_protocol pptp
-	[ -f /usr/lib/sstp-pppd-plugin.so ] && add_protocol sstp
+	if [ -f /usr/lib/sstp-pppd-plugin.so ] || [ -f /usr/local/usr/lib/sstp-pppd-plugin.so ]; then
+		add_protocol sstp
+	fi
 }

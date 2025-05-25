@@ -7,8 +7,14 @@
                 "location"
             ]
         },
+        "gsm": {
+            "methods": [
+                "info"
+            ]
+        },
         "gsm.modem*": {
             "methods": [
+                "info",
                 "get_network_info",
                 "get_net_reg_stat_all",
                 "get_signal_query",

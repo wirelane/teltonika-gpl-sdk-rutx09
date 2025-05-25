@@ -20,7 +20,7 @@ define Package/$(PKG_NAME)/install
 		$(call SelectPinoutIcon,$(1),io_16pin_rs.svg) \
 	elif [ $(TLT_PLATFORM_RUTM) ]; then \
 		$(call SelectPinoutIcon,$(1),io_16pin_rs_rutm.svg) \
-	elif [ $(TLT_PLATFORM_RUT9) ] || [ $(TLT_PLATFORM_RUT9M) ]; then \
+	elif [ $(TLT_PLATFORM_RUT9) ] || [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
 		$(call SelectPinoutIcon,$(1),io_10pin.svg) \
 	fi;
 endef

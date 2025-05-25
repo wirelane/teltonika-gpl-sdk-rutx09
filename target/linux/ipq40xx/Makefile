@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 ARCH:=arm
 BOARD:=ipq40xx
 BOARDNAME:=Qualcomm Atheros IPQ40XX
-FEATURES:=squashfs fpu nand smp hnat
+FEATURES:=squashfs fpu nand smp hnat reset_button
 CPU_TYPE:=cortex-a7
 CPU_SUBTYPE:=neon-vfpv4
 SUBTARGETS:=generic

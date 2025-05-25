@@ -2,7 +2,7 @@
 
 IMG_NAME_PREFIX=git.teltonika.lt:4567/docker/buildsys/
 IMG_NAME=${IMG_NAME:-${IMG_NAME_PREFIX}tools}
-IMG_TAG=${IMG_TAG:-1.17}
+IMG_TAG=${IMG_TAG:-1.26}
 
 # Color codes
 RED='\033[0;31m'
@@ -179,6 +179,7 @@ run_main() {
 			--volume "$HOSTS:$HOSTS:ro" \
 			--env EXEC_REAL_BUILD=1 \
 			--env INSIDE_DOCKER=1 \
+			--env DOCKERBUILD=1 \
 			--ulimit "nofile=1024:1048576" \
 			"$IMG_NAME:$IMG_TAG" \
 			sleep 86400 >/dev/null
@@ -190,8 +191,8 @@ run_main() {
 
 run_tbot() {
 	fws_dir=$(find "bin/targets/x86" -type d -name "tltFws")
-	f_gz=$(find "$fws_dir" -name "X86*_combined-efi.img*" -printf '%T+ %p\n' | sort | tail -n1 | awk '{print $2}')
-	[[ -z $f_gz ]] && {
+	f_iso=$(find "$fws_dir" -name "X86*_LIVE.iso" -printf '%T+ %p\n' | sort | tail -n1 | awk '{print $2}')
+	[[ -z $f_iso ]] && {
 		err "No firmware image found in $fws_dir"
 		exit 1
 	}
@@ -199,8 +200,14 @@ run_tbot() {
 	case "$@" in
 	*--debug*) opts="--publish 42069:42069" ;;
 	esac
-	[[ -t 0 ]] && opts="-it $opts"
+	[[ -t 0 ]] && opts="$opts -it"
+	if [[ -e /dev/kvm ]]; then
+		opts="$opts --device /dev/kvm"
+	else
+		err "KVM not available - performance will be significantly degraded."
+	fi
 
+	#shellcheck disable=SC2068,SC2086
 	$DOCKER_CMD run --rm $opts --cap-add=NET_ADMIN \
 		--device /dev/net/tun:/dev/net/tun \
 		--volume "$WORKDIR":/x86_64:rw -w /x86_64 \

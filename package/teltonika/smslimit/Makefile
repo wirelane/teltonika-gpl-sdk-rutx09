@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=smslimit
 
-PKG_SOURCE_VERSION:=7.12
+PKG_SOURCE_VERSION:=7.14
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -20,6 +20,7 @@ define Package/rpcd-mod-smslimit
   CATEGORY:=Libraries
   TITLE:=SMS Limit rpcd module
   DEPENDS:=+rpcd +lsqlite3 +libubus +libgsm
+  USERID:=sms_limit=539:sms_limit=539
 endef
 
 define Package/rpcd-mod-smslimit/description
@@ -34,10 +35,11 @@ endef
 
 
 define Package/rpcd-mod-smslimit/install
-	$(INSTALL_DIR) $(1)/usr/lib/rpcd  $(1)/etc/uci-defaults/etc
+	$(INSTALL_DIR) $(1)/usr/lib/rpcd  $(1)/etc/uci-defaults/etc $(1)/usr/share/acl.d/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smslimit.so $(1)/usr/lib/rpcd/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libsms_limit.so $(1)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/99_sms_limit $(1)/etc/uci-defaults/etc/99_sms_limit
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/sms_limit.json $(1)/usr/share/acl.d/sms_limit.json
 endef
 
 $(eval $(call BuildPackage,rpcd-mod-smslimit))

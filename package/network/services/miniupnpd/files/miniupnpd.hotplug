@@ -9,7 +9,7 @@
 
 [ "$ACTION" != "ifup" ] && /etc/init.d/miniupnpd running && exit 0
 
-tmpconf="/var/etc/miniupnpd.conf"
+tmpconf="/var/run/miniupnpd/miniupnpd.conf"
 external_iface=$(uci -q get upnpd.config.external_iface)
 external_iface6=$(uci -q get upnpd.config.external_iface6)
 external_zone=$(uci -q get upnpd.config.external_zone)

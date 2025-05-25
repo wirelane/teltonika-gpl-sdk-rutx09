@@ -76,7 +76,7 @@ JFFS2OPTS += $(MKFS_DEVTABLE_OPT)
 
 SQUASHFS_BLOCKSIZE := $(CONFIG_TARGET_SQUASHFS_BLOCK_SIZE)k
 SQUASHFSOPT := -b $(SQUASHFS_BLOCKSIZE)
-SQUASHFSOPT += -p '/dev d 755 0 0' -p '/dev/console c 600 0 0 5 1'
+SQUASHFSOPT += -xattrs -p '/dev d 755 0 0' -p '/dev/console c 600 0 0 5 1'
 SQUASHFSCOMP := gzip
 LZMA_XZ_OPTIONS := -Xpreset 9 -Xe -Xlc 0 -Xlp 2 -Xpb 2
 ifeq ($(CONFIG_SQUASHFS_XZ),y)
@@ -240,7 +240,7 @@ $(eval $(foreach S,$(NAND_BLOCKSIZE),$(call Image/mkfs/jffs2-nand/template,$(S))
 
 define Image/mkfs/squashfs-common
 	$(STAGING_DIR_HOST)/bin/mksquashfs4 $(call mkfs_target_dir,$(1)) $@ \
-		-nopad -noappend -root-owned \
+		-nopad -noappend $$([ "$$in_fakeroot" = "y" ] || echo -root-owned) \
 		-comp $(SQUASHFSCOMP) $(SQUASHFSOPT) \
 		-processors 1
 endef
@@ -253,6 +253,22 @@ define Image/mkfs/squashfs
 	     "$(call mkfs_target_dir,$(1))/etc/selinux/\$${SELINUXTYPE}/contexts/files/file_contexts " \
 	     "$(call mkfs_target_dir,$(1))" >> $@.fakeroot-script
 	echo "$(Image/mkfs/squashfs-common)" >> $@.fakeroot-script
+	chmod +x $@.fakeroot-script
+	$(FAKEROOT) "$@.fakeroot-script"
+endef
+else ifeq ($(CONFIG_ENCHANCED_SECURITY_SUPPORT),y)
+define Image/mkfs/squashfs
+	echo 'IPKG_INSTROOT="$(call mkfs_target_dir,$(1))"' > $@.fakeroot-script
+	echo 'root="$$IPKG_INSTROOT"' >> $@.fakeroot-script
+	echo 'in_fakeroot=y' >> $@.fakeroot-script
+	echo '. $(call mkfs_target_dir,$(1))/lib/functions.sh' >> $@.fakeroot-script
+	echo "for file in $(call mkfs_target_dir,$(1))/usr/lib/opkg/info/*.control ; do" >> $@.fakeroot-script
+	echo '	file="$${file##*/}"' >> $@.fakeroot-script
+	echo '	file="$${file%.control}"' >> $@.fakeroot-script
+	echo '	set_suid "$$file"' >> $@.fakeroot-script
+	echo '	set_capabilities "$$file"' >> $@.fakeroot-script
+	echo "done" >> $@.fakeroot-script
+	in_fakeroot=y ; echo "$(Image/mkfs/squashfs-common)" >> $@.fakeroot-script
 	chmod +x $@.fakeroot-script
 	$(FAKEROOT) "$@.fakeroot-script"
 endef
@@ -318,11 +334,33 @@ define Image/gzip-ext4-padded-squashfs
 endef
 
 ifdef CONFIG_TARGET_ROOTFS_TARGZ
-  define Image/Build/targz
-	$(TAR) -cp --numeric-owner --owner=0 --group=0 --mode=a-s --sort=name \
+  define Image/Build/targz-common
+	$(TAR) -cp --numeric-owner  --sort=name \
+		$$$$([ "$$$$in_fakeroot" = "y" ] && echo '--xattrs') \
+		$$$$([ "$$$$in_fakeroot" != "y" ] && echo '--owner=0 --group=0') \
 		$(if $(SOURCE_DATE_EPOCH),--mtime="@$(SOURCE_DATE_EPOCH)") \
 		-C $(TARGET_DIR)/ . | gzip -9n > $(BIN_DIR)/$(IMG_PREFIX)$(if $(PROFILE_SANITIZED),-$(PROFILE_SANITIZED))-rootfs.tar.gz
   endef
+ifeq ($(CONFIG_ENCHANCED_SECURITY_SUPPORT),y)
+  define Image/Build/targz
+	echo 'IPKG_INSTROOT="$(call mkfs_target_dir,$(1))"' > ./fakeroot-script
+	echo 'root="$$$$IPKG_INSTROOT"' >> ./fakeroot-script
+	echo 'in_fakeroot=y' >> ./fakeroot-script
+	echo '. $(call mkfs_target_dir,$(1))/lib/functions.sh' >> ./fakeroot-script
+	echo "for file in $(call mkfs_target_dir,$(1))/usr/lib/opkg/info/*.control ; do" >> ./fakeroot-script
+	echo '	file="$$$${file##*/}"' >> ./fakeroot-script
+	echo '	file="$$$${file%.control}"' >> ./fakeroot-script
+	echo '	set_file_attributes "$$$$file"' >> ./fakeroot-script
+	echo "done" >> ./fakeroot-script
+	in_fakeroot=y; echo "$(Image/Build/targz-common)" >> ./fakeroot-script
+	chmod +x ./fakeroot-script
+	$(FAKEROOT) "./fakeroot-script"
+  endef
+else
+  define Image/Build/targz
+	$(call Image/Build/targz-common)
+  endef
+endif
 endif
 
 ifdef CONFIG_TARGET_ROOTFS_CPIOGZ
@@ -376,11 +414,12 @@ DEVICE_HARDWARE_VARS = \
   HARDWARE/LAN/Speed \
   HARDWARE/LAN/Standard \
   HARDWARE/Fibre/Port \
-  HARDWARE/PoE_In/PoE_ports \
-  HARDWARE/PoE_In/PoE_standards \
-  HARDWARE/PoE_Out/PoE_ports \
-  HARDWARE/PoE_Out/PoE_standards \
-  HARDWARE/PoE_Out/PoE_Max_Power_per_Port_(at_PSE) \
+  HARDWARE/PoE** \
+  HARDWARE/PoE/PoE_In/PoE_ports \
+  HARDWARE/PoE/PoE_In/PoE_standards \
+  HARDWARE/PoE/PoE_Out/PoE_ports \
+  HARDWARE/PoE/PoE_Out/PoE_standards \
+  HARDWARE/PoE/PoE_Out/PoE_Max_Power_per_Port_(at_PSE) \
   HARDWARE/Power/Connector \
   HARDWARE/Power/Input_voltage_range \
   HARDWARE/Power/PoE_Standards \
@@ -739,10 +778,10 @@ define Device/Build/image
     $$(ROOTFS/$(1)/$(3)): $(if $(TARGET_PER_DEVICE_ROOTFS),target-dir-$$(ROOTFS_ID/$(3)))
   endif
   $(KDIR)/tmp/$(call IMAGE_NAME,$(1),$(2)): $$(KDIR_KERNEL_IMAGE) $$(ROOTFS/$(1)/$(3))
-	echo "EXECUTING $(IMAGE/$(2)) for $(IMAGE_NAME) and adding $$^ "
+	echo "EXECUTING $$(IMAGE/$(2)) for $(IMAGE_NAME) and adding $$^ "
 	@rm -f $$@
 	[ -f $$(word 1,$$^) -a -f $$(word 2,$$^) ]
-	$$(call concat_cmd,$(if $(IMAGE/$(2)/$(1)),$(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
+	$$(call concat_cmd,$$(if $(IMAGE/$(2)/$(1)),$(IMAGE/$(2)/$(1)),$(IMAGE/$(2))))
 
   .IGNORE: $(BIN_DIR)/$(call IMAGE_NAME,$(1),$(2))
 
@@ -843,6 +882,7 @@ Target-Profile-Features: $(DEVICE_FEATURES)
 Target-Profile-InitialSupportVersion: $(DEVICE_INITIAL_FIRMWARE_SUPPORT)
 Target-Profile-DefaultLogPartition: $(DEVICE_MTD_LOG_PARTNAME)
 Target-Profile-ModemVendor: $(DEVICE_MODEM_VENDORS)
+Target-Profile-ModemList: $(DEVICE_MODEM_LIST)
 Target-Profile-MultiProfileName: $(DEVICE_MULTI_PROFILE_NAME)
 Target-Profile-hasImageMetadata: $(if $(foreach image,$(IMAGES),$(findstring append-metadata,$(IMAGE/$(image)))),1,0)
 Target-Profile-GPLPrefix: $(GPL_PREFIX)

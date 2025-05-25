@@ -4,7 +4,7 @@
 START=99
 STOP=01
 USE_PROCD=1
-PROG="/usr/sbin/vrrpd"
+PROG="/usr/local/usr/sbin/vrrpd"
 ENABLED="0"
 
 append_list_item() {
@@ -49,22 +49,25 @@ start_instance() {
 
 	section_enabled "$section" || return 1
 
-	[ -e "/tmp/vrrp_${section}.status" ] && return 1
+	[ -e "/var/run/vrrpd/vrrp_${section}.status" ] && return 1
 
 	config_get iface "$section" 'interface' ''
 	[ -n "$iface" ] || return 1
 	config_get virtual_mac "$section" 'virtual_mac' 0
 	network_flush_cache
 	network_get_device dev "$iface"
+
 	if [ -n "$dev" ] ; then
 		procd_open_instance "$1"
 
 		procd_set_param command $PROG -i $dev
+		procd_set_param user vrrpd
 		append_arg "$section" 'virtual_id' '-v' '1'
 		append_arg "$section" 'delay' '-d'
 		append_arg "$section" 'priority' '-p'
 		[ "$virtual_mac" -eq 1 ] && procd_append_param command -n
 		procd_append_param command "-y" "$section"
+		procd_set_param term_timeout 10
 
 		config_list_foreach "$section" 'virtual_ip' append_value
 
@@ -84,11 +87,7 @@ start_service() {
 	. /lib/functions/network.sh
 	config_load 'vrrpd'
 
-	if [ -z "$1" ]; then
-		config_foreach start_instance 'vrrpd'
-	else
-		start_instance "$1"                                     
-	fi
+	config_foreach start_instance 'vrrpd'
 }
 
 stop_start() {
@@ -105,11 +104,7 @@ stop_service() {
 	. /lib/functions/network.sh
 	config_load 'vrrpd'
 
-	if [ -z "$1" ]; then
-		config_foreach stop_instance 'vrrpd'
-	else
-		stop_instance "$1"
-	fi
+	config_foreach stop_instance 'vrrpd'
 }
 
 

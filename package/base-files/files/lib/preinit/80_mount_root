@@ -4,16 +4,16 @@
 . /lib/functions.sh
 
 missing_lines() {
-	local file1 file2 line
+	local file1 file2 out user data
 	file1="$1"
 	file2="$2"
-	oIFS="$IFS"
-	IFS=":"
-	while read line; do
-		set -- $line
-		grep -q "^$1:" "$file2" || echo "$line"
-	done <"$file1"
-	IFS="$oIFS"
+	out="$3"
+
+	cp "$file1" "$out"
+
+	while IFS=":" read user data; do
+		grep -q "^$user:" "$file1" || echo "$user:$data" >> "$out"
+	done <"$file2"
 }
 
 merge_file() {
@@ -58,36 +58,121 @@ merge_file() {
 	sed -i '/^:::/d' "$output_file"
 }
 
+check_modbus_register_file() {
+	local tar_file="$1"
+	local temp_dir="$2"
+	local exclude_file="$3"
+	local cfg="etc/config/modbus_server"
+	local regfile=""
+
+	tar -C /tmp -xzf "$tar_file" "$cfg" 2>/dev/null
+	[ ! -f "/tmp/$cfg" ] && return
+
+	regfile="$(uci -q -c "$(dirname /tmp/"$cfg")" get modbus_server.modbus.regfile)"
+
+	[ -z "$regfile" ] && return
+
+	case "$regfile" in
+		/mnt/* | /usr/local/share/modbus/* | /tmp/* | /var/*) return ;;
+	esac
+
+	NEW_REGFILE="/usr/local/share/modbus$regfile"
+	echo "NEW_REGFILE: $NEW_REGFILE"
+	echo "$regfile" >> "$exclude_file"
+	tar -xzf "${tar_file}" -C "${temp_dir}" "${regfile:1}"
+	mkdir -p "$(dirname "$NEW_REGFILE")"
+	cp -a "$temp_dir/$regfile" "$NEW_REGFILE"
+	rm -f "/tmp/$cfg"
+}
+
+update_modbus_register_file_config() {
+	[ -z "$NEW_REGFILE" ] && return
+	uci -q set "modbus_server.modbus.regfile=${NEW_REGFILE}"
+	uci -q commit modbus_server
+}
+
+handle_extraction() {
+	local TAR_FILE="$1"
+	local EXCLUDE_FILE="/tmp/exclusions"
+	local REMAP_FILE="/lib/upgrade/remap.conf"
+	local TEMP_DIR="/tmp/kstemp"
+
+	cat > "${EXCLUDE_FILE}" << EOF
+etc/rc.d/*
+etc/profile
+EOF
+
+	mkdir -p "${TEMP_DIR}"
+	check_modbus_register_file "$TAR_FILE" "$TEMP_DIR" "$EXCLUDE_FILE"
+
+	if [ -f "${REMAP_FILE}" ]; then
+		while IFS=: read -r src_path dst_path; do
+			[ -z "$src_path" ] || [ "${src_path#\#}" != "$src_path" ] && continue
+
+			echo "$src_path" >> "${EXCLUDE_FILE}"
+			echo " added to exclusions: $src_path -> $dst_path"
+
+			target_dir=$(dirname "$dst_path")
+			mkdir -p "$target_dir"
+
+			if ! touch "$target_dir/.write_test" 2>/dev/null; then
+				echo "WARNING: $target_dir is not writable, skipping remap of $src_path"
+				continue
+			fi
+
+			rm -f "$target_dir/.write_test"
+			rm -rf "${TEMP_DIR}"/*
+
+			tar -xzf "${TAR_FILE}" -C "${TEMP_DIR}" "$src_path"
+
+			if [ -d "$dst_path" ]; then
+				if [ -d "$TEMP_DIR/$src_path" ]; then
+					cp -a "$TEMP_DIR/$src_path"/* "$dst_path/"
+				else
+					cp -a "$TEMP_DIR/$src_path" "$dst_path/"
+				fi
+			else
+				mkdir -p "$(dirname "$dst_path")"
+				cp -a "$TEMP_DIR/$src_path" "$dst_path"
+			fi
+		done < "${REMAP_FILE}"
+	fi
+
+	tar -C / -xzf "${TAR_FILE}" -X "${EXCLUDE_FILE}"
+	rm -f "${TAR_FILE}" "${EXCLUDE_FILE}"
+	update_modbus_register_file_config
+}
+
 do_mount_root() {
 	mount_root
 	boot_run_hook preinit_mount_root
-	if [ -f /user_defaults.tgz ]; then
+	if [ -f /overlay/user_defaults.tgz ]; then
 		echo "- restoring user config -"
-		tar -C / -xzf /user_defaults.tgz
+		tar -C / -xzf /overlay/user_defaults.tgz
 		mkdir -p /etc/default-config
-		mv /user_defaults.tgz /etc/default-config/config.tar.gz
+		mv /overlay/user_defaults.tgz /etc/default-config/config.tar.gz
 		# Prevent configuration corruption on a power loss
 		sync
 		sme.sh --preboot || echo "- sme.sh failed with code $? -"
 
-	elif [ -f /sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tgz ]; then
+	elif [ -f /overlay/sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tgz ]; then
 		echo "- config restore -"
-		[ -f /sysupgrade.tgz ] && mv /sysupgrade.tgz /tmp/
+		[ -f /overlay/sysupgrade.tgz ] && mv /overlay/sysupgrade.tgz /tmp/
 		cp /etc/passwd /etc/group /etc/shadow /tmp
-		echo 'etc/rc.d/*' >/tmp/exclusions
-		echo 'etc/profile' >>/tmp/exclusions
-		tar -C / -xzf /tmp/sysupgrade.tgz -X '/tmp/exclusions'
-		rm -f /tmp/sysupgrade.tgz /tmp/exclusions
-		missing_lines /tmp/passwd /etc/passwd >>/etc/passwd
+		handle_extraction /tmp/sysupgrade.tgz
+		missing_lines /tmp/passwd /etc/passwd /tmp/passwd_merged
 		merge_file /tmp/group /etc/group /tmp/group_merged
-		missing_lines /tmp/shadow /etc/shadow >>/etc/shadow
+		missing_lines /etc/shadow /tmp/shadow /tmp/shadow_merged
+		cp /tmp/passwd_merged /etc/passwd
 		cp /tmp/group_merged /etc/group
-		rm /tmp/passwd /tmp/group /tmp/shadow /tmp/group_merged
+		cp /tmp/shadow_merged /etc/shadow
+		rm /tmp/passwd /tmp/group /tmp/shadow /tmp/*_merged
 		# Indicate that firmware was uploaded with keep-settings
 		touch /tmp/.ksrestored
 		# Prevent configuration corruption on a power loss
 		sync_permissions_and_ownerships
 		fix_permissions 660 "/etc/config/network" "network:network"
+		fix_permissions 660 "/etc/config/wireless" "network:network"
 		sync
 		sme.sh --preboot || echo "- sme.sh failed with code $? -"
 	fi

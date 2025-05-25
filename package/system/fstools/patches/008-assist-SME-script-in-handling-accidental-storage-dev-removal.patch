@@ -14,7 +14,7 @@
  
  	mp = find_mount_point(pr->dev);
  	if (mp) {
-@@ -1624,6 +1627,46 @@ static int mount_extroot(char *cfg)
+@@ -1612,6 +1615,46 @@ static int mount_extroot(char *cfg)
  			err = check_extroot(path);
  			if (err)
  				umount(path);

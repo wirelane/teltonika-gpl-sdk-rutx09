@@ -1,17 +1,56 @@
 [
   {
+    "category": "Services",
+    "name": "Traffic logging",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "GreenGrass",
+    "depends": [
+      {
+        "type": "family",
+        "name": "RUTX"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Post/Get - Mobile",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Post/Get - I/O",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
     "category": "System",
-    "name": "Modem",
+    "name": "Time Zone Database",
     "depends": []
   },
   {
     "category": "Services",
-    "name": "OpenConnect",
+    "name": "Messages",
     "depends": [
       {
         "type": "hw",
-        "name": "flash16mb",
-        "value": false
+        "name": "mobile"
       }
     ]
   },
@@ -27,23 +66,33 @@
   },
   {
     "category": "Services",
-    "name": "Events Reporting",
+    "name": "MQTT Broker Bridge",
+    "depends": []
+  },
+  {
+    "category": "Network",
+    "name": "Network usage",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      },
+      {
+        "type": "hw",
+        "name": "flash16mb",
+        "value": false
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "PPTP",
     "depends": [
       {
         "type": "family",
         "name": "Router"
       }
     ]
-  },
-  {
-    "category": "Services",
-    "name": "NHRP",
-    "depends": []
-  },
-  {
-    "category": "System",
-    "name": "Date & Time",
-    "depends": []
   },
   {
     "category": "Network",
@@ -153,6 +202,11 @@
   {
     "category": "System",
     "name": "Password Policy",
+    "depends": []
+  },
+  {
+    "category": "System",
+    "name": "Profiles",
     "depends": []
   },
   {
@@ -931,6 +985,14 @@
       {
         "type": "family",
         "name": "Router"
+      },
+      {
+        "type": "device",
+        "name": "TAP100"
+      },
+      {
+        "type": "device",
+        "name": "TAP200"
       }
     ]
   },
@@ -1241,5 +1303,10 @@
         "name": "Router"
       }
     ]
+  },
+  {
+    "category": "System",
+    "name": "Custom Scripts",
+    "depends": []
   }
 ]

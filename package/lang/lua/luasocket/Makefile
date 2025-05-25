@@ -9,7 +9,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luasocket
 PKG_SOURCE_DATE:=2019-04-21
-PKG_RELEASE:=1
+PKG_RELEASE:=2
+PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=733af884f1aa18ff469bf3c4d18810e815853211
@@ -52,6 +53,12 @@ define Build/Configure
 endef
 
 define Build/Compile
+	$(if $(CONFIG_VUCI_MINIFY_LUA), \
+		$(FIND) $(PKG_BUILD_DIR)/src -type f -name '*.lua' | while read src; do \
+			if LUA_PATH="$(STAGING_DIR_HOSTPKG)/lib/lua/5.1/?.lua" luasrcdiet --noopt-binequiv --noopt-emptylines -o "$$$$src.o" "$$$$src"; \
+			then mv "$$$$src.o" "$$$$src"; fi; \
+		done; \
+	)
 	$(MAKE) -C $(PKG_BUILD_DIR)/ \
 		LIBDIR="$(TARGET_LDFLAGS)" \
 		CC="$(TARGET_CC) $(TARGET_CFLAGS) $(TARGET_CPPFLAGS) $(FPIC)" \

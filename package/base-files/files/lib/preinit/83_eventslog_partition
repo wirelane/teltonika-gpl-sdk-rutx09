@@ -6,11 +6,12 @@ LOG_PART="event"
 prepare_evtlog() {
 	echo "- preparing events-log partition -"
 
-	[ ! -e /log ] && mkdir /log
-
 	# prepare jffs2 event-log partition
 	local mtd="$(grep -i -m 1 "$LOG_PART" /proc/mtd | cut -c 4- | cut -d ':' -f1)"
-	[ -z "$mtd" ] && return 0
+	[ -z "$mtd" ] && {
+		mkdir -p /overlay/log
+		return 0
+	}
 
 	# Unlock event-log partition
 	mtd unlock "/dev/mtd$mtd"

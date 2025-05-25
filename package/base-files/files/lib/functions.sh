@@ -2,6 +2,14 @@
 # Copyright (C) 2006 Fokus Fraunhofer <carsten.tittel@fokus.fraunhofer.de>
 # Copyright (C) 2010 Vertical Communications
 
+# color codes
+CLR_RESET='\033[0m'
+
+CLR_RED='\033[1;31m'
+CLR_GREEN='\033[1;32m'
+CLR_YELLOW='\033[1;33m'
+CLR_BLUE='\033[1;34m'
+CLR_CYAN='\033[1;36m'
 
 debug () {
 	${DEBUG:-:} "$@"
@@ -184,7 +192,7 @@ config_list_foreach() {
 }
 
 default_prerm() {
-	local root="${IPKG_INSTROOT}"
+	local root="${IPKG_INSTROOT:-$(awk '/^dest root / { if ($3 != "/") print $3 }' /etc/opkg.conf)}"
 	local pkgname="$(basename ${1%.*})"
 	local ret=0
 
@@ -194,8 +202,8 @@ default_prerm() {
 	fi
 
 	local shell="$(command -v bash)"
-	for i in $(grep -s "^/etc/init.d/" "$root/usr/lib/opkg/info/${pkgname}.list"); do
-		if [ -n "$root" ]; then
+	for i in $(grep -s "^$root/etc/init.d/" "$root/usr/lib/opkg/info/${pkgname}.list"); do
+		if [ -n "$IPKG_INSTROOT" ]; then
 			${shell:-/bin/sh} "$root/etc/rc.common" "$root$i" disable
 		else
 			if [ "$PKG_UPGRADE" != "1" ]; then
@@ -301,7 +309,22 @@ set_capabilities() {
 	[ -n "$bin" ] || [ -n "$caps" ]  return
 	[ -e "$root/$bin" ] || return
 
-	/usr/sbin/setcap "$caps" "$root/$bin"
+	if [ "$in_fakeroot" = "y" ] ; then
+		# if file attrs on untracked files change in fakeroot it is no longer owned by root
+		local suid="$(sed -ne 's/^SetUID: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
+		if [ -n "$suid" ] ; then
+			local suid_bin oIFS="$IFS"
+			IFS=":"
+			set -- $suid; suid_bin="$1"
+			IFS="$oIFS"
+			[ "$suid_bin" = "$bin" ] || chown 0:0 "$root/$bin"
+		else
+			chown 0:0 "$root/$bin"
+		fi
+		/usr/sbin/setcap "$caps" "$root/$bin" || exit 1
+	else
+		/usr/sbin/setcap "$caps" "$root/$bin"
+	fi
 }
 
 set_suid() {
@@ -319,14 +342,22 @@ set_suid() {
 	[ -n "$bin" ] || [ -n "$suid" ]  return
 	[ -e "$root/$bin" ] || return
 
-	chown "$suid:$suid" "$root/$bin"
-	chmod +s "$root/$bin"
+	# needs to work in buildroot where the users do not exist.
+	local owner="$(awk -F: -v user_name="$suid" '$1 == user_name { print $3":"$4 }' ${IPKG_INSTROOT}/etc/passwd)"
+
+	if [ "$in_fakeroot" = "y" ] ; then
+		chown "$owner" "$root/$bin" || exit 1
+		chmod +s "$root/$bin" || exit 1
+	else
+		chown "$owner" "$root/$bin"
+		chmod +s "$root/$bin"
+	fi
 }
 
 default_postinst() {
-	local root="${IPKG_INSTROOT}"
+	local root="${IPKG_INSTROOT:-$(awk '/^dest root / { if ($3 != "/") print $3 }' /etc/opkg.conf)}"
 	local pkgname="$(basename ${1%.*})"
-	local filelist="/usr/lib/opkg/info/${pkgname}.list"
+	local filelist="$root/usr/lib/opkg/info/${pkgname}.list"
 	local ret=0
 
 	add_group_and_user "${pkgname}"
@@ -344,29 +375,33 @@ default_postinst() {
 		rm -fR $root/rootfs-overlay/
 	fi
 
-	if [ -z "$root" ]; then
-		if grep -m1 -q -s "^/etc/modules.d/" "$filelist"; then
+	if [ -z "$IPKG_INSTROOT" ]; then
+		if grep -m1 -q -s "^$root/etc/modules.d/" "$filelist"; then
 			kmodloader
 		fi
 
-		if grep -m1 -q -s "^/usr/share/acl.d" "$filelist"; then
+		if grep -m1 -q -s "^$root/usr/share/acl.d" "$filelist"; then
 			kill -1 $(pgrep ubusd)
 		fi
 
-		if grep -m1 -q -s "^/etc/sysctl.d/" "$filelist"; then
+		if grep -m1 -q -s "^$root/etc/sysctl.d/" "$filelist"; then
 			/etc/init.d/sysctl restart
 		fi
 
-		if grep -m1 -q -s "^/etc/uci-defaults/" "$filelist"; then
+		if grep -m1 -q -s "^$root/etc/uci-defaults/" "$filelist"; then
 			uci_apply_defaults
+		fi
+
+		if grep -m1 -q -s "^$root/etc/permtab.d/" "$filelist"; then
+			/sbin/perm -a
 		fi
 
 		rm -fr /tmp/luci-indexcache
 	fi
 
 	local shell="$(command -v bash)"
-	for i in $(grep -s "^/etc/init.d/" "$root$filelist"); do
-		if [ -n "$root" ]; then
+	for i in $(grep -s "^$root/etc/init.d/" "$filelist"); do
+		if [ -n "$IPKG_INSTROOT" ]; then
 			${shell:-/bin/sh} "$root/etc/rc.common" "$root$i" enable
 		else
 			if [ "$PKG_UPGRADE" != "1" ]; then
@@ -378,8 +413,11 @@ default_postinst() {
 
 	#Install config files to all profiles
 	[ -f /usr/sbin/profile.sh ]  && {
-		/usr/sbin/profile.sh -i "$root$filelist"
+		/usr/sbin/profile.sh -i "$filelist"
 	}
+
+	# restore /etc/config permissions
+	[ -n "$IPKG_INSTROOT" ] || /sbin/perm /etc/config
 
 	return $ret
 }
@@ -487,6 +525,9 @@ user_add() {
 	echo "${name}:x:${uid}:${gid}:${desc}:${home}:${shell}" >> ${IPKG_INSTROOT}/etc/passwd
 	echo "${name}:x:0:0:99999:7:::" >> ${IPKG_INSTROOT}/etc/shadow
 	[ -n "$IPKG_INSTROOT" ] || lock -u /var/lock/passwd
+	[ -e "${IPKG_INSTROOT}${home}" ] || {
+		mkdir -p -m 0775 "${IPKG_INSTROOT}${home}" && chown "$uid:$gid" "${IPKG_INSTROOT}${home}"
+	}
 }
 
 user_exists() {
@@ -590,8 +631,10 @@ sync_permissions_and_ownerships() {
 
 		permissions=$(ls -l "$src_file" | awk '{k=0;for(i=0;i<=8;i++)k+=((substr($1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf("%0o ",k)}')
 		chmod $permissions "$dest_file"
-		chown "$(ls -n "$src_file" | awk '{print $3 ":" $4}')" "$dest_file"
+		# Ownership is not saved in /rom, always owned by root
 	done
+
+	/sbin/perm -a
 }
 
 fix_permissions()

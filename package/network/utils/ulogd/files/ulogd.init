@@ -4,10 +4,16 @@
 START=20
 
 USE_PROCD=1
-CONF_FILE=/var/run/ulogd.conf
+HOME_DIR=/var/run/ulogd
+CONF_FILE=${HOME_DIR}/ulogd.conf
 PLUGIN_DIR=/usr/lib/ulogd/
-UNDO_FILE=/var/run/ulogd_firewall.sh
-RANDOM_ID=YqIsVsyLyk
+UNDO_FILE=${HOME_DIR}/ulogd_firewall.sh
+CRONTABS_FILE=/etc/crontabs/ulogd
+PROG=/usr/sbin/ulogd
+
+if [ ! -d "$PLUGIN_DIR" ]; then
+	PLUGIN_DIR=/usr/local$PLUGIN_DIR
+fi
 
 ipt() {
 	local opt=$1; shift
@@ -61,18 +67,16 @@ set_firewall() {
 }
 
 set_ftp() {
-	local enabled
+	local fixed minutes hours weekday intervar enabled
+	local sid="$1"
+	local ftp_upload_script="/sbin/ftp_upload.sh"
+
+	if [ ! -x "$ftp_upload_script" ]; then
+		ftp_upload_script="/usr/local$ftp_upload_script"
+	fi
 
 	config_get enabled ftp enabled 1
 	[ $enabled -ne 1 ] && return 1
-
-	rm_corn_job
-	set_interval ftp
-}
-
-set_interval() {
-	local fixed minutes hours weekday intervar
-	local sid="$1"
 
 	config_get fixed "$sid" fixed 0
 	config_get minutes "$sid" minutes 0
@@ -93,13 +97,9 @@ set_interval() {
 		hours=$hours
 	fi
 
-	echo "${minutes:-0} ${hours:-0} * * ${weekday:-*} sh /sbin/ftp_upload.sh #${RANDOM_ID}" \
-		>> /etc/crontabs/root
+	echo "${minutes:-0} ${hours:-0} * * ${weekday:-*} sh "$ftp_upload_script"" \
+		>> "$CRONTABS_FILE"
 	/etc/init.d/cron reload
-}
-
-rm_corn_job() {
-	sed -i "/$RANDOM_ID/d" /etc/crontabs/root
 }
 
 set_conf_sec() {
@@ -116,6 +116,7 @@ set_conf_str() {
 
 rm_config() {
 	rm -f $CONF_FILE
+	rm -f "$CRONTABS_FILE"
 }
 
 config_cb() {
@@ -192,11 +193,16 @@ start_service() {
 	rm_config
 	config_load ulogd
 	set_firewall
-	set_ftp
+	set_ftp ftp
+
+	if [ ! -x "$PROG" ]; then
+		PROG="/usr/local$PROG"
+	fi
 
 	procd_open_instance
-	procd_set_param command /usr/sbin/ulogd
+	procd_set_param command "$PROG"
 	procd_append_param command --configfile "$CONF_FILE"
+	procd_set_param user ulogd
 	procd_set_param stdout 1
 	procd_set_param stderr 1
 	procd_close_instance
@@ -210,6 +216,5 @@ reload_service() {
 
 stop_service() {
 	rm_config
-	rm_corn_job
 	undo_firewall
 }

@@ -1,6 +1,6 @@
 --- a/drivers/gpio/gpiolib-of.c
 +++ b/drivers/gpio/gpiolib-of.c
-@@ -1070,6 +1070,9 @@ static int of_gpio_export_probe(struct p
+@@ -1071,6 +1071,9 @@ static int of_gpio_export_probe(struct p
  		int max_gpio = 1;
  		int i;
  
@@ -110,8 +110,7 @@
 +}
 +
 +bool __of_mnf_hwver_is_compatible(const struct device_node *device) {
-+	int cur_hwver = 0;
-+	unsigned int arr_hwver[2];
++	int cur_hwver = 0, i, len;
 +	const __be32 *val;
 +	const struct property *prop;
 +
@@ -134,23 +133,24 @@
 +		return false;
 +	}
 +
-+	if (prop->length < 2) {
-+		pr_err("%s:%d %s->%s has to have 2 values\n", __func__, __LINE__, device->full_name, prop->name);
++	len = prop->length / sizeof(__be32);
++
++	if (len < 2) {
++		pr_err("%s:%d %s->%s has to have at least 2 values\n", __func__, __LINE__, device->full_name, prop->name);
 +		return false;
 +	}
 +
 +	val = prop->value;
-+	arr_hwver[0] = be32_to_cpup(val);   // Lower hwver
-+	arr_hwver[1] = be32_to_cpup(val+1); // Upper hwver
 +
-+	if (arr_hwver[0] <= cur_hwver && cur_hwver <= arr_hwver[1]) {
-+		pr_debug("%s:%d Compatible %s->%s %d <= %d <= %d\n", __func__, __LINE__,
-+				device->full_name, prop->name, arr_hwver[0], cur_hwver, arr_hwver[1]);
-+		return true;
++	for (i = 0; i < len; i += 2) {
++		if (be32_to_cpup(val + i) <= cur_hwver && cur_hwver <= be32_to_cpup(val + i + 1)) {
++			pr_debug("%s:%d Compatible %s->%s %d <= %d <= %d\n", __func__, __LINE__,
++					device->full_name, prop->name, be32_to_cpup(val + i), cur_hwver, be32_to_cpup(val + i + 1));
++			return true;
++		}
 +	}
 +
-+	pr_debug("%s:%d Incompatible %s->%s %d <= %d <= %d\n", __func__, __LINE__,
-+			device->full_name, prop->name, arr_hwver[0], cur_hwver, arr_hwver[1]);
++	pr_debug("%s:%d Incompatible hwver for %s->%s\n", __func__, __LINE__, device->full_name, prop->name);
 +
 +	return false;
 +}
@@ -221,3 +221,55 @@
  #define of_match_ptr(_ptr)	(_ptr)
  
  /*
+--- a/drivers/leds/leds-gpio.c
++++ b/drivers/leds/leds-gpio.c
+@@ -125,6 +125,34 @@ struct gpio_leds_priv {
+ 	struct gpio_led_data leds[];
+ };
+ 
++static int led_name_available(struct gpio_leds_priv *priv, struct fwnode_handle *fwnode)
++{
++
++	const char *label;
++	int ret, i;
++
++	if (!fwnode)
++		return -EINVAL;
++
++	if (fwnode_property_present(fwnode, "label")) {
++		ret = fwnode_property_read_string(fwnode, "label", &label);
++		if (ret) {
++			pr_err("Error parsing 'label' property (%d)\n", ret);
++			return ret;
++		}
++	}
++
++	for (i = 0; i < priv->num_leds; i++) {
++		if (priv->leds[i].cdev.dev && priv->leds[i].cdev.dev->kobj.name
++				&& !strcmp(priv->leds[i].cdev.dev->kobj.name, label)) {
++			pr_debug("%s:%d label %s is in use\n", __func__, __LINE__, label);
++			return 1;
++		}
++	}
++
++	return 0;
++}
++
+ static struct gpio_leds_priv *gpio_leds_create(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -144,6 +172,14 @@ static struct gpio_leds_priv *gpio_leds_
+ 		struct gpio_led_data *led_dat = &priv->leds[priv->num_leds];
+ 		struct gpio_led led = {};
+ 		const char *state = NULL;
++		struct device_node *node;
++
++		node = to_of_node(child);
++		if (!of_device_is_mnf_compatible(node))
++			continue;
++
++		if (led_name_available(priv, child))
++			continue;
+ 
+ 		/*
+ 		 * Acquire gpiod from DT with uninitialized label, which

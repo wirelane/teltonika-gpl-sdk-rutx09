@@ -24,6 +24,10 @@ export TLT_PLATFORM_NAME:=$(subst 6X,60,$(subst 0X,00,$(TLT_DEV_NAME)))
 
 TARGET_CPPFLAGS += -D$(TLT_PLATFORM_NAME)_PLATFORM
 
+# Export the modified variable
+TARGET_CPPFLAGS += -DDEVICE_MODEM_VENDORS="$(subst $(space),$(comma),$(CONFIG_DEVICE_MODEM_VENDORS))"
+TARGET_CPPFLAGS += -DDEVICE_MODEM_LIST="$(subst $(space),$(comma),$(CONFIG_DEVICE_MODEM_LIST))"
+
 $(eval $(call export_feature,CONFIG_GATEWAY_DEVICE))
 $(eval $(call export_feature,CONFIG_HAS_SINGLE_ETH_PORT,SINGLE_ETH_PORT))
 $(eval $(call export_feature,CONFIG_MOBILE_SUPPORT))
@@ -53,3 +57,4 @@ $(eval $(call export_feature,CONFIG_BYPASS_MOBILE_COUNTERS))
 $(eval $(call export_feature,CONFIG_CUSTOM_DATA_LIMIT))
 $(eval $(call export_feature,CONFIG_USES_SOFT_PORT_MIRROR))
 $(eval $(call export_feature,CONFIG_NO_WIRED_WAN))
+$(eval $(call export_feature,CONFIG_PROD_IMAGE))

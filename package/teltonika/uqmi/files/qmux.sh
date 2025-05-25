@@ -3,7 +3,7 @@
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
 	. /lib/functions/mobile.sh
-	. ../netifd-proto.sh
+	. /lib/netifd/netifd-proto.sh
 	init_proto "$@"
 }
 
@@ -226,6 +226,9 @@ required driver attribute: /sys/class/net/$ifname/qmi/raw_ip"
 --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
 	fi
 
+	#if this flag exist CM should only establish that type connection
+	pdp_error_cause_flg=$(cat /tmp/mobile/$interface 2>/dev/null)
+
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
 	[ -z "$retry_before_reinit" ] && retry_before_reinit="0"
 
@@ -235,7 +238,7 @@ required driver attribute: /sys/class/net/$ifname/qmi/raw_ip"
 		wait_for_serving_system || return 1
 	fi
 
-	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv4v6" ] && {
+	[[ "$pdptype" = "ip" ]] || [[ "$pdptype" = "ipv4v6" && "$pdp_error_cause_flg" != "IPv6" ]] && {
 
 		cid_4=$(call_uqmi_command "uqmi -d $device $options --get-client-id wds")
 		[ $? -ne 0 ] && return 1
@@ -253,7 +256,11 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		#~ Set ipv4 on CID
 		call_uqmi_command "uqmi -d $device $options --set-ip-family ipv4 \
 --set-client-id wds,$cid_4"
-		[ $? -ne 0 ] && return 1
+		# on this case we need to relase client id
+		if [ $? -ne 0 ]; then
+			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
+			return 1
+		fi
 
 		#~ Start PS call
 		if [ "$red_cap" = "true" ]; then
@@ -262,6 +269,13 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		else
 			pdh_4=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 \
 --start-network --profile $pdp --ip-family ipv4" "true")
+		fi
+		#~ Check if we haven't received a specific error that
+		# requires waiting for an action from mobifd, and don't need to retry
+		# on this case we need to relase client id
+		if [ $? -eq 2 ]; then
+			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
+			return 1
 		fi
 
 		echo "pdh4: $pdh_4"
@@ -285,7 +299,7 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		fi
 	}
 
-	[ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] && {
+	[[ "$pdptype" = "ipv6" ]] || [[ "$pdptype" = "ipv4v6" && "$pdp_error_cause_flg" != "IPv4" ]] && {
 
 		cid_6=$(call_uqmi_command "uqmi -d $device $options --get-client-id wds")
 		[ $? -ne 0 ] && return 1
@@ -302,11 +316,22 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		#~ Set ipv6 on CID
 		ret=$(call_uqmi_command "uqmi -d $device $options --set-ip-family ipv6 \
 --set-client-id wds,$cid_6")
-		[ $? -ne 0 ] && return 1
+		# on this case we need to relase client id
+		if [ $? -ne 0 ]; then
+			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
+			return 1
+		fi
 
 		#~ Start PS call
 		pdh_6=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_6 \
 --start-network --ip-family ipv6 --profile $pdp" "true")
+		#~ Check if we haven't received a specific error that
+		# requires waiting for an action from mobifd, and don't need to retry
+		# on this case we need to relase client id
+		if [ $? -eq 2 ]; then
+			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
+			return 1
+		fi
 
 		echo "pdh6: $pdh_6"
 
@@ -333,6 +358,7 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 	verify_data_connection "$pdptype" || return 1
 
 	echo "Setting up $qmimux"
+	rm -f /tmp/mobile/$interface
 
 	set_mtu "$qmimux"
 

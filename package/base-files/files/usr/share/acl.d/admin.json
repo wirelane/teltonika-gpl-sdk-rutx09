@@ -1,0 +1,14 @@
+{
+        "user": "admin",
+        "access": {
+                "gsm.*": {
+                        "methods": [ "*" ]
+                },
+                "mctl": {
+                        "methods": [ "*" ]
+                },
+                "service": {
+			"methods": [ "set", "list", "delete", "signal" ]
+		}
+        }
+}

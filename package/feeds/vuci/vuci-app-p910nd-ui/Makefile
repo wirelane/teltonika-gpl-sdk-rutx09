@@ -5,6 +5,7 @@ APP_TITLE:=VuCI UI Support for Printer server application
 APP_TLT_NAME:=Printer Server
 APP_ROUTER:=$(TLT_PLATFORM_NAME)
 APP_APP_NAME:=p910nd
+APP_HW_INFO:=usb
 
 include ../app.mk
 

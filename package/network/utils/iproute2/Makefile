@@ -43,6 +43,7 @@ $(call Package/iproute2/Default)
   PROVIDES:=ip
   ALTERNATIVES:=200:/sbin/ip:/usr/libexec/ip-tiny
   DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  CAP:=/usr/libexec/ip-tiny:cap_net_admin+ei
 endef
 
 define Package/ip-full
@@ -52,6 +53,7 @@ $(call Package/iproute2/Default)
   PROVIDES:=ip
   ALTERNATIVES:=300:/sbin/ip:/usr/libexec/ip-full
   DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  CAP:=/usr/libexec/ip-full:cap_net_admin+ei
 endef
 
 define Package/tc-tiny
@@ -60,8 +62,10 @@ $(call Package/iproute2/Default)
   VARIANT:=tctiny
   DEFAULT_VARIANT:=1
   PROVIDES:=tc
-  ALTERNATIVES:=200:/sbin/tc:/usr/libexec/tc-tiny
+  $(eval CUSTOM_PATH:=$(if $(findstring m,$(CONFIG_PACKAGE_tc-tiny)),/usr/local,))
+  ALTERNATIVES:=200:/sbin/tc:$(CUSTOM_PATH)/usr/libexec/tc-tiny
   DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  CAP:=/usr/libexec/tc-tiny:cap_net_admin+ei
 endef
 
 define Package/tc-bpf
@@ -78,8 +82,10 @@ $(call Package/iproute2/Default)
   TITLE:=Traffic control utility (full)
   VARIANT:=tcfull
   PROVIDES:=tc
-  ALTERNATIVES:=400:/sbin/tc:/usr/libexec/tc-full
+  $(eval CUSTOM_PATH:=$(if $(findstring m,$(CONFIG_PACKAGE_tc-full)),/usr/local,))
+  ALTERNATIVES:=400:/sbin/tc:$(CUSTOM_PATH)/usr/libexec/tc-full
   DEPENDS:=+kmod-sched-core +(PACKAGE_devlink||PACKAGE_rdma):libmnl +libxtables +tc-mod-iptables
+  CAP:=/usr/libexec/tc-full:cap_net_admin+ei
 endef
 
 define Package/tc-mod-iptables
@@ -188,8 +194,8 @@ MAKE_FLAGS += \
 	HAVE_MNL=$(HAVE_MNL) \
 	HAVE_CAP=$(HAVE_CAP) \
 	HAVE_TIRPC=n \
-	IPT_LIB_DIR=/usr/lib/iptables \
-	XT_LIB_DIR=/usr/lib/iptables \
+	IPT_LIB_DIR=/usr/local/usr/lib/iptables \
+	XT_LIB_DIR=/usr/local/usr/lib/iptables \
 	TC_CONFIG_XT=$(TC_CONFIG_XT) \
 	TC_CONFIG_XT_OLD=$(TC_CONFIG_XT_OLD) \
 	TC_CONFIG_XT_OLD_H=$(TC_CONFIG_XT_OLD_H) \

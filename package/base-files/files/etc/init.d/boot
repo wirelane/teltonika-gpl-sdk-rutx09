@@ -19,8 +19,6 @@ boot() {
 	mkdir -p /var/state
 	mkdir -p /var/tmp
 	mkdir -p /tmp/.uci
-	chmod 0777 /tmp/.uci
-	chown 100:100 /tmp/.uci
 	touch /var/log/wtmp
 	touch /var/log/lastlog
 	mkdir -p /tmp/resolv.conf.d
@@ -29,12 +27,16 @@ boot() {
 	grep -q debugfs /proc/filesystems && /bin/mount -o noatime -t debugfs debugfs /sys/kernel/debug
 	grep -q bpf /proc/filesystems && /bin/mount -o nosuid,nodev,noexec,noatime,mode=0700 -t bpf bpffs /sys/fs/bpf
 	grep -q pstore /proc/filesystems && /bin/mount -o noatime -t pstore pstore /sys/fs/pstore
+	grep -q efivarfs /proc/filesystems && /bin/mount -o noatime -t efivarfs efivarfs /sys/firmware/efi/efivars
 
 	# mount all entries in fstab
 	/bin/mount -a &
 
 	type boot_target_pre_board_detect &> /dev/null && \
 		boot_target_pre_board_detect
+
+	# before config generation run permtab to setup permissions
+	/sbin/perm -a
 
 	/bin/config_generate
 
@@ -52,10 +54,6 @@ boot() {
 	/sbin/reload_config
 	# leave finished boot script indication
 	touch /var/run/boot-done
-
-	chown 100:100 /etc/config
-	chmod 777 /etc/config
-
-	chmod 0775 /log
-	chown root:log /log
+	# run permtab to setup permissions
+	/sbin/perm -a
 }

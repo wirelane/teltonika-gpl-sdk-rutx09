@@ -35,12 +35,13 @@ char *lmnfinfo_get_sim_pin(uint8_t sim_id);
 char *lmnfinfo_get_sim_cfg(uint8_t sim_id);
 char *lmnfinfo_get_profile(uint8_t profile_id);
 char *lmnfinfo_get_profiles(void);
+char *lmnfinfo_get_boot_profile_by_id(uint8_t sim_id);
 char *lmnfinfo_get_boot_profile(void);
 uint32_t lmnfinfo_get_sim_pin_count();
 
 // returns true on success
 bool lmnfinfo_set_sim_pin(uint8_t sim_id, const char *pin);
-bool lmnfinfo_set_boot_profile(const char *eid);
+bool lmnfinfo_set_boot_profile(uint8_t sim_id, const char *iccid);
 #ifdef __cplusplus
 }
 #endif

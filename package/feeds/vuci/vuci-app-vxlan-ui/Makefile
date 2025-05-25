@@ -8,6 +8,7 @@ ifeq (m, $(CONFIG_PACKAGE_vuci-app-vxlan-ui))
 	APP_APP_NAME:=vxlan
 	APP_TLT_NAME:=VXLAN
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
+	PKG_NETWORK_RESTART:=1
 endif
 
 define Package/vuci-app-vxlan-ui/description

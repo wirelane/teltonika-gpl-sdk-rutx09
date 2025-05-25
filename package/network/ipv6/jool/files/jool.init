@@ -5,7 +5,7 @@ STOP=01
 
 USE_PROCD=1
 
-PROG_NAT64="/usr/bin/jool"
+PROG_NAT64="/usr/local/usr/bin/jool"
 CONFIG_FILE="/var/etc/jool/jool-nat64.json"
 BASE_DIR="/var/etc/jool"
 

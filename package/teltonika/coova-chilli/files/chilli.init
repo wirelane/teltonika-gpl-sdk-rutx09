@@ -4,6 +4,7 @@ START=99
 STOP=89
 USE_PROCD=1
 
+WORKING_DIR="/var/run/chilli"
 DB_PATH=/var/hotspot.db
 DB_PATH_FLASH=/etc/chilli/hotspot.db
 KMOD_PATH=lib/iptables/libxt_coova.so
@@ -40,10 +41,11 @@ config_cb() {
 			list_cb() {
 				set_chilli_list "$@"
 			}
-			chilli_conf="/var/run/chilli_${chilli_inst}.conf"
+			chilli_conf="${WORKING_DIR}/chilli_${chilli_inst}.conf"
 			if [ -e "$chilli_conf" ]; then
 				rm -f "$chilli_conf"
 			fi
+			touch "$chilli_conf" && chown chilli:chilli "$chilli_conf"
 			eval "start_chilli_$chilli_inst=1"
 		} || {
 			option_cb() {
@@ -181,7 +183,7 @@ set_chilli() {
 
 				[ -n "$sslcert" ] && [ -n "$sslkey" ] && {
 					[ -n "$sslca" ] && {
-						local fullchain="/var/run/chilli_${CONFIG_SECTION}_cert.pem"
+						local fullchain="${WORKING_DIR}/chilli_${CONFIG_SECTION}_cert.pem"
 						cat "$sslcert" "$sslca" > "$fullchain"
 						uci_set uhttpd hotspot cert "$fullchain"
 					} || {
@@ -260,6 +262,11 @@ set_chilli() {
 			set_conf "macdelimiter" "2"
 			;;
 		esac
+		;;
+	dbpath | usersdbpath)
+		touch "$2"
+		chown chilli:chilli "$2"
+		set_conf "$1" "$2"
 		;;
 	_* | uamdomain_* | conup | condown | uamlisten | net | macup | macdown | enabled | conrestart) ;;
 
@@ -457,11 +464,15 @@ add_con_script() {
 	local content
 	config_get content "$cfg" "$type"
 
-	[ -n "$content" ] && content="\\.$(printf '%s\n' "$content" | sed 's/[\/&]/\\&/g')"
+	[ -n "$content" ] && {
+		chown chilli:chilli "$content"
+		content="\\.$(printf '%s\n' "$content" | sed 's/[\/&]/\\&/g')"
+	}
 
-	local file="/var/run/chilli_${type}_${cfg}.sh"
+	local file="${WORKING_DIR}/chilli_${type}_${cfg}.sh"
 	sed "1s/.*/&\n$content/" "/etc/chilli/${type}.sh" > "$file"
 	chmod +x "$file"
+	chown chilli:chilli "$file"
 	set_conf "$type" "$file"
 }
 
@@ -470,13 +481,13 @@ start_chilli() {
 	local start_chilli=$(eval "echo \$start_chilli_$cfg")
 	local chilli_group=$(eval "echo \$chilli_group_$cfg")
 	local trial_group=$(eval "echo \$chilli_trial_group_$cfg")
-	local base="/var/run/chilli_${cfg}"
+	local base="${WORKING_DIR}/chilli_${cfg}"
 	local network=$(eval "echo \$dhcpif_$cfg")
 	local uamdomainfile macaddr wifi_id interface int=0 pid_file
 
 	[ "$start_chilli" = "1" ] || return
 
-	chilli_conf="/var/run/chilli_${cfg}.conf"
+	chilli_conf="${WORKING_DIR}/chilli_${cfg}.conf"
 
 	add_kmod_conf "$cfg"
 
@@ -512,7 +523,9 @@ start_chilli() {
 	[ -z "$ifname" ] && return
 	macaddr=$(cat /sys/class/net/"${ifname}"/address)
 
-	pid_file="/var/run/run_chilli_${cfg}.pid"
+	pid_file="${WORKING_DIR}/run_chilli_${cfg}.pid"
+
+	touch "$pid_file" && chown chilli:chilli "$pid_file"
 
 	procd_open_instance "$cfg"
 	procd_open_trigger
@@ -528,6 +541,7 @@ start_chilli() {
 	procd_set_param respawn
 	procd_set_param stdout 1
 	procd_set_param stderr 1
+	procd_set_param user chilli
 	procd_close_instance
 }
 
@@ -538,8 +552,10 @@ start_service() {
 }
 
 service_stopped() {
-	rm -f /var/run/chilli_*
-	[ -f ${DB_PATH} ] && cp ${DB_PATH} ${DB_PATH_FLASH}
+	[ -f "${DB_PATH}" ] && {
+		cp -a "${DB_PATH}" "${DB_PATH_FLASH}"
+	}
+	rm -f "${WORKING_DIR}/chilli_"*
 }
 
 reload_service() {
@@ -548,6 +564,8 @@ reload_service() {
 }
 
 boot() {
-	[ -f ${DB_PATH_FLASH} ] && cp ${DB_PATH_FLASH} ${DB_PATH}
+	[ -f "${DB_PATH_FLASH}" ] && {
+		cp -a "${DB_PATH_FLASH}" "${DB_PATH}"
+	}
 	start
 }

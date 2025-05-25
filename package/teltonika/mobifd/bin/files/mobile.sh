@@ -143,6 +143,21 @@ gsm_hard_reset() {
 	mctl --reboot -i "$modem_id"
 }
 
+call_mobifd_reject_33_handler() {
+	local modem_id="$1"
+	local interface="$2"
+	local gsm_name modem_num
+
+	gsm_name="$(find_mdm_ubus_obj "$modem_id")"
+	[ -z "$gsm_name" ] && {
+		echo "Error: Unable to determine modem name for ID $modem_id" >&2
+		return 1
+	}
+
+	modem_num="${gsm_name: -1}"
+	ubus call "mobifd.modem$modem_num" reject_cause_33 "{\"interface\":\"$interface\"}"
+}
+
 qmi_error_handle() {
 	local error="$1"
 	local error_cnt_in="$2"
@@ -162,6 +177,20 @@ qmi_error_handle() {
 
 	echo "$error" | grep -qi "error" && {
 		logger -t "mobile.sh" "$error"
+	}
+
+	echo "$error" | grep -qi "call throttled" && {
+		logger -t "mobile.sh" "QMI call error, Connection attempt throttled by network"
+		ifdown "$interface"
+		call_mobifd_reject_33_handler "$modem_id" "$interface"
+		return 2
+	}
+
+	echo "$error" | grep -qi "Service option not subscribed" && {
+		logger -t "mobile.sh" "QMI call error, reason type 3GPP: \"Service option not subscribed\""
+		ifdown "$interface"
+		call_mobifd_reject_33_handler "$modem_id" "$interface"
+		return 2
 	}
 
 	echo "$error" | grep -qi "Client IDs exhausted" && {

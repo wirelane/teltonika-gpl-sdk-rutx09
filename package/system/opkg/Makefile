@@ -107,7 +107,7 @@ define Host/Install
 endef
 
 
-OPKG_TARGET_UPPER:=$(shell echo $(CONFIG_TLT_VERSIONING_PREFIX) | tr '[:lower:]' '[:upper:]')
+OPKG_TARGET_UPPER:=$(shell echo $(CONFIG_TLT_VERSIONING_PREFIX) | tr '[:lower:]' '[:upper:]')$(if $(CONFIG_TEST_IMAGE),-TEST)
 #								grep for '_R_' (release prefix) in FW version
 
 $(eval $(call BuildPackage,opkg))

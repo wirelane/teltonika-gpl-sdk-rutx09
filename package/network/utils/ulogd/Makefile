@@ -41,6 +41,8 @@ define Package/ulogd
   $(call Package/ulogd/Default)
   DEPENDS:=+libmnl +libnfnetlink +libpthread
   TITLE:=Netfilter userspace logging daemon
+  USERID:=ulogd=549:ulogd=549
+  CAP:=/usr/sbin/ulogd:cap_net_admin,cap_sys_nice=ep
   MENU:=1
 endef
 
@@ -135,6 +137,10 @@ define Package/ulogd/install
 	$(INSTALL_BIN) ./files/ulogd.init $(1)/etc/init.d/ulogd
 	$(INSTALL_BIN) ./files/ulogd.conf $(1)/etc/config/ulogd
 	$(INSTALL_BIN) ./files/ftp_upload.sh $(1)/sbin/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.14
+	$(INSTALL_BIN) ./files/99_ulogd.sh $(1)/etc/uci-defaults/7.14/99_ulogd
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/ulogd.permtab $(1)/etc/permtab.d/ulogd
 endef
 
 define BuildPlugin

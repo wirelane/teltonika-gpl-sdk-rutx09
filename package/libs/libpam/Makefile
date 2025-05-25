@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libpam
 PKG_VERSION:=1.6.0
-PKG_RELEASE:=2
+PKG_RELEASE:=5
 
 PKG_SOURCE_VERSION:=1.6.0
 PKG_SOURCE:=Linux-PAM-$(PKG_SOURCE_VERSION).tar.xz
@@ -20,7 +20,7 @@ PKG_HASH:=fff4a34e5bbee77e2e8f1992f27631e2329bcbf8a0563ddeb5c3389b4e3169ad
 PKG_MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=COPYING
-PKG_CPE_ID:=cpe:/a:kernel:linux-pam
+PKG_CPE_ID:=cpe:/a:linux-pam:linux-pam
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
@@ -102,31 +102,45 @@ CONFIGURE_ARGS += \
 	--with-gnu-ld \
 	--without-mailspool \
 	--without-xauth \
-	--enable-vendordir=/tmp
+	--enable-vendordir=/var/run/pamd \
+	--libdir=/lib \
+	$(if $(filter m,$(CONFIG_PACKAGE_libpam)), \
+		--enable-securedir=/usr/local/lib/security \
+		--sbindir=/usr/local/usr/sbin \
+	)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/* $(1)/usr/include
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/* $(1)/usr/lib/
+	$(CP) $(PKG_INSTALL_DIR)/lib/* $(1)/usr/lib/
 endef
 
 define Package/libpam/install
 	$(INSTALL_DIR) $(1)/etc $(1)/etc/pam.d
-	$(INSTALL_DIR) $(1)/usr/lib $(1)/usr/lib/security $(1)/usr/lib/security/pam_filter
+	$(INSTALL_DIR) $(1)/lib $(1)/lib/security $(1)/lib/security/pam_filter
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/etc/* $(1)/etc/
 	$(CP) ./files/* $(1)/etc/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/*.so* $(1)/usr/lib/
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/security/pam_filter/* $(1)/usr/lib/security/pam_filter/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/* $(1)/usr/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/lib/*.so* $(1)/lib/
+	$(if $(filter m,$(CONFIG_PACKAGE_libpam)), \
+		$(CP) $(PKG_INSTALL_DIR)/usr/local/lib/security/pam_filter/* $(1)/lib/security/pam_filter/; \
+		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/local/usr/sbin/* $(1)/usr/sbin/, \
+		$(CP) $(PKG_INSTALL_DIR)/lib/security/pam_filter/* $(1)/lib/security/pam_filter/; \
+		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/* $(1)/usr/sbin/ \
+	)
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/libpam.permtab $(1)/etc/permtab.d/libpam
 endef
 
 define BuildPlugin
   define Package/libpam-mod-$(1)/install
-	$(INSTALL_DIR) $$(1)/usr/lib/security
+	$(INSTALL_DIR) $$(1)/lib/security
 	for m in $(2); do \
-		$(CP) $(PKG_INSTALL_DIR)/usr/lib/security/pam_$$$$$$$${m}.so* $$(1)/usr/lib/security/ ;\
+		$(if $(filter m,$(CONFIG_PACKAGE_libpam)), \
+			$(CP) $(PKG_INSTALL_DIR)/usr/local/lib/security/pam_$$$$$$$${m}.so* $$(1)/lib/security/ ;, \
+			$(CP) $(PKG_INSTALL_DIR)/lib/security/pam_$$$$$$$${m}.so* $$(1)/lib/security/ ; \
+		) \
 	done
   endef
   $$(eval $$(call BuildPackage,libpam-mod-$(1)))

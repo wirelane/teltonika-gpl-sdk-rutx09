@@ -34,7 +34,7 @@ define Package/multiple_ap/install
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/multiple_ap.sh $(1)/usr/sbin/multiple_ap.sh
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/multi_wifi.init $(1)/etc/init.d/multi_wifi
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/multi_wifi.config $(1)/etc/config/multi_wifi
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/multi_wifi.config $(1)/etc/config/multi_wifi
 endef
 
 

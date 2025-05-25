@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=wifi_scanner
-PKG_VERSION:=2025-02-17
-PKG_RELEASE:=1
+PKG_VERSION:=2025-03-31
+PKG_RELEASE:=2
 
-PKG_SOURCE_VERSION:=1.11.1
+PKG_SOURCE_VERSION:=1.12.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -34,12 +34,13 @@ endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/usr/share/acl.d/
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/usr/share/acl.d/ $(1)/etc/permtab.d
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/wifi_scanner.json $(1)/usr/share/acl.d/wifi_scanner.json
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/wifi_scanner.conf $(1)/etc/config/wifi_scanner
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/wifi_scanner.init $(1)/etc/init.d/wifi_scanner
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/wifi_scanner $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/wifi_scanner.permtab $(1)/etc/permtab.d/wifi_scanner
 endef
 
 define Package/$(PKG_NAME)/postinst

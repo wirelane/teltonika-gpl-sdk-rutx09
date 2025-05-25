@@ -1,6 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=open62541
+PKG_VERSION:=1.4.0-rc1
+
 CMAKE_INSTALL:=1
 
 PKG_SOURCE_PROTO:=git
@@ -9,6 +11,8 @@ PKG_SOURCE_VERSION:=v1.4.0-rc1
 
 PKG_LICENSE:=MPL-2.0 CC0-1.0
 PKG_LICENSE_FILES:=LICENSE LICENSE-CC0
+
+PKG_CPE_ID:=cpe:/a:open62541:open62541
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk

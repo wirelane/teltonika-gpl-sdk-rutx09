@@ -36,6 +36,7 @@ usage() {
 	printf "\n\t-o ==> create output file 'its_file'"
 	printf "\n\t-O ==> create config with dt overlay 'name:dtb'"
 	printf "\n\t-s ==> set FDT load address to 'addr' (hex)"
+	printf "\n\t-M ==> set MDTB name to 'name'"
 	printf "\n\t\t(can be specified more than once)\n"
 	exit 1
 }
@@ -48,8 +49,9 @@ HASH=sha1
 LOADABLES=
 DTOVERLAY=
 DTADDR=
+MDTBNAME=conf_mdtb
 
-while getopts ":A:a:c:C:D:d:e:f:i:k:l:n:o:O:v:r:s:H:" OPTION
+while getopts ":A:a:c:C:D:d:e:f:i:k:l:n:o:O:v:r:s:H:M:" OPTION
 do
 	case $OPTION in
 		A ) ARCH=$OPTARG;;
@@ -70,6 +72,7 @@ do
 		s ) FDTADDR=$OPTARG;;
 		H ) HASH=$OPTARG;;
 		v ) VERSION=$OPTARG;;
+		M ) MDTBNAME=$OPTARG;;
 		* ) echo "Invalid option passed to '$0' (options:$*)"
 		usage;;
 	esac
@@ -180,21 +183,28 @@ if [ -n "${DTB}" ]; then
 					};
 				};
 "
-			# extract XYZ from image-qcom-ipq4018-rutx-XYZ.dtb
-			f=${f##*-}
-			f=${f%.*}
-			v=${f#*~}
-			f=${f%%~*}
+			# include loadables only to devices using fitblk for rootfs
+			rootfs=
+			if grep -q "root=/dev/fit0" "$ff"; then
+				rootfs="${LOADABLES:+loadables = ${LOADABLES};}"
+			else
+				# extract XYZ from image-qcom-ipq4018-rutx-XYZ.dtb
+				f=${f##*-}
+				f=${f%.*}
+				v=${f#*~}
+				f=${f%%~*}
 
-			[ -n "$v" ] && [ "$v" != "$f" ] && HWVER="full_hwver = \"${v}\";"
+				[ -n "$v" ] && [ "$v" != "$f" ] && HWVER="full_hwver = \"${v}\";"
+			fi
 
 			CONFIG_NODE="${CONFIG_NODE}
 
-				conf_mdtb${REFERENCE_CHAR}${FDTNUM} {
+				${MDTBNAME}${REFERENCE_CHAR}${FDTNUM} {
 				description = \"${f}\";
 				${HWVER}
 				kernel = \"kernel${REFERENCE_CHAR}1\";
 				fdt = \"fdt${REFERENCE_CHAR}$FDTNUM\";
+				${rootfs}
 			};
 "
 		done

@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-CRONTAB_FILE='/etc/crontabs/root'
+CRONTAB_FILE='/etc/crontabs/preboot'
 IDENTIFYING_STRING='# periodic_reboot'
 
 get_reboot_type() {
@@ -15,7 +15,8 @@ get_reboot_type() {
 
     case $action in
         1)
-            reboot="/sbin/reboot -e"
+
+            reboot="ubus call sys reboot '{\"args\": [\"-e\"]}'"
         ;;
         2)
             config_get modem "$section_id" modem

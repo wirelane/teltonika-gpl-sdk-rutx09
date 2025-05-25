@@ -1,16 +1,16 @@
 #!/bin/ash
 . /usr/share/libubox/jshn.sh
 
-[ -f /usr/share/modem_updater/modem_updater_installer ] && {
-    . /usr/share/modem_updater/modem_updater_installer
+[ -f /usr/local/usr/share/modem_updater/modem_updater_installer ] && {
+    . /usr/local/usr/share/modem_updater/modem_updater_installer
     ONLINE="1"
 }
 
 ### Static defines
-
+LOCAL_USER_PATH="/usr/local/usr/bin"
 HOSTNAME="modemfota.teltonika-networks.com"
 SSH_PASS="u3qQo99duKeaVWr7"
-SSHFS_PATH="/usr/bin/sshfs"
+SSHFS_PATH="$LOCAL_USER_PATH/sshfs"
 DEVICE_PATH="/sys/bus/usb/devices/"
 
 ##############################################################################
@@ -342,6 +342,7 @@ confirm_modem_usb_id() {
 ### SSHFS HELPERS
 
 exec_sshfs() {
+    grep -qxF 'user_allow_other' /etc/fuse.conf || echo 'user_allow_other' >> /etc/fuse.conf 2>/dev/null
     SSHFS_RESULT=$(echo $SSH_PASS | $SSHFS_PATH -p 21 rut@$HOSTNAME:/"$1" "$2" -o password_stdin 2>&1)
     debug "[INFO] $SSHFS_RESULT"
     case "$SSHFS_RESULT" in
@@ -360,10 +361,10 @@ setup_ssh() {
         graceful_exit
     fi
 
-    SSH_PATH="/root/.ssh"
+    SSH_PATH="$HOME/.ssh"
     TMP_SSH_PATH="/tmp/known_hosts"
 
-    chmod 755 $SSHFS_PATH
+    mkdir -p $SSH_PATH 2>/dev/null
 
     key=$(cat $SSH_PATH/known_hosts | grep -c $HOSTNAME) >/dev/null 2>&1
     if [ "$key" = "0" ]; then
@@ -515,22 +516,22 @@ setDevice() {
 setFlasherPath() {
     #setdevice
     if [ "$DEVICE" = "Quectel" ]; then
-        FLASHER_PATH="/usr/bin/$QUECTEL_FLASHER"
+        FLASHER_PATH="$LOCAL_USER_PATH/$QUECTEL_FLASHER"
         FLASHER_FILE="$QUECTEL_FLASHER_PKG"
     elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "QuectelUNISOC" ]; then
-        FLASHER_PATH="/usr/bin/$QUECTEL_ASR_FLASHER"
+        FLASHER_PATH="$LOCAL_USER_PATH/$QUECTEL_ASR_FLASHER"
         FLASHER_FILE="$QUECTEL_ASR_FLASHER_PKG"
     elif [ "$DEVICE" = "Meiglink" ]; then
-        FLASHER_PATH="/usr/bin/$MEIG_FLASHER"
+        FLASHER_PATH="$LOCAL_USER_PATH/$MEIG_FLASHER"
         FLASHER_FILE="$MEIG_FLASHER_PKG"
     elif [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
-        FLASHER_PATH="/usr/bin/$MEIG_ASR_FLASHER"
+        FLASHER_PATH="$LOCAL_USER_PATH/$MEIG_ASR_FLASHER"
         FLASHER_FILE="$MEIG_ASR_FLASHER_PKG"
     elif [ "$DEVICE" = "Telit" ]; then
-        FLASHER_PATH="/usr/bin/$TELIT_FLASHER"
+        FLASHER_PATH="$LOCAL_USER_PATH/$TELIT_FLASHER"
         FLASHER_FILE="$TELIT_FLASHER_PKG"
     elif [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
-        FLASHER_PATH="/usr/bin/$EIGENCOMM_FLASHER"
+        FLASHER_PATH="$LOCAL_USER_PATH/$EIGENCOMM_FLASHER"
         FLASHER_FILE="$EIGENCOMM_FLASHER_PKG"
     fi
 }
@@ -991,7 +992,9 @@ trb_validation() {
 }
 
 trb_prep() {
-    UPDATE_BIN="/modem_update.bin"
+    UPDATE_DIR="/usr/local/modem_updater"
+    UPDATE_BIN="$UPDATE_DIR/modem_update.bin"
+    mkdir -p "$UPDATE_DIR" 2>/dev/null
     echo "[INFO] Downloading firmware"
 
     if [ -f "$UPDATE_BIN" ]; then
@@ -1020,6 +1023,7 @@ trb_flash() {
         ;;
     esac
     rm "$UPDATE_BIN"
+    rm -r "$UPDATE_DIR"
     echo "Rebooting now!"
     reboot
 }

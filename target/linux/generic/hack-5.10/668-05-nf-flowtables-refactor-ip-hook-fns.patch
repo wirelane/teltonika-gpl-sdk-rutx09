@@ -5,7 +5,7 @@ for adding implementation for new flow types.
 
 --- a/net/netfilter/nf_flow_table_ip.c
 +++ b/net/netfilter/nf_flow_table_ip.c
-@@ -375,33 +375,16 @@ unsigned int nf_flow_offload_ip_hook_tai
+@@ -372,33 +372,16 @@ unsigned int nf_flow_offload_ip_hook_tai
  	return ret;
  }
  
@@ -96,7 +96,7 @@ for adding implementation for new flow types.
  EXPORT_SYMBOL_GPL(nf_flow_offload_ip_hook);
  
  static void nf_flow_nat_ipv6_tcp(struct sk_buff *skb, unsigned int thoff,
-@@ -635,33 +662,16 @@ unsigned int nf_flow_offload_ipv6_hook_t
+@@ -632,33 +659,16 @@ unsigned int nf_flow_offload_ipv6_hook_t
  	return ret;
  }
  

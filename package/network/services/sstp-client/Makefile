@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sstp-client
 PKG_VERSION:=1.0.19
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_HASH:=e2652365f69f5037102e78f4e115ff764a390b27bb3fd513a8a50b10a61bb613
 
@@ -32,7 +32,6 @@ define Package/sstp-client
   DEPENDS=+libevent2 +libopenssl +ppp +resolveip
   TITLE:=SSTP-Client is a SSTP client for Linux.
   URL:=http://sstp-client.sourceforge.net/
-  PKG_NETWORK_RESTART:=1
 endef
 
 define Package/sstp-client/description
@@ -56,6 +55,13 @@ define Package/sstp-client/install
 
 	$(INSTALL_DIR) $(1)/etc
 	$(CP) files/etc $(1)
+endef
+
+define Package/sstp-client/postinst
+	#!/bin/sh
+	[ -z "$${IPKG_INSTROOT}" ] || exit 0
+	/etc/init.d/network reload > /dev/null 2>&1
+	exit 0
 endef
 
 define Package/sstp-client/prerm

@@ -114,6 +114,6 @@ Package/rtl8761bu-firmware = $(call Package/firmware-default,RealTek RTL8761BU f
 define Package/rtl8761bu-firmware/install
 	$(INSTALL_DIR) $(1)/lib/firmware/rtl_bt
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rtl_bt/rtl8761bu_fw.bin $(1)/lib/firmware/rtl_bt
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rtl_bt/rtl8761bu_config.bin $(1)/lib/firmware/rtl_bt/rtl8761bu_config
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/rtl_bt/rtl8761bu_config.bin $(1)/lib/firmware/rtl_bt
 endef
 $(eval $(call BuildPackage,rtl8761bu-firmware))

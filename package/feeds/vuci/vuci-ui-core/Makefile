@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2025-04-02-4e95c11b20
+PKG_VERSION:=2025-05-21-aad772a3df
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -89,7 +89,6 @@ define install_closed_gpl
 	$(CP) ../compile-app-gpl.sh "$(GPL_BUILD_DIR)/package/feeds/vuci/"
 	$(CP) ../gpl.vite.config.js "$(GPL_BUILD_DIR)/package/feeds/vuci/"
 	$(CP) ../gpl.package.json "$(GPL_BUILD_DIR)/package/feeds/vuci/"
-	$(CP) "$(PKG_BUILD_DIR)/menu.json" "$(1)/menu.json"
 endef
 
 
@@ -124,6 +123,15 @@ define Package/vuci-ui-core/install
 	if [ ! -z "$$$$(ls ./modem-icons/$(TLT_PLATFORM_NAME)*)" ]; then \
 		$(CP) ./modem-icons/$(TLT_PLATFORM_NAME)* $(1)/www/icons/modem-icons/; \
 	fi
+	$(CP) ../menu_static.sh $(PKG_BUILD_DIR)
+	$(if $(CONFIG_GPL_BUILD), \
+		mkdir -p $(MENU_OUTPUT_DIR) && \
+		$(foreach app_dir,$(VUCI_APPS), \
+			$(eval app_ui_dir=$(notdir $(app_dir))) \
+			$(CP) -fpR ../$(app_ui_dir)/files/usr/share/vuci/menu.d/*.json "$(MENU_OUTPUT_DIR)/" 2>/dev/null || true; \
+		) \
+	)
+	$(PKG_BUILD_DIR)/menu_static.sh $(PKG_BUILD_DIR)/menu.json $(MENU_OUTPUT_DIR)
 	$(CP) $(PKG_BUILD_DIR)/menu.json $(1)/usr/share/vuci/menu.d/
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 

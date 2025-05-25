@@ -30,6 +30,9 @@ define Package/vrrpd
   TITLE:=Virtual Router Redundancy Protocol daemon
   URL:=http://www.sourceforge.net/projects/vrrpd
   DEPENDS:=+liblog +librt +libubus
+  USERID:=vrrpd:vrrpd
+  $(eval CAP_DIR:=$(if $(findstring m,$(CONFIG_PACKAGE_vrrpd)),,/usr/local))
+  CAP:=$(CAP_DIR)/usr/sbin/vrrpd:cap_net_raw,cap_net_admin=ep
 endef
 
 define Package/vrrpd/description
@@ -49,16 +52,21 @@ define Build/Compile
 endef
 
 define Package/vrrpd/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/vrrpd $(1)/usr/sbin/
-	$(INSTALL_BIN) ./files/vrrp_check.sh $(1)/usr/sbin/vrrp_check.sh
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_vrrpd)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/vrrpd $(DEST_DIR)/usr/sbin/
+	$(INSTALL_BIN) ./files/vrrp_check.sh $(DEST_DIR)/usr/sbin/vrrp_check.sh
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/vrrpd.config $(1)/etc/config/vrrpd
+	$(INSTALL_CONF_USR) ./files/vrrpd.config $(1)/etc/config/vrrpd
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/vrrpd.init $(1)/etc/init.d/vrrpd
 	$(INSTALL_BIN) ./files/vrrp_check.init $(1)/etc/init.d/vrrp_check
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.6
 	$(INSTALL_BIN) ./files/uci-defaults/99_virtual_mac_invert $(1)/etc/uci-defaults/7.6/
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) ./files/vrrpd_acl.json $(1)/usr/share/acl.d/vrrpd_acl.json
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/vrrpd.permtab $(1)/etc/permtab.d/vrrpd
 endef
 
 define Package/vrrpd/conffiles

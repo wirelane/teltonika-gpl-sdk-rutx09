@@ -1,12 +1,14 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2010 OpenWrt.org
 
-PROG=minidlna
+PROG=/usr/bin/minidlna
+[ -x "$PROG" ] || PROG="/usr/local$PROG"
 USE_PROCD=1
 START=99
 STOP=99
+WORKDIR=/var/run/minidlna
 
-MINIDLNA_CONFIG_FILE="/var/etc/minidlna.conf"
+MINIDLNA_CONFIG_FILE="$WORKDIR/minidlna.conf"
 
 minidlna_cfg_append() {
 	echo "$1" >> "$MINIDLNA_CONFIG_FILE"
@@ -102,13 +104,13 @@ start_service() {
 	#[ "$enabled" -gt 0 ] || return 1
 
 	minidlna_create_config config || cfg='1'
-	
+
 	config_get db_dir config 'db_dir' '/var/run/minidlna'
 	config_get log_dir config 'log_dir' '/var/log/minidlna'
 	config_get user config 'user' 'root'
 
-	mkdir -m 0755 -p "$db_dir" "$log_dir"
-	chown -R "$user" "$db_dir" "$log_dir"
+	mkdir -m 0755 -p "$db_dir"
+	mkdir -m 0755 -p "$log_dir"
 
 	if [ "$enabled" -gt 0 ] && [ "$cfg" = '0' ]
 	then
@@ -117,6 +119,7 @@ start_service() {
 		procd_append_param command -r -S -f "$MINIDLNA_CONFIG_FILE"
 		procd_set_param file /etc/config/minidlna
 		procd_set_param stdout 1
+		procd_set_param user minidlna
 		procd_set_param stderr 1
 		procd_set_param respawn
 		procd_close_instance
@@ -127,4 +130,3 @@ start_service() {
 service_triggers() {
 	procd_add_reload_trigger "minidlna"
 }
-

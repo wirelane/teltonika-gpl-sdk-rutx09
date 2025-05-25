@@ -14,7 +14,7 @@ fi
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
 	. /lib/functions/network.sh
-	. ../netifd-proto.sh
+	. /lib/netifd/netifd-proto.sh
 	init_proto "$@"
 }
 
@@ -233,7 +233,7 @@ proto_wireguard_setup() {
 						network_get_device tunlink_dev $tunlink
 						[ "$tunlink_dev" = "wwan0" ] && { network_get_device tunlink_dev ${tunlink}_4 || network_get_device tunlink_dev ${tunlink}_6; }
 						tunlink_gw="$(ip route show default dev $tunlink_dev | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
-						if ip route add "$ip" ${tunlink_gw:+via "$tunlink_gw"} dev "$tunlink_dev" metric "1" &>/dev/null; then
+						if ip route add "$ip" dev "$tunlink_dev" metric "1" &>/dev/null; then
 							echo "ip route del "$ip" dev "$tunlink_dev" metric 1" >> "$DEFAULT_STATUS"
 						elif [ "$force_tunlink" = "1" ] && [ -z $(ip route show "$ip") ]; then
 							ip route add blackhole "$ip"
@@ -241,7 +241,7 @@ proto_wireguard_setup() {
 						fi
 						continue
 					fi
-					if ip route add "$ip" ${gw:+via "$gw"} dev "$dev" metric "$metric"; then
+					if ip route add "$ip" dev "$dev" metric "$metric"; then
 						echo "ip route del "$ip" dev "$dev" metric $metric" >> "$DEFAULT_STATUS"
 					fi
 				done

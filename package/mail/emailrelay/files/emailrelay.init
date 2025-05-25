@@ -91,7 +91,12 @@ emailrelay_instance()
 		[ -n "$address_verifier" ] && procd_append_param command --address-verifier "$address_verifier"
 		[ -n "$domain" ] && procd_append_param command --domain "$domain"
 		[ "$anonymous" = 1 ] && procd_append_param command --anonymous
-		[ "$server_tls" = 1 ] && procd_append_param command --server-tls --server-tls-certificate "$server_tls_certificate"
+		[ "$server_tls" = 1 ] && {
+			local moved_cert="/tmp/run/emailrelay/$(basename $server_tls_certificate)"
+			cp "$server_tls_certificate" "$moved_cert"
+			chown emailrelay:emailrelay "$moved_cert"
+			procd_append_param command --server-tls --server-tls-certificate "$moved_cert"
+		}
 		[ "$server_auth" = 1 ] && procd_append_param command --server-auth "$server_auth_path"
 	}
 

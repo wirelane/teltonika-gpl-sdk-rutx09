@@ -42,7 +42,7 @@ while getopts "wsipgebcmvojraCd:nfl" opt; do
 			;;
 		o) TEXT="Request from modbus"
 			;;
-		j) TEXT="Request from iojuggler"
+		j) TEXT="Request from event juggler"
 			;;
 		r) TEXT="Request from gsm due to GPRS Attach Mode change"
 			;;

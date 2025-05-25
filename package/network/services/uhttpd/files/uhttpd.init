@@ -36,24 +36,22 @@ append_bool() {
 }
 
 sign_certificate() {
-    local crt_req="$1"
-    local crt="$2"
+	local days="$1"
+	local crt_req="$2"
+	local crt_final="$3"
+	local crt_ca_cert="$4"
+	local crt_ca_key="$5"
 
-    if [ ! -e "$DEFAULT_UHTTPD_CA_CERT" ]; then
-        $OPENSSL_BIN req -x509 -nodes \
-            -subj "/CN=ca" \
-            -newkey rsa:2048 -keyout "${DEFAULT_UHTTPD_CA_KEY}" -out "${DEFAULT_UHTTPD_CA_CERT}" -days 3650 &>/dev/null
-    fi
 	local macaddr="$(mnf_info -m)"
 	#							replace invalid dashes JSON keys
 	local ip_addr=$(ubus call network.interface.lan status | tr '-' '_' | jsonfilter -e "@.ipv4_address[0].address")
-	if [ -z "$ip_addr" ]; then
-		ip_addr=$(jsonfilter -i /etc/board.json -e "@.network.lan.default_ip")
-	fi
-    local extfile="$(mktemp)"
-    echo -e "extendedKeyUsage=serverAuth\nsubjectAltName=DNS:Teltonika${macaddr},IP:${ip_addr}" > "$extfile"
-    $OPENSSL_BIN x509 -req -in "${crt_req}" -CA "${DEFAULT_UHTTPD_CA_CERT}" -CAkey "${DEFAULT_UHTTPD_CA_KEY}" -out "${crt}" -days 3650 -extfile "$extfile" &>/dev/null
-    rm -f "$extfile" "${crt_req}"
+	[ -z "$ip_addr" ] && ip_addr=$(jsonfilter -i /etc/board.json -e "@.network.lan.default_ip")
+
+	local extfile="$(mktemp)"
+	echo -e "extendedKeyUsage=serverAuth\nsubjectAltName=DNS:Teltonika${macaddr},IP:${ip_addr}" > "$extfile"
+	$OPENSSL_BIN x509 -req -in "$crt_req" -CA "$crt_ca_cert" \
+		-CAkey "$crt_ca_key" -out "$crt_final" -days $days -extfile "$extfile" &>/dev/null
+	rm -f "$extfile" "$crt_req"
 }
 
 generate_keys() {
@@ -62,25 +60,44 @@ generate_keys() {
 	local key="$3"
 	local days bits country state location commonname key_type ec_curve
 
-	config_get days       "$cfg" days
-	config_get bits       "$cfg" bits
-	config_get country    "$cfg" country
-	config_get state      "$cfg" state
-	config_get location   "$cfg" location
-	config_get commonname "$cfg" commonname
-	config_get key_type   "$cfg" key_type
-	config_get ec_curve   "$cfg" ec_curve
+	config_get days       "$cfg" days       "3650"
+	config_get bits       "$cfg" bits       "2048"
+	config_get country    "$cfg" country    "ZZ"
+	config_get state      "$cfg" state      "Somewhere"
+	config_get location   "$cfg" location   "Unknown"
+	config_get commonname "$cfg" commonname "OpenWrt"
+	config_get key_type   "$cfg" key_type   "rsa"
+	config_get ec_curve   "$cfg" ec_curve   "P-256"
 
-	local KEY_OPTS="rsa:${bits:-2048}"
+	local KEY_OPTS="rsa:$bits"
 	local UNIQUEID=$(dd if=/dev/urandom bs=1 count=4 2>/dev/null | hexdump -e '1/1 "%02x"')
-	[ "$key_type" = "ec" ] && KEY_OPTS="ec -pkeyopt ec_paramgen_curve:${ec_curve:-P-256}"
-	[ -x "$OPENSSL_BIN" ] && {
-		$OPENSSL_BIN req -nodes \
-			-subj "/C=${country:-ZZ}/ST=${state:-Somewhere}/L=${location:-Unknown}/O=${commonname:-OpenWrt}$UNIQUEID/CN=${commonname:-OpenWrt}" \
-			-newkey $KEY_OPTS -keyout "${key}" -out "${crt}.req" &>/dev/null
-		sign_certificate "${crt}.req" "${crt}"
-		sync
-	}
+	[ "$key_type" = "ec" ] && KEY_OPTS="ec -pkeyopt ec_paramgen_curve:$ec_curve"
+	[ -x "$OPENSSL_BIN" ] || return
+
+	local crt_ca_cert="$DEFAULT_UHTTPD_CA_CERT"
+	local crt_ca_key="$DEFAULT_UHTTPD_CA_KEY"
+
+	if [ ! -s "$crt_ca_cert" ] || [ ! -s "$crt_ca_key" ]; then
+		crt_ca_cert="$crt_ca_cert.new"
+		crt_ca_key="$crt_ca_key.new"
+
+		$OPENSSL_BIN req -x509 -nodes -subj "/CN=ca" \
+			-newkey $KEY_OPTS -keyout "$crt_ca_key" -out "$crt_ca_cert" -days $days &>/dev/null
+	fi
+
+	local crt_key="$key.new"
+	local crt_final="$crt.new"
+
+	local crt_req="$(mktemp)"
+	$OPENSSL_BIN req -nodes \
+		-subj "/C=${country}/ST=${state}/L=${location}/O=${commonname}$UNIQUEID/CN=${commonname}" \
+		-newkey $KEY_OPTS -keyout "$crt_key" -out "$crt_req" &>/dev/null
+	sign_certificate "$days" "$crt_req" "$crt_final" "$crt_ca_cert" "$crt_ca_key"
+	sync
+	mv -f "$crt_key" "$key"
+	mv -f "$crt_final" "$crt"
+	[ "$crt_ca_cert" = "$DEFAULT_UHTTPD_CA_CERT" ] || mv -f "$crt_ca_cert" "$DEFAULT_UHTTPD_CA_CERT"
+	[ "$crt_ca_key" = "$DEFAULT_UHTTPD_CA_KEY" ] || mv -f "$crt_ca_key" "$DEFAULT_UHTTPD_CA_KEY"
 }
 
 append_lua_prefix() {
@@ -169,23 +186,24 @@ start_instance()
 		config_get cert 	"$cfg" cert "$DEFAULT_UHTTPD_CERT"
 		config_get cert_key "$cfg" key	"$DEFAULT_UHTTPD_KEY"
 
+		local default_cert=0
 		local generate_cert=0
 
-		[ -s "$cert" -a -s "$cert_key" ] || {
+		[ "$cert_key" = "$DEFAULT_UHTTPD_KEY" ] && [ "$cert" = "$DEFAULT_UHTTPD_CERT" ] && default_cert=1
+
+		if [ ! -s "$cert" ] || [ ! -s "$cert_key" ]; then
 			rm -f "$cert" "$cert_key"
 			generate_cert=1
-		}
+		fi
 
-		[ "$cert_key" = "$DEFAULT_UHTTPD_KEY" ] && [ "$cert" = "$DEFAULT_UHTTPD_CERT" ] && {
-			[ -s "$DEFAULT_UHTTPD_CA_CERT" -a -s "$DEFAULT_UHTTPD_CA_KEY" ] || {
-				rm -f "$DEFAULT_UHTTPD_KEY" "$DEFAULT_UHTTPD_CERT" "$DEFAULT_UHTTPD_CA_CERT" "$DEFAULT_UHTTPD_CA_KEY"
-				generate_cert=1
-			}
-		}
+		if [ "$default_cert" -eq 1 ] && { [ ! -s "$DEFAULT_UHTTPD_CA_CERT" ] || [ ! -s "$DEFAULT_UHTTPD_CA_KEY" ]; }; then
+			rm -f "$DEFAULT_UHTTPD_KEY" "$DEFAULT_UHTTPD_CERT" "$DEFAULT_UHTTPD_CA_CERT" "$DEFAULT_UHTTPD_CA_KEY"
+			generate_cert=1
+		fi
 
 		[ "$generate_cert" -eq 1 ] && generate_keys "defaults" "$cert" "$cert_key"
 
-		[ -f "$cert" ] && [ -f "$cert_key" ] && {
+		if [ -s "$cert" ] && [ -s "$cert_key" ]; then
 			procd_append_param command -C "$cert"
 			procd_append_param command -K "$cert_key"
 
@@ -197,9 +215,8 @@ start_instance()
 			done
 
 			procd_set_param file "$cert" "$cert_key"
-		}
-
-		append_bool "$cfg" redirect_https "-q" 0
+			append_bool "$cfg" redirect_https "-q" 0
+		fi
 	}
 
 	procd_close_instance

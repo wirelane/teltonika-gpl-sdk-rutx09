@@ -18,4 +18,7 @@
 	security = user
 	smb passwd file = /etc/samba/smbpasswd
 	use sendfile = yes
-	force user = root
+	force user = samba
+	lock directory = /var/run/samba
+	pid directory = /var/run/samba
+	private dir = /var/run/samba

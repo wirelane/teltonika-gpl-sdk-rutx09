@@ -1,7 +1,5 @@
 #!/bin/sh
 
-. /lib/functions/network.sh
-
  CONFIG_GET="uci get vrrpd.${1}_ping"
 
  HOST=`$CONFIG_GET.host`
@@ -16,20 +14,21 @@
 
 
  
- STATUS_FILE="/tmp/vrrp_${1}.status"
+ STATUS_FILE="/var/run/vrrpd/vrrp_${1}.status"
 
 debug() {
 	[ $DEBUG -eq 1 ] && logger "$1"
 }
 
-network_get_device DEVICE $INTERFACE
+DEVICE="$(ubus call network.interface.${INTERFACE} status | jsonfilter -e '@.l3_device')" 2>/dev/null
+VRRPD_PID_FILE="/var/run/vrrpd/vrrpd_${DEVICE}.pid"
 
 [ "$ENABLE" = 1 ] || exit 0
 
 echo "ping failed" > "$STATUS_FILE"
 
 while :; do
-	RUNNING="$(ps |grep "vrrpd -i ${DEVICE}" |grep -v grep)"
+	[ -n "$DEVICE" ] && RUNNING="$(cat $VRRPD_PID_FILE)"
 
 	ping -c ${COUNT:-1} -W ${WAIT:-5} -s ${P_SIZE:-56} ${HOST:-8.8.8.8} > /dev/null 2>&1
 
@@ -41,7 +40,7 @@ while :; do
 			if [ -z "$RUNNING" ]
 			then
 				debug "Starting vrrpd"
-				/etc/init.d/vrrpd start "$1"
+				ubus call rc init '{"name": "vrrpd","action": "start"}'
 			else
 				debug "vrrpd is running"
 			fi
@@ -57,7 +56,7 @@ while :; do
 					echo "ping failed" > "$STATUS_FILE"
 
 					logger "Killing vrrpd instance ($1) after $failure unsuccessful retries"
-					/etc/init.d/vrrpd stop "$1"
+					kill "$RUNNING"
 
 					ubus call log write_ext "{
 						\"event\": \"Stopping vrrp. We are now a backup router\",

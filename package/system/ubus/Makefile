@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubus
-PKG_RELEASE:=6
+PKG_RELEASE:=5
 
 PKG_SOURCE_DATE:=2021-06-30
 PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
@@ -37,7 +37,7 @@ define Package/ubusd
   CATEGORY:=Base system
   TITLE:=OpenWrt RPC daemon
   DEPENDS:=+libubox +libblobmsg-json
-  USERID:=ubus=81:ubus=81
+  USERID:=ubus:ubus
 endef
 
 define Package/libubus

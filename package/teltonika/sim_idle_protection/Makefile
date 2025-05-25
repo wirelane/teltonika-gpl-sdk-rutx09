@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sim_idle_protection
 
-PKG_SOURCE_VERSION:=3.0
+PKG_SOURCE_VERSION:=7.14
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -27,22 +27,27 @@ endef
 
 define Package/sim_idle_protection/postinst
 	#!/bin/sh
-	. /usr/share/libubox/jshn.sh
 	. /lib/functions.sh
 
-	CFG=/etc/board.json
+	setup_sim_idle_permissions() {
+		chown gsm:gsm /etc/config/sim_idle_protection 2>/dev/null
+		chown gsm:gsm /tmp/.uci/sim_idle_protection 2>/dev/null
+		chmod 660 /etc/config/sim_idle_protection 2>/dev/null
+		chmod 660 /tmp/.uci/sim_idle_protection 2>/dev/null
+		return 0
+	}
 
-	[[ -s $$CFG ]] || /bin/board_detect || return 1
-
-	[[ -s "/etc/config/sim_idle_protection" ]] && return 0
+	[[ -s "/etc/config/sim_idle_protection" ]] && setup_sim_idle_permissions && return 0
 
 	touch /etc/config/sim_idle_protection
 
 	add_sim_idle_protection_config() {
-		local device="$$1"
-		local position="$$2"
+		config_get modem $$1 modem
+		config_get position $$1 position
+		config_get esim_profile $$1 esim_profile
 
-		[[ -z "$$position" ]] && return 0
+		[[ -z "$$modem" ]] && return
+		[[ -z "$$position" ]] && return
 
 		uci_add sim_idle_protection sim_idle_protection
 		uci_set sim_idle_protection $$CONFIG_SECTION enable 0
@@ -54,34 +59,21 @@ define Package/sim_idle_protection/postinst
 		uci_set sim_idle_protection $$CONFIG_SECTION count 2
 		uci_set sim_idle_protection $$CONFIG_SECTION host 8.8.8.8
 		uci_set sim_idle_protection $$CONFIG_SECTION ip_type ipv4
-		uci_set sim_idle_protection $$CONFIG_SECTION modem "$$device"
+		uci_set sim_idle_protection $$CONFIG_SECTION modem "$$modem"
 		uci_set sim_idle_protection $$CONFIG_SECTION position "$$position"
-
+		uci_set sim_idle_protection $$CONFIG_SECTION esim_profile "$$esim_profile"
 		uci_commit sim_idle_protection
 	}
 
-	json_init
-	json_load_file "$${CFG}"
-	json_get_var modems modems
+	config_load simcard
+	config_foreach add_sim_idle_protection_config sim
+	setup_sim_idle_permissions
 
-	sim_count="0"
+	# TODO: #24098
+	chown 100:users /etc/config
+	chmod 777 /etc/config
 
-	if json_is_a modems array; then
-		json_get_keys modems modems
-		json_select modems
-
-		for modem in $$modems; do
-			json_select "$$modem"
-			json_get_vars id simcount builtin
-			while [[ $$sim_count != $$simcount ]]; do
-				add_sim_idle_protection_config "$$id" "$$((sim_count + 1))"
-				sim_count=$$((sim_count + 1))
-			done
-			json_select ..
-		done
-
-		[[ -x "/bin/trigger_vuci_routes_reload" ]] && /bin/trigger_vuci_routes_reload
-	fi
+	[[ -x "/bin/trigger_vuci_routes_reload" ]] && /bin/trigger_vuci_routes_reload
 endef
 
 define Package/$(PKG_NAME)/prerm

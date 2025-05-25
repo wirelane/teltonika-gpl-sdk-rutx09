@@ -2,7 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dlms_client
-PKG_VERSION:=2025-01-20
+PKG_VERSION:=2025-04-14
+PKG_RELEASE:=1
+
 
 PKG_SOURCE_VERSION:=fa855d2e82db1a7d27c419d09ed7a11fe86b86f0
 PKG_SOURCE=GuruxDLMS.c-$(PKG_SOURCE_VERSION).tar.gz
@@ -35,6 +37,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dlms_client.conf $(1)/etc/config/dlms_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dlms_client.init $(1)/etc/init.d/dlms_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dlms_client $(1)/usr/sbin/dlms_client
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dlms_scan $(1)/usr/sbin/dlms_scan
 	$(CP) $(PKG_BUILD_DIR)/dlms_client.so $(1)/usr/lib/rpcd/dlms_client.so
 endef
 
@@ -123,6 +126,11 @@ define Package/$(PKG_NAME)/prerm
 	config_foreach start_dlms_in "input"
 	/etc/init.d/data_sender reload 2> /dev/null || true
 
+endef
+
+define Package/$(PKG_NAME)/postrm
+	#!/bin/sh
+	/etc/init.d/rpcd reload
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

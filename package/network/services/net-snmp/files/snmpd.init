@@ -5,9 +5,13 @@ START=99
 USE_PROCD=1
 PROG="/usr/sbin/snmpd"
 
-CONFIGFILE="/var/run/snmpd.conf"
+CONFIGFILE="/var/run/snmpd/snmpd.conf"
 OUTCONFIG="/usr/lib/snmp/snmpd.conf"
 MODULESPATH="/usr/lib/snmpd-mod"
+
+[ -x "$PROG" ] || PROG="/usr/local$PROG"
+[ -x "$OUTCONFIG" ] || OUTCONFIG="/usr/local$OUTCONFIG"
+[ -x "$MODULESPATH" ] || MODULESPATH="/usr/local$MODULESPATH"
 
 ENABLED=0
 V1=
@@ -337,6 +341,7 @@ start_service() {
 	procd_append_param command --noPersistentSave=1 --noPersistentLoad=1
 	procd_set_param file /etc/config/snmpd
 	procd_set_param respawn
+	procd_set_param user snmpd
 
 	for iface in $(ls /sys/class/net 2>/dev/null); do
 		procd_append_param netdev "$iface"

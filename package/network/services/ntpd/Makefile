@@ -47,7 +47,6 @@ endef
 define Package/ntpd
 $(call Package/ntpd/Default)
   TITLE+= server
-  USERID:=ntp=123:ntp=123
 endef
 
 define Package/ntpd/description
@@ -129,6 +128,8 @@ define Package/ntpd/install
 	$(INSTALL_BIN) ./files/ntpd.hotplug $(1)/etc/hotplug.d/iface/20-ntpd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_BIN) ./files/ntpd.config $(1)/etc/config/ntpd
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/ntpd.permtab $(1)/etc/permtab.d/ntpd
 endef
 
 define Package/ntpdate/install

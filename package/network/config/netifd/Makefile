@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netifd
-PKG_RELEASE:=16
+PKG_RELEASE:=18
 
 PKG_SOURCE_DATE:=2024-01-04
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
@@ -47,6 +47,7 @@ define Package/netifd/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/lib/config.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netifd $(1)/sbin/
 	$(CP) ./files/* $(1)/
+	$(LN) /usr/local/lib/netifd/proto $(1)/lib/netifd/
 	$(INSTALL_DIR) $(1)/etc/udhcpc.user.d/
 	$(CP) $(PKG_BUILD_DIR)/scripts/* $(1)/lib/netifd/
 
@@ -59,19 +60,19 @@ define Package/netifd/install
     	$(RM) $(1)/etc/hotplug.d/iface/29-setup-mobile-gateway-passthrough-bridge)
 
 	$(if $(CONFIG_ADVANCED_NETWORK),,\
-		$(RM) $(1)/lib/netifd/proto/l2tpv3.sh)
+		$(RM) $(1)/usr/local/usr/lib/netifd/proto/l2tpv3.sh)
 
 	$(if $(CONFIG_PPP_MOBILE_SUPPORT),, \
-		$(RM) $(1)/lib/netifd/proto/pppmobile.sh)
+		$(RM) $(1)/usr/local/usr/lib/netifd/proto/pppmobile.sh)
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot network ./files/etc/init.d/network.openrc $(1))
 	$(RM) $(1)/etc/init.d/network.openrc
 
 	$(if $(CONFIG_AP_DEVICE), \
-		mv $(1)/lib/netifd/proto/dhcp-tap.sh $(1)/lib/netifd/proto/dhcp.sh; \
+		mv $(1)/usr/local/usr/lib/netifd/proto/dhcp-tap.sh $(1)/usr/local/usr/lib/netifd/proto/dhcp.sh; \
 		mv $(1)/lib/netifd/dhcp-tap.script $(1)/lib/netifd/dhcp.script; ,
-		$(RM) $(1)/lib/netifd/proto/dhcp-tap.sh; \
+		$(RM) $(1)/usr/local/usr/lib/netifd/proto/dhcp-tap.sh; \
 		$(RM) $(1)/lib/netifd/dhcp-tap.script;)
 endef
 

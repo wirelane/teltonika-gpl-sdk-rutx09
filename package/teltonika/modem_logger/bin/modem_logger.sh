@@ -1,14 +1,15 @@
 #!/bin/sh
 . /usr/share/libubox/jshn.sh
 
-[ -f /usr/share/modem_logger/modem_logger_installer ] && {
-    . /usr/share/modem_logger/modem_logger_installer
+[ -f  /usr/local/usr/share/modem_logger/modem_logger_installer ] && {
+    .  /usr/local/usr/share/modem_logger/modem_logger_installer
     ONLINE="1"
 }
 
+LOCAL_USER_PATH="/usr/local/usr/bin"
 DEBUG_LOG="1"
 DEBUG_ECHO="0"
-SSHFS_PATH="/usr/bin/sshfs"
+SSHFS_PATH="$LOCAL_USER_PATH/sshfs"
 DEFAULT_FILTER_FILE_PATH="/etc/modem_logger_default.cfg"
 DEFAULT_UNISOC_FILTER_FILE_PATH="/etc/unisoc_ps_dsp_important_log.conf"
 DEFAULT_TELIT_FILTER_FILE_PATH="/etc/QXDM_Mask_default_telit.dmc"
@@ -236,17 +237,17 @@ set_logger(){
             [ "$manuf" == "Quectel" ] && [ -z "$ADD_QUECTEL_AT" ] && ADD_QUECTEL_AT="true"
             case "$model" in
                 SLM770*)
-                    LOGGER_PATH="/usr/bin/qlog" # Meig seems to ask for logs taken with qlog and using a filter.
+                    LOGGER_PATH="$LOCAL_USER_PATH/qlog" # Meig seems to ask for logs taken with qlog and using a filter.
                     #LOGGER_PATH="/usr/bin/diag_saver"
                     #[ -z "$LOG_DEV" ] && find_modem_log_port "$tty_port"
                     return
                 ;;
                 FN990*)
-                    LOGGER_PATH="/usr/bin/qc_trace_collector"
+                    LOGGER_PATH="$LOCAL_USER_PATH/qc_trace_collector"
                     return
                 ;;
                 *)
-                    LOGGER_PATH="/usr/bin/qlog"
+                    LOGGER_PATH="$LOCAL_USER_PATH/qlog"
                     return
                 ;;
             esac
@@ -292,7 +293,7 @@ wait_till_start(){
 
 start_logger(){
     case "$LOGGER_PATH" in
-        /usr/bin/qlog)
+        $LOCAL_USER_PATH/qlog)
             local QLOG_DEV=""
             [ -n "$MODEM_ID" ] && {
                 QLOG_DEV="/sys/bus/usb/devices/$MODEM_ID"
@@ -325,15 +326,11 @@ start_logger(){
             "$LOGGER_PATH" -p "$LOG_DEV" -s "$LOG_DIR" &>/dev/null &
         ;;
         /usr/bin/diag_mdlog)
-            echo "[INFO]: Creating /sdcard/diag_logs/ folder and setting chmod 757 to it."
             echo "[INFO]: Setting chmod 606 to \"/dev/diag\"."
-            echo "[INFO]: Setting chmod 757 to \"$LOG_DIR\"."
-            echo "[INFO]: Revert \"/dev/diag\" permissions when logging is finished with \"modem_logger -x\""
-            # diag_mdlog needs /sdcard/diag_logs folder to store its pid file and other stuff...
-            mkdir -p "/sdcard/diag_logs"
-            chmod 757 -R "/sdcard"
             chmod 606 "/dev/diag"
+            echo "[INFO]: Setting chmod 757 to \"$LOG_DIR\"."
             chmod 757 "$LOG_DIR"
+            echo "[INFO]: Revert \"/dev/diag\" permissions when logging is finished with \"modem_logger -x\""
             [[ "$PLATFORM" =~ "TRB[51]" ]] && [ -z "$FILTER_PATH" ] && [ -e "$DEFAULT_FILTER_FILE_PATH" ] && {
                 # Sets default.cfg filter file to use if it exists and not already set
                 FILTER_PATH="$DEFAULT_FILTER_FILE_PATH"
@@ -341,7 +338,7 @@ start_logger(){
             echo "[LOGGER_START]: $LOGGER_PATH" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR"
             "$LOGGER_PATH" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR" &>/dev/null &
         ;;
-        /usr/bin/qc_trace_collector)
+        $LOCAL_USER_PATH/qc_trace_collector)
             local modems="$(ubus list gsm.modem* | tr "\n" " ")"
             for modem in $modems; do
                 local info="$(ubus call "$modem" info)"
@@ -365,9 +362,9 @@ available_loggers(){
     local err=""
     echo "[INFO] Available loggers:"
     for l in $LOGGERS; do
-        [ -f "/usr/bin/$l" ] && err="$err $l"
+        [ -f "$LOCAL_USER_PATH/$l" ] && err="$err $l"
     done
-    [ "$err" == "" ] && echo "[WARNING] No loggers found in /usr/bin/*" || echo "[INFO] Loggers: $err"
+    [ "$err" == "" ] && echo "[WARNING] No loggers found in $LOCAL_USER_PATH/*" || echo "[INFO] Loggers: $err"
 }
 
 validate_forced_logger_params() {
@@ -400,7 +397,7 @@ start_logging(){
     check_active_loggers
     [ -z "$FORCE_LOGGER" ] && set_logger || {
         validate_forced_logger_params
-        LOGGER_PATH="/usr/bin/$FORCE_LOGGER"
+	[[ "$PLATFORM" =~ "TRB[51]" ]] || LOGGER_PATH="$LOCAL_USER_PATH/$FORCE_LOGGER"
     }
 
     if [ -z "$LOGGER_PATH" ]; then
@@ -438,7 +435,7 @@ start_logging(){
         exit 0
     fi
 
-    if [ "$LOGGER_PATH" != "/usr/bin/qlog" ] && [ $LOG_DIR == "9000" ]; then
+    if [ "$LOGGER_PATH" != "$LOCAL_USER_PATH/qlog" ] && [ $LOG_DIR == "9000" ]; then
         echo "[ERROR] Only qlog can be run as a TCP server. Exiting."
         available_loggers
         exit 1

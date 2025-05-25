@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pptpd
 PKG_VERSION:=1.4.0
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_SOURCE_VERSION:=1.4.0
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -47,7 +47,6 @@ MAKE_FLAGS += \
 
 define Package/pptpd/conffiles
 /etc/pptpd.conf
-/etc/ppp/options.pptpd
 /etc/config/pptpd
 endef
 
@@ -65,7 +64,6 @@ define Package/pptpd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/pptpd.init $(1)/etc/init.d/pptpd
 	$(INSTALL_DIR) $(1)/etc/ppp
-	$(INSTALL_DATA) ./files/options.pptpd $(1)/etc/ppp/
 	$(INSTALL_BIN) ./files/pptpd-up $(1)/etc/ppp/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) /dev/null $(1)/etc/config/pptpd

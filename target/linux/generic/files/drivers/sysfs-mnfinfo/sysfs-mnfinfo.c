@@ -19,6 +19,86 @@
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
+static struct kobject *g_kobj;
+
+#ifndef CONFIG_OF
+#define SYSFS_ATTR_RO(_name, _value)                                                                         \
+	static ssize_t _name##_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)            \
+	{                                                                                                    \
+		return sprintf(buf, "%s", _value);                                                           \
+	}                                                                                                    \
+	static struct kobj_attribute _name##_attr = __ATTR_RO(_name)
+
+/* value lenth up to 127 bytes */
+SYSFS_ATTR_RO(mac, "001e42350232");
+SYSFS_ATTR_RO(name, "x86_64000000");
+SYSFS_ATTR_RO(serial, "0000000000");
+SYSFS_ATTR_RO(hwver, "0000");
+SYSFS_ATTR_RO(hwver_lo, "0000");
+SYSFS_ATTR_RO(batch, "0000");
+SYSFS_ATTR_RO(sim_cfg, "0110000_0210000");
+SYSFS_ATTR_RO(sim_count, "2");
+SYSFS_ATTR_RO(wpass, "r3BJf52H");
+
+static struct attribute *g_mnfinfo_attr[] = {
+	&mac_attr.attr,	  &name_attr.attr,    &serial_attr.attr,    &hwver_attr.attr, &hwver_lo_attr.attr,
+	&batch_attr.attr, &sim_cfg_attr.attr, &sim_count_attr.attr, &wpass_attr.attr, NULL,
+};
+
+static struct attribute_group g_mnfinfo_attr_group = {
+	.attrs = g_mnfinfo_attr,
+};
+
+static int __init mnfinfo_probe(void)
+{
+	int i;
+	static struct kobj_attribute *attr = NULL;
+	char buf[128];
+
+	g_kobj = kobject_create_and_add("mnf_info", NULL);
+	if (!g_kobj) {
+		pr_err("Unable to create \"mnf_info\" kobject\n");
+		return -ENOMEM;
+	}
+
+	if (sysfs_create_group(g_kobj, &g_mnfinfo_attr_group)) {
+		pr_err("Unable to create \"mnf_info\" sysfs group\n");
+		kobject_put(g_kobj);
+		return -ENOMEM;
+	}
+
+	pr_info("MNFINFO PROPERTIES:\n");
+	for (i = 0; i < ARRAY_SIZE(g_mnfinfo_attr) - 1; i++) {
+		if (!strcmp(g_mnfinfo_attr[i]->name, "wpass")) {
+			continue;
+		}
+
+		attr = container_of(g_mnfinfo_attr[i], struct kobj_attribute, attr);
+		if (!attr->show) {
+			sysfs_remove_group(g_kobj, &g_mnfinfo_attr_group);
+			kobject_put(g_kobj);
+			return -EIO;
+		}
+
+		attr->show(NULL, NULL, buf);
+		pr_info(" %-9s: %s\n", attr->attr.name, buf);
+	}
+
+	return 0;
+}
+
+static void __exit mnfinfo_remove(void)
+{
+	sysfs_remove_group(g_kobj, &g_mnfinfo_attr_group);
+	if (g_kobj)
+		kobject_put(g_kobj);
+}
+
+module_init(mnfinfo_probe);
+module_exit(mnfinfo_remove);
+
+#else //CONFIG_OF
+
 #define GEN_KOBJ_ATTR_RO(_name)                                                                              \
 	static struct kobj_attribute kobj_attr_##_name = {                                                   \
 		.attr = { .name = __stringify(_name), .mode = 0444 },                                        \
@@ -69,17 +149,19 @@ struct mnfinfo_entry {
 };
 
 static ssize_t mnf_attr_show(struct kobject *kobj, struct kobj_attribute *attr, char *buffer);
-static int mnfinfo_probe(struct platform_device *pdev);
-static int mnfinfo_remove(struct platform_device *pdev);
-
-static int probed = false;
-
+static umode_t mnfinfo_attr_is_visible(struct kobject *kobj, struct attribute *attr, int n);
+static int probed		       = false;
 static struct mnfinfo_entry mnf_data[] = { LIST_MNF_FIELDS(GEN_MNF_ENTRIES) };
 
 LIST_MNF_FIELDS(GEN_KOBJ_ATTR_RO)
 
 static struct attribute *g_mnfinfo_attr[] = {
 	LIST_MNF_FIELDS(LIST_KOBJ_ATTR) NULL,
+};
+
+static struct attribute_group g_mnfinfo_attr_group = {
+	.attrs	    = g_mnfinfo_attr,
+	.is_visible = mnfinfo_attr_is_visible,
 };
 
 static char mnf_device_name[16] __initdata    = "";
@@ -148,31 +230,6 @@ static umode_t mnfinfo_attr_is_visible(struct kobject *kobj, struct attribute *a
 	}
 	return 0;
 }
-
-static struct attribute_group g_mnfinfo_attr_group = {
-	.attrs	    = g_mnfinfo_attr,
-	.is_visible = mnfinfo_attr_is_visible,
-};
-
-static struct kobject *g_kobj;
-
-static struct of_device_id mnfinfo_dt_ids[] = {
-	{
-		.compatible = DRV_NAME,
-	},
-	{},
-};
-
-MODULE_DEVICE_TABLE(of, mnfinfo_dt_ids);
-
-static struct platform_driver mnf_driver = {
-	.probe = mnfinfo_probe,
-	.remove= mnfinfo_remove,
-	.driver = {
-		.name = DRV_NAME,
-		.of_match_table = mnfinfo_dt_ids,
-	},
-};
 
 static const char *get_data_of(const char *name)
 {
@@ -573,12 +630,10 @@ static int parse_prop(struct device_node *node)
 		}
 	}
 
-#ifdef CONFIG_OF
 	if (!of_device_is_mnf_compatible(node)) {
 		pr_debug("Incompatible device \"%s\" \n", node->full_name);
 		return 0;
 	}
-#endif //CONFIG_OF
 
 	if (e->data) {
 		pr_debug("Data buffer of %s is not empty. Clearing... \n", e->name);
@@ -737,7 +792,27 @@ static int mnfinfo_remove(struct platform_device *pdev)
 	return 0;
 }
 
+static struct of_device_id mnfinfo_dt_ids[] = {
+	{
+		.compatible = DRV_NAME,
+	},
+	{},
+};
+
+MODULE_DEVICE_TABLE(of, mnfinfo_dt_ids);
+
+static struct platform_driver mnf_driver = {
+	.probe = mnfinfo_probe,
+	.remove= mnfinfo_remove,
+	.driver = {
+		.name = DRV_NAME,
+		.of_match_table = mnfinfo_dt_ids,
+	},
+};
+
 module_platform_driver(mnf_driver);
+
+#endif //CONFIG_OF
 
 MODULE_AUTHOR("Linas Perkauskas <linas.perkauskas@teltonika.lt>");
 MODULE_DESCRIPTION("Module to read device individual RO data via sysfs");

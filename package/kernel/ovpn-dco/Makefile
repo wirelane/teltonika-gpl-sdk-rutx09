@@ -13,11 +13,8 @@ PKG_VERSION:=0.2.20240320
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/OpenVPN/ovpn-dco/tar.gz/v$(PKG_VERSION)?
 PKG_HASH:=83a02dc3e6e40b0ef128cd32ce7f47da7fccd759af68657f44925d64a88db37b
-
-PKG_SOURCE_PROTO:=git
-PKG_SOURCE_URL:=https://github.com/OpenVPN/ovpn-dco.git
-PKG_SOURCE_VERSION:=v0.2.20240320
 
 PKG_MAINTAINER:=Jianhui Zhao <zhaojh329@gmail.com>
 PKG_LICENSE:=GPL-2.0-only

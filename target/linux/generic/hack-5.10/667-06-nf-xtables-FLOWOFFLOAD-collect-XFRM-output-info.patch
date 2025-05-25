@@ -74,7 +74,7 @@ fields.
  	struct dst_entry *this_dst = skb_dst(skb);
  	struct dst_entry *other_dst = NULL;
  	struct flowi fl;
-@@ -564,20 +571,28 @@ xt_flowoffload_route(struct sk_buff *skb
+@@ -568,20 +575,28 @@ xt_flowoffload_route(struct sk_buff *skb
  	nf_default_forward_path(route, this_dst, dir, *indev);
  	route->dst_reverse = other_dst;
  
@@ -105,7 +105,7 @@ fields.
  }
  
  static int nf_ct_flow_check(struct nf_conn *ct, enum ip_conntrack_dir dir)
-@@ -670,14 +685,8 @@ flowoffload_tg(struct sk_buff *skb, cons
+@@ -674,14 +689,8 @@ flowoffload_tg(struct sk_buff *skb, cons
  
  	xt_flowoffload_check_device(table, indev);
  

@@ -4,7 +4,9 @@
 START=94
 STOP=15
 USE_PROCD=1
-PROG=miniupnpd
+PROG=/usr/sbin/miniupnpd
+[ -x "$PROG" ] || PROG="/usr/local$PROG"
+WORKING_DIR="/var/run/upnpd"
 
 upnpd_get_port_range() {
 	local var="$1"; shift
@@ -119,9 +121,8 @@ upnpd() {
 	if [ -n "$config_file" ]; then
 		conf="$config_file"
 	else
-		local tmpconf="/var/etc/miniupnpd.conf"
+		local tmpconf="$WORKING_DIR/miniupnpd.conf"
 		conf="$tmpconf"
-		mkdir -p /var/etc
 
 		{
 		echo "ext_ifname=$ifname"
@@ -153,7 +154,7 @@ upnpd() {
 			echo "bitrate_up=$((upload * 1024 * 8))"
 		}
 
-		[ -n "$upnp_lease_file" ] && touch "$upnp_lease_file" && echo "lease_file=$upnp_lease_file"
+		[ -n "$upnp_lease_file" ] && touch "$upnp_lease_file" && chown upnpd:upnpd "$upnp_lease_file" && echo "lease_file=$upnp_lease_file"
 		[ -n "$presentation_url" ] && echo "presentation_url=$presentation_url"
 		[ -n "$notify_interval" ] && echo "notify_interval=$notify_interval"
 		[ -n "$clean_ruleset_threshold" ] && echo "clean_ruleset_threshold=$clean_ruleset_threshold"
@@ -182,10 +183,13 @@ upnpd() {
 		logger -t "upnp daemon" "external interface not found, not starting"
 	fi
 
+	chown upnpd:upnpd "$conf"
+
 	procd_open_instance
 	procd_set_param command "$PROG"
 	procd_append_param command -f "$conf"
 	[ "$log_output" = "1" ] && procd_append_param command -d
+	procd_set_param user upnpd
 	procd_close_instance
 }
 

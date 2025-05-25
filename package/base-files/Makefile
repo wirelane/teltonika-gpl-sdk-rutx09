@@ -151,7 +151,7 @@ define Package/base-files/install
 	mkdir -p $(1)/overlay
 	mkdir -p $(1)/lib/firmware
 	$(if $(LIB_SUFFIX),-$(LN) lib $(1)/lib$(LIB_SUFFIX))
-	mkdir -p $(1)/mnt
+	$(LN) /tmp $(1)/mnt
 	mkdir -p $(1)/proc
 	mkdir -p $(1)/tmp
 	mkdir -p $(1)/usr/lib
@@ -159,18 +159,33 @@ define Package/base-files/install
 	mkdir -p $(1)/usr/bin
 	mkdir -p $(1)/sys
 	mkdir -p $(1)/www
-	mkdir -p $(1)/root
+	mkdir -p $(1)/rom/etc
 	$(LN) /proc/mounts $(1)/etc/mtab
 	rm -f $(1)/var
 	$(LN) tmp $(1)/var
+	$(LN) /var/run $(1)/run
 	mkdir -p $(1)/etc
-	mkdir -p $(1)/log
-	mkdir -p $(1)/usr/local/lib
+	$(if $(CONFIG_TARGET_x86_64), \
+		mkdir -p $(1)/usr/local/log; \
+		$(LN) /usr/local/log $(1)/overlay/log; \
+		$(LN) overlay/log $(1)/log \
+	, \
+		mkdir -p $(1)/log \
+	)
+	mkdir -p $(1)/ext
+	mkdir -p $(1)/usr/local/usr/lib
+	mkdir -p $(1)/usr/local/home
+	mkdir -p $(1)/usr/local/home/root
+	$(LN) /etc $(1)/usr/local/etc
 	$(LN) /usr/local/usr/lib $(1)/usr/local/lib
+	$(LN) usr/local/home $(1)/home
+	$(LN) usr/local/home/root $(1)/root
 	$(LN) /tmp/resolv.conf /tmp/TZ /tmp/localtime $(1)/etc/
 
-	chmod 0600 $(1)/etc/shadow
+	chmod 0770 $(1)/usr/local/home/root
+	chmod 0640 $(1)/etc/shadow
 	chmod 1777 $(1)/tmp
+	chmod 0664 $(1)/etc/config/system
 
 	$(call Package/base-files/install-target,$(1))
 	for conffile in $(1)/etc/config/*; do \
@@ -201,9 +216,13 @@ define Package/base-files/install
 	# add compile time timestamp
 	date +%s > $(1)/etc/firmware-date
 
-	# --prod flag
-	$(if $(CONFIG_VUCI_COMPILE_LUA)$(CONFIG_GPL_BUILD),\
-		$(RM) $(1)/sbin/memleak_watcher $(1)/etc/init.d/memleak_watcher)
+	# --prod / --gpl flags
+	$(if $(CONFIG_PROD_IMAGE)$(CONFIG_GPL_BUILD),\
+		$(RM) $(1)/etc/profile.d/check-root.sh \
+		$(1)/etc/profile.d/rwrootfs.sh \
+		$(1)/etc/init.d/memleak_watcher \
+		$(1)/sbin/memleak_watcher \
+	)
 
 	if [ $(CONFIG_BUILD_FACTORY_TEST_IMAGE) ]; then \
 		$(RM) $(1)/etc/rc.local $(1)/usr/libexec/login.sh; \
@@ -212,6 +231,10 @@ define Package/base-files/install
 	if [ ! $(CONFIG_SMP_SUPPORT) ]; then \
 		$(RM) $(1)/lib/functions/smp.sh; \
 	fi;
+
+	$(if $(CONFIG_RESET_BUTTON_SUPPORT),, \
+		$(RM) $(1)/etc/rc.button/reset $(1)/etc/config/buttons \
+	)
 
 	$(if $(CONFIG_BASEBAND_SUPPORT),,$(RM) $(1)/etc/init.d/adbd)
 

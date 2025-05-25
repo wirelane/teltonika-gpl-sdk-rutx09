@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ntpclient
-PKG_VERSION:=2025-02-14
+PKG_VERSION:=2025-04-17
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2015_365
@@ -27,7 +27,7 @@ define Package/ntpclient
   CATEGORY:=Network
   TITLE:=NTP (Network Time Protocol) client
   DEPENDS:=+librt +libubus +libubox +libblobmsg-json +libuci +MOBILE_SUPPORT:libgsm
-  USERID:=ntpclient:ntpclient
+  USERID:=ntpclient=529:ntpclient=529
   CAP:=/usr/sbin/ntpclient:cap_sys_time=ep
 endef
 
@@ -48,7 +48,7 @@ define Package/ntpclient/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ntpclient.hotplug $(1)/etc/hotplug.d/iface/20-ntpclient
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ntpclient.init $(1)/etc/init.d/ntpclient
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/ntpclient.config $(1)/etc/config/ntpclient
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/ntpclient.config $(1)/etc/config/ntpclient
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ntpclient.json $(1)/usr/share/acl.d/
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ntpclient $(1)/usr/sbin/

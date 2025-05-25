@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.15
+PKG_SOURCE_VERSION:=1.16
 
 PKG_FIXUP:=autoreconf
 
@@ -26,18 +26,24 @@ define Package/data-sender
   DEPENDS:=+libuci +libtlt-logger +libubox +libblobmsg-json +libubus +libjson-c $(DS_DEPS)
   TITLE:=Data sender daemon by Teltonika
   MENU:=1
-  USERID:=ds:ds
+  USERID:=ds=530:ds=530
 endef
 
 define Package/data-sender/config
   source "$(SOURCE)/Config.in"
 endef
 
+define Package/$(PKG_NAME)/conffiles
+/etc/config/data_sender
+endef
+
+
 define RegisterPlugin
   define Package/data-sender-mod-$(1)
 	$(call Package/data-sender/Default)
 	DEPENDS:=data-sender $(2)
 	TITLE:=$(3)
+
 	ifeq ($(CONFIG_PACKAGE_data-sender-mod-$(1)),y)
 		DS_DEPS+=$(2)
 	endif
@@ -99,7 +105,7 @@ define Package/data-sender/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin \
 			$(1)/lib/troubleshoot $(1)/lib/data_sender $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender.init $(1)/etc/init.d/data_sender
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/datasender $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender_troubleshoot.sh \
 			$(1)/lib/troubleshoot/data_sender.sh
@@ -118,11 +124,11 @@ define BuildPlugin
 	fi
 	if [ -n "$(3)" ] && [ -d "$(PKG_BUILD_DIR)/files/modules/$(3)" ]; then \
 		$(INSTALL_DIR) $$(1)/etc/data_sender/modules/$(3) ; \
-		$(CP) $(PKG_BUILD_DIR)/files/modules/$(3)/* $$(1)/etc/data_sender/modules/$(3)/ ; \
+		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modules/$(3)/* $$(1)/etc/data_sender/modules/$(3)/ ; \
 	fi
 	if [ -e "$(PKG_BUILD_DIR)/files/acl.d/$(1).json" ]; then \
-			$(CP) $(PKG_BUILD_DIR)/files/acl.d/$(1).json $$(1)/usr/share/acl.d/ds_$(1).json; \
-  fi
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/$(1).json $$(1)/usr/share/acl.d/ds_$(1).json; \
+	fi
   endef
 
 ifeq ($$(CONFIG_PACKAGE_data-sender-mod-$(1)),m)

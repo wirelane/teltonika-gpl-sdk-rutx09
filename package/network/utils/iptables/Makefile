@@ -52,6 +52,7 @@ $(call Package/iptables/Default)
   TITLE:=IP firewall administration tool
   MENU:=1
   DEPENDS+= +kmod-ipt-core +libip4tc +IPV6:libip6tc +libxtables
+  CAP:=/usr/sbin/xtables-legacy-multi:cap_net_admin,cap_net_raw+ei
 endef
 
 define Package/iptables/config
@@ -547,7 +548,7 @@ CONFIGURE_ARGS += \
 	--enable-static \
 	--enable-devel \
 	--with-kernel="$(LINUX_DIR)/user_headers" \
-	--with-xtlibdir=/usr/lib/iptables \
+	--with-xtlibdir=/usr/local/usr/lib/iptables \
 	--with-xt-lock-name=/var/run/xtables.lock \
 	$(if $(CONFIG_IPTABLES_CONNLABEL),,--disable-connlabel) \
 	$(if $(CONFIG_IPTABLES_NFTABLES),,--disable-nftables) \
@@ -602,7 +603,8 @@ define Package/iptables/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/xtables-legacy-multi $(1)/usr/sbin/
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/iptables{,-restore,-save} $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/usr/lib/iptables
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_iptables)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/iptables
 endef
 
 define Package/iptables-nft/install
@@ -624,34 +626,39 @@ define Package/ip6tables-nft/install
 endef
 
 define Package/libip4tc/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libip4tc.so.* $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext4.so $(1)/usr/lib/
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_libip4tc)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libip4tc.so.* $(DEST_DIR)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext4.so $(DEST_DIR)/usr/lib/
 endef
 
 define Package/libip6tc/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libip6tc.so.* $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext6.so $(1)/usr/lib/
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_libip6tc)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libip6tc.so.* $(DEST_DIR)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext6.so $(DEST_DIR)/usr/lib/
 endef
 
 define Package/libxtables/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxtables.so.* $(1)/usr/lib/
-	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext.so $(1)/usr/lib/
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_libxtables)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libxtables.so.* $(DEST_DIR)/usr/lib/
+	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext.so $(DEST_DIR)/usr/lib/
 endef
 
 define Package/libxtables-nft/install
-	$(INSTALL_DIR) $(1)/usr/lib
-	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext_*.so $(1)/usr/lib/
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_libxtables-nft)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/extensions/libiptext_*.so $(DEST_DIR)/usr/lib/
 endef
 
 define BuildPlugin
   define Package/$(1)/install
-	$(INSTALL_DIR) $$(1)/usr/lib/iptables
+	$(eval CUSTOM:=$(if $(findstring m,$(CONFIG_PACKAGE_$(1))),,/usr/local))
+	$(INSTALL_DIR) $$(1)$(CUSTOM)/usr/lib/iptables
 	for m in $(patsubst xt_%,ipt_%,$(2)) $(patsubst ipt_%,xt_%,$(2)) $(patsubst xt_%,ip6t_%,$(2)) $(patsubst ip6t_%,xt_%,$(2)); do \
-		if [ -f $(PKG_INSTALL_DIR)/usr/lib/iptables/lib$$$$$$$${m}.so ]; then \
-			$(CP) $(PKG_INSTALL_DIR)/usr/lib/iptables/lib$$$$$$$${m}.so $$(1)/usr/lib/iptables/ ; \
+		if [ -f $(PKG_INSTALL_DIR)/usr/local/usr/lib/iptables/lib$$$$$$$${m}.so ]; then \
+			$(CP) $(PKG_INSTALL_DIR)/usr/local/usr/lib/iptables/lib$$$$$$$${m}.so $$(1)$(CUSTOM)/usr/lib/iptables/ ; \
 		fi; \
 	done
 	$(3)

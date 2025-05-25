@@ -27,7 +27,7 @@ define Package/snmptrap
 	TITLE:=Teltonika SNMP trap sender
 	DEPENDS:=+libuci +libtlt-logger +libubox +libubus +libnetsnmp \
 		+SNMPTRAP_GSM:libgsm +SNMPTRAP_GSM:liburc +SNMPTRAP_IO:iomand
-	USERID:=snmptrap:snmptrap
+	USERID:=snmptrap=500:snmptrap=500
 endef
 
 define Package/snmptrap/config
@@ -56,21 +56,13 @@ endif
 
 
 define Package/snmptrap/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/sbin $(1)/etc/init.d $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/sbin $(1)/etc/init.d $(1)/usr/share/acl.d \
+		$(1)/etc/permtab.d/
 	$(INSTALL_BIN) ./files/snmptrap.init $(1)/etc/init.d/snmptrap
 	$(INSTALL_BIN) ./files/snmptrap.conf $(1)/etc/config/snmptrap
 	$(INSTALL_DATA) ./files/snmptrap.json $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) ./files/snmptrap.permtab $(1)/etc/permtab.d/snmptrap
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/snmptraps $(1)/usr/sbin/
-endef
-
-define Package/snmptrap/postinst
-#!/bin/sh
-
-[ -z "$${IPKG_INSTROOT}" ] || exit 0
-
-#Relaod ubusd acl rules
-pid=$$(pidof ubusd)
-[ -z "$$pid" ] || kill -HUP $$pid
 endef
 
 $(eval $(call BuildPackage,snmptrap))

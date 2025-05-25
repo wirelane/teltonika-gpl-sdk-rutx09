@@ -162,12 +162,23 @@ control_services() {
 	done
 }
 
+remove_reboot_prevention() {
+	local modem_id=$(echo "$a_modem_id" | cut -d'.' -f3)
+
+	# remove all files in /tmp/mobile that have $modem_id in name
+	rm /tmp/mobile/*"$modem_id"* || not=" not"
+	echo "reboot loop prevention files${not} removed"
+	[ -z "$not" ]
+}
+
 end() {
 	local option="$1"
 	local message="$2"
 	local notify_params="$3"
 	case "$option" in
 		"$UPDATE_SUCCESS" | "$UPDATE_ERROR")
+			[ "$option" -eq "$UPDATE_SUCCESS" ] && remove_reboot_prevention
+
 			[ "$less_status" -eq 1 ] || {
 				[ "$option" = "$UPDATE_SUCCESS" ] && notify_webui "stop" || notify_webui "error" "$notify_params"
 			}
@@ -262,7 +273,7 @@ search_for_modems() {
 	modem_ids=$(ubus list gsm.modem* | tr "\n" " ")
 	if [ "$modem_ids" = "" ]; then
 		json_update_dfota_status "failed" 0
-		end "$UPDATE_ERROR" "Modem doesn't exist!"
+		end "$MODEM_NOT_FOUND" "Modem doesn't exist!"
 	fi
 	debug "Found modem ids: $modem_ids"
 }

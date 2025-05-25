@@ -2488,4 +2488,30 @@ const char *ipv6_ndp_state_str(enum ipv6_ndp_state_t state);
  */
 const char *qabfota_state_str(enum qabfota_state_id state);
 
+/**
+ * Convert EMM cause enum to string.
+ * @param[in]   code   EMM cause enumeration value.
+ * @return const char *.    String of EMM cause value.
+ */
+enum emm_cause_id emm_cause_enum(int code);
+
+/**
+ * Convert ESM cause enum to string.
+ * @param[in]   code   ESM cause enumeration value.
+ * @return const char *.    String of ESM cause value.
+ */
+enum esm_cause_id esm_cause_enum(int code);
+
+/**
+ * Convert 5GMM cause enum to string.
+ * @param[in]   code   5GMM cause enumeration value.
+ * @return const char *.    String of 5GMM cause value.
+ */
+enum esm_cause_id mm5g_cause_enum(int code);
+
+/**
+ * Convert URC event state string to URC event state enum.
+ */
+const char *evt_reject_string(evt_type_t type);
+
 #endif // GSM_MODEM_API

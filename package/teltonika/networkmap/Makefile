@@ -4,36 +4,35 @@
 
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
-PKG_RELEASE:=1
 
 PKG_NAME:=networkmap
-PKG_VERSION:=2024-09-30
+PKG_VERSION:=2025-04-11
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.2
+PKG_SOURCE_VERSION:=2.1.1
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/networkmap
-  SECTION:=net
-  CATEGORY:=Network
-  TITLE:=Networkmap tool
+	SECTION:=net
+	CATEGORY:=Network
+	TITLE:=Networkmap tool
+	DEPENDS:=+libpcap +libpthread +libsqlite3 +libubus +libubox
+	CAP:=/bin/networkmap:cap_net_raw=ep
+	SUID:=/bin/networkmap:networkmap
+	USERID:=networkmap=526:networkmap=526
 endef
 
 define Package/networkmap/description
-        Devices scanner.
+	Devices scanner.
 endef
-
 
 
 define Package/networkmap/install
-	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/networkmap $(1)/usr/libexec/rpcd/
-endef
-
-define Package/networkmap/postinst
-#!/bin/sh
-[ -n "$$IPKG_INSTROOT" ] || /etc/init.d/rpcd reload
+	$(INSTALL_DIR) $(1)/bin $(1)/usr/share/acl.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/networkmap $(1)/bin/networkmap
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/networkmap.json $(1)/usr/share/acl.d/networkmap.json
 endef
 
 $(eval $(call BuildPackage,networkmap))

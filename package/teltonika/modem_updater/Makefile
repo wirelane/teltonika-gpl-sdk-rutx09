@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modem_updater
-PKG_SOURCE_VERSION:=7.13
+PKG_SOURCE_VERSION:=7.14
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -101,7 +101,7 @@ endef
 
 
 define Package/modem_updater-offline/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin  $(1)/etc/permtab.d
 	$(if $(findstring Quectel,$(CONFIG_DEVICE_MODEM_VENDORS)),
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/quectel_flash/quectel_flash $(1)/usr/bin/quectel_flash
 		$(if $(TLT_PLATFORM_TRB2)$(TLT_PLATFORM_TRB2M)$(TLT_PLATFORM_RUT361)$(TLT_PLATFORM_RUT36X)$(TLT_PLATFORM_TCR1),,
@@ -124,13 +124,15 @@ define Package/modem_updater-offline/install
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/fbfdownloader/fbfdownloader $(1)/usr/bin/fbfdownloader
 	)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modem_updater.sh $(1)/usr/bin/modem_updater
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/permtab.d/modem_updater $(1)/etc/permtab.d/modem_updater
 
 endef
 
 define Package/modem_updater/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/share/modem_updater
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/usr/share/modem_updater $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modem_updater.sh $(1)/usr/bin/modem_updater
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modem_updater_installer.sh $(1)/usr/share/modem_updater/modem_updater_installer
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/permtab.d/modem_updater $(1)/etc/permtab.d/modem_updater
 endef
 
 define Package/quectel_flash/install

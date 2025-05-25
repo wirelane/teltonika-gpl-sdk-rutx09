@@ -5,7 +5,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=fmt-usb-msd
-PKG_VERSION:=2023-01-11
+PKG_VERSION:=2025-04-29
+PKG_RELEASE:=1
 
 PKG_LICENSE:=Teltonika-closed
 

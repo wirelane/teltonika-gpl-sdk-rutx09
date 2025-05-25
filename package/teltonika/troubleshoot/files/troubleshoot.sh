@@ -31,7 +31,7 @@ DIR_LIST="/etc/config /etc/crontabs /etc/dropbear /etc/firewall.user /etc/group 
 #ignore sshfs mount dir if it on tmp directory
 SSHFS_DIR=$(grep "fuse.sshfs" /etc/mtab | awk '{print $2}' | awk -F'/' '/^\/tmp\//{print $3}')
 
-IGNORE_DIR_LIST="troubleshoot luci-indexcache luci-indexcache luci-modulecache $SSHFS_DIR"
+IGNORE_DIR_LIST="troubleshoot luci-indexcache luci-indexcache luci-modulecache firmware.img $SSHFS_DIR"
 
 generate_random_str() {
 	local out="$(tr </dev/urandom -dc A-Za-z0-9 2>/dev/null | head -c $1)"
@@ -352,6 +352,7 @@ generate_root_hook() {
 	mkdir "${ROOT_DIR}/tmp"
 	for file in $(ls /tmp/); do
 		[ "$(echo ${IGNORE_DIR_LIST} | grep -wc ${file})" -gt 0 ] && continue
+		[ -d "/tmp/${file}" ] && grep -q "/tmp/${file} " /proc/mounts && continue
 
 		cp -prf "/tmp/${file}" "${ROOT_DIR}/tmp"
 	done

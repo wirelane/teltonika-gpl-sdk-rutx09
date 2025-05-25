@@ -138,7 +138,7 @@ pm-sign-index:
 pm: pm-clean pm-prep pm-sign-ipk pm-pack pm-sign-index
 
 sign:
-	LD_LIBRARY_PATH=$(STAGING_DIR_HOST)/lib PATH=$(STAGING_DIR_HOST)/bin $(TOPDIR)/scripts/sign_images.sh
+	LD_LIBRARY_PATH="$(STAGING_DIR_HOST)/lib:$$LD_LIBRARY_PATH" PATH="$(STAGING_DIR_HOST)/bin:$$PATH" $(TOPDIR)/scripts/sign_images.sh
 
 .PHONY: clean dirclean prereq prepare world package/symlinks package/symlinks-install package/symlinks-clean pm pm-clean pm-prep pm-sign-ipk pm-pack pm-sign-index sign
 

@@ -5,7 +5,7 @@ STOP=01
 
 USE_PROCD=1
 
-PROG=/usr/sbin/connchecker
+PROG=/usr/local/usr/sbin/connchecker
 
 start_service() {
 	local enabled track_ipv4 track_ipv6 track_domain interval

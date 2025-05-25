@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rms-packages
-PKG_VERSION:=2025-03-20
+PKG_VERSION:=2025-04-17
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.16.1
+PKG_SOURCE_VERSION:=3.17
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -31,6 +31,8 @@ define Package/rms_mqtt
 	CATEGORY:=Base system
 	TITLE:=MQTT application for RMS by Teltonika
 	DEPENDS:=+libmosquitto +libmnfinfo +libopenssl +libuci +MOBILE_SUPPORT:libgsm +libblobmsg-json +libubox +libubus +libpthread +libtlt_uci
+	USERID:=rms=552:rms=552
+	#FATTRS:=/usr/sbin/rms_mqtt::::cap_setuid,cap_setgid=ep
 endef
 
 define Package/rms_json

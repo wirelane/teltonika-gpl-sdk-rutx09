@@ -1,0 +1,17 @@
+{
+  "services/sd_usb_tools": {
+    "title": "SD & USB Tools",
+    "index": 70
+  },
+  "services/sd_usb_tools/general": {
+    "title": "General",
+    "index": 10,
+    "view": "services/UsbGeneral",
+    "acls": ["services/sd_usb_tools/general"],
+    "files": ["/etc/config/fstab"]
+  },
+  "system/admin/memory_expansion": {
+    "title": "Storage Memory Expansion",
+    "index": 80
+  }
+}

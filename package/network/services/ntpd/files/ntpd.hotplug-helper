@@ -1,10 +1,16 @@
 #!/bin/sh
 
+APP=/usr/sbin/ntpq
+
+if [ ! -x $APP ]; then
+	APP="/usr/local$APP"
+fi
+
 SLEEPTIME=10
 
 while true
 do
-	STATUS="$(/usr/sbin/ntpq -c 'rv 0 stratum'|awk -F '=' '{ print $2 }')"
+	STATUS="$($APP -c 'rv 0 stratum'|awk -F '=' '{ print $2 }')"
 
 	if [[ -n "$STATUS" && "$STATUS" -lt "16" ]]
 	then

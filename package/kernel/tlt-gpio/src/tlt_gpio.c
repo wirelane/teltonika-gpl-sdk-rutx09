@@ -3,6 +3,7 @@
 #include <linux/gpio.h>
 #include <linux/string.h>
 #include <linux/of.h>
+#include <linux/pinctrl/consumer.h>
 
 // #define DEBUG		  // Enable debug
 #define GPIOCHIP_STR_SIZE 20
@@ -239,6 +240,12 @@ static int set_line_name(struct gpio_chip *gc, int gpio_offset, const char *devi
 				tlt_gpio_set_active_low(gc, i - gpio_offset);
 			}
 			tlt_gpio_set_line_name(gc, str, i - gpio_offset);
+#ifdef PINMUX_TLT
+			// Check the current pin mux settings and switch to GPIO mode if necessary
+			ret = pinctrl_check_gpio(i);
+			if (ret)
+				pr_err("Failed to set up PIN MUX for GPIO - %s \n", str);
+#endif
 		} else {
 			ret = tlt_gpio_set_line_name(gc, token, i - gpio_offset);
 			if (!ret) {
@@ -255,10 +262,10 @@ static int __init tlt_gpio_init(void)
 {
 	struct gpio_chip *gc	= NULL;
 	const char *device_long = NULL;
-	const char *branch = NULL;
+	const char *branch	= NULL;
 	char *device		= NULL;
 	int gpio_offset = 0, chip_index = 0, hwver = 0;
-	char ret  = 0;
+	char ret = 0;
 
 	/* TODO: Instead of this BS, "of_device_is_mnf_compatible" universal mnf
 	 * comaptability checking function should be used. However, in this case

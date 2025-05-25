@@ -18,13 +18,6 @@ strstr() {
 	[ "${1#*$2*}" != "$1" ]
 }
 
-# list of all external blockdevs
-blockdevs() {
-	for f in $(find -L /sys/block -maxdepth 3 -name 'io_timeout'); do
-		basename ${f%/*/io_timeout}
-	done
-}
-
 refresh_msd() {
 	sync
 	partprobe $msd
@@ -95,7 +88,7 @@ validate_set_msd() {
 		msd1=$msd"1"
 	fi
 
-	[ ! -b "$msd" ] || [ "$MOUNT" = "/overlay" ] && {
+	[ ! -b "$msd" ] || [ "$MOUNT" = "/ext" ] && {
 		logger "'$1' storage device unavailable"
 		return 1
 	}
@@ -136,31 +129,32 @@ is_in_use() {
 	grep -q "$1" /etc/config/$2 2>&- && killall -0 $3 2>&-
 }
 
-get_usb() {
+get_usb_device() {
 	local file="/tmp/board.json"
 	local path usb_jack
 	path=$(readlink -f $1)
 	usb_jack="$(jsonfilter -i $file -e '@.usb_jack')"
-	strstr "$path" "$usb_jack" && echo usb || echo internal
+	strstr "$path" "$usb_jack" && echo usb || echo sd
 }
 
 add_description() {
 	local path="/sys/block/$1/device"
-	local d t
+	local description type
 
 	if is_sdcard $1; then
-		d="$(cat $path/name) $(cat $path/date)"
-		t='sd'
+		description="$(cat $path/name) $(cat $path/date)"
+		type='sd'
 	else
-		d="$(cat $path/model)"
-		t="$(get_usb $path)"
+		description="$(cat $path/model)"
+		type="$(get_usb_device $path)"
 	fi
 
-	d="${d#${d%%[![:space:]]*}}"
-	d="${d%${d##*[![:space:]]}}"
+	# remove leading and trailing whitespaces
+	description="${description#${description%%[![:space:]]*}}"
+	description="${description%${description##*[![:space:]]}}"
 
-	json_add_string type $t
-	json_add_string description "$d"
+	json_add_string type $type
+	json_add_string description "$description"
 }
 
 extract_field() {
@@ -175,28 +169,30 @@ extract_field() {
 	echo "$value"
 }
 
-add_unmountable() {
-	local line="$1"
-	local DEVICE=$(extract_field DEVICE $line)
-	local UUID=$(extract_field UUID $line)
-	local MOUNT=$(extract_field MOUNT $line)
-	local TYPE=$(extract_field TYPE $line)
-	local LABEL=$(extract_field LABEL $line)
-	
-	[ -z "$MOUNT" ] && return 1
+json_list_device_stats() {
+	local DEVICE=$(echo "$1" | cut -d: -f1)
+	local bn=$(basename $DEVICE)
+	local bd=$(basedev $bn)
+	# skip devices with emmc
+	[ "$bd" != "${bd#*mmcblk*}" ] &&
+		[ "$(cat /sys/block/$bd/device/type)" = "MMC" ] && return 0
 
-	# if not overlay and not mounted on /mnt/*, return
+	local UUID=$(extract_field UUID $1)
+	local MOUNT=$(extract_field MOUNT $1)
+	local TYPE=$(extract_field TYPE $1)
+	local LABEL=$(extract_field LABEL $1)
+	local MOUNT=$(extract_field MOUNT $1)
+	[ -z "$MOUNT" ] && return
+
+	# if not /ext and not mounted on /tmp/*, return
 	local overlay_uuid="$(uci -q get fstab.overlay.uuid)"
-	if [ -n "$overlay_uuid" -a "$overlay_uuid" = "$UUID" -a "$MOUNT" = "/overlay" ]; then
+	if [ -n "$overlay_uuid" ] && [ "$overlay_uuid" = "$UUID" ] && [ "$MOUNT" = "/ext" ]; then
 		local is_overlay=1
-	elif [ -z "$MOUNT" -o -n "${MOUNT%%/mnt/*}" ]; then
-		return 0
 	else
+		[ -n "${MOUNT%%/tmp/*}" ] && return 0
 		local is_overlay=0
 	fi
 
-	local bn=$(basename $DEVICE)
-	local bd=$(basedev $bn)
 	json_add_object $bn
 		json_add_string mountpoint $MOUNT
 		json_add_string dev $DEVICE
@@ -211,34 +207,19 @@ add_unmountable() {
 		}
 		json_add_string status mounted
 	json_close_object
-	return 0
 }
 
 devices() {
-	local IFS=$'\n' bi="$(block info)"
-
-	[ -z "$bi" ] && return 1
-
-	local bd=$(blockdevs)
+	local IFS=$'\n' block_list="$(block info | grep -E '^/dev/(sd|mmcblk[0-9])')"
+	# IFS for loop to iterate over new lines and not spaces
+	# block_list contains external storage devices and mmc cards (internal emmc has index of 0)
 	json_init
-	for line in $bi; do
-		for d in $bd; do
-			strstr "$line" "$d" || continue
-			bd=${bd%$d*}${bd#*$d}
-			break
-		done
-		add_unmountable "DEVICE=\"${line/:*/}\" ${line/*: /}" || bd="$d"
-	done
-	for d in $bd; do
-		[ "$(cat "/sys/block/$d/size")" = '0' ] && continue
-		json_add_object $d
-			json_add_string dev /dev/$d
-			add_description $d
-			json_add_string status unformatted
-		json_close_object
-	done
-	json_close_object
 
+	for line in $block_list; do
+		json_list_device_stats "$line"
+	done
+
+	json_close_object
 	json_dump -i
 }
 

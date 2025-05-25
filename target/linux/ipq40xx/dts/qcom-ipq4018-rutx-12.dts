@@ -31,6 +31,14 @@
 				gpio-export,output = <0>;
 				gpios = <&shift_io 19 GPIO_ACTIVE_HIGH>;
 			};
+
+			gpio_bt_reset {
+				gpio-export,name = "bt_reset";
+				line-name = "bt_reset";
+				gpio-export,output = <0>;
+				gpio-export,toggle = <100>; // ms
+				gpios = <&shift_io 27 GPIO_ACTIVE_HIGH>;
+			};
 		};
 
 		leds {
@@ -143,6 +151,13 @@
 				gpiochip_0 = <100>; // Built-in
 				gpiochip_1 = <24>;  // Shift Register
 			};
+			hw_7 {
+				hwver = <7>;
+				gpiochip_count = <2>;
+
+				gpiochip_0 = <100>; // Built-in
+				gpiochip_1 = <32>;  // Shift Register
+			};
 		};
 
 		ioman {
@@ -249,6 +264,10 @@
 				compatible_versions = <4 99>;
 				line_name = "GPIO_MODEM_POWER_2";
 			};
+			GPIO_127 {
+				compatible_versions = <7 99>;
+				line_name = "BT_RESET";
+			};
 		};
 	};
 };
@@ -269,4 +288,8 @@
 	sim_cfg {
 		default = "0210000_0000000_0110000_0000000";
 	};
+};
+
+&shift_io {
+	registers-number = <4>;
 };

@@ -5,7 +5,8 @@
 . /usr/share/libubox/jshn.sh
 
 SECTION=$1
-FILE="/tmp/wget_check_file"
+WDIR="/var/run/preboot"
+FILE="${WDIR}/wget_check_file"
 PINGCMD="/bin/ping"
 PINGCMDV6="/bin/ping6"
 
@@ -13,12 +14,24 @@ log() {
 	/usr/bin/logger -t ping_reboot.sh "$@"
 }
 
+check_suid() {
+	for i in $1; do
+		[ -u "$i" ] || {
+			log "Insufficient permissions to execute '$i' command."
+			return 1
+		}
+	done
+}
+
 get_router_name() {
 	local name=""
 
-	config_load system
-	config_get name system "devicename"
+	config_load system || {
+		log "Failed to load system config. Insufficient permissions."
+		return 1
+	}
 
+	config_get name system "devicename"
 	[ -z "$name" ] && name=$(mnf_info -n 2>/dev/null)
 
 	echo "${name:0:3}"
@@ -32,7 +45,6 @@ get_config() {
 	config_get HOST "$SECTION" "host" ""
 	config_get PORT_HOST "$SECTION" "port_host" ""
 	config_get ACTION "$SECTION" "action" 0
-	config_get CURRENT_TRY "$SECTION" "current_try" 0
 	config_get PACKET_SIZE "$SECTION" "packet_size" 0
 	config_get MODEM "$SECTION" "modem" ""
 	config_get TYPE "$SECTION" "type" ""
@@ -46,6 +58,8 @@ get_config() {
 	config_get PING_PORT_TYPE "$SECTION" ping_port_type ""
 	config_get PORT "$SECTION" port ""
 	config_get ACTION_WHEN "$SECTION" action_when "all"
+
+	CURRENT_TRY=$(get_fail_counter)
 }
 
 get_modem_num() {
@@ -64,22 +78,41 @@ get_modem_num() {
 	return 1
 }
 
-set_uci_fail_counter() {
-	# Check if non-negative integer
-	if echo "$1" | grep -qE '^[0-9]+$'; then
-		uci_set ping_reboot "$SECTION" current_try "$1"
-		uci_commit ping_reboot
-	fi
+get_fail_counter() {
+	local file="${WDIR}/fail_counter_${SECTION}"
+	local val
+
+	[ -r "$file" ] || {
+		echo 0
+
+		return 1
+	}
+	
+	val=$(cat "$file")
+	[ "$val" -eq "$val" ] 2>/dev/null && echo "$val" || echo 0
+}
+
+set_fail_counter() {
+	#Validate if the argument is a number
+	[ "$1" -eq "$1" ] 2>/dev/null && echo -n "$1" >"${WDIR}/fail_counter_${SECTION}"
 }
 
 restart_modem() {
-	mctl --reboot --number "$MODEM_NUM"
+	/bin/ubus -t 20 call mctl reboot "{\"id\":\"$1\"}"
 }
 
 restart_mobile_interface() {
-	ifdown "$1"
+	local interface="$1"
+
+	[ -n "$interface" ] || {
+		log "No active mobile interface found."
+
+		return
+	}
+
+	ubus -t 10 call network.interface down "{\"interface\": \"${interface}\"}" 2>/dev/null
 	sleep 1
-	ifup "$1"
+	ubus -t 10 call network.interface up "{\"interface\": \"${interface}\"}" 2>/dev/null
 }
 
 restart_poe() {
@@ -90,7 +123,12 @@ restart_poe() {
 
 restart_port() {
 	ubus list poeman 2>&1 >/dev/null || return 0
-	config_load poe
+	config_load poe || {
+		log "Failed to load poe config. Insufficient permissions."
+
+		return 1
+	}
+
 	if [ -n "$1" ]; then
 		config_get POE_ENABLE "$1" "poe_enable" 0
 		config_get NAME "$1" "name" ""
@@ -190,7 +228,7 @@ send_sms() {
 		res=$(echo "$res" | grep -o OK)
 
 		if [ "$res" != "OK" ]; then
-			set_uci_fail_counter "$CURRENT_TRY"
+			set_fail_counter "$CURRENT_TRY"
 		fi
 	done
 }
@@ -199,7 +237,7 @@ exec_action() {
 	case "$ACTION" in
 	"1")
 		log "Rebooting router after ${CURRENT_TRY} unsuccessful tries"
-		reboot "$1"
+		/bin/ubus call sys reboot "{\"args\": [\"$1\"]}"
 		;;
 	"2")
 		log "Restarting modem after ${CURRENT_TRY} unsuccessful tries"
@@ -232,7 +270,7 @@ exec_action() {
 
 		#FIXME: what if we have multiple mobile interfaces (multi APN mode)?
 		#which one should we restart?	
-		restart_mobile_interface "$ACTIVE_INTERFACE_SUFFIX"
+		restart_mobile_interface "$ACTIVE_INTERFACE"
 		;;
 	"6")
 		log "Sending message after ${CURRENT_TRY} unsuccessful retries"
@@ -283,7 +321,7 @@ check_tries() {
 		if is_over_limit; then
 			log "Action stopped. Data limit reached."
 		else
-			set_uci_fail_counter 0
+			set_fail_counter 0
 			exec_action "$1"
 		fi
 	else
@@ -368,6 +406,8 @@ perform_multiple_pings() {
 
 	[ "$IP_TYPE" = "ipv6" ] && ping_cmd="$PINGCMDV6"
 
+	check_suid "$ping_cmd" || return 1
+
 	config_get len "$SECTION" "host_LENGTH" 0
 	config_get len1 "$SECTION" "host1_LENGTH" 0
 	config_get len2 "$SECTION" "host2_LENGTH" 0
@@ -402,7 +442,7 @@ perform_multiple_pings() {
 	( [ "$len1" -gt "0" ] && [ "$passed_pings" -ge "$len1" ] ) || 
 	( [ "$len2" -gt "0" ] && [ "$passed_pings" -ge "$len2" ] )
 	then
-		set_uci_fail_counter 0
+		set_fail_counter 0
 		log "Pings successful."
 		return;
 	elif
@@ -415,7 +455,7 @@ perform_multiple_pings() {
 		check_tries "-p" "" "${TIME} min. until next ping retry"
 		return;
 	fi
-	set_uci_fail_counter 0
+	set_fail_counter 0
 }
 
 perform_ping() {
@@ -424,7 +464,7 @@ perform_ping() {
 	[ "$IP_TYPE" = "ipv6" ] && ping_cmd="$PINGCMDV6"
 
 	if $ping_cmd $IF_OPTION -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$HOST" >/dev/null 2>&1; then
-		set_uci_fail_counter 0
+		set_fail_counter 0
 		log "Ping successful."
 	else
 		check_tries "-p" "Host ${HOST} unreachable" "${TIME} min. until next ping retry"
@@ -475,13 +515,15 @@ multiple_ports() {
 	local port=$(echo "$1" | cut -d'=' -f1)
 	local number=$(echo "$1" | cut -d'=' -f2)
 	local decimal_value=$(echo "$port" | sed 's/[^0-9]*//g')
-	local router_name=$(get_router_name)
+	local router_name devices_count
 	local passed_pings=0
-	local devices_count
 
 	if [ -z "$PORT" ]; then
 		PORT=${port}
 	fi
+
+	router_name=$(get_router_name)
+	[ "$?" -ne 0 ] && return
 
 	is_ips_equal_to_number "$port" "$number" "$router_name"
 
@@ -527,7 +569,7 @@ EOF
 	fi
 
 	if [ "$passed_pings" -ge "$number" ]; then
-		set_uci_fail_counter 0
+		set_fail_counter 0
 		log "Ping successful."
 	elif [ "$equal" -eq 0 ] && [ "$ACTION" -eq "7" ]; then
 		check_tries "-p" "" "${TIME} min. until next ping retry"
@@ -535,6 +577,7 @@ EOF
 }
 
 perform_port_ping() {
+	check_suid "$PINGCMD $PINGCMDV6" || return 1
 	if [ "$PING_PORT_TYPE" = "ping_ip" ]; then
 		local mac=""
 		if [ "$IP_TYPE" = "ipv6" ]; then
@@ -542,12 +585,14 @@ perform_port_ping() {
 		else
 			#Ping before getting MAC address. In other case, ARP table will could be empty in some situations.
 			#Basicaly it is an arp-scan equivalent since we do not have such a command in a TSW devices.
-			/bin/ping -W 2 -s 56 -q -c 1 "$HOST" >/dev/null 2>&1
+			$PINGCMD -W 2 -s 56 -q -c 1 "$HOST" >/dev/null 2>&1
 			mac=$(cat /proc/net/arp | grep -w "$HOST" | awk '{print $4}')
 		fi
 		if [ -n "$mac" ] && [ "$mac" != "00:00:00:00:00:00" ]; then
-			local router_name=$(get_router_name)
 			local port=""
+			local router_name=$(get_router_name)
+			[ "$?" -ne 0 ] && return
+
 			if [ "$router_name" = "TSW" ]; then
 				port=$(bridge fdb | grep -w "$mac" | grep "self" | awk '{print $3}')
 			else
@@ -604,20 +649,27 @@ perform_wget() {
 	done
 
 	if [ "$passed_wgets" -ge "$len" ]; then
-		set_uci_fail_counter 0
+		set_fail_counter 0
 		log "Wgets URL successful."
 	elif [ "$failed_wgets" -ge "$len" ]; then
 		check_tries "-g" "Can't wget URL." "Will be retrying wget"
+
+		return
 	fi
-	set_uci_fail_counter 0
+
+	set_fail_counter 0
 }
 config_load ping_reboot
 get_config
 
 [ "$ENABLE" -ne 1 ] && return
+[ -d "$WDIR" ] || mkdir -p "$WDIR" 2>/dev/null || {
+	log "Failed to create directory $WDIR"
+	exit 1
+}
 
 CURRENT_TRY=$((CURRENT_TRY + 1))
-set_uci_fail_counter $CURRENT_TRY
+set_fail_counter $CURRENT_TRY
 
 [ -z "$MODEM" ] && {
 	get_modem
@@ -626,11 +678,13 @@ set_uci_fail_counter $CURRENT_TRY
 }
 
 MODEM_NUM=$(get_modem_num "$MODEM")
-
 [ -z "$ACTIVE_INTERFACE" ] && {
-	config_load network
-	config_foreach get_active_mobile_interface "interface"
+	config_load network || {
+		log "Failed to load network config. Insufficient permissions."
+		exit 1
+	}
 
+	config_foreach get_active_mobile_interface "interface"
 	config_load ping_reboot
 }
 

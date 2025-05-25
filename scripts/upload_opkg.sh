@@ -102,7 +102,6 @@ echo "${!SSH_HOST_KEY}" >~/.ssh/known_hosts
 TOPDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." >/dev/null && pwd)
 ARCH=$(ls "${TOPDIR}/bin/packages/")
 PACKAGEDIR="${TOPDIR}/bin/packages/${ARCH}/pm_packages"
-ZIPPEDDIR="${TOPDIR}/bin/packages/${ARCH}/zipped_packages"
 TAG=${CI_COMMIT_TAG:-$(git describe | awk -F "-pm" '{print $1}')}
 CLIENT=$(grep 'CONFIG_TLT_VERSIONING_CLIENT' .config | cut -d'=' -f2 | tr -d '"')
 HASH=$(echo -n "${CLIENT}/${TAG}/${PLATFORM}" | sha256sum | awk '{print $1}')
@@ -111,9 +110,8 @@ LINK="$PACKAGES_ROOT/packages/${CLIENT}/${TAG}"
 
 echo "UPLOADING TO ${!SSH_USER_HOST#*@}:"
 ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "rm -fr ${FOLDER:?}"
-ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "mkdir -p ${FOLDER}/wiki ${LINK} && ln -fs ${FOLDER} ${LINK}/${PLATFORM}" || exit 1
+ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "mkdir -p ${FOLDER} ${LINK} && ln -fs ${FOLDER} ${LINK}/${PLATFORM}" || exit 1
 scp -P "${!SSH_PORT}" "${PACKAGEDIR}/"* "${!SSH_USER_HOST}:/${FOLDER}/"
-scp -P "${!SSH_PORT}" "${ZIPPEDDIR}/"* "${!SSH_USER_HOST}:/${FOLDER}/wiki/"
 
 echo "OPKG URL: http://$([[ $prefix == TEST ]] && echo 'test.')opkg.teltonika-networks.com/${HASH}"
 

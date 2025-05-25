@@ -69,7 +69,7 @@ filter_common_values() {
         sed 's/^[ \t]*//' | \
         sort | \
         uniq -c | \
-        awk -v devnum="$devnum" '$1 == devnum {print substr($0, index($0, $2))}')
+        awk -v devnum="$devnum" '$1 == devnum {sub(/^[ \t]*[0-9]+[ \t]+/, ""); print}')
 
     [ -n "$in_delim" ] && \
         processed_data=$(echo "$processed_data" | paste -sd "$in_delim" -)

@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=7.13
+PKG_SOURCE_VERSION:=7.14.3
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \
@@ -21,7 +21,7 @@ define Package/gsmd
 	CATEGORY:=Network
 	TITLE:=Simple server to route AT commands to modem
 	DEPENDS:= +libubus +libubox +libblobmsg-json +modems +kmod-usb-serial-option +libmnfinfo
-	USERID:=gsm:gsm
+	USERID:=gsm=509:gsm=509
 endef
 
 define Package/gsmctl
@@ -90,15 +90,6 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/api/include/* $(1)/usr/include
 endef
 
-
-define Package/gsmd/postinst
-	#!/bin/sh
-
-	. "$${IPKG_INSTROOT}/lib/functions.sh"
-
-	# add gsm user to dialout group to read network cfg
-	group_add_user dialout gsm
-endef
 
 define Package/libgsm/install
 	$(INSTALL_DIR) $(1)/usr/lib

@@ -1,6 +1,6 @@
 --- a/files/usr/share/15-mwan3
 +++ b/files/usr/share/15-mwan3
-@@ -114,15 +114,21 @@ mwan3_flush_conntrack "$IFNAME" "$ACTION
+@@ -114,12 +114,19 @@ mwan3_flush_conntrack "$IFNAME" "$ACTION
  
  flush_conntrack() {
  	ipsec_enabled
@@ -21,7 +21,4 @@
 +	done
  }
  
--
  ipsec_routes() {
- 	[ "$ipsec_enabled" = "1" ] || return 0
- 	local wan_device="$(cat /var/run/mwan3/active_wan)"

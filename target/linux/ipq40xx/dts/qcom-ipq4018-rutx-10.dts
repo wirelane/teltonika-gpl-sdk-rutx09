@@ -4,6 +4,20 @@
 	model = "RUTX10";
 
 	soc {
+		gpio-export {
+			compatible = "gpio-export";
+			#size-cells = <0>;
+
+			gpio_bt_reset {
+				tlt-mnf,hwver = <1300 9999>;
+				gpio-export,name = "bt_reset";
+				line-name = "bt_reset";
+				gpio-export,output = <0>;
+				gpio-export,toggle = <100>; // ms
+				gpios = <&shift_io 4 GPIO_ACTIVE_HIGH>;
+			};
+		};
+
 		leds {
 			compatible = "gpio-leds";
 
@@ -50,6 +64,13 @@
 			GPIO_106 {
 				compatible_versions = <9 99>;
 				line_name = "LED_WIFI_50";
+			};
+		};
+
+		misc {
+			GPIO_104 {
+				compatible_versions = <13 99>;
+				line_name = "BT_RESET";
 			};
 		};
 	};

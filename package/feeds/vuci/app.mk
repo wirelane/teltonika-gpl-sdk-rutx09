@@ -3,7 +3,8 @@ APP_SECTION?=vuci
 APP_CATEGORY?=VuCI
 VUCI_CORE_VERSION:=$(shell git --git-dir=$(CURDIR)/../../../.git log -1 --pretty="%ci %h" | awk '{ print $$1 "-" $$4 }')
 VUCI_CORE_DIR=$(BUILD_DIR)/vuci-ui-core-$(VUCI_CORE_VERSION)
-VUCI_APPS=$(notdir $(wildcard $(VUCI_CORE_DIR)/applications/menu.d/*.json))
+VUCI_APPS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=y $(TOPDIR)/.config | cut -d'=' -f1 | cut -d'_' -f3 | sed ':a;N;$!ba;s/\n/ /g')
+VUCI_JSONS=$(notdir $(wildcard $(VUCI_CORE_DIR)/applications/menu.d/*.json))
 APP_NAME_ONLY=$(patsubst %-ui,%,$(APP_NAME))
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
@@ -52,7 +53,7 @@ endif
 define Package/$(PKG_NAME)/post/Default
 #!/bin/sh
 [ -z "$${IPKG_INSTROOT}" ] || exit 0
-touch /tmp/vuci/reload_routes
+ubus send vuci.notify '{"event": "reload_routes"}'
 exit 0
 endef
 
@@ -100,10 +101,15 @@ define Package/$(PKG_NAME)/install/Default
 				find $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/ -type f -not \( -name '*.tap.json' -or -name '*.tsw.json' \) -exec $(RM) {} +; \
 			fi; \
 		fi; \
-		$(if $(VUCI_APPS), \
-			find $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/ -type f -name '*.json' -exec sh -c 'for file; do if echo $(VUCI_APPS) | grep -w $$$$(basename "$$$$file"); then rm -f "$$$$file"; fi; done' sh {} +; \
+		$(if $(CONFIG_GPL_BUILD), \
+			$(if $(filter $(PKG_NAME), $(VUCI_APPS)), \
+				$(RM) -r $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/; \
+			) \
 		) \
 		$(CP) $(PKG_BUILD_DIR)/files/* $(1); \
+		$(if $(VUCI_JSONS), \
+			find $(1)/usr/share/vuci/menu.d/ -type f -name '*.json' -exec sh -c 'for file; do if echo $(VUCI_JSONS) | grep -w $$$$(basename "$$$$file"); then rm -f "$$$$file"; fi; done' sh {} +; \
+		) \
 	fi; \
 	if [[ -d "$(PKG_BUILD_DIR)/dest" ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/dest)" ]]; then \
 		$(INSTALL_DIR) $(1)/www/assets; \
@@ -137,10 +143,10 @@ define Package/$(PKG_NAME)/install/Default
 				find $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/ -type f -not \( -name '*.tap.json' -or -name '*.tsw.json' \) -exec $(RM) {} +; \
 			fi; \
 		fi; \
-		$(if $(VUCI_APPS), \
-			find $(PKG_BUILD_DIR)/files/usr/share/vuci/menu.d/ -type f -name '*.json' -exec sh -c 'for file; do if echo $(VUCI_APPS) | grep -w $$$$(basename "$$$$file"); then rm -f "$$$$file"; fi; done' sh {} +; \
-		) \
 		$(CP) $(PKG_BUILD_DIR)/files/* $(1); \
+		$(if $(VUCI_JSONS), \
+			find $(1)/usr/share/vuci/menu.d/ -type f -name '*.json' -exec sh -c 'for file; do if echo $(VUCI_JSONS) | grep -w $$$$(basename "$$$$file"); then rm -f "$$$$file"; fi; done' sh {} +; \
+		) \
 	fi; \
 	if [[ -d "$(PKG_BUILD_DIR)/dest" ]] && [[ "$$$$(ls -A $(PKG_BUILD_DIR)/dest)" ]]; then \
 		$(INSTALL_DIR) $(1)/www/views; \

@@ -7,6 +7,12 @@
 		},
 		"hotplug.neigh": {
 			"methods": [ "call" ]
+		},
+		"log": {
+			"methods": [ "write_ext" ]
+		},
+		"network.wireless": {
+			"methods":  [ "status" ]
 		}
 	}
 }

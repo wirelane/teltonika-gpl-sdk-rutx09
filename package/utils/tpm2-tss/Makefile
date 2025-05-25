@@ -25,7 +25,7 @@ define Package/$(PKG_NAME)
   SUBMENU:=TPM2
   TITLE:=TPM2-TSS
   URL:=https://github.com/tpm2-software/tpm2-tss
-  DEPENDS:= +libgcrypt +curl +libjson-c +libusb-1.0 +libuuid +libopenssl
+  DEPENDS:= +libgcrypt +libcurl +libjson-c +libusb-1.0 +libuuid +libopenssl
 endef
 
 define Package/$(PKG_NAME)/description

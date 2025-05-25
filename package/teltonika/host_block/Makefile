@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=host_block
-PKG_VERSION:=2025-01-06
+PKG_VERSION:=2025-03-31
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.9
+PKG_SOURCE_VERSION:=1.10.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -21,6 +21,7 @@ define Package/host_block
 	CATEGORY:=Base system
 	TITLE:=Host Block
 	DEPENDS:=+dnsmasq
+	USERID:=hostblock=505:hostblock=505
 endef
 
 define Package/host_block/conffiles
@@ -30,10 +31,12 @@ endef
 
 
 define Package/host_block/install
-	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/sbin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/hostblock.init $(1)/etc/init.d/hostblock
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/hostblock.conf $(1)/etc/config/hostblock
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/hostblock.conf $(1)/etc/config/hostblock
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/hostblock.sh $(1)/usr/sbin/hostblock.sh
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/hostblock.json $(1)/usr/share/acl.d/hostblock.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/hostblock.permtab $(1)/etc/permtab.d/hostblock
 endef
 
 $(eval $(call BuildPackage,host_block))

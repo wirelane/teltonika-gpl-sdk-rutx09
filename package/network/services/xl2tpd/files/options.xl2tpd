@@ -19,6 +19,6 @@ noipdefault
 proxyarp
 ip-up-script /etc/ppp/xl2tpd-up
 ip-down-script /etc/ppp/xl2tpd-down
-chap-secrets /var/etc/xl2tp-chap-secrets
+chap-secrets /var/run/xl2tpd/xl2tp-chap-secrets
 ifname xl2tp
 encounter

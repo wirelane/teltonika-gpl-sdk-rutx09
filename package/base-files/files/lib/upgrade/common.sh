@@ -135,6 +135,10 @@ get_magic_fat32() {
 	(get_image "$@" | dd bs=1 count=5 skip=82) 2>/dev/null
 }
 
+get_magic_cd() {
+	(get_image "$@" | dd bs=1 count=5 skip=32769) 2>/dev/null
+}
+
 identify_magic_long() {
 	local magic=$1
 	case "$magic" in
@@ -157,6 +161,11 @@ part_magic_fat() {
 	local magic=$(get_magic_vfat "$@")
 	local magic_fat32=$(get_magic_fat32 "$@")
 	[ "$magic" = "FAT" ] || [ "$magic_fat32" = "FAT32" ]
+}
+
+part_magic_cd() {
+	local magic=$(get_magic_cd "$@")
+	[ "$magic" = "CD001" ]
 }
 
 fitblk_get_bootdev() {

@@ -158,10 +158,10 @@ config PACKAGE_EVENT_JUGGLER_ACTION_MQTT
 		Compile with MQTT action support
 
 config PACKAGE_EVENT_JUGGLER_ACTION_CONNECTION
-	bool "Mobile connection on/off action support"
-	default n
+	bool "Connection control support"
+	default y
 	help
-		Compile with mobile connection on/off action support
+		Compile with connection control support
 
 endmenu
 

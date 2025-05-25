@@ -5,8 +5,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dot1x
-PKG_RELEASE:=5
-PKG_VERSION:=2025-03-13
+PKG_RELEASE:=3
+PKG_VERSION:=2025-03-13-dev
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

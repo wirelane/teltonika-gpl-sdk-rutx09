@@ -102,7 +102,7 @@ TARGET_CXXFLAGS += -O1
 TARGET_CXXFLAGS += -Wl,--gc-sections,--as-needed
 
 define Package/emailrelay/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay-filter-copy $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay-passwd $(1)/usr/bin/
@@ -111,6 +111,7 @@ define Package/emailrelay/install
 	$(INSTALL_CONF) files/$(PKG_NAME).config $(1)/etc/config/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
+	$(INSTALL_BIN) files/$(PKG_NAME).permtab $(1)/etc/permtab.d/$(PKG_NAME)
 endef
 
 $(eval $(call BuildPackage,emailrelay))

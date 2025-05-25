@@ -18,7 +18,7 @@ PKG_SOURCE_VERSION:=1.0.36
 PKG_SOURCE=tinc-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.tinc-vpn.org/packages
 
-PKG_CPE_ID:=cpe:/a:tinc:tinc
+PKG_CPE_ID:=cpe:/a:tinc-vpn:tinc
 
 PKG_BUILD_PARALLEL:=1
 PKG_INSTALL:=1

@@ -22,19 +22,30 @@ NO_ACTIVE_SIM_FOUND=109
 FLOCK_FAILED=110
 WRONG_SIM=111
 
+ESIM_ARG=0
 SIM_ARG=0
 MODEM_ARG=0
 MODEM_OBJ=-1
-SIM_CHANGE=-1
 
-INICIAL_SIM=0
+INITIAL_SIM=0
+INITIAL_ESIM=0
 CURRENT_ACTIVE_SIM=0
+CURRENT_ACTIVE_ESIM=0
 
 # Interface name for pinging
 MOBILE_INTERFACE_L3_DEVICE=0
 
 usage() {
-    echo "Usage: $0 [-s <sim1|sim2>] [-m <modem_id>]" 1>&2
+    local error="$1"
+    [ -n "$error" ] && echo "$0: Invalid or insufficient arguments provided." 1>&2
+
+    echo "Usage: $0 -s <SIM> -m <MODEM_USB_ID> -p [ESIM_PROFILE_ID]"
+    echo
+    echo "  -s <SIM>               SIM identifier (sim1, sim2, ...)"
+    echo "  -m <MODEM_USB_ID>      Modem USB ID (1-1, 3-1, ...)"
+    echo "  -p [ESIM_PROFILE_ID]   eSIM profile ID (0, 1, ...)"
+    echo
+    echo "Example: $0 -s sim1 -m 3-1 -p 0"
     exit 1
 }
 
@@ -107,19 +118,22 @@ wait_for_interface() {
 # Get current active sim card slot
 get_active_sim_info() {
     json_init
-    json_load "$(ubus call gsm.modem$MODEM_OBJ get_sim_slot)"
-    json_get_var CURRENT_ACTIVE_SIM index
+    json_load "$(ubus call gsm.modem$MODEM_OBJ info)"
+    json_select cache
+    json_get_var CURRENT_ACTIVE_SIM sim
+    json_get_var CURRENT_ACTIVE_ESIM esim_profile_id
+    CURRENT_ACTIVE_ESIM=${CURRENT_ACTIVE_ESIM:-0} # Set default value to 0 in case there's no opt
     [ -z "$CURRENT_ACTIVE_SIM" ] && finish $NO_ACTIVE_SIM_FOUND
 }
 
 # Reset sim info to its initial state
 reset_sim() {
-    if [ "$SIM_CHANGE" == "1" ]; then
-        [ $INICIAL_SIM -eq $CURRENT_ACTIVE_SIM ] && logprint "SIM$INICIAL_SIM is already active" && return
-        logprint "Switching back to sim$INICIAL_SIM"
-        ubus call gsm.modem$MODEM_OBJ change_sim_slot
-        wait_for_disconnect
-    fi
+    get_active_sim_info
+
+    [[ $INITIAL_SIM != $CURRENT_ACTIVE_SIM || $INITIAL_ESIM != $CURRENT_ACTIVE_ESIM ]] && {
+        logprint "Reloading mobifd to reset temporary SIM settings"
+        ubus call mobifd reload >/dev/null && wait_for_disconnect
+    }
 }
 
 # Get l3_dev
@@ -132,6 +146,7 @@ get_l3_dev() {
 
 # Load required options from sim_idle_protection config
 sim_idle_config_load() {
+    local sim_ping_m sim_ping_p sim_ping_e
     config_load "sim_idle_protection"
 
     [ -z "$CONFIG_SECTIONS" ] && finish $ERR_SIM_IDLE_CONFIG_FAIL
@@ -139,12 +154,17 @@ sim_idle_config_load() {
     for section in $CONFIG_SECTIONS; do
         config_get sim_ping_m $section modem
         config_get sim_ping_p $section position
-        if [[ "$sim_ping_m" == "$MODEM_ARG" && "$sim_ping_p" == "$SIM_ARG" ]]; then
+        config_get sim_ping_e $section esim_profile
+
+        sim_ping_e=${sim_ping_e:-0} # Set default value to 0
+
+        if [[ "$sim_ping_m" == "$MODEM_ARG" && "$sim_ping_p" == "$SIM_ARG" && "$sim_ping_e" == "$ESIM_ARG" ]]; then
             config_get ping_ip $section host
             config_get ping_c $section count
             config_get ping_s $section packet_size
             config_get ping_t $section ip_type
             ping_t=$(echo $ping_t | tail -c 2)
+            break
         fi
     done
 }
@@ -165,11 +185,14 @@ found_suitable_interfaces() {
         config_get modem_id "$section" modem
         config_get pdptype "$section" pdptype
         config_get disabled "$section" disabled
-        [ "$sim" != "$SIM_ARG" ] || [ "$modem_id" != "$MODEM_ARG" ] || [ -n "$disabled" ] && continue
+        config_get esim_profile "$section" esim_profile
+
+        esim_profile=${esim_profile:-0} # Set default value to 0
+
+        [ "$sim" != "$SIM_ARG" ] || [ "$modem_id" != "$MODEM_ARG" ] || [ "$esim_profile" != "$ESIM_ARG" ] || [ -n "$disabled" ] && continue
 
         [ "$ping_t" == "4" ] && [[ "$pdptype" == "ip" || "$pdptype" == "ipv4v6" ]] && suitable_interface_list="$suitable_interface_list $section"
         [ "$ping_t" == "6" ] && [[ "$pdptype" == "ipv6" || "$pdptype" == "ipv4v6" ]] && suitable_interface_list="$suitable_interface_list $section"
-
     done
 
     [ -z "$suitable_interface_list" ] && finish $NO_SUITALBE_INTERFACES_FOUND
@@ -211,7 +234,6 @@ ping_ip() {
 ping_ip_all() {
     local status=1
 
-    get_active_sim_info
     wait_for_interface
 
     for inter in $inter_ping_from_list; do
@@ -253,7 +275,7 @@ finish() {
         exit "$option"
         ;;
     "$ERR_DISCONN_FAIL")
-        logprint "Failed to disconnect from current SIM $INICIAL_SIM"
+        logprint "Failed to disconnect from current SIM $INITIAL_SIM"
         log "Ping failed"
         reset_sim
         exit "$option"
@@ -307,7 +329,8 @@ main() {
 
     # Get current sim slot
     get_active_sim_info
-    INICIAL_SIM=$CURRENT_ACTIVE_SIM
+    INITIAL_SIM=$CURRENT_ACTIVE_SIM
+    INITIAL_ESIM=$CURRENT_ACTIVE_ESIM
 
     # Load sim_idle_protection config
     sim_idle_config_load
@@ -316,10 +339,9 @@ main() {
     found_suitable_interfaces
 
     # If current SIM slot is not that need ping from
-    if [ "$SIM_ARG" != "$INICIAL_SIM" ]; then
+    if [[ "$SIM_ARG" != "$INITIAL_SIM" || "$ESIM_ARG" != "$INITIAL_ESIM" ]]; then
         logprint "Switching to sim$SIM_ARG"
-        ubus call gsm.modem$MODEM_OBJ change_sim_slot
-        SIM_CHANGE=1
+        ubus call mobifd.modem$MODEM_OBJ switch_sim '{"sim_id":'$SIM_ARG', "esim_index":'$ESIM_ARG'}' >/dev/null
         wait_for_disconnect
     fi
 
@@ -327,7 +349,7 @@ main() {
     wait_for_connection
 
     get_active_sim_info
-    [ $CURRENT_ACTIVE_SIM -ne $SIM_ARG ] && finish $WRONG_SIM
+    [[ "$CURRENT_ACTIVE_SIM" -ne "$SIM_ARG" || "$CURRENT_ACTIVE_ESIM" -ne "$ESIM_ARG" ]] && finish $WRONG_SIM
 
     ping_ip_all
     finish $PING_SUCCESS
@@ -346,14 +368,18 @@ sim_idle_lock() {
 	return $status
 }
 
-while getopts ":s:m:" o; do
+while getopts ":s:m:p:" o; do
     case "${o}" in
     s)
-        [ "$OPTARG" != "sim1" ] && [ "$OPTARG" != "sim2" ] && usage
-        SIM_ARG=$(echo $OPTARG | tail -c 2)
+        [[ ! $OPTARG =~ ^sim[0-9]+$ ]] && usage 1 # Format: sim1, sim2...
+        SIM_ARG=$(echo $OPTARG | sed 's/[^0-9]*//g') # Extract number from sim string
         ;;
     m)
-        MODEM_ARG=${OPTARG}
+        MODEM_ARG=$OPTARG
+        ;;
+    p)
+        [[ ! $OPTARG =~ ^[0-9]+$ ]] && usage 1 # Format: 0, 1, 2...
+        ESIM_ARG=$OPTARG
         ;;
     *)
         usage

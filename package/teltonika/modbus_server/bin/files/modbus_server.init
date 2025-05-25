@@ -2,16 +2,23 @@
 
 USE_PROCD=1
 START=98
-STOP=99
+STOP=02
 
-BIN=modbus_server
 CONFIG=modbus_server
+APP=/usr/sbin/modbus_server
+
+if [ ! -x "$APP" ]; then
+	APP="/usr/local$APP"
+fi
+
+. /lib/functions.sh
 
 rename_custom_regfile() {
 	REGFILE_ON=$1
 	REGFILE=$(uci -q get modbus_server.modbus.regfile)
 
 	if [ "$REGFILE_ON" == "1" ]; then
+		fix_permissions 666 "$REGFILE" "modbus_server:modbus_server"
 		OLD_REGFILE="$(grep '# REGISTER_BLOCK_FILE' /etc/sysupgrade.conf 2>/dev/null | head -n1 | sed 's/ #.*//')"
 		if [ "$OLD_REGFILE" != "$REGFILE" ]
 		then
@@ -25,16 +32,14 @@ rename_custom_regfile() {
 set_tcp_service() {
 	local SECTION=$1
 	ENABLED=$(uci -q get modbus_server.modbus.enabled)
-	REGFILE_ON=$(uci -q get modbus_server.modbus.clientregs)
-
-	rename_custom_regfile "$REGFILE_ON"
 
 	if [ "$ENABLED" == "1" ]; then
 		procd_open_instance "$SECTION"
 		section_hash=$(uci show "$CONFIG"."$SECTION" | md5sum | head -c 32)
 		procd_set_param data hash=$section_hash
-		procd_set_param command $BIN -s "modbus" -H $section_hash
+		procd_set_param command "$APP" -s "modbus" -H $section_hash
 		procd_set_param respawn
+		procd_set_param user modbus_server
 		procd_close_instance
 	fi
 }
@@ -49,16 +54,22 @@ set_serial_service() {
 		rename_custom_regfile "$REGFILE_ON"
 
 		procd_open_instance "$SECTION"
-		section_hash=$(uci show "$CONFIG"."$SECTION" | md5sum | head -c 32)
+		section_hash=$( { uci show "$CONFIG"."$SECTION"; uci show "$CONFIG.modbus.regfile"; \
+				uci show "$CONFIG.modbus.regfilestart"; \
+				uci show "$CONFIG.modbus.regfilesize"; }  | md5sum | head -c 32)
 		procd_set_param data hash=$section_hash
-		procd_set_param command "$BIN" -s "$SECTION" -H $section_hash
+		procd_set_param command "$APP" -s "$SECTION" -H $section_hash
 		procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-60} ${respawn_retry:-0}
+		procd_set_param user modbus_server
 		procd_close_instance
 	fi
 }
 
 start_service() {
 	config_load "$CONFIG"
+
+	REGFILE_ON=$(uci -q get modbus_server.modbus.clientregs)
+	rename_custom_regfile "$REGFILE_ON"
 
 	set_tcp_service modbus
 

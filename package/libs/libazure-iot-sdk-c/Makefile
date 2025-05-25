@@ -4,6 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=libazure-iot-sdk-c
 PKG_VERSION:=2024-11-05
 PKG_RELEASE:=1
+PKG_CPE_ID:=cpe:/a:microsoft:c_sdk_for_azure_iot
 
 
 PKG_SOURCE_PROTO:=git

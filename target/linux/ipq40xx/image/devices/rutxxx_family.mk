@@ -60,7 +60,7 @@ define Device/TEMPLATE_teltonika_rutx08
 	DEVICE_SWITCH_CONF := "switch0" \
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := usb ethernet ios hw_nat nat_offloading \
-		multi_tag port_link gigabit_port xfrm-offload tpm
+		multi_tag port_link gigabit_port xfrm-offload tpm reset_button
 
 	HARDWARE/Wireless/Wireless_mode :=
 	HARDWARE/Wireless/WIFI_users :=
@@ -79,7 +79,7 @@ define Device/TEMPLATE_teltonika_rutx09
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := dual_sim usb gps mobile ethernet ios \
 		hw_nat nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm
+		xfrm-offload tpm reset_button
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -102,7 +102,7 @@ define Device/TEMPLATE_teltonika_rutx10
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := bluetooth usb wifi dual_band_ssid ethernet \
 		ios hw_nat nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm
+		xfrm-offload tpm reset_button
 
 	HARDWARE/Bluetooth/Bluetooth_4.0 := $(HW_BT_LE)
 	HARDWARE/Power/Power_consumption := 9 W Max
@@ -110,6 +110,8 @@ define Device/TEMPLATE_teltonika_rutx10
 	HARDWARE/Physical_Interfaces/Antennas := 2 x RP-SMA for Wi-Fi, 1 x RP-SMA for Bluetooth
 	HARDWARE/Physical_Specification/Weight := 355 g
 	HARDWARE/Physical_Specification/Dimensions := 115 x 32.2 x 95.2 mm
+
+	DEVICE_CHECK_PATH := bt_check /sys/bus/usb/drivers/usb/1-1.4/ reboot 13.0-
 endef
 TARGET_DEVICES += TEMPLATE_teltonika_rutx10
 
@@ -121,7 +123,7 @@ define Device/TEMPLATE_teltonika_rutx11
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := dual_sim usb gps mobile wifi dual_band_ssid bluetooth \
 		ethernet ios hw_nat nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm
+		xfrm-offload tpm reset_button
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -133,6 +135,8 @@ define Device/TEMPLATE_teltonika_rutx11
 	HARDWARE/Physical_Interfaces/Antennas := 2 x SMA for Mobile, 2 x RP-SMA for Wi-Fi, 1 x RP-SMA for Bluetooth, 1 x SMA for GNSS
 	HARDWARE/Physical_Specification/Weight := 456 g
 	HARDWARE/Physical_Specification/Dimensions := 115 x 44.2 x 95.1 mm
+
+	DEVICE_CHECK_PATH := bt_check /sys/bus/usb/drivers/usb/1-1.4/ reboot 13.0-
 endef
 TARGET_DEVICES += TEMPLATE_teltonika_rutx11
 
@@ -146,7 +150,7 @@ define Device/TEMPLATE_teltonika_rutx12
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := usb gps mobile wifi dual_band_ssid bluetooth ethernet \
 		ios dual_modem hw_nat nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm
+		xfrm-offload tpm reset_button
 
 	HARDWARE/Mobile/Module := 2 x 4G LTE Cat 6 up to 300 DL/50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -159,6 +163,8 @@ define Device/TEMPLATE_teltonika_rutx12
 	HARDWARE/Physical_Interfaces/Antennas := 4 x SMA for LTE, 2 x RP-SMA for WiFi, 1 x RP-SMA for Bluetooth, 1 x SMA for GNNS
 	HARDWARE/Physical_Specification/Weight := 540 g
 	HARDWARE/Physical_Specification/Dimensions := 132 x 44.2 x 95.1 mm
+
+	DEVICE_CHECK_PATH := bt_check /sys/bus/usb/drivers/usb/1-1.4/ reboot 7.0-
 endef
 TARGET_DEVICES += TEMPLATE_teltonika_rutx12
 
@@ -172,7 +178,7 @@ define Device/TEMPLATE_teltonika_rutx14
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := usb gps dual_sim mobile wifi dual_band_ssid bluetooth \
 		ethernet ios at_sim hw_nat nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm
+		xfrm-offload tpm reset_button
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 12 up to 600 DL/150 UL Mbps; 3G to to 42 DL/ 11.2 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -198,7 +204,7 @@ define Device/TEMPLATE_teltonika_rutx50
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := dual_sim usb gps mobile wifi dual_band_ssid ethernet ios \
 		at_sim hw_nat nat_offloading multi_tag port_link gigabit_port xfrm-offload \
-		tpm
+		tpm reset_button
 
 	HARDWARE/Mobile/Module := 5G Sub-6Ghz SA/NSA 2.1/3.3Gbps DL (4x4 MIMO), 900/600 Mbps UL (2x2); 4G LTE Cat 20 up to 2.0 Gbps DL/ 200M Mbps UL; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 15/16 depending on the hardware version
@@ -224,7 +230,7 @@ define Device/TEMPLATE_teltonika_rutxr1
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan\#s"
 	DEVICE_FEATURES := dual_sim usb mobile wifi dual_band_ssid ethernet sfp_port \
 		sfp_switch console hw_nat nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm
+		xfrm-offload tpm reset_button
 	DEVICE_USB_JACK_PATH := /usb1/1-1/1-1.2/
 	DEVICE_INITIAL_FIRMWARE_SUPPORT := 2.3.1
 	DEVICE_SERIAL_CAPABILITIES := \

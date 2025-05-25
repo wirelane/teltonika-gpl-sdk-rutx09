@@ -45,7 +45,7 @@ define Package/travelmate/install
 	$(INSTALL_BIN) ./files/travelmate_ntp.hotplug $(1)/etc/hotplug.d/ntp/25-travelmate_ntp
 
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/travelmate.conf $(1)/etc/config/travelmate
+	$(INSTALL_CONF_USR) ./files/travelmate.conf $(1)/etc/config/travelmate
 
 	$(INSTALL_DIR) $(1)/etc/travelmate
 	$(INSTALL_BIN) ./files/travelmate.vpn $(1)/etc/travelmate

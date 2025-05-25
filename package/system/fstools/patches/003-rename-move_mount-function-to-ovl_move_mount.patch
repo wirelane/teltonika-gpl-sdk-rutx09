@@ -13,11 +13,9 @@ Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
  libfstools/overlay.c | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/libfstools/overlay.c b/libfstools/overlay.c
-index 6790337..7a7a95f 100644
 --- a/libfstools/overlay.c
 +++ b/libfstools/overlay.c
-@@ -159,9 +159,9 @@ overlay_mount(struct volume *v, char *fs)
+@@ -160,9 +160,9 @@ overlay_mount(struct volume *v, char *fs
  }
  
  /**
@@ -38,5 +36,3 @@ index 6790337..7a7a95f 100644
  
  	return ret;
  }
--- 
-2.30.2

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=easycwmp
-PKG_VERSION:=2025-01-08
+PKG_VERSION:=2025-04-17
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.8.3
@@ -32,6 +32,8 @@ define Package/easycwmp
   CATEGORY:=Utilities
   TITLE:=CWMP client (using libcurl)
   DEPENDS:=+libubus +libuci +libubox +libmicroxml +libjson-c +libcurl +curl
+  USERID:=easycwmp=521:easycwmp=521
+  USER_GROUPS:=easycwmp:network gsm chilli dnsmasq
 endef
 
 define Package/easycwmp/description
@@ -74,22 +76,25 @@ CONFIGURE_ARGS += \
 
 define Package/easycwmp/conffiles
 /etc/config/easycwmp
-/usr/share/easycwmp/defaults
 endef
 
 define Package/easycwmp/install
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/ $(1)/etc/uci-defaults/7.14
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/files/900-easycwmp.sh $(1)/etc/uci-defaults/7.14/99_easycwmp
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ext/openwrt/files/easycwmp.json $(1)/usr/share/acl.d/easycwmp.json
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/easycwmpd $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/ext/openwrt/config/easycwmp $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/init.d/easycwmpd $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ext/openwrt/files/easycwmp.permtab $(1)/etc/permtab.d/easycwmp
 ifeq ($(EASYCWMP_BACKUP_DATA_FILE),y)
 	$(INSTALL_DIR) $(1)/etc/easycwmp
 endif
 ifeq ($(CONFIG_EASYCWMP_SCRIPTS_FULL),y)
 	$(INSTALL_DIR) $(1)/usr/share/easycwmp/functions/
-	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/defaults $(1)/usr/share/easycwmp
 	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/common/* $(1)/usr/share/easycwmp/functions/
 	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/custom/* $(1)/usr/share/easycwmp/functions/
 ifeq ($(CONFIG_EASYCWMP_SCRIPT_GPS), y)

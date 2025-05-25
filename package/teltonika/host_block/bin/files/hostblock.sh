@@ -38,8 +38,9 @@ add_cname() {
 }
 
 check_cname() {
-	local enabled host phost cname ncname
+	local enabled host phost cname ncname icmp_host
 	config_get_bool enabled "$1" "enabled"
+	config_get icmp_host "config" "icmp_host" "$DEFAULT_DNS"
 
 	[ "$enabled" -eq 1 ] || return
 
@@ -49,7 +50,7 @@ check_cname() {
 
 	[ -z "$host" ] || [ "$ncname" != "0" ] || [ -n "$phost" ] && return
 
-	cname=$(nslookup "$host" | grep "Name:" | awk '{print $2}' | tail -1)
+	cname=$(nslookup "$host" "$icmp_host" | grep "Name:" | awk '{print $2}' | tail -1)
 	[ -z "$cname" ] || [ "$cname" = "$host" ] && return
 
 	EXIST=0
@@ -102,10 +103,10 @@ enable_hb() {
 		return 1
 	fi
 
-	rm -f "$SERVER_CONF"
-	rm -f "$ADDRESS_CONF"
-	rm -f "/tmp/dnsmasq.d/server"
-	rm -f "/tmp/dnsmasq.d/address"
+	: > "$SERVER_CONF"
+	: > "$ADDRESS_CONF"
+	: > "/tmp/dnsmasq.d/server"
+	: > "/tmp/dnsmasq.d/address"
 
 	config_foreach check_cname "block"
 	config_load "hostblock"
@@ -135,10 +136,10 @@ enable_hb() {
 }
 
 disable_hb() {
-	rm -f "$SERVER_CONF"
-	rm -f "$ADDRESS_CONF"
-	rm -f "/tmp/dnsmasq.d/server"
-	rm -f "/tmp/dnsmasq.d/address"
+	: > "$SERVER_CONF"
+	: > "$ADDRESS_CONF"
+	: > "/tmp/dnsmasq.d/server"
+	: > "/tmp/dnsmasq.d/address"
 	echo "HostBlock disabled"
 }
 
@@ -201,15 +202,11 @@ disable_dns_redirect() {
 }
 
 reload_firewall() {
-	/etc/init.d/firewall reload >/dev/null 2>&1
+	ubus call service event "{ \"type\": \"config.change\", \"data\": { \"package\": \"firewall\" }}"
 }
 
 reload_dnsmasq() {
-	/etc/init.d/dnsmasq reload >/dev/null 2>&1
-}
-
-restart_dnsmasq() {
-	/etc/init.d/dnsmasq restart >/dev/null 2>&1
+	ubus call service event "{ \"type\": \"config.change\", \"data\": { \"package\": \"dhcp\" }}"
 }
 
 config_snapshot() {
@@ -292,13 +289,6 @@ case "$1" in
 	;;
 "restart")
 	service_restart
-	compare_snapshot
-	if [ $? -eq 1 ]; then
-		FORCE_RESTART=1
-		# Will not get cname without reload when whitelist is enabled
-		reload_dnsmasq
-		service_restart
-	fi
 	;;
 *)
 	help
@@ -308,6 +298,6 @@ esac
 
 compare_snapshot
 if [ $? -eq 1 ] || [ "$FORCE_RESTART" -eq 1 ]; then
-	echo "Restarting dnsmasq"
-	restart_dnsmasq
+	echo "Reloading dnsmasq"
+	reload_dnsmasq
 fi

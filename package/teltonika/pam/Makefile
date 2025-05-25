@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=pam
 PKG_VERSION:=2024-09-30
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_VERSION:=1.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
@@ -20,6 +20,7 @@ define Package/pam
 	CATEGORY:=Base system
 	DEPENDS:=+rpcd +libubus +libubox +libpam +pam-radius +pam-tacacs +libpam-mod-deny +libpam-mod-permit +libpam-mod-umask +libpam-mod-unix
 	TITLE:=Teltonika PAM support
+	USERID:=pamd=524:pamd=524
 endef
 
 define Package/pam/description
@@ -33,10 +34,15 @@ endef
 
 
 define Package/pam/install
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/sbin $(1)/etc/config
-	$(INSTALL_CONF) ./files/pam.config $(1)/etc/config/pam
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/sbin $(1)/etc/config $(1)/usr/share/acl.d
+	$(INSTALL_CONF_USR) ./files/pam.config $(1)/etc/config/pam
 	$(INSTALL_BIN) ./files/pam.init $(1)/etc/init.d/pam
+	$(INSTALL_DATA) ./files/pam.json $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pam $(1)/usr/sbin/pamd
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/pam.permtab $(1)/etc/permtab.d/pam
+
 endef
 
 define Package/pam/prerm
@@ -68,5 +74,6 @@ define Package/pam/prerm
 	uci_commit "dropbear"
 	/etc/init.d/dropbear reload
 endef
+
 
 $(eval $(call BuildPackage,pam))

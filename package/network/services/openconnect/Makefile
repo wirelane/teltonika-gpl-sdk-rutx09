@@ -9,9 +9,10 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openconnect
 PKG_VERSION:=9.12
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_VERSION:=9.12
+PKG_SOURCE:=openconnect-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://www.infradead.org/openconnect/download
 PKG_HASH:=a2bedce3aa4dfe75e36e407e48e8e8bc91d46def5335ac9564fbf91bd4b2413e
 
@@ -58,7 +59,7 @@ CONFIGURE_ARGS += \
 	--disable-shared \
 	--with-libiconv-prefix=$(ICONV_PREFIX) \
 	--with-libintl-prefix=$(INTL_PREFIX) \
-	--with-vpnc-script=/lib/netifd/vpnc-script \
+	--with-vpnc-script=/usr/local/lib/netifd/vpnc-script \
 	--without-libpcsclite \
 	--without-stoken \
 	--without-libpskc \
@@ -77,8 +78,8 @@ endif
 
 define Package/openconnect/install
 	$(INSTALL_DIR) $(1)/etc/openconnect/
-	$(INSTALL_DIR) $(1)/lib/netifd/proto
-	$(INSTALL_BIN) ./files/openconnect.sh $(1)/lib/netifd/proto/
+	$(INSTALL_DIR) $(1)/usr/lib/netifd/proto
+	$(INSTALL_BIN) ./files/openconnect.sh $(1)/usr/lib/netifd/proto/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/openconnect $(1)/usr/sbin/
 	$(INSTALL_BIN) ./files/openconnect-wrapper $(1)/usr/sbin/

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tailscale
 PKG_VERSION:=1.70.0
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_HASH:=8429728708f9694534489daa0a30af58be67f25742597940e7613793275c738f
 
@@ -20,6 +20,7 @@ PKG_SOURCE_URL:=https://codeload.github.com/tailscale/tailscale/tar.gz/v$(PKG_SO
 PKG_MAINTAINER:=Jan Pavlinec <jan.pavlinec1@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
+PKG_CPE_ID:=cpe:/a:tailscale:tailscale
 
 PKG_BUILD_DEPENDS:=golang/host
 PKG_BUILD_PARALLEL:=1
@@ -65,8 +66,8 @@ endef
 define Package/tailscale/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(GO_PKG_BUILD_BIN_DIR)/tailscaled $(1)/usr/sbin/tailscale.combined
-	ln -s /usr/sbin/tailscale.combined $(1)/usr/sbin/tailscale
-	ln -s /usr/sbin/tailscale.combined $(1)/usr/sbin/tailscaled
+	ln -s tailscale.combined $(1)/usr/sbin/tailscale
+	ln -s tailscale.combined $(1)/usr/sbin/tailscaled
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) ./files/tailscale.init $(1)/etc/init.d/tailscale
 	$(INSTALL_DIR) $(1)/etc/config/

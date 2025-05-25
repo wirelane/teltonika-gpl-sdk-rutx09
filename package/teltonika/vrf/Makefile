@@ -26,8 +26,9 @@ define Build/Compile
 endef
 
 define Package/vrf/install
-	$(INSTALL_DIR) $(1)/lib/netifd/proto
-	$(INSTALL_BIN) ./files/vrf.sh $(1)/lib/netifd/proto
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_vrf)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/netifd/proto
+	$(INSTALL_BIN) ./files/vrf.sh $(DEST_DIR)/usr/lib/netifd/proto
 endef
 
 $(eval $(call BuildPackage,vrf))

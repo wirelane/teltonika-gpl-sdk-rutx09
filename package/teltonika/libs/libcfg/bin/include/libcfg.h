@@ -145,7 +145,7 @@ void *lcfg_list_init(size_t size, size_t nmemb);
 
 void *lcfg_append_list(void **list, size_t size);
 
-void *lcfg_list_add(void *list, size_t size, void *data);
+void *lcfg_list_add(void *list, size_t size, const void *data);
 
 void *lcfg_list_dup(void *list, const struct lcfg_opt *option);
 

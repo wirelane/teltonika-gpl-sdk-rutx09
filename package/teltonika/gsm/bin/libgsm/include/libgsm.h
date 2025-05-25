@@ -716,6 +716,18 @@ typedef enum {
 } lgsm_gea_algo_attrs_t;
 
 typedef enum {
+	LGSM_HPLMN_SEARCH_TIMER_VALUE,
+	LGSM_HPLMN_SEARCH_TIMER_IS_DEFAULT,
+	LGSM_HPLMN_SEARCH_TIMER_MAX,
+} lgsm_hplmn_search_timer_attrs_t;
+
+typedef enum {
+	LGSM_PPLMN_LIST_VALUE,
+	LGSM_PPLMN_LIST_VALUE_IS_DEFAULT,
+	LGSM_PPLMN_LIST_MAX,
+} lgsm_pplmn_list_attrs_attrs_t;
+
+typedef enum {
 	LGSM_UBUS_INFO,
 	LGSM_UBUS_EXEC,
 	LGSM_UBUS_FW,
@@ -912,6 +924,13 @@ typedef enum {
 	LGSM_UBUS_SET_RPLMN_STATE,
 	LGSM_UBUS_GET_RPLMN_STATE,
 	LGSM_UBUS_DISABLE_NR5G_SA,
+	LGSM_UBUS_SET_HPLMN_SEARCH_TIMER,
+	LGSM_UBUS_GET_HPLMN_SEARCH_TIMER,
+	LGSM_UBUS_SET_US_PPLMN_LIST,
+	LGSM_UBUS_GET_US_PPLMN_LIST,
+	LGSM_UBUS_GET_PCO,
+	LGSM_UBUS_SET_PCO,
+
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -1462,6 +1481,16 @@ typedef struct {
 	int stat_id;
 } lgsm_gea_algo_t;
 
+typedef struct {
+	int value;
+	bool is_default;
+} lgsm_hplmn_search_timer_t;
+
+typedef struct {
+	int value;
+	bool is_default;
+} lgsm_pplmn_list_attrs_t;
+
 typedef enum {
 	LGSM_LABEL_STRING,
 	LGSM_LABEL_INT,
@@ -1548,6 +1577,8 @@ typedef enum {
 	LGSM_LABEL_SIGNAL_API_SELECTION_STATE_T,
 	LGSM_LABEL_GET_RPLMN_STATE_T,
 	LGSM_LABEL_SET_RPLMN_STATE_T,
+	LGSM_LABEL_HPLMN_SEARCH_TIMER,
+	LGSM_LABEL_PPLMN_LIST,
 	LGSM_LABEL_ERROR,
 } lgsm_resp_label_t;
 
@@ -1630,6 +1661,8 @@ typedef union {
 	enum disable_nr5g_mode_id disable_5g_mode;
 	enum ipv6_ndp_state_t ipv6_ndp;
 	lgsm_shutdown_gpio_t gpio;
+	lgsm_hplmn_search_timer_t hplmn_search_timer;
+	lgsm_pplmn_list_attrs_t pplmn_list;
 } lgsm_resp_data;
 
 typedef struct {
@@ -3155,6 +3188,15 @@ lgsm_err_t lgsm_mbn_select(struct ubus_context *ctx, func_t *resp, const char *m
 lgsm_err_t lgsm_set_auth_corr_bit(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
 
 /**
+ * Set modem PCO configuration (Used for authentication)
+ * @param[ptr]  ctx         Ubus ctx.
+ * @param[in]   enabled	    Is authentication corresponding bit setting is enabled.
+ * @param[char] resp        Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ */
+lgsm_err_t lgsm_set_pco(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
+
+/**
  * Set USSD text mode configuration
  * @param[ptr]  ctx         Ubus ctx.
  * @param[in]   enabled	    Is USSD text mode enabled.
@@ -3312,6 +3354,26 @@ lgsm_err_t lgsm_set_signal_api_selection_state(struct ubus_context *ctx, bool en
  * @return lgsm_err_t. Return function status code.
  */
 lgsm_err_t lgsm_set_rplmn_state(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
+
+/**
+ * Set HPLMN SEARCH timer value
+ * @param[ptr]  ctx   	    Ubus ctx.
+ * @param[char] resp   	    Response from modem for the executed AT command.
+ * @param[in]   value 		HPLMN search timer value be set.
+ * @param[in]   modem_num   Modem identification number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_hplmn_search_timer(struct ubus_context *ctx, func_t *resp, unsigned value,
+				       uint32_t modem_num);
+
+/**
+ * Set PPLMN list for US module
+ * @param[ptr]  ctx   	    Ubus ctx.
+ * @param[char] resp   	    Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_us_pplmn_list(struct ubus_context *ctx, func_t *resp, uint32_t modem_num);
 
 /******************
 *  GET HANDLERS  *
@@ -3870,6 +3932,13 @@ void handle_get_sim_soft_hotplug_rsp(struct blob_attr *info, lgsm_structed_info_
 void handle_get_auth_corr_bit_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
+   * Parse get PCO method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_pco(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
    * Parse USSD text mode method response
    * @param[ptr]   info      Blob from gsmd.
    * @param[ptr]   parsed    Parsed union readable information.
@@ -3986,6 +4055,21 @@ void handle_get_signal_api_selection_rsp(struct blob_attr *info, lgsm_structed_i
    * @param[ptr]   parsed    Parsed union readable information.
    */
 void handle_get_rplmn_state_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+   * Parse HPLMN SEARCH timer retrival method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_hplmn_search_timer(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+   * Parse PPLMN list retrival method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_us_pplmn_list(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
 /*********************
 *  STRUCT HANDLERS  *
 *********************/

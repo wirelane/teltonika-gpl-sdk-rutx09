@@ -9,7 +9,7 @@ even though some of these entries were taking up a different FOE table index
 
 --- a/drivers/net/ethernet/mediatek/mtk_ppe.c
 +++ b/drivers/net/ethernet/mediatek/mtk_ppe.c
-@@ -614,6 +614,9 @@ void __mtk_ppe_check_skb(struct mtk_ppe
+@@ -617,6 +617,9 @@ void __mtk_ppe_check_skb(struct mtk_ppe
  		goto out;
  
  	hlist_for_each_entry(entry, head, list) {

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=samba
 PKG_VERSION:=3.6.25
-PKG_RELEASE:=14
+PKG_RELEASE:=15
 
 PKG_SOURCE_VERSION:=3.6.25
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -38,6 +38,8 @@ define Package/samba/Default
   TITLE:=Samba 3.6 SMB/CIFS
   URL:=https://www.samba.org/
   MAINTAINER:=Felix Fietkau <nbd@nbd.name>
+  USERID:=samba:samba
+  CAP:=/usr/sbin/samba_multicall:cap_net_bind_service=ep
 endef
 
 define Package/samba36-server
@@ -154,7 +156,7 @@ endef
 
 define Package/samba36-server/install
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/samba.config $(1)/etc/config/samba
+	$(INSTALL_CONF_USR) ./files/samba.config $(1)/etc/config/samba
 	$(INSTALL_DIR) $(1)/etc/samba
 	$(INSTALL_CONF) ./files/smb.conf.template $(1)/etc/samba
 	$(INSTALL_CONF) ./files/smbpasswd $(1)/etc/samba
@@ -168,6 +170,10 @@ define Package/samba36-server/install
 	$(LN) samba_multicall $(1)/usr/sbin/smbd
 	$(LN) samba_multicall $(1)/usr/sbin/nmbd
 	$(LN) samba_multicall $(1)/usr/sbin/smbpasswd
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.14
+	$(INSTALL_DATA) ./files/migrations/99_samba_migrate_template $(1)/etc/uci-defaults/7.14/
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/samba.permtab $(1)/etc/permtab.d/samba
 endef
 
 define Package/samba36-hotplug/install

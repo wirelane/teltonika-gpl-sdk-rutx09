@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rpcd
-PKG_RELEASE:=8
+PKG_RELEASE:=14
 
 PKG_SOURCE_DATE:=2021-03-11
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -41,6 +41,8 @@ define Package/rpcd/default
   CATEGORY:=Base system
   TITLE:=OpenWrt ubus RPC backend server
   DEPENDS:=+libubus +libubox +liblog
+  USERID:=rpcd:rpcd
+  CAP:=/sbin/rpcd:cap_setuid,cap_net_admin,cap_setgid=ep
 endef
 
 define Package/rpcd
@@ -73,7 +75,9 @@ define Package/rpcd/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/unauthenticated.json $(1)/usr/share/rpcd/acl.d/unauthenticated.json
 	$(INSTALL_BIN) ./files/superuser.json $(1)/usr/share/rpcd/acl.d/superuser.json
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/rpcd.config $(1)/etc/config/rpcd
+	$(INSTALL_CONF_USR) ./files/rpcd.config $(1)/etc/config/rpcd
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DATA) ./files/rpcd.json $(1)/usr/share/acl.d/
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) ./files/libexec/* $(1)/usr/libexec/rpcd/
 
@@ -106,8 +110,9 @@ define Package/rpcd/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.13
 	$(INSTALL_DATA) ./files/uci-defaults/7.13/99_rpcd_increase_timeout $(1)/etc/uci-defaults/7.13/
 	$(INSTALL_DATA) ./files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths $(1)/etc/uci-defaults/7.13/
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/rpcd.permtab $(1)/etc/permtab.d/rpcd
 endef
-
 
 # 1: plugin name
 # 2: extra dependencies
@@ -120,6 +125,7 @@ define BuildPlugin
     $(Package/rpcd/default)
     TITLE+= ($(1) plugin)
     DEPENDS+=rpcd $(2)
+    USER_GROUPS:=
   endef
 
   define Package/rpcd-mod-$(1)/description
@@ -137,8 +143,10 @@ endef
 
 CMAKE_OPTIONS += -DPAM_SUPPORT=$(if $(CONFIG_RPCD_PAM),"ON","OFF")
 CMAKE_OPTIONS += -DIWINFO_SUPPORT=$(if $(CONFIG_PACKAGE_libiwinfo),"ON","OFF")
+CMAKE_OPTIONS += -DUCI_SUPPORT=$(if $(CONFIG_PACKAGE_libuci),"ON","OFF")
 
 $(eval $(call BuildPackage,rpcd))
 $(eval $(call BuildPlugin,file,,Provides ubus calls for file and directory operations.))
 $(eval $(call BuildPlugin,rpcsys,,Provides ubus calls for sysupgrade and password changing.))
 $(eval $(call BuildPlugin,iwinfo,+libiwinfo,Provides ubus calls for accessing iwinfo data.))
+$(eval $(call BuildPlugin,uci,,Provides ubus calls for uci operations.))

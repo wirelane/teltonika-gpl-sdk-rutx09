@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.16.1
+PKG_SOURCE_VERSION:=2.17
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -39,8 +39,8 @@ endef
 
 
 define Package/librut_fota/install
-	$(INSTALL_DIR) $(1)/usr/lib/ $(1)/usr/lib/rpcd/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fota.so $(1)/usr/lib/rpcd/
+	$(INSTALL_DIR) $(1)/usr/lib/ $(1)/usr/lib/rpcd/shared
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fota.so $(1)/usr/lib/rpcd/shared
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/librut_fota.so $(1)/usr/lib/
 endef
 

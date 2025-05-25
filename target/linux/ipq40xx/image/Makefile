@@ -7,11 +7,11 @@ define Build/UbootFw
 	if [ -e $(TMP_DIR)/uboot_fw/tz.mbn ]; then \
 		$(SED) 's~file\.ubi~$@~g' $(TMP_DIR)/uboot_fw/norplusnand-flash.conf; \
 		$(SED) 's~file\.elf~$(BIN_DIR)/openwrt-ipq40xx-u-boot-stripped.elf~g'  $(TMP_DIR)/uboot_fw/norplusnand-flash.conf; \
-		python $(TOPDIR)/target/linux/ipq40xx/image/uboot_fw/pack.py -t norplusnand -B -F boardconfig_premium_tlt -o $@ $(TMP_DIR)/uboot_fw; \
+		python $(TOPDIR)/target/linux/ipq40xx/image/uboot_fw/pack.py -t norplusnand -B -F boardconfig_premium_tlt $(if $(CONFIG_BUILD_FACTORY_IMAGE),,-E) -o $@ $(TMP_DIR)/uboot_fw; \
 	else \
 		$(SED) 's~file\.ubi~$@~g' $(TMP_DIR)/uboot_fw/norplusnand-apps-flash.conf; \
 		$(SED) 's~file\.elf~$(BIN_DIR)/openwrt-ipq40xx-u-boot-stripped.elf~g'  $(TMP_DIR)/uboot_fw/norplusnand-apps-flash.conf; \
-		python $(TOPDIR)/target/linux/ipq40xx/image/uboot_fw/pack.py -t norplusnand -B -F appsboardconfig_premium_tlt -o $@ $(TMP_DIR)/uboot_fw; \
+		python $(TOPDIR)/target/linux/ipq40xx/image/uboot_fw/pack.py -t norplusnand -B -F appsboardconfig_premium_tlt $(if $(CONFIG_BUILD_FACTORY_IMAGE),,-E) -o $@ $(TMP_DIR)/uboot_fw; \
 	fi
 endef
 
@@ -38,7 +38,7 @@ define Device/teltonika_rutx
 	FILESYSTEMS := squashfs
 	DEVICE_FEATURES := usb-port gps serial modbus io wifi bt dualsim \
 			port-mirror ntrip hw-offload mobile dot1x-client portlink \
-			xfrm-offload tpm
+			xfrm-offload tpm reset_button
 	GPL_PREFIX := GPL
 	# Default common packages for RUTX series
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,7 +62,6 @@ define Device/teltonika_rutx
 	# Hardware supprot
 	# HW_SUPPORT := type1%type1_value1:type1_value2 type2%type2_value1 ...
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	DEVICE_MODEM_VENDORS := Quectel
 
 	HW_SUPPORT := io_expander%stm32:shiftreg_1
 	HW_MODS += W25N02KV NAND_GD5F2GXX EG060K RUTX_V12
@@ -76,6 +75,10 @@ define Device/teltonika_rutx
 		TEMPLATE_teltonika_rutx14 \
 		TEMPLATE_teltonika_rutx50 \
 		TEMPLATE_teltonika_rutxr1
+
+	DEVICE_MODEM_VENDORS := Quectel
+	DEVICE_MODEM_LIST := EG06 EG060K EG12 RG501Q RG520N
+
 endef
 TARGET_DEVICES += teltonika_rutx
 

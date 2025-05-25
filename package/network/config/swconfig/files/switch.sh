@@ -133,10 +133,14 @@ ports_info_cb() {
 
 	/sbin/swconfig dev switch0 port "$port_num" set disable "$disabled"
 
+	local platform="$(jsonfilter -i /etc/board.json -e '@.model.platform')"
+	# Set "apply" for all platforms except RUTX, ports on RUTX are already disabled with "set disabled"
+	[ "$platform" = "RUTX" ] || /sbin/swconfig dev switch0 set apply
+
 	[ "$disabled" = "1" ] && return 1
 
 	# Only rutx wan handling must be done via ethtool
-	[ "$(jsonfilter -i /etc/board.json -e '@.model.platform')" = "RUTX" ] && [ "$role" = "wan" ] && return 1
+	[ "$platform" = "RUTX" ] && [ "$role" = "wan" ] && return 1
 
 	# Set values as is if not present in config
 	[ "$speed" == "speed " ] && speed="speed $(/sbin/swconfig dev switch0 port "$port_num" get speed)"

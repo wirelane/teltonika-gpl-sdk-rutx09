@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-IMAGE_NAME="rutos-jammy:1.2"
+IMAGE_NAME="rutos-jammy:1.4"
 
 PROJDIR="$(pwd)"
 HOMEDIR="$PROJDIR:$PROJDIR"
@@ -64,7 +64,7 @@ fi
 # check if image is built
 [ -n "$($DOCKER_CMD images -q "$IMAGE_NAME")" ] || {
 	info "Image $IMAGE_NAME is not built, running docker build...\n"
-	$DOCKER_CMD build -t "$IMAGE_NAME" "$PROJDIR/scripts" || exit $?
+	$DOCKER_CMD build --build-arg USERNAME=$USER -t "$IMAGE_NAME" "$PROJDIR/scripts" || exit $?
 }
 
 #shellcheck disable=2086
@@ -78,5 +78,6 @@ $DOCKER_CMD run -it \
 	-v "$PASSWD" \
 	-v "$GROUP" \
 	-v "$HOSTS" \
+	--env DOCKERBUILD=1 \
 	--ulimit "nofile=1024:1048576" \
 	$IMAGE_NAME "$@"

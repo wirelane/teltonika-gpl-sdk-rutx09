@@ -3,6 +3,12 @@
 
 START=60
 USE_PROCD=1
+WORKDIR=/var/run/samba
+
+PROG_SMBD=/usr/sbin/smbd
+[ -x "$PROG_SMBD" ] || PROG_SMBD="/usr/local$PROG_SMBD"
+PROG_NMBD=/usr/sbin/nmbd
+[ -x "$PROG_NMBD" ] || PROG_NMBD="/usr/local$PROG_NMBD"
 
 custom_list_handle() {
 	local opt param opt_c param_c line new=true
@@ -16,12 +22,12 @@ custom_list_handle() {
 			opt_c=$(echo "$opt" | sed 's:[\\/&]:\\&:g; $!s:$:\\:')
 			param_c=$(echo "$param" | sed 's:[\\/&]:\\&:g; $!s:$:\\:')
 			opt="$opt ="
-			sed -i "s?${opt}.*?${opt_c} = ${param_c}?g" /var/etc/smb.conf.tmp && return
+			sed -i "s?${opt}.*?${opt_c} = ${param_c}?g" "$WORKDIR/smb.conf.tmp" && return
 		fi
-	done <"/var/etc/smb.conf.tmp"
+	done <"$WORKDIR/smb.conf.tmp"
 
 	if [ "$new" = true ];then
-		echo "	${opt} = ${param}" >> /var/etc/smb.conf.tmp
+		echo "	${opt} = ${param}" >> "$WORKDIR/smb.conf.tmp"
 	fi
 }
 
@@ -55,21 +61,20 @@ smb_header() {
 	workgroup=$(echo "$workgroup" | sed -e 's/[]\/$*.^[]/\\&/g')
 	description=$(echo "$description" | sed -e 's/[]\/$*.^[]/\\&/g')
 
-	mkdir -p /var/etc
 	sed -e "s#|NAME|#$name#g" \
 		-e "s#|WORKGROUP|#$workgroup#g" \
 		-e "s#|DESCRIPTION|#$description#g" \
 		-e "s#|INTERFACES|#$interfaces#g" \
 		-e "s#|CHARSET|#$charset#g" \
-		/etc/samba/smb.conf.template > /var/etc/smb.conf.tmp
+		/etc/samba/smb.conf.template > "$WORKDIR/smb.conf.tmp"
 
 	[ -n "$custom" ] && config_list_foreach "$1" custom custom_list_handle
-	mv /var/etc/smb.conf.tmp /var/etc/smb.conf
+	mv "$WORKDIR/smb.conf.tmp" "$WORKDIR/smb.conf"
 
 	local homes
 	config_get_bool homes $1 homes 0
 	[ $homes -gt 0 ] && {
-		cat <<EOT >> /var/etc/smb.conf
+		cat <<EOT >> "$WORKDIR/smb.conf"
 
 [homes]
 	comment     = Home Directories
@@ -79,7 +84,7 @@ smb_header() {
 EOT
 	}
 
-	[ -L /etc/samba/smb.conf ] || ln -nsf /var/etc/smb.conf /etc/samba/smb.conf
+	[ -L /etc/samba/smb.conf ] || ln -nsf "$WORKDIR/smb.conf" /etc/samba/smb.conf
 }
 
 smb_add_share() {
@@ -105,14 +110,14 @@ smb_add_share() {
 
 	[ -z "$name" -o -z "$path" ] && return
 
-	echo -e "\n[$name]\n\tpath = $path" >> /var/etc/smb.conf
-	[ -n "$users" ] && echo -e "\tvalid users = $users" >> /var/etc/smb.conf
-	[ -n "$read_only" ] && echo -e "\tread only = $read_only" >> /var/etc/smb.conf
-	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" >> /var/etc/smb.conf
-	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" >> /var/etc/smb.conf
-	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" >> /var/etc/smb.conf
-	[ -n "$browseable" ] && echo -e "\tbrowseable = $browseable" >> /var/etc/smb.conf
-	[ -n "$invalid_users" ] && echo -e "\tinvalid users = $invalid_users" >> /var/etc/smb.conf
+	echo -e "\n[$name]\n\tpath = $path" >> "$WORKDIR/smb.conf"
+	[ -n "$users" ] && echo -e "\tvalid users = $users" >> "$WORKDIR/smb.conf"
+	[ -n "$read_only" ] && echo -e "\tread only = $read_only" >> "$WORKDIR/smb.conf"
+	[ -n "$guest_ok" ] && echo -e "\tguest ok = $guest_ok" >> "$WORKDIR/smb.conf"
+	[ -n "$create_mask" ] && echo -e "\tcreate mask = $create_mask" >> "$WORKDIR/smb.conf"
+	[ -n "$dir_mask" ] && echo -e "\tdirectory mask = $dir_mask" >> "$WORKDIR/smb.conf"
+	[ -n "$browseable" ] && echo -e "\tbrowseable = $browseable" >> "$WORKDIR/smb.conf"
+	[ -n "$invalid_users" ] && echo -e "\tinvalid users = $invalid_users" >> "$WORKDIR/smb.conf"
 }
 
 init_config() {
@@ -143,14 +148,16 @@ start_service() {
 
 	procd_open_instance
 	procd_add_mdns "smb" "tcp" "445"
-	procd_set_param command smbd -F
+	procd_set_param command $PROG_SMBD -F
+	procd_set_param user samba
 	procd_set_param respawn
-	procd_set_param file /var/etc/smb.conf
+	procd_set_param file "$WORKDIR/smb.conf"
 	procd_close_instance
 
 	procd_open_instance
-	procd_set_param command nmbd -F
+	procd_set_param command $PROG_NMBD -F
+	procd_set_param user samba
 	procd_set_param respawn
-	procd_set_param file /var/etc/smb.conf
+	procd_set_param file "$WORKDIR/smb.conf"
 	procd_close_instance
 }

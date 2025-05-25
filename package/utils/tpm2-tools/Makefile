@@ -54,7 +54,9 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_createek $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_createpolicy $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_createprimary $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_import $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_clearcontrol $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_clear $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_changeauth $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_dictionarylockout $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ipkg-install/usr/bin/tpm2_encryptdecrypt $(1)/usr/bin

@@ -2,14 +2,16 @@
 
 . /lib/functions.sh
 
-CRONTAB_FILE=/etc/crontabs/root
+WDIR="/var/run/preboot"
+CRONTAB_FILE=/etc/crontabs/preboot
 
 check_rules() {
     config_get enabled "$1" "enable" "0"
     [ "$enabled" -ne 1 ] && return
 
-    config_set "$1" "current_try" "0"
     config_get time "$1" "time" "0"
+    [ -e "${WDIR}/fail_counter_${1}" ] && 
+            echo -n "0" > "${WDIR}/fail_counter_${1}"
 
     case "${time}" in
     "30")

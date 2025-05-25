@@ -323,6 +323,8 @@ define BuildPackage
   $(eval $(Package/$(1)/$(BOARD_EX)/$(SUBTARGET_EX)))
   $(eval $(Package/$(1)/$(subst DEVICE_,,$(PROFILE_EX))))
 
+  $(eval $(call warn_on_user_group_mismatch,$(USERID)))
+
 ifdef DESCRIPTION
 $$(error DESCRIPTION:= is obsolete, use Package/PKG_NAME/description)
 endif

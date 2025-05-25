@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2024-10-10 12:11:27.000000000 +0000
++++ src/.gitlab-ci.yml	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -23,10 +23,29 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +  needs:
 +    - job: semgrep_errors
 \ No newline at end of file
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/build/Makefile src/ext/openwrt/build/Makefile
+--- upstream/ext/openwrt/build/Makefile	2019-09-26 14:27:06.000000000 +0000
++++ src/ext/openwrt/build/Makefile	2025-03-28 09:33:01.000000000 +0000
+@@ -72,7 +72,6 @@
+ 
+ define Package/easycwmp/conffiles
+ /etc/config/easycwmp
+-/usr/share/easycwmp/defaults
+ endef
+ 
+ define Package/easycwmp/install
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/config/easycwmp src/ext/openwrt/config/easycwmp
 --- upstream/ext/openwrt/config/easycwmp	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/config/easycwmp	2024-10-10 12:11:27.000000000 +0000
-@@ -22,6 +22,7 @@
++++ src/ext/openwrt/config/easycwmp	2025-03-28 09:33:01.000000000 +0000
+@@ -4,7 +4,6 @@
+ 	option enable '0'
+ 	option interface eth0
+ 	option port 7547
+-	option ubus_socket /var/run/ubus.sock
+ 	option date_format %FT%T%z
+ 	option username easycwmp
+ 	option password easycwmp
+@@ -22,6 +21,7 @@
  	option periodic_enable '1'
  	option periodic_interval '100'
  	option periodic_time '0001-01-01T00:00:00Z'
@@ -34,10 +53,142 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  config device
  	option manufacturer easycwmp
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/900-easycwmp.sh src/ext/openwrt/files/900-easycwmp.sh
+--- upstream/ext/openwrt/files/900-easycwmp.sh	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/files/900-easycwmp.sh	2025-03-28 09:33:01.000000000 +0000
+@@ -0,0 +1,37 @@
++#!/bin/sh
++
++. /lib/functions.sh
++
++set_info() {
++    local option=$1
++    local value=$2
++    local oval
++
++    config_get oval easycwmp $option
++    [ -n "$value" ] && [ "$value" != "$oval" ] &&
++        uci set easycwmp.@device[0].$option="$value"
++}
++
++config_load easycwmp
++
++which brand > /dev/null 2>&1 && manuf=`brand 2` || manuf="Teltonika"
++set_info "manufacturer" "$manuf"
++
++product=$(mnf_info -n 2>/dev/null | cut -c1-6)
++set_info "product_class" "$product"
++
++hardware=$(mnf_info -H 2>/dev/null)
++set_info "hardware_version" "$hardware"
++
++software=$(cat /etc/version)
++set_info "software_version" "$software"
++
++serial=$(mnf_info -s 2>/dev/null)
++set_info "serial_number" "$serial"
++
++set_info "oui" "001E42"
++
++wan=$(uci get network.wan.ifname 2>/dev/null)
++set_info "interface" "$wan"
++
++uci commit easycwmp
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.json src/ext/openwrt/files/easycwmp.json
+--- upstream/ext/openwrt/files/easycwmp.json	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.json	2025-03-28 09:33:01.000000000 +0000
+@@ -0,0 +1,77 @@
++{
++	"user": "easycwmp",
++	"publish": [
++		"tr069"
++	],
++	"access": {
++		"gpsd": {
++			"methods": [
++				"position"
++			]
++		},
++		"mdcollect": {
++			"methods": [
++				"get"
++			]
++		},
++		"gsm.modem*": {
++			"methods": [
++				"get_signal_query",
++				"info",
++				"get_net_reg_stat_all",
++				"get_iccid",
++				"get_imsi",
++				"get_service_provider",
++				"get_network_info",
++				"get_serial",
++				"get_firmware",
++				"get_pin_state",
++				"get_temperature",
++				"get_neighbour_cells"
++			]
++		},
++		"network.interface*": {
++			"methods": [
++				"status",
++				"dump"
++			]
++		},
++		"network.wireless*": {
++			"methods": [
++				"status"
++			]
++		},
++		"network.device": {
++			"methods": [
++				"status"
++			]
++		},
++		"tr069": {
++			"methods": [
++				"inform"
++			]
++		},
++		"mnfinfo": {
++			"methods": [
++				"get_value"
++			]
++		},
++		"sys": {
++			"methods": [
++				"reboot",
++				"firtboot"
++			]
++		},
++		"service": {
++			"methods": [
++				"event"
++			]
++		},
++		"system": {
++			"methods": [
++				"sysupgrade",
++				"backup"
++			]
++		}
++	}
++}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.keep src/ext/openwrt/files/easycwmp.keep
+--- upstream/ext/openwrt/files/easycwmp.keep	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.keep	2025-03-28 09:33:01.000000000 +0000
+@@ -0,0 +1 @@
++/etc/easycwmp/.backup.xml
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.permtab src/ext/openwrt/files/easycwmp.permtab
+--- upstream/ext/openwrt/files/easycwmp.permtab	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.permtab	2025-03-28 09:33:01.000000000 +0000
+@@ -0,0 +1 @@
++/etc/config/easycwmp easycwmp:easycwmp 664
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/init.d/easycwmpd src/ext/openwrt/init.d/easycwmpd
 --- upstream/ext/openwrt/init.d/easycwmpd	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/init.d/easycwmpd	2024-10-10 12:11:27.000000000 +0000
-@@ -2,6 +2,7 @@
++++ src/ext/openwrt/init.d/easycwmpd	2025-03-28 09:33:01.000000000 +0000
+@@ -2,56 +2,32 @@
  # Copyright (C) 2012-2014 OpenWrt.org
  
  START=90
@@ -45,107 +196,114 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  USE_PROCD=1
  PROG="/usr/sbin/easycwmpd"
-@@ -13,48 +14,63 @@
- 	local val oval
- 	local change=0
++ENABLED=0
  
+-UCI_SET="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} set"
+-UCI_GET="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} get"
+-UCI_COMMIT="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} commit"
+-init_device_info() {
+-	local val oval
+-	local change=0
+-
 -	val=`cat "/etc/device_info" | grep "DEVICE_MANUFACTURER" | cut -f 2 -d '=' | sed -e "s/['\"]//g" -e "s'[]:@/?#[!$&()*+,;=]'_'g"`
-+	val=`$UCI_GET network.wan.ifname`
-+	oval=`$UCI_GET easycwmp.@local[0].interface`
-+	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@local[0].interface="$val"; change=1; }
-+
-+	if [ `which brand` ]; then
-+		val=`brand 2`
-+	else
-+		val="Teltonika"
-+	fi
-+
- 	oval=`$UCI_GET easycwmp.@device[0].manufacturer`
- 	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].manufacturer="$val"; change=1; }
- 
+-	oval=`$UCI_GET easycwmp.@device[0].manufacturer`
+-	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].manufacturer="$val"; change=1; }
+-
 -	val=`cat "/etc/device_info" | grep "DEVICE_PRODUCT" | cut -f 2 -d '=' | sed -e "s/['\"]//g" -e "s'[]:@/?#[!$&()*+,;=]'_'g"`
-+	val=`mnf_info -n | cut -c1-6`
- 	oval=`$UCI_GET easycwmp.@device[0].product_class`
- 	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].product_class="$val"; change=1; }
- 
+-	oval=`$UCI_GET easycwmp.@device[0].product_class`
+-	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].product_class="$val"; change=1; }
+-
 -	val=`cat "/etc/device_info" | grep "DEVICE_REVISION" | cut -f 2 -d '=' | sed -e "s/['\"]//g" -e "s'[]:@/?#[!$&()*+,;=]'_'g"`
-+	val=`mnf_info -H`
- 	oval=`$UCI_GET easycwmp.@device[0].hardware_version`
- 	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].hardware_version="$val"; change=1; }
- 
+-	oval=`$UCI_GET easycwmp.@device[0].hardware_version`
+-	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].hardware_version="$val"; change=1; }
+-
 -	val=`cat "/etc/openwrt_version"`
-+	val=`cat "/etc/version"`
- 	oval=`$UCI_GET easycwmp.@device[0].software_version`
- 	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].software_version="$val"; change=1; }
+-	oval=`$UCI_GET easycwmp.@device[0].software_version`
+-	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].software_version="$val"; change=1; }
 -	
-+
-+	val="001E42"
-+	oval=`$UCI_GET easycwmp.@device[0].oui`
-+	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].oui="$val"; change=1; }
-+
-+	val=`mnf_info -s`
-+	oval=`$UCI_GET easycwmp.@device[0].serial_number`
-+	[ -n "$val" -a "$val" != "$oval" ] && { $UCI_SET easycwmp.@device[0].serial_number="$val"; change=1; }
-+
- 	#The same thing here for OUI and SerialNumber
- 
- 	[ "$change" = "1" ] && $UCI_COMMIT easycwmp
+-	#The same thing here for OUI and SerialNumber
+-
+-	[ "$change" = "1" ] && $UCI_COMMIT easycwmp
++instance_enabled_cb() {
++	[ "$ENABLED" -ne "1" ]  && config_get ENABLED $1 enabled
  }
  
  start_service() {
 -	local enable=`uci -q get easycwmp.@local[0].enable`
 -	if [ "$enable" == "1" ]; then
-+	if [ "`uci get easycwmp.@acs[0].enabled`" == "1" ]; then
- 		init_device_info
- 		procd_open_instance
- 		procd_set_param command "$PROG" -f
+-		init_device_info
+-		procd_open_instance
+-		procd_set_param command "$PROG" -f
 -		if [ "$1" = "--boot" ];then
 -			procd_append_param command --boot
 -		else
 -			procd_append_param command --getrpcmethod
 -		fi
-+		procd_append_param command --boot
-+		procd_append_param command --getrpcmethod
- 		procd_set_param respawn "3" "7" "0"
- 		procd_close_instance
- 	fi
- }
+-		procd_set_param respawn "3" "7" "0"
+-		procd_close_instance
+-	fi
+-}
  
 -boot() {
 -	start --boot
--}
--
- service_triggers()
- {
- 	procd_add_reload_trigger easycwmp
++	config_load easycwmp
++	config_foreach instance_enabled_cb acs
++	[ "$ENABLED" -ne "1" ] && return 0
++	[ ! -x "$PROG" ] && PROG="/usr/local$PROG"
++
++	procd_open_instance
++	procd_set_param command "$PROG" -f
++	procd_append_param command --boot
++	procd_append_param command --getrpcmethod
++	procd_set_param file /etc/config/easycwmp
++	procd_set_param respawn "3" "7" "0"
++	# procd_set_param user easycwmp
++	procd_set_param pidfile /var/run/easycwmp.pid
++	procd_close_instance
  }
-+
-+
-+reload_service() {
-+	stop
-+	start
-+}
+ 
+ service_triggers()
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/easycwmp.sh src/ext/openwrt/scripts/easycwmp.sh
 --- upstream/ext/openwrt/scripts/easycwmp.sh	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/easycwmp.sh	2024-10-10 12:11:27.000000000 +0000
-@@ -8,6 +8,7 @@
++++ src/ext/openwrt/scripts/easycwmp.sh	2025-03-28 09:33:01.000000000 +0000
+@@ -7,7 +7,7 @@
+ 
  . /lib/functions.sh
  . /usr/share/libubox/jshn.sh
- . /usr/share/easycwmp/defaults
+-. /usr/share/easycwmp/defaults
 +. /lib/functions/network.sh
  
  UCI_GET="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} get"
  UCI_SET="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} set"
-@@ -21,7 +22,7 @@
+@@ -21,18 +21,22 @@
  UCI_CHANGES="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} changes"
  UCI_BATCH="/sbin/uci -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} batch"
  
 -DOWNLOAD_DIR="/tmp/easycwmp_download"
-+DOWNLOAD_FILE="/tmp/easycwmp_download"
++DOWNLOAD_FILE="/var/run/easycwmp/easycwmp_download"
  EASYCWMP_PROMPT="easycwmp>"
- set_fault_tmp_file="/tmp/.easycwmp_set_fault_tmp"
- apply_service_tmp_file="/tmp/.easycwmp_apply_service"
-@@ -72,7 +73,6 @@
+-set_fault_tmp_file="/tmp/.easycwmp_set_fault_tmp"
+-apply_service_tmp_file="/tmp/.easycwmp_apply_service"
+-set_command_tmp_file="/tmp/.easycwmp_set_command_tmp"
++set_fault_tmp_file="/var/run/easycwmp/.easycwmp_set_fault_tmp"
++apply_service_tmp_file="/var/run/easycwmp/.easycwmp_apply_service"
++set_command_tmp_file="/var/run/easycwmp/.easycwmp_set_command_tmp"
+ FUNCTION_PATH="/usr/share/easycwmp/functions"
+-NOTIF_PARAM_VALUES="/tmp/.easycwmp_notif_param_value"
++NOTIF_PARAM_VALUES="/var/run/easycwmp/.easycwmp_notif_param_value"
+ easycwmp_config_changed=""
+ uci_change_packages=""
+ uci_change_services=""
+ g_fault_code=""
+ 
++if [ ! -d "$FUNCTION_PATH" ]; then
++	FUNCTION_PATH="/usr/local$FUNCTION_PATH"
++fi
++
+ prefix_list=""
+ entry_execute_method_list=""
+ entry_execute_method_list_forcedinform=""
+@@ -72,7 +76,6 @@
    add [object]
    delete [object]
    download
@@ -153,7 +311,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
    factory_reset
    reboot
    inform [parameter|device_id]
-@@ -108,13 +108,6 @@
+@@ -108,13 +111,6 @@
  			json_get_var __arg4 user_name
  			json_get_var __arg5 password
  			;;
@@ -167,7 +325,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		factory_reset|reboot)
  			action="$command"
  			;;
-@@ -171,13 +164,6 @@
+@@ -171,13 +167,6 @@
  		__arg4="$5"
  		__arg5="$6"
  		;;
@@ -181,7 +339,18 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	factory_reset|reboot)
  		action="$1"
  		;;
-@@ -286,14 +272,12 @@
+@@ -226,6 +215,10 @@
+ prefix_list="$DMROOT. $prefix_list"
+ entry_execute_method_list="$entry_method_root $entry_execute_method_list"
+ 
++easycwmp_reboot() {
++	ubus call sys reboot 2>/dev/null
++}
++
+ handle_action() {
+ 	if [ "$action" = "get_value" ]; then
+ 		(common_entry_get_value "$__arg1")
+@@ -286,14 +279,12 @@
  			let fault_code=9000+$E_DOWNLOAD_FAILURE
  			common_json_output_fault "" "$fault_code"
  		else 
@@ -198,7 +367,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  				let fault_code=9000+$E_DOWNLOAD_FAILURE
  				common_json_output_fault "" "$fault_code"
  			else
-@@ -302,108 +286,37 @@
+@@ -302,115 +293,43 @@
  		fi
  		return
  	fi
@@ -284,8 +453,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				common_json_output_status "1"
  			fi
  		elif [ "$__arg1" = "1 Firmware Upgrade Image" ]; then
- 			local gr_backup=`grep "^/etc/easycwmp/\.backup\.xml" /etc/sysupgrade.conf`
- 			[ -z $gr_backup ] && echo "/etc/easycwmp/.backup.xml" >> /etc/sysupgrade.conf
+-			local gr_backup=`grep "^/etc/easycwmp/\.backup\.xml" /etc/sysupgrade.conf`
+-			[ -z $gr_backup ] && echo "/etc/easycwmp/.backup.xml" >> /etc/sysupgrade.conf
 -			dwfile=`ls $DOWNLOAD_DIR`
 -			if [ "$dwfile" != "" ]; then
 -				dwfile="$DOWNLOAD_DIR/$dwfile"
@@ -299,8 +468,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -				fi
 -			else
 -				let fault_code=$E_DOWNLOAD_FAILURE+9000
-+			/sbin/sysupgrade $DOWNLOAD_FILE 
++			/sbin/sysupgrade "$DOWNLOAD_FILE"
 +			fault_code="$?"
++
 +			if [ "$fault_code" != "0" ]; then
 +				let fault_code=$E_DOWNLOAD_FAIL_FILE_CORRUPTED+9000
  				common_json_output_fault "" "$fault_code"
@@ -319,11 +489,20 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -		else
 -			/sbin/jffs2mark -y
 -		fi
-+		printf 'y' | ./sbin/firstboot
++		ubus call sys firstboot '{"factory":true}' 2>/dev/null
  		sync
- 		reboot
+-		reboot
++		easycwmp_reboot
  	fi
-@@ -473,7 +386,7 @@
+ 	
+ 	if [ "$action" = "reboot" ]; then
+ 		sync
+-		reboot
++		easycwmp_reboot
+ 	fi
+ 	
+ 	if [ "$action" = "apply_notification" -o "$action" = "apply_value" ]; then
+@@ -473,7 +392,7 @@
  		return
  	fi
  	if [ "$action" = "apply_service" ]; then
@@ -334,7 +513,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			/bin/sh "$apply_service_tmp_file"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/common src/ext/openwrt/scripts/functions/common/common
 --- upstream/ext/openwrt/scripts/functions/common/common	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/common	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/common	2025-03-28 09:33:01.000000000 +0000
 @@ -192,23 +192,21 @@
  	
  }
@@ -396,44 +575,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	case "$refparam" in "$inparam"*)
  		g_fault_code=0
  		return 0
-@@ -932,34 +921,3 @@
+@@ -932,6 +921,7 @@
  	[ $1 -gt 1 ] && shift $1 || shift
  	echo ${1-0}.${2-0}.${3-0}.${4-0}
  }
--ipstr2int()
--{
--	local n ip 
--	local ipint=0
--	local pw=16777216
--	ip=${1//./ }
--	for n in $ip; do
--		ipint=$((ipint+n*pw))
--		let pw/=256
--	done
--	echo $ipint
--}
--
--int2ipstr()
--{
--	local ip1 ip2 ip3 ip4 
--	local pw=16777216
--	local ipint=$1
--
--	ip1=$((ipint/pw))
--	ipint=$((ipint%pw))
--	pw=$((pw/256))
--	ip2=$((ipint/pw))
--	ipint=$((ipint%pw))
--	pw=$((pw/256))
--	ip3=$((ipint/pw))
--	ipint=$((ipint%pw))
--	pw=$((pw/256))
--	ip4=$ipint
--	echo $ip1.$ip2.$ip3.$ip4
--}
++
+ ipstr2int()
+ {
+ 	local n ip 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/device_info src/ext/openwrt/scripts/functions/common/device_info
 --- upstream/ext/openwrt/scripts/functions/common/device_info	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/device_info	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/device_info	2025-03-28 09:33:01.000000000 +0000
 @@ -14,17 +14,18 @@
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DeviceInfo"
  entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_DeviceInfo"
@@ -453,24 +605,38 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		common_execute_method_param "$DMROOT.DeviceInfo.Manufacturer" "0" "echo Teltonika" "" "" "1"
 +		common_execute_method_param "$DMROOT.DeviceInfo.ManufacturerOUI" "0" "echo 001E42" "" "" "1"
 +		common_execute_method_param "$DMROOT.DeviceInfo.ProductClass" "0" "device_info_get_product_class" "" "" "1"
-+		common_execute_method_param "$DMROOT.DeviceInfo.SerialNumber" "0" "mnf_info -s" "" "" "1"
-+		common_execute_method_param "$DMROOT.DeviceInfo.HardwareVersion" "0" "mnf_info --hwver" "" "" "1"
++		common_execute_method_param "$DMROOT.DeviceInfo.SerialNumber" "0" "mnfinfo_get serial" "" "" "1"
++		common_execute_method_param "$DMROOT.DeviceInfo.HardwareVersion" "0" "mnfinfo_get hwver" "" "" "1"
 +		common_execute_method_param "$DMROOT.DeviceInfo.SoftwareVersion" "0" "cat /etc/version" "" "" "1"
  		common_execute_method_param "$DMROOT.DeviceInfo.UpTime" "0" "device_info_get_uptime" "" "xsd:unsignedInt"
  		common_execute_method_param "$DMROOT.DeviceInfo.DeviceLog" "0" "dmesg | tail -n1"
  		common_execute_method_obj "$DMROOT.DeviceInfo.MemoryStatus." "0"
-@@ -57,3 +58,8 @@
+@@ -57,3 +58,22 @@
  device_info_get_uptime() {
  	awk -F '.' '{ print $1 }' /proc/uptime
  }
 +
++mnfinfo_get() {
++	local key=$1
++	local tmp val
++
++	ubus list mnfinfo > /dev/null 2>&1 || return 1
++	tmp=$(ubus -t 2 call mnfinfo get_value "{\"key\": \"$key\"}" 2>/dev/null)
++	
++	jsonfilter -s "$tmp" -e "@.$key" 2>/dev/null
++}
++
 +device_info_get_product_class() {
-+	local val=`mnf_info -n | cut -c1-6`
-+	echo "$val"
++	local tmp
++
++	tmp=$(mnfinfo_get name)
++	[ -n "$tmp" ] || return 1
++
++	echo "${tmp:0:6}"
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/ipping_launch src/ext/openwrt/scripts/functions/common/ipping_launch
 --- upstream/ext/openwrt/scripts/functions/common/ipping_launch	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/ipping_launch	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/ipping_launch	2025-03-28 09:33:01.000000000 +0000
 @@ -1,172 +1,72 @@
  #!/bin/sh
  # Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -665,11 +831,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  event_dignostic() {
-@@ -182,13 +82,11 @@
+@@ -181,14 +81,12 @@
+ }
  
  ipping_stop() {
- 	local pids=`ps aux | grep ipping_launch | grep -v grep | grep -v stop | awk '{print $2}'`
+-	local pids=`ps aux | grep ipping_launch | grep -v grep | grep -v stop | awk '{print $2}'`
 -	[ -z "$pids" ] && pids=`ps | grep ipping_launch | grep -v grep | grep -v stop | awk '{print $2}'`
++	local pids=`ps www | grep ipping_launch | grep -v grep | grep -v stop | awk '{print $1}'`
  	if [ -n "$pids" ]; then
  		kill -9 $pids 2>/dev/null
  		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState=None
@@ -683,7 +851,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +[ "$1" == "stop" ] && ipping_stop
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/management_server src/ext/openwrt/scripts/functions/common/management_server
 --- upstream/ext/openwrt/scripts/functions/common/management_server	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/management_server	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/management_server	2025-03-28 09:33:01.000000000 +0000
 @@ -15,13 +15,13 @@
  		common_execute_method_obj "$DMROOT.ManagementServer." "0"
  		common_execute_method_param "$DMROOT.ManagementServer.URL" "1" "$UCI_GET easycwmp.@acs[0].url" "management_server_set_url"
@@ -701,7 +869,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		common_execute_method_param "$DMROOT.ManagementServer.ParameterKey" "0" "$UCI_GET easycwmp.@acs[0].parameter_key" "" "" "1"
  		return 0;
  		;;
-@@ -49,16 +49,10 @@
+@@ -49,17 +49,10 @@
  	return 0
  }
  
@@ -715,13 +883,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	local val
  	if [ -z "$default_management_server_connection_request_url" ]; then
 -		local intf=`$UCI_GET easycwmp.@local[0].interface 2> /dev/null`
-+		local intf=`/sbin/wan_info interface --include-vpn 2> /dev/null`
- 		local ip=`ifconfig "$intf" | grep inet | sed 's/^ *//g' | cut -f 2 -d ' '|cut -f 2 -d ':'`
+-		local ip=`ifconfig "$intf" | grep inet | sed 's/^ *//g' | cut -f 2 -d ' '|cut -f 2 -d ':'`
++		local ip=`/sbin/wan_info ip --include-vpn 2> /dev/null`
  		local port=`$UCI_GET easycwmp.@local[0].port 2> /dev/null`
  
+ 		if [ -n "$ip" -a -n "$port" ]; then
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/custom/mobile_information src/ext/openwrt/scripts/functions/custom/mobile_information
 --- upstream/ext/openwrt/scripts/functions/custom/mobile_information	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/custom/mobile_information	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/custom/mobile_information	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,245 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -970,7 +1139,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#######################################
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/gps/gps_information src/ext/openwrt/scripts/functions/gps/gps_information
 --- upstream/ext/openwrt/scripts/functions/gps/gps_information	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/gps/gps_information	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/gps/gps_information	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,46 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -1020,7 +1189,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/hotspot/hotspot src/ext/openwrt/scripts/functions/hotspot/hotspot
 --- upstream/ext/openwrt/scripts/functions/hotspot/hotspot	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/hotspot/hotspot	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/hotspot/hotspot	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,90 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -1095,7 +1264,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 +
 +sub_entry_hotpsot_general(){
-+	case "$2" in ""|"$DMROOT."|"$DMROOT.MobileInfo.General.$1"*)
++	case "$2" in ""|"$DMROOT."|"$DMROOT.Hotspot.General.$1"*)
 +		common_execute_method_obj "$DMROOT.Hotspot.General.$1" "0"
 +		common_execute_method_param "$DMROOT.Hotspot.General.$1.Enabled" "1" \
 +				"Hotspot_Get_Bool $1 enabled enabled disabled" \
@@ -1114,7 +1283,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr098/wan_device src/ext/openwrt/scripts/functions/tr098/wan_device
 --- upstream/ext/openwrt/scripts/functions/tr098/wan_device	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr098/wan_device	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr098/wan_device	2025-03-28 09:33:01.000000000 +0000
 @@ -25,7 +25,7 @@
  sub_entry_wandevice_wanconnectiondevice() {
  	local j="$2"
@@ -1181,9 +1350,44 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	echo ${val:-1}
  }
  
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/dhcpv4 src/ext/openwrt/scripts/functions/tr181/dhcpv4
+--- upstream/ext/openwrt/scripts/functions/tr181/dhcpv4	2019-09-26 14:27:06.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/dhcpv4	2025-03-28 09:33:01.000000000 +0000
+@@ -9,6 +9,8 @@
+ #   Entry point functions   #
+ #############################
+ 
++DHCP_UCI_SHOW="/sbin/uci -X -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} show"
++
+ prefix_list="$prefix_list $DMROOT.DHCPv4."
+ entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DHCPv4"
+ 
+@@ -44,7 +46,7 @@
+ }
+ 
+ dhcp_pool_get_max_instance() {
+-	local max=`$UCI_SHOW -X dhcp | grep "dhcp_pool_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
++	local max=`$DHCP_UCI_SHOW dhcp | grep "dhcp_pool_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
+ 	echo ${max:-0}
+ }
+ 
+@@ -60,7 +62,7 @@
+ }
+ 
+ dhcp_pool_browse_instances() {
+-	local pool pools=`$UCI_SHOW -X dhcp | grep "dhcp\..*=dhcp" | cut -d "=" -f 1`
++	local pool pools=`$DHCP_UCI_SHOW dhcp | grep "dhcp\..*=dhcp" | cut -d "=" -f 1`
+ 	for pool in $pools; do
+ 		local j=`dhcp_pool_update_instance $pool`
+ 		sub_entry_DHCPv4_Server_Pool  "$1" "$j" "$pool"
+@@ -385,4 +387,3 @@
+ 	$UCI_SET $1.leasetime=$leasetime"m"
+ 	return 0
+ }
+-
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ip src/ext/openwrt/scripts/functions/tr181/ip
 --- upstream/ext/openwrt/scripts/functions/tr181/ip	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/ip	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/ip	2025-03-28 09:33:01.000000000 +0000
 @@ -12,9 +12,10 @@
  
  prefix_list="$prefix_list $DMROOT.IP."
@@ -1269,7 +1473,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  ip_get_iface_name() {
  	local interface=`echo $1 |cut -d "." -f 2`
-@@ -154,40 +148,27 @@
+@@ -154,40 +148,28 @@
  }
  
  ipv4address_iface_get_ip_adress() {
@@ -1303,7 +1507,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  ipv4address_iface_set_ip_adress() {
  	$UCI_SET $1.ipaddr="$2"
 -	$UCI_SET $1.proto="static"
-+	common_delay_service_restart_in_apply_service "network" "1"
++	ubus call service event "{ \"type\": \"config.change\", \"data\": { \"package\": \"network\"}}" &> /dev/null
++
  	return 0
  }
  
@@ -1321,7 +1526,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  get_net_mask() {
-@@ -195,19 +176,21 @@
+@@ -195,19 +177,21 @@
  	local mask=""
  	local res
  	res=`ubus call network.interface.$name status`
@@ -1339,15 +1544,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	if [ "$?" != 0 ]; then
 +		echo "$mask"
 +		return
- 	fi
--	$UCI_GET $1.netmask
++	fi
 +	json_init
 +	json_load "$res" &> /dev/null
 +	json_select "ipv4-address" &> /dev/null
 +	if [ "$?" != 0 ]; then
 +		echo "$mask"
 +		return
-+	fi
+ 	fi
+-	$UCI_GET $1.netmask
 +	json_select 1
 +	json_get_var mask mask
 +	mask=`cdr2mask $mask` 
@@ -1355,7 +1560,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  #######################################
-@@ -267,3 +250,22 @@
+@@ -267,3 +251,22 @@
  get_tx_discard_stats() {
  	echo ${tx_dropped:-0}
  }
@@ -1380,7 +1585,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/wifi src/ext/openwrt/scripts/functions/tr181/wifi
 --- upstream/ext/openwrt/scripts/functions/tr181/wifi	2019-09-26 14:27:06.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/wifi	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/wifi	2025-03-28 09:33:01.000000000 +0000
 @@ -12,6 +12,8 @@
  prefix_list="$prefix_list $DMROOT.WiFi."
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_WiFi"
@@ -1521,7 +1726,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_hosts src/ext/openwrt/scripts/unused/device_hosts
 --- upstream/ext/openwrt/scripts/unused/device_hosts	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_hosts	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_hosts	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,205 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -1730,7 +1935,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_hosts() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_ip src/ext/openwrt/scripts/unused/device_ip
 --- upstream/ext/openwrt/scripts/unused/device_ip	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_ip	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_ip	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,139 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -1873,7 +2078,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_routing src/ext/openwrt/scripts/unused/device_routing
 --- upstream/ext/openwrt/scripts/unused/device_routing	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_routing	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_routing	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,368 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -1885,9 +2090,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#  2) active routes found in uci network config file
 +#  3) active routes but not found in uci network config file
 +
-+EASYCWMP_DEVICE_ROUTES="/tmp/easycwmp_routes"
-+EASYCWMP_DEVICE_ROUTES_STATIC="/tmp/easycwmp_routes_static"
-+EASYCWMP_DEVICE_ROUTES_DYNAMIC="/tmp/easycwmp_routes_dynamic"
++EASYCWMP_DEVICE_ROUTES="/var/run/easycwmp/easycwmp_routes"
++EASYCWMP_DEVICE_ROUTES_STATIC="/var/run/easycwmp/easycwmp_routes_static"
++EASYCWMP_DEVICE_ROUTES_DYNAMIC="/var/run/easycwmp/easycwmp_routes_dynamic"
 +
 +get_device_routing_ipv4_check_route() {
 +	local __uci_target=$1
@@ -2245,7 +2450,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_routing() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_users src/ext/openwrt/scripts/unused/device_users
 --- upstream/ext/openwrt/scripts/unused/device_users	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_users	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_users	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,142 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2391,7 +2596,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_users() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/misc src/ext/openwrt/scripts/unused/misc
 --- upstream/ext/openwrt/scripts/unused/misc	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/misc	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/misc	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,42 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2437,7 +2642,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_misc() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/owsip_voice_service src/ext/openwrt/scripts/unused/owsip_voice_service
 --- upstream/ext/openwrt/scripts/unused/owsip_voice_service	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/owsip_voice_service	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/owsip_voice_service	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,262 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2703,14 +2908,29 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/x_easycwmp_org src/ext/openwrt/scripts/unused/x_easycwmp_org
 --- upstream/ext/openwrt/scripts/unused/x_easycwmp_org	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/x_easycwmp_org	2024-10-10 12:11:27.000000000 +0000
++++ src/ext/openwrt/scripts/unused/x_easycwmp_org	2025-03-28 09:33:01.000000000 +0000
 @@ -0,0 +1,3 @@
 +#!/bin/sh
 +# Copyright (C) 2011 Luka Perkov <freecwmp@lukaperkov.net>
 +
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.c src/src/config.c
+--- upstream/src/config.c	2019-09-26 14:27:06.000000000 +0000
++++ src/src/config.c	2025-03-28 09:33:01.000000000 +0000
+@@ -121,11 +121,6 @@
+ 				return -1;
+ 			}
+ 
+-			if (!config->local->ubus_socket) {
+-				D("in local you must define ubus_socket\n");
+-				return -1;
+-			}
+-
+ 			return 0;
+ 		}
+ 	}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.h src/src/cwmp.h
 --- upstream/src/cwmp.h	2019-09-26 14:27:06.000000000 +0000
-+++ src/src/cwmp.h	2024-10-10 12:11:27.000000000 +0000
++++ src/src/cwmp.h	2025-03-28 09:33:01.000000000 +0000
 @@ -142,7 +142,7 @@
  };
  
@@ -2720,3 +2940,76 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  static void cwmp_periodic_inform(struct uloop_timeout *timeout);
  static void cwmp_do_inform(struct uloop_timeout *timeout);
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/easycwmp.c src/src/easycwmp.c
+--- upstream/src/easycwmp.c	2019-09-26 14:27:06.000000000 +0000
++++ src/src/easycwmp.c	2025-03-28 09:33:01.000000000 +0000
+@@ -271,21 +271,10 @@
+ 				exit(EXIT_FAILURE);
+ 		}
+ 	}
+-	int fd = open("/var/run/easycwmp.pid", O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+-	if(fd == -1)
+-		exit(EXIT_FAILURE);
+-	if (flock(fd, LOCK_EX | LOCK_NB) == -1)
+-		exit(EXIT_SUCCESS);
+-	fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
+ 
+ 	setlocale(LC_CTYPE, "");
+ 	umask(0037);
+ 
+-	if (getuid() != 0) {
+-		D("run %s as root\n", NAME);
+-		exit(EXIT_FAILURE);
+-	}
+-
+ 	/* run early cwmp initialization */
+ 	cwmp = calloc(1, sizeof(struct cwmp_internal));
+ 	if (!cwmp) return -1;
+@@ -347,14 +336,6 @@
+ 			exit(EXIT_FAILURE);
+ 		}
+ 	}
+-	char *buf = NULL;
+-	asprintf(&buf, "%d", getpid());
+-	int error = write(fd, buf, strlen(buf));
+-	if ( error < 0) {
+-		D("Unable to write the easycwmpd pid to /var/run/easycwmpd.pid\n");
+-	}
+-
+-	free(buf);
+ 
+ 	log_message(NAME, L_NOTICE, "entering main loop\n");
+ 	uloop_run();
+@@ -368,7 +349,7 @@
+ 	cwmp_free_deviceid();
+ 
+ 	closelog();
+-	close(fd);
++
+ 	if (cwmp->netlink_sock[0] != -1) close(cwmp->netlink_sock[0]);
+ 	if (cwmp->netlink_sock[1] != -1) close(cwmp->netlink_sock[1]);
+ 	free(cwmp);
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/external.h src/src/external.h
+--- upstream/src/external.h	2019-09-26 14:27:06.000000000 +0000
++++ src/src/external.h	2025-03-28 09:33:01.000000000 +0000
+@@ -14,7 +14,7 @@
+ #define _EASYCWMP_EXTERNAL_H__
+ #include <libubox/list.h>
+ 
+-static char *fc_script = "/usr/sbin/easycwmp";
++static char *fc_script = "/usr/local/usr/sbin/easycwmp";
+ extern struct list_head external_list_parameter;
+ 
+ #define EXTERNAL_PROMPT "easycwmp>"
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/http.h src/src/http.h
+--- upstream/src/http.h	2019-09-26 14:27:06.000000000 +0000
++++ src/src/http.h	2025-03-28 09:33:01.000000000 +0000
+@@ -18,7 +18,7 @@
+ #include <libubox/uloop.h>
+ #include <curl/curl.h>
+ 
+-static char *fc_cookies = "/tmp/easycwmp_cookies";
++static char *fc_cookies = "/var/run/easycwmp/easycwmp_cookies";
+ struct http_client
+ {
+ 	struct curl_slist *header_list;

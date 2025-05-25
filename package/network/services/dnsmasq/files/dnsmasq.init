@@ -828,11 +828,9 @@ dnsmasq_start()
 	BASEDHCPSTAMPFILE_CFG="${BASEDHCPSTAMPFILE}.${cfg}"
 
 	# before we can call xappend
-	mkdir -p /var/run/dnsmasq/
 	mkdir -p $(dirname $CONFIGFILE)
 	mkdir -p $(dirname $HOSTFILE)
 	mkdir -p /var/lib/misc
-	chown dnsmasq:dnsmasq /var/run/dnsmasq
 
 	echo "# auto-generated config file from /etc/config/dhcp" > $CONFIGFILE_TMP
 	echo "# auto-generated config file from /etc/config/dhcp" > $HOSTFILE_TMP
@@ -1059,6 +1057,7 @@ dnsmasq_start()
 	[ ! -d "$dnsmasqconfdir" ] && mkdir -p $dnsmasqconfdir
 	xappend "--user=dnsmasq"
 	xappend "--group=dnsmasq"
+	xappend "--dhcp-scriptuser=dnsmasq"
 	echo >> $CONFIGFILE_TMP
 
 	config_get_bool enable_tftp "$cfg" enable_tftp 0
