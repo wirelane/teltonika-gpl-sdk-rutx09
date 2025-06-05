@@ -11,6 +11,8 @@ ADD_LOCAL_HOSTNAME=1
 ADD_WAN_FQDN=0
 ADD_LOCAL_FQDN=""
 
+NODHCPLIST=
+
 BASECONFIGFILE="/var/etc/dnsmasq.conf"
 BASEHOSTFILE="/tmp/hosts/dhcp"
 TRUSTANCHORSFILE="/usr/share/dnsmasq/trust-anchors.conf"
@@ -65,7 +67,22 @@ xappend() {
 	local opt="${value%%=*}"
 
 	if ! dnsmasq_ignore_opt "$opt"; then
-		echo "$value" >>$CONFIGFILE_TMP
+		echo "$value" >>"$CONFIGFILE_TMP"
+	fi
+}
+
+xappend_no_dhcp() {
+	local value="${1#--}"
+	local iface="$2"
+	local net
+
+	for net in $NODHCPLIST; do
+		[ "$net" = "$iface" ] && return 0
+	done
+
+	if ! dnsmasq_ignore_opt "$iface"; then
+		append NODHCPLIST "$iface"
+		echo "$value$iface" >>"$CONFIGFILE_TMP"
 	fi
 }
 
@@ -94,8 +111,8 @@ dhcp_calc() {
 
 	while [ -n "$ip" ]; do
 		part="${ip%%.*}"
-		res="$(($res * 256))"
-		res="$(($res + $part))"
+		res="$((res * 256))"
+		res="$((res + part))"
 		[ "${ip%.*}" != "$ip" ] && ip="${ip#*.}" || ip=
 	done
 	echo "$res"
@@ -106,7 +123,7 @@ dhcp_check() {
 	local stamp="${BASEDHCPSTAMPFILE_CFG}.${ifname}.dhcp"
 	local rv=0
 
-	[ -s "$stamp" ] && return $(cat "$stamp")
+	[ -s "$stamp" ] && return "$(cat "$stamp")"
 
 	# If interface is down, skip it.
 	# The init script will be called again once the link is up
@@ -143,7 +160,39 @@ append_bool() {
 	local _loctmp
 	[ -z "$default" ] && default="0"
 	config_get_bool _loctmp "$section" "$option" "$default"
-	[ $_loctmp -gt 0 ] && xappend "$value"
+	[ "$_loctmp" -gt 0 ] && xappend "$value"
+}
+
+append_no_dhcp() {
+	local section="$1"
+	local iface="$2"
+	local value="$3"
+	local found=false
+	local ignored
+
+	search_interfaces() {
+		local section="$1"
+		local section_prev="$2"
+		local iface_prev="$3"
+		local net ignored iface
+
+		[ "$section" = "$section_prev" ] && return 0
+
+		config_get_bool ignored "$section" 'ignore' 0
+		[ "$ignored" -gt 0 ] && return 0
+
+		config_get net "$section" 'interface'
+		[ -z "$net" ] && return 0
+
+		network_get_device iface "$net" || return 0
+		[ "$iface" = "$iface_prev" ] && found=true
+	}
+
+	config_get_bool ignored "$section" 'ignore' 0
+	[ "$ignored" -gt 0 ] && {
+		config_foreach search_interfaces 'dhcp' "$section" "$iface"
+		$found || xappend_no_dhcp "$value" "$iface"
+	}
 }
 
 append_parm() {
@@ -346,7 +395,7 @@ dhcp_host_add() {
 
 	config_get_bool dns "$cfg" dns 0
 	[ "$dns" = "1" ] && [ -n "$ip" ] && [ -n "$name" ] && {
-		echo "$ip $name${DOMAIN:+.$DOMAIN}" >> $HOSTFILE_TMP
+		echo "$ip $name${DOMAIN:+.$DOMAIN}" >> "$HOSTFILE_TMP"
 	}
 
 	config_get mac "$cfg" mac
@@ -407,7 +456,7 @@ dhcp_this_host_add() {
 		ifdashname="${ifname//./-}"
 		routerstub="$( md5sum /etc/os-release )"
 		routerstub="router-${routerstub// */}"
-		routername="$( uci_get system @system[0] hostname $routerstub )"
+		routername="$( uci_get system @system[0] hostname "$routerstub" )"
 
 		if [ "$mode" -gt 1 ] ; then
 			if [ "$mode" -gt 2 ] ; then
@@ -488,7 +537,7 @@ dhcp_boot_add() {
 	config_get servername "$cfg" servername
 	config_get serveraddress "$cfg" serveraddress
 
-	[ -n "$serveraddress" ] && [ ! -n "$servername" ] && return 0
+	[ -n "$serveraddress" ] && [ -z "$servername" ] && return 0
 
 	xappend "--dhcp-boot=${networkid:+net:$networkid,}${filename}${servername:+,$servername}${serveraddress:+,$serveraddress}"
 
@@ -496,7 +545,6 @@ dhcp_boot_add() {
 
 	dhcp_option_add "$cfg" "$networkid" "$force"
 }
-
 
 dhcp_add() {
 	local cfg="$1"
@@ -516,7 +564,7 @@ dhcp_add() {
 		DNS_SERVERS="$DNS_SERVERS $dnsserver"
 	}
 
-	append_bool "$cfg" ignore "--no-dhcp-interface=$ifname" && {
+	append_no_dhcp "$cfg" "$ifname" "--no-dhcp-interface=" && {
 		# Many ISP do not have useful names for DHCP customers (your WAN).
 		dhcp_this_host_add "$net" "$ifname" "$ADD_WAN_FQDN"
 		return 0
@@ -533,7 +581,7 @@ dhcp_add() {
 
 	#check for an already active dhcp server on the interface, unless 'force' is set
 	config_get_bool force "$cfg" force 0
-	[ $force -gt 0 ] || dhcp_check "$ifname" || {
+	[ "$force" -gt 0 ] || dhcp_check "$ifname" || {
 		logger -t dnsmasq \
 			"found already running DHCP-server on interface '$ifname'" \
 			"refusing to start, use 'option force 1' to override"
@@ -692,7 +740,7 @@ dhcp_domain_add() {
 		record="${record:+$record }$name"
 	done
 
-	echo "$ip $record" >> $HOSTFILE_TMP
+	echo "$ip $record" >> "$HOSTFILE_TMP"
 }
 
 dhcp_srv_add() {
@@ -826,14 +874,15 @@ dnsmasq_start()
 	HOSTFILE="${BASEHOSTFILE}.${cfg}"
 	HOSTFILE_TMP="${HOSTFILE}.$$"
 	BASEDHCPSTAMPFILE_CFG="${BASEDHCPSTAMPFILE}.${cfg}"
+	NODHCPLIST=""
 
 	# before we can call xappend
-	mkdir -p $(dirname $CONFIGFILE)
-	mkdir -p $(dirname $HOSTFILE)
+	mkdir -p "$(dirname "$CONFIGFILE")"
+	mkdir -p "$(dirname "$HOSTFILE")"
 	mkdir -p /var/lib/misc
 
-	echo "# auto-generated config file from /etc/config/dhcp" > $CONFIGFILE_TMP
-	echo "# auto-generated config file from /etc/config/dhcp" > $HOSTFILE_TMP
+	echo "# auto-generated config file from /etc/config/dhcp" > "$CONFIGFILE_TMP"
+	echo "# auto-generated config file from /etc/config/dhcp" > "$HOSTFILE_TMP"
 
 	local dnsmasqconffile="/etc/dnsmasq.${cfg}.conf"
 	if [ ! -r "$dnsmasqconffile" ]; then
@@ -952,13 +1001,14 @@ dnsmasq_start()
 		xappend "--addn-hosts=$HOSTFILE"
 		append EXTRA_MOUNT "$HOSTFILE"
 	else
-		xappend "--addn-hosts=$(dirname $HOSTFILE)"
-		append EXTRA_MOUNT "$(dirname $HOSTFILE)"
+		xappend "--addn-hosts=$(dirname "$HOSTFILE")"
+		append EXTRA_MOUNT "$(dirname "$HOSTFILE")"
 	fi
 	config_list_foreach "$cfg" "addnhosts" append_addnhosts
 	config_list_foreach "$cfg" "bogusnxdomain" append_bogusnxdomain
 	append_parm "$cfg" "leasefile" "--dhcp-leasefile" "/tmp/dhcp.leases"
 	append_parm "$cfg" "serversfile" "--servers-file"
+
 	append_parm "$cfg" "tftp_root" "--tftp-root"
 	append_parm "$cfg" "dhcp_boot" "--dhcp-boot"
 	append_parm "$cfg" "local_ttl" "--local-ttl"
@@ -1054,11 +1104,11 @@ dnsmasq_start()
 	config_get dnsmasqconfdir "$cfg" confdir "/tmp/dnsmasq.d"
 	xappend "--conf-dir=$dnsmasqconfdir"
 	dnsmasqconfdir="${dnsmasqconfdir%%,*}"
-	[ ! -d "$dnsmasqconfdir" ] && mkdir -p $dnsmasqconfdir
+	[ ! -d "$dnsmasqconfdir" ] && mkdir -p "$dnsmasqconfdir"
 	xappend "--user=dnsmasq"
 	xappend "--group=dnsmasq"
 	xappend "--dhcp-scriptuser=dnsmasq"
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 
 	config_get_bool enable_tftp "$cfg" enable_tftp 0
 	[ "$enable_tftp" -gt 0 ] && {
@@ -1067,7 +1117,7 @@ dnsmasq_start()
 	}
 
 	config_foreach filter_dnsmasq host dhcp_host_add "$cfg"
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 
 	config_get_bool dhcpbogushostname "$cfg" dhcpbogushostname 1
 	[ "$dhcpbogushostname" -gt 0 ] && {
@@ -1088,10 +1138,10 @@ dnsmasq_start()
 	config_foreach filter_dnsmasq hostrecord dhcp_hostrecord_add "$cfg"
 	[ -n "$BOOT" ] || config_foreach filter_dnsmasq relay dhcp_relay_add "$cfg"
 
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 	config_foreach filter_dnsmasq srvhost dhcp_srv_add "$cfg"
 	config_foreach filter_dnsmasq mxhost dhcp_mx_add "$cfg"
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 
 	config_get_bool boguspriv "$cfg" boguspriv 1
 	[ "$boguspriv" -gt 0 ] && {
@@ -1113,17 +1163,17 @@ dnsmasq_start()
 	fi
 
 
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 	config_foreach filter_dnsmasq cname dhcp_cname_add "$cfg"
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 	config_foreach filter_dnsmasq ipset dnsmasq_ipset_add "$cfg"
-	echo >> $CONFIGFILE_TMP
+	echo >> "$CONFIGFILE_TMP"
 
-	echo >> $CONFIGFILE_TMP
-	mv -f $CONFIGFILE_TMP $CONFIGFILE
-	mv -f $HOSTFILE_TMP $HOSTFILE
+	echo >> "$CONFIGFILE_TMP"
+	mv -f "$CONFIGFILE_TMP" "$CONFIGFILE"
+	mv -f "$HOSTFILE_TMP" "$HOSTFILE"
 
 	[ "$localuse" -gt 0 ] && {
 		rm -f /tmp/resolv.conf

@@ -264,5 +264,6 @@
 		reg = <&config_rw 0x20 0x8>;
 		type = "digit";
 		default = "";
+		sec;
 	};
 };

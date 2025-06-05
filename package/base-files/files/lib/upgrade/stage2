@@ -121,6 +121,16 @@ kill_remaining() { # [ <signal> [ <loop> ] ]
 	_v
 }
 
+# allow init(procd) to handle watchdog in cpu intensive tasks
+[ -e "/usr/bin/renice" ] && {
+	/usr/bin/renice -20 -p 1
+}
+
+# reset SMS limit database
+[ -n "$UPGRADE_BACKUP" ] || {
+	rm /log/sms.db &>/dev/null
+}
+
 [ -n "$(pgrep telnetd)" ] && {
 	killall -9 telnetd
 }
@@ -136,6 +146,9 @@ sleep 3
 kill_remaining KILL 10
 
 sleep 1
+
+# mark device reboot as expected
+touch /log/reboot
 
 echo 3 > /proc/sys/vm/drop_caches
 

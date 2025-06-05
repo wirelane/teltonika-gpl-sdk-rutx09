@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rpcd
-PKG_RELEASE:=14
+PKG_RELEASE:=20
 
 PKG_SOURCE_DATE:=2021-03-11
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -40,9 +40,9 @@ define Package/rpcd/default
   SECTION:=utils
   CATEGORY:=Base system
   TITLE:=OpenWrt ubus RPC backend server
-  DEPENDS:=+libubus +libubox +liblog
+  DEPENDS:=+libubus +libubox +liblog +libcap
   USERID:=rpcd:rpcd
-  CAP:=/sbin/rpcd:cap_setuid,cap_net_admin,cap_setgid=ep
+  FATTRS:=/sbin/rpcd::::cap_setuid,cap_net_admin,cap_setgid,cap_dac_override,cap_sys_boot,cap_sys_admin=ep
 endef
 
 define Package/rpcd
@@ -150,3 +150,4 @@ $(eval $(call BuildPlugin,file,,Provides ubus calls for file and directory opera
 $(eval $(call BuildPlugin,rpcsys,,Provides ubus calls for sysupgrade and password changing.))
 $(eval $(call BuildPlugin,iwinfo,+libiwinfo,Provides ubus calls for accessing iwinfo data.))
 $(eval $(call BuildPlugin,uci,,Provides ubus calls for uci operations.))
+$(eval $(call BuildPlugin,rc,,Provides ubus calls for init operations.))

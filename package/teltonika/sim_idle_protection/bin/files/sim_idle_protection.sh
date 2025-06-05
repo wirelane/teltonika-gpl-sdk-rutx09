@@ -110,6 +110,7 @@ wait_for_interface() {
     while [ "$status" != "0" ]; do
         found_up_interface
         [ "$?" == "1" ] || status=0
+        count=$((count + 1))
         sleep $WAIT_SLEEP
         [ $count -eq $MAX_WAIT_RETRIES ] && finish $NO_SUITALBE_ACTIVE_INTERFACES_FOUND
     done
@@ -132,7 +133,7 @@ reset_sim() {
 
     [[ $INITIAL_SIM != $CURRENT_ACTIVE_SIM || $INITIAL_ESIM != $CURRENT_ACTIVE_ESIM ]] && {
         logprint "Reloading mobifd to reset temporary SIM settings"
-        ubus call mobifd reload >/dev/null && wait_for_disconnect
+        ubus call mobifd.modem$MODEM_OBJ reload >/dev/null && wait_for_disconnect
     }
 }
 

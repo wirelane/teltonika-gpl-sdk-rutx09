@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libapi
-PKG_SOURCE_VERSION:=1.2
+PKG_SOURCE_VERSION:=1.3
 PKG_SOURCE_DATE:=2024-11-25
 PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
 

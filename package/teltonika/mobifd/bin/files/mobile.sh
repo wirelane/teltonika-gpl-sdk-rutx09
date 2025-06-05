@@ -276,6 +276,18 @@ setup_bridge_v4() {
 		json_get_var bridge_dns2 dns2
 	}
 
+	config_load network
+	config_foreach get_passthrough_interfaces interface
+	config_get p2p "$interface" p2p "0"
+
+	config_load simcard
+	config_foreach get_passthrough sim
+
+	[ "$p2p" -eq 1 ] && {
+		bridge_mask="255.255.255.255"
+		bridge_gateway="169.254.0.2"
+	}
+
 	json_init
 	json_add_string name "${interface}_4"
 	json_add_string ifname "$dev"
@@ -332,16 +344,8 @@ setup_bridge_v4() {
 
 	iptables -w -A postrouting_rule -m comment --comment "Bridge mode" -o "$dev" -j ACCEPT -tnat
 
-	config_load network
-	config_foreach get_passthrough_interfaces interface
-	config_get p2p "$interface" p2p "0"
-
-	config_load simcard
-	config_foreach get_passthrough sim
-
 	> $dhcp_param_file
 	[ -z "$mac" ] && mac="*:*:*:*:*:*"
-	[ "$p2p" -eq 1 ] && bridge_mask=255.255.255.255
 	[ "$passthrough_mode" != "no_dhcp" ] && {
 		echo "dhcp-range=tag:mobbridge,$bridge_ipaddr,static,$bridge_mask,${leasetime:-1h}" > "$dhcp_param_file"
 		echo "shared-network=br-lan,$bridge_ipaddr" >> "$dhcp_param_file"
@@ -585,9 +589,11 @@ restart_dsa_interfaces(){
 	restart_dsa_interfaces_cb() {
 		local ifname
 		config_get ifname "$1" "ifname"
-		[ ${ifname:0:3} = "lan"  ] && {
-			ethtool -r "$ifname"
-		}
+		[ ${ifname:0:3} = "lan" ] && (
+			ip link set "$ifname" down 2>/dev/null
+			sleep 5
+			ip link set "$ifname" up 2>/dev/null
+		) &
 	}
 	config_load network
 	config_foreach restart_dsa_interfaces_cb port
@@ -791,6 +797,7 @@ add_modem_section() {
 	local simcount="$3"
 	local builtin="$4"
 	local custom_proto custom_ifname
+	local sim_pos=0
 
 	get_highest_metric
 
@@ -801,10 +808,15 @@ add_modem_section() {
 		interface="mob${num}s${count}a1"
 		local proto="wwan"
 
+		#~ Get sim slot and get bootstrap profile info
+		sim_pos=$(get_sim_position $num $count)
+		bootstrap_iccid=$(mnf_info -d${sim_pos} 2>/dev/null)
+		[[ "$bootstrap_iccid" != "N/A" && -n "$bootstrap_iccid" ]] && is_bootstrap_profile="1" || is_bootstrap_profile="0"
+
 		# if needed, use custom proto for rmnet/other devices
 		[ -n "${custom_proto}" ] && proto="${custom_proto}"
 
-		metric=$((metric+1))
+		metric=$((metric + 1))
 
 		uci -q delete network."${interface}"
 		uci_add network interface "${interface}"
@@ -816,19 +828,25 @@ add_modem_section() {
 		uci_set network "${interface}" pdptype "ipv4v6"
 		uci_set network "${interface}" method "nat"
 		uci_set network "${interface}" auth "none"
-		uci_set network "${interface}" auto_apn "1"
 		uci_set network "${interface}" area_type "wan"
+		# Manual APN if bootstrap profile
+		[ $is_bootstrap_profile -eq 1 ]  && {
+			uci_set network "${interface}" auto_apn "0"
+			uci_set network "${interface}" apn "data641003"
+		} || uci_set network "${interface}" auto_apn "1"
 
 		# if needed, use custom ifname for rmnet/other devices
-		[ -n "${custom_ifname}" ] && \
+		[ -n "${custom_ifname}" ] &&
 			uci_set network "${interface}" device "${custom_ifname}"
 
 		uci_commit network
 
-		update_firewall_zone "wan" "$interface"
+		[ $is_bootstrap_profile -eq 1 ] && configure_firewall_bootstrap_esim_zone "$interface" ||
+			update_firewall_zone "wan" "$interface"
+
 		create_multiwan_iface "$interface" "$metric"
 		add_simcard_config "$id" "${count}" "${count}" "$builtin"
-		add_sim_switch_config "$id" "${count}"
+		add_sim_switch_config "$id" "${count}" "$is_bootstrap_profile"
 		add_quota_limit_config "$interface"
 	done
 	add_sms_storage_config "$id"

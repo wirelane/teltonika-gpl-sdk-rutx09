@@ -19,8 +19,7 @@ define Package/networkmap
 	CATEGORY:=Network
 	TITLE:=Networkmap tool
 	DEPENDS:=+libpcap +libpthread +libsqlite3 +libubus +libubox
-	CAP:=/bin/networkmap:cap_net_raw=ep
-	SUID:=/bin/networkmap:networkmap
+	FATTRS:=/bin/networkmap:networkmap::y:cap_net_raw=ep
 	USERID:=networkmap=526:networkmap=526
 endef
 

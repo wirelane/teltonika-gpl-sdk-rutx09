@@ -8,7 +8,7 @@
 +  if ok then
 +    function tls_connect(ssl_verify, host, port)
 +      local tls_cfg = {
-+            protocol    = "any",
++            protocol    = "tlsv1_2",
 +            options     = {"all", "no_sslv2", "no_sslv3", "no_tlsv1", "no_tlsv1_1"},
 +            verify      = ssl_verify and "peer" or "none",
 +            certificate = "/etc/ssl/cert.pem",

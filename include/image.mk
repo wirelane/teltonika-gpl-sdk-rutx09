@@ -265,8 +265,7 @@ define Image/mkfs/squashfs
 	echo "for file in $(call mkfs_target_dir,$(1))/usr/lib/opkg/info/*.control ; do" >> $@.fakeroot-script
 	echo '	file="$${file##*/}"' >> $@.fakeroot-script
 	echo '	file="$${file%.control}"' >> $@.fakeroot-script
-	echo '	set_suid "$$file"' >> $@.fakeroot-script
-	echo '	set_capabilities "$$file"' >> $@.fakeroot-script
+	echo '	set_file_attributes "$$file"' >> $@.fakeroot-script
 	echo "done" >> $@.fakeroot-script
 	in_fakeroot=y ; echo "$(Image/mkfs/squashfs-common)" >> $@.fakeroot-script
 	chmod +x $@.fakeroot-script
@@ -414,12 +413,16 @@ DEVICE_HARDWARE_VARS = \
   HARDWARE/LAN/Speed \
   HARDWARE/LAN/Standard \
   HARDWARE/Fibre/Port \
-  HARDWARE/PoE** \
-  HARDWARE/PoE/PoE_In/PoE_ports \
-  HARDWARE/PoE/PoE_In/PoE_standards \
-  HARDWARE/PoE/PoE_Out/PoE_ports \
-  HARDWARE/PoE/PoE_Out/PoE_standards \
-  HARDWARE/PoE/PoE_Out/PoE_Max_Power_per_Port_(at_PSE) \
+  HARDWARE/PoE_In_(Optional)/PoE_ports \
+  HARDWARE/PoE_In_(Optional)/PoE_standards \
+  HARDWARE/PoE_Out_(Optional)/PoE_ports \
+  HARDWARE/PoE_Out_(Optional)/PoE_standards \
+  HARDWARE/PoE_Out_(Optional)/PoE_Max_Power_per_Port_(at_PSE) \
+  HARDWARE/PoE_In/PoE_ports \
+  HARDWARE/PoE_In/PoE_standards \
+  HARDWARE/PoE_Out/PoE_ports \
+  HARDWARE/PoE_Out/PoE_standards \
+  HARDWARE/PoE_Out/PoE_Max_Power_per_Port_(at_PSE) \
   HARDWARE/Power/Connector \
   HARDWARE/Power/Input_voltage_range \
   HARDWARE/Power/PoE_Standards \
@@ -440,9 +443,10 @@ DEVICE_HARDWARE_VARS = \
   HARDWARE/USB/Storage_formats \
   HARDWARE/Mobile/Module \
   HARDWARE/Mobile/3GPP_Release \
-  HARDWARE/Mobile/eSIM** \
+  HARDWARE/Mobile/eSIM \
   HARDWARE/Physical_Interfaces/Ethernet \
   HARDWARE/Physical_Interfaces/IO \
+  HARDWARE/Physical_Interfaces/Power_Control \
   HARDWARE/Physical_Interfaces/Status_leds \
   HARDWARE/Physical_Interfaces/SIM \
   HARDWARE/Physical_Interfaces/Power \

@@ -5,13 +5,6 @@ START=99
 STOP=01
 USE_PROCD=1
 PROG="/usr/local/usr/sbin/vrrpd"
-ENABLED="0"
-
-append_list_item() {
-	local val="$1"
-	local var="$2"
-	append "$var" "$val"
-}
 
 append_arg() {
 	local cfg="$1"
@@ -30,13 +23,9 @@ append_value() {
 
 section_enabled() {
 	local enabled
-	[ "$1" == "ping" ] && return 1
+	[ "$1" == "ping" ] && return
 	config_get_bool enabled "$1" 'enabled' 0
 	[ $enabled -gt 0 ]
-}
-
-test_section() {
-	section_enabled "$1" && ENABLED="1"
 }
 
 start_instance() {
@@ -47,12 +36,12 @@ start_instance() {
 	local args
 	local virtual_mac
 
-	section_enabled "$section" || return 1
+	section_enabled "$section" || return
 
-	[ -e "/var/run/vrrpd/vrrp_${section}.status" ] && return 1
+	[ -e "/var/run/vrrpd/vrrp_${section}.status" ] && return
 
 	config_get iface "$section" 'interface' ''
-	[ -n "$iface" ] || return 1
+	[ -n "$iface" ] || return
 	config_get virtual_mac "$section" 'virtual_mac' 0
 	network_flush_cache
 	network_get_device dev "$iface"
@@ -90,16 +79,6 @@ start_service() {
 	config_foreach start_instance 'vrrpd'
 }
 
-stop_start() {
-	local vrrp_enabled=`uci get -q vrrpd.vid1.enabled`
-	
-	[ $vrrp_enabled -eq 1 ] && {
-		#At least one section is enabled. Sleep before starting
-		sleep 5
-		start
-	}
-}
-
 stop_service() {
 	. /lib/functions/network.sh
 	config_load 'vrrpd'
@@ -110,15 +89,17 @@ stop_service() {
 
 stop_instance() {
 	local section="$1"
-	local id
 	local iface
 	local dev
-
-	section_enabled "$section" || return 1
-
-	config_get id "$section" 'virtual_id' '1'
+	section_enabled "$section" || return
 	config_get iface "$section" 'interface' ''
 	network_get_device dev "$iface"
 
-	procd_send_signal vrrpd "$1" SIGTERM
+	local pid_file="/var/run/vrrpd/vrrpd_${dev}.pid"
+	[ -e "$pid_file" ] && rm "$pid_file"
+}
+
+reload_service() {
+	stop
+	start
 }

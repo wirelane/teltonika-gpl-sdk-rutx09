@@ -2,9 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dlms_client
-PKG_VERSION:=2025-04-14
-PKG_RELEASE:=1
-
+PKG_VERSION:=2025-06-03
 
 PKG_SOURCE_VERSION:=fa855d2e82db1a7d27c419d09ed7a11fe86b86f0
 PKG_SOURCE=GuruxDLMS.c-$(PKG_SOURCE_VERSION).tar.gz
@@ -33,12 +31,14 @@ define Package/$(PKG_NAME)/conffiles
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin $(1)/usr/lib/rpcd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dlms_client.conf $(1)/etc/config/dlms_client
+	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin $(1)/usr/lib/rpcd $(1)/usr/share/acl.d $(1)/etc/permtab.d
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/dlms_client.conf $(1)/etc/config/dlms_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dlms_client.init $(1)/etc/init.d/dlms_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dlms_client $(1)/usr/sbin/dlms_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dlms_scan $(1)/usr/sbin/dlms_scan
 	$(CP) $(PKG_BUILD_DIR)/dlms_client.so $(1)/usr/lib/rpcd/dlms_client.so
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dlms_client.json $(1)/usr/share/acl.d/dlms_client.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dlms_client.permtab $(1)/etc/permtab.d/dlms_client
 endef
 
 define Build/Test
@@ -125,7 +125,6 @@ define Package/$(PKG_NAME)/prerm
 
 	config_foreach start_dlms_in "input"
 	/etc/init.d/data_sender reload 2> /dev/null || true
-
 endef
 
 define Package/$(PKG_NAME)/postrm

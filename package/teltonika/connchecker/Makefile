@@ -19,7 +19,7 @@ define Package/connchecker
 	DEPENDS:= +libubox +libubus +liblog
 	USERID:=connchecker:connchecker
 	$(eval CAP_DIR:=$(if $(findstring m,$(CONFIG_PACKAGE_connchecker)),,/usr/local))
-	CAP:=$(CAP_DIR)/usr/sbin/connchecker:cap_net_raw=ep
+	FATTRS:=$(CAP_DIR)/usr/sbin/connchecker::::cap_net_raw=ep
 endef
 
 define Package/connchecker/description
@@ -41,7 +41,7 @@ define Package/connchecker/install
 	$(INSTALL_DIR) $(1)/etc/init.d/
 	$(INSTALL_BIN) ./files/connchecker.init $(1)/etc/init.d/connchecker
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/connchecker.config $(1)/etc/config/connchecker
+	$(INSTALL_CONF_USR) ./files/connchecker.config $(1)/etc/config/connchecker
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) ./files/connchecker_acl.json $(1)/usr/share/acl.d/connchecker_acl.json
 	$(INSTALL_DIR) $(1)/etc/permtab.d

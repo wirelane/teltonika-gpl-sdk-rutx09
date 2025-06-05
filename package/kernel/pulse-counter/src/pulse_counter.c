@@ -1,5 +1,6 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
+#include <linux/version.h>
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
 #include <linux/fs.h>
@@ -38,7 +39,7 @@ struct gpio_ctx {
 };
 
 static struct gpio_ctx *gpio_ctxs[MAX_GPIO_PINS];
-struct kobject *pulse_kobj;
+static struct kobject pulse_kobj = { 0 };
 
 
 static irqreturn_t gpio_irq_handler_threaded(int irq, void *ptr)
@@ -203,17 +204,17 @@ static ssize_t pulse_count_store(struct kobject *kobj,
 }
 
 static struct kobj_attribute pulse_count_attr =
-	__ATTR(pulse_count, 0644, pulse_count_show, pulse_count_store);
+	__ATTR(pulse_count, 0660, pulse_count_show, pulse_count_store);
 static struct kobj_attribute reset_pulse_count_attr =
-	__ATTR(reset_pulse_count, 0444, reset_pulse_count_show, NULL);
+	__ATTR(reset_pulse_count, 0440, reset_pulse_count_show, NULL);
 static struct kobj_attribute debounce_time_attr =
-	__ATTR(debounce_time, 0644, debounce_time_show, debounce_time_store);
+	__ATTR(debounce_time, 0660, debounce_time_show, debounce_time_store);
 static struct kobj_attribute edge_type_attr =
-	__ATTR(edge_type, 0644, edge_type_show, edge_type_store);
+	__ATTR(edge_type, 0660, edge_type_show, edge_type_store);
 static struct kobj_attribute debounce_count_attr =
-	__ATTR(debounce_count, 0444, debounce_count_show, NULL);
+	__ATTR(debounce_count, 0440, debounce_count_show, NULL);
 static struct kobj_attribute gpio_value_attr =
-	__ATTR(gpio_value, 0444, gpio_value_show, NULL);
+	__ATTR(gpio_value, 0440, gpio_value_show, NULL);
 
 static struct attribute *pin_attrs[] = { &pulse_count_attr.attr,
 					 &reset_pulse_count_attr.attr,
@@ -227,8 +228,22 @@ static struct attribute_group pin_attr_group = {
 	.attrs = pin_attrs,
 };
 
-static struct kobj_type gpio_ktype = {
-	.sysfs_ops = &kobj_sysfs_ops,
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,2,0)
+static void pc_kobj_get_ownership(const struct kobject *kobj, kuid_t *uid, kgid_t *gid)
+#else
+static void pc_kobj_get_ownership(struct kobject *kobj, kuid_t *uid, kgid_t *gid)
+#endif
+{
+	(void)kobj;
+
+	*uid = GLOBAL_ROOT_UID;
+	*gid = GLOBAL_GPIO_GID;
+}
+
+static struct kobj_type pc_kobj_ktype = {
+	.sysfs_ops	= &kobj_sysfs_ops,
+	.get_ownership = &pc_kobj_get_ownership,
 };
 
 static int get_gpio_by_name(const char *gpio_name)
@@ -272,8 +287,8 @@ static int add_gpio_ctx(unsigned int pin, const char *name)
 		gpio_ctxs[i] = ctx;
 
 		snprintf(dir_name, sizeof(dir_name), "%s", name);
-		result = kobject_init_and_add(&ctx->kobj, &gpio_ktype,
-					      pulse_kobj, dir_name);
+		result = kobject_init_and_add(&ctx->kobj, &pc_kobj_ktype,
+					      &pulse_kobj, dir_name);
 		if (result) {
 			ERROR_MESSAGE("Failed to create kobject %d\n", result);
 			goto fail_kobject;
@@ -409,14 +424,18 @@ static int __init pulse_counter_init(void)
 	for (i = 0; i < MAX_GPIO_PINS; i++) {
 		gpio_ctxs[i] = NULL;
 	}
-	pulse_kobj = kobject_create_and_add("pulse_counter", kernel_kobj);
-	if (!pulse_kobj) {
-		return -ENOMEM;
+
+	kobject_init(&pulse_kobj, &pc_kobj_ktype);
+
+	result = kobject_add(&pulse_kobj, kernel_kobj, "pulse_counter");
+	if (result) {
+		pr_warn("%s: kobject_add error: %d\n", __func__, result);
+		kobject_put(&pulse_kobj);
 	}
 
-	result = sysfs_create_group(pulse_kobj, &attr_group);
+	result = sysfs_create_group(&pulse_kobj, &attr_group);
 	if (result) {
-		kobject_put(pulse_kobj);
+		kobject_put(&pulse_kobj);
 		return result;
 	}
 
@@ -438,8 +457,8 @@ static void __exit pulse_counter_exit(void)
 		}
 	}
 
-	sysfs_remove_group(pulse_kobj, &attr_group);
-	kobject_put(pulse_kobj);
+	sysfs_remove_group(&pulse_kobj, &attr_group);
+	kobject_put(&pulse_kobj);
 	INFO_MESSAGE("module unloaded\n");
 }
 

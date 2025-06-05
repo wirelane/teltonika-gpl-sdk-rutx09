@@ -21,7 +21,7 @@ PKG_CPE_ID:=cpe:/a:libnl_project:libnl
 
 PKG_INSTALL:=1
 PKG_FIXUP:=autoreconf
-PKG_BUILD_DEPENDS:=flac
+PKG_BUILD_DEPENDS:=flac libgcrypt
 
 PKG_BUILD_FLAGS:=gc-sections
 

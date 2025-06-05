@@ -43,6 +43,7 @@ define Package/$(PKG_NAME)/postinst
 if [ "$$(uci get vuci.main.set_main_language)" = '1' ]; then
 	uci set vuci.main.lang="$(LANGUAGE)"
 	uci delete vuci.main.set_main_language
+	uci commit vuci
 fi
 if [ ! -L /www/i18n ]; then
     ln -s /usr/local/www/i18n /www/i18n
@@ -54,6 +55,7 @@ define Package/$(PKG_NAME)/prerm
 #!/bin/sh
 	if [ "$$(uci get vuci.main.lang)" = '$(LANGUAGE)' ]; then
 		uci set vuci.main.lang='en'
+		uci commit vuci
 	fi
 exit 0
 endef

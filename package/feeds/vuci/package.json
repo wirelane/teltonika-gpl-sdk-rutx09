@@ -84,6 +84,8 @@
     "fast-glob": "^3.3.2",
     "jsdom": "^24.0.0",
     "mochawesome": "^7.1.3",
+    "msw": "^2.7.3",
+    "msw-storybook-addon": "^2.0.4",
     "npm-run-all2": "^6.1.1",
     "postcss": "^8.4.35",
     "prettier": "^3.2.4",
@@ -103,5 +105,12 @@
   },
   "engines": {
     "node": "~18 || >=20"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public",
+      "vuci-ui-core/src/public",
+      "vuci-ui-core/src/tests/msw"
+    ]
   }
 }

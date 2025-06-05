@@ -240,7 +240,7 @@ define KernelPackage/gpio-nxp-74hc164
   TITLE:=NXP 74HC164 GPIO expander support
   KCONFIG:=CONFIG_GPIO_74X164
   FILES:=$(LINUX_DIR)/drivers/gpio/gpio-74x164.ko
-  AUTOLOAD:=$(call AutoProbe,gpio-74x164,1)
+  AUTOLOAD:=$(call AutoLoad,24,gpio-74x164,1)
 endef
 
 define KernelPackage/gpio-nxp-74hc164/description
@@ -1192,10 +1192,10 @@ $(eval $(call KernelPackage,tpm-tis-core))
 define KernelPackage/tpm-tis-i2c
   SUBMENU:=$(OTHER_MENU)
   TITLE:=TPM TIS 1.2 / TPM 2.0 FIFO Interface - (I2C - generic)
-  DEPENDS:= +kmod-tpm +kmod-i2c-core +kmod-tpm-tis-core
+  DEPENDS:= +kmod-tpm +kmod-i2c-core +kmod-tpm-tis-core +kmod-lib-crc-ccitt
   KCONFIG:= CONFIG_TCG_TIS_I2C
   FILES:= $(LINUX_DIR)/drivers/char/tpm/tpm_tis_i2c.ko
-  AUTOLOAD:= $(call AutoLoad,30,tpm_tis_i2c,1)
+  AUTOLOAD:= $(call AutoLoad,30,tpm_tis_i2c)
 endef
 
 define KernelPackage/tpm-tis-i2c/description

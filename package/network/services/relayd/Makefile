@@ -30,7 +30,7 @@ define Package/relayd
   DEPENDS:=+libubox +libubus
   USERID:=relayd:relayd
   $(eval CAP_DIR:=$(if $(findstring m,$(CONFIG_PACKAGE_relayd)),,/usr/local))
-  CAP:=$(CAP_DIR)/usr/sbin/relayd:cap_net_admin,cap_net_raw=ep
+  FATTRS:=$(CAP_DIR)/usr/sbin/relayd::::cap_net_admin,cap_net_raw=ep
 endef
 
 TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include

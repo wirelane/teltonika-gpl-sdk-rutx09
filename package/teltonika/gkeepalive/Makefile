@@ -20,7 +20,7 @@ define Package/gkeepalive
   DEPENDS:=+libpcap +libpthread +libtlt-logger +libubus
   TITLE:=GRE keepalive
   USERID:=gkeepalive:gkeepalive
-  CAP:=/usr/bin/gkeepalive:cap_net_raw=ep
+  FATTRS:=/usr/bin/gkeepalive::::cap_net_raw=ep
 endef
 
 define Package/gkeepalive/description

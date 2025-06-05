@@ -120,7 +120,7 @@ setup_login() {
 	[ -n "$username" ] || return 0
 	[ -n "$password" ] || return 0
 
-	echo "$username xl2tp-server $password ${remoteip:-*}" >> ${TMP_DIR}/xl2tp-chap-secrets
+	echo "\"$username\" xl2tp-server \"$password\" ${remoteip:-*}" >> ${TMP_DIR}/xl2tp-chap-secrets
 }
 
 count_clients(){
@@ -160,6 +160,7 @@ start_service() {
 		procd_set_param stdout 1
 		procd_set_param stderr 1
 		procd_set_param respawn
+		procd_set_param user xl2tpd
 		procd_close_instance
 
 		if [ "$counter" -gt 0 ]; then
@@ -168,6 +169,7 @@ start_service() {
 			procd_set_param stdout 1
 			procd_set_param stderr 1
 			procd_set_param respawn
+			procd_set_param user xl2tpd
 			procd_close_instance
 		fi
 	else
@@ -176,15 +178,17 @@ start_service() {
 		procd_set_param stdout 1 # forward stdout of the command to logd
 		procd_set_param stderr 1 # same for stderr
 		procd_set_param respawn
+		procd_set_param user xl2tpd
 		procd_close_instance
 	fi
 
 	mkdir -p /tmp/state/l2tp
 	[ -n "$SERVER" ] && date "+%s" > /tmp/state/l2tp/uptime
+
 }
 
 stop_service() {
-	rm -rf "$TMP_DIR" "/tmp/state/l2tp/uptime"
+	rm -rf "/tmp/state/l2tp/uptime" "$TMP_DIR/xl2tp-chap-secrets" "$TMP_DIR/xl2tp-secrets"
 }
 
 reload_service() {

@@ -1,7 +1,12 @@
 [
   {
-    "category": "Services",
-    "name": "Traffic logging",
+    "category": "System",
+    "name": "TPM",
+    "depends": []
+  },
+  {
+    "category": "System",
+    "name": "TCP dump",
     "depends": [
       {
         "type": "family",
@@ -11,11 +16,41 @@
   },
   {
     "category": "Services",
-    "name": "GreenGrass",
+    "name": "Events Reporting",
     "depends": [
       {
         "type": "family",
-        "name": "RUTX"
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "MQTT Broker",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Java VM",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "SMS Forwarding",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "mobile"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Email to SMS",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "mobile"
       }
     ]
   },
@@ -126,7 +161,7 @@
   },
   {
     "category": "Services",
-    "name": "Events juggler",
+    "name": "Event juggler",
     "depends": [
       {
         "type": "family",
@@ -368,8 +403,8 @@
     "name": "Docker",
     "depends": [
       {
-        "type": "device",
-        "name": "RUTC50"
+        "type": "hw",
+        "name": "high_storage"
       }
     ]
   },
@@ -508,13 +543,7 @@
   },
   {
     "category": "Services",
-    "name": "BACnet",
-    "depends": [
-      {
-        "type": "hw",
-        "name": "rs485"
-      }
-    ]
+    "name": "BACnet"
   },
   {
     "category": "Services",
@@ -800,6 +829,16 @@
   },
   {
     "category": "Services",
+    "name": "DLNA",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
     "name": "GRE",
     "depends": [
       {
@@ -985,14 +1024,6 @@
       {
         "type": "family",
         "name": "Router"
-      },
-      {
-        "type": "device",
-        "name": "TAP100"
-      },
-      {
-        "type": "device",
-        "name": "TAP200"
       }
     ]
   },
@@ -1103,7 +1134,7 @@
     ]
   },
   {
-    "name": "DHCP",
+    "name": "DHCP server",
     "category": "Network",
     "depends": [
       {
@@ -1129,16 +1160,6 @@
       {
         "type": "family",
         "name": "Router"
-      }
-    ]
-  },
-  {
-    "name": "Guest Network",
-    "category": "Network",
-    "depends": [
-      {
-        "type": "device",
-        "name": "TCR100"
       }
     ]
   },

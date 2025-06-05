@@ -33,10 +33,10 @@ handle_cron() {
 
 		[ -n "$esim_profile" ] && esim_param=" -p $esim_profile"
 
-		sed -i "/sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}/d" /etc/crontabs/root
-		echo "$TIME sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}" >> /etc/crontabs/root
+		sed -i "/sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}/d" /etc/crontabs/sim_idle_protection
+		echo "$TIME sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}" >> /etc/crontabs/sim_idle_protection
 	else
-		sed -i "/sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}/d" /etc/crontabs/root
+		sed -i "/sim_idle_protection.sh -s sim$position -m ${modem}${esim_param}/d" /etc/crontabs/sim_idle_protection
 	fi
 }
 
@@ -47,12 +47,12 @@ start_service() {
 }
 
 stop_service() {
-	sed -i "/sim_idle_protection.sh/d" /etc/crontabs/root
+	sed -i "/sim_idle_protection.sh/d" /etc/crontabs/sim_idle_protection
 	/etc/init.d/cron restart
 }
 
 reload_service() {
-	sed -i "/sim_idle_protection.sh/d" /etc/crontabs/root
+	sed -i "/sim_idle_protection.sh/d" /etc/crontabs/sim_idle_protection
 	config_load "sim_idle_protection"
 	config_foreach handle_cron sim_idle_protection
 	/etc/init.d/cron restart

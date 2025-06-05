@@ -200,6 +200,9 @@ proto_wwan_teardown() {
 	local driver=$(uci_get_state network "$interface" driver)
 	ctl_device=$(uci_get_state network "$interface" ctl_device)
 
+	uci_revert_state network "$interface" driver
+	uci_revert_state network "$interface" ctl_device
+
 	case $driver in
 	GobiNet)		proto_gobinet_teardown $@ ;;
 	cdc_mbim)		proto_mbim_teardown $@ ;;

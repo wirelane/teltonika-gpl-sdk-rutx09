@@ -29,7 +29,29 @@ endif
 ifdef APP_HW_INFO
 	PKG_HW_INFO:=$(APP_HW_INFO)
 endif
+ifdef APP_USERID
+	USERID:=$(APP_USERID)
+endif
 endef
+
+define Package/$(PKG_NAME)/post/Default
+#!/bin/sh
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+ubus call session reload_acls
+exit 0
+endef
+
+ifndef Package/$(PKG_NAME)/postinst
+define Package/$(PKG_NAME)/postinst
+$(call Package/$(PKG_NAME)/post/Default,$(1))
+endef
+endif
+
+ifndef Package/$(PKG_NAME)/postrm
+define Package/$(PKG_NAME)/postrm
+$(call Package/$(PKG_NAME)/post/Default,$(1))
+endef
+endif
 
 define Build/Prepare
 	$(INSTALL_DIR) $(PKG_BUILD_DIR)
@@ -42,7 +64,7 @@ define Build/Compile
 	$(if $(CONFIG_VUCI_MINIFY_LUA),$(call MinifyLua,$(PKG_BUILD_DIR)/files),true);
 	$(if $(CONFIG_VUCI_COMPILE_LUA),$(call CompileLua,$(PKG_BUILD_DIR)/files),true);
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(PKG_BUILD_DIR)/files),true);
-	# only called if pkg has .c files in ./src dir (or ./bin for GPL build) to compile 
+	# only called if pkg has .c files in ./src dir (or ./bin for GPL build) to compile
 	if [[ -d ./src && "$$$$(ls -A ./src)" ]] || [[ -d ./bin && "$$$$(ls -A ./bin)" ]]; then ( $(call Build/Compile/Default) ); fi
 endef
 

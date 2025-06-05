@@ -676,7 +676,7 @@ function iface_load_config(filename)
 
 	let bss;
 	let line;
-	while ((line = trim(f.read("line"))) != null) {
+	while ((line = rtrim(f.read("line"), "\n")) != null) {
 		let val = split(line, "=", 2);
 		if (!val[0])
 			continue;
@@ -698,7 +698,7 @@ function iface_load_config(filename)
 		push(config.radio.data, line);
 	}
 
-	while ((line = trim(f.read("line"))) != null) {
+	while ((line = rtrim(f.read("line"), "\n")) != null) {
 		if (line == "#default_macaddr")
 			bss.default_macaddr = true;
 

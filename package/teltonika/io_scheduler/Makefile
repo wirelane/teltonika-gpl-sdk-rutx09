@@ -33,7 +33,7 @@ define Package/io_scheduler/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scheduler $(1)/usr/bin/scheduler
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ioman_scheduler.init \
 			$(1)/etc/init.d/ioman_scheduler
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/io_scheduler.conf \
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/io_scheduler.conf \
 			$(1)/etc/config/io_scheduler
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/io_scheduler.json \
 			$(1)/usr/share/acl.d/io_scheduler.json

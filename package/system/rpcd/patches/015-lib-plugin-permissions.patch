@@ -562,12 +562,13 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
  struct rpc_daemon_ops {
      bool (*session_access)(const char *sid, const char *scope,
                             const char *object, const char *function);
-@@ -59,9 +73,16 @@ struct rpc_daemon_ops {
+@@ -59,9 +73,17 @@ struct rpc_daemon_ops {
  
  struct rpc_plugin {
      struct list_head list;
 +    struct ubus_object *(*init)(const struct rpc_daemon_ops *ops, struct ubus_context *ctx);
 +    const char *user;
++    const char *capabilities;
 +};
 +
 +struct rpc_shared_plugin {
@@ -583,6 +584,15 @@ Index: rpcd-2021-03-11-ccb75178/iwinfo.c
 ===================================================================
 --- rpcd-2021-03-11-ccb75178.orig/iwinfo.c
 +++ rpcd-2021-03-11-ccb75178/iwinfo.c
+@@ -530,7 +530,7 @@ rpc_iwinfo_scan(struct ubus_context *ctx
+ 			if (e->ht_chan_info.primary_chan) {
+ 				t = blobmsg_open_table(&buf, "ht_operation");
+ 				blobmsg_add_u32(&buf, "primary_channel", e->ht_chan_info.primary_chan);
+-			
++
+ 				blobmsg_add_string(&buf, "secondary_channel_offset", e->ht_chan_info.secondary_chan_off > ARRAY_SIZE(ht_secondary_offset) ?
+ 				"unknown" : ht_secondary_offset[e->ht_chan_info.secondary_chan_off]);
+ 
 @@ -1033,8 +1033,8 @@ rpc_iwinfo_scanlist(struct ubus_context
  }
  
@@ -594,7 +604,7 @@ Index: rpcd-2021-03-11-ccb75178/iwinfo.c
  {
  	static const struct ubus_method iwinfo_methods[] = {
  		UBUS_METHOD_NOARG("devices", rpc_iwinfo_devices),
-@@ -1052,14 +1052,16 @@ rpc_iwinfo_api_init(const struct rpc_dae
+@@ -1052,16 +1052,19 @@ rpc_iwinfo_api_init(const struct rpc_dae
  	static struct ubus_object_type iwinfo_type =
  		UBUS_OBJECT_TYPE("luci-rpc-iwinfo", iwinfo_methods);
  
@@ -618,16 +628,22 @@ Index: rpcd-2021-03-11-ccb75178/iwinfo.c
  }
  
  struct rpc_plugin rpc_plugin = {
+-	.init = rpc_iwinfo_api_init
++	.init = rpc_iwinfo_api_init,
++	.capabilities = "cap_net_admin=ep"
+ };
 Index: rpcd-2021-03-11-ccb75178/plugin.c
 ===================================================================
 --- rpcd-2021-03-11-ccb75178.orig/plugin.c
 +++ rpcd-2021-03-11-ccb75178/plugin.c
-@@ -18,8 +18,12 @@
+@@ -18,8 +18,14 @@
  
  #include <rpcd/plugin.h>
  #include <pwd.h>
 +#include <grp.h>
 +#include <libubox/ustream.h>
++#include <sys/capability.h>
++
 +#define RPC_FILE_MAX_SIZE		(4096 * 64)
  
  static struct blob_buf buf;
@@ -635,7 +651,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  
  struct rpc_plugin_lookup_context {
  	uint32_t id;
-@@ -27,6 +31,62 @@ struct rpc_plugin_lookup_context {
+@@ -27,6 +33,62 @@ struct rpc_plugin_lookup_context {
  	bool found;
  };
  
@@ -698,7 +714,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  static void
  rpc_plugin_lookup_plugin_cb(struct ubus_context *ctx,
                              struct ubus_object_data *obj, void *priv)
-@@ -474,9 +534,6 @@ out:
+@@ -474,9 +536,6 @@ out:
  	}
  }
  
@@ -708,7 +724,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  static const struct rpc_daemon_ops ops = {
  	.session_access     = rpc_session_access,
  	.session_create_cb  = rpc_session_create_cb,
-@@ -485,24 +542,284 @@ static const struct rpc_daemon_ops ops =
+@@ -485,24 +544,335 @@ static const struct rpc_daemon_ops ops =
  	.exec_timeout       = &rpc_exec_timeout,
  };
  
@@ -814,6 +830,54 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +	ustream_poll(&c->epipe_rpcd.stream);
 +}
 +
++static void set_capabilities(const char *cap_str) {
++	cap_t caps;
++
++	if (!cap_str || !*cap_str) {
++		caps = cap_init();
++		if (!caps) {
++			LOG_ERROR("cap_init failed");
++			return;
++		}
++		if (cap_set_proc(caps) != 0) {
++			LOG_ERROR("cap_set_proc failed: %s", strerror(errno));
++			cap_free(caps);
++			return;
++		}
++		cap_free(caps);
++		return;
++	} else {
++		caps = cap_from_text(cap_str);
++		if (!caps) {
++			LOG_ERROR("cap_from_text failed for string: %s", cap_str);
++			return;
++		}
++	}
++
++	cap_value_t cap_list[CAP_LAST_CAP + 1];
++	int cap_count = 0;
++	for (int cap = 0; cap <= CAP_LAST_CAP; cap++) {
++		cap_flag_value_t flag_value;
++		if (cap_get_flag(caps, cap, CAP_EFFECTIVE, &flag_value) == 0 && flag_value == CAP_SET) {
++			cap_list[cap_count++] = cap;
++		}
++	}
++
++	if (cap_set_flag(caps, CAP_INHERITABLE, cap_count, cap_list, CAP_SET) != 0) {
++		LOG_ERROR("Failed to set inheritable capabilities: %s", strerror(errno));
++		cap_free(caps);
++		return;
++	}
++
++	if (cap_set_proc(caps) != 0) {
++		LOG_ERROR("cap_set_proc failed: %s", strerror(errno));
++		cap_free(caps);
++		return;
++	}
++
++	cap_free(caps);
++}
++
 +static int rpc_plugin_intercept(struct ubus_context *ctx, struct ubus_object *obj,
 +                                struct ubus_request_data *req, const char *method,
 +                                struct blob_attr *msg)
@@ -885,6 +949,9 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +			setgid(0);
 +			setuid(0);
 +		}
++
++		set_capabilities(plugin->capabilities ? plugin->capabilities : "");
++
 +		struct ubus_object *plugin_obj = plugin->init(&ops, child_ctx);
 +		EXIT_ON_ERROR(!plugin_obj, UBUS_STATUS_UNKNOWN_ERROR, "Plugin initialization failed");
 +
@@ -946,8 +1013,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +		dlclose(dlh);
 +		return UBUS_STATUS_UNKNOWN_ERROR;
 +	}
- 
--	list_add(&p->list, &plugins);
++
 +	obj->path = strdup(path);
 +	if (!obj->path) {
 +		LOG_ERROR("Failed to allocate memory for plugin path");
@@ -955,7 +1021,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +		dlclose(dlh);
 +		return UBUS_STATUS_UNKNOWN_ERROR;
 +	}
- 
++
 +	struct ubus_method *methods = calloc(obj->n_methods, sizeof(*methods));
 +	if (!methods) {
 +		LOG_ERROR("Failed to allocate memory for plugin methods");
@@ -964,7 +1030,8 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +		dlclose(dlh);
 +		return UBUS_STATUS_UNKNOWN_ERROR;
 +	}
-+
+ 
+-	list_add(&p->list, &plugins);
 +	for (int i = 0; i < obj->n_methods; i++) {
 +		methods[i].name = strdup(obj->methods[i].name);
 +		methods[i].handler = rpc_plugin_intercept;
@@ -977,7 +1044,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +}
 +
 +static LIST_HEAD(shared_plugins);
-+
+ 
 +static int
 +rpc_plugin_load_library(struct ubus_context *ctx, const char *path)
 +{
@@ -999,7 +1066,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  	return p->init(&ops, ctx);
  }
  
-@@ -528,6 +845,22 @@ int rpc_plugin_api_init(struct ubus_cont
+@@ -528,6 +898,22 @@ int rpc_plugin_api_init(struct ubus_cont
  		}
  
  		closedir(d);
@@ -1064,3 +1131,28 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  }
  
  struct rpc_plugin rpc_plugin = {
+Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
++++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
+@@ -33,6 +33,7 @@ FIND_LIBRARY(ubox NAMES ubox)
+ FIND_LIBRARY(blobmsg_json NAMES blobmsg_json)
+ FIND_LIBRARY(json NAMES json-c json)
+ FIND_LIBRARY(crypt NAMES crypt)
++FIND_LIBRARY(cap NAMES cap)
+ IF(crypt STREQUAL "crypt-NOTFOUND")
+   SET(crypt "")
+ ENDIF()
+@@ -43,8 +44,11 @@ INCLUDE_DIRECTORIES(${ubus_include_dir})
+ FIND_PATH(ubox_include_dir libubox/blobmsg_json.h)
+ INCLUDE_DIRECTORIES(${ubox_include_dir})
+ 
++FIND_PATH(pcap_include_dir sys/capability.h)
++INCLUDE_DIRECTORIES(${pcap_include_dir})
++
+ ADD_EXECUTABLE(rpcd main.c exec.c session.c uci.c rc.c plugin.c)
+-TARGET_LINK_LIBRARIES(rpcd ${ubox} ${ubus} ${uci} ${blobmsg_json} ${json} ${crypt} dl)
++TARGET_LINK_LIBRARIES(rpcd ${ubox} ${ubus} ${uci} ${blobmsg_json} ${json} ${crypt} ${cap} dl)
+ 
+ SET(PLUGINS "")
+ 

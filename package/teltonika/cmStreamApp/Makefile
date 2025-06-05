@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=cmStreamApp
-PKG_VERSION:=2025-04-17
+PKG_VERSION:=2025-05-15
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2.3

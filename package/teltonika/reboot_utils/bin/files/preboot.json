@@ -29,7 +29,7 @@
 				"down"
 			]
 		},
-		"sys": {
+		"rpc-sys": {
 			"methods": [
 				"reboot"
 			]

@@ -37,6 +37,8 @@ define Package/ppp/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=https://ppp.samba.org/
+  USERID:=pppd:pppd
+  FATTRS:=/usr/sbin/pppd:root:pppd:y:
 endef
 
 define Package/ppp

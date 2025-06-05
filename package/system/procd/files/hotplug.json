@@ -41,12 +41,20 @@
 						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
 					],
 					[ "if",
+						[ "eq", "DEVNAME", "tpmrm0" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "tss" ]
+					],
+					[ "if",
 						[ "regex", "DEVNAME", "^bus/usb/[0-9]{3}/[0-9]{3}$" ],
 						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
 					],
 					[ "if",
 						[ "regex", "DEVNAME", "^gpiochip" ],
-						[ "makedev", "/dev/%DEVNAME%", "0666", "gpio" ]
+						[ "makedev", "/dev/%DEVNAME%", "0660", "gpio" ]
+					],
+					[ "if",
+						[ "regex", "DEVNAME", "^i2c-" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "i2c" ]
 					],
 					[ "if",
 						[ "has", "DEVNAME" ],

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
 PKG_VERSION:=5.9.14
-PKG_RELEASE:=24
+PKG_RELEASE:=25
 
 PKG_SOURCE_VERSION:=5.9.14
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -104,7 +104,8 @@ PKG_MOD_AVAILABLE:= \
 	x509 \
 	xauth-eap \
 	xauth-generic \
-	xcbc
+	xcbc \
+	tpm
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_STRONGSWAN_ROUTING_TABLE \
@@ -414,16 +415,22 @@ endef
 
 define Package/strongswan-pki
 $(call Package/strongswan/Default)
-  TITLE+= SCEP
-  DEPENDS:= strongswan +strongswan-libtls +strongswan-mod-pkcs7 +strongswan-mod-curl
-  ifeq (m, $(CONFIG_PACKAGE_strongswan-pki))
-    PKG_TLT_NAME:=SCEP
-    PKG_ROUTER:=$(TLT_PLATFORM_NAME)
-  endif
+  TITLE+= PKI tool
+  DEPENDS:= strongswan +strongswan-libtls
 endef
 
 define Package/strongswan-pki/description
- This package contains the pki tool required for SCEP support.
+  This package contains the pki tool.
+endef
+
+define Package/strongswan-tss-tss2
+$(call Package/strongswan/Default)
+  TITLE+= TSS-TSS2
+  DEPENDS:= strongswan +tpm2-tss
+endef
+
+define Package/strongswan-tss-tss2/description
+  strongswan tss2 lib for tpm support
 endef
 
 define Package/strongswan-swanctl
@@ -484,12 +491,13 @@ define BuildPlugin
   endef
 
   define Package/strongswan-mod-$(1)/install
+	$(eval DEST_DIR:=$$$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_strongswan-mod-$(1))),,/usr/local))
 	$(INSTALL_DIR) $$(1)/etc/strongswan.d/charon
 	if [ -f $(PKG_INSTALL_DIR)/etc/strongswan.d/charon/$(1).conf ]; then \
 		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/strongswan.d/charon/$(1).conf $$(1)/etc/strongswan.d/charon/; fi
-	$(INSTALL_DIR) $$(1)/usr/lib/ipsec/plugins
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/ipsec/plugins
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/plugins/libstrongswan-$(1).so \
-		$$(1)/usr/lib/ipsec/plugins/
+		$(DEST_DIR)/usr/lib/ipsec/plugins/
 	$(call Plugin/$(1)/install,$$(1))
   endef
 
@@ -506,6 +514,7 @@ CONFIGURE_ARGS+= \
 	--with-systemdsystemunitdir=no \
 	$(if $(CONFIG_PACKAGE_strongswan-charon-cmd),--enable-cmd,--disable-cmd) \
 	$(if $(CONFIG_PACKAGE_strongswan-pki),--enable-pki,--disable-pki) \
+	$(if $(CONFIG_PACKAGE_strongswan-tss-tss2),--enable-tss-tss2,--disable-tss-tss2) \
 	--with-random-device=/dev/random \
 	--with-urandom-device=/dev/urandom \
 	--with-routing-table="$(call qstrip,$(CONFIG_STRONGSWAN_ROUTING_TABLE))" \
@@ -598,12 +607,13 @@ endef
 define Package/strongswan-pki/install
 	$(INSTALL_DIR) $(1)/etc/strongswan.d
 	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/pki.conf $(1)/etc/strongswan.d/
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pki $(1)/usr/bin/
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_strongswan-pki)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/bin
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pki $(DEST_DIR)/usr/bin/
+	$(INSTALL_DIR) $(DEST_DIR)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/cert-enroll.d
 	$(CP) ./files/etc/cert-enroll.d $(1)/etc/
-	$(INSTALL_BIN) ./files/usr/sbin/cert-enroll.sh $(1)/usr/sbin
+	$(INSTALL_BIN) ./files/usr/sbin/cert-enroll.sh $(DEST_DIR)/usr/sbin
 endef
 
 define Package/strongswan-swanctl/conffiles
@@ -628,8 +638,9 @@ define Package/strongswan-gencerts/install
 endef
 
 define Package/strongswan-libtls/install
-	$(INSTALL_DIR) $(1)/usr/lib/ipsec
-	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libtls.so.* $(1)/usr/lib/ipsec/
+	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_strongswan-libtls)),,/usr/local))
+	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/ipsec/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libtls.so.* $(DEST_DIR)/usr/lib/
 endef
 
 define Package/strongswan-check/install
@@ -688,6 +699,11 @@ define Plugin/kernel-libipsec/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libipsec.so.* $(1)/usr/lib/ipsec/
 endef
 
+define Package/strongswan-tss-tss2/install
+	$(INSTALL_DIR) $(1)/usr/lib/ipsec/plugins
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libtpmtss.so.* $(1)/usr/lib/ipsec/
+endef
+
 $(eval $(call BuildPackage,strongswan))
 $(eval $(call BuildPackage,strongswan-default))
 $(eval $(call BuildPackage,strongswan-full))
@@ -702,6 +718,7 @@ $(eval $(call BuildPackage,strongswan-swanctl))
 $(eval $(call BuildPackage,strongswan-gencerts))
 $(eval $(call BuildPackage,strongswan-libtls))
 $(eval $(call BuildPackage,strongswan-check))
+$(eval $(call BuildPackage,strongswan-tss-tss2))
 $(eval $(call BuildPlugin,addrblock,RFC 3779 address block constraint support,))
 $(eval $(call BuildPlugin,aes,AES crypto,))
 $(eval $(call BuildPlugin,af-alg,AF_ALG crypto interface to Linux Crypto API,+kmod-crypto-user))
@@ -783,3 +800,4 @@ $(eval $(call BuildPlugin,x509,x509 certificate,))
 $(eval $(call BuildPlugin,xauth-eap,EAP XAuth backend,))
 $(eval $(call BuildPlugin,xauth-generic,generic XAuth backend,))
 $(eval $(call BuildPlugin,xcbc,xcbc crypto,))
+$(eval $(call BuildPlugin,tpm,TPM support,+strongswan-charon +strongswan-pki +strongswan-tss-tss2))

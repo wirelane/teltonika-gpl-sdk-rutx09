@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ip_blockd
-PKG_VERSION:=2025-03-25
+PKG_VERSION:=2025-05-07
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.15
+PKG_SOURCE_VERSION:=1.16
 
 PKG_FIXUP:=autoreconf
 
@@ -21,8 +21,10 @@ define Package/ip_blockd
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=IP Block Daemon
-	DEPENDS:=+rpcd +ipset +iptables +libubus +libubox +libuci +liblog +libip4tc +libip6tc +libipset +libblobmsg-json +libsqlite3
+	DEPENDS:=+ipset +iptables +libubus +libubox +libuci +liblog +libip4tc +libip6tc +libipset +libblobmsg-json +libsqlite3
 	MENU:=1
+	USERID:=ip_blockd:ip_blockd
+	FATTRS:=/usr/bin/ip_blockd::::cap_net_raw,cap_net_admin=ep
 endef
 
 define Package/ip_blockd/config
@@ -42,17 +44,21 @@ CONFIGURE_ARGS += $(if $(CONFIG_MOBILE_SUPPORT),--enable-phone)
 
 
 define Package/ip_blockd/install
-	$(INSTALL_DIR)  $(1)/etc/config/
-	$(INSTALL_DIR)  $(1)/usr/bin/
-	$(INSTALL_DIR)  $(1)/usr/sbin/
-	$(INSTALL_DIR)  $(1)/etc/init.d/
-	$(INSTALL_DIR)  $(1)/usr/local/share/ip_block/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/insertIpTables.sh $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ip_blockd.init $(1)/etc/init.d/ip_blockd
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/ip_blockd.conf $(1)/etc/config/ip_blockd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip_blockd $(1)/usr/bin/
-
+	$(INSTALL_DIR) $(1)/etc/config/
+	$(INSTALL_DIR) $(1)/usr/bin/
+	$(INSTALL_DIR) $(1)/usr/sbin/
+	$(INSTALL_DIR) $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/usr/local/share/ip_block/
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
+	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11/
+
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/ip_blockd.conf $(1)/etc/config/ip_blockd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip_blockd $(1)/usr/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ip_blockd.init $(1)/etc/init.d/ip_blockd
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ip_blockd.json $(1)/usr/share/acl.d/ip_blockd.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ip_blockd.permtab $(1)/etc/permtab.d/ip_blockd
+
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/migrations/7.11/99_ip_blockd_fix $(1)/etc/uci-defaults/7.11/99_ip_blockd_fix
 endef
 

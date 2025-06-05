@@ -174,8 +174,20 @@ start_instance()
 	[ -f /lib/libustream-ssl.so ] && append_bool "$cfg" rfc1918_filter_https "-F" 0
 
 	[ "$enb_http" = "1" ] && {
-		local http
+		local http wan_http wan_http_access
 		config_get http "$cfg" listen_http
+		config_get wan_http "$cfg" wan_listen_http
+		config_get wan_http_access "$cfg" _httpWanAccess
+
+		if [ "$wan_http_access" = "1" ] && [ -n "$wan_http" ]; then
+			for port in $wan_http; do
+				case " $http " in
+					*" $port "*) ;;
+					*) http="$http $port" ;;
+				esac
+			done
+		fi
+
 		for listen in $http; do
 			procd_append_param command -p "$listen"
 		done
@@ -191,7 +203,7 @@ start_instance()
 
 		[ "$cert_key" = "$DEFAULT_UHTTPD_KEY" ] && [ "$cert" = "$DEFAULT_UHTTPD_CERT" ] && default_cert=1
 
-		if [ ! -s "$cert" ] || [ ! -s "$cert_key" ]; then
+		if [ "$cfg" != "hotspot" ] && { [ ! -s "$cert" ] || [ ! -s "$cert_key" ]; }; then
 			rm -f "$cert" "$cert_key"
 			generate_cert=1
 		fi
@@ -207,8 +219,20 @@ start_instance()
 			procd_append_param command -C "$cert"
 			procd_append_param command -K "$cert_key"
 
-			local https
+			local https wan_https wan_https_access
 			config_get https "$cfg" listen_https
+			config_get wan_https "$cfg" wan_listen_https
+			config_get wan_https_access "$cfg" _httpsWanAccess
+
+			if [ "$wan_https_access" = "1" ] && [ -n "$wan_https" ]; then
+				for port in $wan_https; do
+					case " $https " in
+						*" $port "*) ;;
+						*) https="$https $port" ;;
+					esac
+				done
+			fi
+
 			for listen in $https; do
 				procd_append_param command -s "$listen"
 				procd_add_mdns "https" "tcp" "$listen"

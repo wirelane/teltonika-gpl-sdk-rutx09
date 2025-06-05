@@ -107,6 +107,9 @@ default_modem_func="$3"
 
 lock /var/run/board_modem.lock
 
+chmod 664 /var/run/board_modem.lock
+chown root:lock /var/run/board_modem.lock
+
 board_config_update
 json_for_each_item setup_modem modems
 

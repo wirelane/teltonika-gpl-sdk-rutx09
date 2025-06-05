@@ -232,7 +232,7 @@
 +
 +	return UBUS_STATUS_OK;
 +}
-+#endif
++#endif // PROFILE_SUPPORT
 +
  static void
  procd_subscribe_cb(struct ubus_context *ctx, struct ubus_object *obj)
@@ -248,7 +248,7 @@
 +	UBUS_METHOD("remove_profile", remove_profile, profile_policy),
 +	UBUS_METHOD("diff_profile", diff_profile, profile_policy),
 +	UBUS_METHOD_NOARG("list_profiles", list_profiles),
-+#endif
++#endif // PROFILE_SUPPORT
  };
  
  static struct ubus_object_type system_object_type =

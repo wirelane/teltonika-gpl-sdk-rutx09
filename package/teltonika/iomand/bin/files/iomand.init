@@ -16,6 +16,7 @@ start_service() {
 	procd_set_param respawn
 	procd_set_param reload_signal "HUP"
 	procd_set_param command "$BIN" -S
+	procd_set_param user ioman
 	procd_close_instance
 }
 

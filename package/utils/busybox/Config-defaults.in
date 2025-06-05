@@ -1344,10 +1344,10 @@ config BUSYBOX_DEFAULT_GETTY
 	default y
 config BUSYBOX_DEFAULT_LOGIN
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_LOGIN_SESSION_AS_CHILD
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_LOGIN_SCRIPTS
 	bool
 	default n
@@ -2469,6 +2469,9 @@ config BUSYBOX_DEFAULT_NSLOOKUP_OPENWRT
 	bool
 	default y
 config BUSYBOX_DEFAULT_FEATURE_NSLOOKUP_OPENWRT_LONG_OPTIONS
+	bool
+	default n
+config BUSYBOX_DEFAULT_UNTPD
 	bool
 	default n
 config BUSYBOX_DEFAULT_NTPD

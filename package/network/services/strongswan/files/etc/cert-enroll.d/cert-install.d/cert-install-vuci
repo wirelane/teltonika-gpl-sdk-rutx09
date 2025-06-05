@@ -1,52 +1,25 @@
 #!/bin/sh
+
+. /lib/functions.sh
+
 set -e
 
-lua_script(){
-	lua_script='
-	local jsonc = require("luci.jsonc")
-	local file_path = "/etc/certificates/status/info"
-	local target_fullname = "'"$1"'"
-	local new_datetime = "'"$2"'"
-	local scep_url = "'"$3"'"
-	local converted_date = new_datetime:gsub("^notAfter=", ""):gsub(" ", "T")
+config_load certificates
 
-	-- Function to read JSON file
-	local function read_json(file)
-		local f = io.open(file, "r")
-		if not f then
-			error("Cannot open file for reading: " .. file)
-		end
-		local content = f:read("*a")
-		f:close()
-		local obj, err = jsonc.parse(content)
-		if err then
-			error("Error parsing JSON: " .. err)
-		end
-		return obj
-	end
+set_certificate() {
+	local section="$1" cert_name="$2" enddate="$3" scep_url="$4" password="$5" fullname
 
-	local function write_json(file, data)
-		local f = io.open(file, "w")
-		if not f then
-			error("Cannot open file for writing: " .. file)
-		end
-		local content = jsonc.stringify(data)
-		f:write(content)
-		f:close()
-	end
+	config_get fullname "$section" fullname
+	[ "$fullname" != "$cert_name" ] && return 0
+	enddate="${enddate#notAfter=}"
+	enddate="${enddate// /T}"
+	enddate="${enddate%Z}"
+	enddate="${enddate//T/ }"
+	enddate="$(date -u -D "%Y-%m-%d %H:%M:%S" -d "$enddate" +%s 2>/dev/null)"
 
-	local data = read_json(file_path)
-
-	for _, item in ipairs(data) do
-		if item.fullname == target_fullname then
-			item.datetime = converted_date
-			item.scep_url = scep_url
-			break
-		end
-	end
-	write_json(file_path, data)
-	'
-	echo "$lua_script" | /usr/bin/lua
+	uci_set certificates "$section" datetime "$enddate"
+	uci_set certificates "$section" scep_url "$scep_url"
+	uci_set certificates "$section" password "$password"
 }
 
 ##############################################################################
@@ -59,7 +32,7 @@ CERT_PATH="/etc/certificates"
 ##############################################################################
 # Change into the certificates directory
 #
-cd $CERTDIR
+cd "$CERTDIR"
 
 ##############################################################################
 # Install the private key and certificate
@@ -75,11 +48,12 @@ FQDN="${FQDN//\`/\\\`}"
 FQDN="${FQDN//\'/\\\'}"
 FQDN="${FQDN//\"/\\\"}"
 
-lua_script $FQDN.cert.pem "$enddate_cert" "$SCEP_URL"
-lua_script ca-$FQDN.cert.pem "$enddate_ca" "$SCEP_URL"
+config_foreach set_certificate "certificate" "$FQDN.cert.pem" "$enddate_cert" "$SCEP_URL" "$PASSWORD"
+config_foreach set_certificate "certificate" "ca-$FQDN.cert.pem" "$enddate_ca" "$SCEP_URL"
+uci_commit "certificates"
 
-cron="0 0 * * 0 FQDN="$FQDN" SCEP_URL="$SCEP_URL" /usr/sbin/cert-enroll.sh"
-if ! crontab -l | grep -q 'FQDN='"$FQDN"' SCEP_URL='"$SCEP_URL"' /usr/sbin/cert-enroll.sh"'; then
+cron="0 0 * * 0 FQDN=$FQDN SCEP_URL=$SCEP_URL ${PASSWORD:+PASSWORD=$PASSWORD} cert-enroll.sh"
+if ! crontab -l | grep -q "$(echo "$cron" | cut -d' ' -f 6-)"; then
 	(crontab -l ; echo "${cron}")| crontab -
 	logger "Updated crontab with new entry: \'${cron}\'"
 fi

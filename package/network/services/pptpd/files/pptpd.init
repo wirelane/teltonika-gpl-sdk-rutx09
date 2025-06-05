@@ -92,6 +92,7 @@ setup_config() {
 	{
 		echo -e "\n# ADDITIONAL PARAMETERS"
 		echo "ip-up-script /etc/ppp/pptpd-up"
+		echo "ip-down-script /etc/ppp/pptpd-down"
 		echo "ifname pptp"
 		echo "name \"pptp-server\""
 		echo "chap-secrets /var/etc/pptpd-chap-secrets"

@@ -40,7 +40,7 @@
   },
   {
     "name": "RUTE",
-    "devices": ["RUT206", "RUT271", "RUT276", "RUT971", "RUT976"]
+    "devices": ["RUT206", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981"]
   },
   {
     "name": "RUT2M",
@@ -52,7 +52,7 @@
   },
   {
     "name": "RUTC",
-    "devices": ["RUTC50"]
+    "devices": ["RUTC50", "RUTC51"]
   },
   {
     "name": "RUT14X",
@@ -60,23 +60,15 @@
   },
   {
     "name": "RUT30X",
-    "devices": ["RUT300", "RUT301"]
+    "devices": ["RUT301"]
   },
   {
     "name": "RUT36X",
-    "devices": ["RUT360", "RUT361"]
-  },
-  {
-    "name": "TCR1",
-    "devices": ["TCR100"]
+    "devices": ["RUT361"]
   },
   {
     "name": "TRB1",
     "devices": ["TRB140", "TRB141", "TRB142", "TRB143", "TRB145", "TRB160"]
-  },
-  {
-    "name": "TRB2",
-    "devices": ["TRB245", "TRB255"]
   },
   {
     "name": "TRB5",

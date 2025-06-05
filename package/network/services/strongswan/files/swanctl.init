@@ -99,7 +99,7 @@ xappend() {
 }
 
 swan_reset() {
-	file_reset "$STRONGSWAN_VAR_CONF_FILE"
+	[ -d "/var/ipsec" ] && file_reset "$STRONGSWAN_VAR_CONF_FILE"
 }
 
 swan_xappend() {
@@ -127,7 +127,7 @@ swan_xappend4() {
 }
 
 swanctl_reset() {
-	file_reset "$SWANCTL_VAR_CONF_FILE"
+	[ -d "/var/swanctl" ] && file_reset "$SWANCTL_VAR_CONF_FILE"
 }
 
 swanctl_xappend() {
@@ -695,8 +695,13 @@ config_remote() {
 	config_get pre_shared_key "$conf" pre_shared_key
 	config_get auth_method "$conf" authentication_method "psk"
 	[ "$auth_method" = "x509" ] && auth_method="pubkey"
+
 	config_get local_identifier "$conf" local_identifier ""
+	[ "$local_identifier" = "%any" ] && local_identifier=""
+
 	config_get remote_identifier "$conf" remote_identifier ""
+	[ "$remote_identifier" = "%any" ] && remote_identifier=""
+
 	config_get local_ip "$conf" local_ip "%any"
 	config_get keyingtries "$conf" keyingtries "0"
 	config_get dpddelay "${conf}_c" dpddelay "30s"
@@ -908,16 +913,25 @@ config_remote() {
 				swanctl_xappend0 ""
 			fi
 			if [ -n "$local_key" ]; then
-				ln -s "$local_key" "$SWANCTL_DIR/private/"
-				if [ -n "$key_decrypt" ]; then
-					local_key="${local_key:+\"$(basename $local_key)\"}"
-					swanctl_xappend0 ""
+				tpm_handle="$(/bin/tpm2_importer "$local_key" get_handle 2> /dev/null)"
+				if [ $? -eq 0 ] ; then
 					swanctl_xappend0 "secrets {"
-					swanctl_xappend1 "private-$conf {"
-					swanctl_xappend2 "file = $local_key"
-					swanctl_xappend2 "secret = $key_decrypt"
+					swanctl_xappend1 "token-$conf {"
+					swanctl_xappend2 "handle = $tpm_handle"
 					swanctl_xappend1 "}"
 					swanctl_xappend0 "}"
+				else
+					ln -s "$local_key" "$SWANCTL_DIR/private/"
+					if [ -n "$key_decrypt" ]; then
+						local_key="${local_key:+\"$(basename $local_key)\"}"
+						swanctl_xappend0 ""
+						swanctl_xappend0 "secrets {"
+						swanctl_xappend1 "private-$conf {"
+						swanctl_xappend2 "file = $local_key"
+						swanctl_xappend2 "secret = $key_decrypt"
+						swanctl_xappend1 "}"
+						swanctl_xappend0 "}"
+					fi
 				fi
 			fi
 			;;
@@ -1094,6 +1108,7 @@ stop_service() {
 
 service_triggers() {
 	procd_add_reload_trigger "ipsec"
+	procd_add_reload_trigger "certificates"
 	config load "ipsec"
 
 	config_foreach service_trigger_ipsec ipsec

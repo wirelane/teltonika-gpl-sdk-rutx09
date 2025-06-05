@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.17
+PKG_SOURCE_VERSION:=2.18.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -25,6 +25,8 @@ define Package/rut_fota
 	CATEGORY:=Base system
 	TITLE:=Firmware Over The Air Utility
 	DEPENDS:=+libuci +libmnfinfo +MOBILE_SUPPORT:libgsm +libubus +libubox +libopenssl +libblobmsg-json +libjson-c +librut_fota +liblog
+	USERID:=rut_fota:rut_fota
+	FATTRS:=/sbin/rut_fota:rut_fota::y:
 endef
 
 define Package/rut_fota/conffiles
@@ -45,11 +47,13 @@ define Package/librut_fota/install
 endef
 
 define Package/rut_fota/install
-	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/sbin/
+	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/sbin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rut_fota $(1)/sbin/rut_fota
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rut_fota.init $(1)/etc/init.d/rut_fota
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/rut_fota.config $(1)/etc/config/rut_fota
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/rut_fota.config $(1)/etc/config/rut_fota
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/TN_RUT_FOTA_CA.pem $(1)/etc/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rut_fota.json $(1)/usr/share/acl.d/rut_fota.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rut_fota.permtab $(1)/etc/permtab.d/rut_fota
 endef
 
 $(eval $(call BuildPackage,librut_fota))

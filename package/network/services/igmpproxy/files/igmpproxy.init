@@ -37,7 +37,7 @@ igmp_add_phyint() {
 	json_get_var device l3_device
 	json_get_var up up
 
-	[ -n "$device" -a "$up" = "1" ] || {
+	[ -n "$device" ] && [ "$up" = "1" ] || {
 		procd_append_param error "$network is not up"
 		return;
 	}

@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=reboot_utils
-PKG_VERSION:=2025-04-17
-PKG_RELEASE:=2
+PKG_VERSION:=2025-05-15
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.10
+PKG_SOURCE_VERSION:=3.11
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -59,16 +59,16 @@ endef
 
 define Package/reboot_utils-periodic/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/usr/libexec/reboot_utils
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/periodic_reboot.conf $(1)/etc/config/periodic_reboot
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/periodic_reboot.conf $(1)/etc/config/periodic_reboot
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/periodic_reboot.init $(1)/etc/init.d/periodic_reboot
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/reboot_modem.sh $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/periodic_reboot.sh $(1)/usr/libexec/reboot_utils
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/periodic_reboot_init.sh $(1)/usr/libexec/reboot_utils
 endef
 
 define Package/reboot_utils-ping/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/libexec/reboot_utils
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ping_reboot.init $(1)/etc/init.d/ping_reboot
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ping_reboot.conf $(1)/etc/config/ping_reboot
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/ping_reboot.conf $(1)/etc/config/ping_reboot
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ping_reboot.sh $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ping_reboot_init.sh $(1)/usr/libexec/reboot_utils
 endef

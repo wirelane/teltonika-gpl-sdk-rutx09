@@ -5,7 +5,7 @@ LANGUAGE:=ja
 LANG_LONG_NAME:=japanese
 LANGUAGE_STRING:=日本語
 
-VERSION:=2023-01-16
+VERSION:=2025-04-08
 
 include ../lang.mk
 

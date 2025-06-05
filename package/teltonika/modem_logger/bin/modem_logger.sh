@@ -1,15 +1,27 @@
 #!/bin/sh
 . /usr/share/libubox/jshn.sh
 
-[ -f  /usr/local/usr/share/modem_logger/modem_logger_installer ] && {
-    .  /usr/local/usr/share/modem_logger/modem_logger_installer
-    ONLINE="1"
+get_path() {
+    local path="$1"
+    local dest_root="$(awk '/^dest root / { print ($3 ? $3 : "/usr/local") }' /etc/opkg.conf)"
+
+    [ -f "${dest_root}${path}" ] && echo "${dest_root}${path}" && return
+    [ -f "/usr/local$path" ] && echo "/usr/local/$path" && return
+    [ -f "$path" ] && echo "$path" && return
 }
 
-LOCAL_USER_PATH="/usr/local/usr/bin"
+get_bin_path() {
+    local path="$(get_path "/usr/bin/$1")"
+    [ -z "$path" ] && echo "/usr/bin/$1" && return
+    echo "$path"
+}
+
+ONLINE_INSTALLER="$(get_path /usr/share/modem_logger/modem_logger_installer)"
+[ -n "$ONLINE_INSTALLER" ] && . "$ONLINE_INSTALLER" && ONLINE="1"
+
 DEBUG_LOG="1"
 DEBUG_ECHO="0"
-SSHFS_PATH="$LOCAL_USER_PATH/sshfs"
+SSHFS_PATH="$(get_bin_path sshfs)"
 DEFAULT_FILTER_FILE_PATH="/etc/modem_logger_default.cfg"
 DEFAULT_UNISOC_FILTER_FILE_PATH="/etc/unisoc_ps_dsp_important_log.conf"
 DEFAULT_TELIT_FILTER_FILE_PATH="/etc/QXDM_Mask_default_telit.dmc"
@@ -237,17 +249,17 @@ set_logger(){
             [ "$manuf" == "Quectel" ] && [ -z "$ADD_QUECTEL_AT" ] && ADD_QUECTEL_AT="true"
             case "$model" in
                 SLM770*)
-                    LOGGER_PATH="$LOCAL_USER_PATH/qlog" # Meig seems to ask for logs taken with qlog and using a filter.
+                    LOGGER_PATH="$(get_bin_path qlog)" # Meig seems to ask for logs taken with qlog and using a filter.
                     #LOGGER_PATH="/usr/bin/diag_saver"
                     #[ -z "$LOG_DEV" ] && find_modem_log_port "$tty_port"
                     return
                 ;;
-                FN990*)
-                    LOGGER_PATH="$LOCAL_USER_PATH/qc_trace_collector"
+                "FN990"* | "LE910"*)
+                    LOGGER_PATH="$(get_bin_path qc_trace_collector)"
                     return
                 ;;
                 *)
-                    LOGGER_PATH="$LOCAL_USER_PATH/qlog"
+                    LOGGER_PATH="$(get_bin_path qlog)"
                     return
                 ;;
             esac
@@ -293,7 +305,7 @@ wait_till_start(){
 
 start_logger(){
     case "$LOGGER_PATH" in
-        $LOCAL_USER_PATH/qlog)
+        */qlog)
             local QLOG_DEV=""
             [ -n "$MODEM_ID" ] && {
                 QLOG_DEV="/sys/bus/usb/devices/$MODEM_ID"
@@ -321,11 +333,11 @@ start_logger(){
             echo "[LOGGER_START]: $LOGGER_PATH -Dqmdl ${QLOG_DEV:+-p $QLOG_DEV} ${FILTER_PATH:+-f "$FILTER_PATH"} -s $LOG_DIR"
             "$LOGGER_PATH" -Dqmdl ${QLOG_DEV:+-p "$QLOG_DEV"} ${FILTER_PATH:+-f "$FILTER_PATH"} -s "$LOG_DIR" &>/dev/null &
         ;;
-        /usr/bin/diag_saver)
+        */diag_saver)
             echo "[LOGGER_START]: $LOGGER_PATH" -p "$LOG_DEV" -s "$LOG_DIR"
             "$LOGGER_PATH" -p "$LOG_DEV" -s "$LOG_DIR" &>/dev/null &
         ;;
-        /usr/bin/diag_mdlog)
+        */diag_mdlog)
             echo "[INFO]: Setting chmod 606 to \"/dev/diag\"."
             chmod 606 "/dev/diag"
             echo "[INFO]: Setting chmod 757 to \"$LOG_DIR\"."
@@ -338,14 +350,17 @@ start_logger(){
             echo "[LOGGER_START]: $LOGGER_PATH" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR"
             "$LOGGER_PATH" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR" &>/dev/null &
         ;;
-        $LOCAL_USER_PATH/qc_trace_collector)
+        */qc_trace_collector)
             local modems="$(ubus list gsm.modem* | tr "\n" " ")"
             for modem in $modems; do
                 local info="$(ubus call "$modem" info)"
                 local model="$(echo "$info" | jsonfilter -e "@.model")"
                 local usb_id="$(echo "$info" | jsonfilter -e "@.usb_id")"
                 [ -n "$MODEM_ID" ] && [ "$usb_id" != "$MODEM_ID" ] && continue
-                [ "$model" == "FN990-A28" ] && [ -z "$FILTER_PATH" ] && [ -f "$DEFAULT_TELIT_FILTER_FILE_PATH" ] && FILTER_PATH="$DEFAULT_TELIT_FILTER_FILE_PATH"
+                if [ "$model" = "FN990-A28" ] || [ "$model" = "LE910C4-WWX" ]; then
+                    [ -z "$FILTER_PATH" ] && [ -f "$DEFAULT_TELIT_FILTER_FILE_PATH" ] && FILTER_PATH="$DEFAULT_TELIT_FILTER_FILE_PATH"
+                fi
+
                 [ -z "$MODEM_ID" ] && MODEM_ID="$usb_id"
             done
             [ "$FORCE_COREDUMP_LOG" != "" ] && LOG_TYPE="--coreonly" || LOG_TYPE="--traceonly"
@@ -359,12 +374,14 @@ start_logger(){
 }
 
 available_loggers(){
-    local err=""
-    echo "[INFO] Available loggers:"
+    local loggers=""
     for l in $LOGGERS; do
-        [ -f "$LOCAL_USER_PATH/$l" ] && err="$err $l"
+        local logger_path="$(get_bin_path $l)"
+        if [ -f "$logger_path" ]; then
+            loggers="$loggers $l"
+        fi
     done
-    [ "$err" == "" ] && echo "[WARNING] No loggers found in $LOCAL_USER_PATH/*" || echo "[INFO] Loggers: $err"
+    [ "$loggers" == "" ] && echo "[WARNING] No loggers found." || echo "[INFO] Available loggers: $loggers"
 }
 
 validate_forced_logger_params() {
@@ -395,10 +412,10 @@ validate_forced_logger_params() {
 
 start_logging(){
     check_active_loggers
-    [ -z "$FORCE_LOGGER" ] && set_logger || {
+    [ -n "$FORCE_LOGGER" ] && {
         validate_forced_logger_params
-	[[ "$PLATFORM" =~ "TRB[51]" ]] || LOGGER_PATH="$LOCAL_USER_PATH/$FORCE_LOGGER"
-    }
+	    [[ "$PLATFORM" =~ "TRB[51]" ]] || LOGGER_PATH="$(get_bin_path $FORCE_LOGGER)"
+    } || set_logger
 
     if [ -z "$LOGGER_PATH" ]; then
         echo "[ERROR] Failed to set logger. Exiting."
@@ -412,6 +429,7 @@ start_logging(){
             available_loggers
             exit 1
         }
+        LOGGER_PATH=$(get_path "$LOGGER_PATH")
     }
 
     if [ ! -f "$LOGGER_PATH" ]; then
@@ -435,7 +453,7 @@ start_logging(){
         exit 0
     fi
 
-    if [ "$LOGGER_PATH" != "$LOCAL_USER_PATH/qlog" ] && [ $LOG_DIR == "9000" ]; then
+    if [[ "$LOGGER_PATH" =~ "/qlog$" ]] && [ $LOG_DIR == "9000" ]; then
         echo "[ERROR] Only qlog can be run as a TCP server. Exiting."
         available_loggers
         exit 1

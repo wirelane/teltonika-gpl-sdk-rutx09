@@ -32,7 +32,7 @@ define Package/odhcpd/default
   TITLE:=OpenWrt DHCPv6(-PD)/RA Server & Relay
   DEPENDS:=+libubox +libuci +libubus +libnl-tiny
   USERID:=odhcpd:odhcpd
-  CAP:=/usr/sbin/odhcpd:cap_net_admin,cap_net_raw,cap_net_bind_service=ep
+  FATTRS:=/usr/sbin/odhcpd::::cap_net_admin,cap_net_raw,cap_net_bind_service=ep
 endef
 
 define Package/odhcpd/default/description

@@ -245,7 +245,9 @@ static int edma_set_settings(struct net_device *netdev,
  *	get interrupt mitigation
  */
 static int edma_get_coalesce(struct net_device *netdev,
-			     struct ethtool_coalesce *ec)
+				 struct ethtool_coalesce *ec,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
 {
 	u32 reg_val;
 
@@ -267,7 +269,9 @@ static int edma_get_coalesce(struct net_device *netdev,
  *	set interrupt mitigation
  */
 static int edma_set_coalesce(struct net_device *netdev,
-			     struct ethtool_coalesce *ec)
+				 struct ethtool_coalesce *ec,
+				 struct kernel_ethtool_coalesce *kernel_coal,
+				 struct netlink_ext_ack *extack)
 {
 	if (ec->tx_coalesce_usecs)
 		edma_change_tx_coalesce(ec->tx_coalesce_usecs);
@@ -297,7 +301,9 @@ static u32 edma_get_priv_flags(struct net_device *netdev)
  *	get ring size
  */
 static void edma_get_ringparam(struct net_device *netdev,
-			       struct ethtool_ringparam *ring)
+				   struct ethtool_ringparam *ring,
+				   struct kernel_ethtool_ringparam *kernel_ring,
+				   struct netlink_ext_ack *extack)
 {
 	struct edma_adapter *adapter = netdev_priv(netdev);
 	struct edma_common_info *edma_cinfo = adapter->edma_cinfo;

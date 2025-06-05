@@ -1,4 +1,14 @@
 {
 	"user": "ds",
-	"publish": [ "datasender.collection.*" ]
+	"publish": [ "datasender.collection.*" ],
+	"access": {
+		"gsm": {
+			"methods": [ "info" ]
+		},
+		"gsm.modem*": {
+			"methods": [
+				"info"
+			]
+		}
+	}
 }

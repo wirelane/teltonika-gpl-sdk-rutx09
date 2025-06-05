@@ -146,12 +146,18 @@ interface Env {
    * The Authentication token
    */
   SENTRY_AUTH_TOKEN: string
+  /**
+   * Version of the current firmware.
+   * @example
+   * 'RUTX_T_DEV_00.07.14.486'
+   */
+  TLT_VERSION: string
 }
 
 /**
  * Creates Sentry configuration
  * Release naming:
- * * develop and release branches - latest commit SHA
+ * * develop and release branches - last part numbers from TLT_VERSION env variable or latest commit SHA
  * * master release - commit tag
  * Environments:
  * * develop branch - development
@@ -159,17 +165,21 @@ interface Env {
  * * master branch - production
  */
 export function getSentryConfig(env: Env) {
-  const { VUCI_BUILD_HASH, CI_COMMIT_SHA, CI_COMMIT_TAG, CI_COMMIT_BRANCH, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN } = env
+  const { VUCI_BUILD_HASH, CI_COMMIT_SHA, CI_COMMIT_TAG, CI_COMMIT_BRANCH, SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN, TLT_VERSION } = env
+
+  const firmwareVersion = TLT_VERSION?.split('_').at(-1)?.split('.').slice(1, 4).join('.')
   const repoHash = VUCI_BUILD_HASH ? VUCI_BUILD_HASH.split('-').at(-1) : CI_COMMIT_SHA
   const dotenvConfigured = !!(SENTRY_ORG && SENTRY_PROJECT && SENTRY_AUTH_TOKEN)
+
   const isDevelopmentBranch = CI_COMMIT_BRANCH === 'develop'
   const isReleaseBranch = CI_COMMIT_BRANCH?.startsWith('release/')
   const isMasterBranch = !!CI_COMMIT_TAG
+
   return {
     org: SENTRY_ORG,
     project: SENTRY_PROJECT,
     authToken: SENTRY_AUTH_TOKEN,
-    releaseName: CI_COMMIT_TAG ?? repoHash,
+    releaseName: firmwareVersion ?? CI_COMMIT_TAG ?? repoHash,
     enabled: dotenvConfigured && (isDevelopmentBranch || isReleaseBranch || isMasterBranch),
     environment: isMasterBranch ? 'production' : isReleaseBranch ? 'release' : 'development'
   }

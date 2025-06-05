@@ -26,6 +26,8 @@ define Package/xl2tpd6
   TITLE:=L2TP daemon with IPv6 support
   URL:=https://github.com/ulysse31/xl2tpd6
   DEPENDS:=+libpthread +kmod-l2tp +kmod-l2tp-eth +kmod-l2tp-ip
+  USERID:=xl2tpd:xl2tpd
+  FATTRS:=/usr/sbin/xl2tpd6-control:xl2tpd::y:
   ifeq (m, $(CONFIG_PACKAGE_xl2tpd6))
     PKG_TLT_NAME:=L2TPV6 support
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)

@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rms-packages
-PKG_VERSION:=2025-04-17
-PKG_RELEASE:=1
+PKG_VERSION:=2025-05-15
+PKG_RELEASE:=2
 
-PKG_SOURCE_VERSION:=3.17
+PKG_SOURCE_VERSION:=3.18
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -30,7 +30,8 @@ define Package/rms_mqtt
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=MQTT application for RMS by Teltonika
-	DEPENDS:=+libmosquitto +libmnfinfo +libopenssl +libuci +MOBILE_SUPPORT:libgsm +libblobmsg-json +libubox +libubus +libpthread +libtlt_uci
+	DEPENDS:=+libmosquitto +libmnfinfo +libopenssl +libuci +MOBILE_SUPPORT:libgsm \
+			+libblobmsg-json +libubox +libubus +libpthread +libtlt_uci
 	USERID:=rms=552:rms=552
 	#FATTRS:=/usr/sbin/rms_mqtt::::cap_setuid,cap_setgid=ep
 endef
@@ -75,12 +76,15 @@ define Package/rms_mqtt/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rms_mqtt.init $(1)/etc/init.d/rms_mqtt
 
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rms_mqtt.conf $(1)/etc/config/rms_mqtt
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/rms_mqtt.conf $(1)/etc/config/rms_mqtt
 
 	$(INSTALL_DIR) $(1)/etc/rms_mqtt/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/RutOS_teltonika.lt.ca $(1)/etc/rms_mqtt/RutOS@teltonika.lt.ca
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/RutOS_teltonika.lt.crt $(1)/etc/rms_mqtt/RutOS@teltonika.lt.crt
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/RutOS_teltonika.lt.key $(1)/etc/rms_mqtt/RutOS@teltonika.lt.key
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/RutOS_teltonika.lt.ca $(1)/etc/rms_mqtt/RutOS@teltonika.lt.ca
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/RutOS_teltonika.lt.crt $(1)/etc/rms_mqtt/RutOS@teltonika.lt.crt
+	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/RutOS_teltonika.lt.key $(1)/etc/rms_mqtt/RutOS@teltonika.lt.key
+
+	# $(INSTALL_DIR) $(1)/usr/share/acl.d
+	# $(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rms_mqtt.json $(1)/usr/share/acl.d/rms_mqtt.json
 endef
 
 define Package/rms_json/install

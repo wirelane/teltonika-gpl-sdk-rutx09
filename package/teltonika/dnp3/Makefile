@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dnp3
-PKG_VERSION:=2025-04-14
+PKG_VERSION:=2025-05-15
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.14
+PKG_SOURCE_VERSION:=7.15
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 
@@ -51,8 +51,8 @@ define Package/dnp3/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_outstation $(1)/usr/sbin/
 
 	$(INSTALL_DIR) $(1)/etc/config/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dnp3_client.conf $(1)/etc/config/dnp3_client
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dnp3_outstation.conf $(1)/etc/config/dnp3_outstation
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/dnp3_client.conf $(1)/etc/config/dnp3_client
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/dnp3_outstation.conf $(1)/etc/config/dnp3_outstation
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dnp3_client.init $(1)/etc/init.d/dnp3_client

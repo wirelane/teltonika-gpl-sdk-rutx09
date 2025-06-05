@@ -145,6 +145,12 @@ config PACKAGE_EVENT_JUGGLER_ACTION_SMS
 	help
 		Compile with SMS action support
 
+config PACKAGE_EVENT_JUGGLER_ACTION_CALL
+	bool "Call action support"
+	default n
+	help
+		Compile with Call action support`
+
 config PACKAGE_EVENT_JUGGLER_ACTION_SMTP
 	bool "SMTP action support"
 	default y

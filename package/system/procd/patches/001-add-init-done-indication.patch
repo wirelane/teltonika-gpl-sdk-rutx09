@@ -1,7 +1,5 @@
-Index: procd-2021-02-23-37eed131/state.c
-===================================================================
---- procd-2021-02-23-37eed131.orig/state.c
-+++ procd-2021-02-23-37eed131/state.c
+--- a/state.c
++++ b/state.c
 @@ -127,6 +127,7 @@ static void state_enter(void)
  {
  	char ubus_cmd[] = "/sbin/ubusd";

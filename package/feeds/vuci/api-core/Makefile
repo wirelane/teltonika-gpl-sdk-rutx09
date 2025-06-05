@@ -20,7 +20,8 @@ define Package/api-core
 		+uhttpd-mod-ubus +lua +libubox-lua +libubus-lua \
 		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
 		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto +lua_extra_validators \
-		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci
+		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci \
+		+rpcd-mod-rc
 endef
 
 define Package/api-core/config
@@ -71,7 +72,6 @@ define install_closed_gpl
 	$(CP) $(GPL_FILES_DIR)/etc/config/vuci $(PKG_GPL_BUILD_DIR)/files/etc/config
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
 	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
-	$(CP) $(GPL_FILES_DIR)/sbin/tls_generate_lua.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/event_server.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/api.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/api/core/* $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/core
@@ -115,7 +115,6 @@ define Package/api-core/install
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/config/vuci $(1)/etc/config/vuci ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/bin/trigger_vuci_routes_reload $(1)/bin/trigger_vuci_routes_reload ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server.init $(1)/etc/init.d/event_server ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/tls_generate_lua.lua $(1)/sbin/tls_generate_lua ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/event_server.lua $(1)/sbin/event_server ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/api.lua $(1)/sbin/api ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/vuci/*.lua $(1)/usr/lib/lua/vuci ; \

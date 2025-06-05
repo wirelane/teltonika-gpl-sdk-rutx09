@@ -1,16 +1,28 @@
 #!/bin/ash
 . /usr/share/libubox/jshn.sh
 
-[ -f /usr/local/usr/share/modem_updater/modem_updater_installer ] && {
-    . /usr/local/usr/share/modem_updater/modem_updater_installer
-    ONLINE="1"
+get_path() {
+    local path="$1"
+    local dest_root="$(awk '/^dest root / { print ($3 ? $3 : "/usr/local") }' /etc/opkg.conf)"
+
+    [ -f "${dest_root}${path}" ] && echo "${dest_root}${path}" && return
+    [ -f "/usr/local$path" ] && echo "/usr/local/$path" && return
+    [ -f "$path" ] && echo "$path" && return
 }
 
+get_bin_path() {
+    local path="$(get_path "/usr/bin/$1")"
+    [ -z "$path" ] && echo "/usr/bin/$1" && return
+    echo "$path"
+}
+
+ONLINE_INSTALLER="$(get_path /usr/share/modem_updater/modem_updater_installer)"
+[ -n "$ONLINE_INSTALLER" ] && . "$ONLINE_INSTALLER" && ONLINE="1"
+
 ### Static defines
-LOCAL_USER_PATH="/usr/local/usr/bin"
 HOSTNAME="modemfota.teltonika-networks.com"
 SSH_PASS="u3qQo99duKeaVWr7"
-SSHFS_PATH="$LOCAL_USER_PATH/sshfs"
+SSHFS_PATH="$(get_bin_path sshfs)"
 DEVICE_PATH="/sys/bus/usb/devices/"
 
 ##############################################################################
@@ -354,7 +366,7 @@ exec_sshfs() {
 }
 
 setup_ssh() {
-    if [ ! -f $SSHFS_PATH ]; then
+    if [ -z $SSHFS_PATH ]; then
         echo "[ERROR] SSHFS not found."
         echo "You can install SSHFS using this command: \"opkg update && opkg install sshfs\""
         echo "Or alternatively using \"-r\" option."
@@ -516,22 +528,22 @@ setDevice() {
 setFlasherPath() {
     #setdevice
     if [ "$DEVICE" = "Quectel" ]; then
-        FLASHER_PATH="$LOCAL_USER_PATH/$QUECTEL_FLASHER"
+        FLASHER_PATH="$(get_bin_path $QUECTEL_FLASHER)"
         FLASHER_FILE="$QUECTEL_FLASHER_PKG"
     elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "QuectelUNISOC" ]; then
-        FLASHER_PATH="$LOCAL_USER_PATH/$QUECTEL_ASR_FLASHER"
+        FLASHER_PATH="$(get_bin_path $QUECTEL_ASR_FLASHER)"
         FLASHER_FILE="$QUECTEL_ASR_FLASHER_PKG"
     elif [ "$DEVICE" = "Meiglink" ]; then
-        FLASHER_PATH="$LOCAL_USER_PATH/$MEIG_FLASHER"
+        FLASHER_PATH="$(get_bin_path $MEIG_FLASHER)"
         FLASHER_FILE="$MEIG_FLASHER_PKG"
     elif [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
-        FLASHER_PATH="$LOCAL_USER_PATH/$MEIG_ASR_FLASHER"
+        FLASHER_PATH="$(get_bin_path $MEIG_ASR_FLASHER)"
         FLASHER_FILE="$MEIG_ASR_FLASHER_PKG"
     elif [ "$DEVICE" = "Telit" ]; then
-        FLASHER_PATH="$LOCAL_USER_PATH/$TELIT_FLASHER"
+        FLASHER_PATH="$(get_bin_path $TELIT_FLASHER)"
         FLASHER_FILE="$TELIT_FLASHER_PKG"
     elif [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
-        FLASHER_PATH="$LOCAL_USER_PATH/$EIGENCOMM_FLASHER"
+        FLASHER_PATH="$(get_bin_path $EIGENCOMM_FLASHER)"
         FLASHER_FILE="$EIGENCOMM_FLASHER_PKG"
     fi
 }
@@ -791,7 +803,8 @@ generic_validation() {
             echo "[ERROR] Flasher download unsuccessful."
             graceful_exit
         fi
-    elif [ ! -f "$FLASHER_PATH" ]; then
+        FLASHER_PATH=$(get_path "$FLASHER_PATH")
+    elif [ -z "$FLASHER_PATH" ]; then
         echo "[ERROR] Flasher not found. You need to use \"-r\" option to install missing dependencies."
         helpFunction
         graceful_exit
@@ -1062,7 +1075,8 @@ ASR_validation() {
             echo "[ERROR] Flasher download unsuccessful."
             graceful_exit
         fi
-    elif [ ! -f "$FLASHER_PATH" ]; then
+        FLASHER_PATH=$(get_path "$FLASHER_PATH")
+    elif [ -z "$FLASHER_PATH" ]; then
         echo "[ERROR] Flasher not found. You need to use \"-r\" option to install missing dependencies."
         helpFunction
         graceful_exit

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=easycwmp
-PKG_VERSION:=2025-04-17
+PKG_VERSION:=2025-05-15
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.8.3
@@ -79,17 +79,19 @@ define Package/easycwmp/conffiles
 endef
 
 define Package/easycwmp/install
-	$(INSTALL_DIR) $(1)/usr/share/acl.d/ $(1)/etc/uci-defaults/7.14
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/ $(1)/etc/uci-defaults/7.14 \
+			$(1)/lib/upgrade/keep.d/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/files/900-easycwmp.sh $(1)/etc/uci-defaults/7.14/99_easycwmp
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ext/openwrt/files/easycwmp.json $(1)/usr/share/acl.d/easycwmp.json
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/easycwmpd $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/ext/openwrt/config/easycwmp $(1)/etc/config
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/ext/openwrt/config/easycwmp $(1)/etc/config
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/init.d/easycwmpd $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ext/openwrt/files/easycwmp.permtab $(1)/etc/permtab.d/easycwmp
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ext/openwrt/files/easycwmp.keep $(1)/lib/upgrade/keep.d/easycwmpd
 ifeq ($(EASYCWMP_BACKUP_DATA_FILE),y)
 	$(INSTALL_DIR) $(1)/etc/easycwmp
 endif

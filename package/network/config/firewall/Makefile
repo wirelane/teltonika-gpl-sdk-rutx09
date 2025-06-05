@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=firewall
-PKG_RELEASE:=12
+PKG_RELEASE:=13
 
 PKG_SOURCE_DATE:=2022-02-17
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -62,10 +62,6 @@ ifeq ($(TLT_PLATFORM_TAP400), y)
 	FIREWALL_CONFIG=firewall.config-tap400
 endif
 
-ifeq ($(TLT_PLATFORM_TCR1), y)
-	FIREWALL_CONFIG=firewall.config-tcr100
-endif
-
 ifeq ($(TLT_PLATFORM_DAP14X), y)
 	FIREWALL_CONFIG=firewall.config-dap14x
 endif
@@ -108,11 +104,6 @@ define Package/firewall/install
 	$(if $(CONFIG_POE_SUPPORT),\
 		$(INSTALL_DIR) $(1)/etc/uci-defaults/; \
 		$(INSTALL_BIN) ./files/migrate_poe_wan.defaults $(1)/etc/uci-defaults/;)
-
-	if [ $(TLT_PLATFORM_RUTX) ]; then \
-		$(INSTALL_DIR) $(1)/usr/bin; \
-		$(INSTALL_BIN) ./files/rutx_hnat.sh $(1)/usr/bin/rutx_hnat; \
-	fi;
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot firewall ./files/firewall.openrc $(1))

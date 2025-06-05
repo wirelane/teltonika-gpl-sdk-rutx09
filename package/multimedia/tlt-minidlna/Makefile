@@ -38,7 +38,7 @@ define Package/tlt-minidlna
   	+libid3tag +libflac +libvorbis +libuuid +libubus \
 	+libubox $(ICONV_DEPENDS) $(INTL_DEPENDS)
   USERID:=minidlna:minidlna
-  CAP:=/usr/bin/minidlna:cap_net_bind_service=ep
+  FATTRS:=/usr/bin/minidlna::::cap_net_bind_service=ep
 endef
 
 define Package/tlt-minidlna/description

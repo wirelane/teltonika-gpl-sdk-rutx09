@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
 PKG_VERSION:=2025-03-25
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_BUILD_DEPENDS:=zlib
 
 PKG_SOURCE_PROTO:=git
@@ -35,8 +35,7 @@ define Package/shellinabox
   TITLE:=SSH over HTTP
   DEPENDS:=+zlib +libopenssl +libubus
   USERID:=shellinabox:shellinabox
-  CAP:=/usr/sbin/shellinaboxd:cap_net_bind_service=ep
-  SUID:=/usr/sbin/shellinaboxd:shellinabox
+  FATTRS:=/usr/sbin/shellinaboxd:shellinabox::y:cap_net_bind_service=ep
 endef
 
 define Package/shellinabox/description

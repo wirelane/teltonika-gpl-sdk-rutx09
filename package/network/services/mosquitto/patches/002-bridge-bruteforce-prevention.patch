@@ -1,42 +1,36 @@
-Index: mosquitto-ssl/mosquitto-2.0.11/src/CMakeLists.txt
-===================================================================
 --- a/src/Makefile
 +++ b/src/Makefile
-@@ -79,6 +79,7 @@ OBJS= mosquitto.o \
-		websockets.o \
-		will_delay.o \
-		will_mosq.o \
+@@ -79,6 +79,7 @@ OBJS=	mosquitto.o \
+ 		websockets.o \
+ 		will_delay.o \
+ 		will_mosq.o \
 +		misq_utils.o \
-		xtreport.o
+ 		xtreport.o
  
  mosquitto : ${OBJS}
-@@ -309,6 +309,9 @@ will_delay.o : will_delay.c mosquitto_br
+@@ -309,6 +310,9 @@ will_delay.o : will_delay.c mosquitto_br
  will_mosq.o : ../lib/will_mosq.c ../lib/will_mosq.h
-	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
+ 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
  
 +misq_utils.o : misq_utils.c misq_utils.h
 +	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
 +
  xtreport.o : xtreport.c
-	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
-
-Index: mosquitto-ssl/mosquitto-2.0.11/src/CMakeLists.txt
-===================================================================
+ 	${CROSS_COMPILE}${CC} $(BROKER_CPPFLAGS) $(BROKER_CFLAGS) -c $< -o $@
+ 
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -70,7 +70,8 @@ set (MOSQ_SRCS
-	../lib/utf8_mosq.c
-	websockets.c
-	will_delay.c
+ 	../lib/utf8_mosq.c
+ 	websockets.c
+ 	will_delay.c
 -	../lib/will_mosq.c ../lib/will_mosq.h)
 +	../lib/will_mosq.c ../lib/will_mosq.h
 +	misq_utils.c misq_utils.h)
  
  
  if (WITH_BUNDLED_DEPS)
-Index: mosquitto-ssl/mosquitto-2.0.11/src/misq_utils.h
-===================================================================
---- a/dev/null
+--- /dev/null
 +++ b/src/misq_utils.h
 @@ -0,0 +1,8 @@
 +#include <string.h>
@@ -47,10 +41,7 @@ Index: mosquitto-ssl/mosquitto-2.0.11/src/misq_utils.h
 +#include "mosquitto_broker_internal.h"
 +
 +void ip_block_invoke(const char *command, struct mosquitto *context);
-
-Index: mosquitto-ssl/mosquitto-2.0.11/src/misq_utils.c
-===================================================================
---- a/dev/null
+--- /dev/null
 +++ b/src/misq_utils.c
 @@ -0,0 +1,36 @@
 +#include "misq_utils.h"
@@ -89,13 +80,9 @@ Index: mosquitto-ssl/mosquitto-2.0.11/src/misq_utils.c
 +end:
 +	ubus_free(ubus);
 +}
-
-
-Index: mosquitto-ssl/mosquitto-2.0.11/config.mk
-===================================================================
 --- a/config.mk
 +++ b/config.mk
-@@ -251,7 +251,7 @@ endif
+@@ -252,7 +252,7 @@ endif
  ifeq ($(WITH_TLS),yes)
  	APP_CPPFLAGS:=$(APP_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
  	BROKER_CPPFLAGS:=$(BROKER_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
@@ -104,23 +91,19 @@ Index: mosquitto-ssl/mosquitto-2.0.11/config.mk
  	CLIENT_CPPFLAGS:=$(CLIENT_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
  	LIB_CPPFLAGS:=$(LIB_CPPFLAGS) -DWITH_TLS -DOPENSSL_API_COMPAT=0x10100000L
  	LIB_LIBADD:=$(LIB_LIBADD) -lssl -lcrypto
-Index: mosquitto-ssl/mosquitto-2.0.11/include/mosquitto.h
-===================================================================
 --- a/include/mosquitto.h
 +++ b/include/mosquitto.h
-@@ -121,6 +121,7 @@ enum mosq_err_t {
+@@ -122,6 +122,7 @@ enum mosq_err_t {
  	MOSQ_ERR_TOPIC_ALIAS_INVALID = 29,
  	MOSQ_ERR_ADMINISTRATIVE_ACTION = 30,
  	MOSQ_ERR_ALREADY_EXISTS = 31,
 +	MOSQ_ERR_SSL = 32,
  };
  
- /* Option values */
- Index: mosquitto-ssl/mosquitto-2.0.11/src/security_default.c
-===================================================================
+ /* Enum: mosq_opt_t
 --- a/src/security_default.c
 +++ b/src/security_default.c
-@@ -1153,7 +1153,7 @@ int mosquitto_security_apply_default(voi
+@@ -1151,7 +1151,7 @@ int mosquitto_security_apply_default(voi
  					send__disconnect(context, MQTT_RC_ADMINISTRATIVE_ACTION, NULL);
  				}
  				mosquitto__set_state(context, mosq_cs_disconnecting);
@@ -129,8 +112,6 @@ Index: mosquitto-ssl/mosquitto-2.0.11/include/mosquitto.h
  				continue;
  			}
  #ifdef FINAL_WITH_TLS_PSK
-Index: mosquitto-ssl/mosquitto-2.0.11/src/handle_connect.c
-===================================================================
 --- a/src/handle_connect.c
 +++ b/src/handle_connect.c
 @@ -33,6 +33,7 @@ Contributors:
@@ -141,21 +122,18 @@ Index: mosquitto-ssl/mosquitto-2.0.11/src/handle_connect.c
  
  #ifdef WITH_WEBSOCKETS
  #  include <libwebsockets.h>
-@@ -299,6 +299,8 @@ int connect__on_authorised(struct mosqui
-	free(auth_data_out);
-	auth_data_out = NULL;
-
+@@ -314,6 +315,8 @@ int connect__on_authorised(struct mosqui
+ 	free(auth_data_out);
+ 	auth_data_out = NULL;
+ 
 +	ip_block_invoke("unblock", context);
 +
-	keepalive__add(context);
- 
-	mosquitto__set_state(context, mosq_cs_active);
-
-Index: mosquitto-ssl/mosquitto-2.0.11/src/loop.c
-===================================================================
+ 	mosquitto__set_state(context, mosq_cs_active);
+ 	rc = send__connack(context, connect_ack, CONNACK_ACCEPTED, connack_props);
+ 	mosquitto_property_free_all(&connack_props);
 --- a/src/loop.c
 +++ b/src/loop.c
-@@ -54,6 +54,7 @@ Contributors:
+@@ -53,6 +53,7 @@ Contributors:
  #include "sys_tree.h"
  #include "time_mosq.h"
  #include "util_mosq.h"
@@ -163,13 +141,13 @@ Index: mosquitto-ssl/mosquitto-2.0.11/src/loop.c
  
  extern bool flag_reload;
  #ifdef WITH_PERSISTENCE
-@@ -280,6 +281,9 @@ void do_disconnect(struct mosquitto *con
-	bool is_duplicate = false;
+@@ -284,6 +285,9 @@ void do_disconnect(struct mosquitto *con
+ 	bool is_duplicate = false;
  #endif
-
+ 
 +	if(reason == MOSQ_ERR_AUTH) {
 +		ip_block_invoke("push", context);
 +	}
-	if(context->state == mosq_cs_disconnected){
-		return;
-	}
+ 	if(context->state == mosq_cs_disconnected){
+ 		return;
+ 	}

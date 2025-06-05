@@ -36,9 +36,10 @@ define Device/teltonika_rutx
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	FILESYSTEMS := squashfs
-	DEVICE_FEATURES := usb-port gps serial modbus io wifi bt dualsim \
-			port-mirror ntrip hw-offload mobile dot1x-client portlink \
-			xfrm-offload tpm reset_button
+	DEVICE_FEATURES := usb-port gps serial modbus ios wifi bt dualsim \
+			port-mirror ntrip mobile dot1x-client portlink \
+			sw-offload xfrm-offload tpm reset_button
+
 	GPL_PREFIX := GPL
 	# Default common packages for RUTX series
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

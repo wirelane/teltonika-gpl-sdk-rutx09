@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pptpd
 PKG_VERSION:=1.4.0
-PKG_RELEASE:=6
+PKG_RELEASE:=9
 
 PKG_SOURCE_VERSION:=1.4.0
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -65,10 +65,13 @@ define Package/pptpd/install
 	$(INSTALL_BIN) ./files/pptpd.init $(1)/etc/init.d/pptpd
 	$(INSTALL_DIR) $(1)/etc/ppp
 	$(INSTALL_BIN) ./files/pptpd-up $(1)/etc/ppp/
+	$(INSTALL_BIN) ./files/pptpd-down $(1)/etc/ppp/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) /dev/null $(1)/etc/config/pptpd
 	$(INSTALL_DIR) $(1)/etc/ppp/ip-up.d/
 	$(INSTALL_BIN) ./files/pptp-up $(1)/etc/ppp/ip-up.d/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
+	$(CP) ./files/defaults/99_pptp_device_name $(1)/etc/uci-defaults/7.15/99_pptp_device_name
 endef
 
 $(eval $(call BuildPackage,pptpd))

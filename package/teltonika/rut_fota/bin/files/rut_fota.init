@@ -3,18 +3,18 @@
 USE_PROCD=1
 START=99
 
-FOTA_ID='746c74'
-cron_file='/etc/crontabs/root'
+IDENTIFIER="# RUT FOTA"
+CRONTAB_FILE="/etc/crontabs/rut_fota"
 
 rm_cron_entry() {
-	[ -f "$cron_file" ] || return
-	sed -i'' -e "/#$FOTA_ID/d" "$cron_file"
+	[ -f "$CRONTAB_FILE" ] || return
+	sed -i'' -e "/$IDENTIFIER/d" "$CRONTAB_FILE"
 }
 
 start_service() {
-	local enabled=$(uci -q get rut_fota.config.enabled)
-	[ $((enabled)) -eq 1 ] || return
-	[ -f "$cron_file" ] && grep -q "$FOTA_ID" "$cron_file" && return
+	local enabled="$(uci_get "rut_fota" "config" "enabled" "0")"
+	[ "$enabled" -eq 1 ] || return
+	[ -f "$CRONTAB_FILE" ] && grep -q "$IDENTIFIER" "$CRONTAB_FILE" && return
 
 	rm_cron_entry
 
@@ -28,8 +28,8 @@ start_service() {
 		[ "$wday" -gt 6 ] && wday=0
 	}
 
-	#Start fota at the next hour random minute, every week.
-	echo "${minute:-0} ${hour:-0} * * ${wday:-0} /sbin/rut_fota --fw_info >/dev/null 2>&1 #$FOTA_ID" >>/etc/crontabs/root
+	# Start fota at the next hour random minute, every week.
+	echo "${minute:-0} ${hour:-0} * * ${wday:-0} /sbin/rut_fota -i >/dev/null 2>&1 $IDENTIFIER" >> "$CRONTAB_FILE"
 	/etc/init.d/cron restart &
 }
 

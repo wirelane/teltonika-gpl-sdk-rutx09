@@ -1,21 +1,32 @@
 {
-	"services/modbus": {
-		"title": "Modbus",
-		"index": 120
-	},
-		"services/modbus/modbus_server": {
-			"title": "Modbus TCP Server",
-			"index": 10,
-			"view": "services/ModbusServer",
-			"acls": [ "services/modbus/modbus_server" ],
-			"files": [ "/etc/config/modbus_server" ],
-			"main_page": true
-		},
-		"services/modbus/modbus_serial_server": {
-			"title": "Modbus Serial Server",
-			"index": 11,
-			"view": "services/ModbusSerialServer",
-			"acls": [ "services/modbus/modbus_serial_server" ],
-			"files": [ "/etc/config/modbus_server" ]
-		}
+  "services/modbus": {
+    "title": "Modbus",
+    "index": 120
+  },
+  "services/modbus/modbus_server": {
+    "title": "Modbus TCP Server",
+    "index": 10
+  },
+  "services/modbus/modbus_server/general": {
+    "title": "General",
+    "index": 1,
+    "view": "services/ModbusServer",
+    "acls": ["services/modbus/modbus_server/general"],
+    "files": ["/etc/config/modbus_server"],
+    "main_page": true
+  },
+  "services/modbus/modbus_server/data_source": {
+    "title": "Data Sources",
+    "index": 2,
+    "view": "services/ModbusServerDataSource",
+    "acls": ["services/modbus/modbus_server/data_source"],
+    "files": ["/etc/config/modbus_server"]
+  },
+  "services/modbus/modbus_serial_server": {
+    "title": "Modbus Serial Server",
+    "index": 11,
+    "view": "services/ModbusSerialServer",
+    "acls": [ "services/modbus/modbus_serial_server" ],
+    "files": [ "/etc/config/modbus_server" ]
+  }
 }

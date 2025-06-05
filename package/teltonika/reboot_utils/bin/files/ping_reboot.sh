@@ -9,6 +9,7 @@ WDIR="/var/run/preboot"
 FILE="${WDIR}/wget_check_file"
 PINGCMD="/bin/ping"
 PINGCMDV6="/bin/ping6"
+DFOTA_LOCK="/var/lock/modem_dfota.lock"
 
 log() {
 	/usr/bin/logger -t ping_reboot.sh "$@"
@@ -233,13 +234,41 @@ send_sms() {
 	done
 }
 
+preboot_lock() {
+	[ -e "$DFOTA_LOCK" ] && {
+		[ -r "$DFOTA_LOCK" ] && [ -w "$DFOTA_LOCK" ] || {
+			log "Insufficient permissions to access $DFOTA_LOCK"
+
+			return 0
+		}
+		lock -n "$DFOTA_LOCK" || {
+			return 1
+		}
+	}
+
+	return 0
+}
+
 exec_action() {
 	case "$ACTION" in
 	"1")
+		preboot_lock || {
+			log "Cannot restart router. Process is locked by DFOTA process."
+
+			exit 1
+		}
+
 		log "Rebooting router after ${CURRENT_TRY} unsuccessful tries"
-		/bin/ubus call sys reboot "{\"args\": [\"$1\"]}"
+		/bin/ubus call rpc-sys reboot "{\"safe\":true,\"args\":[\"$1\"]}"
+		lock -u "$DFOTA_LOCK"
 		;;
 	"2")
+		preboot_lock || {
+			log "Cannot restart modem. Process is locked by DFOTA process."
+
+			exit 1
+		}
+
 		log "Restarting modem after ${CURRENT_TRY} unsuccessful tries"
 		ubus call log write_ext "{
 			\"event\": \"Restarting modem after ${CURRENT_TRY} unsuccessful tries\",
@@ -248,8 +277,15 @@ exec_action() {
 			\"write_db\": 1,
 		}"
 		restart_modem "$MODEM"
+		lock -u "$DFOTA_LOCK"
 		;;
 	"4")
+		preboot_lock || {
+			log "Cannot restart modem. Process is locked by DFOTA process."
+
+			exit 1
+		}
+
 		log "Reregistering after ${CURRENT_TRY} unsuccessful tries"
 		ubus call log write_ext "{
 			\"event\": \"Reregistering after ${CURRENT_TRY} unsuccessful tries\",
@@ -258,6 +294,7 @@ exec_action() {
 			\"write_db\": 1,
 		}"
 		restart_modem "$MODEM"
+		lock -u "$DFOTA_LOCK"
 		;;
 	"5")
 		log "Restarting mobile data connection after ${CURRENT_TRY} unsuccessful retries"

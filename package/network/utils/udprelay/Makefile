@@ -21,7 +21,7 @@ define Package/udprelay
   CATEGORY:=Network
   TITLE:=UDP packages relay
   USERID:=udprelay:udprelay
-  CAP:=/usr/sbin/udp-broadcast-relay:cap_net_bind_service,cap_net_raw=ep
+  FATTRS:=/usr/sbin/udp-broadcast-relay::::cap_net_bind_service,cap_net_raw=ep
 endef
 
 define Package/udprelay/description
@@ -43,6 +43,7 @@ define Package/udprelay/install
 	$(INSTALL_CONF_USR) ./files/udprelay.config $(1)/etc/config/udprelay
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_CONF) ./files/udprelay.permtab $(1)/etc/permtab.d/udprelay
+
 endef
 
 $(eval $(call BuildPackage,udprelay))

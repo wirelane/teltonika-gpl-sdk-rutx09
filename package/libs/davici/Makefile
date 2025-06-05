@@ -11,8 +11,9 @@ PKG_NAME:=davici
 PKG_VERSION:=1.4
 PKG_RELEASE=1
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/strongswan/davici/tar.gz/v$(PKG_VERSION)?
+PKG_SOURCE_VERSION:=1.4
+PKG_SOURCE:=davici-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/strongswan/davici/tar.gz/v$(PKG_SOURCE_VERSION)?
 PKG_HASH:=b03c5a1aad905e962271d70246d6af6c337ffd00449d990082ea02161327bde8
 
 PKG_MAINTAINER:=Lukas Voegl <lvoegl@tdt.de>
@@ -22,7 +23,7 @@ PKG_CPE_ID:=cpe:/a:strongswan:davici
 
 PKG_FIXUP:=autoreconf
 PKG_BUILD_PARALLEL:=1
-PKG_BUILD_DEPENDS:=libgpg-error
+PKG_BUILD_DEPENDS:=libgpg-error libgcrypt
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk

@@ -28,8 +28,7 @@ define Package/etherwake
   TITLE:=WoL client for magic packets via ethernet frames
   URL:=http://ftp.debian.org/debian/pool/main/e/etherwake
   MAINTAINER:=Peter Wagner <tripolar@gmx.at>
-  CAP:=/usr/bin/etherwake:cap_net_raw=ep
-  SUID:=/usr/bin/etherwake:etherwake
+  FATTRS:=/usr/bin/etherwake:etherwake::y:cap_net_raw=ep
   USERID:=etherwake:etherwake
 endef
 

@@ -74,6 +74,8 @@ boot() {
 
 	[ -e "$PATH_TO_TPM_DEV" ] || return 1
 
+	tpm2_dictionarylockout -s -t 90
+
 	tpm2_getcap handles-persistent | grep -q "$EK_CTX" || {
 		echo "EK key pair not generated... Generating..."
 		handle_ek_key_create

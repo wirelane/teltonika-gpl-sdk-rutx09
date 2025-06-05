@@ -1,7 +1,7 @@
 #!/bin/sh
 
 #There is no other way to add wifi interface dependancy to service.
-[[ "$INTERFACE" = "wlan"* || "$INTERFACE" = "ra"* ]] && [ "$ACTION" == "add" ] || exit 0
+[[ "$INTERFACE" = "wlan"* || "$INTERFACE" = "ra"* ]] && [[ "$ACTION" == "add" || "$ACTION" == "remove" ]] || exit 0
 . /lib/functions.sh
 
 restart_chilli(){

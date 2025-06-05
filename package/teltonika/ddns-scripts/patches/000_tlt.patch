@@ -1,12 +1,12 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/README.md	2025-03-31 11:14:24.000000000 +0000
++++ src/README.md	2025-04-02 11:27:54.000000000 +0000
 @@ -0,0 +1,2 @@
 +# ddns-scripts
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.config src/files/ddns.config
 --- upstream/files/ddns.config	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.config	2025-03-31 11:14:24.000000000 +0000
++++ src/files/ddns.config	2025-04-02 11:27:54.000000000 +0000
 @@ -1,15 +1,15 @@
  #
 -# Please read https://openwrt.org/docs/guide-user/base-system/ddns
@@ -45,7 +45,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.defaults src/files/ddns.defaults
 --- upstream/files/ddns.defaults	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.defaults	2025-03-31 11:14:24.000000000 +0000
++++ src/files/ddns.defaults	2025-04-02 11:27:54.000000000 +0000
 @@ -1,39 +1,39 @@
  #!/bin/sh
  
@@ -223,8 +223,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.hotplug src/files/ddns.hotplug
 --- upstream/files/ddns.hotplug	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.hotplug	2025-03-31 11:14:24.000000000 +0000
-@@ -1,11 +1,19 @@
++++ src/files/ddns.hotplug	2025-04-02 11:27:54.000000000 +0000
+@@ -1,11 +1,21 @@
 -#!/bin/sh
 +#!/bin/sh /etc/rc.common
  
@@ -237,6 +237,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -		/usr/lib/ddns/dynamic_dns_updater.sh -n "$INTERFACE" -- stop
 -		;;
 -esac
++[ "$ACTION" != "ifup" -a "$ACTION" != "ifdown" ] && exit 0
++
 +enabled="0"
 +PROG="/usr/lib/ddns/dynamic_dns_updater.sh"
 +[ -x "$PROG" ] || PROG="/usr/local$PROG"
@@ -256,7 +258,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +fi
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.init src/files/ddns.init
 --- upstream/files/ddns.init	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.init	2025-03-31 11:14:24.000000000 +0000
++++ src/files/ddns.init	2025-04-02 11:27:54.000000000 +0000
 @@ -1,27 +1,52 @@
  #!/bin/sh /etc/rc.common
 +
@@ -326,13 +328,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.permtab src/files/ddns.permtab
 --- upstream/files/ddns.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ddns.permtab	2025-03-31 11:14:24.000000000 +0000
++++ src/files/ddns.permtab	2025-04-02 11:27:54.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/ddns	ddns:ddns	660	-
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns_acl.json src/files/ddns_acl.json
 --- upstream/files/ddns_acl.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ddns_acl.json	2025-03-31 11:14:24.000000000 +0000
-@@ -0,0 +1,12 @@
++++ src/files/ddns_acl.json	2025-04-02 11:27:54.000000000 +0000
+@@ -0,0 +1,15 @@
 +{
 +	"user": "ddns",
 +	"publish": [],
@@ -342,12 +344,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	"access": {
 +		"network.interface.*": {
 +			"methods": ["status"]
++		},
++		"network.interface": {
++			"methods": ["dump"]
 +		}
 +	}
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_functions.sh src/files/dynamic_dns_functions.sh
 --- upstream/files/dynamic_dns_functions.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_functions.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/dynamic_dns_functions.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -21,10 +21,12 @@
  . /lib/functions/network.sh
  
@@ -362,7 +367,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  LOGFILE=""		# logfile - all files are set in dynamic_dns_updater.sh
  PIDFILE=""		# pid file
-@@ -63,6 +65,12 @@
+@@ -63,6 +65,15 @@
  # IPv6       ( ( 0-9a-f  1-4char ":") min 1x) ( ( 0-9a-f  1-4char   )optional) ( (":" 0-9a-f 1-4char  ) min 1x)
  IPV6_REGEX="\(\([0-9A-Fa-f]\{1,4\}:\)\{1,\}\)\(\([0-9A-Fa-f]\{1,4\}\)\{0,1\}\)\(\(:[0-9A-Fa-f]\{1,4\}\)\{1,\}\)"
  
@@ -372,10 +377,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +# dns character set
 +DNS_CHARSET="[@a-zA-Z0-9._-]"
 +
++# dns_server value
++DNS_SERVER_CHARSET="[@a-zA-Z0-9._-:]"
++
  # detect if called by ddns-lucihelper.sh script, disable retrys (empty variable == false)
  LUCI_HELPER=$(printf %s "$MYPROG" | grep -i "luci")
  
-@@ -78,7 +86,8 @@
+@@ -78,7 +89,8 @@
  WGET_SSL=$(which wget-ssl)
  
  CURL=$(which curl)
@@ -385,7 +393,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  # CURL_PROXY not empty then Proxy support available
  CURL_PROXY=$(find /lib /usr/lib -name libcurl.so* -exec strings {} 2>/dev/null \; | grep -im1 "all_proxy")
  
-@@ -86,15 +95,13 @@
+@@ -86,15 +98,13 @@
  
  # Global configuration settings
  # allow NON-public IP's
@@ -402,7 +410,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  # number of lines to before rotate logfile
  ddns_loglines=$(uci -q get ddns.global.ddns_loglines) || ddns_loglines=250
-@@ -179,9 +186,9 @@
+@@ -179,9 +189,9 @@
  		config_get __IFACE "$__SECTIONID" interface "wan"
  		[ -z "$__EVENTIF" -o "$__IFACE" = "$__EVENTIF" ] || continue
  		if [ $VERBOSE -eq 0 ]; then	# start in background
@@ -414,7 +422,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		fi
  	done
  }
-@@ -234,18 +241,18 @@
+@@ -234,18 +244,18 @@
  		__EXIT=0
  	}
  	shift	# remove loglevel
@@ -439,7 +447,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		5)	__CMD="logger -p user.notice -t ddns-scripts[$$] $SECTION_ID: $__MSG"
  			__MSG=" $__TIME  note : $__MSG" ;;
  		6)	__CMD="logger -p user.info -t ddns-scripts[$$] $SECTION_ID: $__MSG"
-@@ -275,11 +282,11 @@
+@@ -275,11 +285,11 @@
  	[ $__LEVEL -eq 7 ] && return	# no syslog for debug messages
  	__CMD=$(echo -e "$__CMD" | tr -d '\n' | tr '\t' '     ')        # remove \n \t chars
  	[ $__EXIT  -eq 1 ] && {
@@ -453,7 +461,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	return
  }
-@@ -294,32 +301,12 @@
+@@ -294,32 +304,12 @@
  urlencode() {
  	# $1	Name of Variable to store encoded string to
  	# $2	string to encode
@@ -489,7 +497,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	eval "$1=\"$__ENC\""	# transfer back to variable
  	return 0
-@@ -338,25 +325,25 @@
+@@ -338,25 +328,25 @@
  	[ $use_ipv6 -ne 0 ] && __FILE="/etc/ddns/services_ipv6"	# IPv6
  
  	# workaround with variables; pipe create subshell with no give back of variable content
@@ -522,7 +530,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	eval "$1=\"\""	# no service match clear variables
  	eval "$2=\"\""
-@@ -474,6 +461,27 @@
+@@ -474,6 +464,27 @@
  	return $status
  }
  
@@ -550,7 +558,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  # verify given host and port is connectable
  # $1	Host/IP to verify
  # $2	Port to verify
-@@ -726,8 +734,6 @@
+@@ -726,8 +737,6 @@
  	# 2nd choice is cURL IPv4/IPv6/HTTPS
  	# libcurl might be compiled without Proxy or HTTPS Support
  	elif [ -n "$CURL" ]; then
@@ -559,7 +567,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		__PROG="$CURL -RsS -o $DATFILE --stderr $ERRFILE"
  		# check HTTPS support
  		[ -z "$CURL_SSL" -a $use_https -eq 1 ] && \
-@@ -902,16 +908,41 @@
+@@ -902,16 +911,41 @@
  	write_log 7 "Detect local IP on '$ip_source'"
  
  	while : ; do
@@ -577,9 +585,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			ifconfig_name="$(ubus call network.interface.$ip_network status | grep -m 1 "device" | cut -f 4 -d '"' | tr -d $'\n')"
 +			[ -z "$ifconfig_name" ] && ip link show dev "$ip_network" 2>/dev/null && ifconfig_name="$ip_network"
 +			if [ $use_ipv6 -eq 0 ]; then
-+				ifconfig_ip="$(ifconfig | grep -A1 $ifconfig_name | grep 'inet addr:' | cut -f 2 -d ':' | cut -f 1 -d ' ' | tr -d $'\n')"
++				ifconfig_ip="$(ip -4 -brief a show dev $ifconfig_name | awk '{ sub(/\/24$/, "", $3); print $3}' ORS='')"
 +			else
-+				ifconfig_ip="$(ifconfig | grep -A1 $ifconfig_name | grep 'inet6 addr:' | awk '{print $3}' | cut -f1 -d'/' | tr -d $'\n')"
++				ifconfig_ip="$(ip -6 -brief a show dev $ifconfig_name | awk '{ sub(/\/[0-9]*$/, "", $3); print $3 }' ORS='')"
 +			fi
 +
 +			write_log 7 "ifconfig_name=$ifconfig_name; ifconfig_ip=$ifconfig_ip"
@@ -606,7 +614,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			if [ -n "$(which ip)" ]; then		# ip program installed
  				write_log 7 "#> ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE"
  				ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE
-@@ -989,7 +1020,7 @@
+@@ -989,7 +1023,7 @@
  			fi
  			[ $use_ipv6 -eq 0 ] && __DATA="$__DATA4" || __DATA="$__DATA6"
  			[ -n "$__DATA" ] && write_log 7 "Local IP '$__DATA' detected on interface '$ip_interface'"
@@ -615,7 +623,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			write_log 7 "#> $ip_script >$DATFILE 2>$ERRFILE"
  			eval $ip_script >$DATFILE 2>$ERRFILE
  			__ERR=$?
-@@ -1000,7 +1031,7 @@
+@@ -1000,7 +1034,7 @@
  				write_log 3 "$ip_script Error: '$__ERR'"
  				write_log 7 "$(cat $ERRFILE)"		# report error
  			fi
@@ -624,7 +632,16 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			do_transfer "$ip_url"
  			# use correct regular expression
  			[ $use_ipv6 -eq 0 ] \
-@@ -1152,14 +1183,20 @@
+@@ -1050,7 +1084,7 @@
+ 	# return codes
+ 	# 1	no IP detected
+ 
+-	[ $# -lt 1 -o $# -gt 2 ] && write_log 12 "Error calling 'get_registered_ip()' - wrong number of parameters"
++	[ $# -lt 1 -o $# -gt 3 ] && write_log 12 "Error calling 'get_registered_ip()' - wrong number of parameters"
+ 	[ $is_glue -eq 1 -a -z "$BIND_HOST" ] && write_log 14 "Lookup of glue records is only supported using BIND host"
+ 	write_log 7 "Detect registered/public IP"
+ 
+@@ -1152,14 +1186,20 @@
  			fi
  			[ -n "$__DATA" ] && {
  				write_log 7 "Registered IP '$__DATA' detected"
@@ -636,7 +653,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  				eval "$1=\"$__DATA\""	# valid data found
  				return 0		# leave here
  			}
- 			write_log 4 "NO valid IP found"
+-			write_log 4 "NO valid IP found"
++			[ -z "$3" ] && write_log 4 "NO valid IP found"
  			__ERR=127
  		fi
 -		[ -z "$IPFILE" ] || echo "" > $IPFILE
@@ -647,7 +665,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  		[ -n "$LUCI_HELPER" ] && return $__ERR	# no retry if called by LuCI helper script
  		[ -n "$2" ] && return $__ERR		# $2 is given -> no retry
-@@ -1204,17 +1241,17 @@
+@@ -1204,17 +1244,17 @@
  
  	case $1 in
  		 0)	if [ $__ERR -eq 0 ]; then
@@ -672,9 +690,21 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		 *)	write_log 13 "Unhandled signal '$1' in 'trap_handler()'";;
  	esac
  
+@@ -1320,6 +1360,11 @@
+ 	# $2	name of variable to store expanded IPv6
+ 	[ $# -ne 2 ] && write_log 12 "Error calling 'expand_ipv6()' - wrong number of parameters"
+ 
++	[ -z "$1" ] && {
++		eval "$2=''"
++		return 1
++	}
++
+ 	INPUT="$(echo "$1" | tr 'A-F' 'a-f')"
+ 	[ "$INPUT" = "::" ] && INPUT="::0"	# special case ::
+ 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_lucihelper.sh src/files/dynamic_dns_lucihelper.sh
 --- upstream/files/dynamic_dns_lucihelper.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_lucihelper.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/dynamic_dns_lucihelper.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -10,7 +10,8 @@
  # variables in big chars beginning with "__" are local defined inside functions only
  # set -vx  	#script debugger
@@ -705,7 +735,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			export HTTP_PROXY="http://$proxy"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_updater.sh src/files/dynamic_dns_updater.sh
 --- upstream/files/dynamic_dns_updater.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_updater.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/dynamic_dns_updater.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -193,7 +193,7 @@
  [ "$ip_source" = "network" -a -z "$ip_network" -a $use_ipv6 -eq 1 ] && ip_network="wan6" # IPv6: default wan6
  [ "$ip_source" = "web" -a -z "$ip_url" -a $use_ipv6 -eq 0 ] && ip_url="http://checkip.dyndns.com"
@@ -755,7 +785,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 +# verify validity of variables
 +[ -n "$lookup_host" ] && sanitize_variable lookup_host "$DNS_CHARSET" ""
-+[ -n "$dns_server" ] && sanitize_variable dns_server "$DNS_CHARSET" ""
++[ -n "$dns_server" ] && sanitize_variable dns_server "$DNS_SERVER_CHARSET" ""
 +[ -n "$domain" ] && sanitize_variable domain "$DNS_CHARSET" ""
 +
 +# Filter shell escape characters, if these are required in the URL, they
@@ -765,10 +795,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  [ -n "$update_url" ] && {
  	# only check if update_url is given, update_scripts have to check themselves
  	[ -z "$domain" ] && $(echo "$update_url" | grep "\[DOMAIN\]" >/dev/null 2>&1) && \
-@@ -319,6 +328,47 @@
+@@ -319,6 +328,54 @@
  	}
  }
  
++trap_sleep() {
++	sleep "$1" &
++	PID_SLEEP=$!
++	wait $PID_SLEEP	# enable trap-handler
++	PID_SLEEP=0
++}
++
 +recheck_sleep() {
 +	# if we're updating the remote IP due to local IP change
 +	# query the DNS at increasing intervals to detect new IP
@@ -777,8 +814,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	local registered_ip=$2
 +
 +	[ "$registered_ip" = "$LOCAL_IP" ] && {
-+		sleep "$sleep_time"
-+		exit 0
++		trap_sleep "$sleep_time"
++		return 0
 +	}
 +
 +	local max_sleep_left=$sleep_time
@@ -788,7 +825,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	while [ "$slept_time" -lt "$sleep_time" ]; do
 +		local sleep_duration=$((sleep_interval < max_sleep_left ? sleep_interval : max_sleep_left))
-+		sleep $sleep_duration
++		trap_sleep $sleep_duration
 +		slept_time=$((slept_time + sleep_duration))
 +
 +		local next_sleep=$((last_sleep_interval + sleep_interval))
@@ -798,22 +835,22 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +		# skip checking ip on the final sleep, since it will be looked up again anyway
 +		[ $max_sleep_left -gt 20 ] && {
-+			get_registered_ip IP "NO_RETRY"
++			get_registered_ip IP "NO_RETRY" "silent"
 +			[ $? -ne 0 ] && continue
 +			[ "$use_ipv6" -eq 1 ] && expand_ipv6 "$IP" IP
 +			[ "$IP" != "$registered_ip" ] && {
-+				sleep $max_sleep_left
++				trap_sleep $max_sleep_left
 +				break
 +			}
 +		}
 +	done
-+	exit 0
++	return 0
 +}
 +
  # let's check if there is already an IP registered on the web
  get_registered_ip REGISTERED_IP "NO_RETRY"
  ERR_LAST=$?
-@@ -329,6 +379,8 @@
+@@ -329,6 +386,8 @@
  
  # loop endlessly, checking ip every check_interval and forcing an updating once every force_interval
  write_log 6 "Starting main loop at $(eval $DATE_PROG)"
@@ -822,34 +859,37 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  while : ; do
  
  	get_local_ip LOCAL_IP		# read local IP
-@@ -381,8 +433,22 @@
+@@ -381,11 +440,22 @@
  	# now we wait for check interval before testing if update was recognized
  	# only sleep if VERBOSE <= 2 because otherwise nothing was send
  	[ $VERBOSE -le 2 ] && {
 -		write_log 7 "Waiting $CHECK_SECONDS seconds (Check Interval)"
 -		sleep $CHECK_SECONDS &
+-		PID_SLEEP=$!
+-		wait $PID_SLEEP	# enable trap-handler
+-		PID_SLEEP=0
 +		SLEEP_TIME=`expr $SLEEP_TIME + $CHECK_SECONDS`
 +        if [ $SLEEP_TIME -ge $FORCE_SECONDS ]; then
 +            sleep2=`expr $SLEEP_TIME - $CHECK_SECONDS`
 +            SLEEP_AFTER_FORCE=`expr $FORCE_SECONDS - $sleep2`
 +            write_log 7 "Waiting $SLEEP_AFTER_FORCE seconds (force interval)"
-+		    recheck_sleep $SLEEP_AFTER_FORCE "$REGISTERED_IP" &
++		    recheck_sleep $SLEEP_AFTER_FORCE "$REGISTERED_IP"
 +		    SLEEP_TIME=0
 +		elif [ $SLEEP_AFTER_FORCE -ne 0 ]; then
 +		    write_log 7 "Waiting `expr $CHECK_SECONDS - $SLEEP_AFTER_FORCE` seconds (after force interval)"
 +		    SLEEP_TIME=`expr $CHECK_SECONDS - $SLEEP_AFTER_FORCE`
-+		    recheck_sleep $SLEEP_TIME "$REGISTERED_IP" &
++		    recheck_sleep $SLEEP_TIME "$REGISTERED_IP"
 +		    SLEEP_AFTER_FORCE=0
 +		else
 +		    write_log 7 "Waiting $CHECK_SECONDS seconds (check interval)"
-+		    recheck_sleep $CHECK_SECONDS "$REGISTERED_IP" &
++		    recheck_sleep $CHECK_SECONDS "$REGISTERED_IP"
 +		fi
- 		PID_SLEEP=$!
- 		wait $PID_SLEEP	# enable trap-handler
- 		PID_SLEEP=0
+ 	} || write_log 7 "Verbose Mode: $VERBOSE - NO Check Interval waiting"
+ 
+ 	REGISTERED_IP=""		# clear variable
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services src/files/services
 --- upstream/files/services	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services	2025-03-31 11:14:24.000000000 +0000
++++ src/files/services	2025-04-02 11:27:54.000000000 +0000
 @@ -43,13 +43,15 @@
  
  "able.or.kr"		"http://able.or.kr/ddns/src/update.php?hostname=[DOMAIN]&myip=[IP]&ddnsuser=[USERNAME]&pwd=[PASSWORD]"
@@ -887,7 +927,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services_ipv6 src/files/services_ipv6
 --- upstream/files/services_ipv6	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services_ipv6	2025-03-31 11:14:24.000000000 +0000
++++ src/files/services_ipv6	2025-04-02 11:27:54.000000000 +0000
 @@ -38,10 +38,10 @@
  #.no-ip.com / noip.com	!!! Please install additional package "ddns-scripts_no-ip_com"
  #.route53-v1		!!! Please install additional package "ddns-scripts_route53-v1"
@@ -905,7 +945,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_cloudflare_com_v4.sh src/files/update_cloudflare_com_v4.sh
 --- upstream/files/update_cloudflare_com_v4.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_cloudflare_com_v4.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/update_cloudflare_com_v4.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -15,7 +15,7 @@
  # option password  - cloudflare api key, you can get it from cloudflare.com/my-account/
  # option domain    - "hostname@yourdomain.TLD"	# syntax changed to remove split_FQDN() function and tld_names.dat.gz
@@ -995,7 +1035,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_no-ip_com.sh src/files/update_no-ip_com.sh
 --- upstream/files/update_no-ip_com.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_no-ip_com.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/update_no-ip_com.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -9,31 +9,33 @@
  # provider did not reactivate records, if no IP change was recognized
  # so we send a dummy (localhost) and a seconds later we send the correct IP addr
@@ -1048,7 +1088,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_nsupdate.sh src/files/update_nsupdate.sh
 --- upstream/files/update_nsupdate.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_nsupdate.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/update_nsupdate.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -19,8 +19,9 @@
  local __RRTYPE __PW __TCP
  local __PROG=$(which nsupdate)			# BIND nsupdate ?
@@ -1070,7 +1110,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  return 0
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_route53_v1.sh src/files/update_route53_v1.sh
 --- upstream/files/update_route53_v1.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_route53_v1.sh	2025-03-31 11:14:24.000000000 +0000
++++ src/files/update_route53_v1.sh	2025-04-02 11:27:54.000000000 +0000
 @@ -1,46 +1,44 @@
  #!/bin/sh
 -#.Distributed under the terms of the GNU General Public License (GPL) version 2.0

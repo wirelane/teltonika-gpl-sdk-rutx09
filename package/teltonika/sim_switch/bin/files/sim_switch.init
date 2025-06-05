@@ -33,11 +33,17 @@ start_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "sim_switch"
-	procd_add_reload_trigger "simcard"
+	procd_add_reload_trigger "sim_switch" "simcard"
 }
 
 reload_service() {
-	stop
-	start
+	. /lib/functions.sh
+	ENABLED=0
+	config_load 'sim_switch'
+	config_foreach check_if_enabled 'sim'
+	if [ "$ENABLED" -gt 0 ] ; then
+		ubus call sim_switch reload || start
+	else
+		restart
+	fi
 }

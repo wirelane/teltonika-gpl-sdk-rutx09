@@ -37,27 +37,31 @@ INSTALL_SCRIPT_DIR="$CONFIG_DIR/cert-install.d"
 #
 function help()
 {
-  echo "Usage:"
-  echo "cert-enroll [-c filename] [-i directory]"
-  echo "Options:"
-  echo "  -h   print usage information"
-  echo "  -c   local configuration file, defaults to $CONFIG_SCRIPT_LOCAL"
-  echo "  -i   installation script directory,  defaults to $INSTALL_SCRIPT_DIR"
+	echo "Usage:"
+	echo "cert-enroll [-c filename] [-i directory]"
+	echo "Options:"
+	echo "  -h   print usage information"
+	echo "  -c   local configuration file, defaults to $CONFIG_SCRIPT_LOCAL"
+	echo "  -i   installation script directory,  defaults to $INSTALL_SCRIPT_DIR"
+}
+
+function log() {
+	logger -t "$PROTOCOL" "$1"
 }
 
 while getopts "c:i:h" opt
 do
-  case "$opt" in
-  c)
-    CONFIG_SCRIPT_LOCAL=${OPTARG}
-    ;;
-  i)
-    INSTALL_SCRIPT_DIR=${OPTARG}
-    ;;
-  h)
-    help; exit 0
-    ;;
-  esac
+case "$opt" in
+	c)
+		CONFIG_SCRIPT_LOCAL=${OPTARG}
+		;;
+	i)
+		INSTALL_SCRIPT_DIR=${OPTARG}
+		;;
+	h)
+		help; exit 0
+		;;
+	esac
 done
 
 ##############################################################################
@@ -65,7 +69,7 @@ done
 #
 if [ -f $CONFIG_SCRIPT_LOCAL ]
 then
-  . $CONFIG_SCRIPT_LOCAL
+	. $CONFIG_SCRIPT_LOCAL
 fi
 
 ##############################################################################
@@ -73,145 +77,173 @@ fi
 #
 if [ -f $CONFIG_SCRIPT ]
 then
-  . $CONFIG_SCRIPT
-elif [ -f $CONFIG_SCRIPT_LOCAL ]
+	. $CONFIG_SCRIPT
+elif [ -f "$CONFIG_SCRIPT_LOCAL" ]
 then
-  echo "Warning: default configuration file '$CONFIG_SCRIPT' not found," \
-       "depending on local configuration '$CONFIG_SCRIPT_LOCAL' only"
+	log "Warning: default configuration file '$CONFIG_SCRIPT' not found," \
+		"depending on local configuration '$CONFIG_SCRIPT_LOCAL' only"
 else
-  echo "Error: neither '$CONFIG_SCRIPT' nor '$CONFIG_SCRIPT_LOCAL'" \
-       "configuration files found"
-  exit 1
+	log "Error: neither '$CONFIG_SCRIPT' nor '$CONFIG_SCRIPT_LOCAL'" \
+		"configuration files found"
+	exit 1
 fi
 
 # Path to the strongSwan pki command
 PKI="/usr/bin/pki"
+[ -x "$PKI" ] || PKI="/usr/local$PKI"
 
 ##############################################################################
 # Define some local functions
 #
+
 function gen_private_key()
 {
-  status=0
-  $PKI --gen --type $key_type --size $size --outform pem > "$1" || status=$?
-  if [ $status -ne 0 -o ! -s "$1" ]
-  then
-    echo "Error: generation of $size bit $KEYTYPE private key failed"
-    exit 1
-  fi
-  chmod 600 "$1"
-  echo "  generated $size bit $KEYTYPE private key '"$1"'"
+	status=0
+	log "$PKI --gen --type $key_type --size $size --outform pem > "$1""
+	$PKI --gen --type $key_type --size "$size" --outform pem > "$1" || status=$?
+	if [ $status -ne 0 ] || [ ! -s "$1" ]
+	then
+		log "Error: generation of $size bit $KEYTYPE private key failed"
+		exit 1
+	fi
+	chmod 600 "$1"
+	log "generated $size bit $KEYTYPE private key '""$1""'"
 }
 
 function gen_cert_request()
 {
-  status=0
-  $PKI --req --in "$1/$HOSTKEY" --type $in_type --dn "$DN" \
-	     $SAN "${ADD_SANS:+$ADD_SANS}" \
-             --profile $PROFILE --outform pem > "$1/$CERTREQ" || status=$?
+	status=0
+	$PKI --req --in "$1/$HOSTKEY" --type $in_type --dn "$DN" \
+		"$SAN" "$ADD_SANS" \
+		--profile $PROFILE --outform pem > "$1/$CERTREQ" || status=$?
 
-  if [ $status -ne 0 -o ! -s $1 ]
-  then
-    echo "Error: generation of PKCS#10 certificate request failed"
-    exit 1
-  fi
-  chmod 600 $1
-  echo "  generated PKCS#10 certificate request"
+	if [ $status -ne 0 ] || [ ! -s "$1" ]
+	then
+		log "Error: generation of PKCS#10 certificate request failed"
+		exit 1
+	fi
+	chmod 600 $1
+	log "generated PKCS#10 certificate request"
 }
 
 function get_ca_certs()
 {
-  cd $1
-  status=0
-  if [ $CA_PROTOCOL == "EST" ]
-  then
-    $PKI --estca --url "$EST_URL" --cacert "$TLSROOTCA" --caout "$CAOUT" \
-                 --outform pem --force || status=$?
-    if [ $status -ne 0 -o ! -s "$ROOTCA" -o ! -s "$SUBCA" ]
-    then
-      echo "Error: download of CA certificates via EST failed"
-      exit 1
-    fi
-    echo "  downloaded CA certificates via EST"
-  else
-    $PKI --scepca --url "$SCEP_URL" --caout "$CAOUT" --raout "$RAOUT" \
-                  --outform pem --force || status=$?
+	cd "$1"
+	status=0
+	if [ "$CA_PROTOCOL" = "EST" ]
+	then
+		$PKI --estca --url "$EST_URL" --cacert "$TLSROOTCA" --caout "$CAOUT" \
+		--outform pem --force || status=$?
+		if [ $status -ne 0 ] || [ ! -s "$ROOTCA" ] || [ ! -s "$SUBCA" ]
+		then
+			log "Error: download of CA certificates via EST failed"
+			exit 1
+		fi
+		log "downloaded CA certificates via EST"
+	else
+		$PKI --scepca --url "$SCEP_URL" --caout "$CAOUT" --raout "$RAOUT" \
+			--outform pem --force || status=$?
 
-    [ -s "$ROOTCA" ] && [ ! -s "$SUBCA" ] && cp "$ROOTCA" "$SUBCA"
-    [ -s "$ROOTCA" ] && [ ! -s "$RACERT" ] && cp "$ROOTCA" "$RACERT"
-    if [ $status -ne 0 -o ! -s "$ROOTCA" -o ! -s "$SUBCA" -o ! -s "$RACERT" ]
-    then
-      echo "Error: download of CA or RA certificates via SCEP failed"
-      exit 1
-    fi
-    echo "  downloaded CA and RA certificates via SCEP"
-  fi
-  cd "$CERTDIR"
+		[ -s "$ROOTCA" ] && [ ! -s "$SUBCA" ] && cp "$ROOTCA" "$SUBCA"
+		[ -s "$ROOTCA" ] && [ ! -s "$RACERT" ] && cp "$ROOTCA" "$RACERT"
+		[ -s "$SUBCA" ] && [ ! -s "$ROOTCA" ] && cp "$SUBCA" "$ROOTCA"
+
+		if [ $status -ne 0 ] || [ ! -s "$ROOTCA" ] || [ ! -s "$SUBCA" ] || [ ! -s "$RACERT" ]
+		then
+			log "Error: download of CA or RA certificates via SCEP failed"
+			exit 1
+		fi
+		log "downloaded CA and RA certificates via SCEP"
+	fi
+	cd "$CERTDIR"
 }
 
 function check_ca_certs()
 {
-  get_ca_certs "$CERTDIR/new"
+	get_ca_certs "$CERTDIR/new"
 
-  ROOTCA_CHANGED=0
-  cmp -s "$ROOTCA" new/"$ROOTCA" || ROOTCA_CHANGED=$?
-  if [ $ROOTCA_CHANGED -ne 0 ]
-  then
-    echo "Warning: '"$ROOTCA"' has changed"
-    mv "$ROOTCA" old
-    mv "new/$ROOTCA" .
-  fi
+	ROOTCA_CHANGED=0
+	cmp -s "$ROOTCA" new/"$ROOTCA" || ROOTCA_CHANGED=$?
+	if [ $ROOTCA_CHANGED -ne 0 ]
+	then
+		log "Warning: '""$ROOTCA""' has changed"
+		mv "$ROOTCA" old
+		mv "new/$ROOTCA" .
+	fi
 
-  SUBCA_CHANGED=0
-  cmp -s "$SUBCA" "new/$SUBCA" || SUBCA_CHANGE=$?
-  if [ $SUBCA_CHANGED -ne 0 ]
-  then
-    echo "Warning: '"$SUBCA"' has changed"
-    mv "$SUBCA" old
-    mv "new/$SUBCA" .
-  fi
+	SUBCA_CHANGED=0
+	cmp -s "$SUBCA" "new/$SUBCA" || SUBCA_CHANGED=$?
+	if [ $SUBCA_CHANGED -ne 0 ]
+	then
+		log "Warning: '""$SUBCA""' has changed"
+		mv "$SUBCA" old
+		mv "new/$SUBCA" .
+	fi
 
-  if [ $CA_PROTOCOL = "SCEP" ]
-  then
-    mv "new/$RACERT" .
-  fi
+	if [ $CA_PROTOCOL = "SCEP" ]
+	then
+		mv "new/$RACERT" .
+	fi
 
-  if [ $ROOTCA_CHANGED -eq 0 -a $SUBCA_CHANGED -eq 0 ]
-  then
-    echo "Ok: '"$ROOTCA"' and '"$SUBCA"' are unchanged"
-    rm "new/$ROOTCA" "new/$SUBCA"
-    return 0
-  else
-    return 1
-  fi
+	if [ $ROOTCA_CHANGED -eq 0 ] && [ $SUBCA_CHANGED -eq 0 ]
+	then
+		log "Ok: '""$ROOTCA""' and '""$SUBCA""' are unchanged"
+		rm "new/$ROOTCA" "new/$SUBCA"
+		return 0
+	else
+		return 1
+	fi
 }
 
 function install_certs()
 {
-  for script in $INSTALL_SCRIPT_DIR/*
-  do
-    status=0
-    echo "  executing '$script'"
-    KEYTYPE="$KEYTYPE" CERTDIR="$CERTDIR" HOSTKEY="$HOSTKEY" \
-    HOSTCERT="$HOSTCERT" ROOTCA="$ROOTCA" SUBCA="$SUBCA" \
-    OLDROOTCA="$OLDROOTCA" OLDSUBCA="$OLDSUBCA" \
-    USER_GROUP="$USER_GROUP" SERVICE="$SERVICE" \
-    /bin/sh $script || status=$?
-    if [ $status -ne 0 ]
-    then
-      echo "Error: executing '$script' failed"
-    fi
-  done
+	for script in "$INSTALL_SCRIPT_DIR"/*
+	do
+		status=0
+		log "executing '$script'"
+		KEYTYPE="$KEYTYPE" CERTDIR="$CERTDIR" HOSTKEY="$HOSTKEY" \
+		HOSTCERT="$HOSTCERT" ROOTCA="$ROOTCA" SUBCA="$SUBCA" \
+		OLDROOTCA="$OLDROOTCA" OLDSUBCA="$OLDSUBCA" \
+		USER_GROUP="$USER_GROUP" SERVICE="$SERVICE" \
+		/bin/sh "$script" || status=$?
+		if [ $status -ne 0 ]
+		then
+			log "Error: executing '$script' failed"
+		fi
+	done
+}
+
+function do_scep() {
+	if [ "$1" = "reenroll" ]; then
+		KEY_OPT="--key \"$HOSTKEY\""
+		IN_OPT="--in \"new/$HOSTKEY\""
+		CERT_OPT="--cert \"$HOSTCERT\""
+		OUT_OPT="> \"new/$HOSTCERT\""
+	else
+		IN_OPT="--in \"$HOSTKEY\""
+		CERT_OPT=""
+		KEY_OPT=""
+		OUT_OPT="> \"$HOSTCERT\""
+	fi
+
+	pki_cmd="$PKI --scep --url \"$SCEP_URL\" $IN_OPT $KEY_OPT $CERT_OPT \
+		--dn \"$DN\" --san $SAN \"$ADD_SANS\" \
+		--cacert-sig \"$2\" --cacert-enc \"$3\" --cacert \"$ROOTCA\" \
+		--profile \"$PROFILE\" --maxpolltime \"$SCEP_MAX_POLL_TIME\" \
+		--outform pem ${PASSWORD:+--password $PASSWORD} $OUT_OPT"
+
+	log "$pki_cmd"
+	eval "$pki_cmd" || status=$?
 }
 
 ##############################################################################
 # SCEP certificate enrollment protocol requires RSA
 #
-if [ $PROTOCOL == "SCEP" -a $KEYTYPE != "RSA" ]
+if [ "$PROTOCOL" = "SCEP" ] && [ "$KEYTYPE" != "RSA" ]
 then
-  echo "Warning: the SCEP protocol does not support $KEYTYPE keys," \
-       "switched to RSA key"
-  KEYTYPE="RSA"
+	log "Warning: the SCEP protocol does not support $KEYTYPE keys," \
+		"switched to RSA key"
+	KEYTYPE="RSA"
 fi
 
 ##############################################################################
@@ -219,201 +251,195 @@ fi
 #
 case $KEYTYPE in
 
+	RSA)
+		key_type="rsa"
+		in_type="rsa"
+		size=$RSA_SIZE
+		;;
 
-  RSA)
-    key_type="rsa"
-    in_type="rsa"
-    size=$RSA_SIZE
-    ;;
+	ECDSA)
+		key_type="ecdsa"
+		in_type="ecdsa"
+		size=$ECDSA_SIZE
+		;;
 
-  ECDSA)
-    key_type="ecdsa"
-    in_type="ecdsa"
-    size=$ECDSA_SIZE
-    ;;
+	ED25519)
+		key_type="ed25519"
+		in_type="priv"
+		size="256"
+		;;
 
-  ED25519)
-    key_type="ed25519"
-    in_type="priv"
-    size="256"
-    ;;
+	ED448)
+		key_type="ed448"
+		in_type="priv"
+		size="456"
+		;;
 
-  ED448)
-    key_type="ed448"
-    in_type="priv"
-    size="456"
-    ;;
-
-  *)
-    echo "Error: $KEYTYPE key type unknown"
-    exit 1
-    ;;
+	*)
+		echo "Error: $KEYTYPE key type unknown"
+		exit 1
+		;;
 
 esac
 
 ##############################################################################
 # Create and change into certificates directory
 #
-mkdir -p $CERTDIR/new $CERTDIR/old
-cd $CERTDIR
-echo "  changed into the '$CERTDIR' directory"
+mkdir -p "$CERTDIR"/new "$CERTDIR"/old
+cd "$CERTDIR"
+log "changed into the '$CERTDIR' directory"
 
 #############################################################################
 # Fetch the CA certificates with the selected enrollment protocol if possible
 #
-echo "TLSROOTCA: $TLSROOTCA"
+log "TLSROOTCA: $TLSROOTCA"
 
-if [ $CA_PROTOCOL == "EST" -a ! -s "$TLSROOTCA" ]
+if [ "$CA_PROTOCOL" = "EST" ] && [ ! -s "$TLSROOTCA" ]
 then
-  echo "  no TLS root CA certificate for EST available," \
-       "revert to SCEP CA protocol"
-  CA_PROTOCOL="SCEP"
+	log "no TLS root CA certificate for EST available," \
+	"revert to SCEP CA protocol"
+	CA_PROTOCOL="SCEP"
 fi
 
 ##############################################################################
 # Check if non-empty certificate already exists
-echo "HOSTCERT: $HOSTCERT"
+log "HOSTCERT: $HOSTCERT"
 if [ -s "$HOSTCERT" ]
 then
 ##############################################################################
 # Determine the remaining validity of the certificate in days
 #
-  DAYS=$($PKI --print --in "$HOSTCERT" | awk '/not after/ {
-    if (($7 == "ok") && ($11 == "days)")) {
-      print $10
-    } else {
-      printf("0")
-    }
-  }' -)
+	DAYS=$($PKI --print --in "$HOSTCERT" | awk '/not after/ {
+		if (($7 == "ok") && ($11 == "days)")) {
+			print $10
+		} else {
+			printf("0")
+		}
+	}' -)
 
-  if [ $DAYS -ge $MIN_DAYS ]
-  then
-    echo "Ok: validity of '"$HOSTCERT"' is $DAYS days," \
-         "more than the minimum of $MIN_DAYS days"
-    if [ $(expr $DAYS % $CA_CHECK_INTERVAL) -eq 0 ]
-    then
-      check_ca_certs && exit 0
-      # update CA certificates if any of them changed
-      install_certs
-    fi
-    exit 0
-  fi
-  echo "Warning: validity of '$HOSTCERT' is only $DAYS days," \
-       "less than the minimum of $MIN_DAYS days"
+	if [ "$DAYS" -ge "$MIN_DAYS" ]
+	then
+		log "Ok: validity of '""$HOSTCERT""' is $DAYS days," \
+		"more than the minimum of $MIN_DAYS days"
+		if [ $(expr $DAYS % $CA_CHECK_INTERVAL) -eq 0 ]
+		then
+			check_ca_certs && exit 0
+			# update CA certificates if any of them changed
+			install_certs
+		fi
+		exit 0
+	fi
+	log "Warning: validity of '$HOSTCERT' is only $DAYS days," \
+		"less than the minimum of $MIN_DAYS days"
 
 ##############################################################################
 # Check if non-empty private key already exists
 #
-  if [ -s "new/$HOSTKEY" ]
-  then
-    echo "Warning: 'new/$HOSTKEY' already exists," \
-	 "resuming $PROTOCOL re-enrollment"
-  else
+	if [ -s "new/$HOSTKEY" ]
+	then
+		log "Warning: 'new/$HOSTKEY' already exists," \
+		"resuming $PROTOCOL re-enrollment"
+	else
 ##############################################################################
 # Generate new private key
 #
-    gen_private_key "new/$HOSTKEY"
-  fi
+		gen_private_key "new/$HOSTKEY"
+	fi
 ##############################################################################
 # Get and check CA and RA certificates via SCEP or EST
 #
-  check_ca_certs
+	check_ca_certs
 
 ##############################################################################
 # Re-enroll certificate via SCEP or EST
 #
-  status=0
-  if [ $PROTOCOL = "SCEP" ]
-  then
-    $PKI --scep --url $SCEP_URL --in new/$HOSTKEY --key $HOSTKEY \
-                --cert $HOSTCERT --dn "$DN" $SAN "${ADD_SANS:+$ADD_SANS}" \
-                --cacert-sig $SUBCA --cacert-enc $RACERT --cacert $ROOTCA \
-                --maxpolltime $SCEP_MAX_POLL_TIME --profile $PROFILE \
-                --outform pem > new/$HOSTCERT || status=$?
-  else
-    gen_cert_request "$CERTDIR/new"
-    $PKI --est --url $EST_URL --in new/$CERTREQ --cacert $ROOTCA \
-               --cacert $SUBCA --cacert $TLSROOTCA --key $HOSTKEY \
-               --cert $HOSTCERT --maxpolltime $EST_MAX_POLL_TIME \
-               --outform pem > new/$HOSTCERT || status=$?
-  fi
+	status=0
+	if [ "$PROTOCOL" = "SCEP" ]; then
+		do_scep reenroll "$SUBCA" "$RACERT"
+		[ ! -s "new/$HOSTCERT" ] && status=0 && do_scep reenroll "$RACERT" "$SUBRA"
+	else
+		gen_cert_request "$CERTDIR/new"
+		$PKI --est --url $EST_URL --in new/$CERTREQ --cacert $ROOTCA \
+		--cacert $SUBCA --cacert $TLSROOTCA --key $HOSTKEY \
+		--cert $HOSTCERT --maxpolltime $EST_MAX_POLL_TIME \
+		--outform pem > new/$HOSTCERT || status=$?
+	fi
 
-  if [ $status -ne 0 -o ! -s $HOSTCERT ]
-  then
-    echo "Error: re-enrollment via $PROTOCOL failed"
-    exit 1
-  fi
-  echo "Ok: successfully re-enrolled '$HOSTCERT' via $PROTOCOL"
+	if [ $status -ne 0 ] || [ ! -s "$HOSTCERT" ]
+	then
+		log "Error: re-enrollment via $PROTOCOL failed"
+		exit 1
+	fi
+	log "Ok: successfully re-enrolled '$HOSTCERT' via $PROTOCOL"
 
 ##############################################################################
 # Replace old key and certificate
 #
-  mv "$HOSTKEY" "$HOSTCERT" old
-  mv "new/$HOSTKEY" "new/$HOSTCERT" .
-  if [ $PROTOCOL == "EST" ]
-  then
-    mv "$CERTREQ" old
-    mv "new/$CERTREQ" .
-  fi
-  echo "  replaced old '"$HOSTKEY"' and '"$HOSTCERT"'"
+	mv "$HOSTKEY" "$HOSTCERT" old
+	mv "new/$HOSTKEY" "new/$HOSTCERT" .
+	if [ "$PROTOCOL" = "EST" ]
+	then
+		mv "$CERTREQ" old
+		mv "new/$CERTREQ" .
+	fi
+	log "replaced old '""$HOSTKEY""' and '""$HOSTCERT""'"
 
 ##############################################################################
 # Install keys and certificates
 #
-  install_certs
-  exit 0
+	install_certs
+	exit 0
 else
 ##############################################################################
 # No certificate exists yet
 #
-  echo "  '"$HOSTCERT"' doesn't exist yet"
+	log "'""$HOSTCERT""' doesn't exist yet"
 
 ##############################################################################
 # Check if non-empty private key already exists
 #
-  if [ -s "$HOSTKEY" ]
-  then
-    echo "Warning: '"$HOSTKEY"' already exists, resuming $PROTOCOL enrollment"
-  else
+	if [ -s "$HOSTKEY" ]
+	then
+		log "Warning: '""$HOSTKEY""' already exists, resuming $PROTOCOL enrollment"
+	else
 ##############################################################################
 # Generate private key
 #
-    gen_private_key "$HOSTKEY"
-  fi
+		gen_private_key "$HOSTKEY"
+	fi
 ##############################################################################
 # Get CA and RA certificates via SCEP
 #
-  get_ca_certs "$CERTDIR"
+	get_ca_certs "$CERTDIR"
 
 ##############################################################################
 # Enroll certificate via SCEP or EST
 #
-  status=0
-  if [ $PROTOCOL = "SCEP" ]
-  then
-    $PKI --scep --url "$SCEP_URL" --in "$HOSTKEY" --dn "$DN" --san "$SAN" "${ADD_SANS:+$ADD_SANS}" \
-                --cacert-sig "$SUBCA" --cacert-enc "$RACERT" --cacert "$ROOTCA" \
-                --profile $PROFILE --maxpolltime $SCEP_MAX_POLL_TIME \
-                --outform pem ${PASSWORD:+--password $PASSWORD} > "$HOSTCERT" || status=$?
-  else
-    gen_cert_request "$CERTDIR"
-    $PKI --est --url $EST_URL --in $CERTREQ \
-               --cacert $ROOTCA --cacert $SUBCA --cacert $TLSROOTCA \
-               --maxpolltime $EST_MAX_POLL_TIME \
-               --outform pem > $HOSTCERT || status=$?
-  fi
+	status=0
+	if [ "$PROTOCOL" = "SCEP" ]
+	then
+		do_scep enroll "$SUBCA" "$RACERT"
+		[ ! -s "$HOSTCERT" ] && status=0 && do_scep enroll "$RACERT" "$SUBRA"
+	else
+		gen_cert_request "$CERTDIR"
+		$PKI --est --url "$EST_URL" --in "$CERTREQ" \
+			--cacert "$ROOTCA" --cacert "$SUBCA" --cacert "$TLSROOTCA" \
+			--maxpolltime "$EST_MAX_POLL_TIME" \
+			--outform pem > "$HOSTCERT" || status=$?
+	fi
 
-  if [ $status -ne 0 -o ! -s "$HOSTCERT" ]
-  then
-    echo "Error: enrollment via $PROTOCOL failed"
-    exit 1
-  fi
-  echo "Ok: successfully enrolled '"$HOSTCERT"' via $PROTOCOL"
+	if [ $status -ne 0 ] || [ ! -s "$HOSTCERT" ]
+	then
+		log "Error: enrollment via $PROTOCOL failed"
+		rm "$HOSTKEY" "new/$HOSTKEY"
+		exit 1
+	fi
+	log "Ok: successfully enrolled '""$HOSTCERT""' via $PROTOCOL"
 
 
 ##############################################################################
 # Install keys and certificates
 #
-  install_certs
-  exit 0
+	install_certs
+	exit 0
 fi

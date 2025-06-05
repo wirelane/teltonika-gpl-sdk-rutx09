@@ -90,7 +90,7 @@ prepare_info_f() {
 	local sign_file_list=$5
 
 	tar -xzf "$control_tar" "./control" --to-stdout |
-		grep -E 'Firmware|tlt_name|Router|Package|Version|AppName|HWInfo' >"$info_f"
+		grep -E 'Firmware|tlt_name|Router|Package|Version|AppName|HWInfo|pkg_network_restart' >"$info_f"
 	printf 'ipk_file: %s\nipk_deps:%s\n' "$ipk_name" "$dep_list" >>"$info_f"
 
 	[[ $CI ]] && $CI && info_f=${info_f#"$TOPDIR/"}

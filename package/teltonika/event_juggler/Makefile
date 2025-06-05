@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.1
+PKG_SOURCE_VERSION:=1.2
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf
@@ -21,7 +21,7 @@ define Package/event-juggler
 	MENU:=1
 	TITLE:=Event juggler package
 	USERID:=juggler=516:juggler=516
-	USER_GROUPS:=juggler:gsm profiler rms
+	USER_GROUPS:=juggler:gsm profiler rms network wireless
 	DEPENDS:=+libubox +libubus +libuci +libtlt-logger +libblobmsg-json +libparam \
 			+libcfg +libcurl +liblua +libmosquitto +libtlt_smtp +libtlt_uci \
 			+PACKAGE_EVENT_JUGGLER_EVENT_GSM:liburc \
@@ -38,7 +38,7 @@ define Package/event-juggler/config
 	source "$(SOURCE)/Config.in"
 endef
 
-define Package/event_juggler/conffiles
+define Package/event-juggler/conffiles
 /etc/config/event_juggler
 endef
 
@@ -63,13 +63,15 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_SIM_SWITCH),--enable-action_sim_switch) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_HTTP),--enable-action_http) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_SMS),--enable-action_sms) \
+	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_CALL),--enable-action_call) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_SMTP),--enable-action_smtp) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_MQTT),--enable-action_mqtt) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_CONNECTION),--enable-action_connection) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_IO),--enable-cond_io) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_GPS),--enable-cond_gps) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_LUA),--enable-cond_lua) \
-	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_FILTER),--enable-cond_filter)
+	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_FILTER),--enable-cond_filter) \
+	--with-jglibdir=/usr/local/usr/lib/event_juggler
 
 
 define InstallLuaActionExamples
@@ -91,8 +93,8 @@ define Package/event-juggler/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/event_juggler_migration.sh \
 			$(1)/etc/uci-defaults/7.13/99-event_juggler
 	$(if $(CONFIG_POWER_CONTROL_SUPPORT),\
-			$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/event_juggler_atrm50.conf $(1)/etc/config/event_juggler;,\
-			$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/event_juggler.conf $(1)/etc/config/event_juggler;)
+			$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/event_juggler_atrm50.conf $(1)/etc/config/event_juggler;,\
+			$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/event_juggler.conf $(1)/etc/config/event_juggler;)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/event_juggler_troubleshoot.sh \
 			$(1)/lib/troubleshoot/event_juggler.sh
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/event_juggler.json $(1)/usr/share/acl.d/

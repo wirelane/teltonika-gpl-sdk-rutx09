@@ -31,7 +31,7 @@ change_dns() {
 }
 
 connect() {
-	local status auth_url state param routes flags answ
+	local status auth_url state param routes flags answ auth_arg
 	local counter=0
 	local auth_type="$1"
 	local auth_key="$2"
@@ -81,9 +81,9 @@ connect() {
 	fi
 
 	if [ "$auth_type" = "key" ] && [ -n "$auth_key" ]; then
-		$PROG logout 1>/dev/null 2>&1
 		log "info" "Trying to connect using 'KEY' mode $flags"
-		answ=$($PROG up --auth-key $auth_key $param --reset --timeout 5s 2>&1) || type="err"
+		[ "$state" != "Running" ] && auth_arg="--auth-key $auth_key"
+		answ=$($PROG up $auth_arg $param --reset --timeout 5s 2>&1) || type="err"
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
 

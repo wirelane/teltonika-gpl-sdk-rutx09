@@ -294,64 +294,46 @@ add_user_groups() {
 	done
 }
 
-set_capabilities() {
+set_file_attributes() {
 	local pkgname="$1"
-	local caps="$(sed -ne 's/^Capabilities: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
+	local attrs="$(sed -ne 's/^FileAttributes: *//p' "$root/usr/lib/opkg/info/${pkgname}.control" 2>/dev/null)"
+	
+	parse_attr_line() {
+		local line="$1"
+		local oIFS="$IFS"
+		IFS=':'
+		set -- $line ; binary="$1"; user="$2"; group="$3"; suid="$4"; caps="$5"
+		IFS="$oIFS"
+		[ -f "$root/$binary" ] || return
+		[ "$in_fakeroot" = "y" ] && echo "processing $line"
+		local user_id group_id
+		user_id="$(awk -F: -v user="$user" '$1 == user { print $3 }' "${IPKG_INSTROOT}/etc/passwd")" 
+		[ -z "$group" ] && [ -z "$user" ] && {
+			user_id=0
+			user="root"
+		}
+		[ -z "$group" ] && group_id="$(awk -F: -v user="$user" '$1 == user { print $4 }' "${IPKG_INSTROOT}/etc/passwd")" 
+		[ -n "$group" ] && group_id="$(awk -F: -v group="$group" '$1 == group { print $3 }' "${IPKG_INSTROOT}/etc/group")" 
+		[ -z "$user_id" -o -z "$group_id" ] && {
+			echo "could not resolve user or group: $user($user_id):$group($group_id)"
+			[ "$in_fakeroot" = "y" ] && exit 1
+			user_id=0
+			group_id=0
+		}
+		[ "$in_fakeroot" = "y" ] && set -e
+		chown "$user_id:$group_id" "$root/$binary"
+		[ "$suid" = "y" ] && chmod +s "$root/$binary"
+		[ -n "$caps" ] && /usr/sbin/setcap "$caps" "$root/$binary"
+		[ "$in_fakeroot" = "y" ] && set +e
+	}
 
-	[ -n "$caps" ] || return
-
-	local caps bin oIFS="$IFS"
-
-	IFS=":"
-	set -- $caps; bin="$1"; caps="$2"
-	IFS="$oIFS"
-
-	[ -n "$bin" ] || [ -n "$caps" ]  return
-	[ -e "$root/$bin" ] || return
-
-	if [ "$in_fakeroot" = "y" ] ; then
-		# if file attrs on untracked files change in fakeroot it is no longer owned by root
-		local suid="$(sed -ne 's/^SetUID: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
-		if [ -n "$suid" ] ; then
-			local suid_bin oIFS="$IFS"
-			IFS=":"
-			set -- $suid; suid_bin="$1"
-			IFS="$oIFS"
-			[ "$suid_bin" = "$bin" ] || chown 0:0 "$root/$bin"
-		else
-			chown 0:0 "$root/$bin"
-		fi
-		/usr/sbin/setcap "$caps" "$root/$bin" || exit 1
-	else
-		/usr/sbin/setcap "$caps" "$root/$bin"
-	fi
-}
-
-set_suid() {
-	local pkgname="$1"
-	local suid="$(sed -ne 's/^SetUID: *//p' $root/usr/lib/opkg/info/${pkgname}.control 2>/dev/null)"
-
-	[ -n "$suid" ] || return
-
-	local suid bin oIFS="$IFS"
-
-	IFS=":"
-	set -- $suid; bin="$1"; suid="$2"
-	IFS="$oIFS"
-
-	[ -n "$bin" ] || [ -n "$suid" ]  return
-	[ -e "$root/$bin" ] || return
-
-	# needs to work in buildroot where the users do not exist.
-	local owner="$(awk -F: -v user_name="$suid" '$1 == user_name { print $3":"$4 }' ${IPKG_INSTROOT}/etc/passwd)"
-
-	if [ "$in_fakeroot" = "y" ] ; then
-		chown "$owner" "$root/$bin" || exit 1
-		chmod +s "$root/$bin" || exit 1
-	else
-		chown "$owner" "$root/$bin"
-		chmod +s "$root/$bin"
-	fi
+	[ -n "$attrs" ] || return
+	local oIFS="$IFS"
+	IFS=';'
+	set -- $attrs ; while [ "$1" ] ; do
+		parse_attr_line "$1"
+		shift
+	done
 }
 
 default_postinst() {
@@ -361,9 +343,8 @@ default_postinst() {
 	local ret=0
 
 	add_group_and_user "${pkgname}"
-	set_suid "${pkgname}"
-	set_capabilities "${pkgname}"
 	add_user_groups "${pkgname}"
+	set_file_attributes "${pkgname}"
 
 	if [ -f "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" ]; then
 		( . "$root/usr/lib/opkg/info/${pkgname}.postinst-pkg" )
@@ -400,7 +381,7 @@ default_postinst() {
 	fi
 
 	local shell="$(command -v bash)"
-	for i in $(grep -s "^$root/etc/init.d/" "$filelist"); do
+	grep -s "^$root/etc/init.d/" "$filelist" | while IFS= read -r i; do
 		if [ -n "$IPKG_INSTROOT" ]; then
 			${shell:-/bin/sh} "$root/etc/rc.common" "$root$i" enable
 		else
@@ -574,11 +555,9 @@ check_compatibility() {
 apply_defaults() {
 	local dir="$1"
 
-	for file in $(ls -v "$dir"); do
-		[ -d "${dir}/${file}" ] && continue
-
-		echo "uci-defaults: - executing ${dir}/${file} -"
-		( . "${dir}/${file}" ) && rm -f "${dir}/${file}"
+	find "$dir" -maxdepth 1 -type f | sort -V | while read -r file; do
+		echo "uci-defaults: - executing $file -"
+		( . "$file" ) && rm -f "$file"
 	done
 }
 
@@ -608,10 +587,10 @@ uci_apply_defaults() {
 
 	mkdir -p "/tmp/.uci"
 
-	for dir in $(ls -v $top_dir); do
-		[ -d "${top_dir}/$dir" ] || continue
-		check_compatibility "$old_major" "$old_minor" "$dir" || continue
-		apply_defaults "${top_dir}/$dir"
+	find "$top_dir" -maxdepth 1 -type d | sort -V | while read -r dir; do
+		[ "$dir" == "$top_dir" ] && continue
+		check_compatibility "$old_major" "$old_minor" "$(basename "$dir")" || continue
+		apply_defaults "$dir"
 	done
 
 	# execute scripts that are from custom packages

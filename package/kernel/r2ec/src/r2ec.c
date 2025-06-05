@@ -574,12 +574,13 @@ static struct attribute *g_r2ec_attrs[] = {
 static struct attribute_group g_r2ec_attr_group = { .attrs = g_r2ec_attrs };
 static struct kobject *g_r2ec_kobj;
 
-static int r2ec_probe(struct i2c_client *client, const struct i2c_device_id *id)
+static int r2ec_probe(struct i2c_client *client)
 {
 	struct r2ec_platform_data *pdata = dev_get_platdata(&client->dev);
 	struct r2ec *gpio;
 	int status, i;
 	struct gpio_irq_chip *girq;
+	const struct i2c_device_id *id = i2c_match_id(r2ec_id, client);
 
 	gpio = devm_kzalloc(&client->dev, sizeof(*gpio), GFP_KERNEL);
 	if (!gpio) {
@@ -685,14 +686,14 @@ fail:
 	return status;
 }
 
-static int r2ec_remove(struct i2c_client *client)
+static void r2ec_remove(struct i2c_client *client)
 {
 	struct r2ec_platform_data *pdata = dev_get_platdata(&client->dev);
 	struct r2ec *gpio = i2c_get_clientdata(client);
 	int status = 0;
 
 	if (!(pdata && pdata->teardown)) {
-		return status;
+		return;
 	}
 
 	status = pdata->teardown(client, gpio->chip.base, gpio->chip.ngpio,
@@ -702,7 +703,7 @@ static int r2ec_remove(struct i2c_client *client)
 		dev_err(&client->dev, "%s --> %d\n", "teardown", status);
 	}
 
-	return status;
+	return;
 }
 
 static struct i2c_driver r2ec_driver = {

@@ -52,7 +52,7 @@ $(call Package/iptables/Default)
   TITLE:=IP firewall administration tool
   MENU:=1
   DEPENDS+= +kmod-ipt-core +libip4tc +IPV6:libip6tc +libxtables
-  CAP:=/usr/sbin/xtables-legacy-multi:cap_net_admin,cap_net_raw+ei
+  FATTRS:=/usr/sbin/xtables-legacy-multi::::cap_net_admin,cap_net_raw+ei
 endef
 
 define Package/iptables/config

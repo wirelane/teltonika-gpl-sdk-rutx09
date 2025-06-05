@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ntpclient
-PKG_VERSION:=2025-04-17
+PKG_VERSION:=2025-05-15
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2015_365
@@ -28,7 +28,7 @@ define Package/ntpclient
   TITLE:=NTP (Network Time Protocol) client
   DEPENDS:=+librt +libubus +libubox +libblobmsg-json +libuci +MOBILE_SUPPORT:libgsm
   USERID:=ntpclient=529:ntpclient=529
-  CAP:=/usr/sbin/ntpclient:cap_sys_time=ep
+  FATTRS:=/usr/sbin/ntpclient::::cap_sys_time=ep
 endef
 
 define Package/ntpclient/description

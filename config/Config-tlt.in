@@ -62,7 +62,6 @@ config PROFILES_SUPPORT
 	label "System"
 	maintainer "SysApp"
 	default y
-	imply PACKAGE_profiler
 	imply PACKAGE_vuci-app-profiles-ui
 	help
 		Ability to switch between saved configurations at specific times
@@ -130,7 +129,6 @@ config FOTA_SUPPORT
 	label "System"
 	maintainer "SysApp"
 	default y
-	imply PACKAGE_rut_fota
 	imply PACKAGE_vuci-app-rut-fota-ui
 	help
 		Download suggested firmware from server
@@ -206,7 +204,7 @@ config HNAT
 config CORE_NETWORK_PACKAGES
 	bool
 	default y
-	maintainer "Networks/Core"
+	maintainer "Network"
 	imply PACKAGE_ip-full
 	imply PACKAGE_kmod-br-netfilter if AP_DEVICE
 	imply PACKAGE_vuci-app-network-ui if !AP_DEVICE
@@ -215,7 +213,7 @@ config CORE_NETWORK_PACKAGES
 
 config ADVANCED_NETWORK
 	bool "Network"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on !AP_DEVICE
 	default y
 	label "Network"
@@ -244,7 +242,7 @@ config ADVANCED_NETWORK
 
 config FIREWALL_SUPPORT
 	bool "Firewall"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	label "Network"
 	depends on !AP_DEVICE
 	default y
@@ -268,7 +266,7 @@ config FIREWALL_SUPPORT
 
 config IPTABLES_NAT_EXTRA_SUPPORT
 	tristate
-	maintainer "Networks/Core"
+	maintainer "Network"
 	label "Network"
 	depends on !AP_DEVICE && PKG_SUPPORT
 	default y if TEST_IMAGE
@@ -294,7 +292,7 @@ config NFTABLES_NOJSON_SUPPORT
 
 config VRF_SUPPORT
 	tristate "VRF"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	label "Network"
 	help
 		Virtual routing and forwarding, IP technology allows users to configure multiple routing table instances to simultaneously co-exist within the same router
@@ -305,14 +303,14 @@ config VRF_SUPPORT
 
 config EBTABLES_DNS_SUPPORT
 	bool
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on AP_DEVICE
 	default y
 	imply PACKAGE_ebtables-dns
 
 config VXLAN_SUPPORT
 	tristate "VXLAN"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -346,6 +344,7 @@ config STRONGSWAN_SUPPORT
 	default y
 	imply PACKAGE_strongswan
 	imply PACKAGE_strongswan-minimal
+	imply PACKAGE_strongswan-mod-tpm if TPM_SUPPORT
 	imply PACKAGE_kmod-xfrm-interface
 	imply PACKAGE_xfrm
 	imply PACKAGE_vuci-app-strong-swan-ui
@@ -362,15 +361,12 @@ config STRONGSWAN_SUPPORT
 		Authentication algorithms: MD5, SHA1, SHA256, SHA348, SHA512
 
 config SCEP_SUPPORT
-	tristate
+	tristate "SCEP"
 	maintainer "SysApp"
 	depends on PKG_SUPPORT && CERTIFICATE_SUPPORT && STRONGSWAN_SUPPORT
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_strongswan-pki
-	imply PACKAGE_strongswan-mod-kdf
-	imply PACKAGE_strongswan-mod-pkcs7
-	imply PACKAGE_strongswan-mod-curl
+	imply PACKAGE_scep
 	help
 		SCEP (Simple Certificate Enrollment Protocol) is a standard protocol used for the automated issuance and management of digital certificates
 
@@ -388,7 +384,6 @@ config TPM_TSS
 	tristate "TPM TCG library"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_tpm2-tss
 	help
@@ -399,7 +394,6 @@ config TPM_TOOLS
 	tristate "TPM tools"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_tpm2-tools
 	help
@@ -413,7 +407,6 @@ config TPM_OPENSSL
 	tristate "TPM OpenSSL"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_tpm2-openssl
 	help
@@ -423,7 +416,6 @@ config TPM_MANAGER
 	tristate "TPM manager"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_tpm_manager
 	help
@@ -433,7 +425,6 @@ config TPM_FLASHER
 	tristate "TPM flasher"
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
-	default m if !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_tpm_flasher
 	help
@@ -657,7 +648,7 @@ config PORT_MIRRORING_SUPPORT
 
 config RELAYD_SUPPORT
 	tristate "Relayd"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !NETWORKS_EXTERNAL
 	default y if NAND_SUPPORT || TEST_IMAGE
 	default m
@@ -718,7 +709,7 @@ config FRR5_SUPPORT
 
 config VRRP_SUPPORT
 	tristate "VRRP"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && ADVANCED_NETWORK
 	default m if (!NAND_SUPPORT || GATEWAY_DEVICE) && !TEST_IMAGE
 	default y
@@ -729,7 +720,7 @@ config VRRP_SUPPORT
 
 config MULTIWAN_SUPPORT
 	tristate "Multiwan"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && (!GATEWAY_DEVICE || (GATEWAY_DEVICE && SERIAL_SUPPORT && !MULTI_DEVICE_QUIRK))
 	default m if (HAS_SINGLE_ETH_PORT || NETWORKS_EXTERNAL) && !TEST_IMAGE
 	default y
@@ -743,7 +734,7 @@ config MULTIWAN_SUPPORT
 
 config IGMPPROXY_SUPPORT
 	tristate "Multicast"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -774,7 +765,7 @@ config TCP_DUMP_SUPPORT
 	depends on PKG_SUPPORT
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_tcpdump
+	imply PACKAGE_vuci-app-tcpdump-ui
 	help
 		Incoming/Outgoing internet packet analyzer for troubleshooting connectivity issues
 
@@ -795,6 +786,7 @@ config NTP_SUPPORT
 	default y
 	imply PACKAGE_ntpclient
 	imply PACKAGE_vuci-app-ntp-ui
+	imply PACKAGE_untpd
 	help
 		Network Time Protocol utility used for time synchronization
 	detail
@@ -810,8 +802,6 @@ config NTPD_SUPPORT
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-ntpd-ui
-	imply BUSYBOX_DEFAULT_NTPD
-	imply BUSYBOX_DEFAULT_FEATURE_NTPD_SERVER
 
 config NF_LOGGING_SUPPORT
 	tristate "Traffic Logging"
@@ -827,7 +817,7 @@ config NF_LOGGING_SUPPORT
 
 config IPTABLES_FILTER_EXTENSION
 	tristate
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -863,7 +853,7 @@ config WEB_FILTER_SUPPORT
 	tristate "Web Filter"
 	maintainer "SysApp"
 	depends on PKG_SUPPORT && ADVANCED_NETWORK
-	default y if (NAND_SUPPORT && !GATEWAY_DEVICE) || WIFI_GUEST_NETWORK_SUPPORT || TEST_IMAGE
+	default y if (NAND_SUPPORT && !GATEWAY_DEVICE) || TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-webfilter-ui
 	help
@@ -883,7 +873,7 @@ config UPNP_SUPPORT
 
 config SQM_SUPPORT
 	tristate "Smart Queue Management"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && !BYPASS_OFFLOAD_FEATURE
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE && !x86_64
 	default y
@@ -894,7 +884,7 @@ config SQM_SUPPORT
 
 config QOS_SUPPORT
 	tristate "Network Traffic Control"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && !BYPASS_OFFLOAD_FEATURE
 	default y if TEST_IMAGE
 	default m
@@ -915,7 +905,7 @@ config DLNA_SUPPORT
 
 config SSHFS_SUPPORT
 	tristate "SSHFS"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -936,7 +926,7 @@ config TELNET_SUPPORT
 
 config UDPRELAY_SUPPORT
 	tristate "UDP relay"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -966,7 +956,7 @@ config UMDNS_SUPPORT
 
 config CONNCHECKER_SUPPORT
 	tristate "Internet status"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && !AP_DEVICE
 	default m if !NAND_SUPPORT && !TEST_IMAGE
 	default y
@@ -977,7 +967,7 @@ config CONNCHECKER_SUPPORT
 
 config IP_BRIDGE_SUPPORT
 	bool
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on DSA_SUPPORT
 	default y
 	imply PACKAGE_ip-bridge
@@ -1023,7 +1013,7 @@ config CUMULOCITY_SUPPORT
 
 config HTTPS_DNS_PROXY_SUPPORT
 	tristate "DNS over HTTPS"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1070,7 +1060,7 @@ config THINGWORX_SUPPORT
 config MOBILE_SUPPORT
 	bool "Mobile connection management"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	imply PACKAGE_gsmctl
 	imply PACKAGE_mobifd
 	imply PACKAGE_apn_db
@@ -1106,7 +1096,7 @@ config MOBILE_SUPPORT
 config ESIM_SUPPORT
 	bool "eSIM management**"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	help
 		eSIM profile management, including download, deletion, notification handling, and eSIM ID parsing
@@ -1126,7 +1116,7 @@ config LPAC_APP
 config MOBILE_DFOTA_SUPPORT
 	bool "Module firmware update from server*"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on MOBILE_SUPPORT && !BASEBAND_SUPPORT
 	default y
 	imply PACKAGE_dfota
@@ -1138,7 +1128,7 @@ config MOBILE_DFOTA_SUPPORT
 config MOBILE_USAGE_SUPPORT
 	bool "Mobile data management"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	default y
 	imply PACKAGE_quota_limit if !BYPASS_MOBILE_COUNTERS
@@ -1154,7 +1144,7 @@ config MOBILE_USAGE_SUPPORT
 config MODEM_UPDATER_SUPPORT
 	tristate
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on PKG_SUPPORT && MOBILE_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1209,7 +1199,7 @@ config EMAIL_TO_SMS_SUPPORT
 config DUAL_SIM_SUPPORT
 	bool "SIM Switch"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	default y if ESIM_SUPPORT
 	imply PACKAGE_sim_switch
@@ -1246,7 +1236,7 @@ config SMPP_SUPPORT
 config GSM_CHECKER_SUPPORT
 	bool
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	imply PACKAGE_gsmchecker
 	help
@@ -1257,7 +1247,7 @@ config GSM_CHECKER_SUPPORT
 config MODEM_LOGGER_SUPPORT
 	tristate
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on PKG_SUPPORT && MOBILE_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1273,8 +1263,9 @@ config MODEM_LOGGER_SUPPORT
 config SIM_IDLE_PROTECTION_SUPPORT
 	tristate "SIM Idle Protection"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on PKG_SUPPORT && DUAL_SIM_SUPPORT
+	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-sim-idle-protection-ui
 	help
@@ -1285,7 +1276,7 @@ config SIM_IDLE_PROTECTION_SUPPORT
 config APN_DATABASE_WEBUI_SUPPORT
 	tristate "APN database management"
 	label "Mobile"
-	maintainer "Networks/Mobile"
+	maintainer "Mobile"
 	depends on PKG_SUPPORT && MOBILE_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1301,7 +1292,7 @@ config APN_DATABASE_WEBUI_SUPPORT
 
 config WIFI_SUPPORT
 	bool "WiFi"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	imply PACKAGE_iwinfo
 	imply PACKAGE_wireless-tools if USES_VENDOR_WIFI_DRIVER
 	imply PACKAGE_vuci-app-channel-analysis-ui
@@ -1332,12 +1323,6 @@ config MT7628_HOTSPOT20
 	depends on USES_VENDOR_WIFI_DRIVER
 	default y
 
-config WIFI_GUEST_NETWORK_SUPPORT
-	bool
-	maintainer "Networks/Core"
-	depends on WIFI_SUPPORT
-	imply PACKAGE_vuci-app-guest-network-ui
-
 config WIFI_SCANNER_SUPPORT
 	tristate "WiFi Scanner"
 	maintainer "SysApp"
@@ -1350,7 +1335,7 @@ config WIFI_SCANNER_SUPPORT
 
 config WPA_CLI_SUPPORT
 	tristate "WPA CLI"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on WIFI_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default m if SMALL_FLASH && PKG_SUPPORT && !TEST_IMAGE
 	default y
@@ -1432,7 +1417,7 @@ config HOTSPOT20_SUPPORT
 
 config TRAVELMATE_SUPPORT
 	tristate "Travelmate"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && WIFI_SUPPORT
 	default y if NAND_SUPPORT || TEST_IMAGE
 	default m
@@ -1450,7 +1435,8 @@ config USB_STORAGE_SUPPORT
 	depends on USB_SUPPORT_EXTERNAL
 	default y
 	imply PACKAGE_kmod-usb-storage
-	imply PACKAGE_kmod-fs-exfat
+	imply PACKAGE_kmod-fs-exfat-oot if !LINUX_6_6
+	imply PACKAGE_kmod-fs-exfat if LINUX_6_6
 	imply PACKAGE_kmod-fs-ntfs
 	imply PACKAGE_kmod-fs-msdos if !x86_64
 	imply PACKAGE_exfat-mkfs
@@ -1516,7 +1502,6 @@ config SERIAL_SUPPORT
 	imply PACKAGE_vuci-app-overip-ui
 	imply PACKAGE_vuci-app-modbus-serial-gateway-ui
 	imply PACKAGE_vuci-app-getty-ui
-	imply PACKAGE_usb-reboot if SERIAL_RESET_QUIRK
 	imply BUSYBOX_DEFAULT_STTY
 
 config SERIAL_USB_DRIVERS
@@ -1552,7 +1537,7 @@ config PYTHON_SUPPORT
 	tristate "Python"
 	label "Programming languages"
 	maintainer "Apps/Apps1"
-	depends on PKG_SUPPORT && (USB_SUPPORT_EXTERNAL || NAND_SUPPORT)
+	depends on PKG_SUPPORT && (USB_SUPPORT_EXTERNAL || !SMALL_FLASH)
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_python3
@@ -1563,7 +1548,7 @@ config JAVA_SUPPORT
 	tristate "JAVA"
 	label "Programming languages"
 	maintainer "Apps/Apps1"
-	depends on PKG_SUPPORT && USB_SUPPORT_EXTERNAL
+	depends on PKG_SUPPORT && (USB_SUPPORT_EXTERNAL || !SMALL_FLASH)
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_jamvm
@@ -1666,6 +1651,15 @@ config BLUETOOTH_SUPPORT
 		Sensors data monitoring via low energy (LE) protocol
 
 #
+# memory managment tools
+#
+
+config EMMC_SUPPORT
+	bool
+	maintainer "Embedded/BBU"
+	imply BUSYBOX_CONFIG_BLKDISCARD
+
+#
 # comm protocols
 #
 
@@ -1766,15 +1760,11 @@ config DNP3_SUPPORT
 	detail if HAS_RS485
 		Connection types: \, RTU(RS485)
 
-config BACNET_MODULE_SUPPORT
-	bool
-	maintainer "Apps/Apps2"
-
 config BACNET_SUPPORT
 	tristate "Bacnet"
 	label "Industrial protocols"
 	maintainer "Apps/Apps2"
-	depends on PKG_SUPPORT && BACNET_MODULE_SUPPORT
+	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-bacnet-ui
@@ -1867,6 +1857,7 @@ config DOCKER_SUPPORT
 	depends on PKG_SUPPORT && HIGH_STORAGE
 	default y if TEST_IMAGE
 	default m
+#	imply PACKAGE_vuci-app-docker-ui
 	imply PACKAGE_dockerd
 	imply PACKAGE_docker
 	imply LIBCURL_UNIX_SOCKETS
@@ -1906,7 +1897,7 @@ config CORE_UI_PACKAGES
 config REALTIME_GRAPH_SUPPORT
 	bool "Realtime data"
 	label "System"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	default y
 	imply PACKAGE_vuci-app-realtime-ui
 	help
@@ -1926,6 +1917,7 @@ config CERTIFICATE_SUPPORT
 	depends on !AP_DEVICE
 	default y
 	imply PACKAGE_vuci-app-certificates-ui
+	imply PACKAGE_tpm2_importer if TPM_SUPPORT
 	help
 		Certificate creation tool allows to create CA, server, client, let's encrypt, SCEP certificates
 
@@ -1951,7 +1943,6 @@ config IP_BLOCK_SUPPORT
 	maintainer "SysApp"
 	default y
 	imply PACKAGE_vuci-app-access-control-ui
-	imply PACKAGE_ip_blockd
 	imply BUSYBOX_CONFIG_FEATURE_IP_BLOCKD
 	help
 		Blocks IP addresses after a configured number of unsuccessful authorization attempts
@@ -2001,7 +1992,9 @@ config NETWORK_USAGE_SUPPORT
 	imply PACKAGE_vuci-app-network-usage-ui
 
 config EVENT_JUGGLER_SUPPORT
-	tristate "Event juggler support"
+	tristate "Event Juggler"
+	label "Monitoring & Management"
+	maintainer "Apps/Apps1"
 	default y
 	depends on !AP_DEVICE
 	select PACKAGE_event-juggler
@@ -2012,11 +2005,33 @@ config EVENT_JUGGLER_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_EVENT_QUOTA if MOBILE_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_SIM_SWITCH if DUAL_SIM_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_SMS if MOBILE_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_CALL if MOBILE_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_OUT if IO_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_WIFI if WIFI_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_MODEM if MOBILE_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_CONDITION_IO if IO_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_CONDITION_GPS if GPS_SUPPORT
+	help
+		Feature that provides the possibility to monitor various system events and execute actions accordingly
+	detail
+		Events: Device boot, time, Hotspot connections, astronomical time, device logs
+	detail if GPS_SUPPORT
+		Events: \, GPS
+	detail if MOBILE_SUPPORT
+		Events: \, GSM, mobile data limit
+	detail if IO_SUPPORT || POWER_CONTROL_SUPPORT
+		Events: \, input/output changes
+	detail
+		Actions: Connection management, MQTT message, Email, HTTP request, Lua and other script execution, RMS management, profile change, device reboot
+	detail if MOBILE_SUPPORT
+		Actions: \, SMS, call, modem restart
+	detail if DUAL_SIM_SUPPORT
+		Actions: \, SIM switch
+	detail if IO_SUPPORT
+		Actions: \, output management
+	detail if WIFI_SUPPORT
+		Actions: \, WiFi management
+
 
 config MULTI_LANGUAGE_SUPPORT
 	tristate "Multi Language"
@@ -2037,9 +2052,7 @@ config WEB_CLI_SUPPORT
 	bool "CLI"
 	label "System"
 	maintainer "SysApp"
-	maintainer "SysApp"
 	default y
-	imply PACKAGE_shellinabox
 	imply PACKAGE_vuci-app-cli-ui
 	help
 		Command line interface in Web
@@ -2053,36 +2066,66 @@ config DATA_SENDER_SUPPORT
 	imply PACKAGE_vuci-app-data-sender-ui
 	imply PACKAGE_data-sender-mod-base
 	imply PACKAGE_data-sender-mod-mnfinfo
-	imply PACKAGE_data-sender-api-mod-lua_format
+	imply PACKAGE_vuci-app-data-sender-api-mod-lua_format
 	imply PACKAGE_DATA_SENDER_SCHEDULER
-	imply PACKAGE_data-sender-api-mod-gsm if MOBILE_SUPPORT
-	imply PACKAGE_data-sender-api-mod-mdcollect if MOBILE_SUPPORT
-	imply PACKAGE_data-sender-api-mod-bluetooth if BLUETOOTH_SUPPORT
-	imply PACKAGE_data-sender-api-mod-mbus if MBUS_SUPPORT
-	imply PACKAGE_data-sender-api-mod-http
-	imply PACKAGE_data-sender-api-mod-mqtt-in
-	imply PACKAGE_data-sender-api-mod-mqtt-out
-	imply PACKAGE_data-sender-api-mod-ubus
-	imply PACKAGE_data-sender-api-mod-lua-in
-	imply PACKAGE_data-sender-api-mod-format-custom
+	imply PACKAGE_vuci-app-data-sender-api-mod-gsm if MOBILE_SUPPORT
+	imply PACKAGE_vuci-app-data-sender-api-mod-mdcollect if MOBILE_SUPPORT
+	imply PACKAGE_vuci-app-data-sender-api-mod-bluetooth if BLUETOOTH_SUPPORT
+	imply PACKAGE_vuci-app-data-sender-api-mod-mbus if MBUS_SUPPORT
+	imply PACKAGE_vuci-app-data-sender-api-mod-http
+	imply PACKAGE_vuci-app-data-sender-api-mod-mqtt-in
+	imply PACKAGE_vuci-app-data-sender-api-mod-mqtt-out
+	imply PACKAGE_vuci-app-data-sender-api-mod-ubus
+	imply PACKAGE_vuci-app-data-sender-api-mod-lua-in
+	imply PACKAGE_vuci-app-data-sender-api-mod-format-custom
 	help
 		Feature that provides the possibility to set up data senders that collect data from various sources and periodically send it to remote servers
 	detail
 		Data inputs: Device, manufactoring information, MQTT, Lua script
 	detail if MOBILE_SUPPORT
-		Data inputs: \, mobile
+		Data inputs: \, GSM, Mobile usage
 	detail if WIFI_SCANNER_SUPPORT
 		Data inputs: \, WiFi Scanner
+	detail if BLUETOOTH_SUPPORT
+		Data inputs: \, Bluetooth
+	detail if DLMS_SUPPORT
+		Data inputs: \, DLMS
+	detail if DNP3_SUPPORT
+		Data inputs: \, DNP3
+	detail if MBUS_SUPPORT
+		Data inputs: \, M-Bus
+	detail if IMPULSE_COUNTER_SUPPORT
+		Data inputs: \, Impulse Counter
 	detail if IO_MODBUS_SUPPORT
-		Data inputs: and industrial protocols data
+		Data inputs: \, Modbus, Modbus alarms
+	detail if OPCUA_SUPPORT
+		Data inputs: \, OPC UA
+	detail if DATA_SENDER_ADVANCED_SUPPORT && MOBILE_SUPPORT
+		Data inputs: \, SMS
+	detail if DATA_SENDER_ADVANCED_SUPPORT && IO_SUPPORT
+		Data inputs: \, I/O
+	detail if DATA_SENDER_ADVANCED_SUPPORT && GPS_SUPPORT
+		Data inputs: and GPS
 	detail
 		Servers: HTTP, MQTT
+	detail if DATA_SENDER_ADVANCED_SUPPORT && MOBILE_SUPPORT
+		Servers: \, SMS
+	detail if DATA_SENDER_ADVANCED_SUPPORT
+		Servers: \, FTP, SMTP, Socket, Lua script
 	detail if AZURE_SUPPORT
 		Servers: and Azure IoT Hub
 
+config DATA_SENDER_ADVANCED_SUPPORT
+	tristate "Data to Server"
+	maintainer "Apps/Apps1"
+	depends on DATA_SENDER_SUPPORT && PKG_SUPPORT
+	default m if SMALL_FLASH
+	default y
+	imply PACKAGE_vuci-app-data-sender-api-mod-advanced
+
 config IPERF3_SUPPORT
 	tristate
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -2090,7 +2133,7 @@ config IPERF3_SUPPORT
 
 config JOOL_SUPPORT
 	tristate "NAT64"
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && NAND_SUPPORT && !GATEWAY_DEVICE
 	default y if TEST_IMAGE
 	default m
@@ -2101,7 +2144,7 @@ config JOOL_SUPPORT
 
 config BFD_FRR_SUPPORT
 	tristate
-	maintainer "Networks/Core"
+	maintainer "Network"
 	depends on PKG_SUPPORT && FRR_SUPPORT
 	default y if TEST_IMAGE
 	default m

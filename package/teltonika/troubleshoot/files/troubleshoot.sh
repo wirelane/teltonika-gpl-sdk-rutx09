@@ -1,7 +1,25 @@
 #!/bin/sh
+. /usr/share/libubox/jshn.sh
+
+[ "$(id -u)" != 0 ] && {
+	# This must be ACL protected
+	res=$(ubus -t 0 call system troubleshoot ${1:+"{\"pass\":\"$1\"}"})
+	rc=$?
+	[ $rc -eq 4 ] && logger "Access denied for user($(id -u))"
+	[ $rc -ne 0 ] && exit $rc
+
+	json_load "$res"
+	json_get_vars output exit_code
+
+	echo -n "$output"
+
+	# Is ret_code a number?
+	[ "$exit_code" -eq "exit_code" ] 2>/dev/null || exit 1
+
+	exit $exit_code
+}
 
 . /lib/functions.sh
-. /usr/share/libubox/jshn.sh
 . /lib/functions/libtroubleshoot.sh
 
 PACK_DIR="/tmp/troubleshoot/"
@@ -190,7 +208,8 @@ switch_hook() {
 		troubleshoot_add_log_ext "bridge" "fdb" "$log_file"
 	else
 		troubleshoot_init_log "Switch configuration" "$log_file"
-		troubleshoot_add_log_ext "swconfig" "dev switch0 show" "$log_file"
+		swconfig list | grep -q "switch0" &&
+			troubleshoot_add_log_ext "swconfig" "dev switch0 show" "$log_file"
 	fi
 }
 
@@ -236,7 +255,7 @@ systemlog_hook() {
 	config_get log_flash_file system "log_file" ""
 
 	troubleshoot_init_log "Logread" "$log_file"
-	if [ -n "$log_flash_file" ] && [ -f "$log_flash_file" ] ; then 
+	if [ -n "$log_flash_file" ] && [ -f "$log_flash_file" ] ; then
 		local rotated_logs file
 		# shellcheck disable=SC2010
 		rotated_logs=$(ls -v "$(dirname "$log_flash_file")" | grep -i -E "$(basename "$log_flash_file").[0-9]+($|.gz)")
@@ -311,8 +330,10 @@ package_manager_hook() {
 	local log_file="${PACK_DIR}package_manager.log"
 
 	opkg_packets=""
-	[ -d "/usr/lib/opkg/info" ] && opkg_packets=$(grep -l "Router:" /usr/lib/opkg/info/*.control)
-	[ -d "/usr/local/lib/opkg/info" ] && opkg_packets="$opkg_packets $(grep -l "Router:" /usr/local/lib/opkg/info/*.control)"
+	[ -d "/usr/lib/opkg/info" ] && [ "$(ls -A /usr/lib/opkg/info/*.control 2>/dev/null)" ] &&
+		opkg_packets=$(grep -l "Router:" /usr/lib/opkg/info/*.control 2>/dev/null)
+	[ -d "/usr/local/lib/opkg/info" ] && [ "$(ls -A /usr/local/lib/opkg/info/*.control 2>/dev/null)" ] &&
+		opkg_packets="$opkg_packets $(grep -l "Router:" /usr/local/lib/opkg/info/*.control 2>/dev/null)"
 	[ -z "$opkg_packets" ] && return
 
 	troubleshoot_init_log "Installed packages from PM" "$log_file"
@@ -387,13 +408,14 @@ init() {
 	if [ -z  "$1" ]; then
 		rm "${PACK_FILE}.gz" >/dev/null 2>&1
 	else
-		rm "${PACK_FILE}.zip" >/dev/null 2>&1	
+		rm "${PACK_FILE}.zip" >/dev/null 2>&1
 	fi
 
 	mkdir "$PACK_DIR"
 }
 
-lock /var/run/troubleshoot.lock
+exec 200>"/var/run/troubleshoot.lock"
+flock -n 200 || { echo "troubleshoot instance is already running"; exit 1; }
 
 init "$1"
 
@@ -416,4 +438,4 @@ troubleshoot_run_hook_all
 
 generate_package "$1"
 
-lock -u /var/run/troubleshoot.lock
+exec 200>&-

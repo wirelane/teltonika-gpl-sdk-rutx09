@@ -47,6 +47,8 @@
     "../node_modules",
     "../**/dist",
     "../**/tests",
-    "../cli"
+    "../cli",
+    "../storybook-static",
+    "../**/*.{spec,test}.{js,ts}",
   ],
 }

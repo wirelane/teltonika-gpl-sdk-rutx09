@@ -38,7 +38,7 @@ define Package/jamvm
 		@(i386||i686||x86_64||arm||armeb||mips||mipsel||powerpc||powerpc64) +CONFIG_powerpc64:libffi
 endef
 
-define Package/python3/teltonika_rute
+define Package/jamvm/teltonika_rut9m
 	PKG_HW_INFO:=usb
 endef
 

@@ -16,7 +16,7 @@ define Package/$(PKG_NAME)/install
 	$(call Package/$(PKG_NAME)/install/Default,$(1))
 	if [ $(TLT_PLATFORM_TRB1) ]; then \
 		$(call SelectPinoutIcon,$(1),io_16pin.svg) \
-	elif [ $(TLT_PLATFORM_TRB2) ] || [ $(TLT_PLATFORM_TRB2M) ]; then \
+	elif [ $(TLT_PLATFORM_TRB2M) ]; then \
 		$(call SelectPinoutIcon,$(1),io_16pin_rs.svg) \
 	elif [ $(TLT_PLATFORM_RUTM) ]; then \
 		$(call SelectPinoutIcon,$(1),io_16pin_rs_rutm.svg) \

@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_server
-PKG_VERSION:=2025-04-14
+PKG_VERSION:=2025-05-23
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=7.14
+PKG_SOURCE_VERSION:=7.15-2
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 PKG_RELEASE:=1
@@ -20,9 +20,8 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=Modbus server daemon by Teltonika
 	DEPENDS:=+libuci +libtlt_uci +libtlt_termios +libubus +libubox +libjson-c +libblobmsg-json +libmnfinfo +libmodbus +libboardjson \
-		 +MOBILE_SUPPORT:libmdcollect +MOBILE_SUPPORT:libgsm +IO_SUPPORT:iomand
-	USERID:=modbus_server=533:modbus_server=533
-	CAP:=/usr/sbin/modbus_server:cap_net_bind_service=ep
+		 +MOBILE_SUPPORT:libmdcollect +MOBILE_SUPPORT:libgsm +IO_SUPPORT:iomand +libtag
+	FATTRS:=/usr/sbin/modbus_server::::cap_net_bind_service=ep
 endef
 
 define Package/$(PKG_NAME)/description
@@ -35,12 +34,13 @@ endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/etc/permtab.d $(1)/usr/sbin $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/etc/permtab.d $(1)/usr/sbin $(1)/usr/share/acl.d $(1)/etc/uci-defaults/7.15/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modbus_server $(1)/usr/sbin/modbus_server
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_server.init $(1)/etc/init.d/modbus_server
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/modbus_server.conf $(1)/etc/config/modbus_server
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/modbus_server.json $(1)/usr/share/acl.d/modbus_server.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/modbus_server.permtab $(1)/etc/permtab.d/modbus_server
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.15/99_modbus_server_migrate_regfile $(1)/etc/uci-defaults/7.15/
 endef
 
 define Package/$(PKG_NAME)/prerm

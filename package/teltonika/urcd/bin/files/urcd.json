@@ -12,6 +12,9 @@
 		},
 		"ip_block": {
 			"methods": [ "show" ]
+		},
+		"log": {
+			"methods": [ "write_ext" ]
 		}
 	}
 }

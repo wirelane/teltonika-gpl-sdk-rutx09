@@ -744,8 +744,8 @@ static u16 edma_rx_complete(struct edma_common_info *edma_cinfo,
 			/* Update rx statistics */
 			stats64 = this_cpu_ptr(adapter->stats64);
 			flags = u64_stats_update_begin_irqsave(&stats64->syncp);
-			stats64->rx_packets++;
-			stats64->rx_bytes += length;
+			u64_stats_inc(&stats64->rx_packets);
+			u64_stats_add(&stats64->rx_bytes, length);
 			u64_stats_update_end_irqrestore(&stats64->syncp, flags);
 
 			/* Check if we reached refill threshold */
@@ -1364,12 +1364,12 @@ void edma_get_stats64(struct net_device *net, struct rtnl_link_stats64 *stats)
 		stats64 = per_cpu_ptr(adapter->stats64, cpu);
 
 		do {
-			start = u64_stats_fetch_begin_irq(&stats64->syncp);
-			rx_packets = stats64->rx_packets;
-			rx_bytes = stats64->rx_bytes;
-			tx_packets = stats64->tx_packets;
-			tx_bytes = stats64->tx_bytes;
-		} while (u64_stats_fetch_retry_irq(&stats64->syncp, start));
+			start = u64_stats_fetch_begin(&stats64->syncp);
+			rx_packets = u64_stats_read(&stats64->rx_packets);
+			rx_bytes = u64_stats_read(&stats64->rx_bytes);
+			tx_packets = u64_stats_read(&stats64->tx_packets);
+			tx_bytes = u64_stats_read(&stats64->tx_bytes);
+		} while (u64_stats_fetch_retry(&stats64->syncp, start));
 
 		stats->rx_packets += rx_packets;
 		stats->rx_bytes += rx_bytes;
@@ -1475,8 +1475,8 @@ netdev_tx_t edma_xmit(struct sk_buff *skb,
 
 	/* update tx statistics */
 	flags = u64_stats_update_begin_irqsave(&stats64->syncp);
-	stats64->tx_packets++;
-	stats64->tx_bytes += skb->len;
+	u64_stats_inc(&stats64->tx_packets);
+	u64_stats_add(&stats64->tx_bytes, skb->len);
 	u64_stats_update_end_irqrestore(&stats64->syncp, flags);
 
 netdev_okay:
@@ -2018,7 +2018,7 @@ int edma_set_mac_addr(struct net_device *netdev, void *p)
 	if (netif_running(netdev))
 		return -EBUSY;
 
-	memcpy(netdev->dev_addr, addr->sa_data, netdev->addr_len);
+	dev_addr_set(netdev, addr->sa_data);
 	return 0;
 }
 

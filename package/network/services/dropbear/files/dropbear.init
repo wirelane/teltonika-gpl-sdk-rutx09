@@ -101,6 +101,12 @@ append_ports()
 {
 	local ipaddrs="$1"
 	local port="$2"
+	local wan_port="$3"
+	local wan_access="$4"
+
+	[ "$wan_access" -eq 1 ] && [ -n "$wan_port" ] && [ "$wan_port" != "$port" ] && {
+		procd_append_param command -p "$wan_port"
+	}
 
 	[ -z "$ipaddrs" ] && {
 		procd_append_param command -p "$port"
@@ -125,6 +131,8 @@ validate_section_dropbear()
 		'keyfile:list(file)' \
 		'BannerFile:file' \
 		'Port:port:22' \
+		'wan_port:port:22' \
+		'_sshWanAccess:bool:0' \
 		'SSHKeepAlive:uinteger:300' \
 		'IdleTimeout:uinteger:0' \
 		'MaxAuthTries:uinteger:3' \
@@ -185,7 +193,7 @@ dropbear_instance()
 		procd_append_param command -b "${BannerFile}"
 	fi
 
-append_ports "${ipaddrs}" "${Port}"
+append_ports "${ipaddrs}" "${Port}" "${wan_port}" "${_sshWanAccess}"
 	[ "${IdleTimeout}" -ne 0 ] && procd_append_param command -I "${IdleTimeout}"
 	[ "${SSHKeepAlive}" -ne 0 ] && procd_append_param command -K "${SSHKeepAlive}"
 	[ "${MaxAuthTries}" -ne 0 ] && procd_append_param command -T "${MaxAuthTries}"

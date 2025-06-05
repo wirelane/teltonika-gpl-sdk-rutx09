@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=dropbear
 PKG_VERSION:=2020.81
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_VERSION:=2020.81
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -56,6 +56,7 @@ define Package/dropbear
   SECTION:=net
   CATEGORY:=Base system
   TITLE:=Small SSH2 client/server
+  USERID:=dropbear:dropbear
   DEPENDS:= +DROPBEAR_ZLIB:zlib +libubus +libubox +liblog
   ALTERNATIVES:=
   $(if $(CONFIG_DROPBEAR_SCP),ALTERNATIVES+= \
@@ -198,13 +199,15 @@ define Package/dropbear/install
 	$(if $(CONFIG_DROPBEAR_DBCLIENT),$(LN) ../sbin/dropbear $(1)/usr/bin/dbclient,)
 	$(LN) ../sbin/dropbear $(1)/usr/bin/dropbearkey
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/dropbear.config $(1)/etc/config/dropbear
+	$(INSTALL_CONF_USR) ./files/dropbear.config $(1)/etc/config/dropbear
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/dropbear.init $(1)/etc/init.d/dropbear
 	$(INSTALL_DIR) $(1)/usr/lib/opkg/info
 	$(INSTALL_DIR) $(1)/etc/dropbear
 	$(INSTALL_DIR) $(1)/lib/preinit
 	$(INSTALL_DATA) ./files/dropbear.failsafe $(1)/lib/preinit/99_10_failsafe_dropbear
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/dropbear.permtab $(1)/etc/permtab.d/dropbear
 	$(if $(CONFIG_DROPBEAR_ED25519),touch $(1)/etc/dropbear/dropbear_ed25519_host_key)
 	$(if $(CONFIG_DROPBEAR_ECC),touch $(1)/etc/dropbear/dropbear_ecdsa_host_key)
 

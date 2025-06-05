@@ -129,6 +129,7 @@ local function handle_message(mbox, i)
 
 	if size > MAX_SIZE then
 		perror(string.format("Message too big (%s bytes). Max allowed size is %d bytes", size, MAX_SIZE))
+		mbox:dele(i)
 		return
 	end
 

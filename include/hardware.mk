@@ -8,6 +8,7 @@ HW_BT_LE:=Bluetooth low energy (LE) for short range communication
 # Ethernet common
 HW_ETH_SPEED_100:=10/100 Mbps
 HW_ETH_SPEED_1000:=10/100/1000 Mbps
+HW_ETH_SPEED_2500:=100/1000/2500 Mbps
 HW_ETH_RJ45_PORTS:=x RJ45 ports
 HW_ETH_RJ45_PORT:=x RJ45 port
 HW_ETH_WAN_PORT:=x WAN port
@@ -28,7 +29,6 @@ HW_INTERFACE_RESET:=Reboot/Reset
 HW_INTERFACE_SIM_HOLDER:=x SIM slot (Mini SIM - 2FF), 1.8 V/3 V, external SIM holder
 HW_INTERFACE_SIM_HOLDERS:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, external SIM holders
 HW_INTERFACE_SIM_TRAY:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, double stacked SIM tray
-HW_INTERFACE_SIM_ESIM:=eSIM (Optional)
 HW_INTERFACE_USB:=x USB A port for external devices
 HW_INTERFACE_RS232_DB9:=x DB9 socket
 HW_INTERFACE_RS232_4PIN:=4-pin in 16-pin terminal block (TX, RX, RTS, CTS)
@@ -173,3 +173,7 @@ HW_RF_EN_301_908-2_V13.1.1:=EN 301 908-2 V13.1.1
 HW_RF_EN_301_908-13-V13.1.1:=EN 301 908-13 V13.1.1
 HW_RF_EN_301_908-1_V15.1.1:=EN 301 908-1 V15.1.1
 HW_RF_EN_301_908-13_V13.2.1:=EN 301 908-13 V13.2.1
+
+# mobile
+HW_MOBILE_ESIM_CONSTANT:=Consumer type eSIM (SGP.22), up to 7 eSIM profiles
+HW_MOBILE_ESIM_OPTIONAL:=Optional: $(HW_MOBILE_ESIM_CONSTANT)

@@ -1,7 +1,5 @@
-Index: busybox-1.34.1/Makefile
-===================================================================
---- busybox-1.34.1.orig/Makefile
-+++ busybox-1.34.1/Makefile
+--- a/Makefile
++++ b/Makefile
 @@ -600,7 +600,9 @@ libs-y		:= $(libs-y1) $(libs-y2)
  # System.map is generated to document addresses of all kernel symbols
  
@@ -13,10 +11,8 @@ Index: busybox-1.34.1/Makefile
  # Rule to link busybox - also used during CONFIG_KALLSYMS
  # May be overridden by arch/$(ARCH)/Makefile
  quiet_cmd_busybox__ ?= LINK    $@
-Index: busybox-1.34.1/loginutils/login.c
-===================================================================
---- busybox-1.34.1.orig/loginutils/login.c
-+++ busybox-1.34.1/loginutils/login.c
+--- a/loginutils/login.c
++++ b/loginutils/login.c
 @@ -47,6 +47,12 @@
  //config:	The file /etc/securetty is used by (some versions of) login(1).
  //config:	The file contains the device names of tty lines (one per line,
@@ -30,7 +26,22 @@ Index: busybox-1.34.1/loginutils/login.c
  
  //applet:/* Needs to be run by root or be suid root - needs to change uid and gid: */
  //applet:IF_LOGIN(APPLET(login, BB_DIR_BIN, BB_SUID_REQUIRE))
-@@ -69,6 +75,18 @@
+@@ -54,11 +60,13 @@
+ //kbuild:lib-$(CONFIG_LOGIN) += login.o
+ 
+ //usage:#define login_trivial_usage
+-//usage:       "[-p] [-h HOST] [[-f] USER]"
++//usage:       "[-p] [-h HOST] [-P PORT] [-R PROTO] [[-f] USER]"
+ //usage:#define login_full_usage "\n\n"
+ //usage:       "Begin a new session on the system\n"
+ //usage:     "\n	-f	Don't authenticate (user already authenticated)"
+ //usage:     "\n	-h HOST	Host user came from (for network logins)"
++//usage:     "\n	-P PORT	Port user came from (for network logins)"
++//usage:     "\n	-R PROTO	Protocol user came from (for network logins)"
+ //usage:     "\n	-p	Preserve environment"
+ //usage:     "\n"
+ //usage:     "\n$LOGIN_TIMEOUT		Seconds (default 60, 0 - disable)"
+@@ -69,6 +77,18 @@
  #include "libbb.h"
  #include "common_bufsiz.h"
  #include <syslog.h>
@@ -49,7 +60,7 @@ Index: busybox-1.34.1/loginutils/login.c
  
  #if ENABLE_SELINUX
  # include <selinux/selinux.h>  /* for is_selinux_enabled()  */
-@@ -330,6 +348,8 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -330,6 +350,8 @@ int login_main(int argc UNUSED_PARAM, ch
  	int count = 0;
  	struct passwd *pw;
  	char *opt_host = NULL;
@@ -58,7 +69,7 @@ Index: busybox-1.34.1/loginutils/login.c
  	char *opt_user = opt_user; /* for compiler */
  	char *full_tty;
  	char *short_tty;
-@@ -363,7 +383,7 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -363,7 +385,7 @@ int login_main(int argc UNUSED_PARAM, ch
  	bb_daemon_helper(DAEMON_CLOSE_EXTRA_FDS);
  
  	username[0] = '\0';
@@ -67,7 +78,7 @@ Index: busybox-1.34.1/loginutils/login.c
  	if (opt & LOGIN_OPT_f) {
  		if (!run_by_root)
  			bb_simple_error_msg_and_die("-f is for root only");
-@@ -392,9 +412,24 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -392,9 +414,16 @@ int login_main(int argc UNUSED_PARAM, ch
  	short_tty = skip_dev_pfx(full_tty);
  
  	if (opt_host) {
@@ -79,22 +90,14 @@ Index: busybox-1.34.1/loginutils/login.c
 +			ip_log += 7;
 +		}
 +
-+#ifdef CONFIG_FEATURE_IP_BLOCKD
 +		fromhost = xasprintf(" on %s (%s) from %s", opt_proto ? opt_proto : "-", short_tty, ip_log);
-+#else
-+		fromhost = xasprintf(" on %s from %s", short_tty, ip_log);
-+#endif // CONFIG_FEATURE_IP_BLOCKD
  	} else {
 -		fromhost = xasprintf(" on '%s'", short_tty);
-+#ifdef CONFIG_FEATURE_IP_BLOCKD
 +		fromhost = xasprintf(" on %s (%s)", opt_proto ? opt_proto : "-", short_tty);
-+#else
-+		fromhost = xasprintf(" on %s", short_tty);
-+#endif // CONFIG_FEATURE_IP_BLOCKD
  	}
  
  	/* Was breaking "login <username>" from shell command line: */
-@@ -402,6 +437,10 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -402,6 +431,10 @@ int login_main(int argc UNUSED_PARAM, ch
  
  	openlog(applet_name, LOG_PID | LOG_CONS, LOG_AUTH);
  
@@ -105,7 +108,7 @@ Index: busybox-1.34.1/loginutils/login.c
  	while (1) {
  		/* flush away any type-ahead (as getty does) */
  		tcflush(0, TCIFLUSH);
-@@ -485,11 +524,9 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -485,11 +518,9 @@ int login_main(int argc UNUSED_PARAM, ch
  		syslog(LOG_WARNING, "pam_%s call failed: %s (%d)", failed_msg,
  					pam_strerror(pamh, pamret), pamret);
  		login_pam_end(pamh);
@@ -117,19 +120,19 @@ Index: busybox-1.34.1/loginutils/login.c
  			goto fake_it;
  		}
  
-@@ -515,19 +552,58 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -515,19 +546,58 @@ int login_main(int argc UNUSED_PARAM, ch
  #endif /* ENABLE_PAM */
   auth_failed:
  		opt &= ~LOGIN_OPT_f;
 +#ifdef CONFIG_FEATURE_IP_BLOCKD
-+		if (opt_host) {
++		if (opt_host && opt_port) {
 +			// Fix IPv4 mapped IPv6 address
 +			char *fixed_ip = opt_host;
 +
 +			if (strncmp(fixed_ip, "::ffff:", 7) == 0) {
 +				fixed_ip += 7;
 +			}
-+			if (signal_ip_block("push", fixed_ip, NULL, opt_port)) {
++			if (signal_ip_block("push", fixed_ip, NULL, opt_port, opt_proto)) {
 +				if (ENABLE_FEATURE_CLEAN_UP)
 +					free(fromhost);
 +				destroy_lock();
@@ -157,14 +160,14 @@ Index: busybox-1.34.1/loginutils/login.c
  	} /* while (1) */
 +#ifdef CONFIG_FEATURE_IP_BLOCKD
 +	/* Tell ip_blockd to unblock host, if provided. */
-+	if (opt_host) {
++	if (opt_host && opt_port) {
 +		// Fix IPv4 mapped IPv6 address
 +		char *fixed_ip = opt_host;
  
 +		if (strncmp(fixed_ip, "::ffff:", 7) == 0) {
 +			fixed_ip += 7;
 +		}
-+		if (signal_ip_block("unblock", fixed_ip, NULL, opt_port)) {
++		if (signal_ip_block("unblock", fixed_ip, NULL, opt_port, NULL)) {
 +			if (ENABLE_FEATURE_CLEAN_UP)
 +				free(fromhost);
 +			destroy_lock();
@@ -176,7 +179,7 @@ Index: busybox-1.34.1/loginutils/login.c
  	alarm(0);
  	/* We can ignore /etc/nologin if we are logging in as root,
  	 * it doesn't matter whether we are run by root or not */
-@@ -581,7 +657,11 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -581,7 +651,11 @@ int login_main(int argc UNUSED_PARAM, ch
  		motd();
  
  	if (pw->pw_uid == 0)
@@ -188,7 +191,7 @@ Index: busybox-1.34.1/loginutils/login.c
  
  	if (ENABLE_FEATURE_CLEAN_UP)
  		free(fromhost);
-@@ -616,3 +696,35 @@ int login_main(int argc UNUSED_PARAM, ch
+@@ -616,3 +690,35 @@ int login_main(int argc UNUSED_PARAM, ch
  
  	/* return EXIT_FAILURE; - not reached */
  }
@@ -224,10 +227,8 @@ Index: busybox-1.34.1/loginutils/login.c
 +
 +}
 +#endif // CONFIG_FEATURE_IP_BLOCKD
-Index: busybox-1.34.1/networking/telnetd.c
-===================================================================
---- busybox-1.34.1.orig/networking/telnetd.c
-+++ busybox-1.34.1/networking/telnetd.c
+--- a/networking/telnetd.c
++++ b/networking/telnetd.c
 @@ -155,6 +155,9 @@ struct globals {
  	struct tsession *sessions;
  	const char *loginpath;
@@ -304,10 +305,8 @@ Index: busybox-1.34.1/networking/telnetd.c
  	if (IS_INETD) {
  		G.sessions = make_new_session(0);
  		if (!G.sessions) /* pty opening or vfork problem, exit */
-Index: busybox-1.34.1/libbb/Kbuild.src
-===================================================================
---- busybox-1.34.1.orig/libbb/Kbuild.src
-+++ busybox-1.34.1/libbb/Kbuild.src
+--- a/libbb/Kbuild.src
++++ b/libbb/Kbuild.src
 @@ -155,6 +155,7 @@ lib-$(CONFIG_SU) += pw_encrypt.o correct
  lib-$(CONFIG_LOGIN) += pw_encrypt.o correct_password.o
  lib-$(CONFIG_FEATURE_HTTPD_AUTH_MD5) += pw_encrypt.o
@@ -316,10 +315,8 @@ Index: busybox-1.34.1/libbb/Kbuild.src
  
  lib-$(CONFIG_DF) += find_mount_point.o
  lib-$(CONFIG_MKFS_MINIX) += find_mount_point.o
-Index: busybox-1.34.1/libbb/lock_manager.c
-===================================================================
 --- /dev/null
-+++ busybox-1.34.1/libbb/lock_manager.c
++++ b/libbb/lock_manager.c
 @@ -0,0 +1,87 @@
 +#include "lock_manager.h"
 +#include <semaphore.h>
@@ -408,11 +405,8 @@ Index: busybox-1.34.1/libbb/lock_manager.c
 +	destroy_lock();
 +	exit(EXIT_FAILURE);
 +}
-\ No newline at end of file
-Index: busybox-1.34.1/libbb/lock_manager.h
-===================================================================
 --- /dev/null
-+++ busybox-1.34.1/libbb/lock_manager.h
++++ b/libbb/lock_manager.h
 @@ -0,0 +1,10 @@
 +#ifndef LOCK_MANAGER_H
 +#define LOCK_MANAGER_H
@@ -424,12 +418,9 @@ Index: busybox-1.34.1/libbb/lock_manager.h
 +void cleanup(int signal);
 +
 +#endif
-\ No newline at end of file
-Index: busybox-1.34.1/libbb/ip_block.c
-===================================================================
 --- /dev/null
-+++ busybox-1.34.1/libbb/ip_block.c
-@@ -0,0 +1,166 @@
++++ b/libbb/ip_block.c
+@@ -0,0 +1,170 @@
 +#include "ip_block.h"
 +#include "lock_manager.h"
 +
@@ -559,7 +550,7 @@ Index: busybox-1.34.1/libbb/ip_block.c
 +	*blocked = blobmsg_get_u8(tb[IP_BLOCK_BLOCKED]);
 +}
 +
-+int signal_ip_block(char *op, char *ip, char *dest_ip, char *port)
++int signal_ip_block(char *op, char *ip, char *dest_ip, char *port, char *proto)
 +{
 +	acquire_lock();
 +	int ret = 0;
@@ -587,6 +578,10 @@ Index: busybox-1.34.1/libbb/ip_block.c
 +
 +	blobmsg_add_string(&buffer, "port", port);
 +
++	if (proto) {
++		blobmsg_add_string(&buffer, "proto", proto);
++	}
++
 +	ubus_invoke(&ubus_ctx, ip_block_obj, op, buffer.head, signal_ip_block_cb, &ret, 1000);
 +
 +	blob_buf_free(&buffer);
@@ -596,16 +591,12 @@ Index: busybox-1.34.1/libbb/ip_block.c
 +	release_lock();
 +	return ret;
 +}
-\ No newline at end of file
-Index: busybox-1.34.1/libbb/ip_block.h
-===================================================================
 --- /dev/null
-+++ busybox-1.34.1/libbb/ip_block.h
++++ b/libbb/ip_block.h
 @@ -0,0 +1,6 @@
 +#ifndef __IP_BLOCK_H
 +#define __IP_BLOCK_H
 +
-+int signal_ip_block(char *op, char *ip, char *dest_ip, char *port);
++int signal_ip_block(char *op, char *ip, char *dest_ip, char *port, char *proto);
 +
 +#endif
-\ No newline at end of file

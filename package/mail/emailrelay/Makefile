@@ -33,7 +33,7 @@ define Package/emailrelay
 	TITLE:=A simple SMTP proxy and MTA
 	URL:=http://emailrelay.sourceforge.net/
 	USERID:=emailrelay:emailrelay
-	CAP:=/usr/bin/emailrelay:cap_net_bind_service=ep
+  	FATTRS:=/usr/bin/emailrelay::::cap_net_bind_service=ep
 	MENU:=1
 endef
 

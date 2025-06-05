@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobutils
 
-PKG_SOURCE_VERSION:=3.13
+PKG_SOURCE_VERSION:=3.16.2
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -27,8 +27,9 @@ define Package/mobutils
 	$(call Package/mobutils/Default)
 	TITLE:=Mobile utilities
 	MENU:=1
-	USER_GROUPS:=mobutils:network gsm
-	CAP:=/usr/sbin/sms_utils:cap_net_raw,cap_dac_read_search+eip
+	USER_GROUPS:=mobutils:network gsm dropbear uhttpd gpsd rms log shadow
+	#cap_net_raw is needed for sms_utils WOL feature, cap_setuid and cap_setgid are needed for sms_utils exec feature
+	FATTRS:=/usr/sbin/sms_utils::::cap_net_raw,cap_setuid,cap_setgid+eip
 endef
 
 define Package/mobutils-call_utilities
@@ -101,9 +102,10 @@ CONFIGURE_ARGS += \
 
 
 define Package/mobutils/install
-	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/share/acl.d $(1)/etc/permtab.d
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/sms_gateway.conf $(1)/etc/config/sms_gateway
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mobutils.json $(1)/usr/share/acl.d/mobutils.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mobutils.permtab $(1)/etc/permtab.d/mobutils
 endef
 
 define Package/mobutils-call_utilities/install

@@ -13,28 +13,34 @@ validate_log_section() {
 	uci_load_validate system system "$1" "$2" \
 		'log_file:string' \
 		'log_compress:bool:1' \
-		'log_size:uinteger' \
+		'size:uinteger' \
 		'log_ip:string' \
 		'log_remote:bool:1' \
 		'log_port:port:514' \
 		'log_proto:or("tcp", "udp"):udp' \
 		'log_trailer_null:bool:0' \
 		'log_prefix:string' \
-		'log_hostname:bool:0'
+		'log_hostname:bool:0' \
+		'log_size:uinteger'
 }
 
 validate_log_daemon() {
 	uci_load_validate system system "$1" "$2" \
-		'log_size:uinteger:0' \
+		'size:uinteger:0' \
+	    'log_size:uinteger:0' \
 		'log_buffer_size:uinteger:0'
 }
 
 start_service_daemon() {
-	[ "$log_buffer_size" -eq 0 ] && [ "$log_size" -gt 0 ] && log_buffer_size=$log_size
-	[ "$log_buffer_size" -eq 0 ] && log_buffer_size=16
+	local effective_size="${size}"
+
+	[ -z "$effective_size" ] || [ "$effective_size" -eq 0 ] &&
+        effective_size="$log_buffer_size"
+
+	[ -z "$effective_size" ] && effective_size=16
 	procd_open_instance
 	procd_set_param command "/sbin/logd"
-	procd_append_param command -S "${log_buffer_size}"
+	procd_append_param command -S "${effective_size}"
 	procd_set_param respawn
 	procd_close_instance
 }
@@ -79,7 +85,11 @@ start_service_local() {
 	procd_open_instance
 	procd_set_param command "$PROG" -f -i -p "$pid_file"
 
-	[ -n "${log_size}" ] && procd_append_param command -S "$log_size"
+	local effective_size="${size}"
+	[ -z "$effective_size" ] || [ "$effective_size" -eq 0 ] &&
+        effective_size="${log_size}"
+
+	[ -n "${effective_size}" ] && procd_append_param command -S "$effective_size"
 	[ -n "${log_file}" ] && procd_append_param command -F "$log_file"
 	[[ "${log_compress}" -eq "1" && -n "${log_file}" ]] && procd_append_param command -c "$log_compress"
 	procd_set_param respawn 3600 5 0

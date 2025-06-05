@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_client
-PKG_VERSION:=2025-04-17
-PKG_SOURCE_VERSION:=7.14.2
+PKG_VERSION:=2025-05-15
+PKG_SOURCE_VERSION:=7.15
 PKG_LICENSE:=Teltonika-closed
 TARGET_CFLAGS += "-DCACHE_HASH=\\\"$(PKG_SOURCE_VERSION)\\\""
 
@@ -36,7 +36,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/lib/rpcd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_client.conf $(1)/etc/config/modbus_client
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/modbus_client.conf $(1)/etc/config/modbus_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_client.init $(1)/etc/init.d/modbus_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modbus_client $(1)/usr/sbin/modbus_client
 	$(CP) $(PKG_BUILD_DIR)/libalarms.so $(1)/usr/lib/libalarms.so

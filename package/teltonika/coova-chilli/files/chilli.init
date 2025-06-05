@@ -185,6 +185,8 @@ set_chilli() {
 					[ -n "$sslca" ] && {
 						local fullchain="${WORKING_DIR}/chilli_${CONFIG_SECTION}_cert.pem"
 						cat "$sslcert" "$sslca" > "$fullchain"
+						chown chilli:chilli "$fullchain"
+						chmod 0660 "$fullchain"
 						uci_set uhttpd hotspot cert "$fullchain"
 					} || {
 						uci_set uhttpd hotspot cert "$sslcert"
@@ -500,7 +502,7 @@ start_chilli() {
 
 	config_get uamdomainfile "$cfg" "uamdomainfile"
 
-	for wifi_id in $(ubus call network.wireless status | jsonfilter -e @[*].interfaces[@].config.wifi_id); do
+	for wifi_id in $(ubus call network.wireless status | jsonfilter -e @[@.up=true].interfaces[@].config.wifi_id); do
 		[ "$wifi_id" = "$network" ] && int=1
 	done
     

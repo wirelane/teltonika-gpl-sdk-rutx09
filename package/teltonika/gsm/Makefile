@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=7.14.3
+PKG_SOURCE_VERSION:=7.15.0.2
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \
@@ -22,6 +22,7 @@ define Package/gsmd
 	TITLE:=Simple server to route AT commands to modem
 	DEPENDS:= +libubus +libubox +libblobmsg-json +modems +kmod-usb-serial-option +libmnfinfo
 	USERID:=gsm=509:gsm=509
+	USER_GROUPS:=gsm:gpio
 endef
 
 define Package/gsmctl

@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=impulse-counter
-PKG_VERSION:=2025-04-15
-PKG_SOURCE_VERSION:=7.14
+PKG_VERSION:=2025-05-15
+PKG_SOURCE_VERSION:=7.15
 PKG_LICENSE:=Teltonika-closed
 
 
@@ -14,6 +14,7 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Base system
 	TITLE:=Impulse counter
 	DEPENDS:=+libubox +libuci +libtlt_uci +libubus +libblobmsg-json +lsqlite3 +libtlt-logger +iomand
+	USERID:=icounter=592:icounter=592
 endef
 
 define Package/$(PKG_NAME)/description
@@ -26,10 +27,12 @@ define Package/$(PKG_NAME)/conffiles
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config $(1)/usr/share/acl.d $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/impulse_counter $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/impulse_counter.init $(1)/etc/init.d/impulse_counter
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/impulse_counter.conf $(1)/etc/config/impulse_counter
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/impulse_counter.json $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/impulse_counter.permtab $(1)/etc/permtab.d/impulse_counter
 endef
 
 define Package/$(PKG_NAME)/postinst

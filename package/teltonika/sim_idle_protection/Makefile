@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sim_idle_protection
 
-PKG_SOURCE_VERSION:=7.14
+PKG_SOURCE_VERSION:=7.15
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -13,6 +13,7 @@ define Package/$(PKG_NAME)
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=sim idle protection
+	USERID:=sim_idle_protection=574:sim_idle_protection=574
 endef
 
 define Package/$(PKG_NAME)/description
@@ -29,15 +30,7 @@ define Package/sim_idle_protection/postinst
 	#!/bin/sh
 	. /lib/functions.sh
 
-	setup_sim_idle_permissions() {
-		chown gsm:gsm /etc/config/sim_idle_protection 2>/dev/null
-		chown gsm:gsm /tmp/.uci/sim_idle_protection 2>/dev/null
-		chmod 660 /etc/config/sim_idle_protection 2>/dev/null
-		chmod 660 /tmp/.uci/sim_idle_protection 2>/dev/null
-		return 0
-	}
-
-	[[ -s "/etc/config/sim_idle_protection" ]] && setup_sim_idle_permissions && return 0
+	[[ -s "/etc/config/sim_idle_protection" ]] && return 0
 
 	touch /etc/config/sim_idle_protection
 
@@ -67,7 +60,6 @@ define Package/sim_idle_protection/postinst
 
 	config_load simcard
 	config_foreach add_sim_idle_protection_config sim
-	setup_sim_idle_permissions
 
 	# TODO: #24098
 	chown 100:users /etc/config
@@ -79,16 +71,18 @@ endef
 define Package/$(PKG_NAME)/prerm
     #!/bin/sh
 	[[ -s "/etc/config/sim_idle_protection" ]] && rm -f /etc/config/sim_idle_protection
+	[[ -s "/etc/crontabs/sim_idle_protection" ]] && rm -f /etc/crontabs/sim_idle_protection
+	[[ -s "/etc/permtab.d/sim_idle_protection" ]] && rm -f /etc/permtab.d/sim_idle_protection
 	[[ -x "/bin/trigger_vuci_routes_reload" ]] && /bin/trigger_vuci_routes_reload
 endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/etc/init.d/
-	$(INSTALL_DIR) $(1)/sbin/
-	$(INSTALL_DIR) $(1)/etc/config/
+	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/permtab.d/ $(1)/sbin/ $(1)/etc/config/ $(1)/usr/share/acl.d/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/sim_idle_protection.init $(1)/etc/init.d/sim_idle_protection
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/sim_idle_protection.sh $(1)/sbin/sim_idle_protection.sh
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/sim_idle_protection.json $(1)/usr/share/acl.d/sim_idle_protection.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/sim_idle_protection $(1)/etc/permtab.d/sim_idle_protection
 endef
 
 $(eval $(call BuildPackage,sim_idle_protection))

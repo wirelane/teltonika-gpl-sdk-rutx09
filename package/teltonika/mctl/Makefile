@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mctl
 
-PKG_SOURCE_VERSION:=4.10
+PKG_SOURCE_VERSION:=4.11.1
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,6 +16,7 @@ define Package/modem_trackd
 	CATEGORY:=Utilities
 	TITLE:=Simple server to track modem state. Created by Teltonika
 	DEPENDS:=+libubus +libubox +libboardjson +libuci +libmctl
+	USERID:=mctl:mctl
 endef
 
 define Package/mctl
@@ -58,13 +59,14 @@ define Package/libmctl/install
 endef
 
 define Package/modem_trackd/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/hotplug.d/mctl/
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/hotplug.d/mctl/ $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modem_trackd $(1)/usr/sbin/modem_trackd
 
 	if [ $(CONFIG_MODEM_RESET_QUIRK) ]; then \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/track_timeout.hotplug $(1)/etc/hotplug.d/mctl/01-mctl-event; \
 	fi;
 
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/mctl.json $(1)/usr/share/acl.d/mctl.json
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modem_trackd.init $(1)/etc/init.d/modem_trackd
 endef
 

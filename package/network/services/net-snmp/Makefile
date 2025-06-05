@@ -92,7 +92,7 @@ $(call Package/net-snmp/Default)
   TITLE:=Open source SNMP implementation (daemon)
   USERID:=snmpd=545:snmpd=545
   USER_GROUPS:=snmpd:chilli gsm network
-  CAP:=/usr/sbin/snmpd:cap_net_bind_service=ep
+  FATTRS:=/usr/sbin/snmpd::::cap_net_bind_service=ep
 endef
 
 define Package/snmpd/description

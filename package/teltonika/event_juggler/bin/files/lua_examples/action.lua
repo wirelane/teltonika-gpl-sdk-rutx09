@@ -13,7 +13,7 @@
 --or a non-zero value to indicate that an error occurred.
 function handle_action(env)
     --E.g the log event provides event.text, and event.type fields
-    os.execute("echo '" .. env["event.text"] .. "' > /tmp/dump")
+    os.execute("echo '" .. env["event.text"] .. "' > /var/run/juggler/dump")
 
     return 0;
 end

@@ -1,6 +1,8 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2010 OpenWrt.org
 
+. /lib/functions/network.sh
+
 PROG=/usr/bin/minidlna
 [ -x "$PROG" ] || PROG="/usr/local$PROG"
 USE_PROCD=1
@@ -40,21 +42,29 @@ minidlna_cfg_add_media_dir() {
 	minidlna_cfg_append "media_dir=$val"
 }
 
+get_device_name() {
+    local interface="$1"
+    local device
+    network_get_device device "$interface"_4
+    [ -f "$device" ] && echo "$device" || echo "$interface"
+}
+
 minidlna_create_config() {
 	local cfg=$1
 	local port
 	local interface
+	local device_ifname
 
 	config_get port "$cfg" port
 	config_get interface "$cfg" interface
 
 	[ -z "$interface" -o -t "$port" ] && return 1
-
+	device_ifname=$(get_device_name "$interface")
 	mkdir -p /var/etc
 	echo "# this file is generated automatically, don't edit" > "$MINIDLNA_CONFIG_FILE"
 
 	minidlna_cfg_append "port=$port"
-	minidlna_cfg_append "network_interface=$interface"
+	minidlna_cfg_append "network_interface=$device_ifname"
 
 	minidlna_cfg_addstr "$cfg" friendly_name
 	minidlna_cfg_addstr "$cfg" user

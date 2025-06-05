@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/hostapd/radius.c src/hostapd/radius.c
 --- upstream/hostapd/radius.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/hostapd/radius.c	2025-05-22 11:47:36.369499775 +0000
++++ src/hostapd/radius.c	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,715 @@
 +#include "utils/includes.h"
 +#include "utils/common.h"
@@ -719,7 +719,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ubus.c src/src/ap/ubus.c
 --- upstream/src/ap/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ubus.c	2025-05-22 11:47:36.369499775 +0000
++++ src/src/ap/ubus.c	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,2048 @@
 +/*
 + * hostapd / ubus support
@@ -2771,7 +2771,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ubus.h src/src/ap/ubus.h
 --- upstream/src/ap/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ubus.h	2025-05-22 11:47:36.369499775 +0000
++++ src/src/ap/ubus.h	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,154 @@
 +/*
 + * hostapd / ubus support
@@ -2929,8 +2929,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ucode.c src/src/ap/ucode.c
 --- upstream/src/ap/ucode.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ucode.c	2025-05-22 11:47:36.369499775 +0000
-@@ -0,0 +1,828 @@
++++ src/src/ap/ucode.c	2025-06-04 13:22:41.313933968 +0000
+@@ -0,0 +1,827 @@
 +#include <sys/un.h>
 +
 +#include "utils/includes.h"
@@ -3711,7 +3711,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +void hostapd_ucode_free_iface(struct hostapd_iface *iface)
 +{
 +	ucv_put(wpa_ucode_registry_remove(iface_registry, iface->ucode.idx));
-+	ucv_gc(vm);
 +}
 +
 +void hostapd_ucode_add_bss(struct hostapd_data *hapd)
@@ -3761,7 +3760,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ucode.h src/src/ap/ucode.h
 --- upstream/src/ap/ucode.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ucode.h	2025-05-22 11:47:36.369499775 +0000
++++ src/src/ap/ucode.h	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,54 @@
 +#ifndef __HOSTAPD_AP_UCODE_H
 +#define __HOSTAPD_AP_UCODE_H
@@ -3819,7 +3818,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils/build_features.h src/src/utils/build_features.h
 --- upstream/src/utils/build_features.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils/build_features.h	2025-05-22 11:47:36.373499724 +0000
++++ src/src/utils/build_features.h	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,65 @@
 +#ifndef BUILD_FEATURES_H
 +#define BUILD_FEATURES_H
@@ -3888,7 +3887,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif /* BUILD_FEATURES_H */
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils/ucode.c src/src/utils/ucode.c
 --- upstream/src/utils/ucode.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils/ucode.c	2025-05-22 11:47:36.373499724 +0000
++++ src/src/utils/ucode.c	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,335 @@
 +#include <unistd.h>
 +#include "ucode.h"
@@ -4004,7 +4003,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	ucv_object_add(ret, "op_class", ucv_int64_new(op_class));
 +	ucv_object_add(ret, "channel", ucv_int64_new(channel));
 +	ucv_object_add(ret, "hw_mode", ucv_int64_new(hw_mode));
-+	ucv_object_add(ret, "hw_mode_str", ucv_get(ucv_string_new(modestr)));
++	ucv_object_add(ret, "hw_mode_str", ucv_string_new(modestr));
 +	ucv_object_add(ret, "sec_channel", ucv_int64_new(sec_channel));
 +	ucv_object_add(ret, "frequency", ucv_int64_new(freq_val));
 +
@@ -4227,7 +4226,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils/ucode.h src/src/utils/ucode.h
 --- upstream/src/utils/ucode.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils/ucode.h	2025-05-22 11:47:36.373499724 +0000
++++ src/src/utils/ucode.h	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,29 @@
 +#ifndef __HOSTAPD_UTILS_UCODE_H
 +#define __HOSTAPD_UTILS_UCODE_H
@@ -4260,7 +4259,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ubus.c src/wpa_supplicant/ubus.c
 --- upstream/wpa_supplicant/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ubus.c	2025-05-22 11:47:36.373499724 +0000
++++ src/wpa_supplicant/ubus.c	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,529 @@
 +/*
 + * wpa_supplicant / ubus support
@@ -4793,7 +4792,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif /* CONFIG_WPS */
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ubus.h src/wpa_supplicant/ubus.h
 --- upstream/wpa_supplicant/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ubus.h	2025-05-22 11:47:36.373499724 +0000
++++ src/wpa_supplicant/ubus.h	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,89 @@
 +/*
 + * wpa_supplicant / ubus support
@@ -4886,8 +4885,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ucode.c src/wpa_supplicant/ucode.c
 --- upstream/wpa_supplicant/ucode.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ucode.c	2025-05-22 11:47:36.373499724 +0000
-@@ -0,0 +1,298 @@
++++ src/wpa_supplicant/ucode.c	2025-06-04 13:22:41.313933968 +0000
+@@ -0,0 +1,297 @@
 +#include "utils/includes.h"
 +#include "utils/common.h"
 +#include "utils/ucode.h"
@@ -4938,7 +4937,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	if (wpa_ucode_call_prepare("iface_add"))
 +		return;
 +
-+	uc_value_push(ucv_get(ucv_string_new(wpa_s->ifname)));
++	uc_value_push(ucv_string_new(wpa_s->ifname));
 +	uc_value_push(ucv_get(wpas_ucode_iface_get_uval(wpa_s)));
 +	ucv_put(wpa_ucode_call(2));
 +	ucv_gc(vm);
@@ -4956,7 +4955,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	if (wpa_ucode_call_prepare("iface_remove"))
 +		return;
 +
-+	uc_value_push(ucv_get(ucv_string_new(wpa_s->ifname)));
++	uc_value_push(ucv_string_new(wpa_s->ifname));
 +	uc_value_push(ucv_get(val));
 +	ucv_put(wpa_ucode_call(2));
 +	ucv_gc(vm);
@@ -4975,9 +4974,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return;
 +
 +	state = wpa_supplicant_state_txt(wpa_s->wpa_state);
-+	uc_value_push(ucv_get(ucv_string_new(wpa_s->ifname)));
++	uc_value_push(ucv_string_new(wpa_s->ifname));
 +	uc_value_push(ucv_get(val));
-+	uc_value_push(ucv_get(ucv_string_new(state)));
++	uc_value_push(ucv_string_new(state));
 +	ucv_put(wpa_ucode_call(3));
 +	ucv_gc(vm);
 +}
@@ -4997,9 +4996,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	if (wpa_ucode_call_prepare("event"))
 +		return;
 +
-+	uc_value_push(ucv_get(ucv_string_new(wpa_s->ifname)));
++	uc_value_push(ucv_string_new(wpa_s->ifname));
 +	uc_value_push(ucv_get(val));
-+	uc_value_push(ucv_get(ucv_string_new(event_to_string(event))));
++	uc_value_push(ucv_string_new(event_to_string(event)));
 +	val = ucv_object_new(vm);
 +	uc_value_push(ucv_get(val));
 +
@@ -5101,15 +5100,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +{
 +	struct wpa_supplicant *wpa_s = uc_fn_thisval("wpas.iface");
 +	struct wpa_bss *bss;
-+	uc_value_t *ret, *val;
++	uc_value_t *ret;
 +
 +	if (!wpa_s)
 +		return NULL;
 +
 +	ret = ucv_object_new(vm);
 +
-+	val = ucv_string_new(wpa_supplicant_state_txt(wpa_s->wpa_state));
-+	ucv_object_add(ret, "state", ucv_get(val));
++	ucv_object_add(ret, "state", ucv_string_new(wpa_supplicant_state_txt(wpa_s->wpa_state)));
 +
 +	bss = wpa_s->current_bss;
 +	if (bss) {
@@ -5188,7 +5186,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ucode.h src/wpa_supplicant/ucode.h
 --- upstream/wpa_supplicant/ucode.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ucode.h	2025-05-22 11:47:36.373499724 +0000
++++ src/wpa_supplicant/ucode.h	2025-06-04 13:22:41.313933968 +0000
 @@ -0,0 +1,49 @@
 +#ifndef __WPAS_UCODE_H
 +#define __WPAS_UCODE_H

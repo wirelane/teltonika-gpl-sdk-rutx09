@@ -7,11 +7,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zerotier
 PKG_VERSION:=1.14.0
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_VERSION)?
+PKG_SOURCE_VERSION:=1.14.0
+PKG_SOURCE:=zerotier-$(PKG_SOURCE_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_SOURCE_VERSION)?
 PKG_HASH:=7191623a81b0d1b552b9431e8864dd3420783ee518394ac1376cee6aaf033291
 
 PKG_MAINTAINER:=Moritz Warning <moritzwarning@web.de>
@@ -70,7 +71,7 @@ define Package/zerotier/conffiles
 endef
 
 define Package/zerotier/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-cli
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-idtool
@@ -82,6 +83,7 @@ endif
 
 	$(CP) ./files/etc/init.d $(1)/etc/
 	$(INSTALL_BIN) ./files/etc/mwan3/mwan3.zerotier $(1)/etc/mwan3/
+	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.15/99_zerotier_device_name
 endef
 
 define Package/zerotier/prerm

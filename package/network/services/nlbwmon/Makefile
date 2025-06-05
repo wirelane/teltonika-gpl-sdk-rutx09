@@ -30,7 +30,7 @@ define Package/nlbwmon
   CATEGORY:=Network
   DEPENDS:=+libubox +libnl-tiny +zlib +kmod-nf-conntrack-netlink +libsqlite3
   TITLE:=OpenWrt Traffic Usage Monitor
-  CAP:=/usr/sbin/nlbwmon:cap_net_admin=ep
+  FATTRS:=/usr/sbin/nlbwmon::::cap_net_admin=ep
   USERID:=nlbwmon=546:nlbwmon=546
 endef
 

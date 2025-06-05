@@ -1,7 +1,5 @@
-Index: procd-2021-02-23-37eed131/service/trigger.c
-===================================================================
---- procd-2021-02-23-37eed131.orig/service/trigger.c
-+++ procd-2021-02-23-37eed131/service/trigger.c
+--- a/service/trigger.c
++++ b/service/trigger.c
 @@ -166,7 +166,7 @@ static void trigger_command_add(struct t
  		}
  

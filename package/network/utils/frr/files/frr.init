@@ -118,8 +118,6 @@ daemons_check_enabled() {
 }
 
 daemons_launch() {
-
-
 	# Checks daemons_enabled variable and if not empty launches Zebra and Staticd
 	# Loops through daemons_enabled variable and launches enabled daemons one by one
 	local daemon
@@ -200,6 +198,22 @@ enable_debug() {
 		done
 	echo "" >> "${BASE_DIR}/${daemon}.conf"
 	done
+}
+
+check_interface() {
+	[ -n "$2" ] || return 0
+	interface="$2"
+	local var="$1" temp_mob
+	local service="$3"
+	for i in $interface; do
+		config_load network
+		config_get proto "$i" "proto"
+		[ "$proto" = "wwan" ] || continue
+		network_get_device "temp_mob" "${i}_4" || network_get_device "$temp_mob" "${i}_6";
+		eval "$var=\"\${$var//\$i/}\""
+		append "$var" "$temp_mob"
+	done
+	config_load "$service"
 }
 
 add_interface_trigger() {
@@ -527,6 +541,7 @@ rip_parse_interface() {
 
 	config_get passive_interface "$section" passive_interface "0"
 	config_get ifname            "$section" ifname
+	check_interface ifname "$ifname" "rip"
 
 	xappend      "$CONFIG_FILE_RIP" "network" "$ifname"
 	xappend_bool "$CONFIG_FILE_RIP" "$passive_interface" "passive-interface $ifname"
@@ -548,6 +563,7 @@ rip_parse_access_list() {
 	config_get net       "$section" net
 	config_get direction "$section" direction
 	config_get interface "$target"  ifname
+	check_interface interface "$interface" "rip"
 
 	xappend        "$CONFIG_FILE_RIP" "distribute-list" "${target:+${target}_${direction}}" "$direction" "$interface"
 	xappend_to_var "rip_acl" "access-list" "${target:+${target}_${direction}}" "$action" "$net"
@@ -587,6 +603,8 @@ ospf_parse_general(){
 	config_get id             "$section" id
 	config_get originate      "$section" originate ""
 	config_get passive_ifname "$section" passive_ifname
+	check_interface passive_ifname "$passive_ifname" "ospf"
+
 	config_get redistribute   "$section" redistribute
 	config_get mpls_ldp_sync  "$section" mpls_ldp_sync
 
@@ -680,6 +698,8 @@ ospf_parse_interface() {
 	config_get authentication      "$section" authentication
 	config_get password            "$section" password
 	config_get ifname              "$section" ifname
+	check_interface ifname "$ifname" "ospf"
+
 	config_get id                  "$section" id
 
 	xappend "$CONFIG_FILE_OSPF" "interface" "$ifname"
@@ -801,8 +821,8 @@ nhrp_parse_instance(){
 	config_get interface      "$section" interface
 	config_get redirect       "$section" redirect
 
-	[ -n "ipsec_instance" ] && ipsec_instance=${ipsec_instance#*-}
-
+	[ -n "$ipsec_instance" ] && ipsec_instance=${ipsec_instance#*-}
+	check_interface interface "$interface" "nhrp"
 	xappend      "$CONFIG_FILE_NHRP" "interface" "$interface"
 	xappend      "$CONFIG_FILE_NHRP" "ip nhrp cisco-authentification" "$auth"
 	xappend      "$CONFIG_FILE_NHRP" "ip nhrp network-id" "$network_id"
@@ -883,6 +903,7 @@ ldp_parse_general() {
 	config_get id "$section" id
 	config_get transport_address "$section" transport_address
 	config_get interface "$section" interface
+	check_interface interface "$interface" "ldp"
 
 	xappend      "$CONFIG_FILE_LDP" "mpls ldp"
 	xappend      "$CONFIG_FILE_LDP" "router-id" "$id"
@@ -935,6 +956,7 @@ static_parse_route() {
 
 	config_get network "$section" network
 	config_get interface "$section" interface
+	check_interface interface "$interface" "static"
 	config_get gateway "$section" gateway
 	config_get distance "$section" distance
 

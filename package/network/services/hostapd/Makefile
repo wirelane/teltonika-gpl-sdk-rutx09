@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=11
+PKG_RELEASE:=12
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=e5ccbfc69ecf297590341ae8b461edba9d8e964c
@@ -90,8 +90,8 @@ endif
 CORE_DEPENDS = +ucode +libubus +libucode +ucode-mod-fs +ucode-mod-nl80211 +ucode-mod-rtnl +ucode-mod-ubus +ucode-mod-uloop +libblobmsg-json
 
 DRIVER_MAKEOPTS= \
-	CONFIG_ACS=$(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515)) \
-	CONFIG_DRIVER_NL80211=$(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515)) \
+	CONFIG_ACS=$(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515),$(CONFIG_PACKAGE_kmod-cfg80211_66)) \
+	CONFIG_DRIVER_NL80211=$(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515),$(CONFIG_PACKAGE_kmod-cfg80211_66)) \
 	CONFIG_IEEE80211N=$(HOSTAPD_IEEE80211N) \
 	CONFIG_IEEE80211AC=$(HOSTAPD_IEEE80211AC) \
 	CONFIG_IEEE80211AX=$(HOSTAPD_IEEE80211AX) \
@@ -135,6 +135,7 @@ define Package/hostapd/Default
   PROVIDES:=hostapd
   CONFLICTS:=$(HOSTAPD_PROVIDERS)
   HOSTAPD_PROVIDERS+=$(1)
+  USERID:=network:network
 endef
 
 define Package/hostapd
@@ -211,6 +212,8 @@ define Package/wpad/Default
   CONFLICTS:=$(HOSTAPD_PROVIDERS) $(SUPPLICANT_PROVIDERS)
   HOSTAPD_PROVIDERS+=$(1)
   SUPPLICANT_PROVIDERS+=$(1)
+  USERID:=network:network
+  FATTRS:=/usr/sbin/wpad::::cap_net_bind_service,cap_net_raw,cap_net_admin+ep
 endef
 
 define Package/wpad
@@ -295,6 +298,7 @@ define Package/wpa-supplicant/Default
   PROVIDES:=wpa-supplicant
   CONFLICTS:=$(SUPPLICANT_PROVIDERS)
   SUPPLICANT_PROVIDERS+=$(1)
+  USERID:=network:network
 endef
 
 define Package/wpa-supplicant
@@ -438,7 +442,7 @@ TARGET_CPPFLAGS := \
 
 TARGET_LDFLAGS += -lubox -lubus -llog -lblobmsg_json -lucode
 
-ifneq ($(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515)),)
+ifneq ($(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515),$(CONFIG_PACKAGE_kmod-cfg80211_66)),)
   TARGET_LDFLAGS += -lm -lnl-tiny
 endif
 
@@ -541,7 +545,7 @@ define Install/supplicant
 endef
 
 define Package/hostapd-common/install
-	$(INSTALL_DIR) $(1)/etc/capabilities $(1)/etc/rc.button $(1)/etc/hotplug.d/ieee80211 $(1)/etc/init.d $(1)/lib/netifd  $(1)/usr/share/acl.d $(1)/usr/share/hostap $(1)/etc/hotplug.d/iface $(1)/usr/share/hostap
+	$(INSTALL_DIR) $(1)/etc/capabilities $(1)/etc/rc.button $(1)/etc/hotplug.d/ieee80211 $(1)/etc/init.d $(1)/lib/netifd  $(1)/usr/share/acl.d $(1)/usr/share/hostap $(1)/etc/hotplug.d/iface $(1)/usr/share/hostap $(1)/etc/uci-defaults/7.15/
 	$(INSTALL_BIN) ./files/dhcp-get-server.sh $(1)/lib/netifd/dhcp-get-server.sh
 	$(INSTALL_BIN) ./files/wpad.init $(1)/etc/init.d/wpad
 	$(if $(CONFIG_WPS_SUPPORT),\
@@ -550,6 +554,7 @@ define Package/hostapd-common/install
 	$(INSTALL_DATA) ./files/wpad.json $(1)/etc/capabilities
 	$(INSTALL_BIN) ./files/wdev.uc $(1)/usr/share/hostap
 	$(INSTALL_BIN) ./files/common.uc $(1)/usr/share/hostap
+	$(INSTALL_BIN) ./files/defaults/99_chown_wifi_certs $(1)/etc/uci-defaults/7.15/99_chown_wifi_certs
 endef
 
 define Package/hostapd/install

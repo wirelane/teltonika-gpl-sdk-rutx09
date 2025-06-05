@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=blesemd
-PKG_SOURCE_VERSION:=7.14
+PKG_SOURCE_VERSION:=7.15
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,8 +16,8 @@ define Package/blesemd
 	CATEGORY:=Base system
 	TITLE:=Bluetooth Low Energy Sensor management daemon
 	DEPENDS:=+libubus +libuci +libblobmsg-json +bluez-libs +lsqlite3
+	FATTRS:=/usr/bin/blesemd::::cap_net_raw,cap_net_admin+eip
 	USERID:=blesemd=527:blesemd=527
-	CAP:=/usr/bin/blesemd:cap_net_raw,cap_net_admin+eip
 endef
 
 define Package/blesemd/description

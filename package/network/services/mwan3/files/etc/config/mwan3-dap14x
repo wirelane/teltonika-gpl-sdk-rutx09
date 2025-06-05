@@ -8,7 +8,7 @@ config interface 'dhcp'
 	option family 'ipv4'
 
 config condition
-	option interface 'dchp'
+	option interface 'dhcp'
 	option track_method 'ping'
 	list track_ip '1.1.1.1'
 	list track_ip '8.8.8.8'

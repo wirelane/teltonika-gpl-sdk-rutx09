@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
 PKG_VERSION:=1.34.1
-PKG_RELEASE:=$(AUTORELEASE).7
+PKG_RELEASE:=$(AUTORELEASE).12
 PKG_FLAGS:=essential
 
 PKG_SOURCE_VERSION:=1.34.1
@@ -46,9 +46,8 @@ define Package/busybox/Default
   TITLE:=Core utilities for embedded Linux
   URL:=http://busybox.net/
   DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
-  USERID:=ntp=547:ntp=547
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_FEATURE_SUID),)
-  SUID:=/bin/busybox:root
+  FATTRS:=/bin/busybox:root::y:
 endif
 endef
 
@@ -63,7 +62,7 @@ define Package/telnet
   TITLE:=Telnet server
   DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
   USERID:=telnetd:telnetd
-  CAP:=/usr/sbin/telnetd:cap_net_bind_service=ep
+  FATTRS:=/usr/sbin/telnetd::::cap_net_bind_service=ep
 endef
 
 define Package/busybox/description
@@ -88,6 +87,18 @@ define Package/busybox/conffiles
 ifdef CONFIG_BUSYBOX_CONFIG_FEATURE_SYSLOG
 /etc/syslog.conf
 endif
+endef
+
+define Package/untpd
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=Stripped down NTPD (busybox) version
+  USERID:=ntp=547:ntp=547
+  FATTRS:=/usr/sbin/untpd::::cap_net_bind_service=ep
+endef
+
+define Package/untpd/conffiles
+/etc/config/ntpserver
 endef
 
 ifndef CONFIG_USE_MUSL
@@ -146,11 +157,11 @@ define Build/Compile
 	cp busybox_config_TELNETD .config && \
 	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
 	mv busybox busybox_TELNETD && \
-	sed -i 's/^# CONFIG_LOGIN is not set/CONFIG_LOGIN=y/' .config || true; \
-	./make_single_applets.sh LOGIN && \
-	cp busybox_config_LOGIN .config && \
+	sed -i 's/^# CONFIG_UNTPD is not set/CONFIG_UNTPD=y/' .config || true; \
+	./make_single_applets.sh UNTPD && \
+	cp busybox_config_UNTPD .config && \
 	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
-	mv busybox busybox_LOGIN && \
+	mv busybox busybox_UNTPD; \
 	cp .config.orig .config
 endef
 
@@ -167,13 +178,18 @@ define Package/telnet/install
 	$(INSTALL_DATA) ./files/telnetd.permtab $(1)/etc/permtab.d/telnetd
 endef
 
+define Package/untpd/install
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_UNTPD $(1)/usr/sbin/untpd
+	$(INSTALL_BIN) ./files/ntpserver.init $(1)/etc/init.d/ntpserver
+	$(INSTALL_BIN) ./files/ntpserver.conf $(1)/etc/config/ntpserver
+endef
+
 define Package/busybox/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/bin
 	$(CP) $(PKG_INSTALL_DIR)/* $(1)/
-	$(INSTALL_SUID) $(PKG_BUILD_DIR)/busybox_LOGIN $(1)/bin/login
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_CROND),)
 	$(INSTALL_BIN) ./files/cron $(1)/etc/init.d/cron
 endif
@@ -188,11 +204,9 @@ ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_FEATURE_PASSWORD_POLICY),)
 	$(INSTALL_DATA) ./files/password_policy.conf $(1)/etc/config/password_policy
 	$(INSTALL_BIN) ./files/check_password_expiration.sh $(1)/etc/profile.d/check_password_expiration.sh
 endif
-	$(if $(CONFIG_BUSYBOX_CONFIG_NTPD),\
-		$(INSTALL_BIN) ./files/ntpserver.init $(1)/etc/init.d/ntpserver; \
-		$(INSTALL_BIN) ./files/ntpserver.conf $(1)/etc/config/ntpserver)
 	-rm -rf $(1)/lib64
 endef
 
 $(eval $(call BuildPackage,telnet))
+$(eval $(call BuildPackage,untpd))
 $(eval $(call BuildPackage,busybox))

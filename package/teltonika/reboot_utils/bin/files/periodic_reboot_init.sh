@@ -4,28 +4,7 @@
 
 CRONTAB_FILE='/etc/crontabs/preboot'
 IDENTIFYING_STRING='# periodic_reboot'
-
-get_reboot_type() {
-    local section_id=$1
-    local action
-    local modem
-
-    config_get action "$section_id" action
-    [ -z "$action" ] && logger -t "periodic_reboot" "No 'action' option"
-
-    case $action in
-        1)
-
-            reboot="ubus call sys reboot '{\"args\": [\"-e\"]}'"
-        ;;
-        2)
-            config_get modem "$section_id" modem
-            reboot="/usr/sbin/reboot_modem.sh $modem"
-        ;;
-    esac
-
-    echo $reboot
-}
+REBOOT_SCRIPT='/usr/libexec/reboot_utils/periodic_reboot.sh'
 
 get_month_last_day() {
     [ "$#" -ne 1 ] && return 0
@@ -91,7 +70,6 @@ generate_weekly_crontab_rule() {
 
 generate_instance() {
     local enable
-    local reboot=""
     local period="week"
     local time
     local days
@@ -102,15 +80,13 @@ generate_instance() {
     config_get enable "$1" enable 0
     [ "$enable" -eq 1 ] || return
 
-    reboot=$( get_reboot_type $1 )
-
     config_get period "$1" period
     case $period in
         week)
             config_get days "$1" days
             [[ -z "$days" ]] && logger -t "periodic_reboot" "No 'days' option" && return
 
-            config_list_foreach "$1" "time" generate_weekly_crontab_rule "$days" "$reboot"
+            config_list_foreach "$1" "time" generate_weekly_crontab_rule "$days" "$REBOOT_SCRIPT $1"
         ;;
         month)
             config_get force_last "$1" force_last $force_last
@@ -120,7 +96,7 @@ generate_instance() {
             config_get months "$1" months
             [[ -z "$months" ]] && logger -t "periodic_reboot" "No 'months' option" && return
 
-            config_list_foreach "$1" "time" generate_monthly_crontab_rule "$reboot" "$month_day" "$months" "$force_last"
+            config_list_foreach "$1" "time" generate_monthly_crontab_rule "$REBOOT_SCRIPT $1" "$month_day" "$months" "$force_last"
         ;;
     esac
 }

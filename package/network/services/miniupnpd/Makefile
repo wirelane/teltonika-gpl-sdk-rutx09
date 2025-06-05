@@ -38,7 +38,7 @@ define Package/miniupnpd
   SUBMENU:=Firewall
   URL:=https://miniupnp.tuxfamily.org/
   USERID:=upnpd=544:upnpd=544
-  CAP:=/usr/sbin/miniupnpd:cap_net_broadcast,cap_net_admin,cap_net_raw,cap_net_bind_service=ep
+  FATTRS:=/usr/sbin/miniupnpd::::cap_net_broadcast,cap_net_admin,cap_net_raw,cap_net_bind_service=ep
 endef
 
 define Package/miniupnpd/description

@@ -35,8 +35,13 @@
 				"get_serving_cell",
 				"get_imsi",
 				"get_neighbour_cells",
+				"get_default_modem_func",
 				"change_sim_slot",
-				"send_sms"
+				"set_sim_slot",
+				"send_sms",
+				"send_voice_call",
+				"get_func",
+				"set_func"
 			]
 		},
 		"ioman.*": {
@@ -44,7 +49,8 @@
 				"status",
 				"location",
 				"update",
-				"invert_value"
+				"invert_value",
+				"invert_state"
 			]
 		},
 		"gpsd": {
@@ -74,6 +80,12 @@
 				"dump"
 			]
 		},
+		"network.wireless": {
+			"methods": [
+				"up",
+				"down"
+			]
+		},
 		"data_sender.*": {
 			"methods": [
 				"send"
@@ -94,10 +106,10 @@
 				"reload_config"
 			]
 		},
-		"sys": {
+		"rpc-sys": {
 			"methods": [
-				"reboot",
-				"poweroff"
+				"poweroff",
+				"reboot"
 			]
 		},
 		"rut_fota" : {
@@ -108,6 +120,11 @@
 		"rms" : {
 			"methods": [
 				"get_status"
+			]
+		},
+		"mctl" : {
+			"methods": [
+				"reboot"
 			]
 		}
 	}

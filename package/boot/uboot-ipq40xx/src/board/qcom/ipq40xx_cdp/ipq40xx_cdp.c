@@ -1759,6 +1759,11 @@ void set_led_configuration(void)
 					RUTX50_5G_LED, RUTX50_SSID_1_LED, RUTX50_SSID_2_LED,
 					RUTX50_SSID_3_LED};
 
+	u32 rutx50_V4_led_animation_conf[] = {RUTX50_V4_SIM1_LED, RUTX50_V4_SIM2_LED, RUTX50_V4_WAN_WIFI_WIFI_24_LED,
+					RUTX50_V4_WAN_ETH_WIFI_5_LED, RUTX50_V4_3G_LED, RUTX50_V4_4G_LED,
+					RUTX50_V4_5G_LED, RUTX50_V4_SSID_1_LED, RUTX50_V4_SSID_2_LED,
+					RUTX50_V4_SSID_3_LED};
+
 	const char *shiftreg_models[] = {"RUTX09", "RUTX10", "RUTX11", "RUTX12",
 					"RUTX14", "RUTXR1", "RUTX50"};
 
@@ -1799,9 +1804,17 @@ void set_led_configuration(void)
 		shiftreg_all_led_on = RUTXR1_ALL_LED_ON;
 		shiftreg_all_led_off = RUTXR1_ALL_LED_OFF;
 	} else if (!strncmp(mnf_name, shiftreg_models[6], 6)) {
-		shiftreg_array_copy(rutx50_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx50_led_animation_conf));
-		shiftreg_all_led_on = RUTX50_ALL_LED_ON;
-		shiftreg_all_led_off = RUTX50_ALL_LED_OFF;
+		if (hwver >= 400) {
+			gpio_set_value(SHIFTREG_ENABLE, GPIO_OUT_LOW);
+			gpio_tlmm_config(SHIFTREG_ENABLE, 0, 0, 0, 0, 1, 0, 0, 0);
+			shiftreg_array_copy(rutx50_V4_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx50_V4_led_animation_conf));
+			shiftreg_all_led_on = RUTX50_V4_ALL_LED_ON;
+			shiftreg_all_led_off = RUTX50_V4_ALL_LED_OFF;
+		} else {
+			shiftreg_array_copy(rutx50_led_animation_conf, shiftreg_array, ARRAYSIZE(rutx50_led_animation_conf));
+			shiftreg_all_led_on = RUTX50_ALL_LED_ON;
+			shiftreg_all_led_off = RUTX50_ALL_LED_OFF;
+		}
 	} else {
 		// Reserved
 	}

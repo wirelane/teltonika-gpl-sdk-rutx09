@@ -95,7 +95,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 ===================================================================
 --- ubox-2020-10-25-9ef88681.orig/log/syslog.c
 +++ ubox-2020-10-25-9ef88681/log/syslog.c
-@@ -11,6 +11,7 @@
+@@ -11,11 +11,13 @@
   * GNU General Public License for more details.
   */
  
@@ -103,7 +103,13 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  #include <linux/un.h>
  
  #include <sys/types.h>
-@@ -27,6 +28,10 @@
+ #include <sys/socket.h>
+ #include <sys/stat.h>
++#include <sys/sysinfo.h>
+ 
+ #include <fcntl.h>
+ #include <regex.h>
+@@ -27,6 +29,10 @@
  #include <syslog.h>
  #include <errno.h>
  #include <ctype.h>
@@ -114,7 +120,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  
  #include <libubox/uloop.h>
  #include <libubox/usock.h>
-@@ -46,9 +51,62 @@ static char *log_dev = LOG_DEFAULT_SOCKE
+@@ -46,9 +52,62 @@ static char *log_dev = LOG_DEFAULT_SOCKE
  static int log_size = LOG_DEFAULT_SIZE;
  static struct log_head *log, *log_end, *oldest, *newest;
  static int current_id = 0;
@@ -177,7 +183,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  static struct log_head*
  log_next(struct log_head *h, int size)
  {
-@@ -137,6 +195,58 @@ log_add(char *buf, int size, int source)
+@@ -137,6 +196,58 @@ log_add(char *buf, int size, int source)
  	newest = next;
  }
  
@@ -236,7 +242,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  int log_add_extended(char *buf, int size, const char *sender, int source, int prio, int db_flag)
  {
  	struct log_head *next;
-@@ -295,6 +405,213 @@ log_list(int count, struct log_head *h)
+@@ -295,6 +406,225 @@ log_list(int count, struct log_head *h)
  	return NULL;
  }
  
@@ -367,6 +373,14 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +	}
 +}
 +
++static size_t get_available_memory() {
++	struct sysinfo info;
++	if (sysinfo(&info) != 0)
++		return 0;
++
++	return info.freeram;
++}
++
 +static void load_entries_from_file(const char *file_path, struct log_entry **entries, size_t *entry_count, size_t *total_size) {
 +	gzFile log_file = gzopen(file_path, "rb");
 +	if (!log_file)
@@ -381,9 +395,13 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +		struct log_entry entry;
 +		parse_log_line(buffer, &entry);
 +
-+		size_t entry_size = sizeof(struct log_entry) + strlen(entry.msg) + strlen(entry.sender);
++		if (!entry.sender || !entry.msg)
++			continue;
 +
-+		if (*total_size + entry_size > log_size) {
++		size_t entry_size = sizeof(struct log_entry) + strlen(entry.msg) + strlen(entry.sender);
++		size_t available_memory = get_available_memory();
++
++		if (*total_size + entry_size > log_size || *total_size + entry_size > available_memory) {
 +			free(entry.sender);
 +			free(entry.msg);
 +			break;
@@ -450,7 +468,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  int
  log_buffer_init(int size)
  {
-@@ -333,6 +650,8 @@ log_buffer_init(int size)
+@@ -333,6 +663,8 @@ log_buffer_init(int size)
  void
  log_init(int _log_size)
  {
@@ -459,7 +477,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  	if (_log_size > 0)
  		log_size = _log_size;
  
-@@ -343,6 +662,12 @@ log_init(int _log_size)
+@@ -343,6 +675,12 @@ log_init(int _log_size)
  		fprintf(stderr, "Failed to allocate log memory\n");
  		exit(-1);
  	}

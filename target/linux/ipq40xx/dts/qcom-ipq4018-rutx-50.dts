@@ -50,6 +50,13 @@
 				gpio-export,output = <0>;
 				gpios = <&shift_io 20 GPIO_ACTIVE_HIGH>;
 			};
+
+			gpio_tpm_reset {
+				tlt-mnf,hwver = <400 9999>;
+				gpio-export,name = "tpm_reset";
+				gpio-export,output = <1>;
+				gpios = <&shift_io 4 GPIO_ACTIVE_HIGH>;
+			};
 		};
 
 		leds {
@@ -58,7 +65,8 @@
 			led_power {
 				tlt-mnf,hwver = <400 9999>;
 				label = "power";
-				gpios = <&shift_io 1 GPIO_ACTIVE_HIGH>;
+				default-state = "on";
+				gpios = <&shift_io 1 GPIO_ACTIVE_LOW>;
 			};
 
 			led_wan_sim1@1 {

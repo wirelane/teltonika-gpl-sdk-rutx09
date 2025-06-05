@@ -247,7 +247,7 @@ ucidef_set_ar8xxx_switch_mib() {
 	json_select ..
 }
 
-ucidef_add_switch() {	
+ucidef_add_switch() {
 	local enabled=1
 	if [ "$1" = "enabled" ]; then
 		shift
@@ -570,10 +570,26 @@ ucidef_set_hwinfo() {
 	json_select ..
 }
 
+ucidef_unset_hwinfo() {
+	local args=" $* "
+
+	json_select_object hwinfo
+
+	for opt in $args; do
+		json_remove_boolean "$opt"
+	done
+
+	json_select ..
+}
+
 ucidef_set_esim() {
 	json_select_object hwinfo
 	json_add_boolean "esim" 1
 	json_select ..
+}
+
+ucidef_check_tpm() {
+	[ -e /dev/tpm0 ] || ucidef_unset_hwinfo "tpm"
 }
 
 ucidef_set_release_version() {
@@ -607,3 +623,4 @@ board_config_flush() {
 	json_dump -i -o ${CFG}
 	[ "$CFG" = "/etc/board.json" ] && md5sum ${CFG} > /etc/board.hash
 }
+

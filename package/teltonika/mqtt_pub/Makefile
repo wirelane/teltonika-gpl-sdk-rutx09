@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mqtt_pub
-PKG_VERSION:=2025-04-17
+PKG_VERSION:=2025-05-15
 
 PKG_SOURCE_VERSION:=2.14
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
@@ -34,9 +34,11 @@ endef
 
 
 define Package/mqtt_pub/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/share/acl.d \
-		$(1)/etc/init.d $(1)/usr/sbin $(1)/etc/permtab.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mqtt_pub.conf $(1)/etc/config/mqtt_pub
+	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/mqtt_pub.conf $(1)/etc/config/mqtt_pub
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mqtt_pub.init $(1)/etc/init.d/mqtt_pub
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mqtt_pub.json $(1)/usr/share/acl.d/mqtt_pub.json
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mqtt_pub $(1)/usr/sbin/mqtt_pub

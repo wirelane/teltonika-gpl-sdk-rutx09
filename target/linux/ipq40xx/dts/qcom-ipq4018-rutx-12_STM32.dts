@@ -157,81 +157,6 @@
 			};
 		};
 
-		ledman {
-			GPIO_100 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SIM_1";
-			};
-			GPIO_101 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SIM_2";
-			};
-			GPIO_102 {
-				compatible_versions = <0 3>;
-				line_name = "LED_WAN_WIFI";
-			};
-			GPIO_103 {
-				compatible_versions = <0 3>;
-				line_name = "LED_WAN_ETH";
-			};
-			GPIO_104 {
-				compatible_versions = <0 3>;
-				line_name = "LED_TECH_GEN_2";
-			};
-			GPIO_105 {
-				compatible_versions = <0 3>;
-				line_name = "LED_TECH_GEN_3";
-			};
-			GPIO_106 {
-				compatible_versions = <0 3>;
-				line_name = "LED_TECH_GEN_4";
-			};
-			GPIO_132 {
-				compatible_versions = <0 3>;
-				line_name = "LED_TECH_GEN2_2";
-			};
-			GPIO_133 {
-				compatible_versions = <0 3>;
-				line_name = "LED_TECH_GEN2_3";
-			};
-			GPIO_134 {
-				compatible_versions = <0 3>;
-				line_name = "LED_TECH_GEN2_4";
-			};
-			GPIO_107 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SSID_1";
-			};
-			GPIO_109 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SSID_3";
-			};
-			GPIO_111 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SSID_5";
-			};
-			GPIO_131 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SSID2_1";
-			};
-			GPIO_130 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SSID2_3";
-			};
-			GPIO_129 {
-				compatible_versions = <0 3>;
-				line_name = "LED_SSID2_5";
-			};
-			GPIO_119 {
-				compatible_versions = <0 3>;
-				line_name = "LED_WIFI_24";
-			};
-			GPIO_118 {
-				compatible_versions = <0 3>;
-				line_name = "LED_WIFI_50";
-			};
-		};
-
 		misc {
 			GPIO_120 {
 				compatible_versions = <0 3>;
@@ -258,12 +183,14 @@
 		reg = <&config_rw 0x20 0x8>;
 		type = "digit";
 		default = "";
+		sec;
 	};
 
 	simpin4 {
 		reg = <&config_rw 0x30 0x8>;
 		type = "digit";
 		default = "";
+		sec;
 	};
 
 	sim_cfg {

@@ -31,6 +31,7 @@ tools-y += e2fsprogs findutils firmware-utils flex gengetopt upx
 tools-y += libressl libtool lzma m4 make-ext4fs missing-macros mkimage
 tools-y += mklibs mm-macros mtd-utils mtools padjffs2 patch-image usign
 tools-y += patchelf pkgconf quilt squashfskit4 sstrip zip zlib zstd emcc
+tools-y += cppcheck
 tools-$(BUILD_B43_TOOLS) += b43-tools
 tools-$(BUILD_ISL) += isl
 tools-$(BUILD_TOOLCHAIN) += gmp mpc mpfr

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for OPCUA
-APP_DEPENDS:=+opcua_client +data-sender-api-mod-opcua
+APP_DEPENDS:=+opcua_client +vuci-app-data-sender-api-mod-opcua
 
 include ../api.mk
 

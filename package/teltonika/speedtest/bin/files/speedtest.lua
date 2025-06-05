@@ -14,6 +14,7 @@ end
 
 local libspeedtest = require ("libspeedtest")
 local socket =  require("socket")
+local socket_url = require("socket.url")
 local jsc = require("luci.jsonc")
 local util = require("vuci.util")
 
@@ -178,9 +179,13 @@ function writeData(downloadSpeed, currentDownloaded, uploadSpeed, currentUpload)
     end
 end
 
-local function fetchServerList()
+local function fetchServerList(search)
+    local url = "https://www.speedtest.net/api/js/servers?engine=js&limit=100&https_functional=true"
+    if search then
+        url = url .. "&search=" .. socket_url.escape(search)
+    end
     local body
-    body = libspeedtest.getbody("https://www.speedtest.net/api/js/servers?engine=js&limit=100&https_functional=true")
+    body = libspeedtest.getbody(url)
 
     if body == nil or body == "" then
         ERROR = "Could not get the server list."
@@ -252,7 +257,8 @@ local function flagCheck(num,flag)
     elseif flag == "-s" then
         SILENT = true;
     elseif flag == "-g" then
-        print(fetchServerList())
+        local search = arg[num + 1]
+        print(fetchServerList(search))
         exit()
     elseif flag == "-u" then
         SERVER = arg[num + 1]

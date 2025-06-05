@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libtlt_termios
-PKG_SOURCE_VERSION:=7.14
+PKG_SOURCE_VERSION:=7.15
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

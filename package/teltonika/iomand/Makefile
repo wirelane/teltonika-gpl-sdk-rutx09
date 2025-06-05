@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iomand
 
-PKG_SOURCE_VERSION:=2.23.1
+PKG_SOURCE_VERSION:=2.24
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -16,8 +16,9 @@ define Package/iomand
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Daemon providing I/O related functionality.
-	DEPENDS:=+libuci +libubus +libubox +libcgi +libmnfinfo +libtlt-logger +liblog +libgpiod +kmod-tlt-pulse-counter
+	DEPENDS:=+libuci +libubus +libubox +libcgi +libtlt-logger +liblog +libgpiod +kmod-tlt-pulse-counter
 	ABI_VERSION:=1.0
+	USERID:=ioman:ioman
 endef
 
 define Package/iomand/conffiles
@@ -27,9 +28,11 @@ endef
 
 define Package/iomand/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/init.d $(1)/etc/hotplug.d/usb \
-		$(1)/www/cgi-bin
+		$(1)/www/cgi-bin $(1)/usr/share/acl.d $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/iomand $(1)/usr/bin/iomand
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iomand.init $(1)/etc/init.d/ioman
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/ioman.json $(1)/usr/share/acl.d/ioman.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/001-iomand $(1)/etc/permtab.d/001-iomand
 
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libioman.so $(1)/usr/lib/

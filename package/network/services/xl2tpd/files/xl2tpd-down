@@ -14,5 +14,8 @@
 #       $6      the parameter specified by the 'ipparam' option to pppd
 #
 
+IFNAME_HASH="xl2tp-$(printf '%s' "${PEERNAME}" | md5sum | cut -c1-8)"
+
+ip link del "${IFNAME_HASH}"
 rm /tmp/state/l2tp/"${PEERNAME}".status
 exit 0

@@ -146,7 +146,11 @@ module.exports = {
       { type: 'hw', name: 'has_dot1x_server' },
       { type: 'hw', name: 'rs232'},
       { type: 'hw', name: 'rs485'},
-      { type: 'hw', name: 'mbus'}
+      { type: 'hw', name: 'mbus'},
+      { type: 'hw', name: 'dsa' },
+      { type: 'hw', name: 'dsa', value: false },
+      { type: 'hw', name: 'is_access_point' },
+      { type: 'hw', name: 'is_access_point', value: false }
     ]
   },
   /** @return {Record<string, string>} */

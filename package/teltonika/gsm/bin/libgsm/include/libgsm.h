@@ -930,7 +930,8 @@ typedef enum {
 	LGSM_UBUS_GET_US_PPLMN_LIST,
 	LGSM_UBUS_GET_PCO,
 	LGSM_UBUS_SET_PCO,
-
+	LGSM_UBUS_GET_CIREG_URC,
+	LGSM_UBUS_SET_CIREG_URC,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -3197,6 +3198,15 @@ lgsm_err_t lgsm_set_auth_corr_bit(struct ubus_context *ctx, bool enabled, func_t
 lgsm_err_t lgsm_set_pco(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
 
 /**
+ * Set modem CIREG URC messages
+ * @param[ptr]  ctx         Ubus ctx.
+ * @param[in]   enabled	    Ared CIREG urc messages enabled
+ * @param[char] resp        Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ */
+lgsm_err_t lgsm_set_cireg_urc(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
+
+/**
  * Set USSD text mode configuration
  * @param[ptr]  ctx         Ubus ctx.
  * @param[in]   enabled	    Is USSD text mode enabled.
@@ -3937,6 +3947,13 @@ void handle_get_auth_corr_bit_rsp(struct blob_attr *info, lgsm_structed_info_t *
    * @param[ptr]   parsed    Parsed union readable information.
    */
 void handle_get_pco(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+   * Parse CIREG URC method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_cireg_urc(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
    * Parse USSD text mode method response

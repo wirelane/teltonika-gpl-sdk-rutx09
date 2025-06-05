@@ -12,6 +12,39 @@ mmc_driver='/etc/modules-late.d/mmc-spi'
 uuid_file='.sme_uuid'
 sme_maj_min='/tmp/.sme_major_minor'
 
+[ "$(id -u)" != 0 ] && {
+	# Additional check: only users belonging to "mount" should be allowed
+	[[ " $(id -nG) " =~ " mount" ]] || {
+		logger "User($(id -u)) is not in \"mount\" group"
+		exit 1
+	}
+
+	. /usr/share/libubox/jshn.sh
+
+	json_init
+	json_add_array args
+	for arg in "$@"; do
+		json_add_string "" "$arg"
+	done
+	json_close_array
+
+	# This must be ACL protected
+	res=$(ubus -t 0 call system sme "$(json_dump)")
+	rc=$?
+	[ $rc -eq 4 ] && logger "Access denied for user($(id -u))"
+	[ $rc -ne 0 ] && exit $rc
+
+	json_load "$res"
+	json_get_vars output exit_code
+
+	echo -n "$output"
+
+	# Is ret_code a number?
+	[ "$exit_code" -eq "exit_code" ] 2>/dev/null || exit 1
+
+	exit $exit_code
+}
+
 [[ ! -e '/tmp/.fmt-usb-msd_blockdev_hotplug_paused' && -n "$HOTPLUG_TYPE" ]] && {
 	# handle accidental storage dev removal and re-insertion. must execute after block hotplug.
 

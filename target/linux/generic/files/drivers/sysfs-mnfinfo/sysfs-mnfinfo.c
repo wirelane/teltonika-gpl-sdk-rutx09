@@ -14,6 +14,7 @@
 #define DRV_NAME "sysfs-mnfinfo"
 
 #define SCAN_BLK_SIZE 512
+#define BLVER_SCAN    2
 
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
@@ -30,7 +31,7 @@ static struct kobject *g_kobj;
 	static struct kobj_attribute _name##_attr = __ATTR_RO(_name)
 
 /* value lenth up to 127 bytes */
-SYSFS_ATTR_RO(mac, "001e42350232");
+SYSFS_ATTR_RO(mac, "001E42350232");
 SYSFS_ATTR_RO(name, "x86_64000000");
 SYSFS_ATTR_RO(serial, "0000000000");
 SYSFS_ATTR_RO(hwver, "0000");
@@ -101,7 +102,7 @@ module_exit(mnfinfo_remove);
 
 #define GEN_KOBJ_ATTR_RO(_name)                                                                              \
 	static struct kobj_attribute kobj_attr_##_name = {                                                   \
-		.attr = { .name = __stringify(_name), .mode = 0444 },                                        \
+		.attr = { .name = __stringify(_name), .mode = 0440 },                                        \
 		.show = mnf_attr_show,                                                                       \
 	};
 
@@ -146,6 +147,7 @@ struct mnfinfo_entry {
 	size_t dt_len;
 	char *data;
 	bool in_log;
+	bool sec;
 };
 
 static ssize_t mnf_attr_show(struct kobject *kobj, struct kobj_attribute *attr, char *buffer);
@@ -478,7 +480,7 @@ static long find_last_non_null_byte_idx(struct mtd_info *mtd, loff_t from)
 static int find_trailling_data(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf)
 {
 	long off;
-	int status;
+	int status, idx = 0;
 
 	off = find_last_non_null_byte_idx(mtd, from);
 	if (off < 0) {
@@ -487,16 +489,23 @@ static int find_trailling_data(struct mtd_info *mtd, loff_t from, size_t len, si
 	}
 
 	off++; // One byte after data in interest
-	off -= len; // First byte of data in interest
-	if (off < 0) {
-		pr_err("Data not found\n");
-		return -1;
-	}
+	while (idx < BLVER_SCAN) {
+		off -= len; // First byte of data in interest
+		if (off < 0) {
+			pr_err("Data not found\n");
+			return -1;
+		}
 
-	status = mtd_read(mtd, off, len, retlen, buf);
-	if (status || *retlen != len) {
-		pr_err("Read %zu bytes from %lx failed with %d\n", len, off, status);
-		return -1;
+		status = mtd_read(mtd, off, len, retlen, buf);
+		if (status || *retlen != len) {
+			pr_err("Read %zu bytes from %lx failed with %d\n", len, off, status);
+			return -1;
+		}
+
+		if (strchr(buf, '.'))
+			break;
+
+		idx++;
 	}
 
 	return 0;
@@ -615,14 +624,15 @@ static int parse_prop(struct device_node *node)
 	struct device_node *mtdnode;
 	struct mtd_info *mtd;
 	size_t retlen;
-	int status, size;
+	int status, size, i;
 	const char *part, *def, *type;
 	const __be32 *list, *min_rlen;
 	phandle phandle;
 	bool strip, right_side_alligned, keep_sim_presence;
 	struct mnfinfo_entry *e;
 
-	for (e = mnf_data; e < e + ARRAY_SIZE(mnf_data); e++) {
+	for (i = 0; i < ARRAY_SIZE(mnf_data); i++) {
+		e = &mnf_data[i];
 		if (!strcmp(e->name, node->name)) {
 			if (e->is_set)
 				return 0;
@@ -727,6 +737,9 @@ static int parse_prop(struct device_node *node)
 	}
 
 end:
+	if (of_find_property(node, "sec", NULL))
+		e->sec = true;
+
 	if (of_find_property(node, "log", NULL))
 		e->in_log = true;
 
@@ -755,6 +768,14 @@ static int mnfinfo_probe(struct platform_device *pdev)
 
 	fix_sim_count();
 
+	/* enable o+r permissions for non-sec files */
+	for (i = 0; i < ARRAY_SIZE(mnf_data); i++) {
+		e = &mnf_data[i];
+		if (e->data && !e->sec) {
+			g_mnfinfo_attr[i]->mode |= 0444;
+		}
+	}
+
 	g_kobj = kobject_create_and_add("mnf_info", NULL);
 	if (!g_kobj) {
 		pr_err("Unable to create \"mnf_info\" kobject\n");
@@ -762,9 +783,17 @@ static int mnfinfo_probe(struct platform_device *pdev)
 	}
 
 	if (sysfs_create_group(g_kobj, &g_mnfinfo_attr_group)) {
-		pr_err("Unable to create \"mnf_info\" sysfs group\n");
 		kobject_put(g_kobj);
+		pr_err("Unable to create \"mnf_info\" sysfs group\n");
 		return -ENOMEM;
+	}
+
+	/* set mnf_sec group ownership for sec files */
+	for (i = 0; i < ARRAY_SIZE(mnf_data); i++) {
+		e = &mnf_data[i];
+		if (e->data && e->sec) {
+			sysfs_file_change_owner(g_kobj, e->name, GLOBAL_ROOT_UID, GLOBAL_MNF_SEC_GID);
+		}
 	}
 
 	pr_info("MNFINFO PROPERTIES:\n");

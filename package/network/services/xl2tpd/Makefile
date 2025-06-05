@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd
 PKG_VERSION:=1.3.16
-PKG_RELEASE:=8
+PKG_RELEASE:=9
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -32,6 +32,8 @@ define Package/xl2tpd
   URL:=http://www.xelerance.com/software/xl2tpd/
   SUBMENU:=VPN
   DEPENDS:=+ppp-mod-pppol2tp +resolveip
+  USERID:=xl2tpd:xl2tpd
+  FATTRS:=/usr/sbin/xl2tpd-control:xl2tpd::y:
 endef
 
 define Package/xl2tpd/description
@@ -96,6 +98,9 @@ define Package/xl2tpd/install
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/00-l2tp_slow_retry.hotplug $(1)/etc/hotplug.d/iface/00-l2tp_slow_retry
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
+	$(CP) ./files/defaults/99_l2tp_device_name $(1)/etc/uci-defaults/7.15/99_l2tp_device_name
 
 endef
 

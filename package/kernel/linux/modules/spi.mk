@@ -49,7 +49,7 @@ define KernelPackage/spi-gpio
   DEPENDS:=@GPIO_SUPPORT +kmod-spi-bitbang
   KCONFIG:=CONFIG_SPI_GPIO
   FILES:=$(LINUX_DIR)/drivers/spi/spi-gpio.ko
-  AUTOLOAD:=$(call AutoProbe,spi-gpio,1)
+  AUTOLOAD:=$(call AutoLoad,23,spi-gpio,1)
 endef
 
 define KernelPackage/spi-gpio/description

@@ -1663,27 +1663,20 @@ endef
 
 $(eval $(call KernelPackage,usbmon))
 
-XHCI_MODULES := xhci-hcd xhci-pci xhci-plat-hcd
-ifdef CONFIG_TARGET_ramips_mt7621
-  XHCI_MODULES += xhci-mtk
-endif
-ifdef CONFIG_TARGET_mediatek_mt7981
-  XHCI_MODULES += xhci-mtk-hcd
-endif
+XHCI_MODULES := xhci-pci xhci-plat-hcd
 XHCI_FILES := $(wildcard $(patsubst %,$(LINUX_DIR)/drivers/usb/host/%.ko,$(XHCI_MODULES)))
 XHCI_AUTOLOAD := $(patsubst $(LINUX_DIR)/drivers/usb/host/%.ko,%,$(XHCI_FILES))
 
 define KernelPackage/usb3
   TITLE:=Support for USB3 controllers
   DEPENDS:= \
-	+TARGET_bcm53xx:kmod-usb-bcma
+	+kmod-usb-xhci-hcd \
+	+TARGET_ramips_mt7621:kmod-usb-xhci-mtk \
+	+TARGET_mediatek:kmod-usb-xhci-mtk
   KCONFIG:= \
 	CONFIG_USB_PCI=y \
-	CONFIG_USB_XHCI_HCD \
 	CONFIG_USB_XHCI_PCI \
-	CONFIG_USB_XHCI_PLATFORM \
-	CONFIG_USB_XHCI_MTK \
-	CONFIG_USB_XHCI_HCD_DEBUGGING=n
+	CONFIG_USB_XHCI_PLATFORM
   FILES:= \
 	$(XHCI_FILES)
   AUTOLOAD:=$(call AutoLoad,54,$(XHCI_AUTOLOAD),1)
@@ -1713,6 +1706,42 @@ define KernelPackage/usb-net2280/description
 endef
 
 $(eval $(call KernelPackage,usb-net2280))
+
+
+define KernelPackage/usb-xhci-hcd
+  TITLE:=xHCI HCD (USB 3.0) support
+  KCONFIG:= CONFIG_USB_XHCI_HCD
+  HIDDEN:=1
+  FILES:=$(LINUX_DIR)/drivers/usb/host/xhci-hcd.ko
+  AUTOLOAD:=$(call AutoLoad,54,xhci-hcd,1)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-xhci-hcd/description
+  The eXtensible Host Controller Interface (xHCI) is standard for USB 3.0
+  "SuperSpeed" host controller hardware.
+endef
+
+$(eval $(call KernelPackage,usb-xhci-hcd))
+
+
+define KernelPackage/usb-xhci-mtk
+  TITLE:=xHCI support for MediaTek SoCs
+  DEPENDS:=+kmod-usb-xhci-hcd
+  KCONFIG:=CONFIG_USB_XHCI_MTK
+  HIDDEN:=1
+  FILES:= \
+	 $(LINUX_DIR)/drivers/usb/host/xhci-mtk-hcd.ko
+  AUTOLOAD:=$(call AutoLoad,54,xhci-mtk-hcd,1)
+  $(call AddDepends/usb)
+endef
+
+define KernelPackage/usb-xhci-mtk/description
+  Kernel support for the xHCI host controller found in MediaTek SoCs.
+endef
+
+$(eval $(call KernelPackage,usb-xhci-mtk))
+
 
 define KernelPackage/chaoskey
   SUBMENU:=$(USB_MENU)

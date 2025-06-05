@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mdcollect
-PKG_VERSION:=2025-03-17
-PKG_RELEASE:=3
+PKG_VERSION:=2025-04-10
+PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 
-PKG_SOURCE_VERSION:=7.14
+PKG_SOURCE_VERSION:=7.15
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -22,6 +22,7 @@ define Package/mdcollectd
 	TITLE:=mdcollectd
 	DEPENDS:=+lsqlite3 +libuci +libtlt_uci +libmdcollect +libubus +libubox \
 		+libtlt-logger +libnftnl +MOBILE_SUPPORT:libgsm
+	USERID:=mdcollectd:mdcollectd
 endef
 
 define Package/libmdcollect
@@ -44,10 +45,12 @@ endef
 
 define Package/mdcollectd/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ \
-		$(1)/usr/bin/
-	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/mdcollectd.config $(1)/etc/config/mdcollectd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mdcollectd.init $(1)/etc/init.d/mdcollectd
+		$(1)/usr/bin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d/
+	$(INSTALL_CONF_USR) ./files/mdcollectd.config $(1)/etc/config/mdcollectd
+	$(INSTALL_BIN) ./files/mdcollectd.init $(1)/etc/init.d/mdcollectd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mdcollectd $(1)/usr/bin/mdcollectd
+	$(INSTALL_DATA) ./files/mdcollectd_acl.json $(1)/usr/share/acl.d/mdcollectd_acl.json
+	$(INSTALL_DATA) ./files/mdcollect.permtab $(1)/etc/permtab.d/mdcollect
 endef
 
 define Package/libmdcollect/install

@@ -128,7 +128,7 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
  static int log_notify(struct blob_attr *msg)
  {
  	struct blob_attr *tb[__LOG_MAX];
-@@ -187,16 +290,34 @@ static int log_notify(struct blob_attr *
+@@ -187,16 +290,36 @@ static int log_notify(struct blob_attr *
  
  	id = blobmsg_get_u32(tb[LOG_ID]);
  
@@ -157,6 +157,8 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
 +
 +				if (access(oldest, F_OK) == 0) {
 +					remove(oldest);
++				} else {
++					break;
 +				}
 +				free(oldest);
 +			}
@@ -172,7 +174,7 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
  		if (sender.fd < 0) {
  			fprintf(stderr, "failed to open %s: %m\n", log_file);
  			exit(-1);
-@@ -466,6 +587,9 @@ int main(int argc, char **argv)
+@@ -466,6 +589,9 @@ int main(int argc, char **argv)
  		case 't':
  			log_timestamp = 1;
  			break;

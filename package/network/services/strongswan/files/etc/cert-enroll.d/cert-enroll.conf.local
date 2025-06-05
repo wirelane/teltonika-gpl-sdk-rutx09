@@ -5,11 +5,12 @@
 
 # Fully Qualified Domain Name and Distinguished Name
 : ${FQDN=$(uci get system.system.hostname)}
+: ${DN="CN=$FQDN"}
 
 # Key and certificate names
 : ${HOSTKEY=$FQDN-key.pem}
 : ${HOSTCERT=$FQDN-cert.pem}
-: ${CERTREQ=FQDN$-req.pem}
+: ${CERTREQ=$FQDN-req.pem}
 : ${CAOUT=$FQDN-cacert}
 : ${ROOTCA=$CAOUT.pem}
 : ${OLDROOTCA=$CAOUT-old.pem}
@@ -17,6 +18,7 @@
 : ${OLDSUBCA=$CAOUT-1-old.pem}
 : ${RAOUT=$FQDN-racert}
 : ${RACERT=$RAOUT.pem}
+: ${SUBRA=$RAOUT-2.pem}
 
 # Optional additional Subject Alternative Names (fill in and uncomment)
 : ${ADD_SANS=""}

@@ -983,6 +983,8 @@ static int edma_axi_probe(struct platform_device *pdev)
 	}
 
 	for_each_available_child_of_node(np, pnp) {
+		unsigned char dev_addr[ETH_ALEN];
+
 		/* this check is needed if parent and daughter dts have
 		 * different number of gmac nodes
 		 */
@@ -991,7 +993,11 @@ static int edma_axi_probe(struct platform_device *pdev)
 			break;
 		}
 
-		of_get_mac_address(pnp, edma_netdev[idx_mac]->dev_addr);
+		of_get_mac_address(pnp, dev_addr);
+
+		if (is_valid_ether_addr(dev_addr)) {
+			dev_addr_set(edma_netdev[idx_mac], dev_addr);
+		}
 
 		idx_mac++;
 	}
@@ -1053,7 +1059,7 @@ static int edma_axi_probe(struct platform_device *pdev)
 		/* This just fill in some default MAC address
 		 */
 		if (!is_valid_ether_addr(edma_netdev[i]->dev_addr)) {
-			random_ether_addr(edma_netdev[i]->dev_addr);
+			eth_random_addr(edma_netdev[i]->dev_addr);
 			pr_info("EDMA using MAC@ - using");
 			pr_info("%02x:%02x:%02x:%02x:%02x:%02x\n",
 			*(edma_netdev[i]->dev_addr),
@@ -1174,7 +1180,7 @@ static int edma_axi_probe(struct platform_device *pdev)
 
 		edma_cinfo->edma_percpu_info[i].napi.state = 0;
 
-		netif_napi_add(edma_netdev[0],
+		netif_napi_add_weight(edma_netdev[0],
 			       &edma_cinfo->edma_percpu_info[i].napi,
 			       edma_poll, 64);
 		napi_enable(&edma_cinfo->edma_percpu_info[i].napi);

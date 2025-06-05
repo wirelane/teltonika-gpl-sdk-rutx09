@@ -41,17 +41,6 @@
 				active_low;
 			};
 		};
-
-		ledman {
-			GPIO_119 {
-				compatible_versions = <0 8>;
-				line_name = "LED_WIFI_24";
-			};
-			GPIO_118 {
-				compatible_versions = <0 8>;
-				line_name = "LED_WIFI_50";
-			};
-		};
 	};
 };
 

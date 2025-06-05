@@ -207,7 +207,7 @@ $(eval $(call KernelPackage,crypto-ecb))
 
 define KernelPackage/crypto-ecdh
   TITLE:=ECDH algorithm
-  DEPENDS:=+kmod-crypto-kpp
+  DEPENDS:=+kmod-crypto-kpp +kmod-crypto-rng
   KCONFIG:= CONFIG_CRYPTO_ECDH
   FILES:= \
 	$(LINUX_DIR)/crypto/ecdh_generic.ko \
@@ -221,7 +221,7 @@ $(eval $(call KernelPackage,crypto-ecdh))
 
 define KernelPackage/crypto-echainiv
   TITLE:=Encrypted Chain IV Generator
-  DEPENDS:=+kmod-crypto-aead
+  DEPENDS:=+kmod-crypto-aead +kmod-crypto-geniv
   KCONFIG:=CONFIG_CRYPTO_ECHAINIV
   FILES:=$(LINUX_DIR)/crypto/echainiv.ko
   AUTOLOAD:=$(call AutoLoad,09,echainiv)
@@ -862,9 +862,22 @@ endef
 $(eval $(call KernelPackage,crypto-rng))
 
 
+define KernelPackage/crypto-geniv
+  TITLE:=CryptoAPI Shared IV generator
+  HIDDEN:=1
+  DEPENDS:=+kmod-crypto-rng +kmod-crypto-aead
+  KCONFIG:=CONFIG_CRYPTO_GENIV
+  FILES:=$(LINUX_DIR)/crypto/geniv.ko
+  AUTOLOAD:=$(call AutoLoad,09,geniv)
+  $(call AddDepends/crypto)
+endef
+
+$(eval $(call KernelPackage,crypto-geniv))
+
+
 define KernelPackage/crypto-seqiv
   TITLE:=CryptoAPI Sequence Number IV Generator
-  DEPENDS:=+kmod-crypto-aead +kmod-crypto-rng
+  DEPENDS:=+kmod-crypto-aead +kmod-crypto-rng +kmod-crypto-geniv
   KCONFIG:=CONFIG_CRYPTO_SEQIV
   FILES:=$(LINUX_DIR)/crypto/seqiv.ko
   AUTOLOAD:=$(call AutoLoad,09,seqiv)
@@ -1002,7 +1015,7 @@ $(eval $(call KernelPackage,crypto-test))
 
 define KernelPackage/crypto-user
   TITLE:=CryptoAPI userspace interface
-  DEPENDS:=+kmod-crypto-hash +kmod-crypto-manager
+  DEPENDS:=+kmod-crypto-hash +kmod-crypto-manager +kmod-crypto-rng
   KCONFIG:= \
 	CONFIG_CRYPTO_USER \
 	CONFIG_CRYPTO_USER_API \

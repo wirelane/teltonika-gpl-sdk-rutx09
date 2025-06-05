@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.16
+PKG_SOURCE_VERSION:=1.18.2
 
 PKG_FIXUP:=autoreconf
 
@@ -62,7 +62,7 @@ $(eval $(call RegisterPlugin,mbus,+libsqlite3,Input plugin for M-Bus data gather
 $(eval $(call RegisterPlugin,wifiscan,+libsqlite3,Input plugin for wifi scaner data gathering))
 $(eval $(call RegisterPlugin,mnfinfo,+libmnfinfo,Input plugin for manufacturer information))
 $(eval $(call RegisterPlugin,gsm,+libgsm,Input plugin for gsm information))
-$(eval $(call RegisterPlugin,sms_in,+libgsm  +liburc,Input plugin for SMS input))
+$(eval $(call RegisterPlugin,sms-in,+libgsm +liburc,Input plugin for SMS input))
 $(eval $(call RegisterPlugin,mdcollect,+libgsm +libmdcollect,Input plugin for data usage information))
 $(eval $(call RegisterPlugin,gps,+libgps,Input plugin for GPS data gathering))
 $(eval $(call RegisterPlugin,chilli,+libuci +libtltchilli,Input plugin for CoovaChilli Hotspot data gathering))
@@ -73,12 +73,12 @@ $(eval $(call RegisterPlugin,format-none,+libblobmsg-json,Format plugin for plai
 $(eval $(call RegisterPlugin,http,+libcurl,Output plugin for sending data over http))
 $(eval $(call RegisterPlugin,mqtt-out,+libmosquitto,Output plugin for sending data over MQTT))
 $(eval $(call RegisterPlugin,socket,,Output plugin for sending data over a UNIX socket))
-$(eval $(call RegisterPlugin,sms,+libgsm,Output plugin for sending data over SMS))
+$(eval $(call RegisterPlugin,sms-out,+libgsm,Output plugin for sending data over SMS))
 $(eval $(call RegisterPlugin,smtp,+libcurl +libuci +@LIBCURL_SMTP,Output plugin for sending data over SMTP))
 $(eval $(call RegisterPlugin,nflog,+libnetfilter-log +libxtables,Input plugin for NFLOG))
 $(eval $(call RegisterPlugin,eventlog,,Input plugin for events log))
 $(eval $(call RegisterPlugin,lua-in,+liblua,Input plugin for custom scripts))
-$(eval $(call RegisterPlugin,lua_out,+liblua,Output plugin for custom scripts))
+$(eval $(call RegisterPlugin,lua-out,+liblua,Output plugin for custom scripts))
 $(eval $(call RegisterPlugin,ftp,+libcurl,Output plugin for sending data over FTP))
 $(eval $(call RegisterPlugin,base,,Base input plugin))
 $(eval $(call RegisterPlugin,lua_format,+liblua,Output plugin for custom formating))
@@ -158,7 +158,7 @@ $(eval $(call BuildPlugin,mbus,input_mbus))
 $(eval $(call BuildPlugin,wifiscan,input_wifiscan))
 $(eval $(call BuildPlugin,mnfinfo,input_mnfinfo))
 $(eval $(call BuildPlugin,gsm,input_gsm))
-$(eval $(call BuildPlugin,sms_in,input_sms))
+$(eval $(call BuildPlugin,sms-in,input_sms))
 $(eval $(call BuildPlugin,mdcollect,input_mdcollect))
 $(eval $(call BuildPlugin,gps,input_gps))
 $(eval $(call BuildPlugin,chilli,input_chilli))
@@ -169,13 +169,13 @@ $(eval $(call BuildPlugin,format-none,format_none))
 $(eval $(call BuildPlugin,http,output_http))
 $(eval $(call BuildPlugin,mqtt-out,output_mqtt))
 $(eval $(call BuildPlugin,socket,output_socket))
-$(eval $(call BuildPlugin,sms,output_sms))
+$(eval $(call BuildPlugin,sms-out,output_sms))
 $(eval $(call BuildPlugin,smtp,output_smtp))
 $(eval $(call BuildPlugin,nflog,input_nflog))
 $(eval $(call BuildPlugin,eventlog,input_eventlog))
 $(eval $(call BuildPlugin,base,input_base))
 $(eval $(call BuildPlugin,lua-in,input_lua,input/lua))
-$(eval $(call BuildPlugin,lua_out,output_lua))
+$(eval $(call BuildPlugin,lua-out,output_lua,output/lua))
 $(eval $(call BuildPlugin,lua_format,format_lua,format/lua))
 $(eval $(call BuildPlugin,telegram,output_telegram))
 $(eval $(call BuildPlugin,ftp,output_ftp))

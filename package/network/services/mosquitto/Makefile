@@ -9,15 +9,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mosquitto
-PKG_VERSION:=2.0.20
+PKG_VERSION:=2.0.21
 PKG_RELEASE:=1
 PKG_LICENSE:=EPL-2.0
 PKG_LICENSE_FILES:=LICENSE.txt
 PKG_CPE_ID:=cpe:/a:eclipse:mosquitto
 
-PKG_HASH:=ebd07d89d2a446a7f74100ad51272e4a8bf300b61634a7812e19f068f2759de8
+PKG_HASH:=7ad5e84caeb8d2bb6ed0c04614b2a7042def961af82d87f688ba33db857b899d
 
-PKG_SOURCE_VERSION:=2.0.20
+PKG_SOURCE_VERSION:=2.0.21
 PKG_SOURCE_URL:=https://mosquitto.org/files/source
 PKG_SOURCE:=mosquitto-$(PKG_SOURCE_VERSION).tar.gz
 
@@ -167,7 +167,7 @@ define Package/mosquitto/install/default
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mosquitto $(1)/usr/sbin/mosquitto
 	$(INSTALL_DIR) $(1)/etc/mosquitto
-	$(INSTALL_CONF) $(PKG_BUILD_DIR)/mosquitto.conf $(1)/etc/mosquitto/mosquitto.conf
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/mosquitto.conf $(1)/etc/mosquitto/mosquitto.conf
 	$(CP) ./files/etc/* $(1)/etc/
 endef
 

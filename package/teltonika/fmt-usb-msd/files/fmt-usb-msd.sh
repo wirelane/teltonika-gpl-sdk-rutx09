@@ -92,11 +92,11 @@ validate_set_msd() {
 		logger "'$1' storage device unavailable"
 		return 1
 	}
-	is_in_use "$MOUNT" samba smbd && {
+	samba_in_use "$MOUNT" && {
 		logger "'$1' storage device in use by samba"
 		return 2
 	}
-	is_in_use "$MOUNT" minidlna minidlna && {
+	minidlna_in_use "$MOUNT" && {
 		logger "'$1' storage device in use by minidlna"
 		return 3
 	}
@@ -125,8 +125,28 @@ add_space_consumption() {
 	done
 }
 
-is_in_use() {
-	grep -q "$1" /etc/config/$2 2>&- && killall -0 $3 2>&-
+samba_in_use() {
+	local MOUNT="$1"
+	killall -0 smbd 2>&- || return 1
+	local dirs="$(uci show samba 2> /dev/null | grep -e 'sambashare\[[0-9]*\]\.path' | cut -f 2 -d '=')"
+	for s in $dirs; do
+		s=${s#\'}
+		s=${s%\'}
+		[ "$(readlink -f $s)" = "$MOUNT" ] && return 0
+	done
+
+	return 1
+}
+
+minidlna_in_use() {
+	local MOUNT="$1"
+	killall -0 minidlna 2>&- || return 1
+	local IFS=$' ' lst="$(uci get minidlna.config.media_dir 2> /dev/null)"
+	for s in $lst; do
+		[ "$(readlink -f $s)" = "$MOUNT" ] && return 0
+	done
+
+	return 1
 }
 
 get_usb_device() {
@@ -184,12 +204,12 @@ json_list_device_stats() {
 	local MOUNT=$(extract_field MOUNT $1)
 	[ -z "$MOUNT" ] && return
 
-	# if not /ext and not mounted on /tmp/*, return
+	# if not /ext and not mounted on /usr/local/mnt/*, return
 	local overlay_uuid="$(uci -q get fstab.overlay.uuid)"
 	if [ -n "$overlay_uuid" ] && [ "$overlay_uuid" = "$UUID" ] && [ "$MOUNT" = "/ext" ]; then
 		local is_overlay=1
 	else
-		[ -n "${MOUNT%%/tmp/*}" ] && return 0
+		[ -n "${MOUNT%%/usr/local/mnt/*}" ] && return 0
 		local is_overlay=0
 	fi
 
@@ -202,8 +222,8 @@ json_list_device_stats() {
 		[ -n "$LABEL" ] && json_add_string label $LABEL
 
 		[ $is_overlay -eq 1 ] && json_add_string in_use memexp || {
-			is_in_use "$MOUNT" samba smbd && json_add_string in_use samba
-			is_in_use "$MOUNT" minidlna minidlna && json_add_string in_use dlna
+			samba_in_use "$MOUNT" && json_add_string in_use samba
+			minidlna_in_use "$MOUNT" && json_add_string in_use dlna
 		}
 		json_add_string status mounted
 	json_close_object
@@ -255,6 +275,37 @@ blockdev_hotplug_pause() {
 	fi
 
 	return 0
+}
+
+[ "$(id -u)" != 0 ] && {
+	# Additional check: only users belonging to "mount" should be allowed
+	[[ " $(id -nG) " =~ " mount" ]] || {
+		logger "User($(id -u)) is not in \"mount\" group"
+		exit 1
+	}
+
+	json_init
+	json_add_array args
+	for arg in "$@"; do
+		json_add_string "" "$arg"
+	done
+	json_close_array
+
+	# This must be ACL protected
+	res=$(ubus -t 0 call system format "$(json_dump)")
+	rc=$?
+	[ $rc -eq 4 ] && logger "Access denied for user($(id -u))"
+	[ $rc -ne 0 ] && exit $rc
+
+	json_load "$res"
+	json_get_vars output exit_code
+
+	echo -n "$output"
+
+	# Is ret_code a number?
+	[ "$exit_code" -eq "exit_code" ] 2>/dev/null || exit 1
+
+	exit $exit_code
 }
 
 case $1 in

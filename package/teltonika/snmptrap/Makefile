@@ -59,7 +59,7 @@ define Package/snmptrap/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/sbin $(1)/etc/init.d $(1)/usr/share/acl.d \
 		$(1)/etc/permtab.d/
 	$(INSTALL_BIN) ./files/snmptrap.init $(1)/etc/init.d/snmptrap
-	$(INSTALL_BIN) ./files/snmptrap.conf $(1)/etc/config/snmptrap
+	$(INSTALL_CONF_USR) ./files/snmptrap.conf $(1)/etc/config/snmptrap
 	$(INSTALL_DATA) ./files/snmptrap.json $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) ./files/snmptrap.permtab $(1)/etc/permtab.d/snmptrap
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/snmptraps $(1)/usr/sbin/

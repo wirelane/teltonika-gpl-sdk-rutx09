@@ -26,10 +26,14 @@
                 "rpc-ping": {
                         "methods": [ "pingv4", "pingv6" ]
                 },
+                "sim_switch": {
+                        "methods": [ "reload" ]
+                },
                 "log" : {
                         "methods": [ "write_ext" ]
                 }
         },
+        "publish": ["sim_switch"],
         "listen": [
                 "sim.changed"
         ]

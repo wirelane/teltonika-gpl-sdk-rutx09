@@ -151,7 +151,6 @@ define Package/base-files/install
 	mkdir -p $(1)/overlay
 	mkdir -p $(1)/lib/firmware
 	$(if $(LIB_SUFFIX),-$(LN) lib $(1)/lib$(LIB_SUFFIX))
-	$(LN) /tmp $(1)/mnt
 	mkdir -p $(1)/proc
 	mkdir -p $(1)/tmp
 	mkdir -p $(1)/usr/lib
@@ -174,15 +173,17 @@ define Package/base-files/install
 	)
 	mkdir -p $(1)/ext
 	mkdir -p $(1)/usr/local/usr/lib
-	mkdir -p $(1)/usr/local/home
+	mkdir -p $(1)/usr/local/mnt
 	mkdir -p $(1)/usr/local/home/root
 	$(LN) /etc $(1)/usr/local/etc
 	$(LN) /usr/local/usr/lib $(1)/usr/local/lib
+	$(LN) usr/local/mnt $(1)/mnt
 	$(LN) usr/local/home $(1)/home
 	$(LN) usr/local/home/root $(1)/root
 	$(LN) /tmp/resolv.conf /tmp/TZ /tmp/localtime $(1)/etc/
 
 	chmod 0770 $(1)/usr/local/home/root
+	chmod 1777 $(1)/usr/local/mnt
 	chmod 0640 $(1)/etc/shadow
 	chmod 1777 $(1)/tmp
 	chmod 0664 $(1)/etc/config/system

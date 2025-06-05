@@ -99,20 +99,23 @@ echo "${!SSH_HOST_KEY}" >~/.ssh/known_hosts
 	exit 0
 }
 
-TOPDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." >/dev/null && pwd)
-ARCH=$(ls "${TOPDIR}/bin/packages/")
-PACKAGEDIR="${TOPDIR}/bin/packages/${ARCH}/pm_packages"
+TOPDIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
+[[ -d ${TOPDIR}/bin/packages ]] || {
+	echo "No packages found"
+	exit 0
+}
+
 TAG=${CI_COMMIT_TAG:-$(git describe | awk -F "-pm" '{print $1}')}
 CLIENT=$(grep 'CONFIG_TLT_VERSIONING_CLIENT' .config | cut -d'=' -f2 | tr -d '"')
 HASH=$(echo -n "${CLIENT}/${TAG}/${PLATFORM}" | sha256sum | awk '{print $1}')
 FOLDER="$PACKAGES_ROOT/${HASH}"
 LINK="$PACKAGES_ROOT/packages/${CLIENT}/${TAG}"
 
+echo "OPKG URL: http://$([[ $prefix == TEST ]] && echo 'test.')opkg.teltonika-networks.com/${HASH}"
+
 echo "UPLOADING TO ${!SSH_USER_HOST#*@}:"
 ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "rm -fr ${FOLDER:?}"
 ssh -p "${!SSH_PORT}" "${!SSH_USER_HOST}" "mkdir -p ${FOLDER} ${LINK} && ln -fs ${FOLDER} ${LINK}/${PLATFORM}" || exit 1
-scp -P "${!SSH_PORT}" "${PACKAGEDIR}/"* "${!SSH_USER_HOST}:/${FOLDER}/"
-
-echo "OPKG URL: http://$([[ $prefix == TEST ]] && echo 'test.')opkg.teltonika-networks.com/${HASH}"
-
-exit 0
+find "${TOPDIR}/bin/packages/" -type d -name pm_packages | while read -r pkg_dir; do
+	scp -P "${!SSH_PORT}" "${pkg_dir}"/* "${!SSH_USER_HOST}:/${FOLDER}/" || exit $?
+done

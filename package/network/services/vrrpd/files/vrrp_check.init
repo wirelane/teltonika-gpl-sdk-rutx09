@@ -10,10 +10,10 @@ start_instance() {
 	local enabled enabled_ping
 
 	config_get enabled "$section" enabled 0
-	[ $enabled -eq 0 ] && return 1
+	[ $enabled -eq 0 ] && return
 	
 	config_get enabled_ping "${section}_ping" enabled 0
-	[ $enabled_ping -eq 0 ] && return 1	
+	[ $enabled_ping -eq 0 ] && return
 
 	PID_FILE=/var/run/vrrpd/vr_check_${section}_ping.pid
 

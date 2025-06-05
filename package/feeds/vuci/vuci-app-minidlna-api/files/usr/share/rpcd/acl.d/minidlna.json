@@ -1,1 +1,1 @@
-{"services/sd_usb_tools/minidlna":{"read":{"api":{"/minidlna/*":["*"],"/wireless/interfaces/basic/status/*":["id","ifname"],"/wireless/interfaces/config/*":["id","network"],"/interfaces/config/*":["id","name","bridge"],"/usb_tools/mount/options/*":["mountpoint"],"/basic/network/devices/status/*":["virtual","name","network"]}},"write":{"api":["/minidlna/*"]}}}
+{"services/sd_usb_tools/minidlna":{"read":{"api":{"/minidlna/*":["*"],"/usb_tools/mount/options/*":["mountpoint"]}},"write":{"api":["/minidlna/*"]}}}

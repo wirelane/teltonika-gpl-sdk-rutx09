@@ -56,13 +56,12 @@ sub target_config_features(@) {
 		/^gps$/ and $ret .= "\tselect GPS_SUPPORT\n";
 		/^serial$/ and $ret .= "\tselect SERIAL_SUPPORT\n";
 		/^modbus$/ and $ret .= "\tselect HAS_MODBUS\n";
-		/^io$/ and $ret .= "\tselect HAS_IO\n";
+		/^ios$/ and $ret .= "\tselect HAS_IO\n";
 		/^dot1x-client$/ and $ret .= "\tselect HAS_DOT1X_CLIENT\n";
 		/^dot1x-server$/ and $ret .= "\tselect HAS_DOT1X_SERVER\n";
 		/^power-control$/ and $ret .= "\tselect HAS_POWER_CONTROL\n";
 		/^single_port$/ and $ret .= "\tselect HAS_SINGLE_ETH_PORT\n";
 		/^wifi$/ and $ret .= "\tselect WIFI_SUPPORT\n";
-		/^guest-wifi$/ and $ret .= "\tselect WIFI_GUEST_NETWORK_SUPPORT\n";
 		/^bt$/ and $ret .= "\tselect BLUETOOTH_SUPPORT\n";
 		/^mobile$/ and $ret .= "\tselect MOBILE_SUPPORT\n";
 		/^bypass-mobile-counters$/ and $ret .= "\tselect BYPASS_MOBILE_COUNTERS\n";
@@ -83,7 +82,6 @@ sub target_config_features(@) {
 		/^vendor_wifi$/ and $ret .= "\tselect USES_VENDOR_WIFI_DRIVER\n";
 		/^mt7981-wifi$/ and $ret .= "\tselect MT7981_WIFI\n";
 		/^basic-router$/ and $ret .= "\tselect BASIC_ROUTER\n";
-		/^serial-reset-quirk$/ and $ret .= "\tselect SERIAL_RESET_QUIRK\n";
 		/^bacnet$/ and $ret .= "\tselect BACNET_MODULE_SUPPORT\n";
 		/^ntrip$/ and $ret .= "\tselect NTRIP_MODULE_SUPPORT\n";
 		/^impulse_counter$/ and $ret .= "\tselect IMPULSE_COUNTER_SUPPORT\n";

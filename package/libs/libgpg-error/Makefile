@@ -11,7 +11,8 @@ PKG_NAME:=libgpg-error
 PKG_VERSION:=1.39
 PKG_RELEASE:=2
 
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_VERSION:=1.39
+PKG_SOURCE:=libgpg-error-$(PKG_SOURCE_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://mirrors.dotsrc.org/gcrypt/libgpg-error \
 		http://ring.ksc.gr.jp/archives/net/gnupg/libgpg-error \
 		https://www.gnupg.org/ftp/gcrypt/libgpg-error

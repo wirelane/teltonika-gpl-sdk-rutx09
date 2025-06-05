@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vrrpd
 PKG_VERSION:=1.15
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_LICENSE:=GPL-2.0-or-later
 
 PKG_SOURCE_PROTO:=git
@@ -32,7 +32,7 @@ define Package/vrrpd
   DEPENDS:=+liblog +librt +libubus
   USERID:=vrrpd:vrrpd
   $(eval CAP_DIR:=$(if $(findstring m,$(CONFIG_PACKAGE_vrrpd)),,/usr/local))
-  CAP:=$(CAP_DIR)/usr/sbin/vrrpd:cap_net_raw,cap_net_admin=ep
+  FATTRS:=$(CAP_DIR)/usr/sbin/vrrpd::::cap_net_raw,cap_net_admin=ep
 endef
 
 define Package/vrrpd/description

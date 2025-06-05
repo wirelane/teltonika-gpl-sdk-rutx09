@@ -1113,7 +1113,8 @@ define KernelPackage/sctp
      CONFIG_SCTP_DEFAULT_COOKIE_HMAC_MD5=y
   FILES:= $(LINUX_DIR)/net/sctp/sctp.ko
   AUTOLOAD:= $(call AutoLoad,32,sctp)
-  DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac
+  DEPENDS:=+kmod-lib-crc32c +kmod-crypto-md5 +kmod-crypto-hmac \
+    +kmod-udptunnel4 +kmod-udptunnel6
 endef
 
 define KernelPackage/sctp/description
@@ -1175,12 +1176,20 @@ define KernelPackage/rxrpc
   HIDDEN:=1
   KCONFIG:= \
 	CONFIG_AF_RXRPC \
-	CONFIG_RXKAD=m \
+	CONFIG_AF_RXRPC_IPV6=y \
+	CONFIG_RXKAD \
 	CONFIG_AF_RXRPC_DEBUG=n
   FILES:= \
 	$(LINUX_DIR)/net/rxrpc/rxrpc.ko
-  AUTOLOAD:=$(call AutoLoad,30,rxrpc.ko)
-  DEPENDS:= +kmod-crypto-manager +kmod-crypto-pcbc +kmod-crypto-fcrypt
+  AUTOLOAD:=$(call AutoLoad,30,rxrpc)
+  DEPENDS:= \
+	+kmod-crypto-fcrypt \
+	+kmod-crypto-hmac \
+	+kmod-crypto-manager \
+	+kmod-crypto-md5 \
+	+kmod-crypto-pcbc \
+	+kmod-udptunnel4 \
+	+IPV6:kmod-udptunnel6
 endef
 
 define KernelPackage/rxrpc/description
@@ -1309,6 +1318,43 @@ endef
 
 $(eval $(call KernelPackage,netlink-diag))
 
+define KernelPackage/inet-diag
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=INET diag support for ss utility
+  KCONFIG:= \
+	CONFIG_INET_DIAG \
+	CONFIG_INET_TCP_DIAG \
+	CONFIG_INET_UDP_DIAG \
+	CONFIG_INET_RAW_DIAG \
+	CONFIG_INET_DIAG_DESTROY=n
+  FILES:= \
+	$(LINUX_DIR)/net/ipv4/inet_diag.ko \
+	$(LINUX_DIR)/net/ipv4/tcp_diag.ko \
+	$(LINUX_DIR)/net/ipv4/udp_diag.ko \
+	$(LINUX_DIR)/net/ipv4/raw_diag.ko
+  AUTOLOAD:=$(call AutoLoad,31,inet_diag tcp_diag udp_diag raw_diag)
+endef
+
+define KernelPackage/inet-diag/description
+Support for INET (TCP, DCCP, etc) socket monitoring interface used by
+native Linux tools such as ss.
+endef
+
+$(eval $(call KernelPackage,inet-diag))
+
+define KernelPackage/inet-mptcp-diag
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=INET diag support for MultiPath TCP
+  DEPENDS:=@KERNEL_MPTCP +kmod-inet-diag
+  KCONFIG:=CONFIG_INET_MPTCP_DIAG
+  FILES:=$(LINUX_DIR)/net/mptcp/mptcp_diag.ko
+  AUTOLOAD:=$(call AutoProbe,mptcp_diag)
+endef
+define KernelPackage/inet-mptcp-diag/description
+Support for INET (MultiPath TCP) socket monitoring interface used by
+native Linux tools such as ss.
+endef
+$(eval $(call KernelPackage,inet-mptcp-diag))
 
 define KernelPackage/wireguard
   SUBMENU:=$(NETWORK_SUPPORT_MENU)

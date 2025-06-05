@@ -1,39 +1,3 @@
-Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
-+++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
-@@ -8,6 +8,7 @@ INCLUDE_DIRECTORIES(include)
- 
- OPTION(FILE_SUPPORT "File plugin support" ON)
- OPTION(IWINFO_SUPPORT "libiwinfo plugin support" ON)
-+OPTION(UCI_SUPPORT "uci plugin support" ON)
- OPTION(RPCSYS_SUPPORT "rpc-sys plugin support" ON)
- OPTION(PAM_SUPPORT	"Include PAM support" OFF)
- 
-@@ -43,7 +44,7 @@ INCLUDE_DIRECTORIES(${ubus_include_dir})
- FIND_PATH(ubox_include_dir libubox/blobmsg_json.h)
- INCLUDE_DIRECTORIES(${ubox_include_dir})
- 
--ADD_EXECUTABLE(rpcd main.c exec.c session.c uci.c rc.c plugin.c)
-+ADD_EXECUTABLE(rpcd main.c exec.c session.c rc.c plugin.c)
- TARGET_LINK_LIBRARIES(rpcd ${ubox} ${ubus} ${uci} ${blobmsg_json} ${json} ${crypt} dl)
- 
- SET(PLUGINS "")
-@@ -70,6 +71,14 @@ IF (IWINFO_SUPPORT)
-   SET_TARGET_PROPERTIES(iwinfo_plugin PROPERTIES OUTPUT_NAME iwinfo PREFIX "")
- ENDIF()
- 
-+IF (UCI_SUPPORT)
-+  FIND_LIBRARY(uci NAMES uci)
-+  SET(PLUGINS ${PLUGINS} uci_plugin)
-+  ADD_LIBRARY(uci_plugin MODULE uci.c session.c)
-+  TARGET_LINK_LIBRARIES(uci_plugin ${ubox} ${ubus} ${uci} ${blobmsg_json})
-+  SET_TARGET_PROPERTIES(uci_plugin PROPERTIES OUTPUT_NAME uci PREFIX "")
-+ENDIF()
-+
- INSTALL(TARGETS rpcd ${PLUGINS}
- 	RUNTIME DESTINATION sbin
- 	LIBRARY DESTINATION lib
 Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
 ===================================================================
 --- rpcd-2021-03-11-ccb75178.orig/include/rpcd/session.h
@@ -308,7 +272,22 @@ Index: rpcd-2021-03-11-ccb75178/uci.c
  		return UBUS_STATUS_PERMISSION_DENIED;
  
  	ptr.package = blobmsg_data(tb[RPC_C_CONFIG]);
-@@ -1778,25 +1801,8 @@ rpc_uci_purge_savedir_cb(struct rpc_sess
+@@ -1757,13 +1780,7 @@ rpc_uci_reload(struct ubus_context *ctx,
+ {
+ 	char * const cmd[2] = { "/sbin/reload_config", NULL };
+ 
+-	if (!fork()) {
+-		/* wait for the RPC call to complete */
+-		sleep(2);
+-		return execv(cmd[0], cmd);
+-	}
+-
+-	return 0;
++	return execv(cmd[0], cmd);
+ }
+ 
+ /*
+@@ -1778,25 +1795,8 @@ rpc_uci_purge_savedir_cb(struct rpc_sess
  	rpc_uci_purge_dir(path);
  }
  
@@ -336,7 +315,7 @@ Index: rpcd-2021-03-11-ccb75178/uci.c
  {
  	static const struct ubus_method uci_methods[] = {
  		{ .name = "configs", .handler = rpc_uci_configs },
-@@ -1820,13 +1826,6 @@ int rpc_uci_api_init(struct ubus_context
+@@ -1820,13 +1820,6 @@ int rpc_uci_api_init(struct ubus_context
  	static struct ubus_object_type uci_type =
  		UBUS_OBJECT_TYPE("luci-rpc-uci", uci_methods);
  
@@ -350,7 +329,7 @@ Index: rpcd-2021-03-11-ccb75178/uci.c
  	static struct rpc_session_cb cb = {
  		.cb = rpc_uci_purge_savedir_cb
  	};
-@@ -1834,9 +1833,21 @@ int rpc_uci_api_init(struct ubus_context
+@@ -1834,9 +1827,22 @@ int rpc_uci_api_init(struct ubus_context
  	cursor = uci_alloc_context();
  
  	if (!cursor)
@@ -361,16 +340,53 @@ Index: rpcd-2021-03-11-ccb75178/uci.c
 +	struct ubus_object *obj = calloc(1, sizeof(*obj));
 +	if (!obj)
 +		return NULL;
- 
--	return ubus_add_object(ctx, &obj);
++
 +	obj->name = "uci";
 +	obj->type = &uci_type;
 +	obj->methods = uci_methods;
 +	obj->n_methods = ARRAY_SIZE(uci_methods);
-+
+ 
+-	return ubus_add_object(ctx, &obj);
 +	return obj;
  }
 +
 +struct rpc_plugin rpc_plugin = {
-+	.init = rpc_uci_api_init
++	.init = rpc_uci_api_init,
++	.capabilities = "cap_dac_override=ep",
 +};
+Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
++++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
+@@ -8,6 +8,7 @@ INCLUDE_DIRECTORIES(include)
+ 
+ OPTION(FILE_SUPPORT "File plugin support" ON)
+ OPTION(IWINFO_SUPPORT "libiwinfo plugin support" ON)
++OPTION(UCI_SUPPORT "uci plugin support" ON)
+ OPTION(RPCSYS_SUPPORT "rpc-sys plugin support" ON)
+ OPTION(PAM_SUPPORT	"Include PAM support" OFF)
+ 
+@@ -47,7 +48,7 @@ INCLUDE_DIRECTORIES(${ubox_include_dir})
+ FIND_PATH(pcap_include_dir sys/capability.h)
+ INCLUDE_DIRECTORIES(${pcap_include_dir})
+ 
+-ADD_EXECUTABLE(rpcd main.c exec.c session.c uci.c rc.c plugin.c)
++ADD_EXECUTABLE(rpcd main.c exec.c session.c rc.c plugin.c)
+ TARGET_LINK_LIBRARIES(rpcd ${ubox} ${ubus} ${uci} ${blobmsg_json} ${json} ${crypt} ${cap} dl)
+ 
+ SET(PLUGINS "")
+@@ -74,6 +75,14 @@ IF (IWINFO_SUPPORT)
+   SET_TARGET_PROPERTIES(iwinfo_plugin PROPERTIES OUTPUT_NAME iwinfo PREFIX "")
+ ENDIF()
+ 
++IF (UCI_SUPPORT)
++  FIND_LIBRARY(uci NAMES uci)
++  SET(PLUGINS ${PLUGINS} uci_plugin)
++  ADD_LIBRARY(uci_plugin MODULE uci.c session.c)
++  TARGET_LINK_LIBRARIES(uci_plugin ${ubox} ${ubus} ${uci} ${blobmsg_json})
++  SET_TARGET_PROPERTIES(uci_plugin PROPERTIES OUTPUT_NAME uci PREFIX "")
++ENDIF()
++
+ INSTALL(TARGETS rpcd ${PLUGINS}
+ 	RUNTIME DESTINATION sbin
+ 	LIBRARY DESTINATION lib

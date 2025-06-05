@@ -38,6 +38,7 @@ ifeq ($(DUMP),)
 endif
 
 CMAKE_OPTIONS += -DEARLY_PATH="$(TARGET_INIT_PATH)"
+CMAKE_OPTIONS += $(if $(CONFIG_USB_STORAGE_SUPPORT),-DCMAKE_USB_STORAGE_SUPPORT=y)
 
 define Package/procd/Default
   SECTION:=base

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ledman
 
-PKG_SOURCE_VERSION:=2.22.5
+PKG_SOURCE_VERSION:=2.24
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -19,6 +19,7 @@ define Package/ledman-full
 	PROVIDES:=ledman
 	VARIANT:=full
 	DEPENDS:= +libubus +libubox +libblobmsg-json +libuci +libnl-tiny +MOBILE_SUPPORT:libgsm +MOBILE_SUPPORT:liburc
+	USERID:=ledman:ledman
 endef
 
 # TODO SOMEHOW DEPS FROM 'FULL' IS NEEDED TO COMPILE 'TINY'
@@ -29,6 +30,7 @@ define Package/ledman
 	PROVIDES:=ledman
 	CONFLICTS:=ledman-full
 	VARIANT:=tiny
+	USERID:=ledman:ledman
 endef
 
 define Package/ledman-full/description
@@ -45,9 +47,10 @@ ifeq ($(BUILD_VARIANT),full)
 endif
 
 define Package/ledman-full/install
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/bin $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ledman.init $(1)/etc/init.d/ledman
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ledman $(1)/usr/bin/ledman
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/ledman.json $(1)/usr/share/acl.d/ledman.json
 endef
 
 
@@ -56,7 +59,6 @@ define Package/ledman/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ledman_lite.sh $(1)/usr/bin/ledman
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ledman_lite.init $(1)/etc/init.d/ledman
 endef
-
 
 
 

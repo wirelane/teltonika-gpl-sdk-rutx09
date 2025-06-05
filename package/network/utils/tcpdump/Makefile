@@ -38,14 +38,6 @@ endef
 define Package/tcpdump
   $(Package/tcpdump/default)
   VARIANT:=full
-  ifeq (m, $(CONFIG_PACKAGE_tcpdump))
-    PKG_TLT_NAME:=TCPdump
-    PKG_ROUTER:=$(TLT_PLATFORM_NAME)
-  endif
-endef
-
-define Package/tcpdump/description
-  TCP dump is used to capture packets moving through network interfaces.
 endef
 
 define Package/tcpdump-mini
@@ -59,14 +51,10 @@ define Package/tcpdump/prerm
   #!/bin/sh
   . /lib/functions.sh
   config_load system
-  uci_remove system system tcp_dump
-  uci_remove system system tcp_dump_interface
-  uci_remove system system tcp_dump_filter
-  uci_remove system system tcp_inout
-  uci_remove system system tcp_host
-  uci_remove system system tcp_port
-  uci_remove system system tcp_mount
-  uci_commit
+  for opt in dump dump_interface dump_filter inout host port mount; do
+	uci_remove system system "tcp_$${opt}" 2>/dev/null
+  done
+  uci_commit system
 endef
 
 CONFIGURE_ARGS += \

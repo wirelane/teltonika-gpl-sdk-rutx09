@@ -30,10 +30,13 @@
                 },
                 "file": {
                         "methods": [ "read", "write" ]
+                },
+                "service": {
+                        "methods": [ "event" ]
                 }
         },
         "publish": [ "mobifd", "mobifd.modem*" ],
-        "send": [ "gsm.*", "mobifd.*", "vuci.*", "lpac.updates" ],
+        "send": [ "gsm.*", "mobifd.*", "vuci.*", "lpac.updates", "rms.notify" ],
         "listen": [
                 "gsm",
                 "gsm.new_modem",

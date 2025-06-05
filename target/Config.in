@@ -171,9 +171,6 @@ config MT7981_WIFI
 config BASIC_ROUTER
 	bool
 
-config SERIAL_RESET_QUIRK
-	bool
-
 config MULTI_DEVICE_QUIRK
 	bool
 

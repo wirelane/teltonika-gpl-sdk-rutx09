@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2025-05-21-aad772a3df
+PKG_VERSION:=2025-06-03-695306b125
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -125,6 +125,7 @@ define Package/vuci-ui-core/install
 	fi
 	$(CP) ../menu_static.sh $(PKG_BUILD_DIR)
 	$(if $(CONFIG_GPL_BUILD), \
+		$(RM) -rf $(MENU_OUTPUT_DIR); \
 		mkdir -p $(MENU_OUTPUT_DIR) && \
 		$(foreach app_dir,$(VUCI_APPS), \
 			$(eval app_ui_dir=$(notdir $(app_dir))) \

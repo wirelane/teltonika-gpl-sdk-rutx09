@@ -5,8 +5,8 @@
 
 missing_lines() {
 	local file1 file2 out user data
-	file1="$1"
-	file2="$2"
+	file1="$1" # tmp
+	file2="$2" # etc
 	out="$3"
 
 	cp "$file1" "$out"

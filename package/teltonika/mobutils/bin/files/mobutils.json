@@ -67,7 +67,10 @@
 		"system": {
 			"methods": [
 				"list_profiles",
-				"change_profile"
+				"change_profile",
+				"userdefaults",
+				"sysupgrade",
+				"firstboot"
 			]
 		},
 		"ip_block": {
@@ -76,11 +79,14 @@
 				"clear"
 			]
 		},
-		"sys": {
+		"rpc-sys": {
 			"methods": [
-				"firstboot",
-				"reboot",
-				"userdefaults"
+				"reboot"
+			]
+		},
+		"mobifd" : {
+			"methods": [
+				"reload"
 			]
 		},
 		"mobifd.modem*": {
@@ -88,9 +94,7 @@
 				"reset_conn",
 				"reload",
 				"status",
-				"list_esim_profiles",
-				"change_esim_profile",
-				"install_esim_profile"
+				"change_esim_profile"
 			]
 		},
 		"service": {
@@ -106,12 +110,7 @@
 		},
 		"uci": {
 			"methods": [
-				"get",
-				"set",
-				"add",
-				"delete",
-				"commit",
-				"logged_commit"
+				"reload_config"
 			]
 		},
 		"file": {
@@ -122,6 +121,17 @@
 		"quota_limit.*": {
 			"methods": [
 				"status"
+			]
+		},
+		"log": {
+			"methods": [
+				"write_ext"
+			]
+		},
+		"esim.modem*": {
+			"methods": [
+				"status",
+				"download"
 			]
 		}
 	}

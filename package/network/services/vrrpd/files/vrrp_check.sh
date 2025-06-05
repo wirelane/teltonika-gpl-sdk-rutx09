@@ -57,6 +57,7 @@ while :; do
 
 					logger "Killing vrrpd instance ($1) after $failure unsuccessful retries"
 					kill "$RUNNING"
+					[ -e "$VRRPD_PID_FILE" ] && rm "$VRRPD_PID_FILE"
 
 					ubus call log write_ext "{
 						\"event\": \"Stopping vrrp. We are now a backup router\",

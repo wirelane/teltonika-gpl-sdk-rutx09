@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=gpio-button-hotplug
-PKG_RELEASE:=3
+PKG_RELEASE:=5
 PKG_LICENSE:=GPL-2.0-only
 
-PKG_ORIGIN_URL:=https://github.com/openwrt/openwrt/tree/openwrt-21.02/package/kernel/gpio-button-hotplug
+PKG_ORIGIN_URL:=https://github.com/openwrt/openwrt/tree/openwrt-24.10/package/kernel/gpio-button-hotplug
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -37,6 +37,16 @@ endef
 MAKE_OPTS:= \
 	$(KERNEL_MAKE_FLAGS) \
 	M="$(PKG_BUILD_DIR)"
+
+ifeq ($(CONFIG_LINUX_6_6), y)
+SRC_DIR:=src-6.6
+else
+SRC_DIR:=src
+endif
+
+define Build/Prepare
+	$(CP) ./$(SRC_DIR)/. $(PKG_BUILD_DIR);
+endef
 
 define Build/Compile
 	$(MAKE) -C "$(LINUX_DIR)" \

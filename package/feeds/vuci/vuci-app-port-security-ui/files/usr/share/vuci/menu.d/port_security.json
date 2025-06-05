@@ -7,18 +7,18 @@
     "title": "802.1X Server",
     "index": 20,
     "view": "network/PortSecurity",
-    "acls": ["network/port_security/general"]
+    "acls": ["network/ports/port_security"]
   },
   "network/ports/port_security/general": {
     "title": "General",
     "index": 10,
     "view": "network/PortSecurity",
-    "acls": ["network/port_security/general"]
+    "acls": ["network/ports/port_security/general"]
   },
   "network/ports/port_security/radius": {
     "title": "Radius",
     "index": 10,
     "view": "network/Radius",
-    "acls": ["network/port_security/radius"]
+    "acls": ["network/ports/port_security/radius"]
   }
 }

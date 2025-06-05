@@ -63,7 +63,6 @@ while getopts "wsipgebcmvojraCd:nfl" opt; do
 	esac
 done
 if [ "$force" ]; then
-	[ -e /usr/bin/usb_test ] && /usr/bin/usb_test
 	/bin/busybox reboot -f
 fi
 if [ "$reboot" != "0" ]; then
@@ -119,13 +118,6 @@ if [ "$reboot" != "0" ]; then
 
 	# Stop tracking and shutdown modems
 	[ -e /sbin/mctl ] && /sbin/mctl -w -a && /sbin/mctl -s -a
-
-	device_name=$(mnf_info -n | cut -c1-6 2>/dev/null)
-	case "$device_name" in
-		TRB2[45]5)
-			[ -e "/usr/bin/usb_reboot" ] && /usr/bin/usb_reboot
-		;;
-	esac
 
 	/bin/busybox reboot "$var"
 fi

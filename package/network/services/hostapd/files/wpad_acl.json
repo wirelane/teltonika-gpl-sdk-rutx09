@@ -1,6 +1,9 @@
 {
 	"user": "network",
 	"access": {
+		"log": {
+			"methods": [ "write_ext" ]
+		},
 		"service": {
 			"methods": [ "event" ]
 		},
@@ -9,6 +12,9 @@
 		},
 		"hostapd": {
 			"methods": [ "apsta_state" ]
+		},
+		"iwinfo": {
+			"methods": [ "info" ]
 		}
 	},
 	"publish": [ "hostapd", "hostapd.*", "wpa_supplicant", "wpa_supplicant.*" ],

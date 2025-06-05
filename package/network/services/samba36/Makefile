@@ -39,7 +39,7 @@ define Package/samba/Default
   URL:=https://www.samba.org/
   MAINTAINER:=Felix Fietkau <nbd@nbd.name>
   USERID:=samba:samba
-  CAP:=/usr/sbin/samba_multicall:cap_net_bind_service=ep
+  FATTRS:=/usr/sbin/samba_multicall::::cap_net_bind_service=ep
 endef
 
 define Package/samba36-server
