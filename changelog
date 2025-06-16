@@ -1,3 +1,14 @@
+# 2025-06-16 00.07.15.1
+
+### Fix
+
+* Backup: fixed missing root and admin user restoration during backup apply (ID: 26605)
+* Event juggler: fixed the execution of user scripts (ID: 26585)
+* Hotspot: fixed user scripts migration after upgrade with keep settings (ID: 26589)
+* Hotspot: fixed users scripts execution (ID: 26589)
+* Realtime Traffic: fixed data collection in rare cases (ID: 26600)
+* SMS Utilities: fixed the execution of user scripts (ID: 26585)
+
 # 2025-06-02 00.07.15
 
 ### New

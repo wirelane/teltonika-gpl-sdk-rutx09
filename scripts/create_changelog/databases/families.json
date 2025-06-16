@@ -17,7 +17,7 @@
   },
   {
     "name": "OTD",
-    "devices": ["OTD140", "OTD500", "OTD501"]
+    "devices": ["OTD140", "OTD144", "OTD500", "OTD501"]
   },
   {
     "name": "RUTM",

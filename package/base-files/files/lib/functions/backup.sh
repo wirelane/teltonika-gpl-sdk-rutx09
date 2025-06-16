@@ -303,6 +303,8 @@ restore_configs() {
 
 missing_lines() {
 	local file1 file2 out user data
+	file1="$1"
+	file2="$2"
 	out="$3"
 
 	cp "$file1" "$out"

@@ -59,6 +59,14 @@ err_to_bool() {
 
 echo 0 > /tmp/fwtool_last_error
 
+if type 'platform_check_prerequisites' >/dev/null 2>/dev/null; then
+	platform_check_prerequisites
+	[ "$?" -ne 0 ] &&  {
+		notify_firmware_invalid
+		fwtool_msg "Upgrade terminated due to low battery level" "18"
+	}
+fi
+
 if type 'platform_pre_check_image' >/dev/null 2>/dev/null; then
 	platform_pre_check_image "$1" >&2
 	[ "$?" -ne 0 ] && notify_firmware_invalid

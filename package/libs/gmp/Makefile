@@ -23,6 +23,7 @@ PKG_LICENSE:=LGPL-3.0-or-later GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYINGv2 COPYINGv3
 
 PKG_BUILD_FLAGS:=no-mips16
+PKG_BUILD_DEPENDS:=flac
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk

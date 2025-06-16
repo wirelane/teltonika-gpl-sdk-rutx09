@@ -9,11 +9,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2025-03-28
+PKG_VERSION:=2025-06-12
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_RELEASE:=4
+PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.4
 PKG_SOURCE_URL:=https://codeload.github.com/coova/coova-chilli/tar.gz/refs/tags/$(PKG_SOURCE_VERSION)?
@@ -54,7 +54,7 @@ define Package/coova-chilli
   URL:=https://coova.github.io/
   MENU:=1
   USERID:=chilli=511:chilli=511
-  FATTRS:=/usr/sbin/chilli::::cap_net_admin,cap_net_raw,cap_net_bind_service=ep;/usr/sbin/chilli_query:chilli::y:
+  FATTRS:=/usr/sbin/chilli::::cap_net_admin,cap_net_raw,cap_net_bind_service=ep;/usr/sbin/chilli_script:root::y:
 endef
 
 define Package/coova-chilli/description
@@ -117,6 +117,7 @@ define Build/Configure
 	--without-cyassl \
 	--enable-miniconfig \
 	--localstatedir=/var/run/chilli \
+	--enable-chilliscript \
 	$(if $(filter m,$(CONFIG_PACKAGE_coova-chilli)),--sbindir=/usr/local/usr/sbin,) \
 	$(if $(CONFIG_COOVACHILLI_CHILLIQUERY),--enable,--disable)-chilliquery \
 	$(if $(CONFIG_COOVACHILLI_PROXY),--enable,--disable)-chilliproxy \

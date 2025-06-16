@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.2
+PKG_SOURCE_VERSION:=1.2.1
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf

@@ -28,19 +28,20 @@ enum modem_wcdma_band_id {
 	MB_WCDMA_NONE = 0ULL, //!< Reserved
 	MB_WCDMA_ANY  = 1ULL, //!< Reserved
 
-	MB_WCDMA_700  = (1ULL << 1), //!< WCDMA 700
-	MB_WCDMA_800  = (1ULL << 2), //!< WCDMA 800
-	MB_WCDMA_J800 = (1ULL << 3), //!< WCDMA Japan 800
-	MB_WCDMA_850  = (1ULL << 4), //!< WCDMA 850
-	MB_WCDMA_J850 = (1ULL << 5), //!< WCDMA Japan 850
-	MB_WCDMA_900  = (1ULL << 6), //!< WCDMA 900
-	MB_WCDMA_1500 = (1ULL << 7), //!< WCDMA 1500
-	MB_WCDMA_1700 = (1ULL << 8), //!< WCDMA 1700
-	MB_WCDMA_1800 = (1ULL << 9), //!< WCDMA 1800
-	MB_WCDMA_1900 = (1ULL << 10), //!< WCDMA 1900
-	MB_WCDMA_2100 = (1ULL << 11), //!< WCDMA 2100
-	MB_WCDMA_2600 = (1ULL << 12), //!< WCDMA 2600
-	MB_WCDMA_3500 = (1ULL << 13), //!< WCDMA 3500
+	MB_WCDMA_700   = (1ULL << 1), //!< WCDMA 700
+	MB_WCDMA_800   = (1ULL << 2), //!< WCDMA 800
+	MB_WCDMA_J800  = (1ULL << 3), //!< WCDMA Japan 800
+	MB_WCDMA_850   = (1ULL << 4), //!< WCDMA 850
+	MB_WCDMA_J850  = (1ULL << 5), //!< WCDMA Japan 850
+	MB_WCDMA_900   = (1ULL << 6), //!< WCDMA 900
+	MB_WCDMA_1500  = (1ULL << 7), //!< WCDMA 1500
+	MB_WCDMA_1700  = (1ULL << 8), //!< WCDMA 1700
+	MB_WCDMA_J1700 = (1ULL << 9), //!< WCDMA Japan 1700
+	MB_WCDMA_1800  = (1ULL << 10), //!< WCDMA 1800
+	MB_WCDMA_1900  = (1ULL << 11), //!< WCDMA 1900
+	MB_WCDMA_2100  = (1ULL << 12), //!< WCDMA 2100
+	MB_WCDMA_2600  = (1ULL << 13), //!< WCDMA 2600
+	MB_WCDMA_3500  = (1ULL << 14), //!< WCDMA 3500
 
 	__MB_WCDMA_MAX,
 	__MB_WCDMA_ALIGN = ULLONG_MAX,

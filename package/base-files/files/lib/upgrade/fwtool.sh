@@ -19,6 +19,7 @@
 # 15 - Insufficient free space in /tmp
 # 16 - Downgrade is not allowed
 # 17 - Only authorized firmware is allowed
+# 18 - Upgrade terminated due to low battery level
 
 fwtool_msg() {
 	local file="/tmp/fwtool_last_error"

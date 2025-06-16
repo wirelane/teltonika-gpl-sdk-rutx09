@@ -12,7 +12,7 @@ ubus:x:81:ubus,opcua_server,modbus_server,mqtt_modbus_gateway,rpcd,sodog,dlms_cl
 lock:x:98:admin,mctl,dfota,preboot
 log:x:99:mobutils,mqtt_modbus_gateway,modbus_server,gsm,sms_limit,rut_fota,rpcd
 users:x:100:gsm,sim_switch,rut_fota,sshfs
-network:x:101:chilli,hostblock,dot1x_client,opcua_server,modbus_server,gsm,sim_switch,juggler,mobutils,preboot,snmpd,easycwmp,ip_blockd
+network:x:101:chilli,hostblock,dot1x_client,opcua_server,modbus_server,gsm,sim_switch,juggler,mobutils,preboot,snmpd,easycwmp,ip_blockd,mdcollectd
 snmptrap:x:500:mobutils
 opcua_client:x:501:opcua_client,ds,mobutils
 sim_switch:x:502:mobutils

@@ -270,6 +270,11 @@ set_chilli() {
 		chown chilli:chilli "$2"
 		set_conf "$1" "$2"
 		;;
+	usersignup)
+		chmod 0760 "$2"
+		chown root:chilli "$2"
+		set_conf "$1" "$2"
+		;;
 	_* | uamdomain_* | conup | condown | uamlisten | net | macup | macdown | enabled | conrestart) ;;
 
 	*)
@@ -467,14 +472,15 @@ add_con_script() {
 	config_get content "$cfg" "$type"
 
 	[ -n "$content" ] && {
-		chown chilli:chilli "$content"
+		chmod 0760 "$content"
+		chown root:chilli "$content"
 		content="\\.$(printf '%s\n' "$content" | sed 's/[\/&]/\\&/g')"
 	}
 
 	local file="${WORKING_DIR}/chilli_${type}_${cfg}.sh"
 	sed "1s/.*/&\n$content/" "/etc/chilli/${type}.sh" > "$file"
-	chmod +x "$file"
-	chown chilli:chilli "$file"
+	chmod 0760 "$file"
+	chown root:chilli "$file"
 	set_conf "$type" "$file"
 }
 
