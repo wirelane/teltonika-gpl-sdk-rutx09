@@ -128,6 +128,7 @@ clean_tmp_dir() {
 
 	rm -f /tmp/sysupgrade.meta
 	rm -f /tmp/sysupgrade.ucert
+	rm -f /tmp/fw.*
 }
 
 clean_tpm() {

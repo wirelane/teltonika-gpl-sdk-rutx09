@@ -25,6 +25,10 @@ find $TARGETS -type f -a -exec file {} \; | \
 (
   IFS=":"
   while read F S; do
+	if [ -n "$EXCLUDE_PATTERN" ] && echo "$F" | grep -q "$EXCLUDE_PATTERN"; then
+		echo "$SELF: Skipping $F (matches exclude pattern)"
+		continue
+	fi
 	echo "$SELF: $F: $S"
 	b=$(stat -c '%a' $F)
 	eval "$COMPRESSOR $COMPRESS_OPTIONS $F"

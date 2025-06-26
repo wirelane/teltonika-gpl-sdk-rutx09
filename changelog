@@ -1,3 +1,20 @@
+# 2025-06-25 00.07.15.2
+
+### Improvements
+
+* Network: swapped MAC addresses for lan1 and lan2 for OTD501, OTD500 (ID: 26682)
+* Update Firmware: optimized firmware validation through caching (ID: 26403)
+
+### Fix
+
+* Data to Server: fixed MBus database path bug (ID: 26690)
+* Hotspot: fixed segmentation fault (ID: 26749)
+* L2TP: fixed memory leak issue with invalid packets (ID: 26569)
+* Package Manager: fixed possible config migration issues on the PM installed packages (ID: 26809)
+* System Status: fixed display of MAC address (ID: 26682)
+* WebUI: fixed subscribe processes not exiting when UHTTPD is killed (ID: 26708)
+* Wireless: fixed WPA3-SAE fast transition configuration (ID: 26457)
+
 # 2025-06-16 00.07.15.1
 
 ### Fix

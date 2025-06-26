@@ -141,6 +141,11 @@ EOF
 	tar -C / -xzf "${TAR_FILE}" -X "${EXCLUDE_FILE}"
 	rm -f "${TAR_FILE}" "${EXCLUDE_FILE}"
 	update_modbus_register_file_config
+
+	# place old version & renew device_fw_version
+	local oldver="$(uci -q get system.system.device_fw_version)"
+	[ -n "$oldver" ] && echo "$oldver" > /etc/last_version
+	uci set system.system.device_fw_version="$(cat /etc/version)"
 }
 
 do_mount_root() {

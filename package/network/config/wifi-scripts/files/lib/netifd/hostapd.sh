@@ -516,7 +516,7 @@ hostapd_set_bss_options() {
 
 	wireless_vif_parse_encryption
 
-	local bss_conf bss_md5sum
+	local bss_conf bss_md5sum ft_key
 	local wep_rekey wpa_group_rekey wpa_pair_rekey wpa_master_rekey wpa_key_mgmt
 
 	json_get_vars \
@@ -820,11 +820,11 @@ hostapd_set_bss_options() {
 			json_get_vars mobility_domain ft_psk_generate_local ft_over_ds reassociation_deadline
 
 			set_default mobility_domain "$(echo "$ssid" | md5sum | head -c 4)"
-			set_default ft_over_ds 1
+			set_default ft_over_ds 0
 			set_default reassociation_deadline 1000
 
 			case "$auth_type" in
-				psk|sae|psk-sae)
+				psk)
 					set_default ft_psk_generate_local 1
 				;;
 				*)
@@ -845,6 +845,17 @@ hostapd_set_bss_options() {
 
 				set_default r0_key_lifetime 10000
 				set_default pmk_r1_push 0
+
+				[ -n "$r0kh" -a -n "$r1kh" ] || {
+					if [ -z "$auth_secret" -a -z "$key" ]; then
+						wireless_setup_vif_failed FT_KEY_CANT_BE_DERIVED
+						return 1
+					fi
+					ft_key=`echo -n "$mobility_domain/${auth_secret:-${key}}" | md5sum | awk '{print $1}'`
+
+					set_default r0kh "ff:ff:ff:ff:ff:ff,*,$ft_key"
+					set_default r1kh "00:00:00:00:00:00,00:00:00:00:00:00,$ft_key"
+				}
 
 				[ -n "$r1_key_holder" ] && append bss_conf "r1_key_holder=$r1_key_holder" "$N"
 				append bss_conf "r0_key_lifetime=$r0_key_lifetime" "$N"

@@ -564,7 +564,7 @@ apply_defaults() {
 uci_apply_defaults() {
 	echo "uci-defaults: - init -"
 
-	local old_version="$(uci -q get system.system.device_fw_version)"
+	local old_version="$(cat /etc/last_version)"
 	local new_version="$(cat /etc/version)"
 	local top_dir="/etc/uci-defaults"
 

@@ -1,5 +1,14 @@
 #!/bin/sh
 
+FW_JSON="/tmp/fw.json"
+FW_HASH="/tmp/fw.hash"
+
+[ -e "$FW_HASH" ] && [ -e "$FW_JSON" ] && \
+	[ "$(md5sum "$1")" = "$(cat "$FW_HASH")" ] && {
+		cat "$FW_JSON"
+		exit 0
+	}
+
 . /lib/functions.sh
 . /lib/functions/system.sh
 . /usr/share/libubox/jshn.sh
@@ -106,6 +115,8 @@ if type 'platform_check_hw_support' >/dev/null 2>/dev/null; then
 	}
 fi
 
+md5sum "$1" > "$FW_HASH"
+
 json_set_namespace validate_firmware_image old_ns
 json_init
 	json_add_string hw_mods "$hw_mods"
@@ -129,5 +140,6 @@ json_init
 	json_add_boolean allow_backup "$ALLOW_BACKUP"
 	json_add_boolean is_downgrade "$IS_DOWNGRADE"
 	json_add_boolean password_warning "$PASSWD_WARNING"
-json_dump -i
+json_dump -i > "$FW_JSON"
 json_set_namespace $old_ns
+cat "$FW_JSON"
