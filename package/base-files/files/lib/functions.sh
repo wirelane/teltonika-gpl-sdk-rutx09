@@ -564,13 +564,16 @@ apply_defaults() {
 uci_apply_defaults() {
 	echo "uci-defaults: - init -"
 
-	local old_version="$(cat /etc/last_version)"
+	local old_version="$(cat /etc/last_version 2>/dev/null)"
 	local new_version="$(cat /etc/version)"
 	local top_dir="/etc/uci-defaults"
 
+	[ -z "$old_version" ] && old_version="$(uci -q get system.system.device_fw_version)"
 	[ -z "$old_version" ] && old_version="$new_version"
-	[ "$old_version" = "$new_version" ] || \
+	[ "$old_version" = "$new_version" ] || {
 		uci set system.system.device_fw_version="$new_version"
+		echo "$old_version" > /etc/last_version
+	}
 	[ -z "$(ls -A /etc/uci-defaults/)" ] && return
 
 	local old_major=$(echo "$old_version" | awk -F . '{ print $2 }')

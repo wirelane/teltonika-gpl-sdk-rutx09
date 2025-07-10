@@ -1,3 +1,19 @@
+# 2025-07-09 00.07.15.4
+
+### Improvements
+
+* Mobile: improved handling of ESM reject causes #33, #50, #51, and #52 (ID: 26293)
+
+### Fix
+
+* Backup: fixed internal firmware metadata not updating after applying backup (ID: 27082)
+
+# 2025-07-04 00.07.15.3
+
+### Fix
+
+* System: fixed possible PoE issues with some power supplies for RUT951 (ID: 26949)
+
 # 2025-06-25 00.07.15.2
 
 ### Improvements

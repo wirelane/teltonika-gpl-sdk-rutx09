@@ -200,15 +200,6 @@ qmi_error_handle() {
 			return 1
 	}
 
-	echo "$error" | grep -qi "Call Failed" && {
-		[ "$skip_reset" != "true" ] && {
-			logger -t "mobile.sh" "Device not responding, resetting mobile network"
-			sleep 10
-			gsm_soft_reset "$modem_id"
-		}
-		return 1
-	}
-
 	echo "$error" | grep -qi "Failed to connect to service" && {
 		logger -t "mobile.sh" "Device not responding, restarting module"
 		gsm_hard_reset "$modem_id"
@@ -227,6 +218,15 @@ qmi_error_handle() {
 		logger -t "mobile.sh" "Got QMI WDS core error. Restarting the WDS service"
 		uqmi -d "$device" --reset-wds
 		sleep 5
+		return 1
+	}
+
+	echo "$error" | grep -qi "Call Failed" && {
+		[ "$skip_reset" != "true" ] && {
+			logger -t "mobile.sh" "Device not responding, resetting mobile network"
+			sleep 10
+			gsm_soft_reset "$modem_id"
+		}
 		return 1
 	}
 

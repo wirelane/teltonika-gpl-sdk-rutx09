@@ -432,6 +432,7 @@ apply_backup() {
 	cp -af /tmp/new_config_dir/usr/ / 2>/dev/null
 	cp -a /rom/etc/uci-defaults/* /etc/uci-defaults/ 2>/dev/null
 	rm -rf /tmp/new_config_dir
+	rm -f /etc/last_version
 	cp /rom/etc/shadow /rom/etc/passwd /rom/etc/group /tmp/
 	missing_lines /tmp/passwd /etc/passwd /tmp/passwd_merged
 	merge_file /tmp/group /etc/group /tmp/group_merged

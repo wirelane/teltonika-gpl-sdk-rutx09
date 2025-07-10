@@ -26,6 +26,8 @@ PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 PKG_REMOVE_FILES:=autogen.sh aclocal.m4
 
+PKG_BUILD_DEPENDS:=libgpg-error libgcrypt
+
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libflac

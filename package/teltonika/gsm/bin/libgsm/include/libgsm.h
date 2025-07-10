@@ -717,7 +717,7 @@ typedef enum {
 
 typedef enum {
 	LGSM_HPLMN_SEARCH_TIMER_VALUE,
-	LGSM_HPLMN_SEARCH_TIMER_IS_DEFAULT,
+	LGSM_HPLMN_SEARCH_TIMER_SIM_STORED_VALUE,
 	LGSM_HPLMN_SEARCH_TIMER_MAX,
 } lgsm_hplmn_search_timer_attrs_t;
 
@@ -926,8 +926,8 @@ typedef enum {
 	LGSM_UBUS_DISABLE_NR5G_SA,
 	LGSM_UBUS_SET_HPLMN_SEARCH_TIMER,
 	LGSM_UBUS_GET_HPLMN_SEARCH_TIMER,
-	LGSM_UBUS_SET_US_PPLMN_LIST,
-	LGSM_UBUS_GET_US_PPLMN_LIST,
+	LGSM_UBUS_SET_PPLMN_LIST,
+	LGSM_UBUS_GET_PPLMN_LIST,
 	LGSM_UBUS_GET_PCO,
 	LGSM_UBUS_SET_PCO,
 	LGSM_UBUS_GET_CIREG_URC,
@@ -1484,7 +1484,7 @@ typedef struct {
 
 typedef struct {
 	int value;
-	bool is_default;
+	int sim_stored_value;
 } lgsm_hplmn_search_timer_t;
 
 typedef struct {
@@ -3383,7 +3383,7 @@ lgsm_err_t lgsm_set_hplmn_search_timer(struct ubus_context *ctx, func_t *resp, u
  * @param[in]   modem_num   Modem identification number.
  * @return lgsm_err_t. Return function status code.
  */
-lgsm_err_t lgsm_set_us_pplmn_list(struct ubus_context *ctx, func_t *resp, uint32_t modem_num);
+lgsm_err_t lgsm_set_pplmn_list(struct ubus_context *ctx, func_t *resp, uint32_t modem_num);
 
 /******************
 *  GET HANDLERS  *
@@ -4085,7 +4085,7 @@ void handle_get_hplmn_search_timer(struct blob_attr *info, lgsm_structed_info_t 
    * @param[ptr]   info      Blob from gsmd.
    * @param[ptr]   parsed    Parsed union readable information.
    */
-void handle_get_us_pplmn_list(struct blob_attr *info, lgsm_structed_info_t *parsed);
+void handle_get_pplmn_list(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /*********************
 *  STRUCT HANDLERS  *
