@@ -1,7 +1,12 @@
 {
   "services/gps": {
     "title": "GPS",
-    "index": 80
+    "index": 80,
+    "depends": {
+      "board": {
+        "allOf": ["has_gps"]
+      }
+    }
   },
   "services/gps/general": {
     "title": "General",
@@ -53,7 +58,12 @@
     "title": "AVL I/O",
     "index": 6,
     "view": "services/AvlInput",
-    "acls": ["services/gps/input"]
+    "acls": ["services/gps/input"],
+    "depends": {
+      "board": {
+        "allOf": ["has_ios"]
+      }
+    }
   },
   "services/gps/geofencing": {
     "title": "GPS Geofencing",

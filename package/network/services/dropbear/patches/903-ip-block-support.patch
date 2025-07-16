@@ -1,5 +1,5 @@
 --- /dev/null
-+++ b/ip_block.c
++++ b/src/ip_block.c
 @@ -0,0 +1,166 @@
 +#include "ip_block.h"
 +#include "lock_manager.h"
@@ -167,9 +167,8 @@
 +	release_lock();
 +	return ret;
 +}
-\ No newline at end of file
 --- /dev/null
-+++ b/ip_block.h
++++ b/src/ip_block.h
 @@ -0,0 +1,6 @@
 +#ifndef __IP_BLOCK_H
 +#define __IP_BLOCK_H
@@ -177,30 +176,29 @@
 +int signal_ip_block(char *op, char *ip, char *dest_ip, char *port);
 +
 +#endif
-\ No newline at end of file
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -40,7 +40,7 @@ COMMONOBJS=dbutil.o buffer.o dbhelpers.o
- 		dbmalloc.o \
+@@ -48,7 +48,7 @@ _COMMONOBJS=dbutil.o buffer.o dbhelpers.
  		gensignkey.o gendss.o genrsa.o gened25519.o
+ COMMONOBJS = $(patsubst %,$(OBJ_DIR)/%,$(_COMMONOBJS))
  
--SVROBJS=svr-kex.o svr-auth.o sshpty.o \
-+SVROBJS=lock_manager.o ip_block.o svr-kex.o svr-auth.o sshpty.o \
+-_SVROBJS=svr-kex.o svr-auth.o sshpty.o \
++_SVROBJS=lock_manager.o ip_block.o svr-kex.o svr-auth.o sshpty.o \
  		svr-authpasswd.o svr-authpubkey.o svr-authpubkeyoptions.o svr-session.o svr-service.o \
  		svr-chansession.o svr-runopts.o svr-agentfwd.o svr-main.o svr-x11fwd.o\
  		svr-tcpfwd.o svr-authpam.o
-@@ -108,7 +108,7 @@ STRIP=@STRIP@
+@@ -122,7 +122,7 @@ STRIP=@STRIP@
  INSTALL=@INSTALL@
- CPPFLAGS=@CPPFLAGS@
- CFLAGS+=-I. -I$(srcdir) $(CPPFLAGS) @CFLAGS@
+ CPPFLAGS+=@CPPFLAGS@ -I. -I$(srcdir)
+ CFLAGS+=@CFLAGS@
 -LIBS+=@LIBS@
 +LIBS+=@LIBS@ -lubus -lubox
  LDFLAGS=@LDFLAGS@
  
  EXEEXT=@EXEEXT@
---- a/svr-auth.c
-+++ b/svr-auth.c
-@@ -36,6 +36,8 @@
+--- a/src/svr-auth.c
++++ b/src/svr-auth.c
+@@ -35,6 +35,8 @@
  #include "auth.h"
  #include "runopts.h"
  #include "dbrandom.h"
@@ -209,7 +207,7 @@
  
  static int checkusername(const char *username, unsigned int userlen);
  
-@@ -351,6 +353,18 @@ goodshell:
+@@ -349,6 +351,18 @@ goodshell:
   * failures */
  void send_msg_userauth_failure(int partial, int incrfail) {
  
@@ -228,7 +226,7 @@
  	buffer *typebuf = NULL;
  
  	TRACE(("enter send_msg_userauth_failure"))
-@@ -449,6 +463,16 @@ void send_msg_userauth_failure(int parti
+@@ -447,6 +461,16 @@ void send_msg_userauth_failure(int parti
  /* Send a success message to the user, and set the "authdone" flag */
  void send_msg_userauth_success() {
  
@@ -245,8 +243,8 @@
  	TRACE(("enter send_msg_userauth_success"))
  
  	CHECKCLEARTOWRITE();
---- a/svr-main.c
-+++ b/svr-main.c
+--- a/src/svr-main.c
++++ b/src/svr-main.c
 @@ -30,6 +30,7 @@
  #include "runopts.h"
  #include "dbrandom.h"
@@ -255,7 +253,7 @@
  
  static size_t listensockets(int *sock, size_t sockcount, int *maxfd);
  static void sigchld_handler(int dummy);
-@@ -176,6 +177,7 @@ static void main_noinetd() {
+@@ -203,6 +204,7 @@ static void main_noinetd(int argc, char
  		fprintf(pidfile, "%d\n", getpid());
  		fclose(pidfile);
  	}
@@ -263,16 +261,16 @@
  
  	/* incoming connection select loop */
  	for(;;) {
-@@ -199,6 +201,7 @@ static void main_noinetd() {
+@@ -226,6 +228,7 @@ static void main_noinetd(int argc, char
  
  		if (ses.exitflag) {
  			unlink(svr_opts.pidfile);
 +			destroy_lock();
- 			dropbear_exit("Terminated by signal");
+ 			dropbear_close("Terminated by signal");
  		}
- 		
+ 
 --- /dev/null
-+++ b/lock_manager.h
++++ b/src/lock_manager.h
 @@ -0,0 +1,9 @@
 +#ifndef LOCK_MANAGER_H
 +#define LOCK_MANAGER_H
@@ -283,9 +281,8 @@
 +int release_lock();
 +
 +#endif
-\ No newline at end of file
 --- /dev/null
-+++ b/lock_manager.c
++++ b/src/lock_manager.c
 @@ -0,0 +1,96 @@
 +#include "lock_manager.h"
 +#include <semaphore.h>
@@ -383,4 +380,3 @@
 +
 +	return sem_post(lock);
 +}
-\ No newline at end of file

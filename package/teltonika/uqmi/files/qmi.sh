@@ -18,6 +18,7 @@ proto_qmi_init_config() {
 	proto_config_add_string modes
 	proto_config_add_boolean dhcp
 	proto_config_add_boolean dhcpv6
+	proto_config_add_boolean delegate
 	proto_config_add_int ip4table
 	proto_config_add_int ip6table
 
@@ -44,23 +45,24 @@ proto_qmi_setup() {
 
 	local dataformat connstat old_cb gobinet method
 	local device apn auth username password pdp modem pdptype sim dhcp dhcpv6 leasetime mac
-	local $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 ip4table ip6table parameters4 parameters6
+	local $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 ip4table ip6table parameters4 parameters6 delegate
 	local pdh_4 pdh_6 cid cid_4 cid_6
 	local retry_before_reinit
 	local error_cnt
 
 	json_get_vars device modem pdptype sim delay method mtu dhcp ip4table ip6table dhcpv6 \
-	leasetime mac $PROTO_DEFAULT_OPTIONS
+	leasetime mac delegate $PROTO_DEFAULT_OPTIONS
 
-	# wait for shutdown to complete
-	wait_for_shutdown_complete "$interface"
+	mkdir -p "/var/run/qmux/"
 
 	local gsm_modem="$(find_mdm_ubus_obj "$modem")"
-
 	[ -z "$gsm_modem" ] && {
 		echo "Failed to find gsm modem ubus object, exiting."
 		return 1
 	}
+
+	# wait for shutdown to complete
+	wait_for_shutdown_complete "$interface"
 
 	pdp=$(get_pdp "$interface")
 
@@ -138,13 +140,8 @@ attribute: /sys/class/net/$ifname/qmi/raw_ip"
 	pdptype="$(echo "$pdptype" | awk '{print tolower($0)}')"
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] || pdptype="ip"
 
-
-	cid="$(uqmi -d "$device" $options --get-client-id wds)"
-	qmi_error_handle "$cid" "$error_cnt" "$modem" || return 1
-
-#~ Do not add TABS!
-call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
---modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
+	# Disable no roaming flag
+	call_uqmi_command "uqmi -d $device $options --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
 
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
 	[ -z "$retry_before_reinit" ] && retry_before_reinit="0"
@@ -160,6 +157,7 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 		if [ $? -ne 0 ]; then
 			echo "Unable to obtain client IPV4 ID"
 		fi
+		touch "/var/run/qmux/$interface.cid_$cid_4"
 		echo "cid4: $cid_4"
 
 		#~ Set ipv4 on CID
@@ -201,6 +199,7 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 		if [ $? -ne 0 ]; then
 			echo "Unable to obtain client IPV6 ID"
 		fi
+		touch "/var/run/qmux/$interface.cid_$cid_6"
 		echo "cid6: $cid_6"
 
 		#~ Set ipv6 on CID
@@ -302,11 +301,6 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 	[ "$ipv6" != "1" ] && [ "$pdptype" = "ipv6" ] && proto_notify_error "$interface" "$pdh_6"
 	[ "$pdptype" = "ipv4v6" ] && [ "$ipv4" != "1" ] && [ "$ipv6" != "1" ] && proto_notify_error "$interface" "$pdh_4" && proto_notify_error "$interface" "$pdh_6"
 
-	#cid is lost after script shutdown so we should create temp files for that
-	mkdir -p "/var/run/qmux/"
-	echo "$cid_4" > "/var/run/qmux/$interface.cid_4"
-	echo "$cid_6" > "/var/run/qmux/$interface.cid_6"
-
 	proto_export "IFACE4=$IFACE4"
 	proto_export "IFACE6=$IFACE6"
 	proto_run_command "$interface" qmuxtrack "$device" "$modem" "$cid_4" "$cid_6"
@@ -320,6 +314,7 @@ proto_qmi_teardown() {
 	local interface="$1"
 	local conn_proto
 	local device bridge_ipaddr method braddr_f
+	touch "/tmp/shutdown_$interface"
 	json_get_vars device
 
 	[ -n "$ctl_device" ] && device="$ctl_device"

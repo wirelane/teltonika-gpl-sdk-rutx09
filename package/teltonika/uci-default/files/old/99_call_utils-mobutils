@@ -19,3 +19,5 @@ fix_call_action(){
 
 config_load "call_utils"
 config_foreach fix_call_action "call"
+
+exit 0

@@ -51,10 +51,10 @@ function find_available_persistent_slot() {
 function get_key_algo() {
 	case "$1" in
 		rsa)
-			echo "rsa:rsassa"
+			echo "rsa"
 			;;
 		ecdsa)
-			echo "ecc:ecdsa"
+			echo "ecc"
 			;;
 		*)
 			echo "unsupported key type $1"

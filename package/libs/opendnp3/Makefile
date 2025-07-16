@@ -14,6 +14,8 @@ PKG_SOURCE_URL:=https://github.com/dnp3/opendnp3.git
 PKG_LICENSE:=Apache-2.0
 PKG_LICENSE_FILES:=LICENSE NOTICE
 
+PKG_BUILD_DEPENDS:=libasio ser4cpp exe4cpp
+
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
 

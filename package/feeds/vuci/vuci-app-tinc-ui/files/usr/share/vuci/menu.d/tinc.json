@@ -7,7 +7,6 @@
 		"title": "Tinc",
 		"index": 100,
 		"view": "services/Tinc",
-		"acls": [ "services/vpn/tinc" ],
-		"files": [ "/etc/config/tinc" ]
+		"acls": [ "services/vpn/tinc" ]
 	}
 }

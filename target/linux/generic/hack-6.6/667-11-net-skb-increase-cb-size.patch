@@ -4,7 +4,7 @@ Needed to fit 'nf_flow_xfrm_skb_cb' with wider pointers.
 
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -870,7 +870,11 @@ struct sk_buff {
+@@ -873,7 +873,11 @@ struct sk_buff {
  	 * want to keep them across layers you have to do a skb_clone()
  	 * first. This is owned by whoever has the skb queued ATM.
  	 */

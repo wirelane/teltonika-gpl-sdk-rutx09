@@ -12,14 +12,12 @@
     "acls": ["services/sd_usb_tools/samba/general"],
     "view": "services/Samba",
     "index": 10,
-    "files": ["/etc/config/samba"],
     "main_page": true
   },
   "services/sd_usb_tools/samba/users": {
     "title": "Users",
     "acls": ["services/sd_usb_tools/samba/users"],
     "view": "services/SambaUsers",
-    "index": 20,
-    "files": ["/etc/config/samba"]
+    "index": 20
   }
 }

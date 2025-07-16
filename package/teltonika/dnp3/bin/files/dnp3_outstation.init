@@ -29,6 +29,7 @@ start_service() {
 	procd_set_param command "$APP"
 	procd_set_param file /etc/config/dnp3_outstation
 	procd_set_param respawn ${respawn_threshold:-0} ${respawn_timeout:-6} ${respawn_retry:-0}
+	procd_set_param user dnp3_outstation
 	procd_close_instance
 }
 

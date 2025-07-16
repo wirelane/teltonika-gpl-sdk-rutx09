@@ -12,7 +12,7 @@ PKG_SOURCE_VERSION:=56cb2d4056fef132ccf78dfb6f3074ae5d109992
 PKG_SOURCE_URL:=https://github.com/openwrt/uqmi.git
 
 PKG_MAINTAINER:=Mindaugas Antanavicius <mindaugas.antanavicius@teltonika.lt>
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=LICENSES

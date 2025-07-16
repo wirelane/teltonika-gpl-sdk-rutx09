@@ -94,16 +94,6 @@ add_startup_event() {
 	add_event "Device startup completed" 5
 }
 
-set_tty_duplex() {
-	# Configure the DUPLEX pin as an output and set it low for RS485
-	# Temporary workaround until a proper fix is implemented in tlt-gpio
-	output=$(gpiofind GPIO_RS485_RX_EN)
-
-	[ -z "$output" ] && return
-
-	gpioset $output="0"
-}
-
 boot() {
 	mount_root done
 	rm -f /overlay/sysupgrade.tgz && sync
@@ -129,5 +119,4 @@ boot() {
 	done
 
 	add_startup_event
-	set_tty_duplex
 }

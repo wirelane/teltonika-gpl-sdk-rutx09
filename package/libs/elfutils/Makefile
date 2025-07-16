@@ -10,9 +10,8 @@ PKG_NAME:=elfutils
 PKG_VERSION:=0.191
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=0.191
-PKG_SOURCE:=elfutils-$(PKG_SOURCE_VERSION).tar.bz2
-PKG_SOURCE_URL:=https://sourceware.org/$(PKG_NAME)/ftp/$(PKG_SOURCE_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:=https://sourceware.org/$(PKG_NAME)/ftp/$(PKG_VERSION)
 PKG_HASH:=df76db71366d1d708365fc7a6c60ca48398f14367eb2b8954efc8897147ad871
 
 PKG_MAINTAINER:=Luiz Angelo Daros de Luca <luizluca@gmail.com>

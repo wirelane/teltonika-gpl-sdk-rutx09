@@ -7,7 +7,6 @@
 		"title": "WireGuard",
 		"index": 110,
 		"view": "services/Wireguard",
-		"acls": [ "services/vpn/wireguard" ],
-		"files": [ "/etc/config/network" ]
+		"acls": [ "services/vpn/wireguard" ]
 	}
 }

@@ -15,6 +15,7 @@ proto_ncm_init_config() {
 
 	proto_config_add_boolean dhcp
 	proto_config_add_boolean dhcpv6
+	proto_config_add_boolean delegate
 	proto_config_add_int ip4table
 	proto_config_add_int ip6table
 
@@ -122,12 +123,12 @@ proto_ncm_setup() {
 	local interface="$1"
 	local devicename="$2"
 	local mtu method device pdp modem pdptype sim dhcp dhcpv6 $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 delay passthrough_mode leasetime mac
-	local ip4table ip6table mdm_ubus_obj pin_state pdp_ctx_state pdp_ctx
+	local ip4table ip6table mdm_ubus_obj pin_state pdp_ctx_state pdp_ctx delegate
 	local timeout=2 retries=0
 	local active_sim="1"
 	local retry_before_reinit
 
-	json_get_vars mtu method device modem pdptype sim dhcp dhcpv6 delay ip4table ip6table passthrough_mode leasetime mac $PROTO_DEFAULT_OPTIONS
+	json_get_vars mtu method device modem pdptype sim dhcp dhcpv6 delay ip4table ip6table passthrough_mode leasetime mac delegate $PROTO_DEFAULT_OPTIONS
 
 	local mdm_ubus_obj="$(find_mdm_ubus_obj "$modem")"
 	[ -z "$mdm_ubus_obj" ] && echo "gsm.modem object not found. Downing $interface interface" && ifdown $interface

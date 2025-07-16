@@ -26,6 +26,8 @@ define Package/urngd
   CATEGORY:=Base system
   TITLE:=OpenWrt non-physical true random number generator based on timing jitter
   DEPENDS:=+libubox
+  USERID:=rng:rng
+  FATTRS:=/sbin/urngd::::cap_sys_admin+ep
 endef
 
 define Package/urngd/description

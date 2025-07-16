@@ -3,7 +3,6 @@
         "title": "IGMP Proxy",
         "index": 140,
         "view": "services/IgmpProxy",
-        "acls": [ "network/igmp_proxy" ],
-        "files": [ "/etc/config/igmpproxy" ]
+        "acls": [ "network/igmp_proxy" ]
     }
 }

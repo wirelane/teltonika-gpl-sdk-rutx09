@@ -7,7 +7,6 @@
 		"title": "EoIP",
 		"index": 100,
 		"view": "services/Eoip",
-		"acls": [ "services/vpn/eoip" ],
-		"files": [ "/etc/config/eoip" ]
+		"acls": [ "services/vpn/eoip" ]
 	}
 }

@@ -18,18 +18,6 @@ log() {
 	[ "$type" = "err" ] && echo "$msg" >> /tmp/state/tailscale/err
 }
 
-change_dns() {
-	echo "# Interface tailscale" >/tmp/resolv.conf.d/resolv.conf.tailscale
-	while IFS= read -r line; do
-		[ -n "$line" ] && [ -z "${line##*nameserver*}" ] && {
-			echo "$line" >> /tmp/resolv.conf.d/resolv.conf.tailscale
-			log "info" "Added tailscale DNS: ${line#*nameserver }"
-		}
-	done < "/etc/resolv.conf"
-	cp /tmp/resolv.conf.d/resolv.conf.auto /tmp/resolv.conf.d/resolv.conf.auto.backup
-	cp /tmp/resolv.conf.d/resolv.conf.tailscale /tmp/resolv.conf.d/resolv.conf.auto
-}
-
 connect() {
 	local status auth_url state param routes flags answ auth_arg
 	local counter=0
@@ -52,8 +40,9 @@ connect() {
 
 	[ -n "$login_server" ] && param="$param --login-server=$login_server"
 	if [ "$default_route" -eq 1 ]; then
-		[ -n "$exit_node_ip" ] && param="$param --exit-node=$exit_node_ip --exit-node-allow-lan-access"
+		[ -n "$exit_node_ip" ] && param="$param --exit-node=$exit_node_ip --exit-node-allow-lan-access --accept-dns"
 	else
+		param="$param --accept-dns=false"
 		[ "$exit_node" -eq 1 ] && param="$param --advertise-exit-node"
 	fi
 	if [ -n "$advert_routes" ]; then
@@ -86,8 +75,6 @@ connect() {
 		answ=$($PROG up $auth_arg $param --reset --timeout 5s 2>&1) || type="err"
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
-
-	[ "$default_route" -eq 1 ] && [ -e "/etc/resolv.pre-tailscale-backup.conf" ] && change_dns
 }
 
 start_service() {
@@ -148,11 +135,6 @@ stop_service() {
 		log "info" "Clean up system state"
 		${PROG}d --cleanup 1>/dev/null 2>&1
 	}
-	if grep -q "tailscale" /tmp/resolv.conf.d/resolv.conf.auto; then
-		mv /tmp/resolv.conf.d/resolv.conf.auto.backup /tmp/resolv.conf.d/resolv.conf.auto
-		rm /tmp/resolv.conf.d/resolv.conf.tailscale
-		log "info" "Added default DNS"
-	fi
 	[ -e "/tmp/state/tailscale" ] && : >/tmp/state/tailscale/status
 }
 

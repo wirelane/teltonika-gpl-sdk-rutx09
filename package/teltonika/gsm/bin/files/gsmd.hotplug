@@ -37,6 +37,22 @@ json_init
 json_load "$(cat $usb)"
 json_get_vars desc control serial_control data_secondary boudrate stop_bits gps wdm
 
+if ! pgrep -x "gsmd" > /dev/null; then
+	found=0
+	board_modem_ids=$(cat /etc/board.json | jsonfilter -e '@.modems[@.builtin=true].id')
+	for board_modem_id in $board_modem_ids; do
+		if [ "$devicename" = "$board_modem_id" ]; then
+			found=1
+			break
+		fi
+	done
+	if [ "$found" -eq 0 ]; then
+		/etc/init.d/modem_trackd start
+		/etc/init.d/mobifd start
+		/etc/init.d/gsmd start
+	fi
+fi
+
 if [ -n "$serial_control" ]; then
 	at_device="/dev/ttyS${serial_control}"
 else

@@ -1,7 +1,5 @@
-Index: fstools-2022-05-03-9e11b372/block.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/block.c
-+++ fstools-2022-05-03-9e11b372/block.c
+--- a/block.c
++++ b/block.c
 @@ -25,6 +25,7 @@
  #include <errno.h>
  #include <fcntl.h>

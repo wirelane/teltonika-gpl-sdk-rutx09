@@ -61,6 +61,7 @@ struct menu *current_menu, *current_entry;
 %token T_ENDMENU
 %token T_HELP
 %token T_DETAIL
+%token T_TOOLTIP
 %token T_HEX
 %token T_IF
 %token T_IMPLY
@@ -177,6 +178,7 @@ config_option_list:
 	| config_option_list depends
 	| config_option_list help
 	| config_option_list detail
+	| config_option_list tooltip
 ;
 
 config_option: type prompt_stmt_opt T_EOL
@@ -273,6 +275,7 @@ choice_option_list:
 	| choice_option_list depends
 	| choice_option_list help
 	| choice_option_list detail
+	| choice_option_list tooltip
 ;
 
 choice_option: T_PROMPT T_WORD_QUOTE if_expr T_EOL
@@ -436,6 +439,30 @@ detail_cond: | T_IF expr
 detail: detail_start T_HELPTEXT
 {
 	printd(DEBUG_PARSE, "%s:%d:detail(%s)\n", zconf_curname(), zconf_lineno(), $2);
+};
+
+/* tooltip option */
+
+tooltip_start: T_TOOLTIP tooltip_type tooltip_cond T_EOL
+{
+	printd(DEBUG_PARSE, "%s:%d:tooltip\n", zconf_curname(), zconf_lineno());
+	zconf_starthelp();
+};
+
+tooltip_type: /* empty */ | T_WORD
+{
+	printd(DEBUG_PARSE, "%s:%d:tooltip type %s\n", zconf_curname(), zconf_lineno(), $1);
+};
+
+tooltip_cond: | T_IF expr
+{
+	printd(DEBUG_PARSE, "%s:%d:tooltip if\n", zconf_curname(), zconf_lineno());
+	zconf_starthelp();
+};
+
+tooltip: tooltip_start T_HELPTEXT
+{
+	printd(DEBUG_PARSE, "%s:%d:tooltip(%s)\n", zconf_curname(), zconf_lineno(), $2);
 };
 
 /* depends option */

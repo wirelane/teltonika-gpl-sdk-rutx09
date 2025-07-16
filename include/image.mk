@@ -397,11 +397,13 @@ $(KDIR)/root.%: kernel_prepare
 	$(call Image/mkfs/$(word 1,$(target_params)),$(target_params))
 
 DEVICE_HARDWARE_VARS = \
-  HARDWARE/System_Characteristics/CPU \
-  HARDWARE/System_Characteristics/RAM \
-  HARDWARE/System_Characteristics/Flash_Storage \
-  HARDWARE/Wireless/Wireless_mode \
-  HARDWARE/Wireless/WIFI_users \
+  HARDWARE/Mobile/Module \
+  HARDWARE/Mobile/3GPP_Release \
+  HARDWARE/Mobile/3GPP_Release/Tooltip \
+  HARDWARE/Mobile/eSIM \
+  HARDWARE/Mobile/eSIM/Tooltip \
+  HARDWARE/Wireless/Wireless_Mode \
+  HARDWARE/Wireless/Wi\-Fi_Users \
   HARDWARE/Bluetooth/Bluetooth_4.0 \
   HARDWARE/Ethernet/Port \
   HARDWARE/Ethernet/Speed \
@@ -413,76 +415,76 @@ DEVICE_HARDWARE_VARS = \
   HARDWARE/LAN/Speed \
   HARDWARE/LAN/Standard \
   HARDWARE/Fibre/Port \
-  HARDWARE/PoE_In_(Optional)/PoE_ports \
-  HARDWARE/PoE_In_(Optional)/PoE_standards \
-  HARDWARE/PoE_Out_(Optional)/PoE_ports \
-  HARDWARE/PoE_Out_(Optional)/PoE_standards \
-  HARDWARE/PoE_Out_(Optional)/PoE_Max_Power_per_Port_(at_PSE) \
-  HARDWARE/PoE_In/PoE_ports \
-  HARDWARE/PoE_In/PoE_standards \
-  HARDWARE/PoE_Out/PoE_ports \
-  HARDWARE/PoE_Out/PoE_standards \
-  HARDWARE/PoE_Out/PoE_Max_Power_per_Port_(at_PSE) \
-  HARDWARE/Power/Connector \
-  HARDWARE/Power/Input_voltage_range \
-  HARDWARE/Power/PoE_Standards \
-  HARDWARE/Power/Power_consumption \
-  HARDWARE/Input_Output/Input \
-  HARDWARE/Input_Output/Output \
-  HARDWARE/Input_Output/Configurable_IO \
   HARDWARE/Serial/RS232 \
   HARDWARE/Serial/RS485 \
-  HARDWARE/Serial/Serial_functions \
-  HARDWARE/SD_card/Physical_size \
+  HARDWARE/Serial/Serial_Functions \
+  HARDWARE/SD_card/Physical_Size \
   HARDWARE/SD_card/Applications \
   HARDWARE/SD_card/Capacity \
-  HARDWARE/SD_card/Storage_formats \
-  HARDWARE/USB/Data_rate \
+  HARDWARE/SD_card/Storage_Formats \
+  HARDWARE/USB/Data_Rate \
   HARDWARE/USB/Applications \
-  HARDWARE/USB/External_devices \
-  HARDWARE/USB/Storage_formats \
-  HARDWARE/Mobile/Module \
-  HARDWARE/Mobile/3GPP_Release \
-  HARDWARE/Mobile/eSIM \
-  HARDWARE/Physical_Interfaces/Ethernet \
-  HARDWARE/Physical_Interfaces/IO \
-  HARDWARE/Physical_Interfaces/Power_Control \
-  HARDWARE/Physical_Interfaces/Status_leds \
-  HARDWARE/Physical_Interfaces/SIM \
-  HARDWARE/Physical_Interfaces/Power \
-  HARDWARE/Physical_Interfaces/Input_output \
-  HARDWARE/Physical_Interfaces/Antennas \
-  HARDWARE/Physical_Interfaces/Antennas_specifications \
-  HARDWARE/Physical_Interfaces/USB \
-  HARDWARE/Physical_Interfaces/RS232 \
-  HARDWARE/Physical_Interfaces/RS485 \
-  HARDWARE/Physical_Interfaces/Button \
-  HARDWARE/Physical_Interfaces/Fibre \
-  HARDWARE/Physical_Interfaces/1_Wire \
-  HARDWARE/Physical_Interfaces/M_Bus \
-  HARDWARE/Physical_Interfaces/WiFi \
-  HARDWARE/Physical_Interfaces/WPS \
-  HARDWARE/Physical_Specification/Casing_material \
-  HARDWARE/Physical_Specification/Dimensions \
-  HARDWARE/Physical_Specification/Weight \
-  HARDWARE/Physical_Specification/Mounting_options \
-  HARDWARE/Operating_Environment/Operating_Temperature \
-  HARDWARE/Operating_Environment/Operating_Humidity \
-  HARDWARE/Operating_Environment/Ingress_Protection_Rating \
-  HARDWARE/Regulatory_&_Type_Approvals/Regulatory \
-  HARDWARE/Regulatory_&_Type_Approvals/Operator \
-  HARDWARE/EMC_Emissions_&_Immunity/Standards \
-  HARDWARE/EMC_Emissions_&_Immunity/ESD \
-  HARDWARE/EMC_Emissions_&_Immunity/Radiated_Immunity \
-  HARDWARE/EMC_Emissions_&_Immunity/EFT \
-  HARDWARE/EMC_Emissions_&_Immunity/Surge_Immunity_(AC_Mains_Power_Port) \
-  HARDWARE/EMC_Emissions_&_Immunity/CS \
-  HARDWARE/EMC_Emissions_&_Immunity/DIP \
-  HARDWARE/RF/Standards \
-  HARDWARE/Safety/Standards \
-  HARDWARE/Safety_(Ordinary_Locations)/Standards \
-  HARDWARE/Safety_(Hazardous_Locations)/Standards \
-  HARDWARE/Safety_(Hazardous_Locations)/Hazardous_Environments
+  HARDWARE/USB/External_Devices \
+  HARDWARE/USB/Storage_Formats \
+  HARDWARE/System_Characteristics/CPU \
+  HARDWARE/System_Characteristics/RAM \
+  HARDWARE/System_Characteristics/Flash_Storage \
+  TECHNICAL/PoE_In_(Optional)/PoE_Ports \
+  TECHNICAL/PoE_In_(Optional)/PoE_Standards \
+  TECHNICAL/PoE_Out_(Optional)/PoE_Ports \
+  TECHNICAL/PoE_Out_(Optional)/PoE_Standards \
+  TECHNICAL/PoE_Out_(Optional)/PoE_Max_Power_per_Port_(at_PSE) \
+  TECHNICAL/PoE_In/PoE_Ports \
+  TECHNICAL/PoE_In/PoE_Standards \
+  TECHNICAL/PoE_Out/PoE_Ports \
+  TECHNICAL/PoE_Out/PoE_Standards \
+  TECHNICAL/PoE_Out/PoE_Max_Power_per_Port_(at_PSE) \
+  TECHNICAL/Power/Connector \
+  TECHNICAL/Power/Input_Voltage_Range \
+  TECHNICAL/Power/PoE_Standards \
+  TECHNICAL/Power/Power_Consumption \
+  TECHNICAL/Input_Output/Input \
+  TECHNICAL/Input_Output/Output \
+  TECHNICAL/Input_Output/Configurable_IO \
+  TECHNICAL/Physical_Interfaces/Ethernet \
+  TECHNICAL/Physical_Interfaces/IO \
+  TECHNICAL/Physical_Interfaces/Power_Control \
+  TECHNICAL/Physical_Interfaces/Status_Leds \
+  TECHNICAL/Physical_Interfaces/SIM \
+  TECHNICAL/Physical_Interfaces/Power \
+  TECHNICAL/Physical_Interfaces/Input_Output \
+  TECHNICAL/Physical_Interfaces/Antennas \
+  TECHNICAL/Physical_Interfaces/Antennas_Specifications \
+  TECHNICAL/Physical_Interfaces/USB \
+  TECHNICAL/Physical_Interfaces/RS232 \
+  TECHNICAL/Physical_Interfaces/RS485 \
+  TECHNICAL/Physical_Interfaces/Button \
+  TECHNICAL/Physical_Interfaces/Fibre \
+  TECHNICAL/Physical_Interfaces/1_Wire \
+  TECHNICAL/Physical_Interfaces/M_Bus \
+  TECHNICAL/Physical_Interfaces/WiFi \
+  TECHNICAL/Physical_Interfaces/WPS \
+  TECHNICAL/Physical_Specification/Casing_Material \
+  TECHNICAL/Physical_Specification/Dimensions \
+  TECHNICAL/Physical_Specification/Weight \
+  TECHNICAL/Physical_Specification/Mounting_Options \
+  TECHNICAL/Operating_Environment/Operating_Temperature \
+  TECHNICAL/Operating_Environment/Operating_Humidity \
+  TECHNICAL/Operating_Environment/Ingress_Protection_Rating \
+  REGULATORY/Regulatory_&_Type_Approvals/Regulatory \
+  REGULATORY/Regulatory_&_Type_Approvals/Operator \
+  REGULATORY/EMC_Emissions_&_Immunity/Standards \
+  REGULATORY/EMC_Emissions_&_Immunity/ESD \
+  REGULATORY/EMC_Emissions_&_Immunity/Radiated_Immunity \
+  REGULATORY/EMC_Emissions_&_Immunity/EFT \
+  REGULATORY/EMC_Emissions_&_Immunity/Surge_Immunity_(AC_Mains_Power_Port) \
+  REGULATORY/EMC_Emissions_&_Immunity/CS \
+  REGULATORY/EMC_Emissions_&_Immunity/DIP \
+  REGULATORY/RF/Standards \
+  REGULATORY/Safety/Standards \
+  REGULATORY/Safety_(Ordinary_Locations)/Standards \
+  REGULATORY/Safety_(Hazardous_Locations)/Standards \
+  REGULATORY/Safety_(Hazardous_Locations)/Hazardous_Environments
 
 define Device/InitProfile
   PROFILES := $(PROFILE)

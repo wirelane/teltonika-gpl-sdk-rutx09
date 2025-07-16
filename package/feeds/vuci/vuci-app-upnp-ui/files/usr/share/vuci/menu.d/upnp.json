@@ -3,7 +3,6 @@
 		"title": "UPNP",
 		"index": 220,
 		"view": "services/Upnp",
-		"acls": [ "services/upnp" ],
-		"files": [ "/etc/config/upnpd" ]
+		"acls": [ "services/upnp" ]
 	}
 }

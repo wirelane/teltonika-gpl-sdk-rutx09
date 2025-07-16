@@ -7,6 +7,9 @@ USE_PROCD=1
 start_service() {
     [ -h "/etc/hotplug.d/gsm/5-remove-operlist" ] || ln -s /usr/share/gsm/5-remove-operlist /etc/hotplug.d/gsm/5-remove-operlist &>/dev/null
 
+    # Don't run the service if the device has no built-in modems and an external modem is not connected.
+    jsonfilter -i /etc/board.json -e '@.hwinfo.mobile' > /dev/null || [[ "$(lsusb)" =~ "(2c7c|2dee):" ]] || return
+
     chown gsm:gsm /log/sim_*_pin 2>/dev/null
     chmod 664 /log/sim_*_pin 2>/dev/null
     chown root:log /log/boot_*_iccid 2>/dev/null
@@ -23,7 +26,6 @@ start_service() {
 service_triggers()
 {
     procd_add_reload_trigger "operctl"
-    procd_add_reload_trigger "call_utils"
     procd_add_reload_trigger "simcard"
     procd_add_reload_trigger "network"
 }

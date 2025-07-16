@@ -6,7 +6,7 @@ if grep -q "^root.*:/root:/bin/ash$" /etc/passwd; then
 fi
 
 if grep -q "^admin.*:/user:/bin/false$" /etc/passwd; then
-	sed -i '/^admin:/ s|:/user:|:/usr/local/home/admin:|; /^admin:/ s|:/bin/false$|:/bin/ash|' /etc/passwd
+	sed -i '/^admin:/ s|:/user:|:/usr/local/home/admin:|' /etc/passwd
 	recreate=1
 fi
 

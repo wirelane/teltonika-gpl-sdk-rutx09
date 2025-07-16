@@ -2,14 +2,12 @@
   "network/wan": {
     "title": "WAN",
     "acls": ["network/wan"],
-    "files": ["/etc/config/network"],
     "view": "network/WanInterfaces",
     "index": 20
   },
   "network/lan": {
     "title": "LAN",
     "acls": ["network/lan"],
-    "files": ["/etc/config/network"],
     "view": "network/LanInterfaces",
     "index": 30
   },
@@ -21,11 +19,21 @@
     "title": "Mobile",
     "acls": ["status/network/mobile"],
     "view": "status/Mobile",
-    "index": 10
+    "index": 10,
+    "depends": {
+      "board": {
+        "allOf": ["has_mobile"]
+      }
+    }
   },
   "status/wireless": {
     "title": "Wireless",
-    "index": 40
+    "index": 40,
+    "depends": {
+      "board": {
+        "allOf": ["has_wifi"]
+      }
+    }
   },
   "status/wireless/interfaces": {
     "title": "Interfaces",

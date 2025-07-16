@@ -33,6 +33,9 @@
                 },
                 "service": {
                         "methods": [ "event" ]
+                },
+                "esim.modem*": {
+                        "methods": [ "status", "enable", "disable", "delete", "download" ]
                 }
         },
         "publish": [ "mobifd", "mobifd.modem*" ],
@@ -43,7 +46,8 @@
                 "network.interface",
                 "ubus.object.remove",
                 "ubus.object.add",
-                "lpac.updates"
+                "lpac.updates",
+                "esim.state"
         ],
         "subscribe": ["gsm", "gsm.*" ]
 }

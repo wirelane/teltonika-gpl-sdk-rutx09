@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=12
+PKG_RELEASE:=14
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=e5ccbfc69ecf297590341ae8b461edba9d8e964c
@@ -16,7 +16,7 @@ PKG_SOURCE_DATE:=2023-09-08
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=COPYING
-PKG_VERSION:=2.11
+PKG_VERSION:=2.10
 PKG_CPE_ID:=cpe:/a:w1.fi:hostapd
 
 PKG_BUILD_PARALLEL:=1
@@ -136,6 +136,7 @@ define Package/hostapd/Default
   CONFLICTS:=$(HOSTAPD_PROVIDERS)
   HOSTAPD_PROVIDERS+=$(1)
   USERID:=network:network
+  FATTRS:=/usr/sbin/hostapd::::cap_net_bind_service,cap_net_raw,cap_net_admin+ep
 endef
 
 define Package/hostapd
@@ -299,6 +300,7 @@ define Package/wpa-supplicant/Default
   CONFLICTS:=$(SUPPLICANT_PROVIDERS)
   SUPPLICANT_PROVIDERS+=$(1)
   USERID:=network:network
+  FATTRS:=/usr/sbin/wpa_supplicant::::cap_net_bind_service,cap_net_raw,cap_net_admin+ep
 endef
 
 define Package/wpa-supplicant

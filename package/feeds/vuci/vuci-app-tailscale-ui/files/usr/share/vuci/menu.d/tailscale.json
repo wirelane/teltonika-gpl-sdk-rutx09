@@ -7,7 +7,6 @@
 		"title": "Tailscale",
 		"index": 100,
 		"view": "services/Tailscale",
-		"acls": [ "services/vpn/tailscale" ],
-		"files": [ "/etc/config/network" ]
+		"acls": [ "services/vpn/tailscale" ]
 	}
 }

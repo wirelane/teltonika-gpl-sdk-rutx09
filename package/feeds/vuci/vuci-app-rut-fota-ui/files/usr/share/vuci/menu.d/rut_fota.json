@@ -7,7 +7,6 @@
         "title": "FOTA Settings",
         "acls": [ "system/flashops/fota" ],
         "view": "system/RutFota",
-        "files": ["/etc/config/rut_fota"],
         "index": 20
     }
 }

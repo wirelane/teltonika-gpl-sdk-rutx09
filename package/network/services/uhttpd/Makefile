@@ -41,7 +41,7 @@ endef
 
 define Package/uhttpd
   $(Package/uhttpd/default)
-  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus
+  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua
 endef
 
 define Package/uhttpd/description
@@ -91,7 +91,7 @@ ifneq ($(CONFIG_USE_GLIBC),)
   TARGET_CFLAGS += -D_DEFAULT_SOURCE
 endif
 
-TARGET_LDFLAGS += -lcrypt
+TARGET_LDFLAGS += -lcrypt -llua -lm
 
 CMAKE_OPTIONS += -DTLS_SUPPORT=on
 

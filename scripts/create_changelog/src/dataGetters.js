@@ -150,7 +150,8 @@ module.exports = {
       { type: 'hw', name: 'dsa' },
       { type: 'hw', name: 'dsa', value: false },
       { type: 'hw', name: 'is_access_point' },
-      { type: 'hw', name: 'is_access_point', value: false }
+      { type: 'hw', name: 'is_access_point', value: false },
+      { type: 'hw', name: 'has_tpm' }
     ]
   },
   /** @return {Record<string, string>} */

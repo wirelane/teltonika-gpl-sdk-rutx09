@@ -3,7 +3,6 @@
     "title": "Azure IoT Hub",
     "index": 30,
     "view": "services/AzureIotHub",
-    "acls": ["services/cloud_solutions/azure_iothub"],
-    "files": ["/etc/config/azure_iothub"]
+    "acls": ["services/cloud_solutions/azure_iothub"]
   }
 }

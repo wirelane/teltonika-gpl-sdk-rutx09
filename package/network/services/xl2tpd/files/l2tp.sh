@@ -63,11 +63,16 @@ proto_l2tp_setup() {
 	config_foreach check_bind connection "$interface"
 	[ "$BIND_STOP" -eq 1 ] && exit 1
 
-	if echo "$server" | grep -Eq '^[0-9A-Fa-f]{1,4}:' || [ "$server" = "::1" ]; then
+	if echo "$server" | grep -Eq '^\[[0-9a-fA-F:]+\]:[0-9]{1,5}$' || \
+	echo "$server" | grep -Eq '^[0-9A-Fa-f]{1,4}:' || \
+	[ "$server" = "::1" ]; then
 		[ "$L2TPV6_SUPPORT" != 1 ] && logger -t "l2tp" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host" && exit 1
 		IP6=1
-		host="$server"
-		[ -e "/etc/xl2tpd/xl2tpd6.conf" ] || ln -s /etc/xl2tpd/xl2tpd.conf /etc/xl2tpd/xl2tpd6.conf
+		if echo "$server" | grep -Eq '^\[[0-9a-fA-F:]+\]:[0-9]{1,5}$'; then
+			host="$(echo "$server" | sed -n 's/^\[\(.*\)\]:[0-9]\+$/\1/p')"
+		else
+			host="$server"
+		fi
 	else
 		host="${server%:*}"
 	fi
@@ -96,7 +101,14 @@ proto_l2tp_setup() {
 		}
 		serv_addr=1
 	done
-	[ "$IP6" = 1 ] && [ "$L2TPV6_SUPPORT" != 1 ] && logger -t "l2tp" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host" && IP6=
+	if [ "$IP6" = 1 ]; then
+		if [ "$L2TPV6_SUPPORT" != 1 ]; then
+			logger -t "l2tp" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host"
+			IP6=
+		else
+			[ -e "/etc/xl2tpd/xl2tpd6.conf" ] || ln -s /etc/xl2tpd/xl2tpd.conf /etc/xl2tpd/xl2tpd6.conf
+		fi
+	fi
 
 	[ -n "$serv_addr" ] || {
 		echo "Could not resolve server address" >&2

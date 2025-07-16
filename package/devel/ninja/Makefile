@@ -4,9 +4,8 @@ PKG_NAME:=ninja
 PKG_VERSION:=1.12.1
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.12.1
-PKG_SOURCE:=ninja-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/ninja-build/ninja/tar.gz/v$(PKG_SOURCE_VERSION)?
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/ninja-build/ninja/tar.gz/v$(PKG_VERSION)?
 PKG_HASH:=821bdff48a3f683bc4bb3b6f0b5fe7b2d647cf65d52aeb63328c91a6c6df285a
 
 PKG_MAINTAINER:=Andre Heider <a.heider@gmail.com>

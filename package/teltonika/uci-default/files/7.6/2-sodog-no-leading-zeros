@@ -15,7 +15,7 @@ rename_no_leading_zeros() {
 	uci_remove "$CONFIG" "$section" "no_leading_zeros"
 }
 
-config_load "$CONFIG"
+config_load "$CONFIG" || exit 0
 config_foreach rename_no_leading_zeros
 uci_commit "$CONFIG"
 

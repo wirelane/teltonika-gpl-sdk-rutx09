@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=urcd
 
-PKG_SOURCE_VERSION:=1.7.2
+PKG_SOURCE_VERSION:=1.8
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -19,9 +19,7 @@ define Package/urcd
 	CATEGORY:=Network
 	TITLE:=GSM URC manager
 	DEPENDS:= +libubus +libubox +libgsm +liburc +libuci \
-		+libtlt-logger +libboardjson +liblog
-	USERID:=urcd=536:urcd=536
-	FATTRS:=/usr/sbin/urcd::::cap_setuid,cap_setgid=ep
+		+libtlt-logger +libboardjson +liblog +libcfg
 endef
 
 

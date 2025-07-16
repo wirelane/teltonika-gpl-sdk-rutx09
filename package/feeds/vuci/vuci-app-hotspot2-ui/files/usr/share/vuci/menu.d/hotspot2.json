@@ -7,6 +7,11 @@
 		"title": "Hotspot 2.0",
 		"index": 60,
 		"view": "services/Hotspot2Overview",
-		"acls": [ "services/hotspot/hotspot2" ]
+		"acls": [ "services/hotspot/hotspot2" ],
+		"depends": {
+			"board": {
+				"allOf": ["has_wifi"]
+			}
+		}
 	}
 }

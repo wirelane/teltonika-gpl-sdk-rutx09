@@ -4,6 +4,10 @@
 		"index": 45,
 		"view": "services/Ntrip",
 		"acls": [ "services/ntrip" ],
-		"files": [ "/etc/config/rs_ntrip" ]
+		"depends": {
+			"board": {
+				"anyOf": ["has_usb", "has_rs232", "has_rs485", "has_console"]
+			}
+		}
 	}
 }

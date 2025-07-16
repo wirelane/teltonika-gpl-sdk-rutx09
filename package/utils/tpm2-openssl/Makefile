@@ -1,12 +1,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tpm2-openssl
-PKG_VERSION:=1.2.1
+PKG_VERSION:=1.3.0
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/tpm2-software/tpm2-openssl.git
-PKG_SOURCE_VERSION:=be35c35ace48647bb73ae5028db7e8caaccd038d
+PKG_SOURCE_VERSION:=8a5572639742dee5bc0b370ac04547b4b8ab2e0f
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE

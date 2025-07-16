@@ -12,6 +12,6 @@ config PCAP_HAS_BT
 
 config PCAP_HAS_NETFILTER
 	bool "Include netfilter support"
-	default n
+	default y
 
 endmenu

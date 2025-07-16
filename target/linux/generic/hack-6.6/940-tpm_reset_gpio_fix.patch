@@ -8,7 +8,7 @@
  #include "tpm_tis_core.h"
  
  /* TPM registers */
-@@ -335,6 +336,8 @@ static int tpm_tis_i2c_probe(struct i2c_
+@@ -332,6 +333,8 @@ static int tpm_tis_i2c_probe(struct i2c_
  	struct tpm_tis_i2c_phy *phy;
  	const u8 crc_enable = 1;
  	const u8 locality = 0;
@@ -17,7 +17,7 @@
  	int ret;
  
  	phy = devm_kzalloc(&dev->dev, sizeof(struct tpm_tis_i2c_phy),
-@@ -346,6 +349,16 @@ static int tpm_tis_i2c_probe(struct i2c_
+@@ -343,6 +346,16 @@ static int tpm_tis_i2c_probe(struct i2c_
  	if (!phy->io_buf)
  		return -ENOMEM;
  

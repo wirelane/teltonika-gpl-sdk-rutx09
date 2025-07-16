@@ -263,3 +263,5 @@ config_foreach make_interface_list 'wifi-iface'
 duplicates_list
 fix_duplicates
 write_config
+
+exit 0

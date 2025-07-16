@@ -25,6 +25,57 @@
 			pinctrl-0 = <&mdio_pins>;
 			pinctrl-names = "default";
 			reset-gpios = <&tlmm 62 GPIO_ACTIVE_LOW>;
+
+			ethernet-phy@0 {
+				leds {
+					eth_y0 {
+						reg = <0>;
+					};
+					eth_g0 {
+						reg = <1>;
+					};
+				};
+			};
+			ethernet-phy@1 {
+				leds {
+					eth_y1 {
+						reg = <0>;
+					};
+					eth_g1 {
+						reg = <1>;
+					};
+				};
+			};
+			ethernet-phy@2 {
+				leds {
+					eth_y2 {
+						reg = <0>;
+					};
+					eth_g2 {
+						reg = <1>;
+					};
+				};
+			};
+			ethernet-phy@3 {
+				leds {
+					eth_y3 {
+						reg = <0>;
+					};
+					eth_g3 {
+						reg = <1>;
+					};
+				};
+			};
+			ethernet-phy@4 {
+				leds {
+					eth_y4 {
+						reg = <0>;
+					};
+					eth_g4 {
+						reg = <1>;
+					};
+				};
+			};
 		};
 
 		ess-switch@c000000 {

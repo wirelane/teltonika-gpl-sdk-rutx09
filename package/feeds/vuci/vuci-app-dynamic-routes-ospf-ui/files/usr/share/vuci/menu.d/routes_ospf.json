@@ -5,17 +5,19 @@
   },
   "network/routes/dynamic_routes": {
     "title": "Dynamic Routes",
-    "index": 30,
-    "orfiles": ["/usr/lib/opkg/info/frr-ospfd.control", "/usr/lib/opkg/info/frr5-ospfd.control", "/usr/local/usr/lib/opkg/info/frr-ospfd.control", "/usr/local/usr/lib/opkg/info/frr5-ospfd.control"]
+    "index": 30
   },
   "network/routes/dynamic_routes/proto_ospf": {
     "title": "OSPF",
     "index": 30,
     "view": "network/ProtoOspf",
     "acls": ["network/routes/dynamic_routes/proto_ospf"],
-    "files": ["/etc/config/ospf"],
-    "orfiles": ["/usr/lib/opkg/info/frr5-ospfd.control", "/usr/lib/opkg/info/frr-ospfd.control", "/usr/local/usr/lib/opkg/info/frr5-ospfd.control", "/usr/local/usr/lib/opkg/info/frr-ospfd.control"],
-    "main_page": true
+    "main_page": true,
+    "depends": {
+      "packages": {
+        "anyOf": ["ospf", "ospf5"]
+      }
+    }
   },
   "status/routes": {
     "title": "Routes",
@@ -23,16 +25,17 @@
   },
   "status/routes/dynamic": {
     "title": "Dynamic",
-    "index": 20,
-    "files": ["/etc/config/network"],
-    "orfiles": ["/usr/lib/opkg/info/frr-ospfd.control", "/usr/lib/opkg/info/frr5-ospfd.control", "/usr/local/usr/lib/opkg/info/frr-ospfd.control", "/usr/local/usr/lib/opkg/info/frr5-ospfd.control"]
+    "index": 20
   },
   "status/routes/dynamic/ospf": {
     "title": "OSPF",
     "index": 30,
     "view": "status/ProtoOspf",
     "acls": ["status/routes/dynamic/ospf"],
-    "files": ["/etc/config/ospf"],
-    "orfiles": ["/usr/lib/opkg/info/frr5-ospfd.control", "/usr/lib/opkg/info/frr-ospfd.control", "/usr/local/usr/lib/opkg/info/frr5-ospfd.control", "/usr/local/usr/lib/opkg/info/frr-ospfd.control"]
+    "depends": {
+      "packages": {
+        "anyOf": ["ospf", "ospf5"]
+      }
+    }
   }
 }

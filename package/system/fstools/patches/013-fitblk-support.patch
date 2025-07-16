@@ -1,8 +1,6 @@
-Index: fstools-2022-05-03-9e11b372/CMakeLists.txt
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/CMakeLists.txt	2024-07-17 10:40:44.124469350 +0300
-+++ fstools-2022-05-03-9e11b372/CMakeLists.txt	2024-07-17 10:40:44.120469374 +0300
-@@ -9,6 +9,7 @@
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -9,6 +9,7 @@ ADD_LIBRARY(fstools SHARED
  		libfstools/common.c
  		libfstools/snapshot.c
  		libfstools/extroot.c
@@ -10,11 +8,9 @@ Index: fstools-2022-05-03-9e11b372/CMakeLists.txt
  		libfstools/overlay.c
  		libfstools/volume.c
  		libfstools/mtd.c
-Index: fstools-2022-05-03-9e11b372/block.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/block.c	2024-07-17 10:40:44.124469350 +0300
-+++ fstools-2022-05-03-9e11b372/block.c	2024-07-17 10:44:14.363189243 +0300
-@@ -599,6 +599,7 @@
+--- a/block.c
++++ b/block.c
+@@ -599,6 +599,7 @@ static void cache_load(int mtd)
  	_cache_load("/dev/vd*");
  	_cache_load("/dev/xvd*");
  	_cache_load("/dev/dm-*");
@@ -22,11 +18,9 @@ Index: fstools-2022-05-03-9e11b372/block.c
  }
  
  
-Index: fstools-2022-05-03-9e11b372/libfstools/common.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/common.c	2024-07-17 10:40:44.124469350 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/common.c	2024-07-17 10:45:05.966878461 +0300
-@@ -113,18 +113,57 @@
+--- a/libfstools/common.c
++++ b/libfstools/common.c
+@@ -113,18 +113,57 @@ int block_volume_format(struct volume *v
  {
  	int ret = 0;
  	char str[128];
@@ -90,20 +84,16 @@ Index: fstools-2022-05-03-9e11b372/libfstools/common.c
  
  		ret = system(str);
  		break;
-Index: fstools-2022-05-03-9e11b372/libfstools/common.h
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/common.h	2024-07-17 10:40:44.124469350 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/common.h	2024-07-17 10:40:44.120469374 +0300
-@@ -25,3 +25,5 @@
+--- a/libfstools/common.h
++++ b/libfstools/common.h
+@@ -25,3 +25,5 @@ int read_uint_from_file(char *dirname, c
  char *read_string_from_file(const char *dirname, const char *filename, char *buf, size_t bufsz);
  int block_file_identify(FILE *f, uint64_t offset);
  int block_volume_format(struct volume *v, uint64_t offset, const char *bdev);
 +
 +static const char *const block_dir_name = "/sys/class/block";
-Index: fstools-2022-05-03-9e11b372/libfstools/fit.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ fstools-2022-05-03-9e11b372/libfstools/fit.c	2024-07-17 10:40:44.120469374 +0300
+--- /dev/null
++++ b/libfstools/fit.c
 @@ -0,0 +1,99 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +
@@ -204,10 +194,8 @@ Index: fstools-2022-05-03-9e11b372/libfstools/fit.c
 +};
 +
 +DRIVER(fit_driver);
-Index: fstools-2022-05-03-9e11b372/libfstools/partname.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/partname.c	2024-07-17 10:40:44.124469350 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/partname.c	2024-07-17 10:40:44.120469374 +0300
+--- a/libfstools/partname.c
++++ b/libfstools/partname.c
 @@ -4,8 +4,6 @@
  
  #define BUFLEN 64
@@ -217,7 +205,7 @@ Index: fstools-2022-05-03-9e11b372/libfstools/partname.c
  struct devpath {
  	char prefix[5];
  	char device[11];
-@@ -226,6 +224,7 @@
+@@ -180,6 +178,7 @@ static struct volume *partname_volume_fi
  
  static struct driver partname_driver = {
  	.name = "partname",

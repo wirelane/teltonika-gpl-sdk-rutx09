@@ -45,11 +45,13 @@ BEGIN {
 
 	network=and(ipaddr,netmask)
 	broadcast=or(network,compl32(netmask))
+	prefix = 32-bitcount(compl32(netmask))
 
 	start=or(network,and(ip2int(ARGV[3]),compl32(netmask)))
 	limit=network+1
 	if (start<limit) start=limit
 
+	if(ARGV[3] > 2 ^ (32 - prefix) - 2 ) start=network+1 # Fall back to using first available address if start offset is too big
 	end=start+ARGV[4]
 	limit=or(network,compl32(netmask))-1
 	if (end>limit) end=limit
@@ -58,7 +60,7 @@ BEGIN {
 	print "NETMASK="int2ip(netmask)
 	print "BROADCAST="int2ip(broadcast)
 	print "NETWORK="int2ip(network)
-	print "PREFIX="32-bitcount(compl32(netmask))
+	print "PREFIX="prefix
 
 	# range calculations:
 	# ipcalc <ip> <netmask> <start> <num>

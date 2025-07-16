@@ -7,7 +7,6 @@
 		"title": "SSHFS",
 		"index": 20,
 		"view": "services/SSHFS",
-		"acls": [ "system/admin/memory_expansion/sshfs" ],
-		"files": [ "/etc/config/sshfs" ]
+		"acls": [ "system/admin/memory_expansion/sshfs" ]
 	}
 }

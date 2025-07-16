@@ -1104,7 +1104,11 @@ dnsmasq_start()
 	config_get dnsmasqconfdir "$cfg" confdir "/tmp/dnsmasq.d"
 	xappend "--conf-dir=$dnsmasqconfdir"
 	dnsmasqconfdir="${dnsmasqconfdir%%,*}"
-	[ ! -d "$dnsmasqconfdir" ] && mkdir -p "$dnsmasqconfdir"
+	[ ! -d "$dnsmasqconfdir" ] && {
+		mkdir -p "$dnsmasqconfdir"
+		chmod 775 "$dnsmasqconfdir"
+		chown root:dnsmasq "$dnsmasqconfdir"
+	}
 	xappend "--user=dnsmasq"
 	xappend "--group=dnsmasq"
 	xappend "--dhcp-scriptuser=dnsmasq"

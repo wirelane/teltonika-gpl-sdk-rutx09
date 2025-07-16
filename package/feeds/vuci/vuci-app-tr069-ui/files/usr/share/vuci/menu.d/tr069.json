@@ -3,7 +3,6 @@
         "title": "TR-069",
         "index": 180,
         "view": "services/Tr069",
-        "acls": [ "services/tr069" ],
-        "files": [ "/etc/config/easycwmp" ]
+        "acls": [ "services/tr069" ]
     }
 }

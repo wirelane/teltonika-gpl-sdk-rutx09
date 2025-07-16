@@ -19,3 +19,5 @@ config_cb() {
 
 config_load "network"
 uci_commit "network"
+
+exit 0

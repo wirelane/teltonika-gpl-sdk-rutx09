@@ -87,7 +87,8 @@ wIfaceGroup OBJECT-GROUP
 		  wIfaceSSID,
 		  wIfaceHidden,
 		  wIfaceEncryption,
-		  wIfaceMode }
+		  wIfaceMode,
+		  wIfaceClientCount }
 	STATUS current
 	DESCRIPTION "Wireless interface SNMP group defined according to RFC 2580"
 	::= { teltonikaSnmpGroups 8 }
@@ -120,7 +121,8 @@ WIfaceEntry ::=
 	wIfaceSSID         DisplayString,
 	wIfaceHidden       INTEGER,
 	wIfaceEncryption   DisplayString,
-	wIfaceMode         DisplayString
+	wIfaceMode         DisplayString,
+	wIfaceClientCount  INTEGER
 	}
 
 wIfaceIndex OBJECT-TYPE
@@ -157,3 +159,10 @@ wIfaceMode OBJECT-TYPE
 	STATUS      current
 	DESCRIPTION "The mode of the wireless interface."
 	::= { wIfaceEntry 5 }
+
+wIfaceClientCount OBJECT-TYPE
+	SYNTAX      INTEGER
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION "How many clients are connected to the interface (only for access points and meshes)."
+	::= { wIfaceEntry 6 }

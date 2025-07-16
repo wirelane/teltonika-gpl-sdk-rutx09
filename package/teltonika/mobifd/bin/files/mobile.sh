@@ -438,7 +438,7 @@ setup_dhcp_v6() {
 	json_add_boolean ignore_valid 1
 	proto_add_dynamic_defaults
 	# RFC 7278: Extend an IPv6 /64 Prefix to LAN
-	json_add_string extendprefix 1
+	[ "$delegate" -eq 0 ] || json_add_string extendprefix 1
 	ubus call network add_dynamic "$(json_dump)"
 }
 
@@ -476,9 +476,11 @@ setup_static_v6() {
 	json_add_string proto static
 	json_add_string ip6gw "::0"
 
-	json_add_array ip6prefix
-		json_add_string "" "$ip6_with_prefix"
-	json_close_array
+	[ "$delegate" -eq 0 ] || {
+		json_add_array ip6prefix
+			json_add_string "" "$ip6_with_prefix"
+		json_close_array
+	}
 
 	json_add_array ip6addr
 		json_add_string "" "${ip_6}/128"
@@ -796,31 +798,27 @@ add_modem_section() {
 	local num="$2"
 	local simcount="$3"
 	local builtin="$4"
-	local custom_proto custom_ifname
+	local custom_ifname
 	local sim_pos=0
 
 	get_highest_metric
 
 	json_select ..
-	json_get_vars custom_proto custom_ifname
+	json_get_vars custom_ifname
 	json_select modems
 	for count in $(seq "$simcount"); do
 		interface="mob${num}s${count}a1"
-		local proto="wwan"
 
 		#~ Get sim slot and get bootstrap profile info
 		sim_pos=$(get_sim_position $num $count)
 		bootstrap_iccid=$(mnf_info -d${sim_pos} 2>/dev/null)
 		[[ "$bootstrap_iccid" != "N/A" && -n "$bootstrap_iccid" ]] && is_bootstrap_profile="1" || is_bootstrap_profile="0"
 
-		# if needed, use custom proto for rmnet/other devices
-		[ -n "${custom_proto}" ] && proto="${custom_proto}"
-
 		metric=$((metric + 1))
 
 		uci -q delete network."${interface}"
 		uci_add network interface "${interface}"
-		uci_set network "${interface}" proto "$proto"
+		uci_set network "${interface}" proto "wwan"
 		uci_set network "${interface}" modem "$id"
 		uci_set network "${interface}" metric "$metric"
 		uci_set network "${interface}" sim "${count}"
@@ -870,6 +868,7 @@ generate_dynamic_lte() {
 			json_get_vars id simcount builtin
 			json_select ..
 			add_modem_section "$id" "$num" "$simcount" "$builtin"
+			add_modem_settings_config "$id"
 			num=$(( num + 1 ))
 		done
 
@@ -889,6 +888,7 @@ generate_dynamic_lte() {
 		product=$(cat "/sys/bus/usb/devices/$a/idProduct")
 		[ -f "/lib/network/wwan/${vendor}:${product}" ] && {
 			add_simcard_config "$a" "1" "0" ""
+			add_modem_settings_config "$a"
 			add_sms_storage_config "$a"
 		}
 	done

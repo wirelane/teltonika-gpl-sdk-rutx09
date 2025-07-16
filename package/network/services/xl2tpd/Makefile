@@ -75,7 +75,7 @@ define Package/xl2tpd/install
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/local/sbin/xl2tpd-control $(1)/usr/sbin/
 
 	$(INSTALL_DIR) $(1)/etc/config
-	touch $(1)/etc/config/xl2tpd
+	$(INSTALL_CONF_USR) /dev/null $(1)/etc/config/xl2tpd
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/xl2tpd.init $(1)/etc/init.d/xl2tpd

@@ -8,14 +8,12 @@
 		"index": 10,
 		"view": "services/AWSJobs",
 		"acls": [ "services/cloud_solutions/aws/jobs" ],
-		"files": [ "/etc/config/aws_jobs" ],
 		"main_page": true
 	},
 	"services/cloud_solutions/aws/provisioning": {
 		"title": "Provisioning",
 		"index": 20,
 		"view": "services/AWSProvisioning",
-		"acls": [ "services/cloud_solutions/aws/provisioning" ],
-		"files": [ "/etc/config/aws_jobs" ]
+		"acls": [ "services/cloud_solutions/aws/provisioning" ]
 	}
 }

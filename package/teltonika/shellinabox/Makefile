@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
 PKG_VERSION:=2025-03-25
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_BUILD_DEPENDS:=zlib
 
 PKG_SOURCE_PROTO:=git
@@ -53,6 +53,7 @@ define Build/Compile
 		CFLAGS="$(TARGET_CFLAGS)" \
 		LDFLAGS="$(TARGET_LDFLAGS) -lm" \
 		BINDIR="/usr/sbin" \
+		DL_DIR="$(TOPDIR)/dl/$(PKG_NAME)-$(PKG_VERSION)-npx" \
 		all
 endef
 

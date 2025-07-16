@@ -18,6 +18,7 @@ proto_connm_init_config() {
 	proto_config_add_string modes
 	proto_config_add_boolean dhcp
 	proto_config_add_boolean dhcpv6
+	proto_config_add_boolean delegate
 	proto_config_add_int ip4table
 	proto_config_add_int ip6table
 
@@ -43,14 +44,22 @@ proto_connm_setup() {
 	local active_sim="1" options
 
 	local connstat method
-	local device apn auth username password pdp modem pdptype sim dhcp dhcpv6
+	local device apn auth username password pdp modem pdptype sim dhcp dhcpv6 delegate
 	local $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 ip4table ip6table parameters4 parameters6
 	local pdh_4 pdh_6 cid cid_4 cid_6
 	local retry_before_reinit
 	local error_cnt
 
 	json_get_vars device modem pdptype sim delay method mtu dhcp dhcpv6 ip4table ip6table \
-	leasetime mac $PROTO_DEFAULT_OPTIONS
+	leasetime mac delegate $PROTO_DEFAULT_OPTIONS
+
+	mkdir -p "/var/run/qmux/"
+
+	local gsm_modem="$(find_mdm_ubus_obj "$modem")"
+	[ -z "$gsm_modem" ] && {
+			echo "Failed to find gsm modem ubus object, exiting."
+			return 1
+	}
 
 	# wait for shutdown to complete
 	wait_for_shutdown_complete "$interface"
@@ -59,12 +68,6 @@ proto_connm_setup() {
 
 	[ -n "$delay" ] || [ "$pdp" = "1" ] && delay=0 || delay=3
 	sleep "$delay"
-
-	local gsm_modem="$(find_mdm_ubus_obj "$modem")"
-	[ -z "$gsm_modem" ] && {
-			echo "Failed to find gsm modem ubus object, exiting."
-			return 1
-	}
 
 #~ Parameters part------------------------------------------------------
 	[ -z "$sim" ] && sim=$(get_config_sim "$interface")
@@ -87,15 +90,11 @@ proto_connm_setup() {
 		fi
 	fi
 
-	device="/dev/cdc-wdm0"
-
 	[ -n "$ctl_device" ] && device="$ctl_device"
+	[ -n "$ctl_ifname" ] && ifname="$ctl_ifname"
 	[ -z "$timeout" ] && timeout="30"
 	[ -z "$metric" ] && metric="1"
 
-	#~ Static ifname for trb
-	ifname="rmnet0"
-	qmimux="rmnet0"
 	service_name="wds"
 	options="--timeout 30000"
 
@@ -106,12 +105,8 @@ proto_connm_setup() {
 
 	first_uqmi_call "uqmi -d $device --timeout 10000 --set-autoconnect disabled" || return 1
 
-	cid="$(uqmi -d "$device" $options --get-client-id wds)"
-	qmi_error_handle "$cid" "$error_cnt" "$modem" || return 1
-
-#~ Do not add TABS!
-call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
---modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
+	# Disable no roaming flag
+	call_uqmi_command "uqmi -d $device $options --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
 
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
 	[ -z "$retry_before_reinit" ] && retry_before_reinit="0"
@@ -127,6 +122,7 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 		if [ $? -ne 0 ]; then
 			echo "Unable to obtain client IPV4 ID"
 		fi
+		touch "/var/run/qmux/$interface.cid_$cid_4"
 		echo "cid4: $cid_4"
 
 		#~ Set ipv4 on CID
@@ -168,6 +164,7 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 		if [ $? -ne 0 ]; then
 			echo "Unable to obtain client IPV6 ID"
 		fi
+		touch "/var/run/qmux/$interface.cid_$cid_6"
 		echo "cid6: $cid_6"
 
 		#~ Set ipv6 on CID
@@ -268,11 +265,6 @@ call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-c
 	[ "$ipv6" != "1" ] && [ "$pdptype" = "ipv6" ] && proto_notify_error "$interface" "$pdh_6"
 	[ "$pdptype" = "ipv4v6" ] && [ "$ipv4" != "1" ] && [ "$ipv6" != "1" ] && proto_notify_error "$interface" "$pdh_4" && proto_notify_error "$interface" "$pdh_6"
 
-	#cid is lost after script shutdown so we should create temp files for that
-	mkdir -p "/var/run/qmux/"
-	echo "$cid_4" > "/var/run/qmux/$interface.cid_4"
-	echo "$cid_6" > "/var/run/qmux/$interface.cid_6"
-
 	proto_export "IFACE4=$IFACE4"
 	proto_export "IFACE6=$IFACE6"
 	proto_export "OPTIONS=$options"
@@ -284,6 +276,7 @@ proto_connm_teardown() {
 	local device="/dev/cdc-wdm0" conn_proto
 	local bridge_ipaddr method
 	local braddr_f="/var/run/${interface}_braddr"
+	touch "/tmp/shutdown_$interface"
 
 	[ -n "$ctl_device" ] && device=$ctl_device
 

@@ -4,5 +4,5 @@
 
 proto="$(uci -q get network.${INTERFACE%_4}.proto)"
 
-[ "$proto" = "wwan" ] || [ "$proto" = "connm" ] && /etc/init.d/dnsmasq reload
+[ "$proto" = "wwan" ] && /etc/init.d/dnsmasq reload
 

@@ -3,8 +3,6 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=cppcheck
 PKG_VERSION:=2.17.1
 
-PKG_UPSTREAM_PROTO:=git
-PKG_UPSTREAM_SOURCE_VERSION:=2.17.1
 PKG_SOURCE_URL:=https://github.com/danmar/cppcheck.git
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=$(PKG_VERSION)

@@ -7,7 +7,6 @@
 		"title": "Stunnel",
 		"index": 90,
 		"view": "services/STunnel",
-		"acls": [ "services/vpn/stunnel" ],
-		"files": [ "/etc/config/stunnel" ]
+		"acls": [ "services/vpn/stunnel" ]
 	}
 }

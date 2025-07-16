@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=DMVPN
 PKG_VERSION:=2021-02-11
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -38,9 +38,11 @@ endef
 
 define Package/dmvpn/install
 	$(INSTALL_DIR) \
-		$(1)/etc/config
+		$(1)/etc/config \
+		$(1)/etc/uci-defaults/7.16
 	$(INSTALL_CONF) files/etc/config/dmvpn \
 		$(1)/etc/config/dmvpn
+	$(INSTALL_BIN) ./files/defaults/99-main_table_to_254 $(1)/etc/uci-defaults/7.16/99-main_table_to_254
 endef
 
 define Package/dmvpn/prerm

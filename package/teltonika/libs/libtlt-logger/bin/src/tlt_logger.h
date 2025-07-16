@@ -1,6 +1,10 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdarg.h>
 
 #define MAX_LOG_MSG 5
@@ -86,4 +90,8 @@ void _log_with_count(log_counter *counter, log_id id, log_level_type level, char
 		exit(EXIT_FAILURE);			\
 	} while (0)
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif // LOGGER_H

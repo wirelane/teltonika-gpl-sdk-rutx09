@@ -19,3 +19,5 @@ config_foreach rename_option fwd_to_http
 config_foreach rename_option fwd_to_sms
 config_foreach rename_option fwd_to_smtp
 uci_commit sms_gateway
+
+exit 0

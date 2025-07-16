@@ -16,7 +16,7 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  
  struct ubi_volume {
  	struct volume v;
-@@ -47,8 +47,8 @@
+@@ -47,8 +47,8 @@ static int ubi_volume_init(struct volume
  	char voldir[BUFLEN], voldev[BUFLEN], volname[BUFLEN];
  	unsigned int volsize;
  
@@ -27,7 +27,7 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  
  	snprintf(voldev, sizeof(voldev), "/dev/ubi%u_%u",
  		p->ubi_num, p->ubi_volid);
-@@ -72,8 +72,8 @@
+@@ -72,8 +72,8 @@ static struct volume *ubi_volume_match(c
  	char voldir[BUFLEN], volblkdev[BUFLEN], volname[BUFLEN];
  	struct ubi_volume *p;
  
@@ -38,4 +38,3 @@ Signed-off-by: Daniel Golle <daniel@makrotopia.org>
  
  	snprintf(volblkdev, sizeof(volblkdev), "/dev/ubiblock%u_%u",
  		ubi_num, volid);
-

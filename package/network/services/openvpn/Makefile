@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=openvpn
 
 PKG_VERSION:=2.6.9
-PKG_RELEASE:=7
+PKG_RELEASE:=11
 
 PKG_HASH:=e08d147e15b4508dfcd1d6618a1f21f1495f9817a8dadc1eddf0532fa116d7e3
 
@@ -44,6 +44,8 @@ define Package/openvpn/Default
 	+OPENVPN_$(1)_ENABLE_DCO:libnl-genl +OPENVPN_$(1)_ENABLE_DCO:kmod-ovpn-dco-v2 $(3) +libubus +libubox
   VARIANT:=$(1)
   PROVIDES:=openvpn openvpn-crypto
+  FATTRS:=/usr/sbin/openvpn::::cap_net_admin,cap_net_bind_service+ep
+  USERID:=openvpn=580:openvpn=580
 endef
 
 Package/openvpn-openssl=$(call Package/openvpn/Default,openssl,OpenSSL,+PACKAGE_openvpn-openssl:libopenssl)
@@ -97,7 +99,9 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(1)/lib/functions \
 		$(1)/lib/upgrade/keep.d \
 		$(1)/usr/libexec \
-		$(1)/etc/hotplug.d/openvpn
+		$(1)/etc/hotplug.d/openvpn \
+		$(1)/etc/permtab.d \
+		$(1)/usr/share/acl.d
 
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/sbin/openvpn \
@@ -135,7 +139,7 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		files/teltonika.options \
 		$(1)/etc/openvpn/options
 
-	$(INSTALL_CONF) files/openvpn.config \
+	$(INSTALL_CONF_USR) files/openvpn.config \
 		$(1)/etc/config/openvpn
 
 	$(INSTALL_BIN) \
@@ -158,6 +162,19 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(INSTALL_BIN) \
 			files/openvpn.check \
 			(1)/usr/sbin/openvpn_check)
+
+	$(INSTALL_DATA) \
+		files/openvpn.permtab \
+		$(1)/etc/permtab.d/openvpn
+
+	$(INSTALL_DATA) \
+		files/openvpn_acl.json \
+		$(1)/usr/share/acl.d/openvpn_acl.json
+
+	$(INSTALL_BIN) \
+		files/ping.sh \
+		$(1)/etc/openvpn/
+
 endef
 
 $(eval $(call BuildPackage,openvpn-openssl))

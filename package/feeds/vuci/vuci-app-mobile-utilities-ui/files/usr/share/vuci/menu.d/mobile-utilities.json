@@ -1,7 +1,12 @@
 {
   "services/mobile_utilities": {
     "title": "Mobile Utilities",
-    "index": 30
+    "index": 30,
+    "depends": {
+      "board": {
+        "allOf": ["has_mobile"]
+      }
+    }
   },
   "services/mobile_utilities/sms_utilities": {
     "view": "services/SMSUtilities",

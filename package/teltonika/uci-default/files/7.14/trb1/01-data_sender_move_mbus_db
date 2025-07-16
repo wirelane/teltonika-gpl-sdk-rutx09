@@ -17,3 +17,5 @@ config_load data_sender
 config_foreach migrate_mbus_db input
 
 uci_commit data_sender
+
+exit 0

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openconnect
 PKG_VERSION:=9.12
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 PKG_SOURCE_VERSION:=9.12
 PKG_SOURCE:=openconnect-$(PKG_SOURCE_VERSION).tar.gz

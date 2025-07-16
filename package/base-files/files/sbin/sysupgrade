@@ -283,6 +283,13 @@ run_hooks "" $fwtool_pre_upgrade
 
 # If ledman daemon is dead, this should not have any effect
 /usr/bin/ledman --clean >/dev/null 2>&1 &
+# Devices with RG255 modem needs to be shutdown for proper init during boot
+[ -e /sbin/mctl ] && {
+	modem_name=$(jsonfilter -i "/etc/board.json" -e '@.modems[0].desc')
+	case "$modem_name" in
+  		*RG255*) /sbin/mctl -w -a && /sbin/mctl -s -a;;
+	esac
+}
 
 install_bin /sbin/upgraded
 v "Commencing upgrade. Closing all shell sessions."

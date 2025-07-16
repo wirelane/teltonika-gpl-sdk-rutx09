@@ -30,7 +30,7 @@ rename_serial_port() {
 	uci set "$CONFIG.$section.device=$serial_port"
 }
 
-config_load "$CONFIG"
+config_load "$CONFIG" || exit 0
 config_foreach set_max_count
 config_foreach set_id_to_name "instance"
 config_foreach rename_serial_port

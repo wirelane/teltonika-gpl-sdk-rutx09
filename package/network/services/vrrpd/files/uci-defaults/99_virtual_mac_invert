@@ -15,3 +15,5 @@ invert_virtual_mac() {
 config_load vrrpd
 config_foreach invert_virtual_mac vrrpd
 uci_commit vrrpd
+
+exit 0

@@ -24,6 +24,7 @@ PKG_LICENSE:=LGPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
 
 PKG_FIXUP:=autoreconf
+PKG_BUILD_DEPENDS:=libgpg-error
 
 include $(INCLUDE_DIR)/package.mk
 

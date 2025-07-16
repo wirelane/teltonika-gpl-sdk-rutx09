@@ -5,17 +5,19 @@
   },
   "network/routes/dynamic_routes": {
     "title": "Dynamic Routes",
-    "index": 30,
-    "orfiles": ["/usr/lib/opkg/info/frr-bgpd.control", "/usr/lib/opkg/info/frr5-bgpd.control", "/usr/local/usr/lib/opkg/info/frr-bgpd.control", "/usr/local/usr/lib/opkg/info/frr5-bgpd.control"]
+    "index": 30
   },
   "network/routes/dynamic_routes/proto_bgp": {
     "title": "BGP",
     "index": 10,
     "view": "network/ProtoBgp",
     "acls": ["network/routes/dynamic_routes/proto_bgp"],
-    "files": ["/etc/config/bgp"],
-    "orfiles": ["/usr/lib/opkg/info/frr5-bgpd.control", "/usr/lib/opkg/info/frr-bgpd.control", "/usr/local/usr/lib/opkg/info/frr5-bgpd.control", "/usr/local/usr/lib/opkg/info/frr-bgpd.control"],
-    "main_page": true
+    "main_page": true,
+    "depends": {
+      "packages": {
+        "anyOf": ["bgp", "bgp5"]
+      }
+    }
   },
   "status/routes": {
     "title": "Routes",
@@ -23,9 +25,7 @@
   },
   "status/routes/dynamic": {
     "title": "Dynamic",
-    "index": 20,
-    "files": ["/etc/config/network"],
-    "orfiles": ["/usr/lib/opkg/info/frr-bgpd.control", "/usr/lib/opkg/info/frr5-bgpd.control", "/usr/local/usr/lib/opkg/info/frr-bgpd.control", "/usr/local/usr/lib/opkg/info/frr5-bgpd.control"]
+    "index": 20
   },
   "status/routes/dynamic/bgp": {
     "title": "BGP",
@@ -33,6 +33,10 @@
     "view": "status/ProtoBgp",
     "acls": ["status/routes/dynamic/bgp"],
     "files": ["/etc/config/bgp"],
-    "orfiles": ["/usr/lib/opkg/info/frr5-bgpd.control", "/usr/lib/opkg/info/frr-bgpd.control", "/usr/local/usr/lib/opkg/info/frr5-bgpd.control", "/usr/local/usr/lib/opkg/info/frr-bgpd.control"]
+    "depends": {
+      "packages": {
+        "anyOf": ["bgp", "bgp5"]
+      }
+    }
   }
 }

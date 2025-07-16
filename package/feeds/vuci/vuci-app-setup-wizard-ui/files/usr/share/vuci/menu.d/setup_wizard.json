@@ -19,6 +19,11 @@
     "title": "Wireless",
     "index": 40,
     "view": "system/StepWifi",
-    "acls": ["system/wizard/step_wifi"]
+    "acls": ["system/wizard/step_wifi"],
+    "depends": {
+      "board": {
+        "allOf": ["has_wifi"]
+      }
+    }
   }
 }

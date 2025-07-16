@@ -40,6 +40,40 @@ get_model_data() {
 	fun_name="rndis.$ifname""0"
 }
 
+setup_diag_functionfs() {
+	local p=$1
+	func_str="ffs.diag,qdss.qdss"
+
+	qdss_func="qdss.qdss_mdm"
+	funcs=$(echo $func_str |tr "," "\n")
+
+	mkdir "$p/functions/ffs.diag"
+	mkdir "$p/functions/diag.diag"
+	mkdir "$p/functions/diag.diag_mdm"
+	mkdir "$p/functions/qdss.qdss"
+	mkdir "$p/functions/qdss.qdss_mdm"
+
+	echo 0xA0 > "$p/configs/c.1/bmAttributes"
+	echo "DIAG_SER_RMNET" > "$p/configs/c.1/strings/0x409/configuration"
+
+
+	for func in $funcs
+	do
+		case $func in
+			ffs.diag)
+				func_index=0
+				;;
+			qdss.qdss)
+				func_index=12
+				func=$qdss_func
+				;;
+		esac
+		ln -s "$p/functions/$func" "$p/configs/c.1/f$func_index"
+	done
+	mkdir /dev/ffs-diag
+	mount -t functionfs diag /dev/ffs-diag
+}
+
 boot() {
 	local p="/sys/kernel/config/usb_gadget/g1"
 	[ -d "$p" ] && return
@@ -90,4 +124,6 @@ boot() {
 
 	# probe UDC
 	echo "$udc_name" > "$p/UDC"
+
+	setup_diag_functionfs $p
 }

@@ -18,8 +18,7 @@ GO_SOURCE_URLS:=https://dl.google.com/go/ \
                 https://mirrors.ustc.edu.cn/golang/ \
                 https://mirrors.nju.edu.cn/golang/
 
-PKG_SOURCE_VERSION:=1.22.5
-PKG_SOURCE:=go$(PKG_SOURCE_VERSION).src.tar.gz
+PKG_SOURCE:=go$(PKG_VERSION).src.tar.gz
 PKG_SOURCE_URL:=$(GO_SOURCE_URLS)
 PKG_HASH:=ac9c723f224969aee624bc34fd34c9e13f2a212d75c71c807de644bb46e112f6
 

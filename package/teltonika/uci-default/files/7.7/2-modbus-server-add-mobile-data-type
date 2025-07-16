@@ -18,7 +18,7 @@ add_mobile_data_type() {
 	fi
 }
 
-config_load "$CONFIG"
+config_load "$CONFIG" || exit 0
 config_foreach add_mobile_data_type rtu_device
 uci_commit "$CONFIG"
 

@@ -39,7 +39,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/vuci; \
 	$(INSTALL_BIN) $$$$files_dir/usr/lib/lua/vuci/ds_update_list.lua $(1)/usr/lib/lua/vuci/ds_update_list.lua; \
 	$(CP) $$$$files_dir/usr/share/rpcd/acl.d/datasender.json $(1)/usr/share/rpcd/acl.d/datasender.json; \
-	$(foreach file,data_sender_collections data_sender_inputs data_sender_outputs data_sender_format data_sender_utils, \
+	$(foreach file,data_sender_collections data_sender_inputs data_sender_outputs data_sender_format data_sender_encoder data_sender_utils, \
 	  $(call ModuleInstallLuaFile,$(file),,$(1),$$$$files_dir) \
 	)
 endef

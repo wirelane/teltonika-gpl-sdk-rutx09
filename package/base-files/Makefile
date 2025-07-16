@@ -219,8 +219,7 @@ define Package/base-files/install
 
 	# --prod / --gpl flags
 	$(if $(CONFIG_PROD_IMAGE)$(CONFIG_GPL_BUILD),\
-		$(RM) $(1)/etc/profile.d/check-root.sh \
-		$(1)/etc/profile.d/rwrootfs.sh \
+		$(RM) $(1)/etc/profile.d/rwrootfs.sh \
 		$(1)/etc/init.d/memleak_watcher \
 		$(1)/sbin/memleak_watcher \
 	)

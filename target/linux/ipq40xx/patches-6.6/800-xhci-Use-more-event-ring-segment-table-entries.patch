@@ -1,11 +1,11 @@
 --- a/drivers/usb/host/xhci.h
 +++ b/drivers/usb/host/xhci.h
-@@ -1427,7 +1427,7 @@ struct urb_priv {
-  * (1K bytes * 8bytes/bit) / (4*32 bits) = 64 segment entries in the table,
-  * meaning 64 ring segments.
-  * Initial allocated size of the ERST, in number of entries */
--#define	ERST_NUM_SEGS	1
-+#define	ERST_NUM_SEGS	16
+@@ -1424,7 +1424,7 @@ struct urb_priv {
+ };
+ 
+ /* Number of Event Ring segments to allocate, when amount is not specified. (spec allows 32k) */
+-#define	ERST_DEFAULT_SEGS	2
++#define	ERST_DEFAULT_SEGS	16
  /* Poll every 60 seconds */
  #define	POLL_TIMEOUT	60
  /* Stop endpoint command timeout (secs) for URB cancellation watchdog timer */

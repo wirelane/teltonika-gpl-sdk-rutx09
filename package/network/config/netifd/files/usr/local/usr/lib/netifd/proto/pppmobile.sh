@@ -17,6 +17,7 @@ proto_pppmobile_init_config() {
 	proto_config_add_string modes
 	proto_config_add_boolean dhcp
 	proto_config_add_boolean dhcpv6
+	proto_config_add_boolean delegate
 	proto_config_add_int ip4table
 	proto_config_add_int ip6table
 
@@ -66,8 +67,8 @@ add_ipv6_dynamic_ifname() {
 	json_add_string device "$ctl_device"
 	json_add_string proto "ppp"
 	json_add_string ipv6 "1"
-	json_add_string extendprefix 1
 	json_add_boolean ignore_valid 1
+	[ "$delegate" -eq 0 ] || json_add_string extendprefix 1
 	[ -n "$ip6table" ] && json_add_string ip6table "$ip6table"
 	[ -n "$zone" ] && json_add_string zone "$zone"
 
@@ -158,11 +159,11 @@ proto_pppmobile_setup() {
 	#~ This proto usable only with proto wwan
 	local interface="$1"
 	local pdp modem sim delay $PROTO_DEFAULT_OPTIONS
-	local ip4table ip6table
+	local ip4table ip6table delegate
 	local active_sim="1"
 	local ifname
 
-	json_get_vars pdp pdptype modem sim delay ip4table ip6table $PROTO_DEFAULT_OPTIONS
+	json_get_vars pdp pdptype modem sim delay ip4table ip6table delegate $PROTO_DEFAULT_OPTIONS
 	[ -n $modem ] && modem="$devicename"
 
 	local mdm_ubus_obj="$(find_mdm_ubus_obj "$modem")"

@@ -212,6 +212,8 @@ proto_pppoe_init_config() {
 	proto_config_add_string "host_uniq"
 	proto_config_add_int "padi_attempts"
 	proto_config_add_int "padi_timeout"
+	proto_config_add_int "tag"
+	proto_config_add_int "priority"
 
 	lasterror=1
 }
@@ -230,6 +232,8 @@ proto_pppoe_setup() {
 	json_get_var host_uniq host_uniq
 	json_get_var padi_attempts padi_attempts
 	json_get_var padi_timeout padi_timeout
+	json_get_var tag tag
+	json_get_var priority priority
 
 	ppp_generic_setup "$config" \
 		plugin pppoe.so \
@@ -240,9 +244,6 @@ proto_pppoe_setup() {
 		${padi_timeout:+pppoe-padi-timeout $padi_timeout} \
 		"nic-$iface"
 
-	config_load network
-        config_get tag "$config" tag
-        config_get priority "$config" priority
         [ -n "$tag" ] && [ -n "$priority" ] && ip link set $iface type vlan egress $tag:$priority
 }
 

@@ -3,6 +3,6 @@
         "title": "Services",
         "acls": [ "status/services" ],
         "view": "status/Services",
-        "index": 40
+        "index": 45
     }
 }

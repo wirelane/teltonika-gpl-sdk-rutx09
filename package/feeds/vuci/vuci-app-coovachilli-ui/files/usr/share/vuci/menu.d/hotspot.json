@@ -8,22 +8,19 @@
 			"index": 10,
 			"view": "services/HotspotOverview",
 			"acls": [ "services/hotspot/general" ],
-			"files": [ "/etc/config/chilli" ],
 			"main_page": true
 		},
 		"services/hotspot/users": {
 			"title": "Local Users",
 			"index": 20,
 			"view": "services/HotspotUsers",
-			"acls": [ "services/hotspot/users" ],
-			"files": [ "/etc/config/chilli" ]
+			"acls": [ "services/hotspot/users" ]
 		},
 		"services/hotspot/groups": {
 			"title": "User Groups",
 			"index": 40,
 			"view": "services/HotspotGroups",
-			"acls": [ "services/hotspot/groups" ],
-			"files": [ "/etc/config/chilli" ]
+			"acls": [ "services/hotspot/groups" ]
 		},
 		"services/hotspot/user_management": {
 			"title": "User Management",
@@ -33,15 +30,13 @@
 				"title": "User sessions",
 				"index": 10,
 				"view": "services/HotspotCurrentUsers",
-				"acls": [ "services/hotspot/user_management" ],
-				"files": [ "/etc/config/chilli" ]
+				"acls": [ "services/hotspot/user_management" ]
 			},
 			"services/hotspot/user_management/registered": {
 				"title": "Registered Users",
 				"index": 20,
 				"view": "services/HotspotRegisteredUsers",
-				"acls": [ "services/hotspot/user_management" ],
-				"files": [ "/etc/config/chilli" ]
+				"acls": [ "services/hotspot/user_management" ]
 			},
 		"system/maintenance/hotspot": {
 			"title": "Hotspot Log",

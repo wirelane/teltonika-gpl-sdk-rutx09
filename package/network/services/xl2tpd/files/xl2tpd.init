@@ -61,6 +61,12 @@ setup_config() {
 	config_get localip "$section" localip
 	config_get remoteipstart "$section" start
 	config_get remoteipend "$section" limit
+	config_get auth_chap "$1" auth_chap "1"
+	config_get auth_pap "$1" auth_pap "0"
+	config_get auth_mschap2 "$1" auth_mschap2 "1"
+	config_get chap "$section" chap
+	config_get auth "$section" auth
+	config_get port "$section" port
 
 	if [ -n "$remoteipstart" ] && [ -n "$remoteipend" ]; then
 		remoteip="${remoteipstart}-${remoteipend}"
@@ -75,8 +81,7 @@ setup_config() {
 		echo "ms-dns $localip" >> $OPTIONS
 	}
 
-	config_get auth_chap "$1" auth_chap "1"
-        [ "$auth_chap" = "1" ] && {
+    [ "$auth_chap" = "1" ] && {
 		echo "require chap = yes" >> "$CONFIG"
 		echo "require-chap" >> "$OPTIONS"
 	} || {
@@ -84,7 +89,6 @@ setup_config() {
 		echo "refuse-chap" >> "$OPTIONS"
 	}
 
-	config_get auth_pap "$1" auth_pap "0"
 	[ "$auth_pap" = "1" ] && {
 		echo "require pap = yes" >> "$CONFIG"
 		echo "require-pap" >> "$OPTIONS"
@@ -93,18 +97,15 @@ setup_config() {
 		echo "refuse-pap" >> "$OPTIONS"
 	}
 
-	config_get auth_mschap2 "$1" auth_mschap2 "1"
 	[ "$auth_mschap2" = "1" ] && {
 		echo "require-mschap-v2" >> "$OPTIONS"
 	} || {
 		echo "refuse-mschap-v2" >> "$OPTIONS"
 	}
 
-	config_get chap "$section" chap
 	[ "$chap" = "1" ] && echo "challenge = yes" >> "$CONFIG"
-
-	config_get auth "$section" auth
 	[ -n "$auth" ] && echo "* * $auth" >> ${TMP_DIR}/xl2tp-secrets
+	[ -n "$port" ] && sed -i "s/^port *= *[0-9]\+/port = ${port}/" "$CONFIG"
 
 	config_list_foreach "$section" "pppd_options" add_pppd_opts
 }

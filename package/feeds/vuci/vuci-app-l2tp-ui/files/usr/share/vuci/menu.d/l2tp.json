@@ -8,14 +8,12 @@
 			"index": 50,
 			"view": "services/L2tp",
 			"acls": [ "services/vpn/l2tp_classic" ],
-			"files": [ "/etc/config/xl2tpd" ],
 			"main_page": true
 		},
 		"services/vpn/l2tpv3": {
 			"title": "L2TPv3",
 			"index": 60,
 			"view": "services/L2tpv3",
-			"acls": [ "services/vpn/l2tpv3" ],
-			"files": [ "/etc/config/xl2tpd" ]
+			"acls": [ "services/vpn/l2tpv3" ]
 		}
 }

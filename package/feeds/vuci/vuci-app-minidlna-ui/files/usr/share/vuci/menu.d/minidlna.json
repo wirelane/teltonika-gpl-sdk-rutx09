@@ -7,7 +7,6 @@
     "title": "DLNA",
     "index": 40,
     "acls": ["services/sd_usb_tools/minidlna"],
-    "view": "services/DLNA",
-    "files": ["/etc/config/minidlna"]
+    "view": "services/DLNA"
   }
 }

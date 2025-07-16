@@ -11,7 +11,8 @@
     "title": "General",
     "index": 10,
     "view": "network/MultiWan",
-    "acls": ["network/failover/mwan"]
+    "acls": ["network/failover/mwan"],
+    "main_page": true
   },
   "network/failover/mwan/interface": {
     "title": "Interface",

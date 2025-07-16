@@ -19,3 +19,5 @@ index_iface() {
 config_load "wireless"
 config_foreach index_iface "wifi-iface"
 uci_commit "wireless"
+
+exit 0

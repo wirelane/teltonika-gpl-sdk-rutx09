@@ -35,7 +35,6 @@
 /etc/config/ping_reboot		preboot:preboot		664
 /etc/rms_mqtt			rms:rms			-	r
 /etc/config/uhttpd		uhttpd:uhttpd		664
-/etc/config/openvpn		openvpn:openvpn		664
 /etc/xl2tpd			xl2tpd:xl2tpd		-	r
 /tmp/resolv.conf.ppp		pppd:pppd		-	cf
 /etc/ppp			pppd:pppd		-	r

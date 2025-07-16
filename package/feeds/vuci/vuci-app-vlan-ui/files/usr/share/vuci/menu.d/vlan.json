@@ -7,13 +7,18 @@
     "title": "Port Based",
     "index": 10,
     "view": "network/VlanPort",
-    "acls": ["network/vlan/port_based"]
+    "acls": ["network/vlan/port_based"],
+    "depends": {
+      "board": {
+        "notAllOf": ["is_X86"],
+        "anyOf": ["has_switch", "has_dsa"]
+      }
+    }
   },
   "network/vlan/interface_based": {
     "title": "Interface Based",
     "index": 20,
     "view": "network/VlanInterface",
-    "acls": ["network/vlan/interface_based"],
-    "files": ["/etc/config/network"]
+    "acls": ["network/vlan/interface_based"]
   }
 }

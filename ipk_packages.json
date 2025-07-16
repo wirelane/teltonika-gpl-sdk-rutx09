@@ -31,8 +31,8 @@
 		"name": "https_dns_proxy"
 	},
 	"vuci-app-dnp3-ui": {
-		"vuci_dep": "vuci-app-dnp3-api vuci-app-data-sender-api-mod-dnp3",
-		"base_dep": "dnp3 opendnp3 data-sender-mod-dnp3 libtlt_termios1.0 libgpiod libcfgx",
+		"vuci_dep": "vuci-app-dnp3-api vuci-app-data-sender-api-mod-dnp3 vuci-app-universal-gateway-api",
+		"base_dep": "dnp3 opendnp3 data-sender-mod-dnp3 libtlt_termios1.0 libgpiod libcfgx libtag",
 		"kmod_dep": "libstdcpp6 kmod-tlt-gpio",
 		"name": "dnp3"
 	},
@@ -104,13 +104,13 @@
 	},
 	"vuci-app-snmp-ui": {
 		"vuci_dep": "vuci-app-snmp-api",
-		"base_dep": "snmp snmpd libpcre libnetsnmp snmp-mib snmp-mod-sqm snmp-mod-wireless snmp-mod-vlan snmp-mod-chilli snmp-mod-device snmp-mod-gps snmp-mod-gsm snmp-mod-io snmp-mod-port snmp-mod-mwan3 libtltchilli snmptrap libpci",
+		"base_dep": "snmp snmpd libpcre libnetsnmp snmp-mib snmp-mod-sqm snmp-mod-wireless snmp-mod-vlan snmp-mod-chilli snmp-mod-device snmp-mod-gps snmp-mod-gsm snmp-mod-io snmp-mod-port snmp-mod-mwan3 snmp-mod-universalgwd libtag libtltchilli snmptrap libpci libapi20241125",
 		"name": "snmp"
 	},
 	"vuci-app-samba-ui": {
-		"base_dep": "samba36-server libuuid1 libblkid1 e2fsprogs fmt-usb-msd exfat-mkfs storage-memory-expansion",
+		"base_dep": "samba36-server libuuid1 libblkid1 e2fsprogs fmt-usb-msd exfat-mkfs",
 		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage kmod-fuse block-mount",
-		"vuci_dep": "vuci-app-memory-expansion-api vuci-app-usb-tools-api vuci-app-memory-expansion-ui vuci-app-usb-tools-ui vuci-app-samba-api",
+		"vuci_dep": "vuci-app-usb-tools-api vuci-app-usb-tools-ui vuci-app-samba-api",
 		"name": "network_shares"
 	},
 	"vuci-app-vrrp-ui": {
@@ -194,7 +194,7 @@
 		"name": "mqtt_modbus_gateway"
 	},
 	"vuci-app-modbus-client-ui": {
-		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx",
+		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx libtag",
 		"vuci_dep": "vuci-app-modbus-client-api vuci-app-modbus-serial-ui vuci-app-modbus-serial-api vuci-app-data-sender-api-mod-modbus vuci-app-data-sender-api-mod-modbus-alarm",
 		"kmod_dep": "kmod-tlt-gpio",
 		"name": "modbus_client"
@@ -560,10 +560,11 @@
 		"base_dep": "jool libnl200 libnl-cli200 libnl-nf200 libnl-route200",
 		"kmod_dep": "kmod-jool"
 	},
-	"docker":{
+	"vuci-app-docker-ui": {
 		"name": "docker",
+		"vuci_dep": "vuci-app-docker-api",
 		"kmod_dep": "iptables-mod-extra kmod-br-netfilter kmod-ipt-extra kmod-ipt-nat6 kmod-ipt-physdev kmod-nf-ipvs kmod-nf-nat6 kmod-veth",
-		"base_dep": "ca-certificates libseccomp dockerd containerd runc tini"
+		"base_dep": "docker ca-certificates libseccomp dockerd containerd runc tini"
 	},
 	"vuci-app-port-security-ui":{
 		"name": "802.1x",
@@ -634,5 +635,11 @@
 	"vuci-app-data-sender-api-mod-advanced": {
 		"base_dep": "data-sender-mod-ftp data-sender-mod-lua-out data-sender-mod-smtp data-sender-mod-socket data-sender-mod-sms-in data-sender-mod-sms-out data-sender-mod-gps data-sender-mod-io",
 		"name": "advanced_data_to_server_modules"
+	},
+	"freeradius3": {
+		"base_dep": "freeradius3-democerts freeradius3-mod-always freeradius3-mod-attr-filter freeradius3-mod-chap freeradius3-mod-detail freeradius3-mod-digest freeradius3-mod-eap freeradius3-mod-eap-gtc freeradius3-mod-eap-md5 freeradius3-mod-eap-mschapv2 freeradius3-mod-eap-peap freeradius3-mod-eap-pwd freeradius3-mod-eap-tls freeradius3-mod-eap-ttls freeradius3-mod-exec freeradius3-mod-expiration freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-logintime freeradius3-mod-mschap freeradius3-mod-pap freeradius3-mod-preprocess freeradius3-mod-radutmp freeradius3-mod-realm freeradius3-mod-unix freeradius3-common libcap libpcap libreadline8 libncurses6 terminfo libtalloc",
+		"packages_dep": "libattr",
+		"kmod_dep": "libatomic1 libpthread",
+		"name": "freeradius"
 	}
 }

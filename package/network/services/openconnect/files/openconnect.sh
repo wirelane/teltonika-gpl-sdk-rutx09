@@ -15,6 +15,9 @@ append_args() {
 
 proto_openconnect_init_config() {
 	proto_config_add_string "server"
+	proto_config_add_string "ca_cert"
+	proto_config_add_string "user_cert"
+	proto_config_add_string "user_key"
 	proto_config_add_int "port"
 	proto_config_add_string "uri"
 	proto_config_add_int "mtu"
@@ -75,6 +78,9 @@ proto_openconnect_setup() {
 		usergroup \
 		username \
 		script \
+		ca_cert \
+		user_cert \
+		user_key
 
 	ifname="opc-$config"
 
@@ -109,16 +115,19 @@ proto_openconnect_setup() {
 	[ "$no_dtls" = 1 ] && append_args --no-dtls
 	[ -n "$mtu" ] && append_args --mtu "$mtu"
 
-	# migrate to standard config files
-	[ -f "/etc/config/openconnect-user-cert-vpn-$config.pem" ] && mv "/etc/config/openconnect-user-cert-vpn-$config.pem" "/etc/openconnect/user-cert-vpn-$config.pem"
-	[ -f "/etc/config/openconnect-user-key-vpn-$config.pem" ] && mv "/etc/config/openconnect-user-key-vpn-$config.pem" "/etc/openconnect/user-key-vpn-$config.pem"
-	[ -f "/etc/config/openconnect-ca-vpn-$config.pem" ] && mv "/etc/config/openconnect-ca-vpn-$config.pem" "/etc/openconnect/ca-vpn-$config.pem"
-
-	[ -f /etc/openconnect/user-cert-vpn-$config.pem ] && append_args -c "/etc/openconnect/user-cert-vpn-$config.pem"
-	[ -f /etc/openconnect/user-key-vpn-$config.pem ] && append_args --sslkey "/etc/openconnect/user-key-vpn-$config.pem"
-	[ -f /etc/openconnect/ca-vpn-$config.pem ] && {
-		append_args --cafile "/etc/openconnect/ca-vpn-$config.pem"
+	# get key paths from config
+	[ -f "$ca_cert" ] && {
+		append_args --cafile "$ca_cert"
 		append_args --no-system-trust
+	}
+	[ -f "$user_cert" ] && {
+		append_args -c "$user_cert"
+	}
+	[ -f "$user_key" ] && {
+		local tpm_handle
+		local key_path="$user_key"
+		tpm_handle="$(/bin/tpm2_importer "$key_path" get_handle 2> /dev/null)" && key_path="handle:$tpm_handle"
+		append_args --sslkey "$key_path"
 	}
 
 	[ "${juniper:-0}" -gt 0 ] && [ -z "$vpn_protocol" ] && {

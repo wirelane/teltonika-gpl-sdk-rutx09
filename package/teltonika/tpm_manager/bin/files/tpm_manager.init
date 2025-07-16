@@ -25,17 +25,17 @@ handle_ak_key_create() {
 		--key-algorithm ecc384 \
 		--hash-algorithm sha384 \
 		--signing-algorithm ecdsa \
-		--ak-name /tmp/tpm/ak.name
+		--ak-name /tmp/tpm/ak.name > /dev/null 2>&1
 
-	tpm2_evictcontrol -c /tmp/tpm/ak.ctx "$AK_CTX"
+	tpm2_evictcontrol -c /tmp/tpm/ak.ctx "$AK_CTX" > /dev/null 2>&1
 }
 
 handle_primary_key_create() {
 	tpm2_createprimary -C e -c /tmp/tpm/primary.ctx \
 		--hash-algorithm sha384 \
-		--key-algorithm ecc384
+		--key-algorithm ecc384 > /dev/null 2>&1
 
-	tpm2_evictcontrol -c /tmp/tpm/primary.ctx "$PRIMARY_CTX"
+	tpm2_evictcontrol -c /tmp/tpm/primary.ctx "$PRIMARY_CTX" > /dev/null 2>&1
 	rm /tmp/tpm/primary.ctx
 }
 
@@ -43,9 +43,9 @@ handle_idevid_key_create() {
 	tpm2_create -C "$PRIMARY_CTX" \
 		-c /tmp/tpm/idevid.ctx \
 		--key-algorithm ecc384:ecdsa-sha384 \
-		--hash-algorithm sha384
+		--hash-algorithm sha384 > /dev/null 2>&1
 
-	tpm2_evictcontrol -c /tmp/tpm/idevid.ctx "$IDEVID_CTX"
+	tpm2_evictcontrol -c /tmp/tpm/idevid.ctx "$IDEVID_CTX" > /dev/null 2>&1
 	rm /tmp/tpm/idevid.ctx
 }
 
@@ -56,7 +56,7 @@ handle_idevid_csr_create() {
 	openssl req -provider tpm2 -provider default -propquery '?provider=tpm2' -new \
 		-subj "/DC=org/DC=simple/O=Teltonika Networks/CN=$model_name/serialNumber=$serial_num" \
 		-key handle:$IDEVID_CTX \
-		-out /tmp/tpm/idevid_csr.pem
+		-out /tmp/tpm/idevid_csr.pem > /dev/null 2>&1
 }
 
 handle_ak_csr_gen() {
@@ -66,7 +66,7 @@ handle_ak_csr_gen() {
 	openssl req -provider tpm2 -provider default -propquery '?provider=tpm2' -new \
 		-subj "/DC=org/DC=simple/O=Teltonika Networks/CN=$model_name/serialNumber=$serial_num" \
 		-key handle:$AK_CTX \
-		-out /tmp/tpm/ak_csr.pem
+		-out /tmp/tpm/ak_csr.pem > /dev/null 2>&1
 }
 
 boot() {

@@ -84,6 +84,11 @@ class Profile:
         self.profile = profile
         self.features = []
         self.hw = {}
+        self.hw_tooltip = {}
+        self.regulatory = {}
+        self.regulatory_tooltip = {}
+        self.technical = {}
+        self.technical_tooltip = {}
         self.conf = {}
         self.features = []
         self.cached_packages = {}
@@ -97,7 +102,7 @@ class Profile:
                 dct[kname] = {}
             self.recursive_insert(dct[kname], keys[1:], value)
 
-    def convert_to_array_format(self, dct):
+    def convert_to_array_format(self, dct, tooltip_dct={}):
         result = []
         for key, value in dct.items():
             entry = {"title": key}
@@ -105,8 +110,38 @@ class Profile:
                 entry["detail"] = [{"key": subkey, "value": subvalue} for subkey, subvalue in value.items()]
             else:
                 entry["detail"] = [value]
+            entry["tooltip"] = []
             result.append(entry)
+        for key, value in tooltip_dct.items():
+            entry = next((item for item in result if item["title"] == key), None)
+            if entry is None:
+                entry = {"title": key, "detail": [], "tooltip": []}
+                result.append(entry)
+            if isinstance(value, dict):
+                for subkey, subvalue in value.items():
+                    if isinstance(subvalue, dict):
+                        entry["tooltip"].append({"key": subkey, "value": subvalue['value'], "type": subvalue['type']})
+                    else:
+                        entry["tooltip"].append({"key": subkey, "value": subvalue})
+            else:
+                entry["tooltip"] = [value]
         return result
+
+    def parse_tooltip(self, key_parts, value):
+        if key_parts[-1] != 'Tooltip' and (len(key_parts) < 2 or key_parts[-2] != 'Tooltip'):
+            return None
+
+        tooltip_type = 'key'
+        if key_parts[-1] == 'Tooltip':
+            key_parts.pop()
+        elif len(key_parts) > 1 and key_parts[-2] == 'Tooltip':
+            key_parts.pop(-2)
+
+        if key_parts and (key_parts[-1] == 'Value' or key_parts[-1] == 'Key'):
+            tooltip_type = key_parts[-1].lower()
+            key_parts.pop()
+
+        return {'type': tooltip_type, 'value': value}
 
     def parse(self, file):
         for l in file:
@@ -122,10 +157,41 @@ class Profile:
                 if len(data) < 2:
                     continue
 
-                key_parts = data[0].split('-')
+                key_parts = re.split(r'(?<!\\)-', data[0])
+                key_parts = [part.replace('\\-', '-') for part in key_parts]
+                tooltip = self.parse_tooltip(key_parts, data[1])
+                if tooltip is not None:
+                    self.recursive_insert(self.hw_tooltip, key_parts, tooltip)
+                    continue
                 self.recursive_insert(self.hw, key_parts, data[1])
+            elif 'Target-Profile-REGULATORY-' in l:
+                data = l.strip()[26:].split(': ', 1)
+                if len(data) < 2:
+                    continue
 
-        self.hw = self.convert_to_array_format(self.hw)
+                key_parts = re.split(r'(?<!\\)-', data[0])
+                key_parts = [part.replace('\\-', '-') for part in key_parts]
+                tooltip = self.parse_tooltip(key_parts, data[1])
+                if tooltip is not None:
+                    self.recursive_insert(self.regulatory_tooltip, key_parts, tooltip)
+                    continue
+                self.recursive_insert(self.regulatory, key_parts, data[1])
+            elif 'Target-Profile-TECHNICAL-' in l:
+                data = l.strip()[25:].split(': ', 1)
+                if len(data) < 2:
+                    continue
+
+                key_parts = re.split(r'(?<!\\)-', data[0])
+                key_parts = [part.replace('\\-', '-') for part in key_parts]
+                tooltip = self.parse_tooltip(key_parts, data[1])
+                if tooltip is not None:
+                    self.recursive_insert(self.technical_tooltip, key_parts, tooltip)
+                    continue
+                self.recursive_insert(self.technical, key_parts, data[1])
+
+        self.hw = self.convert_to_array_format(self.hw, self.hw_tooltip)
+        self.regulatory = self.convert_to_array_format(self.regulatory, self.regulatory_tooltip)
+        self.technical = self.convert_to_array_format(self.technical, self.technical_tooltip)
 
     def parse_expr(self, expr):
         pattern = re.compile(r'if\s+(.*)', re.DOTALL)
@@ -222,7 +288,7 @@ class Profile:
 
     def append_or_insert_arr(self, array, target_kv):
         for item in array:
-            if item['key'] == target_kv['key']:
+            if item['key'] == target_kv['key'] and item.get('type', None) == target_kv.get('type', None):
                 if target_kv['value'][0] == '\\' and target_kv['value'][1] != '\\':
                     item['value'] += target_kv['value'][1:]
                 else:
@@ -239,6 +305,7 @@ class Profile:
                 continue
 
             new_detail = []
+            new_tooltip = []
 
             for d in f.detail:
                 new_item = {'key': d['key'], 'value': d['value']}
@@ -250,8 +317,19 @@ class Profile:
                 expr = self.parse_expr(d['expr'])
                 if self.evaluate_expr(expr):
                     self.append_or_insert_arr(new_detail, new_item)
+            for t in f.tooltip:
+                new_item = {'key': t['key'], 'value': t['value'], 'type': t['type']}
+
+                if not 'expr' in t or not t['expr']:
+                    self.append_or_insert_arr(new_tooltip, new_item)
+                    continue
+
+                expr = self.parse_expr(t['expr'])
+                if self.evaluate_expr(expr):
+                    self.append_or_insert_arr(new_tooltip, new_item)
 
             f.detail = new_detail
+            f.tooltip = new_tooltip
             f.external = (self.conf[f.name] == 'm')
 
             self.features.append(f)
@@ -288,12 +366,15 @@ class Profile:
         data = {
             "name": self.name,
             "hardware": self.hw,
+            "features": [],
+            "technical": self.technical,
+            "regulatory": self.regulatory,
         }
         if not descriptions_only:
             data = {
                 "name": self.name,
                 "target": {"name": self.target.target(), "subtarget": self.target.subtarget(), "profile": self.profile},
-                "hardware": self.hw,
+                "hardware": self.hw + self.technical + self.regulatory,
                 "features": [],
             }
 
@@ -376,34 +457,33 @@ class Feature:
         self.label = 'Utilities'
         self.external = False
         self.packages = []
-        self.desc = ''
         self.detail = []
+        self.tooltip = []
 
-    def parse_detail(self, line, expr):
+    def parse_extra(self, line, expr):
         l = line.strip()
 
         if not l:
-            return
+            return None
 
         key, value = '', ''
 
-        if ':' in l:
+        colon_index = l.find(':')
+        if colon_index > 0 and l[colon_index - 1] != '\\':
             key, value = l.split(':', 1)
             key = key.strip()
             value = value.strip()
         else:
-            value = l.strip()
+            key = self.title
+            value = l.replace('\\:', ':').strip()
 
-            # update previous value
-            if len(self.detail) > 0:
-                previous = self.detail[-1]
-                previous['value'] += ' ' + value
-                return
-
-        self.detail.append({'key': key, 'value': value, 'expr': expr})
+        return {'key': key, 'value': value, 'expr': expr}
 
     def parse(self, file):
-        help_parse = False
+        tooltip_parse = False
+        tooltip_expr_parse = False
+        tooltip_expr_str = ''
+        tooltip_type = ''
         detail_parse = False
         detail_expr_parse = False
         detail_expr_str = ''
@@ -419,19 +499,21 @@ class Feature:
                 file.seek(position)
                 break
             elif is_match('^endmenu', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 detail_expr_parse = False
+                tooltip_expr_parse = False
             elif is_match('^\tbool ', l) or is_match('^\ttristate ', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 detail_expr_parse = False
+                tooltip_expr_parse = False
                 tmp = l.split(' ', 1)
 
                 if len(tmp) >= 2:
                     self.title = tmp[1][:-1].strip('"')
             elif is_match('^\tselect ', l) or is_match('^\timply ', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 detail_expr_parse = False
                 info = l.split(' ', 2)
@@ -441,24 +523,27 @@ class Feature:
                 else:
                     self.packages.append(info[1][:-1])
             elif is_match('^\tdefault ', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 detail_expr_parse = False
+                tooltip_expr_parse = False
             elif is_match('^\tmaintainer ', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 self.maintainer = l[13:-2]
             elif is_match('^\tlabel ', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 self.label = l[8:-2]
             elif is_match('^\tdepends on ', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = False
                 detail_expr_parse = False
+                tooltip_expr_parse = False
             elif is_match('^\tdetail', l):
-                help_parse = False
+                tooltip_parse = False
                 detail_parse = True
+                tooltip_expr_parse = False
                 if 'detail if ' in l:
                     detail_expr_str = l[7:].strip()
                     if l[:-1].strip().endswith('\\'):
@@ -466,17 +551,27 @@ class Feature:
                         detail_expr_str = detail_expr_str[:-2]
                 else:
                     detail_expr_str = ''
-            elif is_match('^\thelp', l):
-                help_parse = True
+            elif is_match('^\ttooltip', l):
+                tooltip_parse = True
                 detail_parse = False
                 detail_expr_parse = False
-                self.desc = l[5:]
+                match = re.match(r'^\ttooltip(?:\s+([^\s]+))?(?:\s+(if\s+.+))?$', l)
+                tooltip_target = (match.group(1) or '').strip()
+                tooltip_expr_str = (match.group(2) or '').strip()
+
+                if tooltip_target in ['key', 'value']:
+                    tooltip_type = tooltip_target
+                else:
+                    tooltip_type = 'key'
+
+                if tooltip_expr_str != '':
+                    if l[:-1].strip().endswith('\\'):
+                        tooltip_expr_parse = True
+                        tooltip_expr_str = tooltip_expr_str[:-2]
             elif l.lstrip().startswith('#'):
                 continue
             else:
-                if help_parse is True:
-                    self.desc = self.desc + l
-                elif detail_parse is True:
+                if detail_parse is True:
                     l = l.strip()
 
                     if not l:
@@ -488,10 +583,25 @@ class Feature:
                             detail_expr_parse = False
                         continue
 
-                    self.parse_detail(l, detail_expr_str)
+                    parsed = self.parse_extra(l, detail_expr_str)
+                    if parsed is not None:
+                        self.detail.append(parsed)
+                elif tooltip_parse is True:
+                    l = l.strip()
 
-        self.desc = ''.join(self.desc.split('\n\t', 1))
-        self.desc = ''.join(self.desc.split('\t')).strip()
+                    if not l:
+                        continue
+
+                    if tooltip_expr_parse:
+                        tooltip_expr_str += ' ' + l.strip()
+                        if not l[:-1].strip().endswith('\\'):
+                            detail_expr_parse = False
+                        continue
+
+                    parsed = self.parse_extra(l, tooltip_expr_str)
+                    if parsed is not None:
+                        parsed['type'] = tooltip_type
+                        self.tooltip.append(parsed)
 
 def initialize_features():
     confs = [
@@ -520,6 +630,49 @@ def initialize_features():
 def dump_features(data, descriptions_only=False):
     features = {}
 
+    if descriptions_only:
+        features = []
+        for f in data:
+            label = f.label
+            if not label:
+                continue
+
+            found = False
+            for item in features:
+                if item["title"] == f.label:
+                    found = True
+                    break
+
+            if found:
+                continue
+
+            features.append({
+                "title": f.label,
+                "detail": [],
+                "tooltip": [],
+            })
+
+        for f in data:
+            if not f.title:
+                continue
+
+            found = False
+            for item in features:
+                if item["title"] == f.label:
+                    found = item
+                    break
+
+            for item in f.detail:
+                found["detail"].append({'key': item['key'], 'value': item['value']})
+            for item in f.tooltip:
+                found["tooltip"].append({'key': item['key'], 'value': item['value'], 'type': item['type']})
+
+        for item in features:
+            if len(item["detail"]) == 0:
+                features.remove(item)
+
+        return features
+
     for f in data:
         label = f.label
 
@@ -528,14 +681,8 @@ def dump_features(data, descriptions_only=False):
 
         info = {
             "title": f.title,
-            "description": f.desc,
             "detail": [{'key': item['key'], 'value': item['value']} for item in f.detail],
         }
-
-        if descriptions_only:
-            if f.title:
-                features[label].append(info)
-            continue
 
         info["name"] = f.name
         info["maintainer"] = f.maintainer

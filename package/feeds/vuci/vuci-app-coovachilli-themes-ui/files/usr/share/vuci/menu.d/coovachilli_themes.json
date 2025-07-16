@@ -7,7 +7,6 @@
     "title": "Landing Page",
     "index": 30,
     "view": "services/HotspotLandingpage",
-    "acls": ["services/hotspot/landing"],
-    "files": ["/etc/config/landingpage"]
+    "acls": ["services/hotspot/landing"]
   }
 }

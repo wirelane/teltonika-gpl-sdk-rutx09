@@ -7,14 +7,12 @@
 			"title": "Profiles",
 			"acls": [ "system/admin/profiles/config" ],
 			"view": "system/Profiles",
-			"files": ["/etc/config/profiles"],
 			"index": 10
 		},
 		"system/admin/profiles/scheduler": {
 			"title": "Scheduler",
 			"acls": [ "system/admin/profiles/scheduler" ],
 			"view": "system/ProfilesScheduler",
-			"files": ["/etc/config/profiles"],
 			"index": 20
 		}
 }

@@ -7,7 +7,6 @@
 		"title": "PPTP",
 		"index": 70,
 		"view": "services/PPTP",
-		"acls": [ "services/vpn/pptp" ],
-		"files": [ "/etc/config/pptpd", "/etc/config/firewall", "/etc/config/network" ]
+		"acls": [ "services/vpn/pptp" ]
 	}
 }

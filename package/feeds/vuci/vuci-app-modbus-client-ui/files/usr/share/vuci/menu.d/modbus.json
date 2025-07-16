@@ -7,7 +7,6 @@
 			"title": "Modbus TCP Client",
 			"index": 20,
 			"view": "services/ModbusTCP",
-			"acls": [ "services/modbus/modbus_client" ],
-			"files": [ "/etc/config/modbus_client" ]
+			"acls": [ "services/modbus/modbus_client" ]
 		}
 }

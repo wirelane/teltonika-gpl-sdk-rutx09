@@ -29,7 +29,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  		usbnet_defer_kevent (dev, EVENT_RX_MEMORY);
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -3103,6 +3103,8 @@ static inline int pskb_trim(struct sk_bu
+@@ -3106,6 +3106,8 @@ static inline int pskb_trim(struct sk_bu
  extern struct sk_buff *__netdev_alloc_skb_ip_align(struct net_device *dev,
  		unsigned int length, gfp_t gfp);
  
@@ -38,7 +38,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  
  /**
   *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
-@@ -3236,6 +3238,9 @@ static inline void *netdev_alloc_frag_al
+@@ -3239,6 +3241,9 @@ static inline void *netdev_alloc_frag_al
  struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int length,
  				   gfp_t gfp_mask);
  

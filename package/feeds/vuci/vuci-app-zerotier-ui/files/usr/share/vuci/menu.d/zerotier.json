@@ -7,7 +7,6 @@
 		"title": "ZeroTier",
 		"index": 120,
 		"view": "services/ZeroTier",
-		"acls": [ "services/vpn/zerotier" ],
-		"files": [ "/etc/config/zerotier" ]
+		"acls": [ "services/vpn/zerotier" ]
 	}
 }

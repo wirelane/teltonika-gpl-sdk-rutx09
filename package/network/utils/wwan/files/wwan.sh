@@ -11,6 +11,7 @@ init_proto "$@"
 INCLUDE_ONLY=1
 
 ctl_device=""
+ctl_ifname=""
 
 proto_gobinet_setup() { echo "wwan[$$] gobinet proto is missing"; }
 proto_mbim_setup() { echo "wwan[$$] mbim proto is missing"; }
@@ -20,6 +21,7 @@ proto_ncm_setup() { echo "wwan[$$] ncm proto is missing"; }
 proto_pppmobile_setup() { echo "wwan[$$] pppmobile proto is missing"; }
 proto_directip_setup() { echo "wwan[$$] directip proto is missing"; }
 proto_trb_qmapv5_setup() { echo "wwan[$$] qmapv5 proto is missing"; }
+proto_connm_setup() { echo "wwan[$$] connm proto is missing"; }
 
 [ -f ./gobinet.sh ] && . ./gobinet.sh
 [ -f ./mbim.sh ] && . ./mbim.sh
@@ -29,6 +31,7 @@ proto_trb_qmapv5_setup() { echo "wwan[$$] qmapv5 proto is missing"; }
 [ -f ./pppmobile.sh ] && [ -f ./ppp.sh ] && { . ./ppp.sh; . ./pppmobile.sh; }
 [ -f ./directip.sh ] && . ./directip.sh
 [ -f ./qmapv5.sh ] && . ./qmapv5.sh
+[ -f ./connm.sh ] && . ./connm.sh
 
 proto_wwan_init_config() {
 	available=1
@@ -45,6 +48,7 @@ proto_wwan_init_config() {
 	proto_config_add_string modem
 	proto_config_add_boolean dhcp
 	proto_config_add_boolean dhcpv6
+	proto_config_add_boolean delegate
 	proto_config_add_int ip4table
 	proto_config_add_int ip6table
 
@@ -113,11 +117,13 @@ proto_wwan_setup() {
 		done
 
 		if [ "$vendor" = "" ] && [ "$product" = "" ]; then
+			custom_proto=$(jsonfilter -i /etc/board.json -e @.custom_proto)
 			qmap_type=$(jsonfilter -i /etc/board.json -e @.epinfo.qmap_type)
-			if [ -n "$qmap_type" ]; then
-				driver="trb_qmapv5"
-				ctl_device="/dev/cdc-wdm0"
-			fi
+
+			[ -n "$qmap_type" ] && driver="trb_qmapv5"
+			[ "$custom_proto" = "connm" ] && driver="connm"
+			ctl_ifname=$(jsonfilter -i /etc/board.json -e @.custom_ifname)
+			ctl_device="/dev/cdc-wdm0"
 		fi
 	fi
 
@@ -182,6 +188,7 @@ proto_wwan_setup() {
 
 	uci_set_state network "$interface" driver "$driver"
 	uci_set_state network "$interface" ctl_device "$ctl_device"
+	[ -n "$ctl_ifname" ] && uci_set_state network "$interface" ctl_ifname "$ctl_ifname"
 
 	case $driver in
 	GobiNet)		proto_gobinet_setup $@ ;;
@@ -192,6 +199,7 @@ proto_wwan_setup() {
 	qmi_wwan)		proto_qmi_setup $@ ;;
 	qmux|qmapv5)		proto_qmux_setup $@ ;;
 	trb_qmapv5)		proto_trb_qmapv5_setup $@ ;;
+	connm)			proto_connm_setup $@ ;;
 	esac
 }
 
@@ -212,6 +220,7 @@ proto_wwan_teardown() {
 	qmi_wwan)		proto_qmi_teardown $@ ;;
 	qmux|qmapv5)		proto_qmux_teardown $@ ;;
 	trb_qmapv5)		proto_trb_qmapv5_teardown $@ ;;
+	connm)			proto_connm_teardown $@ ;;
 	#Generic teardown
 	*)
 		#Lets assume that we are using qmux proto by default

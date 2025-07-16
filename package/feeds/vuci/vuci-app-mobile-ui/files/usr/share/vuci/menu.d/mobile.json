@@ -1,7 +1,12 @@
 {
   "network/mobile": {
     "title": "Mobile",
-    "index": 10
+    "index": 10,
+    "depends": {
+      "board": {
+        "allOf": ["has_mobile"]
+      }
+    }
   },
   "network/mobile/general": {
     "view": "network/MobileGeneral"
@@ -75,6 +80,11 @@
     "title": "Mobile",
     "view": "system/StepWan",
     "acls": ["system/wizard/step_wan"],
-    "index": 30
+    "index": 30,
+    "depends": {
+      "board": {
+        "allOf": ["has_mobile"]
+      }
+    }
   }
 }

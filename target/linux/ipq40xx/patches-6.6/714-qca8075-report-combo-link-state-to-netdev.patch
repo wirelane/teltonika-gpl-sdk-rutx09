@@ -1,6 +1,6 @@
 --- a/drivers/net/phy/qca807x.c
 +++ b/drivers/net/phy/qca807x.c
-@@ -122,10 +122,25 @@
+@@ -129,10 +129,25 @@
  #define PSGMII_MODE_CTRL_AZ_WORKAROUND_MASK		GENMASK(3, 0)
  #define PSGMII_MMD3_SERDES_CONTROL			0x805a
  
@@ -26,7 +26,7 @@
  static int qca807x_get_downshift(struct phy_device *phydev, u8 *data)
  {
  	int val, cnt, enable;
-@@ -400,6 +415,142 @@ static int qca807x_gpio(struct phy_devic
+@@ -407,6 +422,142 @@ static int qca807x_gpio(struct phy_devic
  }
  #endif
  
@@ -169,7 +169,7 @@
  static int qca807x_read_copper_status(struct phy_device *phydev, bool combo_port)
  {
  	int ss, err, page, old_link = phydev->link;
-@@ -415,7 +566,7 @@ static int qca807x_read_copper_status(st
+@@ -422,7 +573,7 @@ static int qca807x_read_copper_status(st
  	}
  
  	/* Update the link, but return if there was an error */
@@ -178,7 +178,7 @@
  	if (err)
  		return err;
  
-@@ -499,7 +650,7 @@ static int qca807x_read_fiber_status(str
+@@ -506,7 +657,7 @@ static int qca807x_read_fiber_status(str
  	}
  
  	/* Update the link, but return if there was an error */
@@ -187,7 +187,7 @@
  	if (err)
  		return err;
  
-@@ -559,7 +710,7 @@ static int qca807x_read_fiber_status(str
+@@ -566,7 +717,7 @@ static int qca807x_read_fiber_status(str
  
  static int qca807x_read_status(struct phy_device *phydev)
  {
@@ -196,7 +196,7 @@
  
  	/* Check for Combo port */
  	if (phy_read(phydev, QCA807X_CHIP_CONFIGURATION)) {
-@@ -572,6 +723,11 @@ static int qca807x_read_status(struct ph
+@@ -579,6 +730,11 @@ static int qca807x_read_status(struct ph
  			} else if ((val & QCA807X_MEDIA_DETECTED_1000_BASE_X) ||
  				   (val & QCA807X_MEDIA_DETECTED_100_BASE_FX)) {
  				qca807x_read_fiber_status(phydev, true);

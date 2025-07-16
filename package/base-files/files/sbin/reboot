@@ -117,7 +117,10 @@ if [ "$reboot" != "0" ]; then
 	fi
 
 	# Stop tracking and shutdown modems
-	[ -e /sbin/mctl ] && /sbin/mctl -w -a && /sbin/mctl -s -a
+	if jsonfilter -e '@.modems[0]' < /etc/board.json > /dev/null && [ -e /sbin/mctl ]; then
+		/sbin/mctl -w -a
+		/sbin/mctl -s -a
+	fi
 
 	/bin/busybox reboot "$var"
 fi

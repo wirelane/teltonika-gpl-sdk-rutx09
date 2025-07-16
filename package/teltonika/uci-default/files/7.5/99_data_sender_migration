@@ -573,3 +573,5 @@ uci -q commit data_sender
 rm -f /etc/config/modbus_data_sender
 
 uci commit
+
+exit 0

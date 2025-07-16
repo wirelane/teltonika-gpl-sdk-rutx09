@@ -7,7 +7,6 @@
 		"title": "GRE",
 		"index": 20,
 		"view": "services/GRE",
-		"acls": [ "services/vpn/gre" ],
-		"files": [ "/etc/config/network" ]
+		"acls": [ "services/vpn/gre" ]
 	}
 }

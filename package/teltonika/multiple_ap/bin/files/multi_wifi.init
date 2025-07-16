@@ -20,8 +20,14 @@ start_service() {
 	procd_close_instance
 }
 
+reload_service() {
+	stop
+	start
+}
+
 service_triggers()
 {
 	procd_add_reload_trigger "multi_wifi"
+	procd_add_reload_trigger "wireless"
 }
 

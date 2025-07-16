@@ -77,6 +77,44 @@ config DROPBEAR_CHACHA20POLY1305
 
 		Increases binary size by about 4 kB (MIPS).
 
+config DROPBEAR_POST_QUANTUM_x25519
+	bool "Post-quantum hybrid with x25519 support"
+	default n
+	help
+		sntrup761 and mlkem768 are recommended to avoid possible decryption
+		by future quantum computers. On systems with sufficient space both
+		are recommended. sntrup761 is the most widely supported at time of writing,
+		recommended when space is limited. Both are fast.
+		sntrup uses ~9kB code size, mlkem uses ~34kB code size (32-bit armv7).
+
+config DROPBEAR_U2F
+	bool "U2F/FIDO support"
+	default y
+	help
+		This option itself doesn't enable any support for U2F/FIDO
+		but subordinate options do:
+
+		- DROPBEAR_ECDSA_SK   - ecdsa-sk keys support
+		  depends on DROPBEAR_ECC ("Elliptic curve cryptography (ECC)")
+		- DROPBEAR_ED25519_SK - ed25519-sk keys support
+		  depends on DROPBEAR_ED25519 ("Ed25519 support")
+
+config DROPBEAR_ECDSA_SK
+	bool "ECDSA-SK support"
+	default y
+	depends on DROPBEAR_U2F && DROPBEAR_ECC
+	help
+		This enables the following public key algorithm:
+		  sk-ecdsa-sha2-nistp256@openssh.com
+
+config DROPBEAR_ED25519_SK
+	bool "Ed25519-SK support"
+	default y
+	depends on DROPBEAR_U2F && DROPBEAR_ED25519
+	help
+		This enables the following public key algorithm:
+		  sk-ssh-ed25519@openssh.com
+
 config DROPBEAR_ZLIB
 	bool "Enable compression"
 	default n
@@ -122,5 +160,46 @@ config DROPBEAR_ASKPASS
 		in order to authenticate on remote hosts.
 
 		Increases binary size by about 0.1 kB (MIPS).
+
+config DROPBEAR_DBCLIENT_AGENTFORWARD
+	bool "Enable agent forwarding in dbclient [LEGACY/SECURITY]"
+	default y
+	depends on DROPBEAR_DBCLIENT
+	help
+		Increases binary size by about 0.1 kB (MIPS).
+
+		Security notes:
+
+		SSH agent forwarding might cause security issues (locally and
+		on the jump machine).
+
+		Hovewer, it's enabled by default for compatibility with
+		previous OpenWrt/dropbear releases.
+
+		Consider DISABLING this option if you're building own OpenWrt
+		image.
+
+		Also see DROPBEAR_AGENTFORWARD (agent forwarding in dropbear
+		server itself).
+
+config DROPBEAR_AGENTFORWARD
+	bool "Enable agent forwarding [LEGACY/SECURITY]"
+	default y
+	help
+		Increases binary size by about 0.1 kB (MIPS).
+
+		Security notes:
+
+		SSH agent forwarding might cause security issues (locally and
+		on the jump machine).
+
+		Hovewer, it's enabled by default for compatibility with
+		previous OpenWrt/dropbear releases.
+
+		Consider DISABLING this option if you're building own OpenWrt
+		image.
+
+		Also see DROPBEAR_DBCLIENT_AGENTFORWARD (agent forwarding in
+		dropbear client) if DROPBEAR_DBCLIENT is selected.
 
 endmenu

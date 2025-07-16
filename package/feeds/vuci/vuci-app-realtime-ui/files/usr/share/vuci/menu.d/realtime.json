@@ -25,12 +25,22 @@
     "title": "Wireless",
     "index": 40,
     "view": "status/WirelessRealtime",
-    "acls": ["status/realtime/wireless"]
+    "acls": ["status/realtime/wireless"],
+    "depends": {
+      "board": {
+        "allOf": ["has_wifi"]
+      }
+    }
   },
   "status/realtime/mobile": {
     "title": "Mobile Signal",
     "index": 50,
     "view": "status/MobileRealtime",
-    "acls": ["status/realtime/mobile_signal"]
+    "acls": ["status/realtime/mobile_signal"],
+    "depends": {
+      "board": {
+        "allOf": ["has_mobile"]
+      }
+    }
   }
 }

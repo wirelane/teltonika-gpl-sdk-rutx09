@@ -3,7 +3,7 @@
 @@ -1385,6 +1385,130 @@
  	return interface_parse_data(iface, msg);
  }
- 
+
 +enum {
 +	TYPE_IFNAME,
 +	__TYPE_MAX,
@@ -25,7 +25,7 @@
 +	vlist_for_each_element(&wireless_devices, wdev, node) {
 +
 +		vlist_for_each_element(&wdev->interfaces, vif, node) {
-+            
++
 +			if (!vif->section) {
 +				continue;
 +			}
@@ -54,7 +54,7 @@
 +		return EXIT_FAILURE;
 +	}
 +
-+	if (!strcmp("wwan", iface->proto_handler->name) || !strcmp("connm", iface->proto_handler->name)) {
++	if (!strcmp("wwan", iface->proto_handler->name)) {
 +		return EXIT_SUCCESS;
 +	}
 +
@@ -137,7 +137,7 @@
  	{ .name = "set_data", .handler = netifd_handle_set_data },
 +	UBUS_METHOD("get_interface_type", netifd_get_interface_type, if_type_policy ),
  };
- 
+
  static struct ubus_object_type iface_object_type =
 @@ -1467,6 +1592,10 @@
  	for (i = 0; i < ARRAY_SIZE(iface_object_methods); i++) {
@@ -147,6 +147,6 @@
 +		if (methods[i].handler == netifd_get_interface_type) {
 +			continue;
 +		}
- 
+
  		methods[i].handler = netifd_handle_iface;
  		methods[i].policy = &iface_policy;

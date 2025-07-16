@@ -18,3 +18,5 @@ name_section() {
 config_load "snmpd"
 config_foreach name_section "com2sec6"
 uci_commit "snmpd"
+
+exit 0

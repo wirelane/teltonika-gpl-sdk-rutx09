@@ -932,6 +932,8 @@ typedef enum {
 	LGSM_UBUS_SET_PCO,
 	LGSM_UBUS_GET_CIREG_URC,
 	LGSM_UBUS_SET_CIREG_URC,
+	LGSM_UBUS_SET_SIM_SLEEP_MODE,
+	LGSM_UBUS_GET_SIM_SLEEP_MODE,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -3385,6 +3387,15 @@ lgsm_err_t lgsm_set_hplmn_search_timer(struct ubus_context *ctx, func_t *resp, u
  */
 lgsm_err_t lgsm_set_pplmn_list(struct ubus_context *ctx, func_t *resp, uint32_t modem_num);
 
+/**
+ * Set sim sleep mode configuration
+ * @param[ptr]  ctx         Ubus ctx.
+ * @param[in]   enabled	    Is sim sleep mode enabled.
+ * @param[char] resp        Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ */
+lgsm_err_t lgsm_set_sim_sleep_mode(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
+
 /******************
 *  GET HANDLERS  *
 ******************/
@@ -4086,6 +4097,13 @@ void handle_get_hplmn_search_timer(struct blob_attr *info, lgsm_structed_info_t 
    * @param[ptr]   parsed    Parsed union readable information.
    */
 void handle_get_pplmn_list(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+   * Parse sim sleep mode method response
+   * @param[ptr]   info      Blob from gsmd.
+   * @param[ptr]   parsed    Parsed union readable information.
+   */
+void handle_get_sim_sleep_mode(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /*********************
 *  STRUCT HANDLERS  *

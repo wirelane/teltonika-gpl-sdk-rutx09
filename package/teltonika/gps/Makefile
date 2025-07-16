@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2025-05-21
+PKG_VERSION:=2025-07-02
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.15-1
+PKG_SOURCE_VERSION:=7.16
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -79,7 +79,7 @@ define Package/gpsd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gpsd.init $(1)/etc/init.d/gpsd
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/gps.permtab $(1)/etc/permtab.d/gps
 
-	if [ $(TLT_PLATFORM_RUTX) ] || [ $(TLT_PLATFORM_RUTM) ] || [ $(TLT_PLATFORM_RUTC) ]; then \
+	if [ $(TLT_PLATFORM_X86_64) ] || [ $(TLT_PLATFORM_RUTX) ] || [ $(TLT_PLATFORM_RUTM) ] || [ $(TLT_PLATFORM_RUTC) ]; then \
 		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_RUTX.conf $(1)/etc/config/gps; \
 	elif [ $(TLT_PLATFORM_TRB2M) ]; then \
 		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_TRB2M.conf $(1)/etc/config/gps; \
@@ -115,7 +115,7 @@ define Package/avl/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/avl.init $(1)/etc/init.d/avl
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/avl/avl $(1)/usr/sbin/avl
 
-	if [ $(TLT_PLATFORM_RUTX) ] || [ $(TLT_PLATFORM_RUTM) ] || [ $(TLT_PLATFORM_RUTC) ]; then \
+	if [ $(TLT_PLATFORM_X86_64) ] || [ $(TLT_PLATFORM_RUTX) ] || [ $(TLT_PLATFORM_RUTM) ] || [ $(TLT_PLATFORM_RUTC) ]; then \
 		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl_RUTX.conf $(1)/etc/config/avl; \
 	elif [ $(TLT_PLATFORM_TRB2) ] || [ $(TLT_PLATFORM_TRB2M) ]; then \
 		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl_TRB2.conf $(1)/etc/config/avl; \

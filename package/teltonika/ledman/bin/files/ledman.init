@@ -18,7 +18,7 @@ start_service() {
 		procd_set_param command "$PROG" "$ARGS"
 		procd_set_param stdout 1
 		procd_set_param stderr 1
-		#procd_set_param user ledman
+		procd_set_param user ledman
 
 		# If ledman is disabled, then we do not need to setup 'respawn'. In this case when ledman
 		# exits with error code 0 or anu other, no ledman crash message will be generated in logread.

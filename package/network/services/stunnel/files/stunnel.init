@@ -127,6 +127,7 @@ print_options() {
 	local _value
 	for _opt in "$@"; do
 		eval "_value=\$$_opt"
+		[ "$_opt" = "key" ] && tpm_handle="$(/bin/tpm2_importer "$_value" get_handle 2> /dev/null)" && _value="handle:$tpm_handle"
 		[ -z "$_value" ] || echo "$_opt = $_value" >> "$CONF_FILE"
 	done
 }

@@ -7,7 +7,6 @@
 		"title": "DMVPN",
 		"index": 10,
 		"view": "services/Dmvpn",
-		"acls": [ "services/vpn/dmvpn" ],
-		"files": [ "/etc/config/dmvpn" ]
+		"acls": [ "services/vpn/dmvpn" ]
 	}
 }

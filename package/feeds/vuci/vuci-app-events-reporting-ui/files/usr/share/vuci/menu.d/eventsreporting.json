@@ -3,7 +3,6 @@
 		"title": "Events Reporting",
 		"index": 100,
 		"view": "services/EventsReporting",
-		"acls": [ "services/events_reporting" ],
-		"files": [ "/etc/config/event_juggler" ]
+		"acls": [ "services/events_reporting" ]
 	}
 }

@@ -24,3 +24,5 @@ config_foreach find_action "rule" "userdefaults"
         commit sms_utils
 EOF
 }
+
+exit 0

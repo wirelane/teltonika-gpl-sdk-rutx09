@@ -12,22 +12,22 @@
 #undef IGNORE_RTSDTR
 
 /*
-  * Baud rate and default timeout
-  */
+ * Baud rate and default timeout
+ */
 #define DEFAULT_BAUD_RATE 9600
-#define DEFAULT_TIMEOUT	  2000
+#define DEFAULT_TIMEOUT 2000
 
 /*
-  * CMSPAR, some architectures can't have space and mark parity.
-  */
+ * CMSPAR, some architectures can't have space and mark parity.
+ */
 #ifndef CMSPAR
 #define CMSPAR 0
 #endif
 
 /*
-  * Major and minor numbers.
-  */
-#define CH343_TTY_MAJOR	 170
+ * Major and minor numbers.
+ */
+#define CH343_TTY_MAJOR 170
 #define CH343_TTY_MINORS 256
 
 #define CH343_MINOR_INVALID CH343_TTY_MINORS
@@ -35,12 +35,12 @@
 #define USB_MINOR_BASE 70
 
 /*
-  * Requests.
-  */
+ * Requests.
+ */
 #define USB_RT_CH343 (USB_TYPE_CLASS | USB_RECIP_INTERFACE)
 
-#define CMD_R  0x95
-#define CMD_W  0x9A
+#define CMD_R 0x95
+#define CMD_W 0x9A
 #define CMD_C1 0xA1
 #define CMD_C2 0xA4
 #define CMD_C3 0x05
@@ -50,13 +50,13 @@
 #define CMD_C7 0xC0
 #define CMD_C8 0xC1
 
-#define CH343_CTO_O  0x10
-#define CH343_CTO_D  0x20
-#define CH343_CTO_R  0x40
-#define CH343_CTO_A  0x80
-#define CH343_CTI_C  0x01
+#define CH343_CTO_O 0x10
+#define CH343_CTO_D 0x20
+#define CH343_CTO_R 0x40
+#define CH343_CTO_A 0x80
+#define CH343_CTI_C 0x01
 #define CH343_CTI_DS 0x02
-#define CH343_CTI_R  0x04
+#define CH343_CTI_R 0x04
 #define CH343_CTI_DC 0x08
 #define CH343_CTI_ST 0x0f
 
@@ -74,7 +74,7 @@
 
 #define CH343_L_R_CT 0x80
 #define CH343_L_R_CL 0x04
-#define CH343_L_R_T  0x08
+#define CH343_L_R_T 0x08
 
 #define CH343_L_E_R 0x80
 #define CH343_L_E_T 0x40
@@ -82,13 +82,13 @@
 #define CH343_L_P_M 0x28
 #define CH343_L_P_E 0x18
 #define CH343_L_P_O 0x08
-#define CH343_L_SB  0x04
-#define CH343_L_C8  0x03
-#define CH343_L_C7  0x02
-#define CH343_L_C6  0x01
-#define CH343_L_C5  0x00
+#define CH343_L_SB 0x04
+#define CH343_L_C8 0x03
+#define CH343_L_C7 0x02
+#define CH343_L_C6 0x01
+#define CH343_L_C5 0x00
 
-#define CH343_N_B  0x80
+#define CH343_N_B 0x80
 #define CH343_N_AB 0x10
 
 #define CH343_NW 2
@@ -116,15 +116,15 @@ struct ch343_rb {
 struct usb_ch343_line_coding {
 	__u32 dwDTERate;
 	__u8 bCharFormat;
-#define USB_CH343_1_STOP_BITS	0
+#define USB_CH343_1_STOP_BITS 0
 #define USB_CH343_1_5_STOP_BITS 1
-#define USB_CH343_2_STOP_BITS	2
+#define USB_CH343_2_STOP_BITS 2
 
 	__u8 bParityType;
-#define USB_CH343_NO_PARITY    0
-#define USB_CH343_ODD_PARITY   1
-#define USB_CH343_EVEN_PARITY  2
-#define USB_CH343_MARK_PARITY  3
+#define USB_CH343_NO_PARITY 0
+#define USB_CH343_ODD_PARITY 1
+#define USB_CH343_EVEN_PARITY 2
+#define USB_CH343_MARK_PARITY 3
 #define USB_CH343_SPACE_PARITY 4
 
 	__u8 bDataBits;
@@ -212,12 +212,12 @@ struct ch343 {
 #define CDC_DATA_INTERFACE_TYPE 0x0a
 
 /* constants describing various quirks and errors */
-#define NO_UNION_NORMAL		 BIT(0)
-#define SINGLE_RX_URB		 BIT(1)
-#define NO_CAP_LINE		 BIT(2)
-#define NO_DATA_INTERFACE	 BIT(4)
-#define IGNORE_DEVICE		 BIT(5)
+#define NO_UNION_NORMAL BIT(0)
+#define SINGLE_RX_URB BIT(1)
+#define NO_CAP_LINE BIT(2)
+#define NO_DATA_INTERFACE BIT(4)
+#define IGNORE_DEVICE BIT(5)
 #define QUIRK_CONTROL_LINE_STATE BIT(6)
-#define CLEAR_HALT_CONDITIONS	 BIT(7)
+#define CLEAR_HALT_CONDITIONS BIT(7)
 
 #endif

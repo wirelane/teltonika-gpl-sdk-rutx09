@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vrrpd
 PKG_VERSION:=1.15
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 PKG_LICENSE:=GPL-2.0-or-later
 
 PKG_SOURCE_PROTO:=git

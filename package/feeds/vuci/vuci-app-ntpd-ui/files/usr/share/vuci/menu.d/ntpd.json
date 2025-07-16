@@ -7,7 +7,6 @@
 			"title": "NTPD",
 			"index": 30,
 			"view": "services/Ntpd",
-			"acls": [ "system/admin/datetime/ntpd" ],
-			"files": [ "/etc/config/ntpd" ]
+			"acls": [ "system/admin/datetime/ntpd" ]
 		}
 }

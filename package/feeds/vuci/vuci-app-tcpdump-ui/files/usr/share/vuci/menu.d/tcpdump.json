@@ -4,6 +4,11 @@
     "acls": ["system/maintenance/troubleshoot/tcp_dump"],
     "view": "system/TCPdump",
     "index": 30,
-    "main_page": true
+    "main_page": true,
+    "depends": {
+      "packages": {
+        "allOf": ["tcpdump"]
+      }
+    }
   }
 }

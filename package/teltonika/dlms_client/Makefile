@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dlms_client
-PKG_VERSION:=2025-06-03
+PKG_VERSION:=2025-07-02
 
 PKG_SOURCE_VERSION:=fa855d2e82db1a7d27c419d09ed7a11fe86b86f0
 PKG_SOURCE=GuruxDLMS.c-$(PKG_SOURCE_VERSION).tar.gz

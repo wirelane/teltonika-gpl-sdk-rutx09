@@ -1,8 +1,6 @@
-Index: fstools-2022-05-03-9e11b372/libfstools/common.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/common.c	2024-07-17 10:45:15.378821903 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/common.c	2024-07-17 10:45:33.394713747 +0300
-@@ -91,24 +91,6 @@
+--- a/libfstools/common.c
++++ b/libfstools/common.c
+@@ -91,24 +91,6 @@ int block_file_identify(FILE *f, uint64_
  	return FS_NONE;
  }
  
@@ -27,7 +25,7 @@ Index: fstools-2022-05-03-9e11b372/libfstools/common.c
  int block_volume_format(struct volume *v, uint64_t offset, const char *bdev)
  {
  	int ret = 0;
-@@ -160,10 +142,7 @@
+@@ -160,10 +142,7 @@ int block_volume_format(struct volume *v
  		}
  do_format:
  		ULOG_INFO("overlay filesystem in %s has not been formatted yet\n", v->blk);

@@ -18,6 +18,7 @@ define Package/$(PKG_NAME)
 	DEPENDS:=+fstools +fmt-usb-msd
 	TITLE:=Storage Memory Expansion script
 	SUBMENU:=Filesystem
+	USERID:=usb:usb
 endef
 
 define Package/$(PKG_NAME)/description

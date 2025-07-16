@@ -366,7 +366,7 @@ exec_sshfs() {
 }
 
 setup_ssh() {
-    if [ -z $SSHFS_PATH ]; then
+    if [ ! -e $SSHFS_PATH ]; then
         echo "[ERROR] SSHFS not found."
         echo "You can install SSHFS using this command: \"opkg update && opkg install sshfs\""
         echo "Or alternatively using \"-r\" option."
@@ -614,8 +614,8 @@ check_blocked_quectel() {
     local from="${1##*_}"
     local to="${2##*_}"
 
-    local R1="R[0-9]{2}A2[0-9]"
-    local R2="[0-9]{2}.2[0-9]{2}.[0-9]{2}.2[0-9]{2}$"
+    local R1="R[0-9]{2}A[23][0-9]"
+    local R2="[0-9]{2}.[23][0-9]{2}.[0-9]{2}.[23][0-9]{2}$"
 
     # Downgrade from embargo FW
     ([[ "$from" =~ $R1 ]] || [[ "$from" =~ $R2 ]]) &&
@@ -929,7 +929,8 @@ generic_flash() {
     if [ "$DEVICE" = "QuectelEIGENCOMM" ]; then
         FLASH_PORT="/dev/ttyACM0"
         # Generate required configuration file
-        "$FLASHER_PATH" -u "$FW_PATH" >/dev/null 2>&1
+        # This is a workaround because flasher doesn't allow trailing / in the path
+        "$FLASHER_PATH" -n -u "${FW_PATH%/}" >/dev/null 2>&1
 
         # Check if local.ini exists
         [ -f "$FW_PATH/local.ini" ] || {
@@ -975,7 +976,7 @@ generic_flash() {
         echo 0 > /sys/class/gpio/modem_boot/value
 
         # Flash the firmware
-        "$FLASHER_PATH" -p "$FLASH_PORT" -c "$FW_PATH/local.ini" -B "BL AP CP" -r
+        "$FLASHER_PATH" -n -p "$FLASH_PORT" -c "$FW_PATH/local.ini" -B "BL AP CP OTHER1 OTHER2" -r
     fi
 
     sleep 10

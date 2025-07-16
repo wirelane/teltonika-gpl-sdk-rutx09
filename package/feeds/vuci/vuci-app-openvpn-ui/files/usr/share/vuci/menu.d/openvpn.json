@@ -7,7 +7,6 @@
 		"title": "OpenVPN",
 		"index": 40,
 		"view": "services/OpenVPN",
-		"acls": [ "services/vpn/openvpn" ],
-		"files": [ "/etc/config/openvpn" ]
+		"acls": [ "services/vpn/openvpn" ]
 	}
 }

@@ -5,11 +5,12 @@ local uci = require("vuci.uci").cursor()
 local mnf = require("vuci.hardware").get_mnf()
 
 local SERVICE, UBUS_QUERY
+local FW_IMAGE_PATH = "/var/run/iot/cud_firmware.bin"
 
 function restart(r)
 	local deviceId = r:value(2)
 	c8y:send('108,'..deviceId..',SUCCESSFUL')
-	utl.ubus("file", "exec", { command="/sbin/reboot"} )
+	utl.ubus("rpc-sys", "reboot", { safe = true, args = {"-C"}} )
 end
 
 function get_modem_query(modem)
@@ -51,22 +52,22 @@ function sysupgrade(r)
 
 	c8y:send('108,'..deviceId..',EXECUTING')
 	
-	result = os.execute(string.format("curl -y 60 %s:%s %s -o /tmp/cud_firmware.bin", username, password, url))
+	result = os.execute(string.format("curl -y 60 -u %s:%s %s -o %s", username, password, url, FW_IMAGE_PATH))
 	if not result or result ~= 0 then
 		srInfo('Failed to download firmware file')
 		c8y:send('108,'..deviceId..',FAILED')
-		fs.remove("/tmp/cud_firmware.bin")
+		fs.remove(FW_IMAGE_PATH)
 		return
 	end
 
-	result = os.execute("/sbin/sysupgrade -T /tmp/cud_firmware.bin")
+	result = os.execute("/sbin/sysupgrade -T " .. FW_IMAGE_PATH)
 	if not result or result ~= 0 then
 		srInfo('Failed to verify firmware image file')
 		c8y:send('108,'..deviceId..',FAILED')
-		fs.remove("/tmp/cud_firmware.bin")
+		fs.remove(FW_IMAGE_PATH)
 	else
 		c8y:send('108,'..deviceId..',SUCCESSFUL')
-		fork_exec("sleep 1; /etc/init.d/dropbear stop; /etc/init.d/uhttpd stop; sleep 1; /sbin/sysupgrade /tmp/cud_firmware.bin")
+		fork_exec("sleep 1; /etc/init.d/dropbear stop; /etc/init.d/uhttpd stop; sleep 1; /sbin/sysupgrade " .. FW_IMAGE_PATH)
 	end
 end
 
@@ -119,6 +120,8 @@ function mobileDataStream()
 	-- send mobile signal info
 	c8y:send('105,'..c8y.ID..','.. string.gsub(signal_value, "%s", ""))
 	
+	--[[TODO: Move from UBUS file execution to direct calls, as all requests will be executed by a non-root user in the future.
+	All required ACL rules for the 'iot' user are already defined in iot.json.]]
 	local wantype = utl.ubus("file", "exec", { command="/sbin/wan_info", params={"state"} } )
 	local wanip = utl.ubus("file", "exec", { command="/sbin/wan_info", params={"ip"} } )
 

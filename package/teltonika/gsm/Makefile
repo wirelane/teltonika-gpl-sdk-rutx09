@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=7.15.4
+PKG_SOURCE_VERSION:=7.16
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \
@@ -100,7 +100,7 @@ endef
 
 define Package/gsmd/install
 	$(INSTALL_DIR) $(1)/bin $(1)/usr/sbin $(1)/etc/config/ $(1)/etc/init.d/ $(1)/usr/share/usb/ \
-		$(1)/usr/share/iface/ $(1)/usr/share/gsm/ $(1)/usr/share/acl.d $(1)/lib/preinit/
+		$(1)/usr/share/iface/ $(1)/usr/share/gsm/ $(1)/usr/share/acl.d $(1)/lib/preinit/ $(1)/etc/hotplug.d/usb
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gsmd/gsmd $(1)/usr/sbin/gsmd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/board_modem $(1)/bin/board_modem
 
@@ -109,6 +109,7 @@ define Package/gsmd/install
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsmd.init $(1)/etc/init.d/gsmd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsmd.hotplug $(1)/usr/share/usb/05_gsmd.sh
+	$(LN) /usr/share/usb/05_gsmd.sh $(1)/etc/hotplug.d/usb/05_gsmd.sh
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsm_event.hotplug $(1)/usr/share/iface/89-gsm-event
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/fill_modem.hotplug $(1)/usr/share/gsm/2-fill-modem-info
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/notify_send_sms.hotplug $(1)/usr/share/gsm/4-notify-send-sms

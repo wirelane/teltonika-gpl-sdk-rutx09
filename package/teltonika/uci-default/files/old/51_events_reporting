@@ -29,3 +29,5 @@ fix_spelling() {
 config_load "events_reporting"
 config_foreach fix_spelling "rule"
 uci_commit "events_reporting"
+
+exit 0

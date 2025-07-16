@@ -4,6 +4,10 @@
     "index": 20,
     "view": "services/P910nd",
     "acls": ["services/sd_usb_tools/p910nd"],
-    "files": ["/etc/config/p910nd"]
+    "depends": {
+      "board": {
+        "allOf": ["has_usb"]
+      }
+    }
   }
 }

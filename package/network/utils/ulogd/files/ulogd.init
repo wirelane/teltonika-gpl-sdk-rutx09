@@ -78,6 +78,9 @@ set_ftp() {
 	config_get enabled ftp enabled 1
 	[ $enabled -ne 1 ] && return 1
 
+	config_get host "$sid" host ""
+	[ -z "$host" ] && return 1
+
 	config_get fixed "$sid" fixed 0
 	config_get minutes "$sid" minutes 0
 	config_get hours "$sid" hours 0

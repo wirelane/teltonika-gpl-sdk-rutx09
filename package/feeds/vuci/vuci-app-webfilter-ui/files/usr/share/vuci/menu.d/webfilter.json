@@ -8,14 +8,12 @@
 			"index": 1,
 			"view": "services/WebfilterSite",
 			"acls": [ "services/webfilter/site" ],
-			"files": [ "/etc/config/hostblock" ],
 			"main_page": true
 		},
 		"services/webfilter/proxy": {
 			"title": "Proxy Based Content Blocker",
 			"index": 2,
 			"view": "services/WebfilterProxy",
-			"acls": [ "services/webfilter/proxy" ],
-			"files": [ "/etc/config/privoxy" ]
+			"acls": [ "services/webfilter/proxy" ]
 		}
 }

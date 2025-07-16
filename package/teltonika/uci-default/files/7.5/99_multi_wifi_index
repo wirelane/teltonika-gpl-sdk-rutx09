@@ -18,3 +18,5 @@ add_index() {
 config_load "multi_wifi"
 config_foreach add_index "wifi-iface"
 uci_commit "multi_wifi"
+
+exit 0

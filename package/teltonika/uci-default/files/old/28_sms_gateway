@@ -36,3 +36,5 @@ move_simman_sec() {
 config_load "$CONFIG"
 config_foreach migrate_simman "simman"
 uci_commit "sms_gateway"
+
+exit 0

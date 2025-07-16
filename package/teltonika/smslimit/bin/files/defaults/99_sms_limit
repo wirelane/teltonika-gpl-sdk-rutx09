@@ -16,3 +16,5 @@ add_period() {
 config_load "simcard"
 config_foreach add_period "sim"
 uci_commit "simcard"
+
+exit 0

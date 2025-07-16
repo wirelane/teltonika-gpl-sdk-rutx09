@@ -61,7 +61,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-04-08 06:09:59.000000000 +0000
++++ src/.gitlab-ci.yml	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -86,19 +86,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitmodules src/.gitmodules
 --- upstream/.gitmodules	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitmodules	2025-04-08 06:09:59.000000000 +0000
++++ src/.gitmodules	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,3 @@
 +[submodule "test/support"]
 +	path = test/support
 +	url = git@git.teltonika.lt:teltonika/packages/unit_test_stubs.git
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.semgrepignore src/.semgrepignore
 --- upstream/.semgrepignore	1970-01-01 00:00:00.000000000 +0000
-+++ src/.semgrepignore	2025-04-08 06:09:59.000000000 +0000
++++ src/.semgrepignore	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1 @@
 +examples/
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/CMakeLists.txt src/CMakeLists.txt
 --- upstream/CMakeLists.txt	2020-10-06 06:58:41.000000000 +0000
-+++ src/CMakeLists.txt	2025-04-08 06:09:59.000000000 +0000
++++ src/CMakeLists.txt	2025-06-10 06:32:02.000000000 +0000
 @@ -1,44 +1,27 @@
 -cmake_minimum_required(VERSION 2.8)
 +cmake_minimum_required(VERSION 3.11)
@@ -168,7 +168,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +install(TARGETS ${TARGET_NAME})
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/CMakeSettings.json src/CMakeSettings.json
 --- upstream/CMakeSettings.json	2020-10-06 06:58:41.000000000 +0000
-+++ src/CMakeSettings.json	2025-04-08 06:09:59.000000000 +0000
++++ src/CMakeSettings.json	2025-06-10 06:32:02.000000000 +0000
 @@ -4,7 +4,9 @@
        "name": "x64-Debug",
        "generator": "Ninja",
@@ -307,7 +307,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 Binary files upstream/dox/NTRIP-testing.odt and src/dox/NTRIP-testing.odt differ
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/dox/ntrip.md src/dox/ntrip.md
 --- upstream/dox/ntrip.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/dox/ntrip.md	2025-04-08 06:09:59.000000000 +0000
++++ src/dox/ntrip.md	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,159 @@
 +# NTRIP
 +
@@ -472,7 +472,7 @@ Binary files upstream/dox/ntrip_deployment.png and src/dox/ntrip_deployment.png 
 Binary files upstream/dox/ntrip_image.png and src/dox/ntrip_image.png differ
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/dox/ntrip_packet.md src/dox/ntrip_packet.md
 --- upstream/dox/ntrip_packet.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/dox/ntrip_packet.md	2025-04-08 06:09:59.000000000 +0000
++++ src/dox/ntrip_packet.md	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,197 @@
 +## Example comfiguration
 +```
@@ -860,7 +860,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ntrip.json src/files/ntrip.json
 --- upstream/files/ntrip.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ntrip.json	2025-04-08 06:09:59.000000000 +0000
++++ src/files/ntrip.json	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,9 @@
 +{
 +	"user": "ntrip",
@@ -873,12 +873,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rs_ntrip.conf src/files/rs_ntrip.conf
 --- upstream/files/rs_ntrip.conf	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rs_ntrip.conf	2025-04-08 06:09:59.000000000 +0000
++++ src/files/rs_ntrip.conf	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1 @@
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rs_ntrip.init src/files/rs_ntrip.init
 --- upstream/files/rs_ntrip.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rs_ntrip.init	2025-04-08 06:09:59.000000000 +0000
++++ src/files/rs_ntrip.init	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,40 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -922,7 +922,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rs_ntrip.permtab src/files/rs_ntrip.permtab
 --- upstream/files/rs_ntrip.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rs_ntrip.permtab	2025-04-08 06:09:59.000000000 +0000
++++ src/files/rs_ntrip.permtab	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/rs_ntrip ntrip:ntrip 660
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/get.sh src/get.sh
@@ -935,7 +935,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -/home/pi/pi_ublox-ntrip/ntrip_client
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/debug.h src/include/debug.h
 --- upstream/include/debug.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/include/debug.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/debug.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,4 @@
 +#pragma once
 +
@@ -943,7 +943,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#define DEBUG(level, args...) if (g_debug_level >= level) printf(args);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/mount_point.h src/include/mount_point.h
 --- upstream/include/mount_point.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/include/mount_point.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/mount_point.h	2025-06-10 06:32:02.000000000 +0000
 @@ -17,13 +17,12 @@
  
  #include <list>
@@ -966,7 +966,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // NTRIPLIB_MOUNT_POINT_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/ntrip_caster.h src/include/ntrip_caster.h
 --- upstream/include/ntrip_caster.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/include/ntrip_caster.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/ntrip_caster.h	2025-06-10 06:32:02.000000000 +0000
 @@ -17,71 +17,71 @@
  
  #include <sys/epoll.h>
@@ -1099,7 +1099,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // NTRIPLIB_NTRIP_CASTER_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/ntrip_client.h src/include/ntrip_client.h
 --- upstream/include/ntrip_client.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/include/ntrip_client.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/ntrip_client.h	2025-06-10 06:32:02.000000000 +0000
 @@ -16,81 +16,122 @@
  #define NTRIPLIB_NTRIP_CLIENT_H_
  
@@ -1296,7 +1296,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // NTRIPLIB_NTRIP_CLIENT_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/ntrip_server.h src/include/ntrip_server.h
 --- upstream/include/ntrip_server.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/include/ntrip_server.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/ntrip_server.h	2025-06-10 06:32:02.000000000 +0000
 @@ -15,83 +15,83 @@
  #ifndef NTRIPLIB_NTRIP_SERVER_H_
  #define NTRIPLIB_NTRIP_SERVER_H_
@@ -1453,7 +1453,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // NTRIPLIB_NTRIP_SERVER_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/ntrip_user.h src/include/ntrip_user.h
 --- upstream/include/ntrip_user.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/include/ntrip_user.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/ntrip_user.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,67 @@
 +#ifndef NTRIPLIB_NTRIP_USER_H_
 +#define NTRIPLIB_NTRIP_USER_H_
@@ -1524,7 +1524,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/ntrip_util.h src/include/ntrip_util.h
 --- upstream/include/ntrip_util.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/include/ntrip_util.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/ntrip_util.h	2025-06-10 06:32:02.000000000 +0000
 @@ -17,8 +17,8 @@
  
  #include <string>
@@ -1554,7 +1554,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // NTRIPLIB_NTRIP_UTIL_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/ubus.h src/include/ubus.h
 --- upstream/include/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/include/ubus.h	2025-04-08 06:09:59.000000000 +0000
++++ src/include/ubus.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,57 @@
 +#pragma once
 +
@@ -1638,7 +1638,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/project.yml src/project.yml
 --- upstream/project.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/project.yml	2025-04-08 06:09:59.000000000 +0000
++++ src/project.yml	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,103 @@
 +---
 +# This sample demonstrates running a collection of unit tests.
@@ -1932,8 +1932,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -)
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/main.cc src/src/main.cc
 --- upstream/src/main.cc	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/main.cc	2025-04-08 06:09:59.000000000 +0000
-@@ -0,0 +1,710 @@
++++ src/src/main.cc	2025-06-10 06:32:02.000000000 +0000
+@@ -0,0 +1,727 @@
 +// Copyright 2019 Yuming Meng. All Rights Reserved.
 +//
 +// Licensed under the Apache License, Version 2.0 (the "License");
@@ -2039,10 +2039,20 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		}
 +		DEBUG(9, "\n\n");
 +		int result = write(g_config.serial_device_fd, buffer, size); // forward data to serial device
++		DEBUG(3, "[%d] symbols attempted to write to serial device fd = [%d]\n", size, g_config.serial_device_fd);
 +		if (result > 0) {
 +			g_stats.serial_tx += result;
 +		}
-+		DEBUG(3, "[%d] symbols attempted to write to serial device fd = [%d]\n", size, g_config.serial_device_fd);
++		
++		struct pollfd poll_file_descriptor = { 0 };
++		poll_file_descriptor.fd	= g_config.serial_device_fd;
++		poll_file_descriptor.events = POLLIN;
++
++		poll(&poll_file_descriptor, 1, 0);
++		if (poll_file_descriptor.revents & (POLLERR | POLLHUP | POLLNVAL)) {
++			DEBUG(3, "writing to serial device error, exiting\n");
++			exit(1);
++		}
 +	});
 +
 +	if (g_config.nmea_source == PREDEFINED_COORDINATES) {
@@ -2362,6 +2372,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +		DEBUG(3, "Serial device read returned [%d], tmp_buff=%s, buff_used=%d\n", rez, tmp_buff,
 +		      buff_used);
++
++
++		if (rez < 0 || poll_file_descriptors[0].revents & (POLLERR | POLLHUP | POLLNVAL)){
++			DEBUG(3, "Getting NMEA from serial device reading error, exiting\n");
++			exit(1);
++		}
++
 +		if (have_valid_nmea((char *)&tmp_buff, &buff_used, (char *)&nmea_string_found)) {
 +			if (strlen(nmea_string_found) < sizeof(nmea_string_found) - 2) {
 +				strcat(nmea_string_found, "\r\n");
@@ -2646,7 +2663,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/mount_point.h src/src/mount_point.h
 --- upstream/src/mount_point.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/src/mount_point.h	2025-04-08 06:09:59.000000000 +0000
++++ src/src/mount_point.h	2025-06-10 06:32:02.000000000 +0000
 @@ -17,13 +17,12 @@
  
  #include <list>
@@ -3363,7 +3380,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#endif  // NTRIPLIB_NTRIP_CASTER_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ntrip_client.cc src/src/ntrip_client.cc
 --- upstream/src/ntrip_client.cc	2020-10-06 06:58:41.000000000 +0000
-+++ src/src/ntrip_client.cc	2025-04-08 06:09:59.000000000 +0000
++++ src/src/ntrip_client.cc	2025-06-10 06:32:02.000000000 +0000
 @@ -12,222 +12,331 @@
  // See the License for the specific language governing permissions and
  // limitations under the License.
@@ -4300,7 +4317,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#endif  // NTRIPLIB_NTRIP_SERVER_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ntrip_util.cc src/src/ntrip_util.cc
 --- upstream/src/ntrip_util.cc	2020-10-06 06:58:41.000000000 +0000
-+++ src/src/ntrip_util.cc	2025-04-08 06:09:59.000000000 +0000
++++ src/src/ntrip_util.cc	2025-06-10 06:32:02.000000000 +0000
 @@ -19,128 +19,150 @@
  #include <time.h>
  #include <unistd.h>
@@ -4640,7 +4657,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +} // namespace libntrip
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ntrip_util.h src/src/ntrip_util.h
 --- upstream/src/ntrip_util.h	2020-10-06 06:58:41.000000000 +0000
-+++ src/src/ntrip_util.h	2025-04-08 06:09:59.000000000 +0000
++++ src/src/ntrip_util.h	2025-06-10 06:32:02.000000000 +0000
 @@ -17,9 +17,8 @@
  
  #include <string>
@@ -4671,7 +4688,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // NTRIPLIB_NTRIP_UTIL_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ubus.c src/src/ubus.c
 --- upstream/src/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ubus.c	2025-04-08 06:09:59.000000000 +0000
++++ src/src/ubus.c	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,119 @@
 +#include <time.h>
 +#include <libubus.h>
@@ -4794,19 +4811,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/.git src/test/support/.git
 --- upstream/test/support/.git	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/.git	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/.git	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1 @@
 +gitdir: ../../.git/modules/test/support
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/README.md src/test/support/README.md
 --- upstream/test/support/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/README.md	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/README.md	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,3 @@
 +# Stubs
 +
 +Stub headers that enable inline function mocking with Cmock.
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_blob.h src/test/support/stub_blob.h
 --- upstream/test/support/stub_blob.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_blob.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_blob.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,22 @@
 +#ifndef STUB_BLOB_H
 +#define STUB_BLOB_H
@@ -4832,7 +4849,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // STUB_BLOB_H
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_blobmsg.h src/test/support/stub_blobmsg.h
 --- upstream/test/support/stub_blobmsg.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_blobmsg.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_blobmsg.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,35 @@
 +#ifndef STUB_BLOBMSG_H
 +#define STUB_BLOBMSG_H
@@ -4871,7 +4888,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // STUB_BLOBMSG_H
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_libubus.h src/test/support/stub_libubus.h
 --- upstream/test/support/stub_libubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_libubus.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_libubus.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,47 @@
 +#ifndef STUB_LIBUBUS_H
 +#define STUB_LIBUBUS_H
@@ -4922,7 +4939,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // STUB_LIBUBUS_H
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_stat.h src/test/support/stub_stat.h
 --- upstream/test/support/stub_stat.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_stat.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_stat.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,16 @@
 +#ifndef STUB_STAT_H
 +#define STUB_STAT_H
@@ -4942,7 +4959,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // STUB_STAT_H
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_stdio.h src/test/support/stub_stdio.h
 --- upstream/test/support/stub_stdio.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_stdio.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_stdio.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,25 @@
 +#ifndef STUB_STDIO_H
 +#define STUB_STDIO_H
@@ -4971,7 +4988,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // STUB_STDIO_H
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_sysinfo.h src/test/support/stub_sysinfo.h
 --- upstream/test/support/stub_sysinfo.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_sysinfo.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_sysinfo.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,22 @@
 +#ifndef STUB_SYSINFO_H
 +#define STUB_SYSINFO_H
@@ -4997,7 +5014,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_uci.h src/test/support/stub_uci.h
 --- upstream/test/support/stub_uci.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_uci.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_uci.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,43 @@
 +#ifndef STUB_UCI_H
 +#define STUB_UCI_H
@@ -5044,7 +5061,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // STUB_UCI_H
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/test/support/stub_uloop.h src/test/support/stub_uloop.h
 --- upstream/test/support/stub_uloop.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/test/support/stub_uloop.h	2025-04-08 06:09:59.000000000 +0000
++++ src/test/support/stub_uloop.h	2025-06-10 06:32:02.000000000 +0000
 @@ -0,0 +1,22 @@
 +#ifndef STUB_ULOOP_H
 +#define STUB_ULOOP_H

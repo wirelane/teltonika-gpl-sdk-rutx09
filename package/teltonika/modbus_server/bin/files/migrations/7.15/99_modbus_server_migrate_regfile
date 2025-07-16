@@ -21,6 +21,7 @@ migrate_regfile() {
     config_get regfilesize "modbus" "regfilesize" "128"
 
     [ -z "$regfile" ] && return
+
     [ -f "$regfile" ] && cp "$regfile" "$regfile"_"$sec"
 
     uci_set "modbus_server" "$sec" "regfile" "$regfile"_"$sec"
@@ -33,3 +34,4 @@ config_load modbus_server
 config_foreach migrate_regfile rtu_device
 
 uci commit modbus_server
+

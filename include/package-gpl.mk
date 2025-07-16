@@ -70,7 +70,7 @@ define gpl_install_deps
 		(\
 			dir=$$(find "$(TOPDIR)/package" -name "$(1)" | xargs -I {} find -L {} -name Makefile -maxdepth 1 -printf "%h\n" | \
 				sed 's@$(TOPDIR)/@@g'); \
-			[ -n "$${dir}" ] && $(MAKE) -C "$(TOPDIR)/$${dir}" PARENT_PKG="$(if $(PARENT_PKG),$(PARENT_PKG),$(PKG_NAME))" gpl-install || true; \
+			[ -n "$${dir}" ] && $(MAKE) -C "$(TOPDIR)/$${dir}" PARENT_PKG="$(if $(PARENT_PKG),$(PARENT_PKG) $(PKG_NAME),$(PKG_NAME))" gpl-install || true; \
 		) \
 	)
 endef

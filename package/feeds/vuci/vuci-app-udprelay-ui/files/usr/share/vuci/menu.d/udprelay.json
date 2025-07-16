@@ -3,7 +3,6 @@
     "title": "UDP Broadcast Relay",
     "index": 130,
     "view": "network/UdpRelay",
-    "acls": ["network/udprelay"],
-    "files": ["/etc/config/udprelay"]
+    "acls": ["network/udprelay"]
   }
 }

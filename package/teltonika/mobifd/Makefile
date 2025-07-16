@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobifd
 
-PKG_SOURCE_VERSION:=7.15.4
+PKG_SOURCE_VERSION:=7.16
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -23,9 +23,8 @@ define Package/mobifd
 	CATEGORY:=Network
 	TITLE:=GSM Modem manager
 	DEPENDS:= +libubus +libubox +libgsm +liburc +libuci +libtlt_uci +libtlt-logger \
-			+libsqlite3 +libmnfinfo +libboardjson +liblpac
+			+libsqlite3 +libmnfinfo +libboardjson
 	USERID:=gsm=509:gsm=509
-	FATTRS:=/usr/sbin/mobifd::::cap_setuid,cap_setgid=ep
 endef
 
 define Package/mobifd/description

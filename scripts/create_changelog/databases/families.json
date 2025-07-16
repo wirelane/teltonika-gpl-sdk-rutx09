@@ -5,7 +5,7 @@
   },
   {
     "name": "DAP",
-    "devices": ["DAP140", "DAP142"]
+    "devices": ["DAP140", "DAP142", "DAP145"]
   },
   {
     "name": "ATRM",
@@ -52,11 +52,11 @@
   },
   {
     "name": "RUTC",
-    "devices": ["RUTC50", "RUTC51"]
+    "devices": ["RUTC50", "RUTC51", "RUTC40", "RUTC41"]
   },
   {
     "name": "RUT14X",
-    "devices": ["RUT140", "RUT142"]
+    "devices": ["RUT140", "RUT142", "RUT145"]
   },
   {
     "name": "RUT30X",

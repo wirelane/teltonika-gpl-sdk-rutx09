@@ -78,3 +78,5 @@ config_foreach get_zones "zone"
 config_load "network"
 config_foreach add_area_type "interface"
 uci_commit "network"
+
+exit 0

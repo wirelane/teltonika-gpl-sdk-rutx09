@@ -86,6 +86,7 @@ unset if_vlan
 unset sqm
 unset port
 unset mwan3
+unset universal_gateway
 
 
 device=1
@@ -105,6 +106,7 @@ is_true "wifi" && wireless=1
 ( ! is_switch ) && ( ! is_trb5 ) && sqm=1
 (is_installed "port_eventsd") || ( is_switch ) && port=1
 ( ! is_switch ) && ( ! is_trb5 ) && ( ! is_trb1 ) && mwan3=1
+universal_gateway=1
 
 # Unset 'traps' if neither 'mobile' nor 'ios' or 'hotspot' are supported
 traps=${mobile:-${ios:-${hotspot:-''}}}
@@ -123,6 +125,7 @@ hotspot_mib=$(cat $MODULES_DIR/hotspot.mib)
 io_mib=$(cat $MODULES_DIR/io.mib)
 wireless_mib=$(cat $MODULES_DIR/wireless.mib)
 if_vlan_mib=$(cat $MODULES_DIR/vlan_if.mib)
+universal_gateway_mib=$(cat $MODULES_DIR/universal_gateway.mib)
 
 if is_switch; then
 	port_vlan_mib=$(cat $MODULES_DIR/vlan_port_switch.mib)
@@ -178,6 +181,7 @@ ${vlan_gen:+vlan			OBJECT IDENTIFIER ::= { teltonika 8 \}\n}\
 ${sqm:+sqm			OBJECT IDENTIFIER ::= { teltonika 9 \}\n}\
 ${port:+port			OBJECT IDENTIFIER ::= { teltonika 10 \}\n}\
 ${mwan3:+mwan3			OBJECT IDENTIFIER ::= { teltonika 12 \}\n}\
+${universal_gateway:+universal_gateway	OBJECT IDENTIFIER ::= { teltonika 20 \}\n}\
 
 ${device:+$device_mib\n\n}\
 ${mobile:+$mobile_mib\n\n}\
@@ -203,6 +207,7 @@ ${port_vlan:+$port_vlan_mib\n\n}\
 ${sqm:+$sqm_mib\n\n}\
 ${port:+$port_mib\n\n}\
 ${mwan3:+$mwan3_mib\n\n}\
+${universal_gateway:+$universal_gateway_mib\n\n}\
 
 ${end_mib}" >"$MIB_file"
 

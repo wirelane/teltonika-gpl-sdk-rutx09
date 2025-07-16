@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/landingpage" ] || return 1
+[ -f "/etc/config/landingpage" ] || exit 0
 
 uci_set "landingpage" "general" "auth_proto" "pap"
 uci_commit "landingpage"

@@ -11,8 +11,7 @@ PKG_NAME:=libgcrypt
 PKG_VERSION:=1.9.3
 PKG_RELEASE:=$(AUTORELEASE)
 
-PKG_SOURCE_VERSION:=1.9.3
-PKG_SOURCE:=libgcrypt-$(PKG_SOURCE_VERSION).tar.bz2
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
 PKG_SOURCE_URL:=https://www.gnupg.org/ftp/gcrypt/libgcrypt/
 PKG_HASH:=97ebe4f94e2f7e35b752194ce15a0f3c66324e0ff6af26659bbfb5ff2ec328fd
 

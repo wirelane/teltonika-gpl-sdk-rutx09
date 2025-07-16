@@ -148,27 +148,47 @@ endef
 # This is needed to clear the 'Event Juggler' cache because the coova-chilli package is not installed by default on some devices.
 # After installation, 'Event Juggler' will update and contain the latest cached data.
 define RemoveEventJugglerCachedData
-[ -z "$${IPKG_INSTROOT}" ] || exit 0
-
 FILE_PATH="/tmp/event_juggler/plugin_data.json"
 
 if [ -f "$${FILE_PATH}" ]; then
     rm -f "$${FILE_PATH}"
 fi
-
-exit 0
 endef
 
 define Package/coova-chilli/postinst
 #!/bin/sh
 
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
 $(RemoveEventJugglerCachedData)
+
+exit 0
 endef
 
 define Package/coova-chilli/postrm
 #!/bin/sh
 
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+[ -f "/etc/config/snmptrap" ] && {
+	. /lib/functions.sh
+	. /lib/config/uci.sh
+
+	check_snmptrap() {
+		config_get type "$$1" type ""
+		if [ "$$type" = "chilli" ]; then
+			uci_remove snmptrap "$$1"			
+		fi
+	}
+	config_load snmptrap
+	config_foreach check_snmptrap trap
+	uci_commit snmptrap
+	/etc/init.d/snmptrap reload 2> /dev/null
+}
+
 $(RemoveEventJugglerCachedData)
+
+exit 0
 endef
 
 define Package/coova-chilli/install

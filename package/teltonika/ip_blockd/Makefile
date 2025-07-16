@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ip_blockd
-PKG_VERSION:=2025-05-07
+PKG_VERSION:=2025-06-12
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.16
+PKG_SOURCE_VERSION:=1.17
 
 PKG_FIXUP:=autoreconf
 

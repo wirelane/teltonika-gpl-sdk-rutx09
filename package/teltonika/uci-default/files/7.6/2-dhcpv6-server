@@ -18,3 +18,5 @@ update_dhcpv6()  {
 config_load dhcp
 config_foreach update_dhcpv6 dhcp
 uci_commit "dhcp"
+
+exit 0

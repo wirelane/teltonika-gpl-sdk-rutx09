@@ -7,7 +7,6 @@
 		"title": "VRRP",
 		"index": 20,
 		"view": "services/Vrrp",
-		"acls": [ "network/failover/vrrp" ],
-		"files": [ "/etc/config/vrrpd" ]
+		"acls": [ "network/failover/vrrp" ]
 	}
 }

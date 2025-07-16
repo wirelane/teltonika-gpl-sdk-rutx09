@@ -7,7 +7,6 @@
 		"title": "SSTP",
 		"index": 80,
 		"view": "services/Sstp",
-		"acls": [ "services/vpn/sstp" ],
-		"files": [ "/etc/config/network" ]
+		"acls": [ "services/vpn/sstp" ]
 	}
 }

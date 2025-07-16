@@ -17,15 +17,6 @@ create_mobile_iface() {
 	uci_set network $intf metric "$((modem_number + 1))"
 	uci_set network $intf pdp "1"
 
-	# just like this for now
-	# probably we should merge connm with wwan
-	if [ ! -e /dev/smd7 ]; then
-		uci_set network $intf proto "wwan"
-	else
-		uci_set network $intf proto "connm"
-		uci_set network $intf ifname "rmnet0"
-	fi
-
 	uci_commit network
 
 	ubus call network reload
@@ -181,6 +172,22 @@ add_simcard_config() {
 	uci_commit simcard
 
 	[ -x "/bin/trigger_vuci_routes_reload" ] && /bin/trigger_vuci_routes_reload
+}
+
+add_modem_settings_config() {
+	local usb_id="$1"
+	[ -e /etc/config/simcard ] || return
+
+	MODEM_FOUND="0"
+	config_load "simcard"
+	config_foreach check_modem_id modem "$usb_id" "" modem
+	[ "$MODEM_FOUND" -eq 1 ] && return
+
+	# Add modem section to simcard config
+	uci_add simcard modem
+	uci_set simcard $CONFIG_SECTION modem "$usb_id"
+	uci_set simcard $CONFIG_SECTION flight_mode "0"
+	uci_commit simcard
 }
 
 add_sms_storage_config() {

@@ -47,8 +47,6 @@ verify_data_connection() {
 	ip)
 		[ "$ipv4" != "1" ] && {
 			qmi_error_handle "$pdh_4" "$retry_before_reinit" "$modem" ""
-			echo "Releasing client-id ${cid_4} on ${device}"
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 --release-client-id wds"
 			echo "Failed to create IPV4 connection"
 			sleep $fail_timeout
 			proto_notify_error "$interface" "$pdh_4"
@@ -59,8 +57,6 @@ verify_data_connection() {
 	ipv6)
 		[ "$ipv6" != "1" ] && {
 			qmi_error_handle "$pdh_6" "$retry_before_reinit" "$modem" ""
-			echo "Releasing client-id ${cid_6} on ${device}"
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_6 --release-client-id wds"
 			echo "Failed to create IPV6 connection"
 			sleep $fail_timeout
 			proto_notify_error "$interface" "$pdh_6"
@@ -70,13 +66,9 @@ verify_data_connection() {
 		;;
 	ipv4v6)
 		[ "$ipv4" != "1" ] && {
-			echo "Releasing client-id ${cid_4} on ${device}"
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 --release-client-id wds"
 			cid_4=""
 		}
 		[ "$ipv6" != "1" ] && {
-			echo "Releasing client-id ${cid_6} on ${device}"
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_6 --release-client-id wds"
 			cid_6=""
 		}
 		[ "$ipv4" != "1" ] && [ "$ipv6" != "1" ] && {
@@ -95,24 +87,34 @@ verify_data_connection() {
 }
 
 clear_connection_values() {
-	local interface device iface_and_type conn_proto
+	local interface device conn_proto
 	interface="$1"
 	device="$2"
-	iface_and_type="$3"
-	conn_proto="$4"
+	conn_proto="$3"
 
-	cid="$(cat "/var/run/${conn_proto}/${interface}.cid_${iface_and_type}" 2>/dev/null)"
+	cids_to_clear=$(ls "/var/run/${conn_proto}/${interface}.cid_"*) 2>/dev/null
+	# iterate through all cids and clear them
+	for cid_file in $cids_to_clear; do
+		if [ ! -f "$cid_file" ]; then
+			logger -t "qmux" "File $cid_file does not exist, Skipping"
+			continue
+		fi
+		cid=${cid_file##*/}
+		cid=${cid#${interface}.cid_}
+		if [ -z "$cid" ]; then
+			logger -t "qmux" "No CID found in file $cid_file, Skipping"
+			continue
+		fi
 
-	[ -n "$cid" ] && {
-		echo "Stopping network on ${device}!"
+		logger -t "qmux" "Stopping network on device: ${device} cid: $cid"
 		call_uqmi_command "uqmi -s -d ${device} -t 3000 --set-client-id wds,$cid \
 --stop-network 0xFFFFFFFF --autoconnect"
-		echo "Releasing client-id ${cid} on ${device}"
+		logger -t "qmux" "Freeing cid: ${cid}"
 		call_uqmi_command "uqmi -s -d ${device} -t 3000 --set-client-id wds,$cid \
 --release-client-id wds"
 
-		rm -f "/var/run/${conn_proto}/${interface}.cid_${iface_and_type}"
-	}
+		rm -f "$cid_file"
+	done
 }
 
 uqmi_modify_data_format() {
@@ -143,11 +145,10 @@ wait_for_clear_connection_values()
 {
 	local interface="$1"
 	local device="$2"
-	local iptype="$3"
-	local conn_proto="$4"
+	local conn_proto="$3"
 	clear_increased_timeout=30
 
-	clear_connection_values "$interface" "$device" $iptype "$conn_proto" &
+	clear_connection_values "$interface" "$device" "$conn_proto" &
 	pid_clear=$!
 	# wait for clear_connection_values to finish or until timeout is reached
 	current_timeout=0
@@ -168,11 +169,7 @@ background_clear_conn_values()
 	local device="$2"
 	local conn_proto="$3"
 
-	touch "/tmp/shutdown_$interface"
-
-	wait_for_clear_connection_values "$interface" "$device" "4" "$conn_proto"
-
-	wait_for_clear_connection_values "$interface" "$device" "6" "$conn_proto"
+	wait_for_clear_connection_values "$interface" "$device" "$conn_proto"
 
 	logger -t "qmux" "$interface teardown successful"
 	rm "/tmp/shutdown_$interface"

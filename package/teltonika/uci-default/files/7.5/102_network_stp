@@ -24,3 +24,5 @@ migrate_stp()  {
 config_load "network"
 config_foreach migrate_stp "interface"
 uci_commit "network"
+
+exit 0

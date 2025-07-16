@@ -26,7 +26,7 @@ Subject: [PATCH] net/usb/qmi_wwan: add MeigLink modem support
  #define QUECTEL_VENDOR_ID			0x2c7c
  /* These Quectel products use Quectel's vendor ID */
  #define QUECTEL_PRODUCT_EC21			0x0121
-@@ -1194,6 +1203,21 @@ static const struct usb_device_id option
+@@ -1195,6 +1204,21 @@ static const struct usb_device_id option
  	  .driver_info = ZLP },
  	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_BG96),
  	  .driver_info = RSVD(4) },
@@ -50,7 +50,7 @@ Subject: [PATCH] net/usb/qmi_wwan: add MeigLink modem support
  	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
 --- a/drivers/net/usb/qmi_wwan.c
 +++ b/drivers/net/usb/qmi_wwan.c
-@@ -1524,8 +1524,12 @@ static const struct usb_device_id produc
+@@ -1525,8 +1525,12 @@ static const struct usb_device_id produc
  	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x030b)},	/* Quectel EG060K */
  	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0512)},	/* Quectel EG12/EM12 */
  	{QMI_MATCH_FF_FF_FF(0x2c7c, 0x0620)},	/* Quectel EM160R-GL */

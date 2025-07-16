@@ -3,7 +3,6 @@
 		"title": "DLMS",
 		"index": 150,
 		"view": "services/DlmsMain",
-		"acls": ["services/dlms"],
-		"files": ["/etc/config/dlms_client"]
+		"acls": ["services/dlms"]
 	}
 }

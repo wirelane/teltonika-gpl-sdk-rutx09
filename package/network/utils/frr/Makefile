@@ -235,7 +235,7 @@ define BuildDaemon
 		config_name="$$$$$$$${config_name::-1}"; \
 		config_name="$$$$$$$${config_name/nhr/nhrp}"; \
 		config_name="$$$$$$$${config_name/ldp/mpls}"; \
-		$(INSTALL_CONF) ./files/configs/"$$$$$$$${config_name}".conf $$(1)/etc/config/"$$$$$$$${config_name}"
+		$(INSTALL_CONF_USR) ./files/configs/"$$$$$$$${config_name}".conf $$(1)/etc/config/"$$$$$$$${config_name}"
     endef
 
     $$(eval $$(call BuildPackage,frr-$(1)))

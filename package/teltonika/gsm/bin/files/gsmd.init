@@ -14,6 +14,9 @@ start_service() {
     local pid_file="/var/run/${NAME}.${PIDCOUNT}.pid"
 
     [ -h "/etc/hotplug.d/usb/05_gsmd.sh" ] || ln -s /usr/share/usb/05_gsmd.sh  /etc/hotplug.d/usb/05_gsmd.sh &>/dev/null
+
+    jsonfilter -i /etc/board.json -e '@.hwinfo.mobile' > /dev/null || [[ "$(lsusb)" =~ "(2c7c|2dee):" ]] || return
+
     [ -h "/etc/hotplug.d/iface/89-gsm-event" ] || ln -s /usr/share/iface/89-gsm-event /etc/hotplug.d/iface/89-gsm-event &>/dev/null
     [ -h "/etc/hotplug.d/gsm/2-fill-modem-info" ] || ln -s /usr/share/gsm/2-fill-modem-info /etc/hotplug.d/gsm/2-fill-modem-info &>/dev/null
     [ -h "/etc/hotplug.d/gsm/4-notify-send-sms" ] || ln -s /usr/share/gsm/4-notify-send-sms /etc/hotplug.d/gsm/4-notify-send-sms &>/dev/null
@@ -33,8 +36,8 @@ start_service() {
     # if process dies sooner than respawn_threshold, it is considered crashed and after 5 retries the service is stopped
     procd_set_param respawn
 
-    procd_set_param stdout 1 # forward stdout of the command to logd
-    procd_set_param pidfile $pid_file # write a pid file on instance start and remote it on stop
+    procd_set_param stdout 1
+    procd_set_param pidfile $pid_file
     procd_close_instance
 
 }

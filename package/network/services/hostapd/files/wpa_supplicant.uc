@@ -84,7 +84,7 @@ function set_config(phy_name, config_list)
 	phy.update(values);
 }
 
-function start_pending(phy_name)
+function start_pending(phy_name, has_ap)
 {
 	let phy = wpas.data.config[phy_name];
 	let ubus = wpas.data.ubus;
@@ -105,8 +105,10 @@ function start_pending(phy_name)
 		phydev.macaddr_next();
 	}
 
-	for (let ifname in phy.data)
+	for (let ifname in phy.data) {
+		phy.data[ifname].config.has_ap = !!has_ap;
 		iface_start(phydev, phy.data[ifname]);
+	}
 }
 
 let main_obj = {
@@ -189,6 +191,7 @@ let main_obj = {
 	config_set: {
 		args: {
 			phy: "",
+			has_ap: "",
 			config: [],
 			defer: true,
 		},
@@ -202,7 +205,7 @@ let main_obj = {
 					set_config(req.args.phy, req.args.config);
 
 				if (!req.args.defer)
-					start_pending(req.args.phy);
+					start_pending(req.args.phy, req.args.has_ap);
 			} catch (e) {
 				wpas.printf(`Error loading config: ${e}\n${e.stacktrace[0].context}`);
 				return libubus.STATUS_INVALID_ARGUMENT;

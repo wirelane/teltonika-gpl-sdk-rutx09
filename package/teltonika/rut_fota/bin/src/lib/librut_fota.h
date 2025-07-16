@@ -14,6 +14,8 @@ struct lrut_fota_process_st {
 struct lrut_fota_info_st {
 	char *fw;
 	int fw_size;
+	char *fw_stable;
+	int fw_stable_size;
 #ifdef MOBILE_SUPPORT
 	char *modem;
 	int modem_size;

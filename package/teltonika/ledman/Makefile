@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ledman
 
-PKG_SOURCE_VERSION:=2.24.1
+PKG_SOURCE_VERSION:=2.25
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -20,6 +20,7 @@ define Package/ledman-full
 	VARIANT:=full
 	DEPENDS:= +libubus +libubox +libblobmsg-json +libuci +libnl-tiny +MOBILE_SUPPORT:libgsm +MOBILE_SUPPORT:liburc
 	USERID:=ledman:ledman
+	FATTRS:=/usr/bin/ledman::::cap_net_admin+ep
 endef
 
 # TODO SOMEHOW DEPS FROM 'FULL' IS NEEDED TO COMPILE 'TINY'

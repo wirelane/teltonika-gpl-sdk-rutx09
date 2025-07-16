@@ -8,6 +8,11 @@
     "index": 30,
     "view": "network/PortMirroring",
     "acls": ["network/ports/port_mirroring"],
-    "files": ["/etc/config/network"]
+    "depends": {
+      "board": {
+        "allOf": ["has_soft_port_mirror"],
+        "notAllOf": ["is_switch"]
+      }
+    }
   }
 }

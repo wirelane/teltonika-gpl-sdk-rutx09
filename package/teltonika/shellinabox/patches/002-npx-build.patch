@@ -7,20 +7,18 @@ Subject: [PATCH 1/1] minify .js with npx
  Makefile.am | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/Makefile.am b/Makefile.am
-index 5c52a8b..e98b7ea 100644
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -341,6 +341,9 @@ clean-demo:
+@@ -333,6 +333,12 @@ clean-demo:
  	     -e "s/^#/\/\/ #/"                                                \
  	     -e "s/VERSION/\"@VERSION@ @VCS_REVISION@\"/g"                    \
  	     "$<" >"$@"
 +	@mv "$@" "$@.big.js"
-+	@npx esbuild "$@.big.js" --minify --outfile="$@"
++	@{ \
++		[ -n "$$DL_DIR" ] && CACHE_OPT="--cache=$$DL_DIR" && mkdir -p "$$DL_DIR"; \
++		npx $$CACHE_OPT esbuild "$@.big.js" --minify --outfile="$@"; \
++	}
 +	@rm "$@.big.js"
  
  .js.h:
  	@echo od "$<" '>'"$@"
--- 
-2.47.0
-

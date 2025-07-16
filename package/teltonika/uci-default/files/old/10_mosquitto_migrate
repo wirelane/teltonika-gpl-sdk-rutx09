@@ -54,7 +54,7 @@ fix_bridge(){
 config_load $CONFIG
 config_get local_port $MQTT "local_port"
 
-[ -n "$local_port" ] || return
+[ -n "$local_port" ] || exit 0
 
 uci_remove $CONFIG $MQTT "local_port"
 for port in $local_port; do
@@ -64,3 +64,5 @@ done
 config_foreach fix_bridge $MQTT
 
 uci_commit $CONFIG
+
+exit 0

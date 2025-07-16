@@ -38,11 +38,11 @@ HW_INTERFACE_RS485_6PIN:=x 6-pin industrial socket
 HW_INTERFACE_POWER_2PIN:=1 x 2-pin power connector
 HW_INTERFACE_POWER_4PIN:=1 x 4-pin power connector
 HW_INTERFACE_POWER_16PIN:=1 x 16-pin terminal block
-HW_INTERFACE_POWER_RJ45:=RJ45, PoE In, 42.5 - 57.0 VDC
+HW_INTERFACE_POWER_RJ45:=RJ45, PoE In, 42.5-57.0 VDC
 
 # input/output
-HW_INPUT_DI_30V:=x Digital Input, 0 - 6 V detected as logic low, 8 - 30 V detected as logic high
-HW_INPUT_DI_50V:=x Digital Input, 0 - 6 V detected as logic low, 8 - 50 V detected as logic high
+HW_INPUT_DI_30V:=x Digital Input, 0-6 V detected as logic low, 8-30 V detected as logic high
+HW_INPUT_DI_50V:=x Digital Input, 0-6 V detected as logic low, 8-50 V detected as logic high
 HW_OUTPUT_DO_30V:=x Digital Output, Open collector output, max output 30 V, 300 mA
 HW_OUTPUT_DO_40V:=x Digital Output, Open collector output, max output 40 V, 400 mA
 HW_OUTPUT_DO_50V:=x Digital Output, Open collector output, max output 50 V, 300 mA
@@ -123,22 +123,22 @@ HW_POWER_CONNECTOR_4PIN:=4-pin industrial DC power socket
 HW_POWER_CONNECTOR_3PIN:=3-pos plugable terminal block
 
 # power voltage range
-HW_POWER_VOLTAGE_4PIN_30V:=9 - 30 VDC, reverse polarity protection, voltage surge/transient protection
-HW_POWER_VOLTAGE_4PIN_50V:=9 - 50 VDC, reverse polarity protection, surge protection >51 VDC 10us max
-HW_POWER_VOLTAGE_16PIN:=9 - 30 VDC, reverse polarity protection, voltage surge/transient protection
-HW_POWER_VOLTAGE_RJ45:=42.5 - 57.0 VDC, reverse polarity protection, voltage surge/transient protection
-HW_POWER_VOLTAGE_POE_2:=44.0 - 57.0 VDC
+HW_POWER_VOLTAGE_4PIN_30V:=9-30 VDC, reverse polarity protection, voltage surge/transient protection
+HW_POWER_VOLTAGE_4PIN_50V:=9-50 VDC, reverse polarity protection, surge protection >51 VDC 10us max
+HW_POWER_VOLTAGE_16PIN:=9-30 VDC, reverse polarity protection, voltage surge/transient protection
+HW_POWER_VOLTAGE_RJ45:=42.5-57.0 VDC, reverse polarity protection, voltage surge/transient protection
+HW_POWER_VOLTAGE_POE_2:=44.0-57.0 VDC
 
 # PoE (passive) power options
 HW_POWER_POE_PASSIVE_ACTIVE:=Passive and Active PoE. Possibility to power up through LAN1 port, compatible with IEEE802.3at.
-HW_POWER_POE_PASSIVE_30V:=Passive PoE over spare pairs. Possibility to power up through LAN1 port, not compatible with IEEE802.3af, 802.3at and 802.3bt standards, Mode B, 9 - 30 VDC
-HW_POWER_POE_PASSIVE_50V:=Possibility to power up through LAN1 port, not compatible with IEEE802.3af, 802.3at and 802.3bt standards, Mode B, 9 - 50 VDC
+HW_POWER_POE_PASSIVE_30V:=Passive PoE over spare pairs. Possibility to power up through LAN1 port, not compatible with IEEE802.3af, 802.3at and 802.3bt standards, Mode B, 9-30 VDC
+HW_POWER_POE_PASSIVE_50V:=Possibility to power up through LAN1 port, not compatible with IEEE802.3af, 802.3at and 802.3bt standards, Mode B, 9-50 VDC
 HW_POWER_POE_INSTALL:=Passive PoE can be installed upon request.
 
 # Ethernet standards
-HW_ETH_WAN_STANDARD:=compliance with IEEE 802.3, IEEE 802.3u, 802.3az standards, supports auto MDI/MDIX
-HW_ETH_LAN_2_STANDARD:=compliance with IEEE 802.3, IEEE 802.3u, 802.3az standards, supports auto MDI/MDIX crossover
-HW_ETH_LAN_STANDARD:=compliance with IEEE 802.3, IEEE 802.3u standards, supports auto MDI/MDIX
+HW_ETH_WAN_STANDARD:=Compliance with IEEE 802.3, IEEE 802.3u, 802.3az standards, supports auto MDI/MDIX
+HW_ETH_LAN_2_STANDARD:=Compliance with IEEE 802.3, IEEE 802.3u, 802.3az standards, supports auto MDI/MDIX crossover
+HW_ETH_LAN_STANDARD:=Compliance with IEEE 802.3, IEEE 802.3u standards, supports auto MDI/MDIX
 
 # emissions & imunity
 HW_IMUNITY_EMISION_CS:=EN 61000-4-6:2014
@@ -176,4 +176,5 @@ HW_RF_EN_301_908-13_V13.2.1:=EN 301 908-13 V13.2.1
 
 # mobile
 HW_MOBILE_ESIM_CONSTANT:=Consumer type eSIM (SGP.22), up to 7 eSIM profiles
-HW_MOBILE_ESIM_OPTIONAL:=Optional: $(HW_MOBILE_ESIM_CONSTANT)
+HW_MOBILE_ESIM_TOOLTIP:=Availability varies by order code
+HW_MOBILE_3GPP_TOOLTIP:=Depends on order code

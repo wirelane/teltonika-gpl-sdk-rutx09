@@ -25,8 +25,22 @@
   "services/modbus/modbus_serial_server": {
     "title": "Modbus Serial Server",
     "index": 11,
+    "depends": {
+      "board": {
+        "anyOf": ["has_usb", "has_rs232", "has_rs485", "has_console"]
+      }
+    }
+  },
+  "services/modbus/modbus_serial_server/general": {
+    "title": "General",
+    "index": 1,
     "view": "services/ModbusSerialServer",
-    "acls": [ "services/modbus/modbus_serial_server" ],
-    "files": [ "/etc/config/modbus_server" ]
+    "acls": [ "services/modbus/modbus_serial_server/general" ]
+  },
+  "services/modbus/modbus_serial_server/data_source": {
+    "title": "Data Sources",
+    "index": 2,
+    "view": "services/ModbusSerialServerDataSource",
+    "acls": [ "services/modbus/modbus_serial_server/data_source" ]
   }
 }

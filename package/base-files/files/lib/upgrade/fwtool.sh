@@ -203,19 +203,6 @@ fwtool_check_image() {
 		return 1
 	}
 
-	local fw_major=$(echo "$new_version" | cut -d'.' -f2)
-	local fw_minor=$(echo "$new_version" | cut -d'.' -f3 | cut -d'_' -f1)
-	local fw_hotfix=$(echo "$new_version" | cut -d'.' -f4 | cut -d'_' -f1)
-
-	[ -z "$fw_hotfix" ] && fw_hotfix="0"
-
-	if [ "$device_name" = "TCR1" ]; then
-		[ "$fw_major" -eq 7 ] && [ "$fw_minor" -eq 2 ] && [ "$fw_hotfix" -lt 4 ] && {
-			fwtool_msg "Firmware have new password scheme and can not be downgraded" "11"
-			return 1
-		}
-	fi
-
 	device="$(cat /tmp/sysinfo/board_name)"
 	devicecompat="$(uci -q get system.@system[0].compat_version)"
 	[ -n "$devicecompat" ] || devicecompat="1.0"
@@ -365,7 +352,6 @@ fwtool_check_upgrade_type() {
 fwtool_check_passwd_warning() {
 	local device_name="$(mnf_info -n | cut -c1-4 2>/dev/null)"
 
-	[ "$device_name" == "TCR1" ] && return 0
 	[ -n "$(mnf_info -x)" ] || return 0
 
 	local ver="$(fwtool_get_fw_version "$1")"

@@ -1,6 +1,7 @@
 #include <linux/sysfs-mnfinfo.h>
 #include <linux/slab.h>
 #include <linux/module.h>
+#include <linux/gpio/consumer.h>
 #include <linux/gpio/driver.h>
 #include <linux/string.h>
 #include <linux/of.h>
@@ -112,7 +113,7 @@ cleanup:
 }
 
 static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hwver, const char *branch,
-				  char *active_low)
+				  char *active_low, enum gpiod_flags *dflags)
 {
 	struct device_node *gpio_node;
 	struct property *prop;
@@ -121,7 +122,9 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 	char *model_property_name;
 	char *line_property_name;
 	char *branch_property_name;
+	char *mode_property_name;
 	int prop_count = 0;
+	int compatible = 0;
 	int i;
 
 	gpio_node = of_find_node_by_name(of_find_node_by_name(NULL, "tlt_gpios"), node_name);
@@ -146,11 +149,13 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 	model_property_name   = kmalloc(PROPERTY_STR_SIZE, GFP_KERNEL);
 	line_property_name    = kmalloc(PROPERTY_STR_SIZE, GFP_KERNEL);
 	branch_property_name  = kmalloc(PROPERTY_STR_SIZE, GFP_KERNEL);
+	mode_property_name    = kmalloc(PROPERTY_STR_SIZE, GFP_KERNEL);
 
 	for (i = 0; i < prop_count; i++) {
 		const char *str_model;
 		const char *str_line;
 		const char *str_branch;
+		const char *str_mode;
 		u32 lowest_version  = 0;
 		u32 highest_version = 0;
 
@@ -158,17 +163,20 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 		memset(model_property_name, 0, PROPERTY_STR_SIZE);
 		memset(line_property_name, 0, PROPERTY_STR_SIZE);
 		memset(branch_property_name, 0, PROPERTY_STR_SIZE);
+		memset(mode_property_name, 0, PROPERTY_STR_SIZE);
 
 		if (prop_count == 1) {
 			snprintf(version_property_name, PROPERTY_STR_SIZE, "compatible_versions");
 			snprintf(model_property_name, PROPERTY_STR_SIZE, "compatible_model");
 			snprintf(branch_property_name, PROPERTY_STR_SIZE, "compatible_branch");
 			snprintf(line_property_name, PROPERTY_STR_SIZE, "line_name");
+			snprintf(mode_property_name, PROPERTY_STR_SIZE, "mode");
 		} else {
 			snprintf(version_property_name, PROPERTY_STR_SIZE, "compatible_versions_%d", i);
 			snprintf(model_property_name, PROPERTY_STR_SIZE, "compatible_model_%d", i);
 			snprintf(branch_property_name, PROPERTY_STR_SIZE, "compatible_branch_%d", i);
 			snprintf(line_property_name, PROPERTY_STR_SIZE, "line_name_%d", i);
+			snprintf(mode_property_name, PROPERTY_STR_SIZE, "mode_%d", i);
 		}
 
 		if (of_property_read_string(gpio_node, line_property_name, &str_line) != 0) {
@@ -176,8 +184,16 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 			goto cleanup_mem_free;
 		}
 
-		if (of_property_read_string(gpio_node, model_property_name, &str_model) == 0) {
-			if (strstr(str_model, model) == NULL) {
+		if (of_find_property(gpio_node, model_property_name, NULL)) {
+			of_property_for_each_string(gpio_node, model_property_name, prop, str_model)
+			{
+				if (strstr(str_model, model)) {
+					compatible = 1;
+					break;
+				}
+			}
+
+			if (!compatible) {
 				DEBUG_MESSAGE("Models don't match in %s\n", line_property_name);
 				continue;
 			}
@@ -199,6 +215,16 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 			}
 		}
 
+		if (of_property_read_string(gpio_node, mode_property_name, &str_mode) == 0) {
+			if (strcmp(str_mode, "input") == 0) {
+				*dflags = GPIOD_IN;
+			} else if (strcmp(str_mode, "output-high") == 0) {
+				*dflags = GPIOD_OUT_HIGH;
+			} else if (strcmp(str_mode, "output-low") == 0) {
+				*dflags = GPIOD_OUT_LOW;
+			}
+		}
+
 		DEBUG_MESSAGE("Gpio line name is %s\n", str_line);
 		if (of_find_property(gpio_node, "active_low", NULL)) {
 			DEBUG_MESSAGE("Found active_low property\n");
@@ -216,6 +242,7 @@ cleanup_mem_free:
 	kfree(model_property_name);
 	kfree(branch_property_name);
 	kfree(line_property_name);
+	kfree(mode_property_name);
 cleanup:
 	of_node_put(gpio_node);
 
@@ -228,6 +255,7 @@ static int set_line_name(struct gpio_chip *gc, int gpio_offset, const char *devi
 	char active_low = 0;
 	char ret	= 0;
 	int i		= 0;
+	enum gpiod_flags dflags;
 
 	for (i = gpio_offset; i < (gc->ngpio + gpio_offset); i++) {
 		const char *str = NULL;
@@ -236,10 +264,27 @@ static int set_line_name(struct gpio_chip *gc, int gpio_offset, const char *devi
 		token = kmalloc(TOKEN_STR_SIZE, GFP_KERNEL);
 		snprintf(token, TOKEN_STR_SIZE, "GPIO_%d", i);
 
-		if ((str = gpio_find_node(token, device, hwver, branch, &active_low)) != NULL) {
+		if ((str = gpio_find_node(token, device, hwver, branch, &active_low, &dflags)) != NULL) {
+			struct gpio_desc *desc = gpiochip_get_desc(gc, i - gpio_offset);
+
 			if (active_low) {
 				tlt_gpio_set_active_low(gc, i - gpio_offset);
 			}
+
+			switch (dflags) {
+			case GPIOD_IN:
+				gpiod_direction_input(desc);
+				break;
+			case GPIOD_OUT_HIGH:
+				gpiod_direction_output(desc, 1);
+				break;
+			case GPIOD_OUT_LOW:
+				gpiod_direction_output(desc, 0);
+				break;
+			default:
+				break;
+			}
+
 			tlt_gpio_set_line_name(gc, str, i - gpio_offset);
 #ifdef PINMUX_TLT
 			// Check the current pin mux settings and switch to GPIO mode if necessary

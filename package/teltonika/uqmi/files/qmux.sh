@@ -22,6 +22,7 @@ proto_qmux_init_config() {
 	proto_config_add_string modes
 	proto_config_add_boolean dhcp
 	proto_config_add_boolean dhcpv6
+	proto_config_add_boolean delegate
 	proto_config_add_int ip4table
 	proto_config_add_int ip6table
 
@@ -53,24 +54,25 @@ proto_qmux_setup() {
 	local active_sim="1"
 
 	local dataformat connstat old_cb gobinet method
-	local device apn auth username password pdp modem pdptype sim dhcp dhcpv6
+	local device apn auth username password pdp modem pdptype sim dhcp dhcpv6 delegate
 	local $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 ip4table ip6table parameters4 parameters6
 	local pdh_4 pdh_6 cid cid_4 cid_6
 	local retry_before_reinit
 	local error_cnt
 
 	json_get_vars pdp device modem pdptype sim delay method mtu dhcp dhcpv6 ip4table ip6table \
-	leasetime mac $PROTO_DEFAULT_OPTIONS
+	leasetime mac delegate $PROTO_DEFAULT_OPTIONS
 
-	# wait for shutdown to complete
-	wait_for_shutdown_complete "$interface"
+	mkdir -p "/var/run/qmux/"
 
 	local gsm_modem="$(find_mdm_ubus_obj "$modem")"
-
 	[ -z "$gsm_modem" ] && {
 			echo "Failed to find gsm modem ubus object, exiting."
 			return 1
 	}
+
+	# wait for shutdown to complete
+	wait_for_shutdown_complete "$interface"
 
 	pdp=$(get_pdp "$interface")
 
@@ -188,7 +190,6 @@ proto_qmux_setup() {
 #~ Connectivity part----------------------------------------------------
 	echo "Calculated qmimux ifname: $qmimux"
 
-	mkdir -p "/var/run/qmux/"
 	echo -e "${ifname}\n${qmimux}" > "/var/run/qmux/${interface}.up"
 
 	first_uqmi_call "uqmi -d $device --timeout 10000 --set-autoconnect disabled" || return 1
@@ -219,11 +220,8 @@ required driver attribute: /sys/class/net/$ifname/qmi/raw_ip"
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] || pdptype="ip"
 
 	if [ "$red_cap" != "true" ]; then
-		cid="$(uqmi -d "$device" $options --get-client-id wds)"
-		qmi_error_handle "$cid" "$error_cnt" "$modem" || return 1
 
-		call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds \
---modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
+		call_uqmi_command "uqmi -d $device $options--modify-profile 3gpp,${pdp} --roaming-disallowed-flag no"
 	fi
 
 	#if this flag exist CM should only establish that type connection
@@ -247,6 +245,7 @@ required driver attribute: /sys/class/net/$ifname/qmi/raw_ip"
 		if [ $? -ne 0 ]; then
 			echo "Unable to obtain client IPV4 ID"
 		fi
+		touch "/var/run/qmux/$interface.cid_$cid_4"
 		echo "cid4: $cid_4"
 
 		#~ Bind context to port
@@ -258,7 +257,6 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 --set-client-id wds,$cid_4"
 		# on this case we need to relase client id
 		if [ $? -ne 0 ]; then
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
 			return 1
 		fi
 
@@ -274,7 +272,6 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		# requires waiting for an action from mobifd, and don't need to retry
 		# on this case we need to relase client id
 		if [ $? -eq 2 ]; then
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
 			return 1
 		fi
 
@@ -308,6 +305,7 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		if [ $? -ne 0 ]; then
 			echo "Unable to obtain client IPV6 ID"
 		fi
+		touch "/var/run/qmux/$interface.cid_$cid_6"
 		echo "cid6: $cid_6"
 
 		call_uqmi_command "uqmi -d $device $options --wds-bind-mux-data-port --mux-id $ifid \
@@ -318,7 +316,6 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 --set-client-id wds,$cid_6")
 		# on this case we need to relase client id
 		if [ $? -ne 0 ]; then
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
 			return 1
 		fi
 
@@ -329,7 +326,6 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 		# requires waiting for an action from mobifd, and don't need to retry
 		# on this case we need to relase client id
 		if [ $? -eq 2 ]; then
-			call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid --release-client-id wds"
 			return 1
 		fi
 
@@ -424,11 +420,6 @@ ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid_4}"
 	[ "$ipv6" != "1" ] && [ "$pdptype" = "ipv6" ] && proto_notify_error "$interface" "$pdh_6"
 	[ "$pdptype" = "ipv4v6" ] && [ "$ipv4" != "1" ] && [ "$ipv6" != "1" ] && proto_notify_error "$interface" "$pdh_4" && proto_notify_error "$interface" "$pdh_6"
 
-	#cid is lost after script shutdown so we should create temp files for that
-	mkdir -p "/var/run/qmux/"
-	echo "$cid_4" > "/var/run/qmux/$interface.cid_4"
-	echo "$cid_6" > "/var/run/qmux/$interface.cid_6"
-
 	proto_export "IFACE4=$IFACE4"
 	proto_export "IFACE6=$IFACE6"
 	proto_run_command "$interface" qmuxtrack "$device" "$modem" "$cid_4" "$cid_6"
@@ -444,6 +435,8 @@ proto_qmux_teardown() {
 	local qmiif mif conn_proto
 	local device bridge_ipaddr method
 	local braddr_f="/var/run/${interface}_braddr"
+
+	touch "/tmp/shutdown_$interface"
 	json_get_vars device
 
 	[ -n "$ctl_device" ] && device="$ctl_device"

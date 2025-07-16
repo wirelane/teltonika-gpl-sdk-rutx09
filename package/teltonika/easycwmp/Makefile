@@ -81,7 +81,7 @@ endef
 define Package/easycwmp/install
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/ $(1)/etc/uci-defaults/7.14 \
 			$(1)/lib/upgrade/keep.d/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/files/900-easycwmp.sh $(1)/etc/uci-defaults/7.14/99_easycwmp
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/files/900-easycwmp.sh $(1)/etc/uci-defaults/99_easycwmp
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ext/openwrt/files/easycwmp.json $(1)/usr/share/acl.d/easycwmp.json
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/bin/easycwmpd $(1)/usr/sbin

@@ -1,46 +1,122 @@
-# 2025-07-09 00.07.15.4
+# 2025-07-02 00.07.16
+
+### New
+
+* Bluetooth: added filtering query parameters to database API endpoint (ID: 25651)
+* Data to Server: added support for Base64 data encoding (ID: 25784)
+* Data to Server: added warning message for Lua format example script (ID: 26000)
+* DLMS: added filtering query parameters to database API endpoint (ID: 25651)
+* DNP3 Client: added filtering query parameters to database API endpoint (ID: 25651)
+* DNP3 Outstation: added support for data conversion to Modbus (ID: 25264)
+* Docker: added Docker WebUI (ID: 17592)
+* Firewall: added attack prevention option to log detected flood events (ID: 23817)
+* FreeRADIUS: added package (ID: 25896)
+* MBus Client: added filtering query parameters to database API endpoint (ID: 25651)
+* Modbus Client: added filtering query parameters to database API endpoint (ID: 25651)
+* OPC UA Client: added filtering query parameters to database API endpoint (ID: 25651)
+* SNMP: added Universal Gateway support for Modbus and MBus protocols (ID: 24901)
+* Troubleshoot: added nflog capabilities for tcpdump for Router family (ID: 25778)
+* Update Firmware: added stable firmware support (ID: 9177)
 
 ### Improvements
 
-* Mobile: improved handling of ESM reject causes #33, #50, #51, and #52 (ID: 26293)
+* Data to Server: added support for specifying multiple minute values in one row for the "Scheduler" (ID: 25052)
+* Data to Server: improved example format Lua script (ID: 26000)
+* Data to Server: unified certificate selection (ID: 25952)
+* Data to Server: updated collection and input card design (ID: 23533)
+* DHCP server: added excluded address count to Leased IPs status (ID: 25981)
+* Event juggler: improved configuration creation in WebUI. Created conditions are now automatically assigned to the related actions (ID: 25390)
+* Event juggler: increased maximum "Key-value arguments" count in "Script" and "HTTP" actions (ID: 25225)
+* Event juggler: updated "Key-value arguments" to allow duplicates in "Script" and "HTTP" actions (ID: 25225)
+* Event juggler: updated event and action card design (ID: 23533)
+* Event juggler: updated modem selection to include external modems (ID: 24625)
+* GPS: updated to use all available constellations when determining the current position (ID: 26859)
+* L2TP: added support for custom ports (ID: 26084)
+* L2TPv3: improved validations (ID: 25944)
+* Messages: increased allowed SMS length from 3 to 8 messages when sending SMS messages (ID: 25994)
+* Mobile Utilities: added explanatory message to disabled "Storage" options (ID: 25839)
+* Mobile: added GPS DPO support for RUTM54 (ID: 22641)
+* Mobile: changed "telstra.wap" APN for "Telstra" operator to "telstra.internet" in APN database (ID: 26412)
+* Mobile: improved mobile services logging to improve memory usage (ID: 23856)
+* Mobile: improved provider name parsing when it is not returned by the module (ID: 25841)
+* Mobile: improved validation to prevent SMS sending when SIM is removed (ID: 26904)
+* Modbus Gateway: unified certificate selection (ID: 25952)
+* Modbus Server: added multi value support in data source selection (ID: 25264)
+* MQTT Broker Bridge: unified certificate selection (ID: 25952)
+* OpenConnect: added certificate authentication support (ID: 25179)
+* OpenConnect: added support for storing keys in TPM2 (ID: 26062)
+* OpenVPN: added TPM key support (ID: 20395)
+* Power Control: moved power pin configuration to single table (ID: 24698)
+* Stunnel: added TPM2.0 key support (ID: 26275)
+* WebUI: added information about 'Branch' to 'System' page (ID: 26022)
+* WebUI: added long hold to drag on mobile for draggable cards (ID: 22857)
+* WebUI: added status to modem if it is unreachable (ID: 25884)
+* WebUI: improved layout and functionality of log modals (ID: 25454)
+* WebUI: updated icon sizes (ID: 21562)
+* Wireless: improved FT roaming performance in STA mode (ID: 23152)
 
 ### Fix
 
-* Backup: fixed internal firmware metadata not updating after applying backup (ID: 27082)
+* Data to Server: fixed dnp3 package offline installation bug (ID: 26518)
+* Data to Server: fixed GPS data formatting (ID: 26666)
+* Data to Server: fixed SIM card support count in Mobile Usage (ID: 26693)
+* DHCP server: fixed calculating DHCP address range when changing subnet mask (ID: 25045)
+* DHCP server: fixed the incorrectly displayed error for server status (ID: 26067)
+* DLMS: fixed cosem attribute filtering (ID: 24668)
+* DMVPN: fixed DMVPN routes not showing up in Static Routes (ID: 21586)
+* DNP3 Client: fixed requests API error when incorrect 'index' option value was provided (ID: 26520)
+* Dynamic DNS: fixed saving issues (ID: 22998)
+* Event juggler: added missing I/O pins for "Copy pin state" option (ID: 24563)
+* Event juggler: fixed minor I/O validation bugs (ID: 26344)
+* GPS: fixed NMEA host_info option data type error (ID: 23844)
+* Hotspot: added SNMP Hotspot trap removal when Hotspot package is removed (ID: 25366)
+* Hotspot: fixed forwarding some LAN traffic to Hotspot interface when using VLANs (ID: 25460)
+* Hotspot: fixed purple.ai configuration profile (ID: 25964)
+* IPsec: fixed incorrect IPsec restarting when used with Multi WAN (ID: 25476)
+* Kernel: fixed serial port flow control management (ID: 24945)
+* MBus Client: fixed API documentation scan progress option type (ID: 25703)
+* Mobile: fixed an issue of data connection failing after many interface reloads for ATRM50, RUT206, RUT241, RUT260, RUT271, RUT276, RUT281, RUT361, RUT956, RUT951, RUT976, RUT981, RUTC family, RUTM09, RUTM11, RUTM30, RUTM50, RUTM52, RUTM54, RUTM55, RUTM56, RUTM59, RUTX09, RUTX11, RUTX12, RUTX14, RUTX50, RUTXR1, TRB141, TRB140, TRB142, TRB143, TRB145, TRB160, TRB246, TRB247, TRB256 (ID: 26439)
+* Mobile: fixed GPS stop functionality for RUTM54 (ID: 25486)
+* Mobile: fixed IPv6 prefix delegation option to stop delegating prefix when option is disabled (ID: 26045)
+* Mobile: fixed operator synchronized time for RUTM54 (ID: 24974)
+* Modbus Server: fixed issue where data sources with write permission would not work (ID: 25264)
+* Modbus Server: fixed regfile uniqueness validation between instances (ID: 26334)
+* Modbus Server: fixed regression of writing single coil/register always failing (ID: 26689)
+* Network: fixed incorrect IP address netmask validation (ID: 15967)
+* Network: fixed interface statistics when software flow offloading is enabled for TRB2M family, RUTE family, RUT14X family, OTD140, OTD144, DAP140, DAP142, DAP145, RUT2M family, RUT9M family, RUT301, RUT361 (ID: 26601)
+* Network: removed LAN to WAN action as it worked in an unexpected way for DAP family (ID: 25413)
+* NTP: fixed time synchronization from the GSM module (ID: 25686)
+* OpenVPN: fixed connection checking when using IPv6 (ID: 24720)
+* Over IP: removed port_connect option from API documentation (ID: 24933)
+* POE: fixed high CPU usage for devices with IP802 chips (ID: 26969)
+* Ports Settings: fixed advertisement not required when auto-negotiation is enabled in API (ID: 26168)
+* Ports Settings: fixed page refresh button (ID: 24964)
+* Realtime Traffic: fixed data usage show for interfaces with PPPoE protocol (ID: 22766)
+* RelayD: fixed API wrongly suggesting and accepting "lan_mark" as an internal network (ID: 25748)
+* RelayD: fixed page not functioning for users with limited access (ID: 26392)
+* SSH: disabled "admin" user access on default configuration (ID: 26340)
+* Tailscale: fixed DNS configuration acceptance from the Tailscale console (ID: 26082)
+* Topology: fixed issue where scan buttons were not clickable on mobile devices (ID: 25521)
+* TR-069: fixed device name generation (ID: 26897)
+* Wifi Scanner: fixed some wireless interfaces not getting added or removed from scanning list (ID: 25433)
+* Wireless: fixed device not sending keep-alive packets in client/station mode for RUTC50 (ID: 25488)
+* Wireless: fixed excessive RAM use when radios are enabled but idle for RUTX family (ID: 25785)
+* Wireless: fixed filtering of sporadic invalid noise values for RUTX family (ID: 25495)
+* Wireless: fixed incorrect CSA handling in STA+AP mode for TAP100, RUTX14, RUT2M family, RUT361, RUT9M family, RUTE family, DAP family (ID: 25447)
+* Wireless: fixed LAN network interface being removed after related WiFi interface is deleted (ID: 24325)
+* Wireless: fixed noise value calculation for TAP100, RUT14X family, DAP family, RUT2M family, RUT361, RUT9M family, RUTE family (ID: 24763)
 
-# 2025-07-04 00.07.15.3
+### Updates
 
-### Fix
-
-* System: fixed possible PoE issues with some power supplies for RUT951 (ID: 26949)
-
-# 2025-06-25 00.07.15.2
-
-### Improvements
-
-* Network: swapped MAC addresses for lan1 and lan2 for OTD501, OTD500 (ID: 26682)
-* Update Firmware: optimized firmware validation through caching (ID: 26403)
-
-### Fix
-
-* Data to Server: fixed MBus database path bug (ID: 26690)
-* Hotspot: fixed segmentation fault (ID: 26749)
-* L2TP: fixed memory leak issue with invalid packets (ID: 26569)
-* Package Manager: fixed possible config migration issues on the PM installed packages (ID: 26809)
-* System Status: fixed display of MAC address (ID: 26682)
-* WebUI: fixed subscribe processes not exiting when UHTTPD is killed (ID: 26708)
-* Wireless: fixed WPA3-SAE fast transition configuration (ID: 26457)
-
-# 2025-06-16 00.07.15.1
-
-### Fix
-
-* Backup: fixed missing root and admin user restoration during backup apply (ID: 26605)
-* Event juggler: fixed the execution of user scripts (ID: 26585)
-* Hotspot: fixed user scripts migration after upgrade with keep settings (ID: 26589)
-* Hotspot: fixed users scripts execution (ID: 26589)
-* Realtime Traffic: fixed data collection in rare cases (ID: 26600)
-* SMS Utilities: fixed the execution of user scripts (ID: 26585)
+* dropbear: updated version to  2025.88 (ID: 25783)
+* Kernel: updated version to  5.4.293 for TRB140, TRB141, TRB142, TRB143, TRB145 (ID: 7140)
+* Kernel: updated version to  5.15.184 for RUTC family, TRB2M family, RUT14X family, OTD140, OTD144, RUT2M family, RUT30X family, RUT36X family, RUT9M family, TAP100, TAP400, DAP family, RUTE family (ID: 7140)
+* Kernel: updated version to  6.6.92 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200 (ID: 7140)
+* libpcap: updated version to  1.10.5 for Router family (ID: 25778)
+* libtasn1: updated version to  4.20.0 (ID: 25909)
+* Serial: updated version to  2.0 (ID: 26064)
+* tcpdump: updated version to  4.99.5 for Router family (ID: 25778)
+* tpm2-openssl: updated version to  1.3.0 (ID: 26275)
 
 # 2025-06-02 00.07.15
 
@@ -200,6 +276,35 @@
 * Mosquitto: updated version to  2.0.21 (ID: 24526)
 * mt76: updated version to  2025-01-22 for ATRM family, OTD500, RUTM family, TAP200 (ID: 20686)
 * ovpn-dco: updated version to  0.2.20241216 (ID: 24688)
+
+# 2025-05-20 00.07.14.3
+
+### Fix
+
+* Custom Scripts: fixed execution of custom scripts after upgrade (ID: 25914)
+* L2TP: fixed a connection problem when using an L2TP over IPsec configuration (ID: 25850)
+
+# 2025-05-07 00.07.14.2
+
+### Fix
+
+* Firewall: fixed DMZ port forward rule for mobile DHCP lease renew (ID: 25684)
+* Firewall: fixed HTTP and HTTPS ports migration for DMZ port forwards rules (ID: 25578)
+* Memory Expansion: fixed long ext4 formatting times on some usb drives (ID: 25496)
+* Network: fixed data limit database save when upgrading with keep settings (ID: 25725)
+* Network: fixed Management VLAN input for TAP family (ID: 25729)
+* Wireless: fixed VLAN ID input for TAP family (ID: 25729)
+
+# 2025-04-30 00.07.14.1
+
+### Fix
+
+* Memory Expansion: fixed long ext4 formatting times on some usb drives (ID: 25496)
+* RutOS: fixed curl compilation in SDK (ID: 25580)
+
+### CVE Patches
+
+* CVE-2025-2704 (ID: 25075)
 
 # 2025-04-18 00.07.14
 

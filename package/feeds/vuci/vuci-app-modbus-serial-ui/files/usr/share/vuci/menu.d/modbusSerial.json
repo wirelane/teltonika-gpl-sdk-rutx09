@@ -8,6 +8,10 @@
 		"index": 30,
 		"view": "services/ModbusSerial",
 		"acls": [ "services/modbus/modbus_serial_client" ],
-		"files": [ "/etc/config/modbus_client" ]
+		"depends": {
+			"board": {
+				"anyOf": ["has_usb", "has_rs232", "has_rs485", "has_console"]
+			}
+		}
 	}
 }

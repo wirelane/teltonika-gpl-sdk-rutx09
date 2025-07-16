@@ -948,10 +948,10 @@ hostapd_set_config() {
 
 wpa_supplicant_start() {
 	local phy="$1"
+	local has_ap="$2"
 
 	[ -n "$wpa_supp_init" ] || return 0
-
-	ubus_call wpa_supplicant config_set '{ "phy": "'"$phy"'" }' > /dev/null
+	ubus_call wpa_supplicant config_set '{ "phy": "'"$phy"'", "has_ap": "'"$has_ap"'" }' > /dev/null
 }
 
 mac80211_setup_supplicant() {
@@ -1175,7 +1175,7 @@ drv_mac80211_setup() {
 	[ -x /usr/sbin/wpa_supplicant ] && wpa_supplicant_set_config "$phy"
 	[ -x /usr/sbin/hostapd ] && hostapd_set_config "$phy"
 
-	[ -x /usr/sbin/wpa_supplicant ] && wpa_supplicant_start "$phy"
+	[ -x /usr/sbin/wpa_supplicant ] && wpa_supplicant_start "$phy" "$has_ap"
 
 	configure_autoconnect $ifname $ssid
 

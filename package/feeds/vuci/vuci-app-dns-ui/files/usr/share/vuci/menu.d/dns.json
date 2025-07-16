@@ -7,7 +7,6 @@
     "title": "General",
     "index": 1,
     "view": "network/DNS",
-    "acls": ["network/dns/general"],
-    "files": ["/etc/config/dhcp"]
+    "acls": ["network/dns/general"]
   }
 }

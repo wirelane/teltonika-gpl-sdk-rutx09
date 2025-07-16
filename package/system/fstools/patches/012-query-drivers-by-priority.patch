@@ -1,8 +1,6 @@
-Index: fstools-2022-05-03-9e11b372/libfstools/mtd.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/mtd.c	2024-07-16 08:28:29.736893758 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/mtd.c	2024-07-16 08:29:17.785636696 +0300
-@@ -336,6 +336,7 @@
+--- a/libfstools/mtd.c
++++ b/libfstools/mtd.c
+@@ -336,6 +336,7 @@ static int mtd_volume_write(struct volum
  
  static struct driver mtd_driver = {
  	.name = "mtd",
@@ -10,11 +8,9 @@ Index: fstools-2022-05-03-9e11b372/libfstools/mtd.c
  	.find = mtd_volume_find,
  	.init = mtd_volume_init,
  	.erase = mtd_volume_erase,
-Index: fstools-2022-05-03-9e11b372/libfstools/rootdisk.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/rootdisk.c	2022-05-03 04:00:21.000000000 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/rootdisk.c	2024-07-16 08:29:37.965934124 +0300
-@@ -108,10 +108,6 @@
+--- a/libfstools/rootdisk.c
++++ b/libfstools/rootdisk.c
+@@ -108,10 +108,6 @@ static struct volume *rootdisk_volume_fi
  	if (!rootdev)
  		return NULL;
  
@@ -25,11 +21,9 @@ Index: fstools-2022-05-03-9e11b372/libfstools/rootdisk.c
  	if (get_squashfs(&sb))
  		return NULL;
  
-Index: fstools-2022-05-03-9e11b372/libfstools/ubi.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/ubi.c	2022-05-03 04:00:21.000000000 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/ubi.c	2024-07-16 08:29:52.414142034 +0300
-@@ -171,6 +171,7 @@
+--- a/libfstools/ubi.c
++++ b/libfstools/ubi.c
+@@ -171,6 +171,7 @@ static int ubi_volume_identify(struct vo
  
  static struct driver ubi_driver = {
  	.name = "ubi",
@@ -37,11 +31,9 @@ Index: fstools-2022-05-03-9e11b372/libfstools/ubi.c
  	.find = ubi_volume_find,
  	.init = ubi_volume_init,
  	.identify = ubi_volume_identify,
-Index: fstools-2022-05-03-9e11b372/libfstools/volume.c
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/volume.c	2022-05-03 04:00:21.000000000 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/volume.c	2024-07-16 08:30:16.670482024 +0300
-@@ -23,7 +23,16 @@
+--- a/libfstools/volume.c
++++ b/libfstools/volume.c
+@@ -23,7 +23,16 @@ static LIST_HEAD(drivers);
  void
  volume_register_driver(struct driver *d)
  {
@@ -59,11 +51,9 @@ Index: fstools-2022-05-03-9e11b372/libfstools/volume.c
  }
  
  struct volume* volume_find(char *name)
-Index: fstools-2022-05-03-9e11b372/libfstools/volume.h
-===================================================================
---- fstools-2022-05-03-9e11b372.orig/libfstools/volume.h	2022-05-03 04:00:21.000000000 +0300
-+++ fstools-2022-05-03-9e11b372/libfstools/volume.h	2024-07-16 08:32:39.212275046 +0300
-@@ -30,6 +30,7 @@
+--- a/libfstools/volume.h
++++ b/libfstools/volume.h
+@@ -30,6 +30,7 @@ typedef int (*volume_erase_all_t)(struct
  
  struct driver {
  	struct list_head	list;

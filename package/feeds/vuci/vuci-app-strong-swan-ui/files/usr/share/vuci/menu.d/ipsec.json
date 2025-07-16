@@ -7,7 +7,6 @@
         "title": "IPsec",
         "index": 30,
         "view": "services/StrongSwan",
-        "acls": [ "services/vpn/ipsec" ],
-        "files": ["/etc/config/ipsec", "/etc/config/xl2tpd"]
+        "acls": [ "services/vpn/ipsec" ]
     }
 }

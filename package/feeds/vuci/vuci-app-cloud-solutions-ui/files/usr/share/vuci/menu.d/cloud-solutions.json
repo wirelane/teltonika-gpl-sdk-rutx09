@@ -8,7 +8,6 @@
     "index": 10,
     "view": "services/RMS",
     "acls": ["services/cloud_solutions/rms"],
-    "files": ["/etc/config/rms_mqtt"],
     "main_page": true
   },
   "system/wizard/step_rms": {

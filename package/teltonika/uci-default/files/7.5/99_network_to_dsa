@@ -40,3 +40,5 @@ update_interface()  {
 config_load "network"
 config_foreach update_interface "interface"
 uci_commit "network"
+
+exit 0

@@ -10,9 +10,8 @@ PKG_VERSION:=1.14.0
 PKG_RELEASE:=4
 
 
-PKG_SOURCE_VERSION:=1.14.0
-PKG_SOURCE:=zerotier-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_SOURCE_VERSION)?
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_SOURCE_URL:=https://codeload.github.com/zerotier/ZeroTierOne/tar.gz/$(PKG_VERSION)?
 PKG_HASH:=7191623a81b0d1b552b9431e8864dd3420783ee518394ac1376cee6aaf033291
 
 PKG_MAINTAINER:=Moritz Warning <moritzwarning@web.de>

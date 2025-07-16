@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_client
-PKG_VERSION:=2025-05-15
-PKG_SOURCE_VERSION:=7.15
+PKG_VERSION:=2025-07-02
+PKG_SOURCE_VERSION:=7.16
 PKG_LICENSE:=Teltonika-closed
 TARGET_CFLAGS += "-DCACHE_HASH=\\\"$(PKG_SOURCE_VERSION)\\\""
 
@@ -18,7 +18,7 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=MODBUS TCP/Serial client daemon by Teltonika
 	DEPENDS:=+libuci +libtlt_uci +libtlt_termios +libsqlite3 +libmodbus +IO_SUPPORT:iomand \
-		 +MOBILE_SUPPORT:libgsm +libparam +libmosquitto +libtlt_smtp +libcurl
+		 +MOBILE_SUPPORT:libgsm +libparam +libmosquitto +libtlt_smtp +libcurl +libtag
 endef
 
 define Package/$(PKG_NAME)/description

@@ -1,22 +1,48 @@
 [
   {
-    "category": "System",
-    "name": "TPM",
-    "depends": []
-  },
-  {
-    "category": "System",
-    "name": "TCP dump",
+    "category": "Services",
+    "name": "POE",
     "depends": [
       {
-        "type": "family",
-        "name": "Router"
+        "type": "hw",
+        "name": "poe"
       }
     ]
   },
   {
     "category": "Services",
-    "name": "Events Reporting",
+    "name": "FreeRADIUS",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      },
+      {
+        "type": "hw",
+        "name": "flash16mb",
+        "value": false
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "OpenConnect",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "flash16mb",
+        "value": false
+      },
+      {
+        "type": "hw",
+        "name": "is_access_point",
+        "value": false
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Modbus Gateway",
     "depends": [
       {
         "type": "family",
@@ -28,6 +54,16 @@
     "category": "Services",
     "name": "MQTT Broker",
     "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Power Control",
+    "depends": [
+      {
+        "type": "device",
+        "name": "ATRM50"
+      }
+    ]
   },
   {
     "category": "Services",
@@ -543,7 +579,13 @@
   },
   {
     "category": "Services",
-    "name": "BACnet"
+    "name": "BACnet",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "rs485"
+      }
+    ]
   },
   {
     "category": "Services",

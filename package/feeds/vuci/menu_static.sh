@@ -22,31 +22,18 @@ check_menu() {
 		local index=$(jq -r '.index // empty' <<< "$item")
 		if [ -n "$index" ]; then
 			local tmp="{}"
-			local files=true
-			local orfiles=true
 
 			for k in $(jq -r 'keys[]' <<< "$item"); do
-				local value=$(jq -r --arg k "$k" '.[$k] // empty' <<< "$item")
+				local value=$(jq -c --arg k "$k" '.[$k] // empty' <<< "$item")
 
 				if [ "$k" == "acls" ]; then
-					local acls_array=$(jq -r '.[]' <<< "$value")
-					tmp=$(jq --argjson acls "$(echo $acls_array | jq -R . | jq -s .)" '. + {"acls": $acls}' <<< "$tmp")
-				elif [ "$k" == "files" ]; then
-					local files_array=$(jq -r '.[]' <<< "$value")
-					files=false
-					for file in $files_array; do
-						files=true
-					done
-					tmp=$(jq --argjson files "$files" '. + {"files": $files}' <<< "$tmp")
-				elif [ "$k" == "orfiles" ]; then
-					orfiles=false
-					local orfiles_array=$(jq -r '.[]' <<< "$value")
-					for orfile in $orfiles_array; do
-						orfiles=true
-					done
-					tmp=$(jq --argjson orfiles "$orfiles" '. + {"orfiles": $orfiles}' <<< "$tmp")
+					local acls_array=$(jq -c '.' <<< "$value")
+					tmp=$(jq --argjson acls "$acls_array" '. + {"acls": $acls}' <<< "$tmp")
+				elif [ "$k" == "depends" ]; then
+					local depends=$(jq -c '.' <<< "$value")
+					tmp=$(jq --argjson depends "$depends" '. + {"depends": $depends}' <<< "$tmp")
 				else
-					tmp=$(jq --arg key "$k" --arg value "$value" '. + {($key): $value}' <<< "$tmp")
+					tmp=$(jq --arg key "$k" --argjson value "$value" '. + {($key): $value}' <<< "$tmp")
 				fi
 			done
 

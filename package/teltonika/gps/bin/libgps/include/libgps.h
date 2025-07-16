@@ -23,6 +23,7 @@ typedef enum {
 	GPS_TIMESTAMP,
 	GPS_STATUS,
 	GPS_UTC_TIMESTAMP,
+	GPS_CONSTELLATION,
 	GPS_T_MAX,
 } lgps_pos_t;
 
@@ -37,6 +38,7 @@ typedef struct {
 	uint32_t fix_status;
 	uint64_t timestamp;
 	uint64_t utc_timestamp;
+	char constellation[2]; // Example: GP, GA, BD, GL
 } lgps_t;
 
 extern const struct blobmsg_policy g_gps_position_policy[];

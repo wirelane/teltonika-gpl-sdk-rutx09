@@ -16,6 +16,27 @@
 				"get_iccid"
 			]
 		},
+		"rpc-sys": {
+			"methods": [
+				"reboot"
+			]
+		},
+		"network.interface": {
+			"methods": [
+				"dump"
+			]
+		},
+		"system": {
+			"methods": [
+				"sysupgrade",
+				"backup"
+			]
+		},
+		"log": {
+			"methods": [
+				"write_ext"
+			]
+		},
 		"file": {
 			"methods": [
 				"exec"

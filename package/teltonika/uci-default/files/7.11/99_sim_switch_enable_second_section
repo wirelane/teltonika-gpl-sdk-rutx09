@@ -23,3 +23,5 @@ if [ $enabled_count -eq 1 ] && [ $total_count -eq 2 ]; then
     config_foreach enable_all_rules "sim"
     uci_commit "sim_switch"
 fi
+
+exit 0

@@ -7,7 +7,6 @@
             "title": "OPC UA Server",
             "index": 20,
             "view": "services/OpcuaServer",
-            "acls": ["services/opcua/opcua_server"],
-            "files": ["/etc/config/opcua_server"]
+            "acls": ["services/opcua/opcua_server"]
         }
 }

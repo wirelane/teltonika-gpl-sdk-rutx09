@@ -22,3 +22,5 @@ check_if_enabled() {
 
 config_load io_scheduler
 config_foreach check_if_enabled scheduler
+
+exit 0

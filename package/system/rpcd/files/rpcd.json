@@ -39,5 +39,5 @@
 				 "profile", "rut_fota", "mwan3", "rpc-ping", "lan_info", "wan_info",
 				 "serial", "file", "esim.modem*", "sms_limit", "boardjson",
 				 "modbus_client.rpc", "network.rrdns", "uci", "rc",
-				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan" ]
+				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan", "dnp3_client.rpc" ]
 }

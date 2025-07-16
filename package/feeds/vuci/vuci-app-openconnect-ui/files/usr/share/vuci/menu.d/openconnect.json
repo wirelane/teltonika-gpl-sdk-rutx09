@@ -7,7 +7,6 @@
     "title": "OpenConnect",
     "index": 130,
     "view": "services/OpenConnect",
-    "acls": ["services/vpn/openconnect"],
-    "files": ["/etc/config/network"]
+    "acls": ["services/vpn/openconnect"]
   }
 }

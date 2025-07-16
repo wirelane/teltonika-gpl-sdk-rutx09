@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dnp3
-PKG_VERSION:=2025-05-15
+PKG_VERSION:=2025-07-02
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.15
+PKG_SOURCE_VERSION:=7.16
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 
@@ -17,7 +17,7 @@ define Package/dnp3
 	TITLE:=dnp3 stack
 	DEPENDS:=+libstdcpp +libuci +libubus +libopenssl +libsqlite3 +MOBILE_SUPPORT:libgsm \
 		+GPS_SUPPORT:libgps +libtlt_uci +libtlt_termios +MOBILE_SUPPORT:libmdcollect +libjson-c +opendnp3 \
-		+libubox +libblobmsg-json +libmnfinfo +IO_SUPPORT:iomand +MOBILE_SUPPORT:libboardjson
+		+libubox +libblobmsg-json +libmnfinfo +IO_SUPPORT:iomand +MOBILE_SUPPORT:libboardjson +libtag
 endef
 
 ifeq ($(CONFIG_IO_SUPPORT),y)
@@ -47,6 +47,9 @@ endef
 define Package/dnp3/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DIR) $(1)/usr/lib/rpcd
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_client $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_outstation $(1)/usr/sbin/
 
@@ -60,10 +63,20 @@ define Package/dnp3/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.8/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.8/99_dnp3_add_global_section $(1)/etc/uci-defaults/7.8/
+
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_client.permtab $(1)/etc/permtab.d/dnp3_client
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_client.json $(1)/usr/share/acl.d/dnp3_client.json
+
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_outstation.permtab $(1)/etc/permtab.d/dnp3_outstation
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_outstation.json $(1)/usr/share/acl.d/dnp3_outstation.json
+
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_client_rpc.so $(1)/usr/lib/rpcd/dnp3_client_rpc.so
 endef
 
 define Package/dnp3/postinst
 	#!/bin/sh
+
+	/etc/init.d/rpcd reload
 
 	[ -z "$${IPKG_INSTROOT}" ] || exit 0
 	[ -e /lib/data_sender/libdata_sender.sh ] || exit 0

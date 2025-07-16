@@ -321,7 +321,7 @@ start_logger(){
                 local model="$(echo "$info" | jsonfilter -e "@.model")"
                 local usb_id="$(echo "$info" | jsonfilter -e "@.usb_id")"
                 [ -n "$MODEM_ID" ] && [ "$usb_id" != "$MODEM_ID" ] && continue
-                [ "$model" == "RG500U-EA" ] && [ -z "$FILTER_PATH" ] && [ -f "$DEFAULT_UNISOC_FILTER_FILE_PATH" ] &&
+                [ "$model" == "RG500U-EB" ] && [ -z "$FILTER_PATH" ] && [ -f "$DEFAULT_UNISOC_FILTER_FILE_PATH" ] &&
                 FILTER_PATH="$DEFAULT_UNISOC_FILTER_FILE_PATH"
             done
 

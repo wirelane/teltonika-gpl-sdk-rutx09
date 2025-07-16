@@ -8,15 +8,13 @@
     "index": 10,
     "view": "network/StaticRoutes",
     "acls": ["network/routes/static_routes"],
-    "files": ["/etc/config/network"],
     "main_page": true
   },
   "network/routes/advanced_routing": {
     "title": "Policy Based Routing",
     "index": 20,
     "view": "network/AdvancedRoutes",
-    "acls": ["network/routes/advanced_routing"],
-    "files": ["/etc/config/network"]
+    "acls": ["network/routes/advanced_routing"]
   },
   "status/routes": {
     "title": "Routes",
@@ -26,7 +24,6 @@
     "title": "Static",
     "index": 10,
     "view": "status/GeneralRoutes",
-    "acls": ["status/routes/general"],
-    "files": ["/etc/config/network"]
+    "acls": ["status/routes/general"]
   }
 }

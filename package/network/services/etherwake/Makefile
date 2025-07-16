@@ -45,9 +45,10 @@ define Build/Compile
 endef
 
 define Package/etherwake/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/etherwake $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_DATA) ./files/etherwake.permtab $(1)/etc/permtab.d/etherwake
 	$(INSTALL_DATA) files/$(PKG_NAME).config $(1)/etc/config/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)

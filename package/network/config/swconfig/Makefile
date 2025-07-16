@@ -24,6 +24,7 @@ define Package/swconfig
   CATEGORY:=Base system
   DEPENDS:=+libuci +libnl-tiny
   TITLE:=Switch configuration utility
+  FATTRS:=/sbin/swconfig::::cap_net_admin=ei
 endef
 
 TARGET_CPPFLAGS := \

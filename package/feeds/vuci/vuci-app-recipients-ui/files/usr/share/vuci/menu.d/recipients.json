@@ -7,7 +7,12 @@
         "title": "Phone Groups",
         "acls": ["system/admin/group/phone"],
         "view": "system/PhoneGroups",
-        "index": 10
+        "index": 10,
+        "depends": {
+          "board": {
+            "allOf": ["has_mobile"]
+          }
+        }
     },
     "system/admin/group/email": {
         "title": "Email Users",

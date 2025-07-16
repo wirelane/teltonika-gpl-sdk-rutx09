@@ -134,7 +134,7 @@ Signed-off-by: John Crispin <john@phrozen.org>
  
  config WEXT_CORE
  	def_bool y
-@@ -12,10 +12,10 @@
+@@ -12,10 +12,10 @@ config WEXT_PROC
  	depends on WEXT_CORE
  
  config WEXT_SPY

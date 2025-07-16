@@ -7,6 +7,11 @@
     "view": "services/IoScheduler",
     "index": 30,
     "title": "Scheduler",
-    "acls": ["services/io/scheduler"]
+    "acls": ["services/io/scheduler"],
+    "depends": {
+      "board": {
+        "allOf": ["has_ios"]
+      }
+    }
   }
 }

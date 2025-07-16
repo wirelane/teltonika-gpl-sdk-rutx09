@@ -4,6 +4,10 @@
 		"index": 240,
 		"view": "services/Wol",
 		"acls": [ "services/wol" ],
-		"files": [ "/etc/config/etherwake" ]
+		"depends": {
+		 	"board": {
+				"allOf": ["has_ethernet"]
+			}
+		}
 	}
 }

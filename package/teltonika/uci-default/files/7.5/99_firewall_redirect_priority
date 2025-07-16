@@ -22,3 +22,5 @@ add_priority() {
 config_load "firewall"
 config_foreach add_priority "redirect"
 uci_commit "firewall"
+
+exit 0

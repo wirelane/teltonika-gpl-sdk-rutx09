@@ -51,7 +51,7 @@ define Package/eoip/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/eoip $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DATA) ./files/eoip.config $(1)/etc/config/eoip
+	$(INSTALL_CONF_USR) ./files/eoip.config $(1)/etc/config/eoip
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/eoip.init $(1)/etc/init.d/eoip
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/net

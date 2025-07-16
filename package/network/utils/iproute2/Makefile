@@ -105,6 +105,7 @@ define Package/ip-bridge
 $(call Package/iproute2/Default)
   TITLE:=Bridge configuration utility from iproute2
   DEPENDS:=+libnl-tiny +(PACKAGE_devlink||PACKAGE_rdma):libmnl
+  FATTRS:=/usr/sbin/bridge::::cap_net_admin+ei
 endef
 
 define Package/ss

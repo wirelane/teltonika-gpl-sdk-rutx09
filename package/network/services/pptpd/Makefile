@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pptpd
 PKG_VERSION:=1.4.0
-PKG_RELEASE:=9
+PKG_RELEASE:=10
 
 PKG_SOURCE_VERSION:=1.4.0
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -33,6 +33,8 @@ define Package/pptpd
   TITLE:=PopTop pptp server
   URL:=http://poptop.sourceforge.net/
   SUBMENU:=VPN
+  USERID:=pptpd:pptpd
+  FATTRS:=/usr/sbin/pptpctrl::::cap_net_raw+ep
 endef
 
 CONFIGURE_ARGS += \
@@ -67,7 +69,7 @@ define Package/pptpd/install
 	$(INSTALL_BIN) ./files/pptpd-up $(1)/etc/ppp/
 	$(INSTALL_BIN) ./files/pptpd-down $(1)/etc/ppp/
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) /dev/null $(1)/etc/config/pptpd
+	$(INSTALL_CONF_USR) /dev/null $(1)/etc/config/pptpd
 	$(INSTALL_DIR) $(1)/etc/ppp/ip-up.d/
 	$(INSTALL_BIN) ./files/pptp-up $(1)/etc/ppp/ip-up.d/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
