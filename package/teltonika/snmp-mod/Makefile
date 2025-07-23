@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=snmp-mod
-PKG_VERSION:=2025-07-10
+PKG_VERSION:=2025-07-21
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.16.1
+PKG_SOURCE_VERSION:=3.16.2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -86,6 +86,7 @@ endef
 define Package/snmp-mod-port
 	$(call Package/snmp-mod/Default)
 	TITLE:=SNMP Port module
+	DEPENDS+=+libapi
 endef
 
 define Package/snmp-mod-mwan3

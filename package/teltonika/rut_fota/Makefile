@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.19.1
+PKG_SOURCE_VERSION:=2.19.2
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -58,7 +58,12 @@ define Package/rut_fota/install
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/TN_RUT_FOTA_CA.pem $(1)/etc/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rut_fota.json $(1)/usr/share/acl.d/rut_fota.json
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rut_fota.permtab $(1)/etc/permtab.d/rut_fota
+
+	if [ $(TLT_PLATFORM_TRB16) ]; then \
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rut_fota_trb16.permtab $(1)/etc/permtab.d/rut_fota; \
+	else \
+		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rut_fota.permtab $(1)/etc/permtab.d/rut_fota; \
+	fi;
 endef
 
 $(eval $(call BuildPackage,librut_fota))

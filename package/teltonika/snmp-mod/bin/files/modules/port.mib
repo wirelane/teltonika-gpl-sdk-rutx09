@@ -8,7 +8,9 @@ portGroup OBJECT-GROUP
 		  pPosition,
 		  pState,
 		  pSpeed,
-		  pDuplex }
+		  pDuplex,
+		  pLANIndex,
+		  pLANMAC }
 	STATUS current
 	DESCRIPTION "Port SNMP group defined according to RFC 2580"
 	::= { teltonikaSnmpGroups 12 }
@@ -96,3 +98,40 @@ pDuplex OBJECT-TYPE
 	STATUS		current
 	DESCRIPTION	"Boolean value whether port is duplex or not"
 	::= { portEntry 7 }
+
+-- LAN table
+
+pLANTable OBJECT-TYPE
+	SYNTAX		SEQUENCE OF PLANEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"A list of LAN connections"
+	::= { port 3 }
+
+pLANEntry OBJECT-TYPE
+	SYNTAX		PLANEntry
+	MAX-ACCESS	not-accessible
+	STATUS		current
+	DESCRIPTION	"An entry containing information of a LAN connection"
+	INDEX		{ pLANIndex }
+	::= { pLANTable 1 }
+
+PLANEntry ::=
+	SEQUENCE {
+	pLANIndex INTEGER,
+	pLANMAC DisplayString
+	}
+
+pLANIndex OBJECT-TYPE
+	SYNTAX		INTEGER (0..65535)
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"A unique value, greater than zero, for each LAN connection"
+	::= { pLANEntry 1 }
+
+pLANMAC OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..255))
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION	"LAN connection's MAC address"
+	::= { pLANEntry 2 }

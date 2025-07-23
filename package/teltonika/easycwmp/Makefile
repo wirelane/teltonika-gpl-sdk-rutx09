@@ -10,9 +10,9 @@ PKG_VERSION:=2025-05-15
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.8.3
-PKG_SOURCE_URL:=https://easycwmp.org/download/
-PKG_SOURCE:=easycwmp-$(PKG_SOURCE_VERSION).tar.gz
-PKG_HASH:=3890be71abd831f80ebd471ef245df6ebc3a13d6aba9514df826c6567f8b5cd0
+PKG_SOURCE_URL:=https://github.com/pivasoftware/easycwmp/archive/refs/tags/
+PKG_SOURCE:=EasyCwmp-$(PKG_SOURCE_VERSION).tar.gz
+PKG_HASH:=3c54ada0b0cc82d903c27cc84f27b5ee076002163bcda5a94c32a5c89a8793da
 
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 

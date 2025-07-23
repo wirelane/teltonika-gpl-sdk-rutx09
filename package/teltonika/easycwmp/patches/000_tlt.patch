@@ -24,7 +24,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +    - job: semgrep_errors
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/build/Makefile src/ext/openwrt/build/Makefile
---- upstream/ext/openwrt/build/Makefile	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/build/Makefile	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/build/Makefile	2025-04-24 13:08:10.000000000 +0000
 @@ -72,7 +72,6 @@
  
@@ -35,7 +35,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  define Package/easycwmp/install
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/config/easycwmp src/ext/openwrt/config/easycwmp
---- upstream/ext/openwrt/config/easycwmp	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/config/easycwmp	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/config/easycwmp	2025-04-24 13:08:10.000000000 +0000
 @@ -4,7 +4,6 @@
  	option enable '0'
@@ -191,7 +191,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 @@ -0,0 +1 @@
 +/etc/config/easycwmp easycwmp:easycwmp 664
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/init.d/easycwmpd src/ext/openwrt/init.d/easycwmpd
---- upstream/ext/openwrt/init.d/easycwmpd	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/init.d/easycwmpd	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/init.d/easycwmpd	2025-04-24 13:08:10.000000000 +0000
 @@ -2,56 +2,32 @@
  # Copyright (C) 2012-2014 OpenWrt.org
@@ -269,7 +269,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  service_triggers()
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/easycwmp.sh src/ext/openwrt/scripts/easycwmp.sh
---- upstream/ext/openwrt/scripts/easycwmp.sh	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/easycwmp.sh	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/easycwmp.sh	2025-04-24 13:08:10.000000000 +0000
 @@ -7,7 +7,7 @@
  
@@ -517,7 +517,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			chmod +x "$apply_service_tmp_file"
  			/bin/sh "$apply_service_tmp_file"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/common src/ext/openwrt/scripts/functions/common/common
---- upstream/ext/openwrt/scripts/functions/common/common	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/common/common	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/common/common	2025-04-24 13:08:10.000000000 +0000
 @@ -192,23 +192,21 @@
  	
@@ -589,7 +589,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	local n ip 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/device_info src/ext/openwrt/scripts/functions/common/device_info
---- upstream/ext/openwrt/scripts/functions/common/device_info	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/common/device_info	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/common/device_info	2025-04-24 13:08:10.000000000 +0000
 @@ -14,17 +14,18 @@
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DeviceInfo"
@@ -640,7 +640,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	echo "${tmp:0:6}"
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/ipping_launch src/ext/openwrt/scripts/functions/common/ipping_launch
---- upstream/ext/openwrt/scripts/functions/common/ipping_launch	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/common/ipping_launch	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/common/ipping_launch	2025-04-24 13:08:10.000000000 +0000
 @@ -1,172 +1,72 @@
  #!/bin/sh
@@ -855,7 +855,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +[ "$1" == "run" ] && { ipping_launch; exit 0; }
 +[ "$1" == "stop" ] && ipping_stop
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/management_server src/ext/openwrt/scripts/functions/common/management_server
---- upstream/ext/openwrt/scripts/functions/common/management_server	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/common/management_server	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/common/management_server	2025-04-24 13:08:10.000000000 +0000
 @@ -15,13 +15,13 @@
  		common_execute_method_obj "$DMROOT.ManagementServer." "0"
@@ -1287,7 +1287,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	config_foreach sub_entry_hotpsot_general chilli $1
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr098/wan_device src/ext/openwrt/scripts/functions/tr098/wan_device
---- upstream/ext/openwrt/scripts/functions/tr098/wan_device	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/tr098/wan_device	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/tr098/wan_device	2025-04-24 13:08:10.000000000 +0000
 @@ -25,7 +25,7 @@
  sub_entry_wandevice_wanconnectiondevice() {
@@ -1356,7 +1356,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/dhcpv4 src/ext/openwrt/scripts/functions/tr181/dhcpv4
---- upstream/ext/openwrt/scripts/functions/tr181/dhcpv4	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/tr181/dhcpv4	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/tr181/dhcpv4	2025-04-24 13:08:10.000000000 +0000
 @@ -9,6 +9,8 @@
  #   Entry point functions   #
@@ -1391,7 +1391,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ip src/ext/openwrt/scripts/functions/tr181/ip
---- upstream/ext/openwrt/scripts/functions/tr181/ip	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/tr181/ip	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/tr181/ip	2025-04-24 13:08:10.000000000 +0000
 @@ -12,9 +12,10 @@
  
@@ -1589,7 +1589,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return 0
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/wifi src/ext/openwrt/scripts/functions/tr181/wifi
---- upstream/ext/openwrt/scripts/functions/tr181/wifi	2019-09-26 14:27:06.000000000 +0000
+--- upstream/ext/openwrt/scripts/functions/tr181/wifi	2019-09-26 13:02:11.000000000 +0000
 +++ src/ext/openwrt/scripts/functions/tr181/wifi	2025-04-24 13:08:10.000000000 +0000
 @@ -12,6 +12,8 @@
  prefix_list="$prefix_list $DMROOT.WiFi."
@@ -2919,7 +2919,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +# Copyright (C) 2011 Luka Perkov <freecwmp@lukaperkov.net>
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.c src/src/config.c
---- upstream/src/config.c	2019-09-26 14:27:06.000000000 +0000
+--- upstream/src/config.c	2019-09-26 13:02:11.000000000 +0000
 +++ src/src/config.c	2025-04-24 13:08:10.000000000 +0000
 @@ -121,11 +121,6 @@
  				return -1;
@@ -2943,7 +2943,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  					DD("easycwmp.@acs[0].periodic_time=%s\n", uci_to_option(e)->v.string);
  					continue;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.c src/src/cwmp.c
---- upstream/src/cwmp.c	2019-09-26 14:27:06.000000000 +0000
+--- upstream/src/cwmp.c	2019-09-26 13:02:11.000000000 +0000
 +++ src/src/cwmp.c	2025-04-24 13:08:10.000000000 +0000
 @@ -70,7 +70,7 @@
  	uloop_timeout_cancel(&periodic_inform_timer);
@@ -2955,7 +2955,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		}
  		else {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.h src/src/cwmp.h
---- upstream/src/cwmp.h	2019-09-26 14:27:06.000000000 +0000
+--- upstream/src/cwmp.h	2019-09-26 13:02:11.000000000 +0000
 +++ src/src/cwmp.h	2025-04-24 13:08:10.000000000 +0000
 @@ -142,7 +142,7 @@
  };
@@ -2967,7 +2967,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static void cwmp_periodic_inform(struct uloop_timeout *timeout);
  static void cwmp_do_inform(struct uloop_timeout *timeout);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/easycwmp.c src/src/easycwmp.c
---- upstream/src/easycwmp.c	2019-09-26 14:27:06.000000000 +0000
+--- upstream/src/easycwmp.c	2019-09-26 13:02:11.000000000 +0000
 +++ src/src/easycwmp.c	2025-04-24 13:08:10.000000000 +0000
 @@ -271,21 +271,10 @@
  				exit(EXIT_FAILURE);
@@ -3016,7 +3016,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (cwmp->netlink_sock[1] != -1) close(cwmp->netlink_sock[1]);
  	free(cwmp);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/external.h src/src/external.h
---- upstream/src/external.h	2019-09-26 14:27:06.000000000 +0000
+--- upstream/src/external.h	2019-09-26 13:02:11.000000000 +0000
 +++ src/src/external.h	2025-04-24 13:08:10.000000000 +0000
 @@ -14,7 +14,7 @@
  #define _EASYCWMP_EXTERNAL_H__
@@ -3028,7 +3028,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  #define EXTERNAL_PROMPT "easycwmp>"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/http.h src/src/http.h
---- upstream/src/http.h	2019-09-26 14:27:06.000000000 +0000
+--- upstream/src/http.h	2019-09-26 13:02:11.000000000 +0000
 +++ src/src/http.h	2025-04-24 13:08:10.000000000 +0000
 @@ -18,7 +18,7 @@
  #include <libubox/uloop.h>

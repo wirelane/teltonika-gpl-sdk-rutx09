@@ -88,7 +88,10 @@ wIfaceGroup OBJECT-GROUP
 		  wIfaceHidden,
 		  wIfaceEncryption,
 		  wIfaceMode,
-		  wIfaceClientCount }
+		  wIfaceClientCount,
+		  wIfaceClientIndex,
+		  wIfaceClientInterfaceIndex,
+		  wIfaceClientMAC }
 	STATUS current
 	DESCRIPTION "Wireless interface SNMP group defined according to RFC 2580"
 	::= { teltonikaSnmpGroups 8 }
@@ -166,3 +169,46 @@ wIfaceClientCount OBJECT-TYPE
 	STATUS      current
 	DESCRIPTION "How many clients are connected to the interface (only for access points and meshes)."
 	::= { wIfaceEntry 6 }
+
+wIfaceClientTable OBJECT-TYPE
+	SYNTAX SEQUENCE OF WIfaceClientEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION "A list of wireless interfaces' clients."
+	::= { wireless 5 }
+
+wIfaceClientEntry OBJECT-TYPE
+	SYNTAX WIfaceClientEntry
+	MAX-ACCESS  not-accessible
+	STATUS      current
+	DESCRIPTION "An entry containing information of a particular wireless interface's client."
+	INDEX   { wIfaceClientIndex }
+	::= { wIfaceClientTable 1 }
+
+WIfaceClientEntry ::=
+	SEQUENCE {
+	wIfaceClientIndex        INTEGER,
+	wIfaceClientInterfaceIndex  INTEGER,
+	wIfaceClientMAC   DisplayString
+	}
+
+wIfaceClientIndex OBJECT-TYPE
+	SYNTAX      INTEGER (0..65535)
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION "A unique value, greater than zero, for each wireless interface's client."
+	::= { wIfaceClientEntry 1 }
+
+wIfaceClientInterfaceIndex OBJECT-TYPE
+	SYNTAX      INTEGER
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION "Wireless inteface's index from wIfaceTable to which client is connected."
+	::= { wIfaceClientEntry 2 }
+
+wIfaceClientMAC OBJECT-TYPE
+	SYNTAX      DisplayString
+	MAX-ACCESS  read-only
+	STATUS      current
+	DESCRIPTION "Client's MAC address."
+	::= { wIfaceClientEntry 3 }

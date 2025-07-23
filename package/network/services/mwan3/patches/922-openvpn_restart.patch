@@ -11,7 +11,7 @@ Index: mwan3-2.10.12/files/usr/share/15-mwan3
 +	local enable inst_type active
 +	local restart=0
 +	config_get enable "$sid" enable
-+	config_get inst_type "$sid" inst_type
++	config_get inst_type "$sid" type
 +	active="$(cat /tmp/run/mwan3/active_wan)"
 +	if [ "$MWAN3_STARTUP" != "init" ] && [ "$enable" = "1" ] && [ "$inst_type" = "client" ]; then
 +		case "$ACTION" in
