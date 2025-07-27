@@ -1,3 +1,9 @@
+# 2025-07-24 00.07.16.3
+
+### Fix
+
+* System Status: fixed SIM 1 and SIM 2 LEDs not working for ATRM family, RUTX family, RUTM family, RUTC family (ID: 27137)
+
 # 2025-07-22 00.07.16.2
 
 ### New

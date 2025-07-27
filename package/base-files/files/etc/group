@@ -12,7 +12,7 @@ ubus:x:81:ubus,opcua_server,modbus_server,mqtt_modbus_gateway,rpcd,sodog,dlms_cl
 lock:x:98:admin,mctl,dfota,dot1x_server,preboot
 log:x:99:mobutils,mqtt_modbus_gateway,modbus_server,gsm,sms_limit,rut_fota,rpcd,dnp3_outstation
 users:x:100:gsm,sim_switch,rut_fota,sshfs
-network:x:101:chilli,hostblock,dot1x_client,opcua_server,modbus_server,gsm,sim_switch,juggler,mobutils,preboot,snmpd,easycwmp,ip_blockd,dot1x_server,uhttpd,mdcollectd,sim_idle_protection
+network:x:101:chilli,hostblock,dot1x_client,opcua_server,modbus_server,gsm,sim_switch,juggler,mobutils,preboot,snmpd,easycwmp,ip_blockd,dot1x_server,uhttpd,mdcollectd,sim_idle_protection,ledman
 snmptrap:x:500:mobutils
 opcua_client:x:501:opcua_client,ds,mobutils
 sim_switch:x:502:mobutils
@@ -73,7 +73,7 @@ ioman:x:560:mobutils
 ledman:x:561:
 mctl:x:562:admin
 poeman:x:563:mobutils
-system:x:564:opcua_server,modbus_server,mobutils,rut_fota,iot
+system:x:564:opcua_server,modbus_server,mobutils,rut_fota,iot,ledman
 connchecker:x:565:mobutils
 dropbear:x:566:dropbear,mobutils
 dnsmasq:x:567:easycwmp,mobutils,openvpn
