@@ -13,7 +13,7 @@ _check_paths() {
 }
 
 check_passed() {
-	echo "$1 passed"
+	echo "$1 passed" > dev/kmsg
 	uci -q set system.$1.counter='0'
 	uci commit system
 
@@ -33,7 +33,7 @@ handle_usbhub_reset() {
 			echo 0 > $gpio_path
 			sleep 2
 			_check_paths "$2" && {
-				echo "$1 passed"
+				echo "$1 passed" > dev/kmsg
 				echo "Powering on modems" > dev/kmsg
 				mctl -p -d -a &
 				return
@@ -41,7 +41,7 @@ handle_usbhub_reset() {
 		done
 
 
-		echo "$1 failed"
+		echo "$1 failed" > dev/kmsg
 		echo "Powering on modems" > dev/kmsg
 		mctl -p -d -a &
 }
@@ -64,10 +64,10 @@ handle_reboot() {
 			cnt=$((cnt+1))
 			uci -q set system.$name.counter=$cnt
 			uci commit system
-			echo "$name failed - rebooting system, count $cnt"
+			echo "$name failed - rebooting system, count $cnt" > dev/kmsg
 			sync && reboot -f
 		else
-			echo "$name failed after $cnt count"
+			echo "$name failed after $cnt count" > dev/kmsg
 		fi
 	fi
 }
@@ -99,12 +99,15 @@ boot() {
 	rm -f /overlay/sysupgrade.tgz && sync
 
 	index=1
-	while : ; do
-		found=1
-		name=$(jsonfilter -i /etc/board.json -e "@.checks[$((index - 1))].name")
-		path=$(jsonfilter -i /etc/board.json -e "@.checks[$((index - 1))].path")
-		action=$(jsonfilter -i /etc/board.json -e "@.checks[$((index - 1))].action")
+	while [ $index -le 5 ]; do
+		_line=$(jsonfilter -i /etc/board.json -e "@.checks[$((index - 1))]")
+		[ -z "$_line" ] && break
+
+		name=$(jsonfilter -s "$_line" -e "@.name")
+		path=$(jsonfilter -s "$_line" -e "@.path")
+		action=$(jsonfilter -s "$_line" -e "@.action")
 		[[ -z "$name" || -z "$path" || -z "$action" ]] && break
+
 		if ! _check_paths "$path" ; then
 			if [ "$name" = "usbhub_check" ]; then
 				handle_usbhub_reset "$name" "$path" "$action"
@@ -114,7 +117,6 @@ boot() {
 		else
 			[ "$action" = "reboot" ] && check_passed "$name"
 		fi
-
 		index=$((index + 1))
 	done
 

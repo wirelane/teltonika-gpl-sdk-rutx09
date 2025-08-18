@@ -1,13 +1,9 @@
-# setup /tmp/.uci/sim_switch
-/tmp/.uci/sim_switch    		gsm:gsm		660	-
 # setup /tmp/.uci/simcard
-/tmp/.uci/simcard			gsm:gsm		660	-
+/tmp/.uci/simcard			simcard:simcard	660	cf
 # setup /etc/config/operctl
 /etc/config/operctl			gsm:gsm		660	-
 # setup /etc/config/simcard
-/etc/config/simcard     		gsm:gsm		660	-
-# setup /etc/config/sim_switch
-/etc/config/sim_switch			gsm:gsm		660	-
+/etc/config/simcard     		simcard:simcard	660	-
 # setup /etc/lpac_config.json
 /etc/lpac_config.json			gsm:gsm		660	-
 # setup /tmp/mobile

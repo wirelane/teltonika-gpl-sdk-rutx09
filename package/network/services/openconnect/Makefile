@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openconnect
 PKG_VERSION:=9.12
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE_VERSION:=9.12
 PKG_SOURCE:=openconnect-$(PKG_SOURCE_VERSION).tar.gz
@@ -79,12 +79,14 @@ endif
 define Package/openconnect/install
 	$(INSTALL_DIR) $(1)/etc/openconnect/
 	$(INSTALL_DIR) $(1)/usr/lib/netifd/proto
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
 	$(INSTALL_BIN) ./files/openconnect.sh $(1)/usr/lib/netifd/proto/
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/openconnect $(1)/usr/sbin/
 	$(INSTALL_BIN) ./files/openconnect-wrapper $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
 	$(INSTALL_DATA) ./files/openconnect.upgrade $(1)/lib/upgrade/keep.d/openconnect
+	$(INSTALL_BIN) ./files/fix_cert_owners $(1)/etc/uci-defaults/7.17/99_openconnect_fix_cert_owners
 endef
 
 $(eval $(call BuildPackage,openconnect))

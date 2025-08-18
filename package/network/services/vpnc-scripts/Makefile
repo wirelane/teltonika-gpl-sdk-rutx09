@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vpnc-scripts
 PKG_VERSION:=20151220
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -31,8 +31,9 @@ define Build/Compile
 endef
 
 define Package/vpnc-scripts/install
-	$(INSTALL_DIR) $(1)/lib/netifd
+	$(INSTALL_DIR) $(1)/lib/netifd $(1)/usr/share/acl.d/
 	$(INSTALL_BIN) ./files/vpnc-script $(1)/lib/netifd/
+	$(INSTALL_DATA) ./files/openconnect.json $(1)/usr/share/acl.d/openconnect.json
 endef
 
 $(eval $(call BuildPackage,vpnc-scripts))

@@ -14,11 +14,12 @@ Index: vrrpd-1.15/vrrpd.c
  	}
  	if (vsrv->wantstate == VRRP_STATE_MAST) {
  		state_goto_master(ubus, vsrv);
-@@ -1965,7 +1964,17 @@ static void signal_end(int nosig)
+@@ -1965,7 +1964,18 @@ static void signal_end(int nosig)
  
  	if (vsrv->state == VRRP_STATE_MAST) {
  		vsrv->wantstate = VRRP_STATE_BACK;
 -		state_mast(ubus, vsrv);
++		write_to_file(vsrv, "Backup");
 +		strcpy(master_reason, "");
 +
 +		uint32_t addr[1024];

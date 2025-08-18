@@ -10,6 +10,8 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=relayd
 PKG_VERSION:=2020-04-25
+PKG_RELEASE:=1
+
 PKG_SOURCE_DATE:=2020-04-25
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>

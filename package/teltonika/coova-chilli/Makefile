@@ -11,11 +11,11 @@ include $(INCLUDE_DIR)/download.mk
 RCOMPR:=EXCLUDE_PATTERN="chilli_script\|chilli_response" $(RCOMPR)
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2025-06-12
+PKG_VERSION:=2025-07-29
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.4
 PKG_SOURCE_URL:=https://codeload.github.com/coova/coova-chilli/tar.gz/refs/tags/$(PKG_SOURCE_VERSION)?

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mwan3
 PKG_VERSION:=2.10.12
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 PKG_MAINTAINER:=Florian Eckert <fe@dev.tdt.de>, \
 		Aaron Goodman <aaronjg@alumni.stanford.edu>
 PKG_LICENSE:=GPL-2.0-only
@@ -124,6 +124,9 @@ define Package/mwan3/install
 		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mwan3-no-wan.defaults $(1)/etc/uci-defaults/)
 
 	$(CP) $(PKG_BUILD_DIR)/libwrap_mwan3_sockopt.so.1.0 $(DEST_DIR)/usr/lib/mwan3/
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/mwan3 $(1)/etc/permtab.d/mwan3
 endef
 
 $(eval $(call BuildPackage,mwan3))

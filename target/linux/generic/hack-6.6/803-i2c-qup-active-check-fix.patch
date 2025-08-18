@@ -1,6 +1,6 @@
 --- a/drivers/i2c/busses/i2c-qup.c
 +++ b/drivers/i2c/busses/i2c-qup.c
-@@ -444,8 +444,10 @@ static int qup_i2c_bus_active(struct qup
+@@ -452,8 +452,10 @@ static int qup_i2c_bus_active(struct qup
  		if (!(status & I2C_STATUS_BUS_ACTIVE))
  			break;
  

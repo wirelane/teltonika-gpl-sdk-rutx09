@@ -993,7 +993,7 @@
     "Boot mode": "",
     "Bootloader version": "Önyükleyici sürümü",
     "Bootloader version currently used by the device. A Bootloader is a program that loads the operating system.": "Şu anda cihaz tarafından kullanılan önyükleyici sürümü. Önyükleyici, işletim sistemini yükleyen bir programdır.",
-    "Bootsrap DNS": "",
+    "Bootstrap DNS": "",
     "Both": "İkisi de",
     "Both firewall mark and mask should consist of a \"0x\" prefix and no more than 8 hexadecimal characters.": "",
     "Both modems": "",

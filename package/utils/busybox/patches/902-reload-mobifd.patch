@@ -6,7 +6,7 @@
  endif
 +
 +ifdef CONFIG_FEATURE_NETIFD
-+CONFIG_EXTRA_LDLIBS+=netifd
++CONFIG_EXTRA_LDLIBS+=netifd ubus
 +endif
 +
  # Rule to link busybox - also used during CONFIG_KALLSYMS
@@ -82,20 +82,19 @@
 +#endif
 --- a/networking/udhcp/dhcpc.c
 +++ b/networking/udhcp/dhcpc.c
-@@ -17,6 +17,12 @@
+@@ -17,6 +17,11 @@
   * along with this program; if not, write to the Free Software
   * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
   */
 +//config:config FEATURE_NETIFD
 +//config:	bool "Support for libnetifd"
 +//config:	default y
-+//config:	depends on UDHCPC
 +//config:
 +
  //applet:IF_UDHCPC(APPLET(udhcpc, BB_DIR_SBIN, BB_SUID_DROP))
  
  //kbuild:lib-$(CONFIG_UDHCPC) += common.o packet.o signalpipe.o socket.o
-@@ -1570,7 +1576,12 @@ int udhcpc_main(int argc UNUSED_PARAM, c
+@@ -1570,7 +1575,12 @@ int udhcpc_main(int argc UNUSED_PARAM, c
  				change_listen_mode(LISTEN_NONE);
  				bb_simple_info_msg("lease lost, entering init state");
  				d4_run_script_deconfig();
@@ -111,19 +110,7 @@
  				packet_num = 0;
 --- a/networking/udhcp/d6_dhcpc.c
 +++ b/networking/udhcp/d6_dhcpc.c
-@@ -44,6 +44,11 @@
- //config:	help
- //config:	You can request bootfile-url with "-O bootfile_url" and
- //config:	bootfile-params with "-O bootfile_params".
-+//config:config FEATURE_NETIFD
-+//config:	bool "Support for libnetifd"
-+//config:	default y
-+//config:	depends on UDHCPC
-+//config:
- 
- //applet:IF_UDHCPC6(APPLET(udhcpc6, BB_DIR_USR_BIN, BB_SUID_DROP))
- 
-@@ -1495,6 +1500,11 @@ int udhcpc6_main(int argc UNUSED_PARAM,
+@@ -1495,6 +1495,11 @@ int udhcpc6_main(int argc UNUSED_PARAM,
  				change_listen_mode(LISTEN_NONE);
  				bb_simple_info_msg("lease lost, entering init state");
  				d6_run_script_no_option("deconfig");

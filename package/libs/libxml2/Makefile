@@ -27,7 +27,7 @@ PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=0
 
-PKG_BUILD_DEPENDS:=libgpg-error
+PKG_BUILD_DEPENDS:=libgpg-error libgcrypt
 
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk

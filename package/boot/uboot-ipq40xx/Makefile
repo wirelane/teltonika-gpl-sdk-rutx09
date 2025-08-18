@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uboot
 
-PKG_SOURCE_VERSION:=3.0
+PKG_SOURCE_VERSION:=3.1
 
 PKG_ASLR_PIE:=0
 

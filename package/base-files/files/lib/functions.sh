@@ -616,7 +616,7 @@ sync_permissions_and_ownerships() {
 		# Ownership is not saved in /rom, always owned by root
 	done
 
-	/sbin/perm -a
+	/sbin/perm -r /etc
 }
 
 fix_permissions()

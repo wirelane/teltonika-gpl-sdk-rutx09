@@ -23,6 +23,38 @@ setup_json() {
 		ucidef_set_interfaces_lan_wan "eth0" "eth1"
 		ucidef_set_hwinfo usb ethernet nat_offloading multi_tag port_link gigabit_port xfrm-offload dsa
 		ucidef_set_network_options "vlans" 4094 "max_mtu" 9000
+		[ -x /usr/sbin/gsmd ] && ucidef_set_hwinfo mobile
+
+		# If `mbus_client` config exists then this is likely the `x86_64_test` target
+		# TODO: Use a better method to determine if this is `x86_64_test`. Ideally someway through mnf_info
+		if [ -f /etc/config/mbus_client ]; then
+			ucidef_set_hwinfo mbus rs232 rs485
+
+			ucidef_add_serial_capabilities "mbus" \
+				"300 600 1200 2400 4800 9600" \
+				"8" \
+				"none" \
+				"1 2" \
+				"even odd none" \
+				"half" \
+				"/dev/null"
+			ucidef_add_serial_capabilities "rs232" \
+				"300 600 1200 2400 4800 9600 19200 38400 57600 115200" \
+				"5 6 7 8" \
+				"rts/cts xon/xoff none" \
+				"1 2" \
+				"even odd mark space none" \
+				"none" \
+				"/dev/null"
+			ucidef_add_serial_capabilities "rs485" \
+				"300 600 1200 2400 4800 9600 19200 38400 57600 115200 230400" \
+				"5 6 7 8" \
+				"xon/xoff none" \
+				"1 2" \
+				"even odd mark space none" \
+				"half full" \
+				"/dev/null"
+		fi
 		;;
 	*)
 		echo "Unsupported hardware. Network interfaces not intialized"

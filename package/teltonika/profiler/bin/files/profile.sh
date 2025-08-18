@@ -417,11 +417,9 @@ change_config() {
 		return 1
 	}
 
-	(
-		uci_apply_defaults
-		apply_config "$md5file"
-		/bin/ubus send vuci.notify '{"event":"profile_changed"}'
-	) &
+	uci_apply_defaults
+	apply_config "$md5file"
+	/bin/ubus send vuci.notify '{"event":"profile_changed"}'
 	return 0
 }
 

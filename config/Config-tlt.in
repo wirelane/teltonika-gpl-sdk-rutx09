@@ -67,6 +67,7 @@
 #    Result: "Certificate creation tool allows to create CA, server, client, let's encrypt, SCEP certificates"
 #
 
+
 #
 # Labels
 #
@@ -146,6 +147,11 @@ config DOC_LABEL_UTILITIES
 	label "Utilities"
 	default y
 
+config DOC_LABEL_OTHER
+	bool
+	label "Other"
+	default y
+
 menu "Target firmware features"
 
 #
@@ -165,6 +171,7 @@ config MOBILE_SUPPORT
 	imply PACKAGE_vuci-app-mobile-ui
 	imply PACKAGE_mctl
 	imply PACKAGE_urcd
+	imply PACKAGE_ppp if PPP_MOBILE_SUPPORT
 	imply BUSYBOX_CONFIG_FEATURE_NETIFD
 	detail
 		Band Management: Provides mobile band locking for different network types
@@ -392,7 +399,7 @@ config WIFI_SUPPORT
 		Wi-Fi Access Point: Fast roaming (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, WMM
 		Wi-Fi Encryptions: WPA-PSK, WPA2-PSK, WPA3-SAE, WPA-EAP, OWE, WPA2-EAP, WPA3-EAP
 		Wi-Fi Ciphers: CCMP, TKIP
-		Wi-Fi EAP methods: TLS, TTLS, PEAP, FAST
+		Wi-Fi EAP Methods: TLS, TTLS, PEAP, FAST
 		Wi-Fi Features: WDS, MAC filter, Fast roaming, credentials QR code generator, PKCS#12 format support
 	detail if AP_DEVICE
 		Wi-Fi Modes: Access Point (AP), Mesh (802.11s)
@@ -440,6 +447,7 @@ config CORE_NETWORK_PACKAGES
 	maintainer "Network"
 	label "Network"
 	imply PACKAGE_ip-full
+	imply PACKAGE_udhcpc
 	imply PACKAGE_kmod-br-netfilter if AP_DEVICE
 	imply PACKAGE_vuci-app-network-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-network-tap-ui if AP_DEVICE
@@ -482,9 +490,6 @@ config FRR_SUPPORT
 	depends on !64MB_RAM && PKG_SUPPORT && ADVANCED_NETWORK
 	default m if !x86_64 && (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_frr
-	imply PACKAGE_frr-zebra
-	imply PACKAGE_frr-libfrr
 	imply PACKAGE_vuci-app-dynamic-routes-rip-ui
 	imply PACKAGE_vuci-app-dynamic-routes-ospf-ui
 	imply PACKAGE_vuci-app-dynamic-routes-eigrp-ui
@@ -657,7 +662,7 @@ config MULTIWAN_SUPPORT
 	tristate "Multiwan"
 	maintainer "Network"
 	label "Network Utilities"
-	depends on PKG_SUPPORT && (!GATEWAY_DEVICE || (GATEWAY_DEVICE && SERIAL_SUPPORT && !MULTI_DEVICE_QUIRK))
+	depends on PKG_SUPPORT && (!GATEWAY_DEVICE || (GATEWAY_DEVICE && !CUSTOM_DATA_LIMIT))
 	default m if (HAS_SINGLE_ETH_PORT || NETWORKS_EXTERNAL) && !TEST_IMAGE
 	default y
 	imply PACKAGE_vuci-app-mwan3-ui
@@ -713,7 +718,7 @@ config RELAYD_SUPPORT
 	tristate "Relayd"
 	maintainer "Network"
 	label "Network Utilities"
-	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !NETWORKS_EXTERNAL
+	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !NETWORKS_EXTERNAL && !x86_64
 	default y if NAND_SUPPORT || TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-relayd-ui
@@ -832,7 +837,6 @@ config OPENVPN_SUPPORT
 	maintainer "SysApp"
 	depends on ADVANCED_NETWORK || (AP_DEVICE && SMALL_FLASH && !LEDMAN_LITE)
 	default y
-	imply PACKAGE_openvpn-openssl
 	imply PACKAGE_vuci-app-openvpn-ui
 	detail
 		Client and server modes, Tunnel (TUN) or Bridged (TAP) types, NordVPN, ExpressVPN external providers
@@ -853,12 +857,8 @@ config L2TP_SUPPORT
 	bool "L2TP"
 	label "VPN"
 	maintainer "SysApp"
-	depends on PPTP_SUPPORT
+	depends on ADVANCED_NETWORK
 	default y
-	imply PACKAGE_xl2tpd
-	imply PACKAGE_ppp-mod-ppol2tp
-	imply PACKAGE_kmod-l2tp-eth
-	imply PACKAGE_kmod-l2tp-ip
 	imply PACKAGE_vuci-app-l2tp-ui
 	detail
 		Server, client, L2TP over IPSec
@@ -892,10 +892,8 @@ config PPTP_SUPPORT
 	maintainer "SysApp"
 	depends on ADVANCED_NETWORK
 	default y
-	imply PACKAGE_pptpd
-	imply PACKAGE_ppp-mod-pptp
-	imply PACKAGE_ppp-mod-pppoe
 	imply PACKAGE_vuci-app-pptp-ui
+	imply PACKAGE_ppp
 	detail
 		PPTP: Server, client
 
@@ -988,6 +986,17 @@ config TAILSCALE_SUPPORT
 	imply PACKAGE_vuci-app-tailscale-ui
 	detail
 		Zero config VPN for building secure networks
+
+config NETBIRD_SUPPORT
+	tristate "Netbird"
+	label "VPN"
+	maintainer "SysApp"
+	depends on PKG_SUPPORT && HIGH_STORAGE
+	default y if TEST_IMAGE
+	default m
+	imply PACKAGE_vuci-app-netbird-ui
+	detail
+		Open-source VPN management platform built on top of WireGuard® making it easy to create secure private networks for your organization or home
 
 config EOIP_SUPPORT
 	tristate "EoIP"
@@ -1087,11 +1096,11 @@ config IO_MODBUS_SUPPORT
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
 	depends on PKG_SUPPORT
-	default m if !HAS_MODBUS && !TEST_IMAGE
+	default m if !HAS_MODBUS
 	default y
 	imply PACKAGE_vuci-app-modbus-server-ui
 	imply PACKAGE_vuci-app-modbus-client-ui
-	imply PACKAGE_vuci-app-modbus-serial-ui if SERIAL_SUPPORT || TEST_IMAGE
+	imply PACKAGE_vuci-app-modbus-serial-ui if SERIAL_SUPPORT
 	imply PACKAGE_vuci-app-modbus-gateway-ui
 	detail
 		Client, Server, MQTT Gateway modes, 14 data types, TCP
@@ -1109,7 +1118,6 @@ config DNP3_SUPPORT
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-dnp3-ui
 	detail
@@ -1128,7 +1136,6 @@ config BACNET_SUPPORT
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-bacnet-ui
 	detail
@@ -1150,7 +1157,6 @@ config OPCUA_SUPPORT
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-opcua-ui
 	imply PACKAGE_vuci-app-opcua-server-ui
@@ -1162,7 +1168,6 @@ config DLMS_SUPPORT
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-dlms-ui
 	imply PACKAGE_libdlms
@@ -1186,6 +1191,7 @@ config EVENTS_SUBSYSTEM
 	label "Monitoring & Management"
 	maintainer "Apps/Apps1"
 	depends on !AP_DEVICE
+	default n if CONSUMER_AP
 	default y
 	imply PACKAGE_vuci-app-events-reporting-ui
 	imply BUSYBOX_CONFIG_PASSWD
@@ -1199,7 +1205,7 @@ config EASYCWMP_SUPPORT
 	label "Monitoring & Management"
 	maintainer "Apps/Apps1"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
+	default y if TEST_IMAGE || CONSUMER_AP
 	default m
 	imply PACKAGE_vuci-app-tr069-ui
 	detail
@@ -1501,7 +1507,7 @@ config GPS_SUPPORT
 		GNSS: GPS, GLONASS, BeiDou, Galileo and QZSS
 		Coordinates: GNSS coordinates via WebUI, SMS, TAVL, RMS, API
 		NMEA: 0183
-		Server software: TAVL, RMS
+		Server Software: TAVL, RMS
 		Geofencing: Configurable multiple geofence zones
 
 config NTRIP_MODULE_SUPPORT
@@ -1514,7 +1520,6 @@ config NTRIP_SUPPORT
 	maintainer "Apps/Apps2"
 	label "Location Tracking"
 	depends on PKG_SUPPORT && NTRIP_MODULE_SUPPORT
-	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-ntrip-ui
 	detail
@@ -1727,7 +1732,6 @@ config CERTIFICATE_SUPPORT
 	bool "Certificate Manager"
 	label "System"
 	maintainer "SysApp"
-	depends on !AP_DEVICE
 	default y
 	imply PACKAGE_vuci-app-certificates-ui
 	imply PACKAGE_tpm2_importer if TPM_SUPPORT
@@ -1824,6 +1828,13 @@ config PORT_EVENTS_SUPPORT
 	label "System"
 	default y
 	imply PACKAGE_port_eventsd
+
+config TPM_SUPPORT
+	bool "TPM"
+	label "System"
+	maintainer "Embedded/PoC"
+	detail
+		Identification and authentication module, TPM 2.0 standard
 
 #
 # Utilities
@@ -1993,7 +2004,7 @@ config IMPULSE_COUNTER_SUPPORT
 	maintainer "Apps/Apps2"
 	label "Utilities"
 	depends on HAS_IO && PKG_SUPPORT
-	default m if SMALL_FLASH && !TEST_IMAGE
+	default m if SMALL_FLASH
 	default y
 	imply PACKAGE_vuci-app-impulse-counter-ui
 	imply PACKAGE_impulse-counter
@@ -2004,7 +2015,7 @@ config WIFI_SCANNER_SUPPORT
 	tristate "Wi-Fi Scanner"
 	maintainer "SysApp"
 	label "Utilities"
-	depends on WIFI_SUPPORT || x86_64
+	depends on WIFI_SUPPORT || TEST_IMAGE
 	default m if PKG_SUPPORT && !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_vuci-app-wifi-scanner-ui
@@ -2063,7 +2074,6 @@ config APP_SOCAT
 	maintainer "Apps/Apps2"
 	label "Utilities"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_socat
 	detail
@@ -2161,7 +2171,7 @@ config SU_SUPPORT
 	default y
 	imply BUSYBOX_CONFIG_SU
 	detail
-		su allows to run a command as another user
+		Allows to run a command as another user
 
 config NETCAT_SERVER
 	bool "Netcat Server"
@@ -2169,7 +2179,7 @@ config NETCAT_SERVER
 	default n
 	imply BUSYBOX_CONFIG_NC_SERVER
 	detail
-		enables -l mode on busybox netcat tool
+		Allows netcat to act as a server
 
 config EMMC_SUPPORT
 	bool
@@ -2205,61 +2215,58 @@ config HNAT
 #
 
 config TPM_MOD
-	tristate "TPM Kernel Modules"
+	tristate
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
 	default y
 	imply PACKAGE_kmod-tpm-tis-i2c
 	detail
-		TPM kernel modules meant for communicating with TPM devices
-
+		Kernel modules meant for communicating with TPM devices
 
 config TPM_TSS
-	tristate "TPM TCG library"
+	tristate
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
 	default y
 	imply PACKAGE_tpm2-tss
 	detail
-		TPM TCG library is a framework meant to communicate with TPM devices
-
+		Framework meant to communicate with TPM devices
 
 config TPM_TOOLS
-	tristate "TPM tools"
+	tristate
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
 	default y
 	imply PACKAGE_tpm2-tools
 	detail
-		Unique identifier support
-		Secure storage support
-		TPM tools is a ctl based utility for TPM devices
+		Ctl based utility that includes
+		unique identifier and secure storage support
 
 config TPM_OPENSSL
-	tristate "TPM OpenSSL"
+	tristate
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
 	default y
 	imply PACKAGE_tpm2-openssl
 	detail
-		TPM OpenSSL is a library that provides openssl API for handling TPM
+		Library that provides OpenSSL API for handling TPM
 
 config TPM_MANAGER
-	tristate "TPM manager"
+	tristate
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
 	default y
 	imply PACKAGE_tpm_manager
 	detail
-		TPM manager daemon meant for handling key and certificate functionalities in TPM
+		Daemon meant for handling key and certificate functionalities in TPM
 
 config TPM_FLASHER
-	tristate "TPM flasher"
+	tristate
 	maintainer "Embedded/PoC"
 	depends on TPM_SUPPORT
 	default y
 	imply PACKAGE_tpm_flasher
 	detail
-		TPM flasher is a utility meant for flashing TPM devices
+		Utility meant for flashing TPM devices
 
 endmenu

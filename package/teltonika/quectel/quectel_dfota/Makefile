@@ -34,7 +34,7 @@ define Package/dfota/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/config $(1)/usr/share/acl.d/
 	$(INSTALL_BIN) ./files/dfota.init $(1)/etc/init.d/dfota
 	$(INSTALL_BIN) ./files/dfota $(1)/usr/sbin/dfota
-	$(INSTALL_CONF) ./files/dfota.config $(1)/etc/config/dfota
+	$(INSTALL_CONF_USR) ./files/dfota.config $(1)/etc/config/dfota
 	$(INSTALL_DATA) ./files/acl.d/dfota.json $(1)/usr/share/acl.d/dfota.json
 endef
 

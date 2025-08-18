@@ -15,7 +15,7 @@
     "main_page": true,
     "depends": {
       "packages": {
-        "anyOf": ["nhrp", "nhrp5"]
+        "anyOf": ["frr-nhrp", "frr5-nhrp"]
       }
     }
   },
@@ -34,7 +34,7 @@
     "acls": ["status/routes/dynamic/nhrp"],
     "depends": {
       "packages": {
-        "anyOf": ["nhrp", "nhrp5"]
+        "anyOf": ["frr-nhrp", "frr5-nhrp"]
       }
     }
   }

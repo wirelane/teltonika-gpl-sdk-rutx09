@@ -18,7 +18,6 @@ define Package/$(PKG_NAME)
 	DEPENDS:=+fstools +fmt-usb-msd
 	TITLE:=Storage Memory Expansion script
 	SUBMENU:=Filesystem
-	USERID:=usb:usb
 endef
 
 define Package/$(PKG_NAME)/description
@@ -28,7 +27,8 @@ endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/bin $(1)/etc/hotplug.d/block
+	$(INSTALL_DIR) $(1)/bin $(1)/etc/hotplug.d/block $(1)/usr/libexec/rpcd/
+	$(INSTALL_BIN) ./files/rpc-format $(1)/usr/libexec/rpcd/
 	$(INSTALL_BIN) ./files/sme.sh $(1)/bin/
 	$(LN) /bin/sme.sh $(1)/etc/hotplug.d/block/
 endef

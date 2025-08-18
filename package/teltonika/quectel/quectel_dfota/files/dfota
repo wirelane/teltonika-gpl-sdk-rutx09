@@ -626,7 +626,7 @@ do_update_EG915Q() {
 		print_error "Failed to enter download mode!" "$EC_EDL_FAILED"
 		return 1
 	}
-
+	sleep 2 # Give some time to enter download mode
 	print_output "Sending update command!"
 	if [ "$MODE" = "file" ]; then
 		cat "$MODE_PATH" >"$cmd_port"

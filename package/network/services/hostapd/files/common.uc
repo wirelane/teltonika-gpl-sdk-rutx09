@@ -74,6 +74,14 @@ function find_reusable_wdev(phyidx)
 	return null;
 }
 
+function wdev_set_radio_mask(name, mask)
+{
+	nl80211.request(nl80211.const.NL80211_CMD_SET_INTERFACE, 0, {
+		dev: name,
+		vif_radio_mask: mask
+	});
+}
+
 function wdev_create(phy, name, data)
 {
 	let phyidx = int(readfile(`/sys/class/ieee80211/${phy}/index`));
@@ -93,24 +101,24 @@ function wdev_create(phy, name, data)
 		req["4addr"] = data["4addr"];
 	if (data.macaddr)
 		req.mac = data.macaddr;
+	if (data.radio != null && data.radio >= 0)
+		req.vif_radio_mask = 1 << data.radio;
 
 	nl80211.error();
 
 	let reuse_ifname = find_reusable_wdev(phyidx);
 	if (reuse_ifname &&
 	    (reuse_ifname == name ||
-	     rtnl.request(rtnl.const.RTM_SETLINK, 0, { dev: reuse_ifname, ifname: name}) != false))
-		nl80211.request(
-			nl80211.const.NL80211_CMD_SET_INTERFACE, 0, {
-				wiphy: phyidx,
-				dev: name,
-				iftype: iftypes[data.mode],
-			});
-	else
+	     rtnl.request(rtnl.const.RTM_SETLINK, 0, { dev: reuse_ifname, ifname: name}) != false)) {
+		req.dev = req.ifname;
+		delete req.ifname;
+		nl80211.request(nl80211.const.NL80211_CMD_SET_INTERFACE, 0, req);
+	} else {
 		nl80211.request(
 			nl80211.const.NL80211_CMD_NEW_INTERFACE,
 			nl80211.const.NLM_F_CREATE,
 			req);
+	}
 
 	let error = nl80211.error();
 	if (error)

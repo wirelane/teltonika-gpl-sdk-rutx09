@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   root: './vuci-ui-core/src',
@@ -14,7 +15,7 @@ export default defineConfig({
       }
     }
   },
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     extensions: ['.cjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
     alias: {

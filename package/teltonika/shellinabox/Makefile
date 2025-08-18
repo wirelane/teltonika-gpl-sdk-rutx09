@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
 PKG_VERSION:=2025-03-25
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 PKG_BUILD_DEPENDS:=zlib
 
 PKG_SOURCE_PROTO:=git
@@ -75,7 +75,8 @@ define Package/shellinabox/install
 	$(INSTALL_BIN) files/shellinabox.sh $(1)/www/cgi-bin/cli
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/shellinaboxd $(1)/usr/sbin/shellinaboxd
 	$(INSTALL_DATA) files/shellinabox.json $(1)/usr/share/acl.d/
-
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) files/shellinabox.permtab $(1)/etc/permtab.d/shellinabox
 endef
 
 $(eval $(call BuildPackage,shellinabox))

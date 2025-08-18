@@ -1,32 +1,130 @@
-# 2025-07-24 00.07.16.3
-
-### Fix
-
-* System Status: fixed SIM 1 and SIM 2 LEDs not working for ATRM family, RUTX family, RUTM family, RUTC family (ID: 27137)
-
-# 2025-07-22 00.07.16.2
+# 2025-08-07 00.07.17
 
 ### New
 
-* SNMP: added LAN clients' table OID (ID: 27149)
-* SNMP: added wireless interfaces' clients' table OID (ID: 27149)
-
-### Fix
-
-* OpenVPN: fixed connectivity issues when using WAN failover (ID: 27285)
-* Update Firmware: fixed firmware download from FOTA for TRB160 (ID: 27251)
-
-# 2025-07-15 00.07.16.1
+* Mobile: added "du.soracom.io" APN for "Soracom" carrier to APN database (ID: 26350)
+* Mobile: added "internet" APN for "Cellhire" operator to APN database (ID: 26779)
+* Mobile: added "m2m" APN for "Cellhire IoT" operator to APN database (ID: 26779)
+* Mobile: added "tis.com" APN for "Sparkle" operator to APN database (ID: 26779)
+* Mobile: added modem sleep mode support for ATRM50 (ID: 27202)
+* Multi WAN: added service to the Package Manager for TRB1 family (ID: 25534)
+* Netbird: added package for RUTC50 (ID: 20059)
+* RutOS: added instructions for creating a simple package using the SDK (ID: 27546)
 
 ### Improvements
 
-* SNMP: added access points' and meshes' clients' count OID (ID: 27103)
+* 802.1X Server: added alert to notify when the 802.1X server no longer manages VLANs (ID: 26468)
+* 802.1X Server: simplified new instance creation (ID: 25309)
+* Administration: added notifications and alerts display toggles (ID: 22739)
+* Administration: updated certificates page (ID: 24812)
+* Auto Reply: increased SMS text length from 3 to 8 messages (ID: 26389)
+* Call Utilities: increased SMS text length from 3 to 8 messages (ID: 26389)
+* Email Relay: simplified new instance creation (ID: 25301)
+* Event juggler: added call action functionality to hang up the call after a specified time (ID: 25745)
+* Event juggler: added live character counter for SMS messages (ID: 26389)
+* Event juggler: increased SMS text length from 3 to 8 messages (ID: 26389)
+* Hotspot 2.0: deprecated OSU provider (ID: 27369)
+* Mobile Utilities: added UCI ACL rules (ID: 25538)
+* Mobile Utilities: added WebUI notifications for received messages and triggered SMS rules (ID: 19829)
+* Mobile: added IPv4 or IPv6 data connection information in event log (ID: 17656)
+* Mobile: added signal data collection (ID: 20740)
+* Mobile: disabled DHCP on mobile interfaces for RUT361 (ID: 21616)
+* Multi WAN: added drag & drop operation for the "Failover" mode (ID: 26282)
+* Package Manager: added confirmation modal when removing multiple packages (ID: 26478)
+* Package Manager: added WebUI notifications for successful and failed package installations (ID: 21337)
+* Realtime Traffic: added ability to see up to 1 hour of live data (ID: 19073)
+* SMS Utilities: increased SMS text length from 3 to 8 messages (ID: 26389)
+* Tailscale: changed the firewall mode to nftables (ID: 26483)
+* Traffic Logging: improved Hotspot data stream retrieval for Router family (ID: 26668)
+* UI Core: changed all chart styles (ID: 19073)
+* VRF: added VPN selection support in the WebUI (ID: 25089)
+* WebUI: added sensitive information hiding feature for 'IMSI', 'ICCID' and 'IP address' fields for lower privilege users (ID: 25173)
+* WebUI: added truncation and hover tooltips for long side widget card titles (ID: 26272)
+* WebUI: unified the "Change Password" page title (ID: 26584)
+* WebUI: updated brand color palette (ID: 21563)
 
 ### Fix
 
-* Kernel: fixed serial port flow control management (ID: 24945)
+* 802.1X Server: fixed EAP "SUCCESS" response when authentication fails due to not being able to find the RADIUS requested VLAN (ID: 26470)
+* Access Control: fixed duplicate query parameter validation (ID: 24626)
+* Access Control: fixed HTTP WAN remote switch is shown as disabled after the "WAN to LAN" action (ID: 26591)
+* Administration: fixed device usage duplicate query parameter validation (ID: 24626)
+* Administration: fixed issue of "delete" button not being disabled on "System users" page when user has no write permissions (ID: 27062)
+* BACnet: fixed recovery logic after connection loss (ID: 26091)
+* Bluetooth: fixed incorrect sensor data documentation (ID: 27554)
+* CLI: fixed issue with users that have invalid shell (ID: 26423)
+* Data limit: fixed interface data limit not being reset when interface is down (ID: 25733)
+* Data limit: removed unsupported rate limit functionality for TRB500 (ID: 25931)
+* Data to Server: fixed configuration clearing when plugin packages are deleted (ID: 26568)
+* Data to Server: reduced log spam (ID: 26265)
+* DHCP server: fixed DHCPv6 server reload when changing VLAN (ID: 24638)
+* DHCP server: fixed wrong DHCPv4 server conflict message being displayed when both interfaces have no device assigned (ID: 26443)
+* DLMS: fixed missing API validation message for 'server_addr' option (ID: 22699)
+* DLMS: fixed parameter scan never stopping when the same serial device was used on multiple physical devices (ID: 23345)
+* DLMS: fixed service crashing when using "Register activation", "Activity calendar" and "Profile generic" COSEM types (ID: 26324)
+* DNP3 Client: fixed 'index' option API error in the 'requests' endpoints (ID: 24841)
+* Docker: fixed image removal (ID: 27200)
+* Event juggler: fixed issue with enabling/disabling the WiFi interfaces (ID: 26175)
+* Events Log: fixed duplicate query parameter validation (ID: 24626)
+* GPS: fixed an issue where pins in HTTPS TAVL rules were not selected by default for RUTM55 (ID: 27273)
+* GPS: fixed reconnection to NMEA forwarding hosts when at least one of them is not reachable (ID: 25871)
+* Hotspot: fixed 'reset' button functionality and template input styles in 'Landing pages' page (ID: 27486)
+* Hotspot: fixed redirect to custom success url with the same domain as landing page (ID: 26939)
+* HTTPS DNS Proxy: fixed typo in the configuration page (ID: 26736)
+* I/O Juggler: fixed log generation on reboot action (ID: 26811)
+* I/O Juggler: fixed minor validation bugs (ID: 26428)
+* Impulse Counter: fixed duplicate query parameter validation (ID: 24626)
+* Impulse Counter: fixed input re-initiation (ID: 26297)
+* Input/Output: fixed incorrect assigning of input/output pins (ID: 27678)
+* IP Block: fixed MAC blocking interface validation (ID: 26429)
+* IPsec: fixed intermittent errors when checking IPsec status (ID: 24405)
+* Mobile: fixed a SIM detection issue that could occur when the active MBN changes for RUT981, RUT281 (ID: 27583)
+* Mobile: fixed issue where auto subnet selection used incorrect subnet mask in Bridge or Passthrough modes (ID: 22704)
+* Mobile: fixed mobile connection loop on unsuccessful ping (ID: 27299)
+* Mobile: fixed modem driver network stats cleanup on modem restart (ID: 25965)
+* Mobile: fixed modem region validation on modem firmware upgrade for TRB160 (ID: 27392)
+* Mobile: fixed serving cell information output for RUTM54 (ID: 25737)
+* Modbus Client: fixed timeout behavior to not include serial device acquisition time (ID: 26697)
+* Modbus Server: fixed custom register block not working if count is more than 128 registers (ID: 27590)
+* NTP Client: fixed fail count when operator synchronization is enabled (ID: 27110)
+* NTRIP: fixed ntrip hangup on modem restart or on error conditions (ID: 25352)
+* Over IP: fixed 'echo_enabled' option not being set (ID: 27186)
+* Over IP: fixed API error when 'address_connect' option is missing (ID: 24928)
+* Package Manager: updated "View packages repository" link (ID: 26619)
+* Ports Settings: fixed wrong number of interfaces in VLAN configuration for ATRM50 (ID: 27500)
+* Profiles: fixed issue that allowed deletion of profiles in use by the scheduler (ID: 26575)
+* Setup Wizard: fixed  "Setup Wizard" access issues with lower privilege users (ID: 26675)
+* SMS Utilities: fixed incorrect status in 5G operation mode (ID: 25049)
+* Tailscale: fixed routing issue with failover enabled (ID: 26069)
+* VLAN: fixed a missing validation message in the WebUI when VLAN migration is restricted (ID: 24033)
+* WebUI: fixed notifications disappearing on page navigation (ID: 22739)
+* WebUI: fixed validation for fields using "url" rule (ID: 26636)
+* Wireguard: fixed incorrect route towards other peer being added (ID: 26856)
+* Wireguard: fixed Wireguard not re-adding default routes after deleting instance (ID: 27131)
+* Wireless: fixed an API error that occurred when joining a mesh network while a client network was present (ID: 26446)
+* Wireless: fixed default cipher not being returned from the API (ID: 26400)
+* Wireless: fixed wireless radio page loading incorrectly when user has limited permissions (ID: 26665)
 
-# 2025-07-09 00.07.16
+### CVE Patches
+
+* CVE-2023-53154 (ID: 26778)
+* CVE-2024-12718 (ID: 26654)
+* CVE-2024-31578 (ID: 26441)
+* CVE-2024-52533 (ID: 26741)
+* CVE-2025-4138 (ID: 26654)
+* CVE-2025-4330 (ID: 26654)
+* CVE-2025-4516 (ID: 26654)
+* CVE-2025-4517 (ID: 26654)
+
+### Updates
+
+* hostapd: updated version to  2025-05-23 (ID: 26262)
+* Iperf3: updated version to  3.19 for Router family (ID: 24365)
+* Kernel: updated version to  5.4.295 for TRB140, TRB141, TRB142, TRB143, TRB145 (ID: 7140)
+* Kernel: updated version to  5.15.186 for RUTC family, TRB2M family, RUT14X family, OTD140, OTD144, RUT2M family, RUT9M family, RUT30X family, RUT36X family, TAP100, TAP400, DAP family, RUTE family (ID: 7140)
+* Kernel: updated version to  6.6.96 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200 (ID: 7140)
+
+# 2025-07-02 00.07.16
 
 ### New
 
@@ -61,7 +159,6 @@
 * Mobile Utilities: added explanatory message to disabled "Storage" options (ID: 25839)
 * Mobile: added GPS DPO support for RUTM54 (ID: 22641)
 * Mobile: changed "telstra.wap" APN for "Telstra" operator to "telstra.internet" in APN database (ID: 26412)
-* Mobile: improved handling of ESM reject causes #33, #50, #51, and #52 (ID: 26293)
 * Mobile: improved mobile services logging to improve memory usage (ID: 23856)
 * Mobile: improved provider name parsing when it is not returned by the module (ID: 25841)
 * Mobile: improved validation to prevent SMS sending when SIM is removed (ID: 26904)
@@ -142,6 +239,40 @@
 * Serial: updated version to  2.0 (ID: 26064)
 * tcpdump: updated version to  4.99.5 for Router family (ID: 25778)
 * tpm2-openssl: updated version to  1.3.0 (ID: 26275)
+
+# 2025-07-04 00.07.15.3
+
+### Fix
+
+* System: fixed possible PoE issues with some power supplies for RUT951 (ID: 26949)
+
+# 2025-06-25 00.07.15.2
+
+### Improvements
+
+* Network: swapped MAC addresses for lan1 and lan2 for OTD501, OTD500 (ID: 26682)
+* Update Firmware: optimized firmware validation through caching (ID: 26403)
+
+### Fix
+
+* Data to Server: fixed MBus database path bug (ID: 26690)
+* Hotspot: fixed segmentation fault (ID: 26749)
+* L2TP: fixed memory leak issue with invalid packets (ID: 26569)
+* Package Manager: fixed possible config migration issues on the PM installed packages (ID: 26809)
+* System Status: fixed display of MAC address (ID: 26682)
+* WebUI: fixed subscribe processes not exiting when UHTTPD is killed (ID: 26708)
+* Wireless: fixed WPA3-SAE fast transition configuration (ID: 26457)
+
+# 2025-06-16 00.07.15.1
+
+### Fix
+
+* Backup: fixed missing root and admin user restoration during backup apply (ID: 26605)
+* Event juggler: fixed the execution of user scripts (ID: 26585)
+* Hotspot: fixed user scripts migration after upgrade with keep settings (ID: 26589)
+* Hotspot: fixed users scripts execution (ID: 26589)
+* Realtime Traffic: fixed data collection in rare cases (ID: 26600)
+* SMS Utilities: fixed the execution of user scripts (ID: 26585)
 
 # 2025-06-02 00.07.15
 

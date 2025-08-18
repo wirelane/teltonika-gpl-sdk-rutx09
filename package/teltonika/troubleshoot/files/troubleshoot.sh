@@ -3,7 +3,7 @@
 
 [ "$(id -u)" != 0 ] && {
 	# This must be ACL protected
-	res=$(ubus -t 0 call system troubleshoot ${1:+"{\"pass\":\"$1\"}"})
+	res=$(ubus -t 0 call rpc-sys-ext troubleshoot ${1:+"{\"pass\":\"$1\"}"})
 	rc=$?
 	[ $rc -eq 4 ] && logger "Access denied for user($(id -u))"
 	[ $rc -ne 0 ] && exit $rc

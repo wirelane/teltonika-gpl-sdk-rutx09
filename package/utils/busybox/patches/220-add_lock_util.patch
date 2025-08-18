@@ -1,6 +1,6 @@
 --- /dev/null
 +++ b/miscutils/lock.c
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,156 @@
 +/*
 + * Copyright (C) 2006 Felix Fietkau <nbd@nbd.name>
 + *
@@ -49,6 +49,7 @@
 +
 +static void exit_unlock(int sig)
 +{
++	(void)sig;
 +	flock(fd, LOCK_UN);
 +	exit(0);
 +}

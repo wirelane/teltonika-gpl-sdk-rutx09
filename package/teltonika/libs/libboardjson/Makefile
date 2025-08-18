@@ -9,7 +9,7 @@ PKG_NAME:=libboardjson
 PKG_RELEASE=2
 
 PKG_LICENSE:=Teltonika-closed
-PKG_SOURCE_VERSION:=7.16
+PKG_SOURCE_VERSION:=7.17
 
 include $(INCLUDE_DIR)/package.mk
 

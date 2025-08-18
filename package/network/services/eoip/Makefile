@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eoip
 PKG_VERSION:=0.5
-PKG_RELEASE:=4
+PKG_RELEASE:=6
 
 PKG_HASH:=22f6f3864665adef26c7fbd57543a396108ba2dff1282af8143f18bc2a9912f8
 
@@ -31,6 +31,8 @@ define Package/eoip
   CATEGORY:=Network
   SUBMENU:=VPN
   DEPENDS:=+kmod-tun +libpthread +liblzo +tc-tiny +kmod-sched-flower
+  FATTRS:=/usr/bin/eoip::::cap_net_admin,cap_net_raw+ep
+  USERID:=eoip:eoip
 endef
 
 define Package/eoip/conffiles
@@ -56,6 +58,8 @@ define Package/eoip/install
 	$(INSTALL_BIN) ./files/eoip.init $(1)/etc/init.d/eoip
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/net
 	$(INSTALL_BIN) ./files/01-eoip $(1)/etc/hotplug.d/net/01-eoip
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/eoip.permtab $(1)/etc/permtab.d/eoip
 endef
 
 $(eval $(call BuildPackage,eoip))

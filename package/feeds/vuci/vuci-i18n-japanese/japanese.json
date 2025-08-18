@@ -993,7 +993,7 @@
     "Boot mode": "ブートモード",
     "Bootloader version": "ブールローダーバージョン",
     "Bootloader version currently used by the device. A Bootloader is a program that loads the operating system.": "デバイスが現在使用しているブートローダーのバージョン。ブートローダとは、オペレーティングシステムをロードするプログラムのことです。",
-    "Bootsrap DNS": "ブートストラップDNS",
+    "Bootstrap DNS": "ブートストラップDNS",
     "Both": "両方",
     "Both firewall mark and mask should consist of a \"0x\" prefix and no more than 8 hexadecimal characters.": "ファイアウォールマークとマスクは、\"0x\" プレフィックスを含み、8桁以内の16進数である必要があります。",
     "Both modems": "両方のモデム",

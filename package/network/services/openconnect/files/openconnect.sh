@@ -84,6 +84,8 @@ proto_openconnect_setup() {
 
 	ifname="opc-$config"
 
+	proto_set_user openconnect
+
 	logger -t openconnect "initializing..."
 
 	[ -n "$interface" ] && {
@@ -159,6 +161,7 @@ proto_openconnect_setup() {
 				proto_setup_failed "$config"
 			}
 		}
+		chown openconnect:openconnect "$pwfile"
 		append_args --passwd-on-stdin
 	}
 
@@ -173,7 +176,7 @@ proto_openconnect_setup() {
 
 	proto_export INTERFACE="$config"
 	logger -t openconnect "executing 'openconnect $cmdline'"
-
+	ip tuntap add "$ifname" mode tun user openconnect
 	if [ -f "$pwfile" ]; then
 		eval "proto_run_command '$config' openconnect-wrapper '$pwfile' $cmdline"
 	else
@@ -190,6 +193,7 @@ proto_openconnect_teardown() {
 	logger -t openconnect "bringing down openconnect"
 	proto_kill_command "$config" 2
 	sleep 5
+	ip link del "opc-$config"
 }
 
 [ -n "$INCLUDE_ONLY" ] || {

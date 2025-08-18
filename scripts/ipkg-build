@@ -164,6 +164,14 @@ prepare() {
 
 	mkdir "$tmp_dir"
 
+	[[ -f $sign_file_list ]] && {
+		cat "$pkg_dir/data.tar.gz" "$pkg_dir/control.tar.gz" >"$tmp_concat"
+		[[ $CI ]] && $CI && tmp_concat=${tmp_concat#"$TOPDIR/"}
+		$prepare && echo "$tmp_concat" >>"$sign_file_list"
+		echo "Prepared $tmp_concat"
+		exit 0
+	}
+
 	echo $CONTROL >"$tmp_dir/tarX"
 	cd "$pkg_dir"
 	for file_mode in $file_modes; do
@@ -206,13 +214,6 @@ prepare() {
 
 	(cd "$pkg_dir/$CONTROL" && $TAR --format=gnu --sort=name -cf - --mtime="$TIMESTAMP" . | $GZIP -n - >"$tmp_dir/control.tar.gz")
 	rm "$tmp_dir/tarX"
-
-	[[ -f $sign_file_list ]] || return 0
-
-	cat "$tmp_dir/data.tar.gz" "$tmp_dir/control.tar.gz" >"$tmp_concat"
-	[[ $CI ]] && $CI && tmp_concat=${tmp_concat#"$TOPDIR/"}
-	$prepare && echo "$tmp_concat" >>"$sign_file_list"
-	echo "Prepared $tmp_concat"
 }
 
 pack() {
@@ -222,8 +223,11 @@ pack() {
 	pkg_file=$dest_dir/${pkg}_${version}_${arch}.ipk
 	rm -f "$pkg_file"
 	cd "$tmp_dir" && {
+		tar_files=(./debian-binary ./data.tar.gz ./control.tar.gz)
+		$pack && \
+			tar_files=(./debian-binary -C "$pkg_dir" ./data.tar.gz -C "$pkg_dir" ./control.tar.gz -C "$tmp_dir" "$control_data_sig")
 		# shellcheck disable=2086
-		$TAR --format=gnu --sort=name -cf - --mtime="$TIMESTAMP" ./debian-binary ./data.tar.gz ./control.tar.gz $control_data_sig | $GZIP -n - >"$pkg_file"
+		$TAR --format=gnu --sort=name -cf - --mtime="$TIMESTAMP" "${tar_files[@]}" | $GZIP -n - >"$pkg_file"
 		echo "Packaged contents of $pkg_dir into $pkg_file"
 	}
 }

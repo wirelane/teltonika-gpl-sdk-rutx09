@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-05-08 13:30:58.000000000 +0000
++++ src/.gitlab-ci.yml	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -205,7 +205,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -interval from the RFC-4330-mandated 15 seconds.
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/Makefile src/Makefile
 --- upstream/Makefile	2016-01-01 04:53:42.000000000 +0000
-+++ src/Makefile	2025-05-08 13:30:58.000000000 +0000
++++ src/Makefile	2025-07-10 10:05:44.000000000 +0000
 @@ -16,28 +16,30 @@
  # but as of ntpclient-2015, I cleaned up those casts enough to make both
  # gcc-4.9.2 and clang-3.5.0 happy without it.
@@ -238,7 +238,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 -ntpclient.o phaselock.o: ntpclient.h
 +ntpclient: src/ntpclient.o src/phaselock.o src/net.o
-+	$(CC) $(LDFLAGS) -o $@ $^
++	$(CC) $^ $(LDFLAGS) -o $@
  
 -adjtimex: adjtimex.o
 +src/ntpclient.o src/phaselock.o src/net.o: src/ntpclient.h src/net.h
@@ -755,7 +755,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -closeout();
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ntpclient.config src/files/ntpclient.config
 --- upstream/files/ntpclient.config	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ntpclient.config	2025-05-08 13:30:58.000000000 +0000
++++ src/files/ntpclient.config	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,20 @@
 +config ntpserver '1'
 +	option hostname 'time1.google.com'
@@ -779,7 +779,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	option sync_enabled '1'
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ntpclient.hotplug src/files/ntpclient.hotplug
 --- upstream/files/ntpclient.hotplug	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ntpclient.hotplug	2025-05-08 13:30:58.000000000 +0000
++++ src/files/ntpclient.hotplug	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,23 @@
 +#!/bin/sh
 +# Copyright (C) 2006-2014 OpenWrt.org
@@ -806,7 +806,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +esac
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ntpclient.init src/files/ntpclient.init
 --- upstream/files/ntpclient.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ntpclient.init	2025-05-08 13:30:58.000000000 +0000
++++ src/files/ntpclient.init	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,29 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -839,8 +839,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ntpclient.json src/files/ntpclient.json
 --- upstream/files/ntpclient.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ntpclient.json	2025-05-08 13:30:58.000000000 +0000
-@@ -0,0 +1,17 @@
++++ src/files/ntpclient.json	2025-07-10 10:05:44.000000000 +0000
+@@ -0,0 +1,11 @@
 +{
 +    "user": "ntpclient",
 +    "access": {
@@ -849,12 +849,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +        },
 +        "hotplug.ntp": {
 +            "methods": [ "call" ]
-+        },
-+        "uci": {
-+            "methods": [
-+                "set",
-+                "logged_commit"
-+            ]
 +        }
 +    }
 +}
@@ -2275,7 +2269,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/HOWTO src/src/HOWTO
 --- upstream/src/HOWTO	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/HOWTO	2025-05-08 13:30:58.000000000 +0000
++++ src/src/HOWTO	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,176 @@
 +The goal of ntpclient is not only to set your computer's clock
 +right once, but keep it there.
@@ -2455,7 +2449,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +interval from the RFC-4330-mandated 15 seconds.
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/README src/src/README
 --- upstream/src/README	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/README	2025-05-08 13:30:58.000000000 +0000
++++ src/src/README	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,201 @@
 +ntpclient is an NTP (RFC-1305, RFC-4330) client for unix-alike computers.
 +Its functionality is a small subset of xntpd, but IMHO performs
@@ -2660,7 +2654,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +       - Larry Doolittle  <larry@doolittle.boa.org>
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/debug.h src/src/debug.h
 --- upstream/src/debug.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/debug.h	2025-05-08 13:30:58.000000000 +0000
++++ src/src/debug.h	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,11 @@
 +#ifndef _DEBUG_H_
 +#define _DEBUG_H_
@@ -2676,7 +2670,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/envelope src/src/envelope
 --- upstream/src/envelope	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/envelope	2025-05-08 13:30:58.000000000 +0000
++++ src/src/envelope	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,75 @@
 +#!/usr/bin/perl
 +
@@ -2755,7 +2749,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +closeout();
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/log.h src/src/log.h
 --- upstream/src/log.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/log.h	2025-05-08 13:30:58.000000000 +0000
++++ src/src/log.h	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,24 @@
 +#ifndef _LOG_H_
 +#define _LOG_H_
@@ -2783,7 +2777,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif // _LOG_H_
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/log2date.pl src/src/log2date.pl
 --- upstream/src/log2date.pl	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/log2date.pl	2025-05-08 13:30:58.000000000 +0000
++++ src/src/log2date.pl	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,15 @@
 +# Adds human-readable UTC stamps at the end of
 +# ntpclient log files
@@ -2802,7 +2796,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/net.c src/src/net.c
 --- upstream/src/net.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/net.c	2025-05-08 13:30:58.000000000 +0000
++++ src/src/net.c	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,96 @@
 +#include "debug.h"
 +#include "log.h"
@@ -2902,7 +2896,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/net.h src/src/net.h
 --- upstream/src/net.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/net.h	2025-05-08 13:30:58.000000000 +0000
++++ src/src/net.h	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,6 @@
 +#ifndef _NET_H_
 +#define _NET_H_
@@ -2912,8 +2906,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ntpclient.c src/src/ntpclient.c
 --- upstream/src/ntpclient.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ntpclient.c	2025-05-08 13:30:58.000000000 +0000
-@@ -0,0 +1,1196 @@
++++ src/src/ntpclient.c	2025-07-10 10:05:44.000000000 +0000
+@@ -0,0 +1,1176 @@
 +/*
 + * ntpclient.c - NTP client
 + *
@@ -2956,6 +2950,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +#include <math.h> // trunc()
 +#include <inttypes.h>
++#include <limits.h>
 +#include <stdio.h>
 +#include <stdlib.h>
 +#include <string.h>
@@ -3041,9 +3036,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#define SYSFIXTIME_PATH "/etc/config/ntpclient"
 +
 +#ifdef MOBILE_SUPPORT
-+#define UCI_UBUS_OBJ "uci"
-+#define UCI_SET_UBUS_MTH "set"
-+#define UCI_COMMIT_UBUS_MTH "logged_commit"
++#define OPTION_PATH_NTPCLIENT	"ntpclient.@ntpclient[0].zoneName"
++#define OPTION_PATH_SYSTEM_TMZ	"system.system.timezone"
++#define OPTION_PATH_SYSTEM	"system.system.zoneName"
 +#define TIMEZONE_FILE_PATH	"/tmp/TZ"
 +#define TIMEZONE_STR_LEN	(16)
 +#define ETC_ZONENAME		"Etc/GMT"
@@ -3442,78 +3437,42 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return 2;
 +}
 +
-+static int ubus_uci_set(struct ubus_context *ubus, uint32_t id, const char *config,
-+		const char *section, struct blob_attr *values)
++static void uci_set_value(struct uci_context *uci_ctx, const char *option_path, const char *value)
 +{
-+	struct blob_buf b = { 0 };
-+	int ret = 0;
++	int ret;
++	struct uci_ptr ptr = { 0 };
 +
-+	blob_buf_init(&b, 0);
-+	blobmsg_add_string(&b, "config", config);
-+	blobmsg_add_string(&b, "section", section);
-+	if (blobmsg_type(values) == BLOBMSG_TYPE_TABLE) {
-+			blobmsg_add_field(&b, BLOBMSG_TYPE_TABLE, "values", blobmsg_data(values),
-+					blobmsg_data_len(values));
-+	}
-+
-+	if (ubus_invoke(ubus, id, UCI_SET_UBUS_MTH, b.head, NULL, NULL, 1000)) {
-+		ret = 1;
-+	}
-+
-+	blob_buf_free(&b);
-+
-+	return ret;
-+}
-+
-+static int ubus_uci_commit(struct ubus_context *ubus, uint32_t id, const char *config)
-+{
-+	struct blob_buf b = { 0 };
-+	int ret = 0;
-+
-+	blob_buf_init(&b, 0);
-+	blobmsg_add_string(&b, "config", config);
-+	if (ubus_invoke(ubus, id, UCI_COMMIT_UBUS_MTH, b.head, NULL, NULL, 1000)) {
-+		ret = 1;
-+	}
-+
-+	blob_buf_free(&b);
-+
-+	return ret;
-+}
-+
-+static void ntp_set_config(struct ubus_context *ubus, const char *timezone,
-+		const char *zonename)
-+{
-+	struct blob_buf b = { 0 };
-+	uint32_t id = 0;
-+
-+	if (ubus_lookup_id(ubus, UCI_UBUS_OBJ, &id)) {
-+		ERR("Failed to lookup 'uci' object");
-+
++	char *path = strdup(option_path);
++	if (!path) {
++		ERR("Out of memory");
 +		return;
 +	}
 +
-+	blob_buf_init(&b, BLOBMSG_TYPE_TABLE);
-+	blobmsg_add_string(&b, "zoneName", zonename);
-+	if (ubus_uci_set(ubus, id, "ntpclient", "ntpclient", b.head)) {
-+		ERR("Failed to set ntpclient config");
++	ret = uci_lookup_ptr(uci_ctx, &ptr, path, strchr(option_path, '@') != NULL);
++	if (ret != UCI_OK) {
++		ERR("Failed to lookup uci pointer for '%s'; ret=%d", option_path, ret);
++		goto out;
 +	}
 +
-+	blob_buf_free(&b);
-+	blob_buf_init(&b, BLOBMSG_TYPE_TABLE);
-+	blobmsg_add_string(&b, "zoneName", zonename);
-+	blobmsg_add_string(&b, "timezone", timezone);
-+	if (ubus_uci_set(ubus, id, "system", "system", b.head)) {
-+		ERR("Failed to set system config");
++	ptr.value = value;
++
++	ret = uci_set(uci_ctx, &ptr);
++	if (ret != UCI_OK) {
++		ERR("Failed to set '%s=%s'; ret=%d", option_path, value, ret);
++		goto out;
 +	}
 +
-+	blob_buf_free(&b);
-+	ubus_uci_commit(ubus, id, "ntpclient");
-+	ubus_uci_commit(ubus, id, "system");
++	ret = uci_commit(uci_ctx, &ptr.p, false);
++	if (ret != UCI_OK) {
++		ERR("Failed to commit uci changes for '%s'; ret=%d", option_path, ret);
++		goto out;
++	}
++
++out:
++	free(path);
 +}
 +
-+static void set_timezone_from_modem(struct ubus_context *ubus,
-+		struct modem_sync *modem_data)
++static void set_timezone_from_modem(struct modem_sync *modem_data)
 +{
 +	char *timezone_str = calloc(TIMEZONE_STR_LEN, sizeof(char));
 +	char *zonename_str = calloc(TIMEZONE_STR_LEN, sizeof(char));
@@ -3538,8 +3497,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	fprintf(fp, "%s\n", timezone_str);
 +	fclose(fp);
 +
++	if (!modem_data->uci_ctx && !(modem_data->uci_ctx = uci_alloc_context())) {
++		ERR("Failed to initialize the uci");
++		goto out;
++	}
++
 +	DBG("Setting zonename to |%s|", zonename_str);
-+	ntp_set_config(ubus, timezone_str, zonename_str);
++	uci_set_value(modem_data->uci_ctx, OPTION_PATH_NTPCLIENT, zonename_str);
++	uci_set_value(modem_data->uci_ctx, OPTION_PATH_SYSTEM, zonename_str);
++	uci_set_value(modem_data->uci_ctx, OPTION_PATH_SYSTEM_TMZ, timezone_str);
 +
 +out:
 +	free(timezone_str);
@@ -3744,6 +3710,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +			sleep_time = ntpc->cycle_time;
 +			received   = true;
++			ntpc->failover_cnt = ntpc->failover_cnt_init;
 +		} else {
 +			LOG("Ooops.  pack_len=%d", pack_len);
 +			received = false;
@@ -3762,7 +3729,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +loopend:
 +#ifdef MOBILE_SUPPORT
 +		if (ntpc->modem_sync.modem_time && ntpc->modem_sync.timezone_sync_enabled) {
-+			set_timezone_from_modem(ntpc->ubus, &ntpc->modem_sync);
++			set_timezone_from_modem(&ntpc->modem_sync);
 +		}
 +#endif
 +		close(usd);
@@ -3857,7 +3824,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	ntpc->hosts++;
 +}
 +
-+static void read_config_ntpdrift(struct uci_context *uci, struct uci_section *sec)
++static void read_config_ntpdrift(struct uci_context *uci, struct uci_section *sec, struct ntp_control *ntpc)
 +{
 +	char *freq = NULL;
 +
@@ -3954,7 +3921,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	uci_foreach_element (&pkg->sections, e) {
 +		struct uci_section *sec = uci_to_section(e);
 +		read_config_ntpserver(uci, sec, ntpc);
-+		read_config_ntpdrift(uci, sec);
++		read_config_ntpdrift(uci, sec, ntpc);
 +		read_config_ntpclient(uci, sec, ntpc);
 +	}
 +
@@ -3978,6 +3945,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	}
 +
 +#ifdef MOBILE_SUPPORT
++	if (ntpc->modem_sync.uci_ctx) {
++		uci_free_context(ntpc->modem_sync.uci_ctx);
++	}
 +	free(ntpc->modem_sync.modem_time);
 +#endif
 +}
@@ -3994,15 +3964,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	ntpc.set_clock			      = 0;
 +	ntpc.probe_count		      = 0; /* default of 0 means loop forever */
 +	ntpc.failover_cnt		      = -1;
++	ntpc.failover_cnt_init		      = -1;
 +	ntpc.cycle_time			      = 600; /* seconds */
 +	ntpc.goodness			      = 0;
 +	ntpc.cross_check		      = 1;
 +	ntpc.hosts			      = 0;
 +	ntpc.save_time			      = 0;
++	ntpc.ubus	      = NULL;
 +#ifdef MOBILE_SUPPORT
 +	ntpc.modem_sync.time_sync_enabled     = 0;
 +	ntpc.modem_sync.timezone_sync_enabled = 0;
-+	ntpc.ubus	      = NULL;
++	ntpc.modem_sync.uci_ctx		      = NULL;
 +#endif
 +	memset(ntpc.hostnames, 0, sizeof(ntpc.hostnames));
 +
@@ -4067,6 +4039,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		ntpc.failover_cnt = 0;
 +	}
 +
++	ntpc.failover_cnt_init = ntpc.failover_cnt;
++
 +	if (ntpc.set_clock && !ntpc.live && !ntpc.goodness && !ntpc.probe_count) {
 +		ntpc.probe_count = 1;
 +	}
@@ -4112,8 +4086,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ntpclient.h src/src/ntpclient.h
 --- upstream/src/ntpclient.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ntpclient.h	2025-05-08 13:30:58.000000000 +0000
-@@ -0,0 +1,54 @@
++++ src/src/ntpclient.h	2025-07-10 10:05:44.000000000 +0000
+@@ -0,0 +1,56 @@
 +#ifndef NTPCLIENT_H
 +#define NTPCLIENT_H
 +
@@ -4137,6 +4111,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +#ifdef MOBILE_SUPPORT
 +struct modem_sync {
++	struct uci_context *uci_ctx;
 +	int time_sync_enabled;
 +	int timezone_sync_enabled;
 +	lgsm_time_t *modem_time;
@@ -4150,6 +4125,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	int set_clock; /* non-zero presumably needs root privs */
 +	int probe_count;
 +	int failover_cnt;
++	int failover_cnt_init;
 +	int cycle_time;
 +	int goodness;
 +	int cross_check;
@@ -4170,7 +4146,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/phaselock.c src/src/phaselock.c
 --- upstream/src/phaselock.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/phaselock.c	2025-05-08 13:30:58.000000000 +0000
++++ src/src/phaselock.c	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,382 @@
 +/*
 + * phaselock.c - Phase locking for NTP client
@@ -4556,7 +4532,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/phaselock.h src/src/phaselock.h
 --- upstream/src/phaselock.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/phaselock.h	2025-05-08 13:30:58.000000000 +0000
++++ src/src/phaselock.h	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,6 @@
 +#ifndef _PHASELOCK_H_
 +#define _PHASELOCK_H_
@@ -4567,7 +4543,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/rate.awk src/src/rate.awk
 --- upstream/src/rate.awk	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/rate.awk	2025-05-08 13:30:58.000000000 +0000
++++ src/src/rate.awk	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,18 @@
 +(FNR==1){ day_off=$1;        t1=$2; o1=$5; f1=$7}
 +        { t2=($1-day_off)*86400+$2; o2=$5; f2=$7; if (f2!=f1) fwarn=1}
@@ -4589,7 +4565,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +# you put -1318109 into the -f switch of adjtimex (e.g., adjtimex -f -1318109)
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/rate2.awk src/src/rate2.awk
 --- upstream/src/rate2.awk	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/rate2.awk	2025-05-08 13:30:58.000000000 +0000
++++ src/src/rate2.awk	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,193 @@
 +#!/usr/bin/awk -f
 +
@@ -4786,7 +4762,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/test.dat src/src/test.dat
 --- upstream/src/test.dat	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/test.dat	2025-05-08 13:30:58.000000000 +0000
++++ src/src/test.dat	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,200 @@
 +36765 180.386    1398.0     40.3  953773.9    793.5  -1240000
 +36765 780.382    1358.0     41.3  954329.0    915.5  -1240000
@@ -4990,7 +4966,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +36766 33180.132    1607.0     39.9  811465.7   2059.9  -1240000
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/todo src/src/todo
 --- upstream/src/todo	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/todo	2025-05-08 13:30:58.000000000 +0000
++++ src/src/todo	2025-07-10 10:05:44.000000000 +0000
 @@ -0,0 +1,18 @@
 +Ask on newsgroup about making sanity checks mandatory, default, or optional
 +   Rob Landley says disable checks with CONFIG to save space

@@ -36,7 +36,7 @@ boot() {
 		boot_target_pre_board_detect
 
 	# before config generation run permtab to setup permissions
-	/sbin/perm -a
+	/sbin/perm -r /etc/config
 
 	/bin/config_generate
 

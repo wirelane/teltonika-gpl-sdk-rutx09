@@ -10,8 +10,8 @@
     "acls": ["network/ports/port_security"],
     "depends": {
       "packages": {
-        "anyOf": ["dot1x_server", "dsa_dot1x_server"],
-        "notAnyOf": ["dot1x_client"]
+        "anyOf": ["dot1x-server", "dsa-dot1x-server"],
+        "notAnyOf": ["dot1x-client"]
       },
       "board": {
         "allOf": ["has_ethernet"],

@@ -135,10 +135,12 @@ define Package/ulogd/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ulogd/ulogd_raw2packet_BASE.so $(1)/usr/lib/ulogd/
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/sbin
 	$(INSTALL_BIN) ./files/ulogd.init $(1)/etc/init.d/ulogd
-	$(INSTALL_BIN) ./files/ulogd.conf $(1)/etc/config/ulogd
+	$(INSTALL_CONF_USR) ./files/ulogd.conf $(1)/etc/config/ulogd
 	$(INSTALL_BIN) ./files/ftp_upload.sh $(1)/sbin/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.14
 	$(INSTALL_BIN) ./files/99_ulogd.sh $(1)/etc/uci-defaults/7.14/99_ulogd
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/ulogd.permtab $(1)/etc/permtab.d/ulogd
 endef
 
 define BuildPlugin

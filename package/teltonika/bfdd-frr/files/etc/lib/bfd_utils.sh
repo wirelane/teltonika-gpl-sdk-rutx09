@@ -19,7 +19,7 @@ bfd_get_status() {
 bfd_profile_cb() {
 
 	local section="$1"
-	local cfg="/var/etc/frr/bfd.conf"
+	local cfg="/var/run/frr/bfd.conf"
 
 	config_get receive_interval "$section" "receive_interval"
 	config_get transmit_interval "$section" "transmit_interval"
@@ -35,7 +35,7 @@ bfd_profile_cb() {
 bfd_peers_cb() {
 
 	local section="$1"
-	local cfg="/var/etc/frr/bfd.conf"
+	local cfg="/var/run/frr/bfd.conf"
 
 	config_get enabled "$section" "enabled"
 	[ "$enabled" == "1" ] || return 0
@@ -66,7 +66,7 @@ bfd_peers_cb() {
 
 bfd_utils_parse_config() {
 
-	local cfg="/var/etc/frr/bfd.conf"
+	local cfg="/var/run/frr/bfd.conf"
 
 	config_load bfd
 
@@ -76,3 +76,4 @@ bfd_utils_parse_config() {
 	config_foreach bfd_profile_cb "profile"
 	config_foreach bfd_peers_cb "peer"
 }
+

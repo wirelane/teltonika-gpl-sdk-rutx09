@@ -34,31 +34,25 @@ get_uptime() {
 }
 
 interface=$(echo "$INTERFACE" | sed -E 's|(.*)_[46]$|\1|')
-iface=$(echo "$INTERFACE" | grep -e "_4" -e "_6" | wc -l)
 MODEM=$(uci -q get network."$interface".modem)
-MODEM_TYPE=""
-DEV_NAME=$(mnf_info -n | cut -b 0-6)
 
 if [ "$MODEM" != "" ]; then
     MODEM_TYPE="$(get_modem_type "$MODEM")"
     UP_IFACES="$(get_up_mobile_ifaces "$MODEM")"
 
-    if [ "$ACTION" = "ifup" ] && [ "$iface" -gt 0 ]; then
-        [ "$(echo "$UP_IFACES" | wc -l)" -gt 1 ] && {
-            UPTIME="$(get_uptime $INTERFACE)"
-            for i in $UP_IFACES; do
-                [ "$INTERFACE" = "$i" ] && continue
-                # Skip logging if its not the first connected iface
-                [ "$(get_uptime $i)" -gt "$UPTIME" ] && return 0
-            done
-        }
+    if [ "$ACTION" = "ifup" ]; then
+        if [[ ! "$INTERFACE" =~ _[0-9] ]]; then
+            mdm_ubus_obj="$(find_mdm_ubus_obj "$MODEM")"
+            get_operator
+            get_contype
+            log "Network Type" "Joined $CONTYPE network ($MODEM_TYPE modem)"
+            log "Network Operator" "Connected to $OPERATOR operator ($MODEM_TYPE modem)"
 
-        mdm_ubus_obj="$(find_mdm_ubus_obj "$MODEM")"
-        get_operator
-        get_contype
-        log "Mobile Data" "Mobile data connected ($MODEM_TYPE modem)"
-        log "Network Type" "Joined $CONTYPE network ($MODEM_TYPE modem)"
-        log "Network Operator" "Connected to $OPERATOR operator ($MODEM_TYPE modem)"
+        elif [[ "$INTERFACE" =~ _4$ ]]; then
+            log "Mobile Data" "Mobile data connected (IPv4, $MODEM_TYPE modem)"
+        elif [[ "$INTERFACE" =~ _6$ ]]; then
+            log "Mobile Data" "Mobile data connected (IPv6, $MODEM_TYPE modem)"
+        fi
     elif [ "$ACTION" = "ifdown" ] && [ "$UP_IFACES" = "" ]; then
         log "Mobile Data" "Mobile data disconnected ($MODEM_TYPE modem)"
     fi

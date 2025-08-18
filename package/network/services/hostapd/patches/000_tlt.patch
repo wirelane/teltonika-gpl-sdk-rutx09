@@ -1,7 +1,7 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/hostapd/radius.c src/hostapd/radius.c
 --- upstream/hostapd/radius.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/hostapd/radius.c	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,715 @@
++++ src/hostapd/radius.c	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,718 @@
 +#include "utils/includes.h"
 +#include "utils/common.h"
 +#include "utils/eloop.h"
@@ -638,10 +638,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	eap_server_register_methods();
 +	radius_init(&state);
 +
-+	while ((ch = getopt(argc, argv, "6C:c:d:i:k:K:p:P:s:u:")) != -1) {
++	while ((ch = getopt(argc, argv, "6l:C:c:d:i:k:K:p:P:s:u:")) != -1) {
 +		switch (ch) {
 +		case '6':
 +			config.radius.ipv6 = 1;
++			break;
++		case 'l':
++			wpa_debug_level = atoi(optarg);
 +			break;
 +		case 'C':
 +			config.tls.ca_cert = optarg;
@@ -719,8 +722,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ubus.c src/src/ap/ubus.c
 --- upstream/src/ap/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ubus.c	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,2048 @@
++++ src/src/ap/ubus.c	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,2175 @@
 +/*
 + * hostapd / ubus support
 + * Copyright (c) 2013, Felix Fietkau <nbd@nbd.name>
@@ -1085,13 +1088,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	if (hapd->conf->ssid.ssid_len < SSID_MAX_LEN)
 +		ssid_len = hapd->conf->ssid.ssid_len;
-+	
++
 +	ieee80211_freq_to_channel_ext(hapd->iface->freq,
 +				      hapd->iconf->secondary_channel,
 +				      hostapd_get_oper_chwidth(hapd->iconf),
 +				      &op_class, &channel);
 +
 +	blob_buf_init(&b, 0);
++	blobmsg_add_string(&b, "driver", hapd->driver->name);
 +	blobmsg_add_string(&b, "status", hostapd_state_text(hapd->iface->state));
 +	blobmsg_printf(&b, "bssid", MACSTR, MAC2STR(hapd->conf->bssid));
 +
@@ -1539,7 +1543,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				mode ? &mode->he_capab[IEEE80211_MODE_AP] :
 +				NULL,
 +				mode ? &mode->eht_capab[IEEE80211_MODE_AP] :
-+				NULL);
++				NULL,
++				hostapd_get_punct_bitmap(hapd));
 +
 +	for (i = 0; i < hapd->iface->num_bss; i++) {
 +		struct hostapd_data *bss = hapd->iface->bss[i];
@@ -2422,6 +2427,85 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return memcmp(k1, k2, ETH_ALEN);
 +}
 +
++static int
++hostapd_wired_get_clients(struct ubus_context *ctx, struct ubus_object *obj,
++			  struct ubus_request_data *req, const char *method,
++			  struct blob_attr *msg)
++{
++	struct hostapd_data *hapd = container_of(obj, struct hostapd_data, ubus.obj);
++	struct hostap_sta_driver_data sta_driver_data;
++	struct sta_info *sta;
++	void *list, *c;
++	char mac_buf[20];
++	static const struct {
++		const char *name;
++		uint32_t flag;
++	} sta_flags[] = {
++		{ "authorized", WLAN_STA_AUTHORIZED },
++	};
++
++	blob_buf_init(&b, 0);
++	list = blobmsg_open_table(&b, "clients");
++	for (sta = hapd->sta_list; sta; sta = sta->next) {
++		void *r;
++		int i;
++
++		sprintf(mac_buf, MACSTR, MAC2STR(sta->addr));
++		c = blobmsg_open_table(&b, mac_buf);
++		for (i = 0; i < ARRAY_SIZE(sta_flags); i++)
++			blobmsg_add_u8(&b, sta_flags[i].name,
++				       !!(sta->flags & sta_flags[i].flag));
++
++		blobmsg_close_table(&b, c);
++	}
++	blobmsg_close_array(&b, list);
++	ubus_send_reply(ctx, req, b.head);
++
++	return 0;
++}
++
++static int
++hostapd_wired_get_status(struct ubus_context *ctx, struct ubus_object *obj,
++			 struct ubus_request_data *req, const char *method,
++			 struct blob_attr *msg)
++{
++	struct hostapd_data *hapd = container_of(obj, struct hostapd_data, ubus.obj);
++	char iface_name[17];
++
++	blob_buf_init(&b, 0);
++	blobmsg_add_string(&b, "driver", hapd->driver->name);
++	blobmsg_add_string(&b, "status", hostapd_state_text(hapd->iface->state));
++
++	snprintf(iface_name, 17, "%s", hapd->iface->phy);
++	blobmsg_add_string(&b, "iface", iface_name);
++
++	ubus_send_reply(ctx, req, b.head);
++
++	return 0;
++}
++
++static int
++hostapd_wired_del_clients(struct ubus_context *ctx, struct ubus_object *obj,
++			  struct ubus_request_data *req, const char *method,
++			  struct blob_attr *msg)
++{
++	struct hostapd_data *hapd = container_of(obj, struct hostapd_data, ubus.obj);
++
++	hostapd_free_stas(hapd);
++
++	return 0;
++}
++
++static const struct ubus_method wired_methods[] = {
++	UBUS_METHOD_NOARG("reload", hostapd_bss_reload),
++	UBUS_METHOD_NOARG("get_clients", hostapd_wired_get_clients),
++	UBUS_METHOD_NOARG("del_clients", hostapd_wired_del_clients),
++	UBUS_METHOD_NOARG("get_status", hostapd_wired_get_status),
++};
++
++static struct ubus_object_type wired_object_type =
++	UBUS_OBJECT_TYPE("hostapd_wired", wired_methods);
++
 +void hostapd_ubus_add_bss(struct hostapd_data *hapd)
 +{
 +	struct ubus_object *obj = &hapd->ubus.obj;
@@ -2441,9 +2525,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	avl_init(&hapd->ubus.banned, avl_compare_macaddr, false, NULL);
 +	obj->name = name;
-+	obj->type = &bss_object_type;
-+	obj->methods = bss_object_type.methods;
-+	obj->n_methods = bss_object_type.n_methods;
++	if (!strcmp(hapd->driver->name, "wired")) {
++		obj->type = &wired_object_type;
++		obj->methods = wired_object_type.methods;
++		obj->n_methods = wired_object_type.n_methods;
++	} else {
++		obj->type = &bss_object_type;
++		obj->methods = bss_object_type.methods;
++		obj->n_methods = bss_object_type.n_methods;
++	}
 +	ret = ubus_add_object(ctx, obj);
 +	hostapd_ubus_ref_inc();
 +}
@@ -2548,6 +2638,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	blob_buf_init(&b, 0);
 +	blobmsg_add_macaddr(&b, "address", addr);
++	blobmsg_add_string(&b, "ifname", hapd->conf->iface);
 +	if (req->mgmt_frame)
 +		blobmsg_add_macaddr(&b, "target", req->mgmt_frame->da);
 +	if (req->ssi_signal)
@@ -2622,6 +2713,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	blob_buf_init(&b, 0);
 +	blobmsg_add_macaddr(&b, "address", addr);
++	blobmsg_add_string(&b, "ifname", hapd->conf->iface);
 +
 +	ubus_notify(ctx, &hapd->ubus.obj, type, b.head, -1);
 +}
@@ -2634,8 +2726,18 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	blob_buf_init(&b, 0);
 +	blobmsg_add_macaddr(&b, "address", sta->addr);
++	if (sta->vlan_id)
++		blobmsg_add_u32(&b, "vlan", sta->vlan_id);
++	blobmsg_add_string(&b, "ifname", hapd->conf->iface);
 +	if (auth_alg)
 +		blobmsg_add_string(&b, "auth-alg", auth_alg);
++	if (sta->bandwidth[0] || sta->bandwidth[1]) {
++		void *r = blobmsg_open_array(&b, "rate-limit");
++
++		blobmsg_add_u32(&b, "", sta->bandwidth[0]);
++		blobmsg_add_u32(&b, "", sta->bandwidth[1]);
++		blobmsg_close_array(&b, r);
++	}
 +
 +	ubus_notify(ctx, &hapd->ubus.obj, "sta-authorized", b.head, -1);
 +}
@@ -2727,7 +2829,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	blobmsg_add_u8(&b, "bss-termination-delay", bss_termination_delay);
 +	if (target_bssid)
 +		blobmsg_add_macaddr(&b, "target-bssid", target_bssid);
-+	
++
 +	hostapd_ubus_notify_bss_transition_add_candidate_list(candidate_list, candidate_list_len);
 +
 +	ubus_notify(ctx, &hapd->ubus.obj, "bss-transition-response", b.head, -1);
@@ -2769,10 +2871,38 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return ureq.resp;
 +#endif
 +}
++
++#ifdef CONFIG_APUP
++void hostapd_ubus_notify_apup_newpeer(
++	struct hostapd_data *hapd, const u8 *addr, const char *ifname)
++{
++	if (!hapd->ubus.obj.has_subscribers)
++		return;
++
++	blob_buf_init(&b, 0);
++	blobmsg_add_macaddr(&b, "address", addr);
++	blobmsg_add_string(&b, "ifname", ifname);
++
++	ubus_notify(ctx, &hapd->ubus.obj, "apup-newpeer", b.head, -1);
++}
++#endif // def CONFIG_APUP
++
++void hostapd_ubus_notify_csa(struct hostapd_data *hapd, int freq)
++{
++	if (!hapd->ubus.obj.has_subscribers)
++		return;
++
++	blob_buf_init(&b, 0);
++	blobmsg_add_string(&b, "ifname", hapd->conf->iface);
++	blobmsg_add_u32(&b, "freq", freq);
++	blobmsg_printf(&b, "bssid", MACSTR, MAC2STR(hapd->conf->bssid));
++
++	ubus_notify(ctx, &hapd->ubus.obj, "channel-switch", b.head, -1);
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ubus.h src/src/ap/ubus.h
 --- upstream/src/ap/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ubus.h	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,154 @@
++++ src/src/ap/ubus.h	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,166 @@
 +/*
 + * hostapd / ubus support
 + * Copyright (c) 2013, Felix Fietkau <nbd@nbd.name>
@@ -2802,6 +2932,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +struct hostapd_data;
 +struct hapd_interfaces;
 +struct rrm_measurement_beacon_report;
++struct sta_info;
 +
 +#ifdef UBUS_SUPPORT
 +
@@ -2842,6 +2973,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	const u8 *candidate_list, u16 candidate_list_len);
 +void hostapd_ubus_notify_authorized(struct hostapd_data *hapd, struct sta_info *sta,
 +				    const char *auth_alg);
++void hostapd_ubus_notify_csa(struct hostapd_data *hapd, int freq);
++
++#ifdef CONFIG_APUP
++void hostapd_ubus_notify_apup_newpeer(
++	struct hostapd_data *hapd, const u8 *addr, const char *ifname);
++#endif // def CONFIG_APUP
 +
 +#else
 +
@@ -2924,24 +3061,30 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +{
 +}
 +
++static inline void
++hostapd_ubus_notify_csa(struct hostapd_data *hapd, int freq)
++{
++}
++
 +#endif
 +
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ucode.c src/src/ap/ucode.c
 --- upstream/src/ap/ucode.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ucode.c	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,827 @@
++++ src/src/ap/ucode.c	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,992 @@
 +#include <sys/un.h>
 +
 +#include "utils/includes.h"
 +#include "utils/common.h"
 +#include "utils/ucode.h"
-+#include "hostapd.h"
++#include "sta_info.h"
 +#include "beacon.h"
 +#include "hw_features.h"
 +#include "ap_drv_ops.h"
 +#include "dfs.h"
 +#include "acs.h"
++#include "ieee802_11_auth.h"
 +#include <libubox/uloop.h>
 +
 +static uc_resource_type_t *global_type, *bss_type, *iface_type;
@@ -2955,7 +3098,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	uc_value_t *val;
 +
 +	if (hapd->ucode.idx)
-+		return wpa_ucode_registry_get(bss_registry, hapd->ucode.idx);
++		return ucv_get(wpa_ucode_registry_get(bss_registry, hapd->ucode.idx));
 +
 +	val = uc_resource_new(bss_type, hapd);
 +	hapd->ucode.idx = wpa_ucode_registry_add(bss_registry, val);
@@ -2969,7 +3112,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	uc_value_t *val;
 +
 +	if (hapd->ucode.idx)
-+		return wpa_ucode_registry_get(iface_registry, hapd->ucode.idx);
++		return ucv_get(wpa_ucode_registry_get(iface_registry, hapd->ucode.idx));
 +
 +	val = uc_resource_new(iface_type, hapd);
 +	hapd->ucode.idx = wpa_ucode_registry_add(iface_registry, val);
@@ -2984,14 +3127,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	int i;
 +
 +	list = ucv_array_new(vm);
-+	for (i = 0; i < iface->num_bss; i++) {
++	for (i = 0; iface->bss && i < iface->num_bss; i++) {
 +		struct hostapd_data *hapd = iface->bss[i];
-+		uc_value_t *val = hostapd_ucode_bss_get_uval(hapd);
 +
 +		ucv_array_set(list, i, ucv_string_new(hapd->conf->iface));
-+		ucv_object_add(bss, hapd->conf->iface, ucv_get(val));
++		ucv_object_add(bss, hapd->conf->iface, hostapd_ucode_bss_get_uval(hapd));
 +	}
-+	ucv_object_add(if_bss, iface->phy, ucv_get(list));
++	ucv_object_add(if_bss, iface->phy, list);
 +}
 +
 +static void
@@ -3005,13 +3147,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	for (i = 0; i < interfaces->count; i++) {
 +		struct hostapd_iface *iface = interfaces->iface[i];
 +
-+		ucv_object_add(ifs, iface->phy, ucv_get(hostapd_ucode_iface_get_uval(iface)));
++		ucv_object_add(ifs, iface->phy, hostapd_ucode_iface_get_uval(iface));
 +		hostapd_ucode_update_bss_list(iface, if_bss, bss);
 +	}
 +
-+	ucv_object_add(ucv_prototype_get(global), "interfaces", ucv_get(ifs));
-+	ucv_object_add(ucv_prototype_get(global), "interface_bss", ucv_get(if_bss));
-+	ucv_object_add(ucv_prototype_get(global), "bss", ucv_get(bss));
++	ucv_object_add(ucv_prototype_get(global), "interfaces", ifs);
++	ucv_object_add(ucv_prototype_get(global), "interface_bss", if_bss);
++	ucv_object_add(ucv_prototype_get(global), "bss", bss);
++
 +	ucv_gc(vm);
 +}
 +
@@ -3019,12 +3162,16 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +uc_hostapd_add_iface(uc_vm_t *vm, size_t nargs)
 +{
 +	uc_value_t *iface = uc_fn_arg(0);
++	char *data;
 +	int ret;
 +
 +	if (ucv_type(iface) != UC_STRING)
 +		return ucv_int64_new(-1);
 +
-+	ret = hostapd_add_iface(interfaces, ucv_string_get(iface));
++	data = strdup(ucv_string_get(iface));
++	ret = hostapd_add_iface(interfaces, data);
++	free(data);
++
 +	hostapd_ucode_update_interfaces();
 +
 +	return ucv_int64_new(ret);
@@ -3188,6 +3335,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	hostapd_setup_bss(hapd, hapd == iface->bss[0], true);
 +	hostapd_ucode_update_interfaces();
++	hostapd_owe_update_trans(iface);
 +
 +done:
 +	ret = 0;
@@ -3289,6 +3437,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	hapd->driver = iface->bss[0]->driver;
 +	hapd->drv_priv = iface->bss[0]->drv_priv;
++#ifdef CONFIG_IEEE80211BE
++	os_strlcpy(hapd->ctrl_sock_iface, hapd->conf->iface,
++		   sizeof(hapd->ctrl_sock_iface));
++#endif
 +	if (interfaces->ctrl_iface_init &&
 +	    interfaces->ctrl_iface_init(hapd) < 0)
 +		goto free_hapd;
@@ -3308,6 +3460,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	conf->bss[idx] = NULL;
 +	ret = hostapd_ucode_bss_get_uval(hapd);
 +	hostapd_ucode_update_interfaces();
++	hostapd_owe_update_trans(iface);
 +	goto out;
 +
 +deinit_ctrl:
@@ -3461,10 +3614,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return NULL;
 +
 +#define UPDATE_VAL(field, name)							\
-+	if ((intval = ucv_int64_get(ucv_object_get(info, name, NULL))) &&	\
-+		!errno && intval != conf->field) do {				\
-+		conf->field = intval;						\
-+		changed = true;							\
++	do {									\
++		intval = ucv_int64_get(ucv_object_get(info, name, NULL));	\
++		if (!errno && intval != conf->field) {				\
++			conf->field = intval;					\
++			changed = true;						\
++		}								\
 +	} while(0)
 +
 +	conf = iface->conf;
@@ -3547,6 +3702,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +		ieee802_11_set_beacon(hapd);
 +	}
++	hostapd_owe_update_trans(iface);
 +
 +	return ucv_boolean_new(true);
 +}
@@ -3640,6 +3796,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	hostapd_ubus_add_bss(hapd);
 +
 +	hostapd_ucode_update_interfaces();
++	hostapd_owe_update_trans(hapd->iface);
 +out:
 +	if (interfaces->ctrl_iface_init)
 +		interfaces->ctrl_iface_init(hapd);
@@ -3647,6 +3804,147 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return ret ? NULL : ucv_boolean_new(true);
 +}
 +
++int hostapd_ucode_sta_auth(struct hostapd_data *hapd, struct sta_info *sta)
++{
++	char addr[sizeof(MACSTR)];
++	uc_value_t *val, *cur;
++	int ret = 0;
++
++	if (wpa_ucode_call_prepare("sta_auth"))
++		return 0;
++
++	uc_value_push(ucv_string_new(hapd->conf->iface));
++
++	snprintf(addr, sizeof(addr), MACSTR, MAC2STR(sta->addr));
++	uc_value_push(ucv_string_new(addr));
++
++	val = wpa_ucode_call(2);
++
++	cur = ucv_object_get(val, "psk", NULL);
++	if (ucv_type(cur) == UC_ARRAY) {
++		struct hostapd_sta_wpa_psk_short *p, **next;
++		size_t len = ucv_array_length(cur);
++
++		next = &sta->psk;
++		hostapd_free_psk_list(*next);
++		*next = NULL;
++
++		for (size_t i = 0; i < len; i++) {
++			uc_value_t *cur_psk;
++			const char *str;
++			size_t str_len;
++
++			cur_psk = ucv_array_get(cur, i);
++			str = ucv_string_get(cur_psk);
++			str_len = strlen(str);
++			if (!str || str_len < 8 || str_len > 64)
++				continue;
++
++			p = os_zalloc(sizeof(*p));
++			if (len == 64) {
++				if (hexstr2bin(str, p->psk, PMK_LEN) < 0) {
++					free(p);
++					continue;
++				}
++			} else {
++				p->is_passphrase = 1;
++				memcpy(p->passphrase, str, str_len + 1);
++			}
++
++			*next = p;
++			next = &p->next;
++		}
++	}
++
++	cur = ucv_object_get(val, "force_psk", NULL);
++	sta->use_sta_psk = ucv_is_truish(cur);
++
++	cur = ucv_object_get(val, "status", NULL);
++	if (ucv_type(cur) == UC_INTEGER)
++		ret = ucv_int64_get(cur);
++
++	ucv_put(val);
++	ucv_gc(vm);
++
++	return ret;
++}
++
++void hostapd_ucode_sta_connected(struct hostapd_data *hapd, struct sta_info *sta)
++{
++	char addr[sizeof(MACSTR)];
++	uc_value_t *val, *cur;
++	int ret = 0;
++
++	if (wpa_ucode_call_prepare("sta_connected"))
++		return;
++
++	uc_value_push(ucv_string_new(hapd->conf->iface));
++
++	snprintf(addr, sizeof(addr), MACSTR, MAC2STR(sta->addr));
++	uc_value_push(ucv_string_new(addr));
++
++	val = ucv_object_new(vm);
++	if (sta->psk_idx)
++		ucv_object_add(val, "psk_idx", ucv_int64_new(sta->psk_idx - 1));
++	uc_value_push(val);
++
++	val = wpa_ucode_call(3);
++	if (ucv_type(val) != UC_OBJECT)
++		goto out;
++
++	cur = ucv_object_get(val, "vlan", NULL);
++	if (ucv_type(cur) == UC_INTEGER) {
++		struct vlan_description vdesc = {
++			.notempty = 1,
++			.untagged = ucv_int64_get(cur),
++		};
++
++		ap_sta_set_vlan(hapd, sta, &vdesc);
++		ap_sta_bind_vlan(hapd, sta);
++	}
++
++out:
++	ucv_put(val);
++}
++
++static uc_value_t *
++uc_wpa_rkh_derive_key(uc_vm_t *vm, size_t nargs)
++{
++#ifdef CONFIG_IEEE80211R_AP
++	u8 oldkey[16];
++	char *oldkey_hex;
++	u8 key[SHA256_MAC_LEN];
++	size_t key_len = sizeof(key);
++	char key_hex[2 * ARRAY_SIZE(key) + 1];
++	uc_value_t *val = uc_fn_arg(0);
++	int i;
++
++	if (ucv_type(val) != UC_STRING)
++		return NULL;
++
++	oldkey_hex = ucv_string_get(val);
++
++	if (!hexstr2bin(oldkey_hex, key, key_len))
++		return ucv_string_new_length(oldkey_hex, 2 * ARRAY_SIZE(key));
++
++	if (hexstr2bin(oldkey_hex, oldkey, sizeof(oldkey))) {
++		wpa_printf(MSG_ERROR, "Invalid RxKH key: '%s'", oldkey_hex);
++		return NULL;
++	}
++
++	if (hmac_sha256_kdf(oldkey, sizeof(oldkey), "FT OLDKEY", NULL, 0, key, key_len) < 0) {
++		wpa_printf(MSG_ERROR, "Invalid RxKH key: '%s'", oldkey_hex);
++		return NULL;
++	}
++
++	for (i = 0; i < ARRAY_SIZE(key); i++)
++		sprintf(key_hex + 2 * i, "%02x", key[i]);
++
++	return ucv_string_new_length(key_hex, 2 * ARRAY_SIZE(key));
++#else
++	return NULL;
++#endif
++}
 +
 +int hostapd_ucode_init(struct hapd_interfaces *ifaces)
 +{
@@ -3654,6 +3952,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		{ "printf",	uc_wpa_printf },
 +		{ "getpid", uc_wpa_getpid },
 +		{ "sha1", uc_wpa_sha1 },
++		{ "rkh_derive_key", uc_wpa_rkh_derive_key },
 +		{ "freq_info", uc_wpa_freq_info },
 +		{ "add_iface", uc_hostapd_add_iface },
 +		{ "remove_iface", uc_hostapd_remove_iface },
@@ -3713,31 +4012,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	ucv_put(wpa_ucode_registry_remove(iface_registry, iface->ucode.idx));
 +}
 +
-+void hostapd_ucode_add_bss(struct hostapd_data *hapd)
++void hostapd_ucode_bss_cb(struct hostapd_data *hapd, const char *type)
 +{
 +	uc_value_t *val;
 +
-+	if (wpa_ucode_call_prepare("bss_add"))
++	if (wpa_ucode_call_prepare(type))
 +		return;
 +
 +	val = hostapd_ucode_bss_get_uval(hapd);
++	uc_value_push(ucv_string_new(hapd->iface->phy));
 +	uc_value_push(ucv_string_new(hapd->conf->iface));
 +	uc_value_push(ucv_get(val));
-+	ucv_put(wpa_ucode_call(2));
-+	ucv_gc(vm);
-+}
-+
-+void hostapd_ucode_reload_bss(struct hostapd_data *hapd)
-+{
-+	uc_value_t *val;
-+
-+	if (wpa_ucode_call_prepare("bss_reload"))
-+		return;
-+
-+	val = hostapd_ucode_bss_get_uval(hapd);
-+	uc_value_push(ucv_string_new(hapd->conf->iface));
-+	uc_value_push(ucv_get(val));
-+	ucv_put(wpa_ucode_call(2));
++	ucv_put(wpa_ucode_call(3));
++	ucv_put(val);
 +	ucv_gc(vm);
 +}
 +
@@ -3754,14 +4041,34 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return;
 +
 +	uc_value_push(ucv_string_new(hapd->conf->iface));
-+	uc_value_push(val);
++	uc_value_push(ucv_get(val));
 +	ucv_put(wpa_ucode_call(2));
++
++	ucv_put(val);
 +	ucv_gc(vm);
 +}
++
++#ifdef CONFIG_APUP
++void hostapd_ucode_apup_newpeer(struct hostapd_data *hapd, const char *ifname)
++{
++	uc_value_t *val;
++
++	if (wpa_ucode_call_prepare("apup_newpeer"))
++		return;
++
++	val = hostapd_ucode_bss_get_uval(hapd);
++	uc_value_push(ucv_string_new(hapd->conf->iface)); // BSS ifname
++	uc_value_push(ucv_get(val));
++	uc_value_push(ucv_string_new(ifname)); // APuP peer ifname
++	ucv_put(wpa_ucode_call(2));
++	ucv_put(val);
++	ucv_gc(vm);
++}
++#endif // def CONFIG_APUP
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/ap/ucode.h src/src/ap/ucode.h
 --- upstream/src/ap/ucode.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/ap/ucode.h	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,54 @@
++++ src/src/ap/ucode.h	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,78 @@
 +#ifndef __HOSTAPD_AP_UCODE_H
 +#define __HOSTAPD_AP_UCODE_H
 +
@@ -3787,9 +4094,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +void hostapd_ucode_free(void);
 +void hostapd_ucode_free_iface(struct hostapd_iface *iface);
-+void hostapd_ucode_add_bss(struct hostapd_data *hapd);
 +void hostapd_ucode_free_bss(struct hostapd_data *hapd);
-+void hostapd_ucode_reload_bss(struct hostapd_data *hapd);
++void hostapd_ucode_bss_cb(struct hostapd_data *hapd, const char *type);
++int hostapd_ucode_sta_auth(struct hostapd_data *hapd, struct sta_info *sta);
++void hostapd_ucode_sta_connected(struct hostapd_data *hapd, struct sta_info *sta);
++
++#ifdef CONFIG_APUP
++void hostapd_ucode_apup_newpeer(struct hostapd_data *hapd, const char *ifname);
++#endif // def CONFIG_APUP
 +
 +#else
 +
@@ -3803,10 +4115,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +static inline void hostapd_ucode_free_iface(struct hostapd_iface *iface)
 +{
 +}
-+static inline void hostapd_ucode_reload_bss(struct hostapd_data *hapd)
++static inline void hostapd_ucode_bss_cb(struct hostapd_data *hapd, const char *type)
 +{
 +}
-+static inline void hostapd_ucode_add_bss(struct hostapd_data *hapd)
++static inline int hostapd_ucode_sta_auth(struct hostapd_data *hapd, struct sta_info *sta)
++{
++	return 0;
++}
++static inline void hostapd_ucode_sta_connected(struct hostapd_data *hapd, struct sta_info *sta)
 +{
 +}
 +static inline void hostapd_ucode_free_bss(struct hostapd_data *hapd)
@@ -3815,11 +4131,26 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +#endif
 +
++static inline void hostapd_ucode_create_bss(struct hostapd_data *hapd)
++{
++	hostapd_ucode_bss_cb(hapd, "bss_create");
++}
++
++static inline void hostapd_ucode_add_bss(struct hostapd_data *hapd)
++{
++	hostapd_ucode_bss_cb(hapd, "bss_add");
++}
++
++static inline void hostapd_ucode_reload_bss(struct hostapd_data *hapd)
++{
++	hostapd_ucode_bss_cb(hapd, "bss_reload");
++}
++
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils/build_features.h src/src/utils/build_features.h
 --- upstream/src/utils/build_features.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils/build_features.h	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,65 @@
++++ src/src/utils/build_features.h	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,69 @@
 +#ifndef BUILD_FEATURES_H
 +#define BUILD_FEATURES_H
 +
@@ -3835,6 +4166,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 +#ifdef CONFIG_IEEE80211AX
 +	if (!strcmp(feat, "11ax"))
++		return 1;
++#endif
++#ifdef CONFIG_IEEE80211BE
++	if (!strcmp(feat, "11be"))
 +		return 1;
 +#endif
 +#ifdef CONFIG_IEEE80211R
@@ -3887,13 +4222,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif /* BUILD_FEATURES_H */
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils/ucode.c src/src/utils/ucode.c
 --- upstream/src/utils/ucode.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils/ucode.c	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,335 @@
++++ src/src/utils/ucode.c	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,337 @@
 +#include <unistd.h>
 +#include "ucode.h"
 +#include "utils/eloop.h"
 +#include "crypto/crypto.h"
 +#include "crypto/sha1.h"
++#include "crypto/sha256.h"
 +#include "common/ieee802_11_common.h"
 +#include <libubox/uloop.h>
 +#include <ucode/compiler.h>
@@ -4149,7 +4485,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	uc_vm_registry_set(&vm, "hostap.global", global);
 +	proto = ucv_prototype_get(global);
-+	ucv_object_add(proto, "data", ucv_get(ucv_object_new(&vm)));
++	ucv_object_add(proto, "data", ucv_object_new(&vm));
 +
 +#define ADD_CONST(x) ucv_object_add(proto, #x, ucv_int64_new(x))
 +	ADD_CONST(MSG_EXCESSIVE);
@@ -4194,6 +4530,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	if (!val)
 +		return NULL;
 +
++	ucv_get(val);
 +	ucv_array_set(reg, idx - 1, NULL);
 +	dataptr = ucv_resource_dataptr(val, NULL);
 +	if (dataptr)
@@ -4226,7 +4563,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils/ucode.h src/src/utils/ucode.h
 --- upstream/src/utils/ucode.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils/ucode.h	2025-07-24 13:25:24.385484416 +0000
++++ src/src/utils/ucode.h	2025-08-18 08:19:11.316062150 +0000
 @@ -0,0 +1,29 @@
 +#ifndef __HOSTAPD_UTILS_UCODE_H
 +#define __HOSTAPD_UTILS_UCODE_H
@@ -4259,8 +4596,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ubus.c src/wpa_supplicant/ubus.c
 --- upstream/wpa_supplicant/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ubus.c	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,529 @@
++++ src/wpa_supplicant/ubus.c	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,378 @@
 +/*
 + * wpa_supplicant / ubus support
 + * Copyright (c) 2018, Daniel Golle <daniel@makrotopia.org>
@@ -4293,12 +4630,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +static inline struct wpa_supplicant *get_wpas_from_object(struct ubus_object *obj)
 +{
 +	return container_of(obj, struct wpa_supplicant, ubus.obj);
-+}
-+
-+static void ubus_receive(int sock, void *eloop_ctx, void *sock_ctx)
-+{
-+	struct ubus_context *ctx = eloop_ctx;
-+	ubus_handle_event(ctx);
 +}
 +
 +static void ubus_reconnect_timeout(void *eloop_data, void *user_ctx)
@@ -4521,151 +4852,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	free(name);
 +}
 +
-+enum {
-+	WPAS_CONFIG_DRIVER,
-+	WPAS_CONFIG_IFACE,
-+	WPAS_CONFIG_BRIDGE,
-+	WPAS_CONFIG_HOSTAPD_CTRL,
-+	WPAS_CONFIG_CTRL,
-+	WPAS_CONFIG_FILE,
-+	__WPAS_CONFIG_MAX
-+};
-+
-+static const struct blobmsg_policy wpas_config_add_policy[__WPAS_CONFIG_MAX] = {
-+	[WPAS_CONFIG_DRIVER] = { "driver", BLOBMSG_TYPE_STRING },
-+	[WPAS_CONFIG_IFACE] = { "iface", BLOBMSG_TYPE_STRING },
-+	[WPAS_CONFIG_BRIDGE] = { "bridge", BLOBMSG_TYPE_STRING },
-+	[WPAS_CONFIG_HOSTAPD_CTRL] = { "hostapd_ctrl", BLOBMSG_TYPE_STRING },
-+	[WPAS_CONFIG_CTRL] = { "ctrl", BLOBMSG_TYPE_STRING },
-+	[WPAS_CONFIG_FILE] = { "config", BLOBMSG_TYPE_STRING },
-+};
-+
-+static int
-+wpas_config_add(struct ubus_context *ctx, struct ubus_object *obj,
-+		struct ubus_request_data *req, const char *method,
-+		struct blob_attr *msg)
-+{
-+	struct blob_attr *tb[__WPAS_CONFIG_MAX];
-+	struct wpa_global *global = get_wpa_global_from_object(obj);
-+	struct wpa_interface *iface;
-+
-+	blobmsg_parse(wpas_config_add_policy, __WPAS_CONFIG_MAX, tb, blob_data(msg), blob_len(msg));
-+
-+	if (!tb[WPAS_CONFIG_FILE] || !tb[WPAS_CONFIG_IFACE] || !tb[WPAS_CONFIG_DRIVER])
-+		return UBUS_STATUS_INVALID_ARGUMENT;
-+
-+	iface = os_zalloc(sizeof(struct wpa_interface));
-+	if (iface == NULL)
-+		return UBUS_STATUS_UNKNOWN_ERROR;
-+
-+	iface->driver = blobmsg_get_string(tb[WPAS_CONFIG_DRIVER]);
-+	iface->ifname = blobmsg_get_string(tb[WPAS_CONFIG_IFACE]);
-+	iface->confname = blobmsg_get_string(tb[WPAS_CONFIG_FILE]);
-+
-+	if (tb[WPAS_CONFIG_BRIDGE])
-+		iface->bridge_ifname = blobmsg_get_string(tb[WPAS_CONFIG_BRIDGE]);
-+
-+	if (tb[WPAS_CONFIG_CTRL])
-+		iface->ctrl_interface = blobmsg_get_string(tb[WPAS_CONFIG_CTRL]);
-+
-+/*	if (tb[WPAS_CONFIG_HOSTAPD_CTRL])
-+		iface->hostapd_ctrl = blobmsg_get_string(tb[WPAS_CONFIG_HOSTAPD_CTRL]);
-+*/
-+	if (!wpa_supplicant_add_iface(global, iface, NULL))
-+		return UBUS_STATUS_INVALID_ARGUMENT;
-+
-+	blob_buf_init(&b, 0);
-+	blobmsg_add_u32(&b, "pid", getpid());
-+	ubus_send_reply(ctx, req, b.head);
-+
-+	return UBUS_STATUS_OK;
-+}
-+
-+enum {
-+	WPAS_CONFIG_REM_IFACE,
-+	__WPAS_CONFIG_REM_MAX
-+};
-+
-+static const struct blobmsg_policy wpas_config_remove_policy[__WPAS_CONFIG_REM_MAX] = {
-+	[WPAS_CONFIG_REM_IFACE] = { "iface", BLOBMSG_TYPE_STRING },
-+};
-+
-+static int
-+wpas_config_remove(struct ubus_context *ctx, struct ubus_object *obj,
-+		   struct ubus_request_data *req, const char *method,
-+		   struct blob_attr *msg)
-+{
-+	struct blob_attr *tb[__WPAS_CONFIG_REM_MAX];
-+	struct wpa_global *global = get_wpa_global_from_object(obj);
-+	struct wpa_supplicant *wpa_s = NULL;
-+	unsigned int found = 0;
-+
-+	blobmsg_parse(wpas_config_remove_policy, __WPAS_CONFIG_REM_MAX, tb, blob_data(msg), blob_len(msg));
-+
-+	if (!tb[WPAS_CONFIG_REM_IFACE])
-+		return UBUS_STATUS_INVALID_ARGUMENT;
-+
-+	/* find wpa_s object for to-be-removed interface */
-+	for (wpa_s = global->ifaces; wpa_s; wpa_s = wpa_s->next) {
-+		if (!strncmp(wpa_s->ifname,
-+			     blobmsg_get_string(tb[WPAS_CONFIG_REM_IFACE]),
-+			     sizeof(wpa_s->ifname)))
-+		{
-+			found = 1;
-+			break;
-+		}
-+	}
-+
-+	if (!found)
-+		return UBUS_STATUS_INVALID_ARGUMENT;
-+
-+	if (wpa_supplicant_remove_iface(global, wpa_s, 0))
-+		return UBUS_STATUS_INVALID_ARGUMENT;
-+
-+	return UBUS_STATUS_OK;
-+}
-+
-+static const struct ubus_method wpas_daemon_methods[] = {
-+	UBUS_METHOD("config_add", wpas_config_add, wpas_config_add_policy),
-+	UBUS_METHOD("config_remove", wpas_config_remove, wpas_config_remove_policy),
-+};
-+
-+static struct ubus_object_type wpas_daemon_object_type =
-+	UBUS_OBJECT_TYPE("wpa_supplicant", wpas_daemon_methods);
-+
-+void wpas_ubus_add(struct wpa_global *global)
-+{
-+	struct ubus_object *obj = &global->ubus_global;
-+	int ret;
-+
-+	if (!wpas_ubus_init())
-+		return;
-+
-+	obj->name = strdup("wpa_supplicant");
-+
-+	obj->type = &wpas_daemon_object_type;
-+	obj->methods = wpas_daemon_object_type.methods;
-+	obj->n_methods = wpas_daemon_object_type.n_methods;
-+	ret = ubus_add_object(ctx, obj);
-+	wpas_ubus_ref_inc();
-+}
-+
-+void wpas_ubus_free(struct wpa_global *global)
-+{
-+	struct ubus_object *obj = &global->ubus_global;
-+	char *name = (char *) obj->name;
-+
-+	if (!ctx)
-+		return;
-+
-+	if (obj->id) {
-+		ubus_remove_object(ctx, obj);
-+		wpas_ubus_ref_dec();
-+	}
-+
-+	free(name);
-+}
-+
 +struct ubus_event_req {
 +        struct ubus_notify_request nreq;
 +        int resp;
@@ -4792,8 +4978,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif /* CONFIG_WPS */
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ubus.h src/wpa_supplicant/ubus.h
 --- upstream/wpa_supplicant/ubus.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ubus.h	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,89 @@
++++ src/wpa_supplicant/ubus.h	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,76 @@
 +/*
 + * wpa_supplicant / ubus support
 + * Copyright (c) 2018, Daniel Golle <daniel@makrotopia.org>
@@ -4841,25 +5027,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +void wpas_ubus_add_bss(struct wpa_supplicant *wpa_s);
 +void wpas_ubus_free_bss(struct wpa_supplicant *wpa_s);
 +
-+void wpas_ubus_add(struct wpa_global *global);
-+void wpas_ubus_free(struct wpa_global *global);
-+
 +#ifdef CONFIG_WPS
 +void wpas_ubus_notify(struct wpa_supplicant *wpa_s, const struct wps_credential *cred);
 +#endif
 +
-+int wpas_ubus_handle_event(struct wpa_supplicant *wpa_s, struct wpas_ubus_request *req);
-+
 +#else
 +struct wpas_ubus_bss {};
-+
-+static inline void wpas_ubus_add_iface(struct wpa_supplicant *wpa_s)
-+{
-+}
-+
-+static inline void wpas_ubus_free_iface(struct wpa_supplicant *wpa_s)
-+{
-+}
 +
 +static inline void wpas_ubus_add_bss(struct wpa_supplicant *wpa_s)
 +{
@@ -4885,8 +5058,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ucode.c src/wpa_supplicant/ucode.c
 --- upstream/wpa_supplicant/ucode.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ucode.c	2025-07-24 13:25:24.385484416 +0000
-@@ -0,0 +1,297 @@
++++ src/wpa_supplicant/ucode.c	2025-08-18 08:19:11.316062150 +0000
+@@ -0,0 +1,325 @@
 +#include "utils/includes.h"
 +#include "utils/common.h"
 +#include "utils/ucode.h"
@@ -4894,6 +5067,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#include "ap/hostapd.h"
 +#include "wpa_supplicant_i.h"
 +#include "wps_supplicant.h"
++#include "ctrl_iface.h"
 +#include "bss.h"
 +#include "ucode.h"
 +
@@ -4938,7 +5112,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return;
 +
 +	uc_value_push(ucv_string_new(wpa_s->ifname));
-+	uc_value_push(ucv_get(wpas_ucode_iface_get_uval(wpa_s)));
++	uc_value_push(wpas_ucode_iface_get_uval(wpa_s));
 +	ucv_put(wpa_ucode_call(2));
 +	ucv_gc(vm);
 +}
@@ -4958,6 +5132,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	uc_value_push(ucv_string_new(wpa_s->ifname));
 +	uc_value_push(ucv_get(val));
 +	ucv_put(wpa_ucode_call(2));
++	ucv_put(val);
 +	ucv_gc(vm);
 +}
 +
@@ -5143,6 +5318,31 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return ret;
 +}
 +
++static uc_value_t *
++uc_wpas_iface_ctrl(uc_vm_t *vm, size_t nargs)
++{
++	struct wpa_supplicant *wpa_s = uc_fn_thisval("wpas.iface");
++	uc_value_t *arg = uc_fn_arg(0);
++	size_t reply_len;
++	uc_value_t *ret;
++	char *reply;
++
++	if (!wpa_s || ucv_type(arg) != UC_STRING)
++		return NULL;
++
++	reply = wpa_supplicant_ctrl_iface_process(wpa_s, ucv_string_get(arg), &reply_len);
++	if (reply_len < 0)
++		return NULL;
++
++	if (reply_len && reply[reply_len - 1] == '\n')
++		reply_len--;
++
++	ret = ucv_string_new_length(reply, reply_len);
++	free(reply);
++
++	return ret;
++}
++
 +int wpas_ucode_init(struct wpa_global *gl)
 +{
 +	static const uc_function_list_t global_fns[] = {
@@ -5153,6 +5353,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	};
 +	static const uc_function_list_t iface_fns[] = {
 +		{ "status", uc_wpas_iface_status },
++		{ "ctrl", uc_wpas_iface_ctrl },
 +	};
 +	uc_value_t *data, *proto;
 +
@@ -5186,7 +5387,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/wpa_supplicant/ucode.h src/wpa_supplicant/ucode.h
 --- upstream/wpa_supplicant/ucode.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/wpa_supplicant/ucode.h	2025-07-24 13:25:24.385484416 +0000
++++ src/wpa_supplicant/ucode.h	2025-08-18 08:19:11.316062150 +0000
 @@ -0,0 +1,49 @@
 +#ifndef __WPAS_UCODE_H
 +#define __WPAS_UCODE_H

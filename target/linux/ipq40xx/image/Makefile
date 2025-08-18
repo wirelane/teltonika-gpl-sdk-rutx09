@@ -65,7 +65,7 @@ define Device/teltonika_rutx
 	# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	HW_SUPPORT := io_expander%stm32:shiftreg_1
-	HW_MODS += W25N02KV NAND_GD5F2GXX EG060K RUTX_V12
+	HW_MODS += W25N02KV NAND_GD5F2GXX EG060K RUTX_V12 RUTX14_V4
 
 	INCLUDED_DEVICES := \
 		TEMPLATE_teltonika_rutx08 \
@@ -77,8 +77,8 @@ define Device/teltonika_rutx
 		TEMPLATE_teltonika_rutx50 \
 		TEMPLATE_teltonika_rutxr1
 
-	DEVICE_MODEM_VENDORS := Quectel
-	DEVICE_MODEM_LIST := EG06 EG060K EG12 RG501Q RG520N
+	DEVICE_MODEM_VENDORS := Quectel Meiglink
+	DEVICE_MODEM_LIST := EG06 EG060K EG12 RG501Q RG520N SLM828
 
 endef
 TARGET_DEVICES += teltonika_rutx

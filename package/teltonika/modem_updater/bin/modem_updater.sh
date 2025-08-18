@@ -725,7 +725,7 @@ common_validation() {
         [ "$VERSION" != "" ]; then
         exec_ubus_call "$MODEM_N" "get_firmware"
         MODEM_FW=$(parse_from_ubus_rsp "firmware")
-        UNDERSCORE_MODEM_FW=$(echo "$MODEM_FW" | tr '.-' '_')
+        UNDERSCORE_MODEM_FW=$(echo "${MODEM_FW%.00.000}" | tr '.-' '_')
         UNDERSCORE_VERSION=$(echo "$VERSION" | tr '.-' '_')
         if [[ "$UNDERSCORE_VERSION" =~ "$UNDERSCORE_MODEM_FW" ]]; then
             echo "[ERROR] Specified firmware is already installed. Exiting.."

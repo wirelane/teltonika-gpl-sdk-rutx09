@@ -255,7 +255,7 @@ get_passthrough() {
 setup_bridge_v4() {
 	local dev="$1"
 	local modem_num="$2"
-	local p2p
+	local p2p updated_mask
 	local dhcp_param_file="/tmp/dnsmasq.d/bridge"
 	local model
 	echo "$parameters4"
@@ -283,10 +283,12 @@ setup_bridge_v4() {
 	config_load simcard
 	config_foreach get_passthrough sim
 
-	[ "$p2p" -eq 1 ] && {
+	if [ "$p2p" -eq 1 ]; then
 		bridge_mask="255.255.255.255"
 		bridge_gateway="169.254.0.2"
-	}
+	else
+		updated_mask=$(validate_cidr "$bridge_ipaddr" "$bridge_gateway" "$bridge_mask") && bridge_mask="$updated_mask"
+	fi
 
 	json_init
 	json_add_string name "${interface}_4"
@@ -447,7 +449,7 @@ setup_static_v6() {
 	echo "Setting up $dev V6 static"
 	echo "$parameters6"
 
-		local custom="$(uci get network.${interface}.dns)"
+	local custom="$(uci get network.${interface}.dns 2>/dev/null)"
 
 	[[ "$dev" = "rmnet_data"* ]] && { ## TRB5 uses qmicli - different format
 		ip6_with_prefix="$(echo "$parameters6" | sed -n "s_.*IPv6 address: \([0-9a-f:]*\)_\1_p")"
@@ -476,9 +478,9 @@ setup_static_v6() {
 	json_add_string proto static
 	json_add_string ip6gw "::0"
 
-	[ "$delegate" -eq 0 ] || {
+	[ -n "$delegate" ] && [ "$delegate" == 0 ] || {
 		json_add_array ip6prefix
-			json_add_string "" "$ip6_with_prefix"
+		json_add_string "" "$ip6_with_prefix"
 		json_close_array
 	}
 
@@ -603,6 +605,52 @@ restart_dsa_interfaces(){
 
 get_braddr_var() {
 	grep -o "$1:[^ ]*" "/var/run/${2}_braddr" 2>/dev/null | cut -d':' -f2
+}
+
+subnet_to_cidr() {
+	case "$1" in
+		255.255.255.255) echo 32 ;;
+		255.255.255.254) echo 31 ;;
+		255.255.255.252) echo 30 ;;
+		255.255.255.248) echo 29 ;;
+		255.255.255.240) echo 28 ;;
+		255.255.255.224) echo 27 ;;
+		255.255.255.192) echo 26 ;;
+		255.255.255.128) echo 25 ;;
+		255.255.255.0)   echo 24 ;;
+		*) return 1 ;;
+	esac
+}
+
+validate_cidr() {
+	local ipaddr="$1"
+	local gateway="$2"
+	local subnet="$3"
+	local min_cidr=24
+	local cidr current_cidr ipcalc_output network broadcast
+
+	cidr=$(subnet_to_cidr "$subnet") || return 1
+	current_cidr="$cidr"
+
+	while [ "$current_cidr" -ge "$min_cidr" ]; do
+		ipcalc_output=$(ipcalc.sh "$ipaddr/$current_cidr")
+		network=$(echo "$ipcalc_output" | grep 'NETWORK=' | cut -d= -f2)
+		broadcast=$(echo "$ipcalc_output" | grep 'BROADCAST=' | cut -d= -f2)
+		new_netmask=$(echo "$ipcalc_output" | grep 'NETMASK=' | cut -d= -f2)
+
+		if [ "$ipaddr" = "$network" ] || [ "$ipaddr" = "$broadcast" ] || \
+				 [ "$gateway" = "$network" ] || [ "$gateway" = "$broadcast" ]; then
+			current_cidr=$((current_cidr - 1))
+		else
+			break
+		fi
+	done
+
+	if [ "$current_cidr" -ge "$min_cidr" ]; then
+		echo "$new_netmask"
+	else
+		return 1
+	fi
 }
 
 get_simcount_by_modem_num() {
@@ -830,8 +878,13 @@ add_modem_section() {
 		# Manual APN if bootstrap profile
 		[ $is_bootstrap_profile -eq 1 ]  && {
 			uci_set network "${interface}" auto_apn "0"
-			uci_set network "${interface}" apn "data641003"
+			uci_set network "${interface}" apn "360connect"
 		} || uci_set network "${interface}" auto_apn "1"
+
+		# Adding dhcp option only for RUT361
+		[ "$(mnf_info -n | cut -b 1-6)" = "RUT361" ] && {
+			uci_set network "${interface}" dhcp "0"
+		}
 
 		# if needed, use custom ifname for rmnet/other devices
 		[ -n "${custom_ifname}" ] &&
@@ -868,7 +921,6 @@ generate_dynamic_lte() {
 			json_get_vars id simcount builtin
 			json_select ..
 			add_modem_section "$id" "$num" "$simcount" "$builtin"
-			add_modem_settings_config "$id"
 			num=$(( num + 1 ))
 		done
 
@@ -888,7 +940,6 @@ generate_dynamic_lte() {
 		product=$(cat "/sys/bus/usb/devices/$a/idProduct")
 		[ -f "/lib/network/wwan/${vendor}:${product}" ] && {
 			add_simcard_config "$a" "1" "0" ""
-			add_modem_settings_config "$a"
 			add_sms_storage_config "$a"
 		}
 	done

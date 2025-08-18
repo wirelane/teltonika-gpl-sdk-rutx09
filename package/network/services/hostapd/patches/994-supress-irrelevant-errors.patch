@@ -1,21 +1,17 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/beacon.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/beacon.c	2024-04-04 09:55:05.188075497 +0300
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/beacon.c	2024-04-04 10:17:37.007884979 +0300
-@@ -1309,7 +1309,7 @@
+--- a/src/ap/beacon.c
++++ b/src/ap/beacon.c
+@@ -1739,7 +1739,7 @@ void handle_probe_req(struct hostapd_dat
  				    csa_offs_len, 0);
  
  	if (ret < 0)
 -		wpa_printf(MSG_INFO, "handle_probe_req: send failed");
 +		wpa_printf(MSG_DEBUG, "handle_probe_req: send failed");
  
- 	os_free(resp);
+ 	os_free(params.resp);
  
-Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/scan.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/wpa_supplicant/scan.c	2024-04-04 10:21:44.318356417 +0300
-+++ hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/scan.c	2024-04-04 10:22:27.222080139 +0300
-@@ -1852,7 +1852,8 @@
+--- a/wpa_supplicant/scan.c
++++ b/wpa_supplicant/scan.c
+@@ -1947,7 +1947,8 @@ scan:
  	os_free(params.filter_ssids);
  	os_free(params.mac_addr);
  	if (ret) {

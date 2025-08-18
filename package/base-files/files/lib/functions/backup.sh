@@ -468,7 +468,7 @@ backup_size_validation() {
 }
 
 if [ -n "$CONF_BACKUP" ]; then
-	ubus call system update_profile &>/dev/null
+	ubus call rpc-profile update &>/dev/null
 	remove_section_containing_option "network" "device" "macaddr"
 	remove_option "rms_mqtt" "rms_connect_mqtt" "auth_code"
 	do_save_conffiles "$CONF_BACKUP"

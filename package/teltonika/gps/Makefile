@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2025-07-02
-PKG_RELEASE:=1
+PKG_VERSION:=2025-08-04
+PKG_RELEASE:=2
 
-PKG_SOURCE_VERSION:=7.16
+PKG_SOURCE_VERSION:=7.17
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -74,22 +74,11 @@ define Package/gpsd/conffiles
 endef
 
 define Package/gpsd/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/etc/hotplug.d/usb $(1)/etc/permtab.d
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/etc/hotplug.d/usb $(1)/etc/permtab.d $(1)/etc/gps
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gpsd/gpsd $(1)/usr/sbin/gpsd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gpsd.init $(1)/etc/init.d/gpsd
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/gps.permtab $(1)/etc/permtab.d/gps
-
-	if [ $(TLT_PLATFORM_X86_64) ] || [ $(TLT_PLATFORM_RUTX) ] || [ $(TLT_PLATFORM_RUTM) ] || [ $(TLT_PLATFORM_RUTC) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_RUTX.conf $(1)/etc/config/gps; \
-	elif [ $(TLT_PLATFORM_TRB2M) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_TRB2M.conf $(1)/etc/config/gps; \
-	elif [ $(TLT_PLATFORM_TRB2) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_TRB2.conf $(1)/etc/config/gps; \
-	elif [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_RUT9.conf $(1)/etc/config/gps; \
-	elif [ $(TLT_PLATFORM_ATRM50) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps_ATRM50.conf $(1)/etc/config/gps; \
-	fi;
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps.conf $(1)/etc/config/gps
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.10/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11/
@@ -97,6 +86,8 @@ define Package/gpsd/install
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.10/01_gps_add_nmea_rules $(1)/etc/uci-defaults/7.10/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.11/01_gps_add_serial_forwarding_section $(1)/etc/uci-defaults/7.11/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.12/01_gps_migrate_glonass_beidou $(1)/etc/uci-defaults/7.12/
+
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/create_rules.sh $(1)/etc/gps/
 endef
 
 define Package/gpsctl/install
@@ -114,16 +105,7 @@ define Package/avl/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/avl.init $(1)/etc/init.d/avl
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/avl/avl $(1)/usr/sbin/avl
-
-	if [ $(TLT_PLATFORM_X86_64) ] || [ $(TLT_PLATFORM_RUTX) ] || [ $(TLT_PLATFORM_RUTM) ] || [ $(TLT_PLATFORM_RUTC) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl_RUTX.conf $(1)/etc/config/avl; \
-	elif [ $(TLT_PLATFORM_TRB2) ] || [ $(TLT_PLATFORM_TRB2M) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl_TRB2.conf $(1)/etc/config/avl; \
-	elif [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl_RUT9.conf $(1)/etc/config/avl; \
-	elif [ $(TLT_PLATFORM_ATRM50) ]; then \
-		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl_ATRM50.conf $(1)/etc/config/avl; \
-	fi;
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl.conf $(1)/etc/config/avl
 endef
 
 $(eval $(call BuildPackage,libgps))

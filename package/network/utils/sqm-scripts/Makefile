@@ -26,7 +26,7 @@ define Package/sqm-scripts
   CATEGORY:=Base system
   DEPENDS:=+tc +kmod-sched-core +kmod-ifb +iptables \
 	+iptables-mod-ipopt +iptables-mod-conntrack-extra \
-	+kmod-sched-cake
+	+kmod-sched-cake +kmod-sched-act-ipt
   TITLE:=SQM Scripts (QoS)
   PKGARCH:=all
 endef

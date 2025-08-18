@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=DMVPN
 PKG_VERSION:=2021-02-11
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -20,7 +20,8 @@ define Package/dmvpn
 	DEPENDS:=+kmod-gre +IPV6:kmod-gre6 +resolveip +libpthread +ip \
 		+kmod-crypto-authenc +kmod-ipsec +kmod-ipsec4 +IPV6:kmod-ipsec6 \
 		+kmod-ipt-ipsec +iptables-mod-ipsec \
-		+frr-nhrp
+		+frr-nhrp +frr
+	USERID:=dmvpn:dmvpn
 endef
 
 define Package/dmvpn/description
@@ -39,10 +40,12 @@ endef
 define Package/dmvpn/install
 	$(INSTALL_DIR) \
 		$(1)/etc/config \
-		$(1)/etc/uci-defaults/7.16
-	$(INSTALL_CONF) files/etc/config/dmvpn \
+		$(1)/etc/uci-defaults/7.16 \
+		$(1)/etc/permtab.d
+	$(INSTALL_CONF_USR) files/etc/config/dmvpn \
 		$(1)/etc/config/dmvpn
 	$(INSTALL_BIN) ./files/defaults/99-main_table_to_254 $(1)/etc/uci-defaults/7.16/99-main_table_to_254
+	$(INSTALL_DATA) files/dmvpn.permtab $(1)/etc/permtab.d/dmvpn
 endef
 
 define Package/dmvpn/prerm

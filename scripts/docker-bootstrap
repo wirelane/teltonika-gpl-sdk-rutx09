@@ -2,7 +2,7 @@
 
 IMG_NAME_PREFIX=git.teltonika.lt:4567/docker/buildsys/
 IMG_NAME=${IMG_NAME:-${IMG_NAME_PREFIX}tools}
-IMG_TAG=${IMG_TAG:-1.25}
+IMG_TAG=${IMG_TAG:-1.27}
 
 # Color codes
 RED='\033[0;31m'

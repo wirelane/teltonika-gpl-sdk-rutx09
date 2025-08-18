@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libmodbus
-PKG_VERSION:=2025-07-02
+PKG_VERSION:=2025-03-25
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v3.1.6
@@ -19,6 +19,8 @@ PKG_CPE_ID:=cpe:/a:libmodbus:libmodbus
 
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
+
+PKG_BUILD_DEPENDS := libgpg-error
 
 include $(INCLUDE_DIR)/package.mk
 

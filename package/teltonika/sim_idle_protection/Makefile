@@ -61,10 +61,6 @@ define Package/sim_idle_protection/postinst
 	config_load simcard
 	config_foreach add_sim_idle_protection_config sim
 
-	# TODO: #24098
-	chown 100:users /etc/config
-	chmod 777 /etc/config
-
 	[[ -x "/bin/trigger_vuci_routes_reload" ]] && /bin/trigger_vuci_routes_reload
 endef
 

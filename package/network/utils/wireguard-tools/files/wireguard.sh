@@ -18,6 +18,16 @@ fi
 	init_proto "$@"
 }
 
+ip_to_int() {
+	echo "$1" | while IFS="." read o1 o2 o3 o4; do
+		[ -n "$o1" ] && [ -n "$o2" ] && [ -n "$o3" ] && [ -n "$o4" ] || return 1
+		case "$o1$o2$o3$o4" in
+			*[!0-9]*) return 1 ;;
+		esac
+		echo $(( (o1 << 24) | (o2 << 16) | (o3 << 8) | o4 ))
+	done
+}
+
 proto_wireguard_init_config() {
 	proto_config_add_string "private_key"
 	proto_config_add_int "listen_port"
@@ -228,7 +238,7 @@ proto_wireguard_setup() {
 	config_load network
 	if [ "${nohostroute}" != "1" ] && [ "$DEFAULT_ROUTE" -eq 1 ]; then
 		echo "" >> "$DEFAULT_STATUS"
-		wg show "${config}" endpoints | \
+		${WG} show "${config}" endpoints | \
 		sed -E 's/\[?([0-9.:a-f]+)\]?:([0-9]+)/\1 \2/' | \
 		while IFS=$'\t ' read -r key address port; do
 			[ -n "${port}" ] || continue
@@ -246,7 +256,11 @@ proto_wireguard_setup() {
 						;;
 				esac
 			done
-			defaults="$(ip route show default | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
+			default="$(ip route show default)"
+			if [ -n "$default" ]; then
+				defaults="$(echo "$default" | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
+				echo "ip route add $default" >> "$DEFAULT_STATUS"
+			fi
 			[ "$mwan3_up" = true ] && [ "$default_route_set" = true ] && {
 				default_int=$(cat "/tmp/run/mwan3/active_wan")
 				network_get_device defaults "$default_int"
@@ -255,6 +269,7 @@ proto_wireguard_setup() {
 			}
 			for dev in ${defaults}; do
 				metric="$(ip route show default dev "$dev" | awk -F"metric " '{print $2}' | sed 's/\s.*$//')"
+				gw="$(ip route show default dev "$dev" | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
 				for ip in $(resolveip -4 "$peer"); do
 					if [ -n "$tunlink" ] && [ "$tunlink" != "any" ]; then
 						network_get_device tunlink_dev $tunlink
@@ -267,8 +282,21 @@ proto_wireguard_setup() {
 						fi
 						continue
 					fi
-					if ip route add "$ip" ${gw:+via "$gw"} dev "$dev" metric "$metric"; then
-						echo "ip route del $ip ${gw:+via "$gw"} dev $dev metric $metric" >> "$DEFAULT_STATUS"
+					wan_ip="$(ip addr show dev "$dev" | awk '/inet / {print $2; exit}')"
+					eval "$(ipcalc.sh "$wan_ip")";wan_network="$NETWORK" wan_broadcast="$BROADCAST"
+					ip_dec=$(ip_to_int "$ip")
+					wan_network_dec=$(ip_to_int "$wan_network")
+					wan_broadcast_dec=$(ip_to_int "$wan_broadcast")
+					if [ "$ip_dec" -gt "$wan_network_dec" ] && [ "$ip_dec" -lt "$wan_broadcast_dec" ]; then
+						logger -t wireguard "Adding link-scope route to $ip via $dev"
+						if ip route add "$ip" dev "$dev" scope link metric "$metric" 2>/dev/null; then
+							echo "ip route del $ip dev $dev scope link metric $metric" >> "$DEFAULT_STATUS"
+						fi
+					else
+						logger -t wireguard "Adding route to $ip via $gw"
+						if ip route add "$ip" ${gw:+via "$gw"} dev "$dev" metric "$metric"; then
+							echo "ip route del $ip ${gw:+via "$gw"} dev $dev metric $metric" >> "$DEFAULT_STATUS"
+						fi
 					fi
 				done
 			done
@@ -293,7 +321,7 @@ proto_wireguard_teardown() {
 	ip link del dev "${config}" >/dev/null 2>&1	
 	if [ -e "$DEFAULT_STATUS" ]; then
 		while read -r line; do
-			if echo "$line" | grep -q "ip route del"; then
+			if echo "$line" | grep -q "ip route"; then
 				eval "$line"
 			fi
 		done < "$DEFAULT_STATUS"

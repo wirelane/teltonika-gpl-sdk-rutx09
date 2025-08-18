@@ -1,8 +1,6 @@
-Index: hostapd-2.11/wpa_supplicant/ucode.c
-===================================================================
---- hostapd-2.11/wpa_supplicant/ucode.c
-+++ hostapd-2.11/wpa_supplicant/ucode.c
-@@ -141,6 +141,7 @@ uc_wpas_add_iface(uc_vm_t *vm, size_t na
+--- a/wpa_supplicant/ucode.c
++++ b/wpa_supplicant/ucode.c
+@@ -142,6 +142,7 @@ uc_wpas_add_iface(uc_vm_t *vm, size_t na
  	uc_value_t *bridge = ucv_object_get(info, "bridge", NULL);
  	uc_value_t *config = ucv_object_get(info, "config", NULL);
  	uc_value_t *ctrl = ucv_object_get(info, "ctrl", NULL);
@@ -10,7 +8,7 @@ Index: hostapd-2.11/wpa_supplicant/ucode.c
  	struct wpa_interface iface;
  	int ret = -1;
  
-@@ -153,6 +154,7 @@ uc_wpas_add_iface(uc_vm_t *vm, size_t na
+@@ -154,6 +155,7 @@ uc_wpas_add_iface(uc_vm_t *vm, size_t na
  		.bridge_ifname = ucv_string_get(bridge),
  		.confname = ucv_string_get(config),
  		.ctrl_interface = ucv_string_get(ctrl),
@@ -18,11 +16,9 @@ Index: hostapd-2.11/wpa_supplicant/ucode.c
  	};
  
  	if (driver) {
-Index: hostapd-2.11/wpa_supplicant/wpa_supplicant.c
-===================================================================
---- hostapd-2.11/wpa_supplicant/wpa_supplicant.c
-+++ hostapd-2.11/wpa_supplicant/wpa_supplicant.c
-@@ -1045,8 +1045,9 @@ void wpa_supplicant_set_state(struct wpa
+--- a/wpa_supplicant/wpa_supplicant.c
++++ b/wpa_supplicant/wpa_supplicant.c
+@@ -1272,8 +1272,9 @@ void wpa_supplicant_set_state(struct wpa
  	}
  	wpa_s->wpa_state = state;
  
@@ -34,7 +30,7 @@ Index: hostapd-2.11/wpa_supplicant/wpa_supplicant.c
  
  #ifdef CONFIG_BGSCAN
  	if (state == WPA_COMPLETED && wpa_s->current_ssid != wpa_s->bgscan_ssid)
-@@ -7592,6 +7593,8 @@ struct wpa_supplicant * wpa_supplicant_a
+@@ -8228,6 +8229,8 @@ struct wpa_supplicant * wpa_supplicant_a
  	wpa_s->next = global->ifaces;
  	global->ifaces = wpa_s;
  
@@ -43,10 +39,8 @@ Index: hostapd-2.11/wpa_supplicant/wpa_supplicant.c
  	wpa_dbg(wpa_s, MSG_DEBUG, "Added interface %s", wpa_s->ifname);
  	wpa_supplicant_set_state(wpa_s, WPA_DISCONNECTED);
  
-Index: hostapd-2.11/wpa_supplicant/wpa_supplicant_i.h
-===================================================================
---- hostapd-2.11/wpa_supplicant/wpa_supplicant_i.h
-+++ hostapd-2.11/wpa_supplicant/wpa_supplicant_i.h
+--- a/wpa_supplicant/wpa_supplicant_i.h
++++ b/wpa_supplicant/wpa_supplicant_i.h
 @@ -137,6 +137,8 @@ struct wpa_interface {
  		WPA_IFACE_MATCHED
  	} matched;
@@ -56,7 +50,7 @@ Index: hostapd-2.11/wpa_supplicant/wpa_supplicant_i.h
  };
  
  /**
-@@ -691,6 +693,7 @@ struct wpa_supplicant {
+@@ -702,6 +704,7 @@ struct wpa_supplicant {
  	char ifname[100];
  	struct wpas_ubus_bss ubus;
  	struct wpas_ucode_bss ucode;

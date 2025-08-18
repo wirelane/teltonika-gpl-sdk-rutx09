@@ -5,12 +5,15 @@ STOP=80
 USE_PROCD=1
 
 PROGRAM="/usr/sbin/gpsd"
+RULES_SCRIPT=/etc/gps/create_rules.sh
 
 . /lib/functions.sh
 . /usr/share/libubox/jshn.sh
 
 start_service() {
 	config_load gps
+
+    $RULES_SCRIPT gps /etc/gps/gps_rules_filled https_tavl_rule
 
 	config_get enabled gpsd enabled "0"
 	[ "$enabled" = "1" ] || { ubus call gsm.modem* gnss_stop > /dev/null 2>&1; return; }

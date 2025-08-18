@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 PKG_NAME:=frr
 PKG_VERSION:=8.4.2
-PKG_RELEASE:=14
+PKG_RELEASE:=17
 PKG_SOURCE_DATE:=2023-02-17
 
 
@@ -128,6 +128,8 @@ define Package/frr-zebra
   DEPENDS+=+frr-libfrr
   DEFAULT:=y if PACKAGE_frr
   CONFLICTS:=quagga-zebra
+  FATTRS:=/usr/sbin/zebra::::cap_net_admin,cap_net_raw,cap_sys_admin+p
+  USERID:=zebra:frr
 endef
 
 define Package/frr-pythontools
@@ -195,6 +197,10 @@ define Package/frr-ripd/conffiles
 /etc/config/rip
 endef
 
+define Package/frr-bfdd/conffiles
+/etc/config/bfd
+endef
+
 # define Package/frr-staticd/conffiles
 # /etc/config/static
 # endef
@@ -211,12 +217,29 @@ define BuildDaemon
     define Package/frr-$(1)
 	$$(call Package/frr/Default)
 	TITLE:= $(1) routing engine
-	DEPENDS+=frr-libfrr frr-zebra $(2)
+	DEPENDS+=+frr-zebra $(2)
 
 	ifeq ($(1),bgpd)
 		DEPENDS+=+kmod-tcpmd5sig
+		FATTRS:=/usr/sbin/bgpd::::cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_admin+p
+		USERID:=bgp:frr
 	endif
-
+	ifeq ($(1),ripd)
+		FATTRS:=/usr/sbin/ripd::::cap_net_bind_service,cap_net_raw,cap_sys_admin+p
+		USERID:=rip:frr
+	endif
+	ifeq ($(1),ospfd)
+		FATTRS:=/usr/sbin/ospfd::::cap_net_bind_service,cap_net_raw,cap_sys_admin+p
+		USERID:=ospf:frr
+	endif
+	ifeq ($(1),eigrpd)
+		FATTRS:=/usr/sbin/eigrpd::::cap_net_bind_service,cap_net_admin,cap_net_raw+p
+		USERID:=eigrp:frr
+	endif
+	ifeq ($(1),nhrp)
+		FATTRS:=/usr/sbin/nhrpd::::cap_dac_override,cap_net_admin,cap_net_raw+p
+		USERID:=nhrp:frr
+	endif
 #	if [ "$(1)" == "bfdd" ]; then \
 #	export HAVE_BFDD == 1 ; fi
     endef
@@ -224,6 +247,7 @@ define BuildDaemon
     define Package/frr-$(1)/install
 		$(INSTALL_DIR) $$(1)/usr/sbin
 		$(INSTALL_DIR) $$(1)/etc/config
+		$(INSTALL_DIR) $$(1)/etc/permtab.d
 		if [ "$(1)" == "nhrp" ]; then \
 			$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/nhrpd $$(1)/usr/sbin/; \
 			$(INSTALL_DIR) $$(1)/usr/lib; \
@@ -235,7 +259,8 @@ define BuildDaemon
 		config_name="$$$$$$$${config_name::-1}"; \
 		config_name="$$$$$$$${config_name/nhr/nhrp}"; \
 		config_name="$$$$$$$${config_name/ldp/mpls}"; \
-		$(INSTALL_CONF_USR) ./files/configs/"$$$$$$$${config_name}".conf $$(1)/etc/config/"$$$$$$$${config_name}"
+		$(INSTALL_CONF_USR) ./files/configs/"$$$$$$$${config_name}".conf $$(1)/etc/config/"$$$$$$$${config_name}"; \
+		echo -e "/etc/config/$$$$$$$${config_name}	$$$$$$$${config_name}:frr	660	-\n" > $$(1)/etc/permtab.d/"$$$$$$$${config_name}"
     endef
 
     $$(eval $$(call BuildPackage,frr-$(1)))
@@ -263,8 +288,6 @@ CONFIGURE_ARGS+= \
 	--prefix=/usr \
 	--enable-shared \
 	--disable-static \
-	--enable-user=root \
-	--enable-group=root \
 	--disable-ospfclient \
 	--disable-doc \
 	--disable-backtrace \
@@ -273,6 +296,7 @@ CONFIGURE_ARGS+= \
 	--disable-bgp-bmp \
 	--sysconfdir=/etc/frr \
 	--localstatedir=/var/run/frr \
+	--with-vici-socket=/var/run/ipsec/charon.vici \
 	$(if $(CONFIG_FRR_OPENSSL),--with-crypto=openssl,) \
 	$(if $(CONFIG_FRR_SNMP),--enable-snmp,) \
 	$(foreach m,$(PKG_DAEMON_AVAILABLE), \
@@ -281,11 +305,9 @@ CONFIGURE_ARGS+= \
 	$(call autoconf_bool,CONFIG_PACKAGE_frr-libfrr,zebra)
 
 define Package/frr/install
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/frr $(1)/etc/permtab.d $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/frr.init $(1)/etc/init.d/frr
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.5
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.7
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.5 $(1)/etc/uci-defaults/7.7
 	$(CP) ./files/defaults/97_frr_indexing $(1)/etc/uci-defaults/7.5/97_frr_indexing
 	$(CP) ./files/defaults/98_modify-frr.sh $(1)/etc/uci-defaults/7.5/98_modify-frr.sh
 	$(CP) ./files/defaults/99_migrate-frr.sh $(1)/etc/uci-defaults/7.5/99_migrate-frr.sh
@@ -302,8 +324,9 @@ endef
 define Package/frr-zebra/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/zebra $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/frr
+	$(INSTALL_DIR) $(1)/etc/frr $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/zebra.conf $(1)/etc/frr/
+	$(INSTALL_DATA) ./files/frr.permtab $(1)/etc/permtab.d/frr
 endef
 
 define Package/frr-libfrr/install

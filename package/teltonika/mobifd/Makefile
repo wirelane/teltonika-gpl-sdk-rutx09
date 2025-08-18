@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobifd
 
-PKG_SOURCE_VERSION:=7.16.2
+PKG_SOURCE_VERSION:=7.17.0.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -51,6 +51,7 @@ define Package/mobifd/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mobifd.init $(1)/etc/init.d/mobifd
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/mobifd.conf $(1)/etc/config/operctl
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/config.d/400-gzip-apn-db $(1)/lib/config.d/400-gzip-apn-db
+	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/config.d/400-generate-modem-settings $(1)/lib/config.d/400-generate-modem-settings
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/mobifd.json $(1)/usr/share/acl.d/mobifd.json
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/02_simcard $(1)/etc/uci-defaults/etc/02_simcard
 	$(CP) $(PKG_BUILD_DIR)/files/defaults/106_operctl $(1)/etc/uci-defaults/etc/106_operctl

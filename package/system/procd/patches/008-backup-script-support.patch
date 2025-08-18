@@ -1,7 +1,7 @@
 --- a/system.c
 +++ b/system.c
-@@ -52,6 +52,84 @@ struct firstboot_req {
-     struct ubus_context *ctx;
+@@ -45,6 +45,84 @@ enum vjson_state {
+ 	VJSON_SUCCESS,
  };
  
 +struct backup_req {
@@ -85,10 +85,11 @@
  static int system_board(struct ubus_context *ctx, struct ubus_object *obj,
                   struct ubus_request_data *req, const char *method,
                   struct blob_attr *msg)
-@@ -976,6 +1054,110 @@ static int system_userdefaults(struct ub
+@@ -729,6 +807,110 @@ static int system_analyze(struct ubus_co
+ 	return UBUS_STATUS_OK;
  }
  
- enum {
++enum {
 +	BACKUP_ENV,
 +	__BACKUP_MAX
 +};
@@ -192,14 +193,13 @@
 +	return UBUS_STATUS_OK;
 +}
 +
-+enum {
- 	FIRSTBOOT_FACTORY,
- 	__FIRSTBOOT_MAX
- };
-@@ -1079,6 +1261,7 @@ static const struct ubus_method system_m
- #endif // PROFILE_SUPPORT
- 	UBUS_METHOD_NOARG("userdefaults", system_userdefaults),
- 	UBUS_METHOD("firstboot", system_firstboot, firstboot_policy),
+ static void
+ procd_subscribe_cb(struct ubus_context *ctx, struct ubus_object *obj)
+ {
+@@ -744,6 +926,7 @@ static const struct ubus_method system_m
+ 	UBUS_METHOD("validate_firmware_image", validate_firmware_image, validate_firmware_image_policy),
+ 	UBUS_METHOD("sysupgrade", sysupgrade, sysupgrade_policy),
+ 	UBUS_METHOD_NOARG("analyze", system_analyze),
 +	UBUS_METHOD("backup", backup, backup_policy),
  };
  

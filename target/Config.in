@@ -192,9 +192,6 @@ config 64MB_RAM
 
 config 128MB_RAM
 	bool
-
-config TPM_SUPPORT
-	bool
 	
 config SW_OFFLOAD
 	bool

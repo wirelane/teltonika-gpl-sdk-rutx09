@@ -10,6 +10,8 @@ hostapd.data.pending_config = {};
 hostapd.data.file_fields = {
 	vlan_file: true,
 	wpa_psk_file: true,
+	sae_password_file: true,
+	rxkh_file: true,
 	accept_mac_file: true,
 	deny_mac_file: true,
 	eap_user_file: true,
@@ -20,6 +22,32 @@ hostapd.data.file_fields = {
 	private_key2: true,
 	dh_file: true,
 	eap_sim_db: true,
+};
+
+hostapd.data.iface_fields = {
+	ft_iface: true,
+	upnp_iface: true,
+	snoop_iface: true,
+	bridge: true,
+	iapp_interface: true,
+};
+
+hostapd.data.bss_info_fields = {
+	// radio
+	hw_mode: true,
+	channel: true,
+	ieee80211ac: true,
+	ieee80211ax: true,
+
+	// bss
+	bssid: true,
+	ssid: true,
+	wpa: true,
+	wpa_key_mgmt: true,
+	wpa_pairwise: true,
+	auth_algs: true,
+	ieee80211w: true,
+	owe_transition_ifname: true,
 };
 
 function iface_remove(cfg)
@@ -309,6 +337,64 @@ function bss_reload_psk(bss, config, old_config)
 	hostapd.printf(`Reload WPA PSK file for bss ${config.ifname}: ${ret}`);
 }
 
+function normalize_rxkhs(txt)
+{
+	const pat = {
+		sep: "\x20",
+		mac: "([[:xdigit:]]{2}:?){5}[[:xdigit:]]{2}",
+		r0kh_id: "[\x21-\x7e]{1,48}",
+		r1kh_id: "([[:xdigit:]]{2}:?){5}[[:xdigit:]]{2}",
+		key: "[[:xdigit:]]{32,}",
+		r0kh: function() {
+			return "r0kh=" + this.mac + this.sep + this.r0kh_id;
+		},
+		r1kh: function() {
+			return "r1kh=" + this.mac + this.sep + this.r1kh_id;
+		},
+		rxkh: function() {
+			return "(" + this.r0kh() + "|" + this.r1kh() + ")" + this.sep + this.key;
+		},
+	};
+
+	let rxkhs = filter(
+		split(txt, "\n"), (line) => match(line, regexp("^" + pat.rxkh() + "$"))
+	) ?? [];
+
+	rxkhs = map(rxkhs, function(k) {
+		k = split(k, " ", 3);
+		k[0] = lc(k[0]);
+		if(match(k[0], /^r1kh/)) {
+			k[1] = lc(k[1]);
+		}
+		if(!k[2] = hostapd.rkh_derive_key(k[2])) {
+			return;
+		}
+		return join(" ", k);
+	});
+
+	return join("\n", sort(filter(rxkhs, length)));
+}
+
+function bss_reload_rxkhs(bss, config, old_config)
+{
+	let bss_rxkhs = join("\n", sort(split(bss.ctrl("GET_RXKHS"), "\n")));
+	let bss_rxkhs_hash = hostapd.sha1(bss_rxkhs);
+
+	if (is_equal(config.hash.rxkh_file, bss_rxkhs_hash)) {
+		if (is_equal(old_config.hash.rxkh_file, config.hash.rxkh_file))
+			return;
+	}
+
+	old_config.hash.rxkh_file = config.hash.rxkh_file;
+	if (!is_equal(old_config, config))
+		return;
+
+	let ret = bss.ctrl("RELOAD_RXKHS");
+	ret ??= "failed";
+
+	hostapd.printf(`Reload RxKH file for bss ${config.ifname}: ${ret}`);
+}
+
 function remove_file_fields(config)
 {
 	return filter(config, (line) => !hostapd.data.file_fields[split(line, "=")[0]]);
@@ -325,14 +411,30 @@ function bss_remove_file_fields(config)
 	for (let key in config.hash)
 		new_cfg.hash[key] = config.hash[key];
 	delete new_cfg.hash.wpa_psk_file;
+	delete new_cfg.hash.sae_password_file;
 	delete new_cfg.hash.vlan_file;
 
 	return new_cfg;
 }
 
+function bss_ifindex_list(config)
+{
+	config = filter(config, (line) => !!hostapd.data.iface_fields[split(line, "=")[0]]);
+
+	return join(",", map(config, (line) => {
+		try {
+			let file = "/sys/class/net/" + split(line, "=")[1] + "/ifindex";
+			let val = trim(readfile(file));
+			return val;
+		} catch (e) {
+			return "";
+		}
+	}));
+}
+
 function bss_config_hash(config)
 {
-	return hostapd.sha1(remove_file_fields(config) + "");
+	return hostapd.sha1(remove_file_fields(config) + bss_ifindex_list(config));
 }
 
 function bss_find_existing(config, prev_config, prev_hash)
@@ -599,6 +701,7 @@ function iface_reload_config(phydev, config, old_config)
 		}
 
 		bss_reload_psk(bss, config.bss[i], bss_list_cfg[i]);
+		bss_reload_rxkhs(bss, config.bss[i], bss_list_cfg[i]);
 		if (is_equal(config.bss[i], bss_list_cfg[i]))
 			continue;
 
@@ -739,6 +842,17 @@ function ex_wrap(func) {
 		}
 		return libubus.STATUS_UNKNOWN_ERROR;
 	};
+}
+
+function bss_config(bss_name) {
+	for (let phy, config in hostapd.data.config) {
+		if (!config)
+			continue;
+
+		for (let bss in config.bss)
+			if (bss.ifname == bss_name)
+				return [ config, bss ];
+	}
 }
 
 let main_obj = {
@@ -885,10 +999,40 @@ let main_obj = {
 			return 0;
 		})
 	},
+	bss_info: {
+		args: {
+			iface: ""
+		},
+		call: ex_wrap(function(req) {
+			if (!req.args.iface)
+				return libubus.STATUS_INVALID_ARGUMENT;
+
+			let config = bss_config(req.args.iface);
+			if (!config)
+				return libubus.STATUS_NOT_FOUND;
+
+			let bss = config[1];
+			config = config[0];
+			let ret = {};
+
+			for (let line in [ ...config.radio.data, ...bss.data ]) {
+				let fields = split(line, "=", 2);
+				let name = fields[0];
+				if (hostapd.data.bss_info_fields[name])
+					ret[name] = fields[1];
+			}
+
+			return ret;
+		})
+	},
 };
 
 hostapd.data.ubus = ubus;
 hostapd.data.obj = ubus.publish("hostapd", main_obj);
+
+
+let auth_obj = {};
+hostapd.data.auth_obj = ubus.publish("hostapd-auth", auth_obj);
 
 function bss_event(type, name, data) {
 	let ubus = hostapd.data.ubus;
@@ -905,13 +1049,41 @@ return {
 			iface_set_config(phy, null);
 		hostapd.ubus.disconnect();
 	},
-	bss_add: function(name, obj) {
+	bss_create: function(phy, name, obj) {
+		phy = hostapd.data.config[phy];
+		if (!phy)
+			return;
+
+		if (phy.radio_idx != null && phy.radio_idx >= 0)
+			wdev_set_radio_mask(name, 1 << phy.radio_idx);
+	},
+	bss_add: function(phy, name, obj) {
 		bss_event("add", name);
 	},
-	bss_reload: function(name, obj, reconf) {
+	bss_reload: function(phy, name, obj, reconf) {
 		bss_event("reload", name, { reconf: reconf != 0 });
 	},
-	bss_remove: function(name, obj) {
+	bss_remove: function(phy, name, obj) {
 		bss_event("remove", name);
-	}
+	},
+	sta_auth: function(iface, sta) {
+		let msg = { iface, sta };
+		let ret = {};
+		let data_cb = (type, data) => {
+			ret = { ...ret, ...data };
+		};
+		if (hostapd.data.auth_obj)
+			hostapd.data.auth_obj.notify("sta_auth", msg, data_cb, null, null, 1000);
+		return ret;
+	},
+	sta_connected: function(iface, sta, data) {
+		let msg = { iface, sta, ...data };
+		let ret = {};
+		let data_cb = (type, data) => {
+			ret = { ...ret, ...data };
+		};
+		if (hostapd.data.auth_obj)
+			hostapd.data.auth_obj.notify("sta_connected", msg, data_cb, null, null, 1000);
+		return ret;
+	},
 };

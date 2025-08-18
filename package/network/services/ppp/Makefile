@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ppp
-PKG_RELEASE:=7
+PKG_RELEASE:=9
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=cd5b0f0543cad042df126cf8ad1a238e5d13dd17
@@ -243,6 +243,8 @@ define Package/ppp/install
 	$(INSTALL_BIN) ./files/lib/netifd/ppp6-up $(1)/lib/netifd/
 	$(INSTALL_BIN) ./files/lib/netifd/ppp-down $(1)/lib/netifd/
 	$(INSTALL_DATA) ./files/etc/ppp/options.sstp $(1)/etc/ppp/
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/ppp.permtab $(1)/etc/permtab.d/ppp
 endef
 Package/ppp-multilink/install=$(Package/ppp/install)
 

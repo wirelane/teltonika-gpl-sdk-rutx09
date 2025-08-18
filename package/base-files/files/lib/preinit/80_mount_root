@@ -123,7 +123,9 @@ EOF
 			rm -f "$target_dir/.write_test"
 			rm -rf "${TEMP_DIR}"/*
 
-			tar -xzf "${TAR_FILE}" -C "${TEMP_DIR}" "$src_path"
+			if ! tar -xzf "${TAR_FILE}" -C "${TEMP_DIR}" "$src_path" 2>/dev/null; then
+				continue
+			fi
 
 			if [ -d "$dst_path" ]; then
 				if [ -d "$TEMP_DIR/$src_path" ]; then
@@ -158,7 +160,7 @@ do_mount_root() {
 		mv /overlay/user_defaults.tgz /etc/default-config/config.tar.gz
 		# Prevent configuration corruption on a power loss
 		sync
-		sme.sh --preboot || echo "- sme.sh failed with code $? -"
+		[ -x /bin/sme.sh ] && { sme.sh --preboot || echo "- sme.sh failed with code $? -"; }
 
 	elif [ -f /overlay/sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tgz ]; then
 		echo "- config restore -"
@@ -179,8 +181,9 @@ do_mount_root() {
 		fix_permissions 660 "/etc/config/network" "network:network"
 		fix_permissions 660 "/etc/config/wireless" "network:network"
 		sync
-		sme.sh --preboot || echo "- sme.sh failed with code $? -"
+		[ -x /bin/sme.sh ] && { sme.sh --preboot || echo "- sme.sh failed with code $? -"; }
 	fi
+	[ -f /etc/last_version ] || cat /etc/version > /etc/last_version
 }
 
 [ "$INITRAMFS" = "1" ] || boot_hook_add preinit_main do_mount_root

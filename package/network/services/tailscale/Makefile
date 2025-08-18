@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tailscale
 PKG_VERSION:=1.70.0
-PKG_RELEASE:=8
+PKG_RELEASE:=11
 
 PKG_HASH:=8429728708f9694534489daa0a30af58be67f25742597940e7613793275c738f
 
@@ -46,7 +46,9 @@ define Package/tailscale
   SUBMENU:=VPN
   TITLE:=Zero config VPN
   URL:=https://tailscale.com
-  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +kmod-tun
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +kmod-tun +kmod-nft-nat
+  USERID:=tailscale:tailscale
+  FATTRS:=/usr/sbin/tailscale.combined::::cap_net_admin,cap_net_raw+ep
 endef
 
 define Build/Compile
@@ -74,6 +76,8 @@ define Package/tailscale/install
 	$(INSTALL_CONF_USR) ./files/tailscale.conf $(1)/etc/config/tailscale
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.6
 	$(CP) ./files/defaults/99_tailscale_fw_rules $(1)/etc/uci-defaults/7.6/99_tailscale_fw_rules
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/tailscale.permtab $(1)/etc/permtab.d/tailscale
 endef
 
 define Package/tailscale/prerm

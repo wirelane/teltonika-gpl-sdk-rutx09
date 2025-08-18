@@ -106,8 +106,8 @@ unpack_ipk() {
 	local dest=$2
 
 	mkdir -p "$dest/CONTROL"
-	tar -xzf "$pkg" "./control.tar.gz" --to-stdout | tar -xzf - -C "$dest/CONTROL" || return $?
-	tar -xzf "$pkg" "./data.tar.gz" --to-stdout | tar -xzf - -C "$dest" || return $?
+	tar -xzf "$pkg" -C "$dest" "./control.tar.gz" "./data.tar.gz" || return $?
+	tar -xzf "$dest/control.tar.gz" -C "$dest/CONTROL" "./control" || return $?
 }
 
 unpack_and_prepare() {
@@ -185,6 +185,7 @@ check_config() {
 	case "$pkg" in
 	libiwinfo-*) check_config "libiwinfo" "y" || pkg=libiwinfo ;;
 	libiwinfo*) pkg=libiwinfo ;;
+	libbsd*) pkg=libbsd ;;
 	esac
 
 	case $state in
@@ -322,7 +323,7 @@ process_package() {
 	rm "$dep_list_f"
 
 	$unpack && {
-		prepare_info_f "${dirs[pm_packages]}/$p/control.tar.gz" "${dirs[tmp_pm]}/$p/main" "$p_fullpath:$(calc_shasum "${dirs[pm_packages]}/$p")" "$dep_list" "$SIGN_FILE_LIST"
+		prepare_info_f "${dirs[tmp_pm]}/$p/control.tar.gz" "${dirs[tmp_pm]}/$p/main" "$p_fullpath:$(calc_shasum "${dirs[pm_packages]}/$p")" "$dep_list" "$SIGN_FILE_LIST"
 		return $ret
 	}
 

@@ -4,5 +4,8 @@
                 "ioman.gpio.*": {
                         "methods": [ "counter", "update" ]
                 }
-        }
+        },
+        "listen": [
+                "ubus.object.add"
+        ]
 }

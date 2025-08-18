@@ -993,7 +993,7 @@
     "Boot mode": "Режим завантаження",
     "Bootloader version": "Версія завантажувача",
     "Bootloader version currently used by the device. A Bootloader is a program that loads the operating system.": "Версія завантажувача, яку наразі використовує пристрій. Завантажувач — це програма, яка завантажує операційну систему.",
-    "Bootsrap DNS": "Bootstrap DNS",
+    "Bootstrap DNS": "Bootstrap DNS",
     "Both": "Обидва",
     "Both firewall mark and mask should consist of a \"0x\" prefix and no more than 8 hexadecimal characters.": "Обидва параметри: маркер файрволу та маска повинні мати префікс \"0x\" і містити не більше 8 символів у шістнадцятковій системі.",
     "Both modems": "Обидва модеми",

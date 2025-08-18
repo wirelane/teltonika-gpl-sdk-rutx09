@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iperf
-PKG_VERSION:=3.17.1
-PKG_RELEASE:=4
+PKG_VERSION:=3.19
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.17.1
+PKG_SOURCE_VERSION:=3.19
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://downloads.es.net/pub/iperf
 
-PKG_HASH:=84404ca8431b595e86c473d8f23d8bb102810001f15feaf610effd3b318788aa
+PKG_HASH:=040161da1555ec7411a9d81191049830ef37717d429a94ee6cf0842618e0e29c
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-3-Clause
@@ -62,7 +62,7 @@ define Package/libiperf3
 endef
 
 TARGET_CFLAGS += -D_GNU_SOURCE
-TARGET_LDFLAGS += -latomic
+TARGET_LDFLAGS += -latomic -Wl,--as-needed
 
 ifeq ($(BUILD_VARIANT),ssl)
 	CONFIGURE_ARGS += --with-openssl="$(STAGING_DIR)/usr" --disable-shared

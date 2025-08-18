@@ -52,7 +52,7 @@
   },
   {
     "name": "RUTC",
-    "devices": ["RUTC50", "RUTC51", "RUTC40", "RUTC41"]
+    "devices": ["RUTC50", "RUTC51", "RUTC40", "RUTC41", "RUTC42"]
   },
   {
     "name": "RUT14X",
@@ -76,6 +76,6 @@
   },
   {
     "name": "TRB2M",
-    "devices": ["TRB246", "TRB247", "TRB256"]
+    "devices": ["TRB236", "TRB246", "TRB247", "TRB256"]
   }
 ]

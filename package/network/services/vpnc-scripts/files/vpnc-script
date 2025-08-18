@@ -102,7 +102,7 @@ do_connect() {
 			fi
 			echo "rebind-domain-ok=$i" >> $DNSMASQ_FILE
 		done
-		/etc/init.d/dnsmasq restart
+		ubus call rc init '{"action": "restart", "name": "dnsmasq"}'
 	else
 		if [ -n "$INTERNAL_IP4_DNS" ];then
 			for dns in $INTERNAL_IP4_DNS;do
@@ -166,7 +166,7 @@ do_connect() {
 do_disconnect() {
 	if [ -f "/tmp/dnsmasq.d/openconnect.$TUNDEV" ]; then
 		rm -f "/tmp/dnsmasq.d/openconnect.$TUNDEV"
-		/etc/init.d/dnsmasq restart
+		ubus call rc init '{"action": "restart", "name": "dnsmasq"}'
 	fi
 
 	proto_init_update "$TUNDEV" 0

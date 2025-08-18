@@ -993,7 +993,7 @@
     "Boot mode": "",
     "Bootloader version": "Versão do carregador de inicialização",
     "Bootloader version currently used by the device. A Bootloader is a program that loads the operating system.": "Versão do carregador de inicialização atualmente usada pelo dispositivo. O Bootloader é um programa que carrega o sistema operacional.",
-    "Bootsrap DNS": "",
+    "Bootstrap DNS": "",
     "Both": "Ambos",
     "Both firewall mark and mask should consist of a \"0x\" prefix and no more than 8 hexadecimal characters.": "",
     "Both modems": "Ambos os modems",

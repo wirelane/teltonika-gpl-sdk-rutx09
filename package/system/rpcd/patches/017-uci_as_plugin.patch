@@ -352,7 +352,7 @@ Index: rpcd-2021-03-11-ccb75178/uci.c
 +
 +struct rpc_plugin rpc_plugin = {
 +	.init = rpc_uci_api_init,
-+	.capabilities = "cap_dac_override=ep",
++	.user = "uci"
 +};
 Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
 ===================================================================

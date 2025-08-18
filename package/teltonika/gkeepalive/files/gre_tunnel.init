@@ -50,6 +50,7 @@ start_tunnel(){
 		fi
 		procd_set_param term_timeout 0
 		procd_set_param respawn
+		procd_set_param user gkeepalive
 		procd_close_instance
 	}
 }

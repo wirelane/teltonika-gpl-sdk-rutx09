@@ -13,7 +13,7 @@
     "acls": ["system/maintenance/traffic"],
     "depends": {
       "packages": {
-        "allOf": ["traffic_logging"]
+        "allOf": ["tlt-ulogd"]
       }
     }
   }

@@ -2635,7 +2635,7 @@ config BUSYBOX_DEFAULT_DHCPRELAY
 	default n
 config BUSYBOX_DEFAULT_UDHCPC
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_FEATURE_UDHCPC_ARPING
 	bool
 	default n

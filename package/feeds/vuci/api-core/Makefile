@@ -54,6 +54,7 @@ define install_closed_gpl
 		$(PKG_GPL_BUILD_DIR)/files/lib/config.d \
 		$(PKG_GPL_BUILD_DIR)/files/usr/sbin \
 		$(PKG_GPL_BUILD_DIR)/files/etc/init.d \
+		$(PKG_GPL_BUILD_DIR)/files/etc/permtab.d \
 		$(PKG_GPL_BUILD_DIR)/files/etc/config \
 		$(PKG_GPL_BUILD_DIR)/files/etc/uci-defaults \
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/vuci/network \
@@ -72,6 +73,7 @@ define install_closed_gpl
 	$(CP) $(GPL_FILES_DIR)/etc/config/vuci $(PKG_GPL_BUILD_DIR)/files/etc/config
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
 	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
+	$(CP) $(GPL_FILES_DIR)/etc/permtab.d/vuci $(PKG_GPL_BUILD_DIR)/files/etc/permtab.d
 	$(CP) $(GPL_FILES_DIR)/sbin/event_server.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/api.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/api/core/* $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/core
@@ -112,7 +114,8 @@ define Package/api-core/install
 				$(1)/usr/lib/lua/ubus/network \
 				$(1)/usr/lib/lua/ubus/services \
 				$(1)/etc/vuci-uploads ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/etc/config/vuci $(1)/etc/config/vuci ; \
+	$(INSTALL_CONF) -D "$$$$files_dir"/etc/config/vuci $(1)/etc/config/vuci ; \
+	$(INSTALL_DATA) -D "$$$$files_dir"/etc/permtab.d/vuci $(1)/etc/permtab.d/vuci ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/bin/trigger_vuci_routes_reload $(1)/bin/trigger_vuci_routes_reload ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server.init $(1)/etc/init.d/event_server ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/event_server.lua $(1)/sbin/event_server ; \

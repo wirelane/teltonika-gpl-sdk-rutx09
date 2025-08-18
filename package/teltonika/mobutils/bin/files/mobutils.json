@@ -66,10 +66,18 @@
 		},
 		"system": {
 			"methods": [
-				"list_profiles",
-				"change_profile",
+				"sysupgrade"
+			]
+		},
+		"rpc-profile": {
+			"methods": [
+				"list",
+				"change"
+			]
+		},
+		"rpc-sys-ext": {
+			"methods": [
 				"userdefaults",
-				"sysupgrade",
 				"firstboot"
 			]
 		},
@@ -113,11 +121,6 @@
 				"reload_config"
 			]
 		},
-		"file": {
-			"methods": [
-				"exec"
-			]
-		},
 		"quota_limit.*": {
 			"methods": [
 				"status"
@@ -133,6 +136,15 @@
 				"status",
 				"download"
 			]
+		},
+		"api": {
+			"methods": [
+				"get",
+				"post",
+				"put",
+				"delete"
+			]
 		}
-	}
+	},
+	"send": [ "vuci.notify" ]
 }

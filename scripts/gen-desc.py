@@ -53,6 +53,17 @@ def find_pkg_by_name(name):
 
     return None
 
+def append_or_insert_arr(array, target_kv):
+    for item in array:
+        if item['key'] == target_kv['key'] and item.get('type', None) == target_kv.get('type', None):
+            if target_kv['value'][0] == '\\' and target_kv['value'][1] != '\\':
+                item['value'] += target_kv['value'][1:]
+            else:
+                item['value'] += ' ' + target_kv['value']
+            return
+
+    array.append(target_kv)
+
 class Target:
     def __init__(self, name):
         self.name = name
@@ -82,7 +93,6 @@ class Profile:
         self.name = 'Unknown'
         self.target = target
         self.profile = profile
-        self.features = []
         self.hw = {}
         self.hw_tooltip = {}
         self.regulatory = {}
@@ -91,6 +101,7 @@ class Profile:
         self.technical_tooltip = {}
         self.conf = {}
         self.features = []
+        self.features_profile = []
         self.cached_packages = {}
 
     def recursive_insert(self, dct, keys, value):
@@ -150,8 +161,8 @@ class Profile:
             elif is_match('^Target-Profile-Name:', l):
                 self.name = l[21:-1]
             elif is_match('^Target-Profile-Features: ', l):
-                self.features = set(l[25:-1].split())
-                self.features.update(self.target.features)
+                self.features_profile = set(l[25:-1].split())
+                self.features = self.features_profile | self.target.features
             elif 'Target-Profile-HARDWARE-' in l:
                 data = l.strip()[24:].split(': ', 1)
                 if len(data) < 2:
@@ -286,17 +297,6 @@ class Profile:
                     option, value = line.split('=', 1)
                     self.conf[option.split('CONFIG_')[1]] = True if value == 'y' else value
 
-    def append_or_insert_arr(self, array, target_kv):
-        for item in array:
-            if item['key'] == target_kv['key'] and item.get('type', None) == target_kv.get('type', None):
-                if target_kv['value'][0] == '\\' and target_kv['value'][1] != '\\':
-                    item['value'] += target_kv['value'][1:]
-                else:
-                    item['value'] += ' ' + target_kv['value']
-                return
-
-        array.append(target_kv)
-
     def fetch_features(self):
         self.features = []
 
@@ -311,22 +311,22 @@ class Profile:
                 new_item = {'key': d['key'], 'value': d['value']}
 
                 if not 'expr' in d or not d['expr']:
-                    self.append_or_insert_arr(new_detail, new_item)
+                    append_or_insert_arr(new_detail, new_item)
                     continue
 
                 expr = self.parse_expr(d['expr'])
                 if self.evaluate_expr(expr):
-                    self.append_or_insert_arr(new_detail, new_item)
+                    append_or_insert_arr(new_detail, new_item)
             for t in f.tooltip:
                 new_item = {'key': t['key'], 'value': t['value'], 'type': t['type']}
 
                 if not 'expr' in t or not t['expr']:
-                    self.append_or_insert_arr(new_tooltip, new_item)
+                    append_or_insert_arr(new_tooltip, new_item)
                     continue
 
                 expr = self.parse_expr(t['expr'])
                 if self.evaluate_expr(expr):
-                    self.append_or_insert_arr(new_tooltip, new_item)
+                    append_or_insert_arr(new_tooltip, new_item)
 
             f.detail = new_detail
             f.tooltip = new_tooltip
@@ -334,55 +334,78 @@ class Profile:
 
             self.features.append(f)
 
-    def find_package_deps(self, deps):
-        packages = []
-
-        for d in deps:
-            if d in self.cached_packages:
-                packages.append(self.cached_packages[d])
+    def fetch_packages(self):
+        for key, value in self.conf.items():
+            if not key.startswith('PACKAGE_') or not value:
                 continue
 
-            if f'PACKAGE_{d}' not in self.conf:
+            pkg_name = key[8:].strip()
+            if not pkg_name:
+                continue
+
+            if pkg_name not in self.cached_packages:
+                self.find_package_deps([pkg_name])
+
+    def find_package_deps(self, deps):
+        for d in deps:
+            if d in self.cached_packages:
                 continue
 
             pkg = find_pkg_by_name(d)
+            if pkg is None:
+                continue
+
+            deps = []
+            for dep in pkg.deps:
+                expr = dep['expr']
+                name = dep['name']
+
+                if not name:
+                    continue
+
+                if expr:
+                    tokens = re.findall(r'\w+|&&|\|\||!|\(|\)', expr)
+                    if self.evaluate_expr(tokens):
+                        deps.append(name)
+                else:
+                    deps.append(name)
 
             info = {
                 'name': pkg.name,
                 'title': pkg.title,
-                'maintainer': pkg.maint,
+                # 'maintainer': pkg.maint,
                 'description': pkg.desc,
-                'detail': pkg.detail,
-                'depends': self.find_package_deps(pkg.deps),
+                # 'detail': pkg.detail,
+                'depends': deps,
             }
-
+            self.find_package_deps(deps)
             self.cached_packages[pkg.name] = info
-
-            packages.append(info)
-
-        return packages
 
     def json(self, descriptions_only=False):
         data = {
             "name": self.name,
+            "hwinfo": list(self.features_profile),
+            "target": {"name": self.target.target(), "subtarget": self.target.subtarget(), "profile": self.profile},
             "hardware": self.hw,
-            "features": [],
+            "software": [],
             "technical": self.technical,
             "regulatory": self.regulatory,
+            "packages": []
         }
-        if not descriptions_only:
-            data = {
-                "name": self.name,
-                "target": {"name": self.target.target(), "subtarget": self.target.subtarget(), "profile": self.profile},
-                "hardware": self.hw + self.technical + self.regulatory,
-                "features": [],
-            }
+
+        if descriptions_only:
+            del data["target"]
+            del data["hwinfo"]
+            del data["packages"]
 
         self.prepare_dotconfig()
         self.read_config()
         self.fetch_features()
+        self.fetch_packages()
 
-        data["features"] = dump_features(self.features, descriptions_only)
+        data["packages"] = list(self.cached_packages.keys())
+
+        data["software"] = dump_features(self.features, descriptions_only)
 
         return data
 
@@ -521,7 +544,7 @@ class Feature:
                 if 'PACKAGE_' in info[1]:
                     self.packages.append(info[1][8:].strip())
                 else:
-                    self.packages.append(info[1][:-1])
+                    self.packages.append(info[1].strip())
             elif is_match('^\tdefault ', l):
                 tooltip_parse = False
                 detail_parse = False
@@ -623,95 +646,96 @@ def initialize_features():
             if is_match('^config ', line):
                 feature = Feature(line[7:-1])
                 feature.parse(f)
+
+                new_detail = []
+                new_tooltip = []
+
+                for d in feature.detail:
+                    if 'expr' in d and d['expr']:
+                        new_detail.append(d)
+                        continue
+                    new_item = {'key': d['key'], 'value': d['value']}
+                    append_or_insert_arr(new_detail, new_item)
+                for t in feature.tooltip:
+                    if 'expr' in t and t['expr']:
+                        new_tooltip.append(t)
+                        continue
+                    new_item = {'key': t['key'], 'value': t['value'], 'type': t['type']}
+                    append_or_insert_arr(new_tooltip, new_item)
+
+                feature.detail = new_detail
+                feature.tooltip = new_tooltip
+
                 list_features.append(feature)
 
         f.close()
 
-def dump_features(data, descriptions_only=False):
-    features = {}
-
-    if descriptions_only:
-        features = []
-        for f in data:
-            label = f.label
-            if not label:
-                continue
-
-            found = False
-            for item in features:
-                if item["title"] == f.label:
-                    found = True
-                    break
-
-            if found:
-                continue
-
-            features.append({
-                "title": f.label,
-                "detail": [],
-                "tooltip": [],
-            })
-
-        for f in data:
-            if not f.title:
-                continue
-
-            found = False
-            for item in features:
-                if item["title"] == f.label:
-                    found = item
-                    break
-
-            for item in f.detail:
-                found["detail"].append({'key': item['key'], 'value': item['value']})
-            for item in f.tooltip:
-                found["tooltip"].append({'key': item['key'], 'value': item['value'], 'type': item['type']})
-
-        for item in features:
-            if len(item["detail"]) == 0:
-                features.remove(item)
-
-        return features
+def dump_features(data, descriptions_only=False, dump_list=False):
+    features_dict = {}
+    features_list = []
 
     for f in data:
-        label = f.label
+        if descriptions_only and not f.title:
+            continue
 
-        if label not in features:
-            features[label] = []
+        if f.label not in features_dict:
+            entry = {
+                "title": f.label,
+                "feature": f.name,
+                "detail": [],
+                "tooltip": [],
+                "features": [],
+            }
 
-        info = {
-            "title": f.title,
-            "detail": [{'key': item['key'], 'value': item['value']} for item in f.detail],
-        }
+            if descriptions_only:
+                del entry["feature"]
+                del entry["features"]
 
-        info["name"] = f.name
-        info["maintainer"] = f.maintainer
-        info["external"] = f.external
-        info["packages"] = list()
+            features_dict[f.label] = entry
+            features_list.append(entry)
 
-        for i in f.packages:
-            pkg = find_pkg_by_name(i)
+        feature_entry = features_dict[f.label]
+        if not feature_entry:
+            continue
 
-            if pkg is None:
+        for item in f.detail:
+            if not item['key'] or not item['value']:
                 continue
 
-            info2 = {
-                'name': pkg.name,
-                'title': pkg.title,
-                'maintainer': pkg.maint,
-                'description': pkg.desc,
-                'detail': pkg.detail,
-                'depends': pkg.deps, #self.find_package_deps(pkg.deps),
+            detail = {
+                'key': item['key'],
+                'value': item['value'],
             }
-            info["packages"].append(info2)
 
-        features[label].append(info)
+            if not descriptions_only:
+                detail['feature'] = f.name
 
-    # sort alphabetically
-    for label in features:
-        features[label].sort(key=lambda x: x['title'])
+            feature_entry['detail'].append(detail)
 
-    return features
+        for item in f.tooltip:
+            feature_entry["tooltip"].append({'key': item['key'], 'value': item['value'], 'type': item['type']})
+
+        if not descriptions_only:
+            feature = {
+                "name": f.name,
+                "maintainer": f.maintainer,
+                "external": f.external,
+                "packages": list()
+            }
+
+            for i in f.packages:
+                pkg = find_pkg_by_name(i)
+
+                if pkg is None:
+                    continue
+
+                feature["packages"].append(pkg.name)
+            feature_entry['features'].append(feature)
+
+    if dump_list:
+        return features_list
+
+    return [item for item in features_list if len(item["detail"]) > 0]
 
 class Package:
     def __init__(self, name):
@@ -727,18 +751,20 @@ class Package:
         parsed = []
 
         for d in deps:
+            expr = ''
             name = d
-
-            if '!' in d[1]:
-                name = d[1:]
 
             if '+' in name[0]:
                 name = name[1:]
 
             if ':' in name:
-                name = name.split(':')[1]
+                expr, name = name.split(':', 1)
 
-            parsed.append(name)
+            if not expr and '@' in name[0]:
+                expr = name
+                name = ''
+
+            parsed.append({'expr': expr, 'name': name})
 
         return parsed
 
@@ -792,7 +818,7 @@ def initialize_packageinfo():
         f.close()
 
 
-def generate_device_features(dump=False, descriptions_only=False, target=None, family=None):
+def generate_device_features(dump=False, dump_packages=False, descriptions_only=False, target=None, family=None):
     default_dir='out'
     default_name='features.json'
     dump_list = False
@@ -803,6 +829,9 @@ def generate_device_features(dump=False, descriptions_only=False, target=None, f
     if dump:
         print('Dumping all possible device features.')
         dump_list = True
+    if dump_packages:
+        print('Dumping all available packages.')
+        default_name = 'packages.json'
     if target:
         print(f'Generating features for target device: {target}')
         default_name = f'{target}.json'
@@ -810,7 +839,7 @@ def generate_device_features(dump=False, descriptions_only=False, target=None, f
         print(f'Generating features for device family: {family}')
         default_name = f'{family}.json'
 
-    if not dump_list:
+    if not dump_list and not dump_packages:
         initialize_targets(targetDevice=target, targetFamily=family)
 
     initialize_features()
@@ -823,8 +852,21 @@ def generate_device_features(dump=False, descriptions_only=False, target=None, f
     print('Initializing tmpinfo...')
     Popen('make prepare-tmpinfo', shell=True, stdout=subprocess.DEVNULL).wait()
 
-    if dump_list:
-        json_data = dump_features(list_features, descriptions_only)
+    if dump_packages:
+        json_data = []
+
+        for pkg in list_packages:
+            info = {
+                'name': pkg.name,
+                'title': pkg.title,
+                # 'maintainer': pkg.maint,
+                'description': pkg.desc,
+                # 'detail': pkg.detail,
+                'depends': [dep['name'] for dep in pkg.deps if dep['name']],
+            }
+            json_data.append(info)
+    elif dump_list:
+        json_data = dump_features(list_features, descriptions_only, dump_list)
     else:
         if family:
             json_data = []
@@ -855,16 +897,17 @@ def main():
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--dump', action='store_true', help='Generate all possible device features')
+    group.add_argument('--dump-packages', action='store_true', help='Dump all available packages')
     group.add_argument('--target', type=str, help='Generate device features for a specific target device')
     group.add_argument('--family', type=str, help='Generate device features for a specific device family')
 
     args = parser.parse_args()
 
-    if not any([args.dump, args.target, args.family]):
+    if not any([args.dump, args.dump_packages, args.target, args.family]):
         parser.print_help()
         sys.exit(1)
 
-    generate_device_features(args.dump, args.descriptions_only, args.target, args.family)
+    generate_device_features(args.dump, args.dump_packages, args.descriptions_only, args.target, args.family)
 
 
 if __name__ == '__main__':

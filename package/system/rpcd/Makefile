@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rpcd
-PKG_RELEASE:=20
+PKG_RELEASE:=24
 
 PKG_SOURCE_DATE:=2021-03-11
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -42,7 +42,7 @@ define Package/rpcd/default
   TITLE:=OpenWrt ubus RPC backend server
   DEPENDS:=+libubus +libubox +liblog +libcap
   USERID:=rpcd:rpcd
-  FATTRS:=/sbin/rpcd::::cap_setuid,cap_net_admin,cap_setgid,cap_dac_override,cap_sys_boot,cap_sys_admin=ep
+  FATTRS:=/sbin/rpcd::::cap_setuid,cap_net_admin,cap_setgid,cap_sys_boot,cap_sys_admin=ep
 endef
 
 define Package/rpcd
@@ -77,7 +77,7 @@ define Package/rpcd/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/rpcd.config $(1)/etc/config/rpcd
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
-	$(INSTALL_DATA) ./files/rpcd.json $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) ./files/acl.d/* $(1)/usr/share/acl.d/
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) ./files/libexec/* $(1)/usr/libexec/rpcd/
 

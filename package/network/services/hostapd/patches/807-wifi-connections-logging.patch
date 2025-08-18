@@ -1,8 +1,6 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/sta_info.c	2023-11-06 11:29:57.627970687 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c	2023-11-06 11:29:57.623970708 +0200
-@@ -1299,6 +1299,7 @@
+--- a/src/ap/sta_info.c
++++ b/src/ap/sta_info.c
+@@ -1574,6 +1574,7 @@ void ap_sta_set_authorized_event(struct
  {
  	const u8 *dev_addr = NULL;
  	char buf[100];
@@ -10,16 +8,16 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
  #ifdef CONFIG_P2P
  	u8 addr[ETH_ALEN];
  	u8 ip_addr_buf[4];
-@@ -1345,6 +1346,8 @@
- 		hapd->sta_authorized_cb(hapd->sta_authorized_cb_ctx,
- 					sta->addr, authorized, dev_addr);
+@@ -1597,6 +1598,8 @@ void ap_sta_set_authorized_event(struct
+ #endif /* CONFIG_P2P */
+ 		os_snprintf(buf, sizeof(buf), MACSTR, MAC2STR(sta->addr));
  
 +	sprintf(mac, MACSTR, MAC2STR(sta->addr));
 +
  	if (authorized) {
  		static const char * const auth_algs[] = {
  			[WLAN_AUTH_OPEN] = "open",
-@@ -1412,6 +1415,8 @@
+@@ -1665,6 +1668,8 @@ void ap_sta_set_authorized_event(struct
  					  AP_STA_CONNECTED "%s%s%s%s%s",
  					  buf, ip_addr, keyid_buf,
  					  dpp_pkhash_buf, alg_buf);
@@ -28,7 +26,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
  	} else {
  		wpa_msg(hapd->msg_ctx, MSG_INFO, AP_STA_DISCONNECTED "%s", buf);
  		hostapd_ubus_notify(hapd, "disassoc", sta->addr);
-@@ -1420,6 +1425,8 @@
+@@ -1673,6 +1678,8 @@ void ap_sta_set_authorized_event(struct
  		    hapd->msg_ctx_parent != hapd->msg_ctx)
  			wpa_msg_no_global(hapd->msg_ctx_parent, MSG_INFO,
  					  AP_STA_DISCONNECTED "%s", buf);
@@ -36,12 +34,10 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
 +		hostapd_ubus_insert_wifi_log(mac, 0);
  	}
  
- #ifdef CONFIG_FST
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ubus.c	2023-11-06 11:29:57.627970687 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c	2023-11-06 11:29:57.623970708 +0200
-@@ -1946,6 +1946,32 @@
+ 	if (hapd->sta_authorized_cb)
+--- a/src/ap/ubus.c
++++ b/src/ap/ubus.c
+@@ -2065,6 +2065,32 @@ void hostapd_ubus_notify_beacon_report(
  	ubus_notify(ctx, &hapd->ubus.obj, "beacon-report", b.head, -1);
  }
  
@@ -74,11 +70,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
  void hostapd_ubus_notify_radar_detected(struct hostapd_iface *iface, int frequency,
  					int chan_width, int cf1, int cf2)
  {
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.h
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ubus.h	2023-11-06 11:29:57.627970687 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.h	2023-11-06 11:29:57.627970687 +0200
-@@ -32,6 +32,8 @@
+--- a/src/ap/ubus.h
++++ b/src/ap/ubus.h
+@@ -33,6 +33,8 @@ struct sta_info;
  
  #include <libubox/avl.h>
  #include <libubus.h>
@@ -87,7 +81,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.h
  
  struct hostapd_ubus_bss {
  	struct ubus_object obj;
-@@ -60,6 +62,7 @@
+@@ -61,6 +63,7 @@ void hostapd_ubus_notify_bss_transition_
  	struct hostapd_data *hapd, const u8 *addr, u8 dialog_token, u8 status_code,
  	u8 bss_termination_delay, const u8 *target_bssid,
  	const u8 *candidate_list, u16 candidate_list_len);

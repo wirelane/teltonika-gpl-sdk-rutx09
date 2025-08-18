@@ -29,6 +29,15 @@ mtu_set() {
 	config_load network
 }
 
+ip_to_int() {
+	echo "$1" | while IFS="." read o1 o2 o3 o4; do
+		[ -n "$o1" ] && [ -n "$o2" ] && [ -n "$o3" ] && [ -n "$o4" ] || return 1
+		case "$o1$o2$o3$o4" in
+			*[!0-9]*) return 1 ;;
+		esac
+		echo $(( (o1 << 24) | (o2 << 16) | (o3 << 8) | o4 ))
+	done
+}
 
 config_load network
 mtu_set
@@ -90,10 +99,21 @@ for file in /tmp/wireguard/default-status*; do
 							fi
 							continue
 						fi
-						if ip route add "$ip" ${gw:+via "$gw"} dev "$DEVICE" metric "$metric"; then
-							route_del="ip route del $ip dev $DEVICE metric $metric"
-							grep "$route_del" "$DEFAULT_STATUS" || echo "$route_del" >> "$DEFAULT_STATUS"
+						wan_ip="$(ip addr show dev "$DEVICE" | awk '/inet / {print $2; exit}')"
+						eval "$(ipcalc.sh "$wan_ip")";wan_network="$NETWORK" wan_broadcast="$BROADCAST"
+						ip_dec=$(ip_to_int "$ip")
+						wan_network_dec=$(ip_to_int "$wan_network")
+						wan_broadcast_dec=$(ip_to_int "$wan_broadcast")
+						if [ "$ip_dec" -gt "$wan_network_dec" ] && [ "$ip_dec" -lt "$wan_broadcast_dec" ]; then
+							if ip route add "$ip" dev "$DEVICE" metric "$metric"; then
+								route_del="ip route del $ip dev $DEVICE metric $metric"
+							fi
+						else
+							if ip route add "$ip" ${gw:+via "$gw"} dev "$DEVICE" metric "$metric"; then
+								route_del="ip route del $ip dev $DEVICE metric $metric"
+							fi
 						fi
+						grep "$route_del" "$DEFAULT_STATUS" || echo "$route_del" >> "$DEFAULT_STATUS"
 						;;
 					"ifdown")
 						if [ "$force_tunlink" = "1" ] && [ -z "$(ip route show "$ip")" ]; then

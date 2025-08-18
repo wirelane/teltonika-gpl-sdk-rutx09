@@ -292,7 +292,7 @@ blockdev_hotplug_pause() {
 	json_close_array
 
 	# This must be ACL protected
-	res=$(ubus -t 0 call system format "$(json_dump)")
+	res=$(ubus -t 0 call rpc-format format "$(json_dump)")
 	rc=$?
 	[ $rc -eq 4 ] && logger "Access denied for user($(id -u))"
 	[ $rc -ne 0 ] && exit $rc
@@ -300,7 +300,7 @@ blockdev_hotplug_pause() {
 	json_load "$res"
 	json_get_vars output exit_code
 
-	echo -n "$output"
+	echo "$output"
 
 	# Is ret_code a number?
 	[ "$exit_code" -eq "exit_code" ] 2>/dev/null || exit 1

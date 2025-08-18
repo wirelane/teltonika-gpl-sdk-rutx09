@@ -33,6 +33,8 @@ define Package/odhcp6c
   CATEGORY:=Network
   TITLE:=Embedded DHCPv6-client for OpenWrt
   DEPENDS:=@IPV6 +libubox
+  USERID:=odhcp6c:odhcp6c
+  FATTRS:=/usr/sbin/odhcp6c::::cap_net_raw,cap_net_bind_service,cap_net_admin=ep
 endef
 
 define Package/odhcp6c/config
@@ -45,9 +47,10 @@ endef
 define Package/odhcp6c/install
 	$(INSTALL_DIR) $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/odhcp6c $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/lib/netifd $(1)/usr/local/usr/lib/netifd/proto
+	$(INSTALL_DIR) $(1)/lib/netifd $(1)/usr/local/usr/lib/netifd/proto $(1)/usr/share/acl.d
 	$(INSTALL_BIN) ./files/dhcpv6.sh $(1)/usr/local/usr/lib/netifd/proto/dhcpv6.sh
 	$(INSTALL_BIN) ./files/dhcpv6.script $(1)/lib/netifd/
+	$(INSTALL_DATA) ./files/odhcp6c_acl.json $(1)/usr/share/acl.d/odhcp6c_acl.json
 endef
 
 $(eval $(call BuildPackage,odhcp6c))

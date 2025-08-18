@@ -1,11 +1,41 @@
 [
   {
     "category": "Services",
-    "name": "POE",
+    "name": "Netbird",
     "depends": [
       {
         "type": "hw",
-        "name": "poe"
+        "name": "high_storage"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Package Manager",
+    "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "Auto Reply",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "mobile"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Traffic Logging",
+    "depends": []
+  },
+  {
+    "category": "Network",
+    "name": "Data limit",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "mobile"
       }
     ]
   },
@@ -37,16 +67,6 @@
         "type": "hw",
         "name": "is_access_point",
         "value": false
-      }
-    ]
-  },
-  {
-    "category": "Services",
-    "name": "Modbus Gateway",
-    "depends": [
-      {
-        "type": "family",
-        "name": "Router"
       }
     ]
   },
@@ -291,18 +311,9 @@
     ]
   },
   {
-    "category": "Services",
+    "category": "System",
     "name": "NTP Client",
-    "depends": [
-      {
-        "type": "family",
-        "name": "Router"
-      },
-      {
-        "type": "family",
-        "name": "TAP"
-      }
-    ]
+    "depends": []
   },
   {
     "category": "Services",
@@ -1236,11 +1247,6 @@
       {
         "type": "family",
         "name": "Router"
-      },
-      {
-        "type": "hw",
-        "name": "is_trb1",
-        "value": false
       },
       {
         "type": "hw",

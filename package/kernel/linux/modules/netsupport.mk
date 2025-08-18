@@ -846,6 +846,20 @@ endef
 
 $(eval $(call KernelPackage,sched-act-vlan))
 
+define KernelPackage/sched-act-ipt
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=iptables target action (act_ipt)
+  DEPENDS:=+kmod-sched-core +kmod-ipt-core
+  KCONFIG:=CONFIG_NET_ACT_IPT
+  FILES:=$(LINUX_DIR)/net/sched/act_ipt.ko
+  AUTOLOAD:=$(call AutoProbe, act_ipt)
+endef
+
+define KernelPackage/sched-act-ipt/description
+  Allows traffic control actions to trigger iptables matches or targets.
+endef
+
+$(eval $(call KernelPackage,sched-act-ipt))
 
 define KernelPackage/sched-mqprio
   SUBMENU:=$(NETWORK_SUPPORT_MENU)

@@ -11,7 +11,7 @@
   * @NL80211_ATTR_SOFTWARE_IFTYPES: Nested attribute (just like
   *	%NL80211_ATTR_SUPPORTED_IFTYPES) containing the interface types that
   *	are managed in software: interfaces of these types aren't subject to
-@@ -2856,6 +2860,20 @@ enum nl80211_commands {
+@@ -2856,6 +2860,17 @@ enum nl80211_commands {
   *	%NL80211_CMD_ASSOCIATE indicating the SPP A-MSDUs
   *	are used on this connection
   *
@@ -26,13 +26,10 @@
 + * @NL80211_ATTR_VIF_RADIO_MASK: Bitmask of allowed radios (u32).
 + *	A value of 0 means all radios.
 + *
-+ * @NL80211_ATTR_WIPHY_ANTENNA_GAIN: Configured antenna gain. Used to reduce
-+ *	transmit power to stay within regulatory limits. u32, dBi.
-+ *
   * @NUM_NL80211_ATTR: total number of nl80211_attrs available
   * @NL80211_ATTR_MAX: highest attribute number currently defined
   * @__NL80211_ATTR_AFTER_LAST: internal use
-@@ -3401,6 +3419,13 @@ enum nl80211_attrs {
+@@ -3401,6 +3419,11 @@ enum nl80211_attrs {
  
  	NL80211_ATTR_ASSOC_SPP_AMSDU,
  
@@ -40,8 +37,6 @@
 +	NL80211_ATTR_WIPHY_INTERFACE_COMBINATIONS,
 +
 +	NL80211_ATTR_VIF_RADIO_MASK,
-+	
-+	NL80211_ATTR_WIPHY_ANTENNA_GAIN,
 +
  	/* add attributes here, update the policy in nl80211.c */
  

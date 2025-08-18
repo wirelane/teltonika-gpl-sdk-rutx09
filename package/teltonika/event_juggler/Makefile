@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.3
+PKG_SOURCE_VERSION:=1.4
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf
@@ -23,7 +23,7 @@ define Package/event-juggler
 	USERID:=juggler=516:juggler=516
 	USER_GROUPS:=juggler:gsm profiler rms network wireless
 	DEPENDS:=+libubox +libubus +libuci +libtlt-logger +libblobmsg-json +libparam \
-			+libcfg +libcurl +liblua +libmosquitto +libtlt_smtp +libtlt_uci \
+			+libcfg +libcurl +liblua +libmosquitto +libtlt_smtp +libtlt_uci +libapi \
 			+PACKAGE_EVENT_JUGGLER_EVENT_GSM:liburc \
 			+PACKAGE_EVENT_JUGGLER_ACTION_MODEM:libmctl \
 			+PACKAGE_EVENT_JUGGLER_EVENT_IO:iomand \
@@ -31,6 +31,7 @@ define Package/event-juggler
 			+PACKAGE_EVENT_JUGGLER_EVENT_GPS:libgps \
 			+PACKAGE_EVENT_JUGGLER_CONDITION_GPS:libgps \
 			+PACKAGE_EVENT_JUGGLER_CONDITION_IO:iomand \
+			+PACKAGE_EVENT_JUGGLER_ACTION_SHUTDOWN:libgpiod \
 			+CONFIG_MOBILE_SUPPORT:libgsm
 endef
 

@@ -1,1 +1,1 @@
-/etc/config/dhcp	dnsmasq:dnsmasq		666
+/etc/config/dhcp	dnsmasq:dnsmasq		660	-

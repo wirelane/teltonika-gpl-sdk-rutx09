@@ -23,6 +23,8 @@ PKG_SOURCE:=mosquitto-$(PKG_SOURCE_VERSION).tar.gz
 
 include $(INCLUDE_DIR)/package.mk
 
+PKG_BUILD_DEPENDS:=cjson
+
 define Package/mosquitto/default
   SECTION:=net
   CATEGORY:=Network
@@ -199,7 +201,6 @@ ifeq ($(CONFIG_MOSQUITTO_CTRL),y)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/apps/mosquitto_ctrl/mosquitto_ctrl $(1)/usr/bin
 endif
 endef
-
 
 # This installs files into ./staging_dir/. so that you can cross compile from the host
 define Build/InstallDev

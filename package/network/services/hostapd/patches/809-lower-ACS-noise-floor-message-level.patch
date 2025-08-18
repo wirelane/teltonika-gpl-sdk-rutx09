@@ -1,6 +1,6 @@
 --- a/src/ap/acs.c
 +++ b/src/ap/acs.c
-@@ -456,21 +456,21 @@ static int acs_survey_is_sufficient(stru
+@@ -472,21 +472,21 @@ static int acs_survey_is_sufficient(stru
  {
  	if (!(survey->filled & SURVEY_HAS_NF)) {
  		survey->nf = -95;

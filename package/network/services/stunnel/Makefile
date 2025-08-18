@@ -39,6 +39,7 @@ define Package/stunnel
   DEPENDS:=+libopenssl +zlib +libpthread
   TITLE:=SSL TCP Wrapper
   URL:=http://www.stunnel.org/
+  USERID:=stunnel:stunnel
 endef
 
 define Package/stunnel/description
@@ -74,7 +75,7 @@ define Build/Compile
 endef
 
 define Package/stunnel/install
-	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/stunnel $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/usr/lib/stunnel
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/stunnel/libstunnel.so $(1)/usr/lib/stunnel/
@@ -83,7 +84,8 @@ define Package/stunnel/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/stunnel.init $(1)/etc/init.d/stunnel
 	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/stunnel.uci $(1)/etc/config/stunnel
+	$(INSTALL_CONF_USR) ./files/stunnel.uci $(1)/etc/config/stunnel
+	$(INSTALL_DATA) files/stunnel.permtab $(1)/etc/permtab.d/stunnel
 endef
 
 $(eval $(call BuildPackage,stunnel))

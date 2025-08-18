@@ -5,9 +5,12 @@ USE_PROCD=1
 
 PROG=/usr/sbin/avl
 NAME=avl
+RULES_SCRIPT=/etc/gps/create_rules.sh
 
 start_service() {
 	config_load avl
+
+    $RULES_SCRIPT avl /etc/gps/avl_rules_filled tavl_rule
 
 	config_get enabled avl enabled 0
 	[ "$enabled" != 0 ] || return

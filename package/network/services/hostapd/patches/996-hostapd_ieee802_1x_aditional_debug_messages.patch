@@ -1,10 +1,8 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ieee802_1x.c
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
-@@ -123,7 +123,7 @@ static void ieee802_1x_set_authorized(st
- 	ap_sta_set_authorized(hapd, sta, authorized);
- 	res = hostapd_set_authorized(hapd, sta, authorized);
+--- a/src/ap/ieee802_1x.c
++++ b/src/ap/ieee802_1x.c
+@@ -126,7 +126,7 @@ static void ieee802_1x_set_authorized(st
+ 	if (update)
+ 		ap_sta_set_authorized_event(hapd, sta, authorized);
  	hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
 -		       HOSTAPD_LEVEL_DEBUG, "%sauthorizing port",
 +		       HOSTAPD_LEVEL_INFO, "%sauthorizing port",
@@ -20,7 +18,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  	sm->dot1xAuthEapolRespIdFramesRx++;
  }
  
-@@ -938,7 +938,7 @@ static void handle_eap_response(struct h
+@@ -940,7 +940,7 @@ static void handle_eap_response(struct h
  	sm->eap_type_supp = type = data[0];
  
  	hostapd_logger(hapd, sm->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -29,7 +27,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  		       "id=%d len=%d) from STA: EAP Response-%s (%d)",
  		       eap->code, eap->identifier, be_to_host16(eap->length),
  		       eap_server_get_name(0, type), type);
-@@ -971,7 +971,7 @@ static void handle_eap_initiate(struct h
+@@ -973,7 +973,7 @@ static void handle_eap_initiate(struct h
  	type = data[0];
  
  	hostapd_logger(hapd, sm->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -38,14 +36,16 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  		       "received EAP packet (code=%d id=%d len=%d) from STA: EAP Initiate type %u",
  		       eap->code, eap->identifier, be_to_host16(eap->length),
  		       type);
-@@ -1251,13 +1251,13 @@ void ieee802_1x_receive(struct hostapd_d
+@@ -1253,7 +1253,7 @@ void ieee802_1x_receive(struct hostapd_d
  
  	case IEEE802_1X_TYPE_EAPOL_START:
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
 -			       HOSTAPD_LEVEL_DEBUG,
 +			       HOSTAPD_LEVEL_INFO,
  			       "received EAPOL-Start from STA");
- 		sta->eapol_sm->flags &= ~EAPOL_SM_WAIT_START;
+ #ifdef CONFIG_IEEE80211R_AP
+ 		if (hapd->conf->wpa &&
+@@ -1282,7 +1282,7 @@ void ieee802_1x_receive(struct hostapd_d
  		pmksa = wpa_auth_sta_get_pmksa(sta->wpa_sm);
  		if (pmksa) {
  			hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_WPA,
@@ -54,7 +54,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  				       "cached PMKSA available - ignore it since STA sent EAPOL-Start");
  			wpa_auth_sta_clear_pmksa(sta->wpa_sm, pmksa);
  		}
-@@ -1269,7 +1269,7 @@ void ieee802_1x_receive(struct hostapd_d
+@@ -1294,7 +1294,7 @@ void ieee802_1x_receive(struct hostapd_d
  
  	case IEEE802_1X_TYPE_EAPOL_LOGOFF:
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -63,7 +63,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "received EAPOL-Logoff from STA");
  		sta->acct_terminate_cause =
  			RADIUS_ACCT_TERMINATE_CAUSE_USER_REQUEST;
-@@ -1364,7 +1364,7 @@ void ieee802_1x_new_station(struct hosta
+@@ -1389,7 +1389,7 @@ void ieee802_1x_new_station(struct hosta
  
  	if (!sta->eapol_sm) {
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -72,7 +72,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  		sta->eapol_sm = ieee802_1x_alloc_eapol_sm(hapd, sta);
  		if (!sta->eapol_sm) {
  			hostapd_logger(hapd, sta->addr,
-@@ -1396,7 +1396,7 @@ void ieee802_1x_new_station(struct hosta
+@@ -1421,7 +1421,7 @@ void ieee802_1x_new_station(struct hosta
  #ifdef CONFIG_IEEE80211R_AP
  	if (sta->auth_alg == WLAN_AUTH_FT) {
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -81,7 +81,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "PMK from FT - skip IEEE 802.1X/EAP");
  		/* Setup EAPOL state machines to already authenticated state
  		 * because of existing FT information from R0KH. */
-@@ -1419,7 +1419,7 @@ void ieee802_1x_new_station(struct hosta
+@@ -1444,7 +1444,7 @@ void ieee802_1x_new_station(struct hosta
  	    sta->auth_alg == WLAN_AUTH_FILS_SK_PFS ||
  	    sta->auth_alg == WLAN_AUTH_FILS_PK) {
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -90,7 +90,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "PMK from FILS - skip IEEE 802.1X/EAP");
  		/* Setup EAPOL state machines to already authenticated state
  		 * because of existing FILS information. */
-@@ -1440,7 +1440,7 @@ void ieee802_1x_new_station(struct hosta
+@@ -1465,7 +1465,7 @@ void ieee802_1x_new_station(struct hosta
  	pmksa = wpa_auth_sta_get_pmksa(sta->wpa_sm);
  	if (pmksa) {
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -99,7 +99,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "PMK from PMKSA cache - skip IEEE 802.1X/EAP");
  		/* Setup EAPOL state machines to already authenticated state
  		 * because of existing PMKSA information in the cache. */
-@@ -1521,7 +1521,7 @@ static void ieee802_1x_decapsulate_radiu
+@@ -1542,7 +1542,7 @@ static void ieee802_1x_decapsulate_radiu
  		 * RADIUS server SHOULD NOT send Access-Reject/no EAP-Message
  		 * attribute */
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -108,7 +108,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "could not extract EAP-Message from RADIUS message");
  		sm->eap_if->aaaEapNoReq = true;
  		return;
-@@ -1529,7 +1529,7 @@ static void ieee802_1x_decapsulate_radiu
+@@ -1550,7 +1550,7 @@ static void ieee802_1x_decapsulate_radiu
  
  	if (wpabuf_len(eap) < sizeof(*hdr)) {
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -117,7 +117,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "too short EAP packet received from authentication server");
  		wpabuf_free(eap);
  		sm->eap_if->aaaEapNoReq = true;
-@@ -1563,7 +1563,7 @@ static void ieee802_1x_decapsulate_radiu
+@@ -1584,7 +1584,7 @@ static void ieee802_1x_decapsulate_radiu
  	}
  	buf[sizeof(buf) - 1] = '\0';
  	hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -126,7 +126,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  		       "decapsulated EAP packet (code=%d id=%d len=%d) from RADIUS server: %s",
  		       hdr->code, hdr->identifier, be_to_host16(hdr->length),
  		       buf);
-@@ -1712,7 +1712,7 @@ static void ieee802_1x_update_sta_identi
+@@ -1733,7 +1733,7 @@ static void ieee802_1x_update_sta_identi
  		return;
  
  	hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -135,7 +135,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  		       "old identity '%s' updated with User-Name from Access-Accept '%s'",
  		       sm->identity ? (char *) sm->identity : "N/A",
  		       (char *) identity);
-@@ -2155,7 +2155,7 @@ ieee802_1x_receive_auth(struct radius_ms
+@@ -2157,7 +2157,7 @@ ieee802_1x_receive_auth(struct radius_ms
  			sm->eap_if->aaaMethodTimeout = session_timeout;
  			hostapd_logger(hapd, sm->addr,
  				       HOSTAPD_MODULE_IEEE8021X,
@@ -144,7 +144,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  				       "using EAP timeout of %d seconds (from RADIUS)",
  				       sm->eap_if->aaaMethodTimeout);
  		} else {
-@@ -2201,7 +2201,7 @@ void ieee802_1x_abort_auth(struct hostap
+@@ -2203,7 +2203,7 @@ void ieee802_1x_abort_auth(struct hostap
  		return;
  
  	hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -153,7 +153,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  
  #ifndef CONFIG_NO_RADIUS
  	radius_msg_free(sm->last_recv_radius);
-@@ -2279,7 +2279,7 @@ static void ieee802_1x_rekey(void *eloop
+@@ -2281,7 +2281,7 @@ static void ieee802_1x_rekey(void *eloop
  
  	if (ieee802_1x_rekey_broadcast(hapd)) {
  		hostapd_logger(hapd, NULL, HOSTAPD_MODULE_IEEE8021X,
@@ -162,7 +162,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "failed to generate a new broadcast key");
  		os_free(eapol->default_wep_key);
  		eapol->default_wep_key = NULL;
-@@ -2295,7 +2295,7 @@ static void ieee802_1x_rekey(void *eloop
+@@ -2297,7 +2297,7 @@ static void ieee802_1x_rekey(void *eloop
  				hapd->conf->default_wep_key_len,
  				KEY_FLAG_GROUP_RX_TX_DEFAULT)) {
  		hostapd_logger(hapd, NULL, HOSTAPD_MODULE_IEEE8021X,
@@ -171,7 +171,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "failed to configure a new broadcast key");
  		os_free(eapol->default_wep_key);
  		eapol->default_wep_key = NULL;
-@@ -2731,7 +2731,7 @@ int ieee802_1x_eapol_tx_status(struct ho
+@@ -2748,7 +2748,7 @@ int ieee802_1x_eapol_tx_status(struct ho
  	if (!ack && pos + sizeof(*key) <= buf + len) {
  		key = (struct ieee802_1x_eapol_key *) pos;
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_IEEE8021X,
@@ -180,7 +180,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_1x.c
  			       "did not Ack EAPOL-Key frame (%scast index=%d)",
  			       key->key_index & BIT(7) ? "uni" : "broad",
  			       key->key_index & ~BIT(7));
-@@ -3113,7 +3113,7 @@ static bool ieee802_1x_finished(struct h
+@@ -3110,7 +3110,7 @@ static bool ieee802_1x_finished(struct h
  	    wpa_auth_pmksa_add(sta->wpa_sm, key, len, session_timeout,
  			       sta->eapol_sm) == 0) {
  		hostapd_logger(hapd, sta->addr, HOSTAPD_MODULE_WPA,

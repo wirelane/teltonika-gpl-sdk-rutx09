@@ -44,6 +44,22 @@ define Package/urngd/description
   Jitter RNGd provides a source of sufficient entropy.
 endef
 
+define Build/Patch
+	$(if $(QUILT),rm -rf $(PKG_BUILD_DIR)/patches; mkdir -p $(PKG_BUILD_DIR)/patches)
+	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/generic,generic/)
+ifeq ($(CONFIG_TARGET_x86_64_DEVICE_teltonika_x86_64_test),y)
+	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/x86_test,x86_test/)
+endif
+	$(if $(QUILT),touch $(PKG_BUILD_DIR)/.quilt_used)
+endef
+
+define Quilt/Refresh/Package
+	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/generic,generic/)
+ifeq ($(CONFIG_TARGET_x86_64_DEVICE_teltonika_x86_64_test),y)
+	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/x86_test,x86_test/)
+endif
+endef
+
 define Package/urngd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)

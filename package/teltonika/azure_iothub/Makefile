@@ -2,9 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=azure_iothub
-PKG_VERSION:=2025-05-15
+PKG_VERSION:=2025-07-31
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.4
+PKG_SOURCE_VERSION:=3.6
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -75,34 +76,12 @@ define Package/azure_iothub/prerm
 	#!/bin/sh
 	. /lib/functions.sh
 
-	[ -f "/etc/config/data_sender" ] || return 0
+	[ -f "/etc/config/data_sender" ] || exit 0
 
-	config_load data_sender
+	. /lib/data_sender/libdata_sender.sh 
+	ds_remove_plugin_cfg azure
 
-	check_azure_col() {
-		config_get out "$$1" output ""
-		[ "$$out" = "$$2" ] || return 0
-
-		uci_set data_sender "$$1" enabled 0
-	}
-
-	check_azure_out() {
-		config_get plugin "$$1" plugin ""
-		[ "$$plugin" = "ubus" ] || return 0
-
-		config_get obj "$$1" ubus_object ""
-		[ "$${obj%.*}" = "azure" ] || return 0
-
-		config_foreach check_azure_col "collection" "$$1"
-		uci_remove data_sender $$1 plugin
-		uci_remove data_sender $$1 ubus_object
-		uci_remove data_sender $$1 ubus_method
-	}
-
-	config_foreach check_azure_out "output"
-	uci_commit data_sender 2> /dev/null
-	/etc/init.d/data_sender reload 2> /dev/null || true
-
+	exit 0
 endef
 
 $(eval $(call BuildPackage,azure_iothub))

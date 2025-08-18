@@ -19,6 +19,12 @@
 				gpio-export,output = <0>;
 				gpios = <&stm32_io 20 GPIO_ACTIVE_HIGH>;
 			};
+
+			gpio_sim_select {
+				gpio-export,name = "sim_sel";
+				gpio-export,output = <0>;
+				gpios = <&stm32_io 22 GPIO_ACTIVE_HIGH>;
+			};
 		};
 
 		leds {
@@ -115,6 +121,10 @@
 			GPIO_121 {
 				compatible_versions = <0 2>;
 				line_name = "GPIO_MODEM_RESET_1";
+			};
+			GPIO_122 {
+				compatible_versions = <4 99>;
+				line_name = "GPIO_SIM_SELECT";
 			};
 		};
 	};

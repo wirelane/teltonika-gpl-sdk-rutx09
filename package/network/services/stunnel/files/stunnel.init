@@ -6,12 +6,14 @@ START=90
 USE_PROCD=1
 
 PID_FILE="/var/run/stunnel/stunnel.pid"
-CONF_FILE="/var/etc/stunnel.conf"
+CONF_FILE="/var/run/stunnel/stunnel.conf"
 BIN="/usr/bin/stunnel"
 [ -x "$BIN" ] || BIN="/usr/local$BIN"
 CONF_FILE_CREATED=
 HAVE_ALT_CONF_FILE=
 SERVICE_SECTION_FOUND=
+SETUID="stunnel"
+SETGID="stunnel"
 
 validate_globals_section() {
 	uci_load_validate stunnel globals "$1" "$2" \
@@ -27,8 +29,6 @@ validate_globals_section() {
 		'RNDbytes:uinteger' \
 		'RNDfile:string' \
 		'RNDoverwrite:bool' \
-		'setgid:or(string,uinteger)' \
-		'setuid:or(string,uinteger)' \
 		'syslog:bool' \
 		;
 }
@@ -37,8 +37,6 @@ validate_service_section() {
 	uci_load_validate stunnel service "$1" "$2" \
 		'enabled:bool:0' \
 		\
-		'setgid:or(string,uinteger)' \
-		'setuid:or(string,uinteger)' \
 		;
 }
 
@@ -259,8 +257,6 @@ print_service_options() {
 		service \
 		sessionCacheSize \
 		sessionCacheTimeout \
-		setgid \
-		setuid \
 		sslVersion \
 		stack \
 		ticketKeySecret \
@@ -323,6 +319,8 @@ create_conf_file() {
 		echo >> "$CONF_FILE"
 		echo "foreground = quiet" >> "$CONF_FILE"
 		echo "pid = $PID_FILE" >> "$CONF_FILE"
+		echo "setuid = $SETUID" >> "$CONF_FILE"
+		echo "setgid = $SETGID" >> "$CONF_FILE"
 		CONF_FILE_CREATED=1
 	}
 }
@@ -340,19 +338,25 @@ global_defs() {
 
 	# If "alt_config_file" specified in the first globals section, use that instead
 	[ -z "$alt_config_file" ] || [ -n "$CONF_FILE_CREATED" ] || {
-		# Symlink "alt_config_file" since it's a bit easier and safer
-		ln -s "$alt_config_file" "$CONF_FILE"
+		# copying file so we can modify setuid and setgid and leave original config untouched
+		cp "$alt_config_file" "$CONF_FILE"
+		chown "$SETUID" "$CONF_FILE"
+		chown ":$SETGID" "$CONF_FILE"
 		# Set section found to start service, user hopefully knows what they are doing
 		SERVICE_SECTION_FOUND=1
 		CONF_FILE_CREATED=1
 		HAVE_ALT_CONF_FILE=1
+		sed -i \
+			-e 's/^\s*setuid\s*=.*/setuid = '"$SETUID"'/' \
+			-e 's/^\s*setgid\s*=.*/setgid = '"$SETGID"'/' \
+			"$CONF_FILE"
 		return 0
 	}
 
 	pid_dir="$(dirname "$PID_FILE")"
 	mkdir -p "$pid_dir"
-	[ -z "$setuid" ] || chown "$setuid" "$pid_dir"
-	[ -z "$setgid" ] || chown ":$setgid" "$pid_dir"
+	chown "$SETUID" "$pid_dir"
+	chown ":$SETGID" "$pid_dir"
 
 	create_conf_file
 	print_global_options

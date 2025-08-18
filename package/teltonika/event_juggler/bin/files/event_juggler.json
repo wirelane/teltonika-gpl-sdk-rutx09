@@ -41,7 +41,9 @@
 				"send_sms",
 				"send_voice_call",
 				"get_func",
-				"set_func"
+				"set_func",
+				"get_incoming_voice_calls",
+				"reject_voice_call"
 			]
 		},
 		"ioman.*": {
@@ -91,9 +93,9 @@
 				"send"
 			]
 		},
-		"system": {
+		"rpc-profile": {
 			"methods": [
-				"change_profile"
+				"change"
 			]
 		},
 		"port_events": {
@@ -125,6 +127,12 @@
 		"mctl" : {
 			"methods": [
 				"reboot"
+			]
+		},
+		"api": {
+			"methods": [
+				"get",
+				"post"
 			]
 		}
 	}

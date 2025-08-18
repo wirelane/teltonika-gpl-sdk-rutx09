@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sstp-client
 PKG_VERSION:=1.0.19
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_HASH:=e2652365f69f5037102e78f4e115ff764a390b27bb3fd513a8a50b10a61bb613
 
@@ -32,6 +32,7 @@ define Package/sstp-client
   DEPENDS=+libevent2 +libopenssl +ppp +resolveip
   TITLE:=SSTP-Client is a SSTP client for Linux.
   URL:=http://sstp-client.sourceforge.net/
+  USERID:=sstpc:sstpc
 endef
 
 define Package/sstp-client/description
@@ -52,9 +53,10 @@ define Package/sstp-client/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/.libs/sstpc $(1)/usr/bin/
 	$(CP) $(PKG_BUILD_DIR)/src/libsstp-api/.libs/*.so* $(1)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/src/pppd-plugin/.libs/*.so* $(1)/usr/lib/
-
 	$(INSTALL_DIR) $(1)/etc
 	$(CP) files/etc $(1)
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
+	$(INSTALL_BIN) files/fix_cert_owners $(1)/etc/uci-defaults/7.17/99_sstp_fix_cert_owners
 endef
 
 define Package/sstp-client/postinst

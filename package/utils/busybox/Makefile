@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
 PKG_VERSION:=1.34.1
-PKG_RELEASE:=$(AUTORELEASE).12
+PKG_RELEASE:=$(AUTORELEASE).15
 PKG_FLAGS:=essential
 
 PKG_SOURCE_VERSION:=1.34.1
@@ -65,6 +65,15 @@ define Package/telnet
   FATTRS:=/usr/sbin/telnetd::::cap_net_bind_service=ep
 endef
 
+define Package/udhcpc
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=DHCPv4 client from Busybox
+  DEPENDS:=+libcap +libubus +libnetifd
+  USERID:=udhcpc:udhcpc
+  FATTRS:=/sbin/udhcpc::::cap_net_raw,cap_net_bind_service=ep
+endef
+
 define Package/busybox/description
  The Swiss Army Knife of embedded Linux.
  It slices, it dices, it makes Julian Fries.
@@ -72,6 +81,10 @@ endef
 
 define Package/telnet/description
  This package contains a telnet server.
+endef
+
+define Package/udhcpc/description
+ DHCPv4 client package
 endef
 
 define Package/busybox/config
@@ -93,6 +106,7 @@ define Package/untpd
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=Stripped down NTPD (busybox) version
+  DEPENDS:=+libubus +libnetifd
   USERID:=ntp=547:ntp=547
   FATTRS:=/usr/sbin/untpd::::cap_net_bind_service=ep
 endef
@@ -111,12 +125,12 @@ ifeq ($(CONFIG_USE_GLIBC),y)
 endif
 
 ifdef BUSYBOX_CONFIG_FEATURE_NETIFD
-LDLIBS += -lnetifd
+LDLIBS += -lubus -lnetifd
 endif
 
 MAKE_VARS :=
 MAKE_FLAGS += \
-	EXTRA_CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS)" \
+	EXTRA_CFLAGS="$(TARGET_CFLAGS) $(TARGET_CPPFLAGS) -I$(STAGING_DIR)/usr/include" \
 	EXTRA_LDFLAGS="$(TARGET_LDFLAGS)" \
 	LDLIBS="$(LDLIBS)" \
 	LD="$(TARGET_CC)" \
@@ -124,6 +138,11 @@ MAKE_FLAGS += \
 ifneq ($(findstring c,$(OPENWRT_VERBOSE)),)
   MAKE_FLAGS += V=1
 endif
+
+define Build/Prepare
+	$(call Build/Prepare/Default)
+	cp ./files/build-single-conf.sh $(PKG_BUILD_DIR)
+endef
 
 define Build/Configure
 	rm -f $(PKG_BUILD_DIR)/.config
@@ -135,34 +154,47 @@ endif
 	yes 'n' | $(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) oldconfig
 endef
 
+define Build/SingleApplet
+	basedir="$$$$(dirname $(PKG_BUILD_DIR))/build-$(1)"; \
+	echo "Building $(1) applet in build-$(1)..."; \
+	rm -rf "$$$${basedir}" && \
+	mkdir -p "$$$${basedir}" && \
+	cp -a $(PKG_BUILD_DIR)/. "$$$${basedir}" && \
+	cd "$$$${basedir}" && \
+	sed -i 's/^# CONFIG_$(2) is not set/CONFIG_$(2)=y/' .config $(3) && \
+	./build-single-conf.sh $(2) && \
+	cp busybox_config_$(2) .config && \
+	$(MAKE) $(MAKE_FLAGS)
+endef
+
+define Package/telnet/Compile
+	$(call Build/SingleApplet,telnet,TELNET,\
+		&& sed -i 's/^# CONFIG_FEATURE_TELNET_TTYPE is not set/CONFIG_FEATURE_TELNET_TTYPE=y/' .config \
+		&& sed -i 's/^# CONFIG_FEATURE_TELNET_AUTOLOGIN is not set/CONFIG_FEATURE_TELNET_AUTOLOGIN=y/' .config \
+		&& sed -i 's/^# CONFIG_FEATURE_TELNET_WIDTH is not set/CONFIG_FEATURE_TELNET_WIDTH=y/' .config)
+	$(call Build/SingleApplet,telnetd,TELNETD, \
+		&& sed -i 's/^# CONFIG_FEATURE_TELNETD_STANDALONE is not set/CONFIG_FEATURE_TELNETD_STANDALONE=y/' .config \
+		&& sed -i 's/^# CONFIG_FEATURE_TELNETD_INETD_WAIT is not set/CONFIG_FEATURE_TELNETD_INETD_WAIT=y/' .config)
+endef
+
+define Package/udhcpc/Compile
+	$(call Build/SingleApplet,udhcpc,UDHCPC,\
+		&& sed -i 's/^# CONFIG_FEATURE_NETIFD is not set/CONFIG_FEATURE_NETIFD=y/' .config)
+endef
+
+define Package/untpd/Compile
+	$(call Build/SingleApplet,untpd,UNTPD,)
+endef
+
 define Build/Compile
 	$(call Build/Compile/Default, \
 		CONFIG_PREFIX="$(PKG_INSTALL_DIR)" \
 		all install \
 	)
-	cd $(PKG_BUILD_DIR) && \
-	cp .config .config.orig && \
-	sed -i 's/^# CONFIG_TELNET is not set/CONFIG_TELNET=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNET_TTYPE is not set/CONFIG_FEATURE_TELNET_TTYPE=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNET_AUTOLOGIN is not set/CONFIG_FEATURE_TELNET_AUTOLOGIN=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNET_WIDTH is not set/CONFIG_FEATURE_TELNET_WIDTH=y/' .config || true; \
-	./make_single_applets.sh TELNET && \
-	cp busybox_config_TELNET .config && \
-	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
-	mv busybox busybox_TELNET; \
-	sed -i 's/^# CONFIG_TELNETD is not set/CONFIG_TELNETD=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNETD_STANDALONE is not set/CONFIG_FEATURE_TELNETD_STANDALONE=y/' .config || true; \
-	sed -i 's/^# CONFIG_FEATURE_TELNETD_INETD_WAIT is not set/CONFIG_FEATURE_TELNETD_INETD_WAIT=y/' .config || true; \
-	./make_single_applets.sh TELNETD && \
-	cp busybox_config_TELNETD .config && \
-	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
-	mv busybox busybox_TELNETD && \
-	sed -i 's/^# CONFIG_UNTPD is not set/CONFIG_UNTPD=y/' .config || true; \
-	./make_single_applets.sh UNTPD && \
-	cp busybox_config_UNTPD .config && \
-	$(MAKE) -C $(PKG_BUILD_DIR) $(MAKE_FLAGS) && \
-	mv busybox busybox_UNTPD; \
-	cp .config.orig .config
+
+	$(if $(CONFIG_PACKAGE_telnet),$(call Package/telnet/Compile))
+	$(if $(CONFIG_PACKAGE_udhcpc),$(call Package/udhcpc/Compile))
+	$(if $(CONFIG_PACKAGE_untpd),$(call Package/untpd/Compile))
 endef
 
 define Package/telnet/install
@@ -172,17 +204,26 @@ define Package/telnet/install
 	$(INSTALL_BIN) ./files/telnetd $(1)/etc/init.d/telnetd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_TELNETD $(1)/usr/sbin/telnetd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_TELNET $(1)/usr/bin/telnet
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-telnetd/busybox $(1)/usr/sbin/telnetd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-telnet/busybox $(1)/usr/bin/telnet
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/telnetd.permtab $(1)/etc/permtab.d/telnetd
 endef
 
+
+define Package/udhcpc/install
+	$(INSTALL_DIR) $(1)/sbin $(1)/usr/share/acl.d
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-udhcpc/busybox $(1)/sbin/udhcpc
+	$(INSTALL_DATA) ./files/udhcpc_acl.json $(1)/usr/share/acl.d/udhcpc_acl.json
+endef
+
 define Package/untpd/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/busybox_UNTPD $(1)/usr/sbin/untpd
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d \
+		$(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/untpd.permtab $(1)/etc/permtab.d/untpd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-untpd/busybox $(1)/usr/sbin/untpd
 	$(INSTALL_BIN) ./files/ntpserver.init $(1)/etc/init.d/ntpserver
-	$(INSTALL_BIN) ./files/ntpserver.conf $(1)/etc/config/ntpserver
+	$(INSTALL_CONF_USR) ./files/ntpserver.conf $(1)/etc/config/ntpserver
 endef
 
 define Package/busybox/install
@@ -200,13 +241,15 @@ ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_NTPD),)
 	$(INSTALL_DATA) ./files/ntpd_acl.json $(1)/usr/share/acl.d/ntpd.json
 endif
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_FEATURE_PASSWORD_POLICY),)
-	$(INSTALL_DIR) $(1)/etc/profile.d
-	$(INSTALL_DATA) ./files/password_policy.conf $(1)/etc/config/password_policy
+	$(INSTALL_DIR) $(1)/etc/profile.d $(1)/etc/permtab.d
+	$(INSTALL_CONF_USR) ./files/password_policy.conf $(1)/etc/config/password_policy
 	$(INSTALL_BIN) ./files/check_password_expiration.sh $(1)/etc/profile.d/check_password_expiration.sh
+	$(INSTALL_DATA) ./files/password_policy.permtab $(1)/etc/permtab.d/password_policy
 endif
 	-rm -rf $(1)/lib64
 endef
 
 $(eval $(call BuildPackage,telnet))
 $(eval $(call BuildPackage,untpd))
+$(eval $(call BuildPackage,udhcpc))
 $(eval $(call BuildPackage,busybox))

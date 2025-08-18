@@ -10,12 +10,12 @@
 	},
 	"vuci-app-aws-ui": {
 		"vuci_dep": "vuci-app-aws-api",
-		"base_dep": "aws libaws-iot-device-sdk-embedded-C libapi20241125",
+		"base_dep": "aws libaws-iot-device-sdk-embedded-C libapi",
 		"name": "aws_iot_core"
 	},
 	"vuci-app-azure-iothub-ui": {
 		"vuci_dep": "vuci-app-azure-iothub-api vuci-app-data-sender-api-mod-azure",
-		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo liblua libtlt_uci libuuid1 libapi20241125",
+		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo liblua libtlt_uci libuuid1 libapi",
 		"name": "azure_iot_hub"
 	},
 	"vuci-app-cumulocity-ui": {
@@ -80,7 +80,14 @@
 	"vuci-app-tailscale-ui": {
 		"base_dep": "tailscale",
 		"vuci_dep": "vuci-app-tailscale-api",
+		"kmod_dep": "kmod-nft-nat",
 		"name": "tailscale"
+	},
+	"vuci-app-netbird-ui": {
+		"base_dep": "netbird",
+		"vuci_dep": "vuci-app-netbird-api",
+		"kmod_dep": "iptables-mod-extra kmod-ipt-extra",
+		"name": "netbird"
 	},
 	"vuci-app-ntpd-ui": {
 		"vuci_dep": "vuci-app-ntpd-api",
@@ -104,7 +111,7 @@
 	},
 	"vuci-app-snmp-ui": {
 		"vuci_dep": "vuci-app-snmp-api",
-		"base_dep": "snmp snmpd libpcre libnetsnmp snmp-mib snmp-mod-sqm snmp-mod-wireless snmp-mod-vlan snmp-mod-chilli snmp-mod-device snmp-mod-gps snmp-mod-gsm snmp-mod-io snmp-mod-port snmp-mod-mwan3 snmp-mod-universalgwd libtag libtltchilli snmptrap libpci libapi20241125",
+		"base_dep": "snmp snmpd libpcre libnetsnmp snmp-mib snmp-mod-sqm snmp-mod-wireless snmp-mod-vlan snmp-mod-chilli snmp-mod-device snmp-mod-gps snmp-mod-gsm snmp-mod-io snmp-mod-port snmp-mod-mwan3 snmp-mod-universalgwd libtag libtltchilli snmptrap libpci",
 		"name": "snmp"
 	},
 	"vuci-app-samba-ui": {
@@ -147,7 +154,7 @@
 	"vuci-app-sqm-ui": {
 		"vuci_dep": "vuci-app-sqm-api",
 		"base_dep": "sqm-scripts tc-tiny tc-mod-iptables",
-		"kmod_dep": "kmod-ifb kmod-sched-cake kmod-sched-core kmod-ipt-conntrack-extra kmod-ipt-ipopt iptables-mod-conntrack-extra iptables-mod-ipopt",
+		"kmod_dep": "kmod-ifb kmod-sched-cake kmod-sched-core kmod-ipt-conntrack-extra kmod-ipt-ipopt kmod-sched-act-ipt iptables-mod-conntrack-extra iptables-mod-ipopt",
 		"name": "sqm"
 	},
 	"vuci-app-sstp-ui": {
@@ -637,7 +644,7 @@
 		"name": "advanced_data_to_server_modules"
 	},
 	"freeradius3": {
-		"base_dep": "freeradius3-democerts freeradius3-mod-always freeradius3-mod-attr-filter freeradius3-mod-chap freeradius3-mod-detail freeradius3-mod-digest freeradius3-mod-eap freeradius3-mod-eap-gtc freeradius3-mod-eap-md5 freeradius3-mod-eap-mschapv2 freeradius3-mod-eap-peap freeradius3-mod-eap-pwd freeradius3-mod-eap-tls freeradius3-mod-eap-ttls freeradius3-mod-exec freeradius3-mod-expiration freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-logintime freeradius3-mod-mschap freeradius3-mod-pap freeradius3-mod-preprocess freeradius3-mod-radutmp freeradius3-mod-realm freeradius3-mod-unix freeradius3-common libcap libpcap libreadline8 libncurses6 terminfo libtalloc",
+		"base_dep": "freeradius3-democerts freeradius3-mod-always freeradius3-mod-attr-filter freeradius3-mod-chap freeradius3-mod-detail freeradius3-mod-digest freeradius3-mod-eap freeradius3-mod-eap-gtc freeradius3-mod-eap-md5 freeradius3-mod-eap-mschapv2 freeradius3-mod-eap-peap freeradius3-mod-eap-pwd freeradius3-mod-eap-tls freeradius3-mod-eap-ttls freeradius3-mod-exec freeradius3-mod-expiration freeradius3-mod-expr freeradius3-mod-files freeradius3-mod-logintime freeradius3-mod-mschap freeradius3-mod-pap freeradius3-mod-preprocess freeradius3-mod-radutmp freeradius3-mod-realm freeradius3-mod-unix freeradius3-common libcap libpcap libreadline8 libncurses6 terminfo libtalloc libbsd0",
 		"packages_dep": "libattr",
 		"kmod_dep": "libatomic1 libpthread",
 		"name": "freeradius"

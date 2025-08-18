@@ -10,8 +10,7 @@
     "acls": ["network/vlan/port_based"],
     "depends": {
       "board": {
-        "notAllOf": ["is_X86"],
-        "anyOf": ["has_switch", "has_dsa"]
+        "notAnyOf": ["is_gateway", "is_ap", "is_X86"]
       }
     }
   },

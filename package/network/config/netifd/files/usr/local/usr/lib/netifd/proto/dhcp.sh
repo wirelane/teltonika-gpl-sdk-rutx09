@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -L /sbin/udhcpc ] || exit 0
+[ -x /sbin/udhcpc ] || exit 0
 
 . /lib/functions.sh
 . /lib/netifd/netifd-proto.sh
@@ -66,8 +66,9 @@ proto_dhcp_setup() {
 	[ "$ismobile" = "1" ] && append dhcpopts "-M"
 
 	proto_export "INTERFACE=$config"
+	proto_set_user udhcpc
 	proto_run_command "$config" udhcpc \
-		-p /var/run/udhcpc-$iface.pid \
+		-p /var/run/udhcpc/udhcpc-$iface.pid \
 		-s ${script:-/lib/netifd/dhcp.script} \
 		-f -t 0 -i "$iface" \
 		${ipaddr:+-r ${ipaddr/\/*/}} \

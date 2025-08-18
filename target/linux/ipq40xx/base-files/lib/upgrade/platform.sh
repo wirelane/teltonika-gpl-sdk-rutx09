@@ -72,6 +72,13 @@ platform_check_hw_support() {
 		fi
 	fi
 
+	if [[ $board =~ "^RUTX14" && "${hwver:2:2}" -ge "04" ]]; then
+		if ! find_hw_mod "RUTX14_V4"; then
+			echo "This hardware revision is not supported by older firmwares"
+			return 1
+		fi
+	fi
+
 	# nand type validation
 	grep -q '^W25N02KV' "$nand_model_file" && { ! find_hw_mod "W25N02KV"; } && {
 		echo "Winbond NAND detected but fw does not support it"

@@ -8,6 +8,7 @@ USE_PROCD=1
 START=80
 STOPPING=0
 
+TMP_DIR="/var/run/tailscale"
 PROG="/usr/sbin/tailscale"
 [ -x "$PROG" ] || PROG="/usr/local${PROG}"
 
@@ -15,7 +16,28 @@ log() {
 	local type="$1"
 	local msg="$2"
 	logger -t "tailscaled" -p daemon."${type}" "$msg"
-	[ "$type" = "err" ] && echo "$msg" >> /tmp/state/tailscale/err
+	[ "$type" = "err" ] && echo "$msg" >> ${TMP_DIR}/err
+}
+
+add_dns() {
+	local servers ip
+	local local_dns="/var/resolv.conf.d/resolv.conf.auto"
+	log "info" "Adding Tailscale DNS (100.100.100.100) for 'ts.net' domain"
+	servers="$(/sbin/api get /dns/config/general | jsonfilter -e '@.http_body.data.server')"
+	[ -n "$servers" ] && echo "$servers" > "/etc/tailscale/dns_backup" || echo "[ ]" > "/etc/tailscale/dns_backup"
+	chown tailscale:tailscale /etc/tailscale/dns_backup
+	/sbin/api put /dns/config/general '{"data":{"server":["/ts.net/100.100.100.100"]}}' 1>/dev/null 2>&1
+	if [ -f "$local_dns" ]; then
+		while IFS= read -r line; do
+			case "$line" in
+				nameserver\ *)
+					ip=$(printf "%s\n" "$line" | cut -d' ' -f2)
+					if [ -n "$ip" ]; then
+						ip route add throw "$ip" table 52 2>/dev/null
+					fi
+			esac
+		done < "$local_dns"
+	fi
 }
 
 connect() {
@@ -38,11 +60,11 @@ connect() {
 		[ $counter -ge 5 ] && exit
 	done
 
+	param="--accept-dns=false"
 	[ -n "$login_server" ] && param="$param --login-server=$login_server"
 	if [ "$default_route" -eq 1 ]; then
-		[ -n "$exit_node_ip" ] && param="$param --exit-node=$exit_node_ip --exit-node-allow-lan-access --accept-dns"
+		[ -n "$exit_node_ip" ] && param="$param --exit-node=$exit_node_ip --exit-node-allow-lan-access"
 	else
-		param="$param --accept-dns=false"
 		[ "$exit_node" -eq 1 ] && param="$param --advertise-exit-node"
 	fi
 	if [ -n "$advert_routes" ]; then
@@ -75,6 +97,15 @@ connect() {
 		answ=$($PROG up $auth_arg $param --reset --timeout 5s 2>&1) || type="err"
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
+
+	[ "$default_route" -eq 1 ] && add_dns
+
+	if [ -e "/etc/config/mwan3" ] && [ -n "$(ip route show table 52)" ] && { [ "$exit_node" -eq 1 ] || [ "$default_route" -eq 1 ]; }; then
+		log "info" "Adding Tailscale networks routes to mwan3 configuration"
+		uci -q add_list mwan3.globals.rt_table_lookup="52"
+		uci -q commit mwan3
+		/etc/init.d/mwan3 reload
+	fi
 }
 
 start_service() {
@@ -105,6 +136,7 @@ start_service() {
 
 	log "info" "Service starting"
 	procd_open_instance
+	procd_set_param env TS_DEBUG_FIREWALL_MODE=nftables
 	procd_set_param command ${PROG}d
 
 # Set the port to listen on for incoming VPN packets.
@@ -118,15 +150,17 @@ start_service() {
 	procd_set_param respawn
 	procd_set_param stdout "$std_out"
 	procd_set_param stderr "$std_err"
-
+	procd_set_param user tailscale
 	procd_close_instance
-	[ -e "/tmp/state/tailscale" ] && : >/tmp/state/tailscale/err
+	: >"${TMP_DIR}/err"
+	chown tailscale:tailscale "${TMP_DIR}/err"
 
 	#Connect the device when tailscale service started
 	connect "$auth_type" "$auth_key" "$exit_node" "$accept_routes" "$advert_routes" "$default_route" "$exit_node_ip" "$login_server" &
 }
 
 stop_service() {
+	local rt_table_lookup
 	log "info" "Service stopping"
 	STOPPING=1
 	[ -n "$(pgrep -f "${PROG}d ")" ] && {
@@ -135,7 +169,28 @@ stop_service() {
 		log "info" "Clean up system state"
 		${PROG}d --cleanup 1>/dev/null 2>&1
 	}
-	[ -e "/tmp/state/tailscale" ] && : >/tmp/state/tailscale/status
+	: >"${TMP_DIR}/status"
+
+	[ -f "/etc/tailscale/dns_backup" ] && {
+		log "info" "Removing Tailscale DNS configuration"
+		/sbin/api put /dns/config/general "{\"data\":{\"server\":$(cat /etc/tailscale/dns_backup)}}" 1>/dev/null 2>&1
+		rm -f /etc/tailscale/dns_backup
+		ip route flush table 52
+	}
+
+	if [ -e "/etc/config/mwan3" ]; then
+		rt_table_lookup=$(uci -q get mwan3.globals.rt_table_lookup)
+		if [ -n "$rt_table_lookup" ]; then
+			for table in $rt_table_lookup; do
+				if [ "$table" = "52" ]; then
+					log "info" "Removing Tailscale networks routes from mwan3 configuration"
+					uci -q del_list mwan3.globals.rt_table_lookup="52"
+					uci -q commit mwan3
+					/etc/init.d/mwan3 reload
+				fi
+			done
+		fi
+	fi
 }
 
 reload_service() {

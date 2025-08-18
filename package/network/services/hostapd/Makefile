@@ -5,18 +5,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=14
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=e5ccbfc69ecf297590341ae8b461edba9d8e964c
+PKG_SOURCE_VERSION:=4b8ac10cb77c3d4dbf7ccefbe697dc0578da374c
 PKG_SOURCE_URL:=https://w1.fi/hostap.git
 
-PKG_SOURCE_DATE:=2023-09-08
+PKG_SOURCE_DATE:=2025-05-23
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=COPYING
-PKG_VERSION:=2.10
+PKG_VERSION:=2.12-dev
 PKG_CPE_ID:=cpe:/a:w1.fi:hostapd
 
 PKG_BUILD_PARALLEL:=1
@@ -34,6 +34,7 @@ PKG_CONFIG_DEPENDS:= \
 	CONFIG_DRIVER_11N_SUPPORT \
 	CONFIG_DRIVER_11AC_SUPPORT \
 	CONFIG_DRIVER_11AX_SUPPORT \
+	CONFIG_DRIVER_11BE_SUPPORT \
 	CONFIG_WPA_ENABLE_WEP
 
 PKG_BUILD_FLAGS:=gc-sections lto
@@ -87,7 +88,14 @@ ifneq ($(CONFIG_DRIVER_11AX_SUPPORT),)
   HOSTAPD_IEEE80211AX:=y
 endif
 
-CORE_DEPENDS = +ucode +libubus +libucode +ucode-mod-fs +ucode-mod-nl80211 +ucode-mod-rtnl +ucode-mod-ubus +ucode-mod-uloop +libblobmsg-json
+ifneq ($(CONFIG_DRIVER_11BE_SUPPORT),)
+  HOSTAPD_IEEE80211BE:=y
+endif
+
+
+CORE_DEPENDS = +ucode +libucode \
+	+ucode-mod-fs +ucode-mod-nl80211 +ucode-mod-rtnl +ucode-mod-ubus +ucode-mod-uloop \
+	+libubus +libblobmsg-json
 
 DRIVER_MAKEOPTS= \
 	CONFIG_ACS=$(or $(CONFIG_PACKAGE_kmod-cfg80211),$(CONFIG_PACKAGE_kmod-cfg80211_54),$(CONFIG_PACKAGE_kmod-cfg80211_515),$(CONFIG_PACKAGE_kmod-cfg80211_66)) \
@@ -95,9 +103,10 @@ DRIVER_MAKEOPTS= \
 	CONFIG_IEEE80211N=$(HOSTAPD_IEEE80211N) \
 	CONFIG_IEEE80211AC=$(HOSTAPD_IEEE80211AC) \
 	CONFIG_IEEE80211AX=$(HOSTAPD_IEEE80211AX) \
+	CONFIG_IEEE80211BE=$(HOSTAPD_IEEE80211BE) \
 	CONFIG_DRIVER_WEXT=$(CONFIG_DRIVER_WEXT_SUPPORT) \
 	CONFIG_MBO=$(CONFIG_WPA_MBO_SUPPORT) \
-	CONFIG_UCODE=y
+	CONFIG_UCODE=y CONFIG_APUP=y
 
 ifeq ($(SSL_VARIANT),openssl)
   DRIVER_MAKEOPTS += CONFIG_TLS=openssl CONFIG_SAE=y
@@ -110,7 +119,7 @@ ifeq ($(SSL_VARIANT),openssl)
     DRIVER_MAKEOPTS += CONFIG_AP=y CONFIG_MESH=y
   endif
   ifeq ($(LOCAL_VARIANT),full)
-    DRIVER_MAKEOPTS += CONFIG_OWE=y CONFIG_SUITEB192=y CONFIG_AP=y CONFIG_MESH=y
+    DRIVER_MAKEOPTS += CONFIG_OWE=y CONFIG_SUITEB192=y CONFIG_AP=y CONFIG_MESH=y CONFIG_EAP_PWD=y CONFIG_DPP=y CONFIG_DPP2=y
   endif
 endif
 
@@ -128,7 +137,7 @@ define Package/hostapd/Default
   CATEGORY:=Network
   SUBMENU:=WirelessAPD
   TITLE:=IEEE 802.1x Authenticator
-  URL:=http://hostap.epitest.fi/
+  URL:=https://w1.fi/hostapd/
   DEPENDS:=$(DRV_DEPENDS) +hostapd-common +liblog $(CORE_DEPENDS)
   EXTRA_DEPENDS:=hostapd-common (=$(PKG_VERSION)-$(PKG_RELEASE))
   USERID:=network=101:network=101
@@ -208,7 +217,7 @@ define Package/wpad/Default
   DEPENDS:=$(DRV_DEPENDS) +hostapd-common +liblog $(CORE_DEPENDS)
   EXTRA_DEPENDS:=hostapd-common (=$(PKG_VERSION)-$(PKG_RELEASE))
   USERID:=network=101:network=101
-  URL:=http://hostap.epitest.fi/
+  URL:=https://w1.fi/
   PROVIDES:=hostapd wpa-supplicant
   CONFLICTS:=$(HOSTAPD_PROVIDERS) $(SUPPLICANT_PROVIDERS)
   HOSTAPD_PROVIDERS+=$(1)
@@ -366,7 +375,7 @@ define Package/hostapd-utils
   CATEGORY:=Network
   SUBMENU:=WirelessAPD
   TITLE:=IEEE 802.1x Authenticator (utils)
-  URL:=http://hostap.epitest.fi/
+  URL:=https://w1.fi/hostapd/
   DEPENDS:=@$(subst $(space),||,$(foreach pkg,$(HOSTAPD_PROVIDERS),PACKAGE_$(pkg)))
   VARIANT:=*
 endef
@@ -547,7 +556,15 @@ define Install/supplicant
 endef
 
 define Package/hostapd-common/install
-	$(INSTALL_DIR) $(1)/etc/capabilities $(1)/etc/rc.button $(1)/etc/hotplug.d/ieee80211 $(1)/etc/init.d $(1)/lib/netifd  $(1)/usr/share/acl.d $(1)/usr/share/hostap $(1)/etc/hotplug.d/iface $(1)/usr/share/hostap $(1)/etc/uci-defaults/7.15/
+	$(INSTALL_DIR) \
+	  $(1)/etc/capabilities \
+	  $(1)/etc/rc.button \
+	  $(1)/etc/hotplug.d/ieee80211 \
+	  $(1)/etc/init.d $(1)/lib/netifd \
+	  $(1)/usr/share/acl.d \
+	  $(1)/usr/share/hostap \
+	  $(1)/etc/hotplug.d/iface \
+	  $(1)/usr/share/hostap $(1)/etc/uci-defaults/7.15/
 	$(INSTALL_BIN) ./files/dhcp-get-server.sh $(1)/lib/netifd/dhcp-get-server.sh
 	$(INSTALL_BIN) ./files/wpad.init $(1)/etc/init.d/wpad
 	$(if $(CONFIG_WPS_SUPPORT),\

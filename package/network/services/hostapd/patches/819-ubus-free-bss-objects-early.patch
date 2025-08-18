@@ -1,6 +1,6 @@
 --- a/src/ap/hostapd.c
 +++ b/src/ap/hostapd.c
-@@ -461,7 +461,6 @@ void hostapd_free_hapd_data(struct hosta
+@@ -505,7 +505,6 @@ void hostapd_free_hapd_data(struct hosta
  
  	wpa_printf(MSG_DEBUG, "%s(%s)", __func__, hapd->conf->iface);
  	hostapd_ucode_free_bss(hapd);
@@ -8,7 +8,7 @@
  	accounting_deinit(hapd);
  	hostapd_deinit_wpa(hapd);
  	vlan_deinit(hapd);
-@@ -2740,6 +2739,7 @@ void hostapd_bss_deinit(struct hostapd_d
+@@ -3020,6 +3019,7 @@ void hostapd_bss_deinit(struct hostapd_d
  	wpa_printf(MSG_DEBUG, "%s: deinit bss %s", __func__,
  		   hapd->conf ? hapd->conf->iface : "N/A");
  	hostapd_bss_deinit_no_free(hapd);

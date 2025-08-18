@@ -1,8 +1,6 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_ht.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ieee802_11_ht.c	2024-05-24 15:11:50.008488068 +0300
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_ht.c	2024-05-24 15:11:50.008488068 +0300
-@@ -82,7 +82,7 @@
+--- a/src/ap/ieee802_11_ht.c
++++ b/src/ap/ieee802_11_ht.c
+@@ -127,7 +127,7 @@ no_update:
  u8 * hostapd_eid_ht_operation(struct hostapd_data *hapd, u8 *eid)
  {
  	struct ieee80211_ht_operation *oper;
@@ -11,9 +9,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_ht.c
  	u8 *pos = eid;
  	u8 chwidth;
  
-@@ -105,7 +105,10 @@
- 		oper->ht_param |= HT_INFO_HT_PARAM_SECONDARY_CHNL_BELOW |
- 			HT_INFO_HT_PARAM_STA_CHNL_WIDTH;
+@@ -145,7 +145,10 @@ u8 * hostapd_eid_ht_operation(struct hos
+ 	oper->operation_mode = host_to_le16(hapd->iface->ht_op_mode);
+ 	set_ht_param(hapd, oper);
  
 -	vht_capabilities_info = host_to_le32(hapd->iface->current_mode->vht_capab);
 +	if (hapd->iface->current_mode) {
@@ -23,11 +21,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_ht.c
  	chwidth = hostapd_get_oper_chwidth(hapd->iconf);
  	if (vht_capabilities_info & VHT_CAP_EXTENDED_NSS_BW_SUPPORT
  		&& ((chwidth == CHANWIDTH_160MHZ) || (chwidth == CHANWIDTH_80P80MHZ))) {
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_vht.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ieee802_11_vht.c	2024-05-24 15:11:48.816494819 +0300
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_vht.c	2024-05-24 15:16:28.730893992 +0300
-@@ -86,7 +86,7 @@
+--- a/src/ap/ieee802_11_vht.c
++++ b/src/ap/ieee802_11_vht.c
+@@ -87,7 +87,7 @@ u8 * hostapd_eid_vht_capabilities(struct
  u8 * hostapd_eid_vht_operation(struct hostapd_data *hapd, u8 *eid)
  {
  	struct ieee80211_vht_operation *oper;
@@ -36,7 +32,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ieee802_11_vht.c
  	u8 *pos = eid;
  	enum oper_chan_width oper_chwidth =
  		hostapd_get_oper_chwidth(hapd->iconf);
-@@ -119,7 +119,11 @@
+@@ -126,7 +126,11 @@ u8 * hostapd_eid_vht_operation(struct ho
  	oper->vht_op_info_chan_center_freq_seg1_idx = seg1;
  
  	oper->vht_op_info_chwidth = oper_chwidth;

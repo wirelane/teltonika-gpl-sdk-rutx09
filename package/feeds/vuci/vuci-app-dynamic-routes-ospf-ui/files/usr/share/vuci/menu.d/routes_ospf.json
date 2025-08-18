@@ -15,7 +15,7 @@
     "main_page": true,
     "depends": {
       "packages": {
-        "anyOf": ["ospf", "ospf5"]
+        "anyOf": ["frr-ospfd", "frr5-ospfd"]
       }
     }
   },
@@ -34,7 +34,7 @@
     "acls": ["status/routes/dynamic/ospf"],
     "depends": {
       "packages": {
-        "anyOf": ["ospf", "ospf5"]
+        "anyOf": ["frr-ospfd", "frr5-ospfd"]
       }
     }
   }

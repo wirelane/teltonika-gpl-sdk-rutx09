@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=opcua_client
-PKG_VERSION:=2025-07-02
-PKG_SOURCE_VERSION:=7.16
+PKG_VERSION:=2025-07-31
+PKG_SOURCE_VERSION:=7.17
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -67,71 +67,6 @@ endef
 define Package/$(PKG_NAME)/prerm
 	#!/bin/sh
 	. /lib/functions.sh
-	. /lib/config/uci.sh
-
-	[ -f "/etc/config/data_sender" ] || return 0
-
-	config_load data_sender
-
-	list_length=0
-	opcua_list_count=0
-
-	check_list_opc_ua_in() {
-		list_length=$$((list_length+1))
-	}
-
-	count_opc_ua_in() {
-		config_get plugin "$$1" plugin ""
-		[ "$$plugin" = "opcua" ] && opcua_list_count=$$((opcua_list_count+1))
-	}
-
-	del_opcua_in() {
-		uci_remove data_sender "$$1"
-	}
-
-	check_opc_ua_col() {
-		list_length=0
-		opcua_list_count=0
-
-		config_foreach count_opc_ua_in "input"
-		config_list_foreach "$$1" input check_list_opc_ua_in
-
-		if [ "$$list_length" -ge 2 ] && [ "$$list_length" -ne "$$opcua_list_count" ]; then
-			uci_remove data_sender "$$2"
-			uci_remove_list data_sender "$$1" input "$$2"
-		elif [ "$$list_length" -ge 2 ] && [ "$$list_length" -eq "$$opcua_list_count" ]; then
-			config_list_foreach "$$1" input del_opcua_in
-
-			config_get out "$$1" output ""
-			uci_remove data_sender "$$out"
-
-			uci_remove data_sender "$$1"
-		else
-			config_get in "$$1" input ""
-			uci_remove data_sender "$$in"
-
-			config_get out "$$1" output ""
-			uci_remove data_sender "$$out"
-
-			uci_remove data_sender "$$1"
-
-		fi
-
-	}
-
-	start_opc_ua_in() {
-		config_get plugin "$$1" plugin ""
-		[ "$$plugin" = "opcua" ] || return 0
-
-		config_foreach check_opc_ua_col "collection" "$$1"
-		uci_commit data_sender 2> /dev/null
-		config_load data_sender
-	}
-
-	config_foreach start_opc_ua_in "input"
-	/etc/init.d/data_sender reload 2> /dev/null || true
-
-	######################################################################
 
 	delete_files() {
 		config_get key "$$1" key ""
@@ -143,6 +78,9 @@ define Package/$(PKG_NAME)/prerm
 
 	config_load opcua_client
 	config_foreach delete_files server
+
+	rm -f /var/run/opcua_client/opcua.db
+
 	exit 0
 endef
 

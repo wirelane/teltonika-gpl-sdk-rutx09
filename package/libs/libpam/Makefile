@@ -25,7 +25,7 @@ PKG_CPE_ID:=cpe:/a:linux-pam:linux-pam
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-PKG_BUILD_DEPENDS := libgpg-error
+PKG_BUILD_DEPENDS := libgpg-error libgcrypt
 
 include $(INCLUDE_DIR)/package.mk
 

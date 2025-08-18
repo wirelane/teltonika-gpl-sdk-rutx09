@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=impulse-counter
-PKG_VERSION:=2025-07-02
-PKG_SOURCE_VERSION:=7.16
+PKG_VERSION:=2025-07-31
+PKG_SOURCE_VERSION:=7.17
 PKG_LICENSE:=Teltonika-closed
 
 
@@ -52,72 +52,8 @@ endef
 
 define Package/$(PKG_NAME)/prerm
 	#!/bin/sh
-	. /lib/functions.sh
-	. /lib/config/uci.sh
 
 	rm -f /tmp/impulse_counter.db
-
-	[ -f "/etc/config/data_sender" ] || return 0
-
-	config_load data_sender
-
-	list_length=0
-	impulse_counter_list_count=0
-
-	check_list_impulse_counter_in() {
-		list_length=$$((list_length+1))
-	}
-
-	count_impulse_counter_in() {
-		config_get plugin "$$1" plugin ""
-		[ "$$plugin" = "impulse_counter" ] && impulse_counter_list_count=$$((impulse_counter_list_count+1))
-	}
-
-	del_impulse_counter_in() {
-		uci_remove data_sender "$$1"
-	}
-
-	check_impulse_counter_col() {
-		list_length=0
-		impulse_counter_list_count=0
-
-		config_foreach count_impulse_counter_in "input"
-		config_list_foreach "$$1" input check_list_impulse_counter_in
-
-		if [ "$$list_length" -ge 2 ] && [ "$$list_length" -ne "$$impulse_counter_list_count" ]; then
-			uci_remove data_sender "$$2"
-			uci_remove_list data_sender "$$1" input "$$2"
-		elif [ "$$list_length" -ge 2 ] && [ "$$list_length" -eq "$$impulse_counter_list_count" ]; then
-			config_list_foreach "$$1" input del_impulse_counter_in
-
-			config_get out "$$1" output ""
-			uci_remove data_sender "$$out"
-
-			uci_remove data_sender "$$1"
-		else
-			config_get in "$$1" input ""
-			uci_remove data_sender "$$in"
-
-			config_get out "$$1" output ""
-			uci_remove data_sender "$$out"
-
-			uci_remove data_sender "$$1"
-
-		fi
-
-	}
-
-	start_impulse_counter_in() {
-		config_get plugin "$$1" plugin ""
-		[ "$$plugin" = "impulse_counter" ] || return 0
-
-		config_foreach check_impulse_counter_col "collection" "$$1"
-		uci_commit data_sender 2> /dev/null
-		config_load data_sender
-	}
-
-	config_foreach start_impulse_counter_in "input"
-	/etc/init.d/data_sender reload 2> /dev/null || true
 endef
 
 define Package/$(PKG_NAME)/postrm

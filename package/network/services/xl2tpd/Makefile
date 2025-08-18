@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd
 PKG_VERSION:=1.3.16
-PKG_RELEASE:=10
+PKG_RELEASE:=12
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -31,7 +31,7 @@ define Package/xl2tpd
   TITLE:=An L2TP (Layer 2 Tunneling Protocol) daemon
   URL:=http://www.xelerance.com/software/xl2tpd/
   SUBMENU:=VPN
-  DEPENDS:=+ppp-mod-pppol2tp +resolveip
+  DEPENDS:=+ppp-mod-pppol2tp +resolveip +kmod-l2tp-eth +kmod-l2tp-ip
   USERID:=xl2tpd:xl2tpd
   FATTRS:=/usr/sbin/xl2tpd-control:xl2tpd::y:
 endef
@@ -101,6 +101,9 @@ define Package/xl2tpd/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
 	$(CP) ./files/defaults/99_l2tp_device_name $(1)/etc/uci-defaults/7.15/99_l2tp_device_name
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/xl2tpd.permtab $(1)/etc/permtab.d/xl2tpd
 
 endef
 

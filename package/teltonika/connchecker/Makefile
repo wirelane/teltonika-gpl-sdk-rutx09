@@ -7,6 +7,8 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=connchecker
 PKG_VERSION:=2025-01-15
+PKG_RELEASE:=1
+
 PKG_SOURCE_VERSION:=7.11
 PKG_LICENSE:=Teltonika-closed
 

@@ -89,7 +89,7 @@ get_gsm_info() {
 		troubleshoot_init_log "INFO for $mdm" "$log_file"
 
 		at_ans="$(ubus call "$mdm" exec "{\"command\":\"AT\"}")"
-		if [ -z "${at_ans##*\\r\\nOK\\r\\n*}" ]; then
+		if [ -z "${at_ans##*OK*}" ]; then
 			TIMEOUT_COUNTER=0
 			invoke_and_print_cmd "$mdm" "info" "$log_file"
 

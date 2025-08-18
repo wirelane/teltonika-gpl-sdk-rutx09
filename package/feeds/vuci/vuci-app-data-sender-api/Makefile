@@ -19,18 +19,6 @@ lua -e 'ds_update = require "vuci.ds_update_list"; ds_update:update_list();'
 exit 0
 endef
 
-define ModulePostrm
-#!/bin/sh
-
-[ -z "$(1)" ] || exit 0
-
-if [ -f $(2) ]; then
-    rm -f $(2)
-fi
-
-exit 0
-endef
-
 # --- Main Package Install ---
 define Package/$(PKG_NAME)/install
 	files_dir="./files"; if [[ -d "$(PKG_BUILD_DIR)/files" ]]; then files_dir="$(PKG_BUILD_DIR)/files"; fi; \
@@ -67,10 +55,6 @@ endef
 
 define Package/vuci-app-data-sender-api-mod-$(2)/postinst
 $(call ModulePostinst,$$$${IPKG_INSTROOT})
-endef
-
-define Package/vuci-app-data-sender-api-mod-$(2)/postrm
-$(call ModulePostrm,$$$${IPKG_INSTROOT},"/tmp/data_sender/plugin_data.json")
 endef
 
 $$(eval $$(call BuildPackage,vuci-app-data-sender-api-mod-$(2)))
@@ -147,10 +131,6 @@ endef
 
 define Package/vuci-app-data-sender-api-mod-advanced/postinst
 $(call ModulePostinst,$${IPKG_INSTROOT})
-endef
-
-define Package/vuci-app-data-sender-api-mod-advanced/postrm
-$(call ModulePostrm,$${IPKG_INSTROOT},"/tmp/data_sender/plugin_data.json")
 endef
 
 $(eval $(call BuildPackage,vuci-app-data-sender-api-mod-advanced))

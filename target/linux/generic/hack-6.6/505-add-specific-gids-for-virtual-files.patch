@@ -67,7 +67,7 @@
  	&dev_attr_delay_on.attr,
 --- a/drivers/leds/trigger/ledtrig-netdev.c
 +++ b/drivers/leds/trigger/ledtrig-netdev.c
-@@ -288,7 +288,7 @@ static ssize_t device_name_store(struct
+@@ -293,7 +293,7 @@ static ssize_t device_name_store(struct
  	return size;
  }
  
@@ -76,7 +76,7 @@
  
  static ssize_t netdev_led_attr_show(struct device *dev, char *buf,
  				    enum led_trigger_netdev_modes attr)
-@@ -382,7 +382,7 @@ static ssize_t netdev_led_attr_store(str
+@@ -387,7 +387,7 @@ static ssize_t netdev_led_attr_store(str
  	{ \
  		return netdev_led_attr_store(dev, buf, size, trigger); \
  	} \
@@ -85,7 +85,7 @@
  
  DEFINE_NETDEV_TRIGGER(link, TRIGGER_NETDEV_LINK);
  DEFINE_NETDEV_TRIGGER(link_10, TRIGGER_NETDEV_LINK_10);
-@@ -431,7 +431,7 @@ static ssize_t interval_store(struct dev
+@@ -441,7 +441,7 @@ static ssize_t interval_store(struct dev
  	return size;
  }
  

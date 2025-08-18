@@ -1,8 +1,6 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/sta_info.c	2023-11-06 11:30:59.971637063 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c	2023-11-06 11:31:05.000000000 +0200
-@@ -1300,6 +1300,9 @@
+--- a/src/ap/sta_info.c
++++ b/src/ap/sta_info.c
+@@ -1575,6 +1575,9 @@ void ap_sta_set_authorized_event(struct
  	const u8 *dev_addr = NULL;
  	char buf[100];
  	char mac[18] = { 0 };
@@ -12,7 +10,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
  #ifdef CONFIG_P2P
  	u8 addr[ETH_ALEN];
  	u8 ip_addr_buf[4];
-@@ -1416,7 +1419,7 @@
+@@ -1669,7 +1672,7 @@ void ap_sta_set_authorized_event(struct
  					  buf, ip_addr, keyid_buf,
  					  dpp_pkhash_buf, alg_buf);
  
@@ -21,7 +19,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
  	} else {
  		wpa_msg(hapd->msg_ctx, MSG_INFO, AP_STA_DISCONNECTED "%s", buf);
  		hostapd_ubus_notify(hapd, "disassoc", sta->addr);
-@@ -1426,7 +1429,7 @@
+@@ -1679,7 +1682,7 @@ void ap_sta_set_authorized_event(struct
  			wpa_msg_no_global(hapd->msg_ctx_parent, MSG_INFO,
  					  AP_STA_DISCONNECTED "%s", buf);
  
@@ -29,12 +27,10 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/sta_info.c
 +		hostapd_ubus_insert_wifi_log(ssid, mac, 0);
  	}
  
- #ifdef CONFIG_FST
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ubus.c	2023-11-06 11:30:59.971637063 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c	2023-11-06 11:30:59.971637063 +0200
-@@ -1978,10 +1978,10 @@
+ 	if (hapd->sta_authorized_cb)
+--- a/src/ap/ubus.c
++++ b/src/ap/ubus.c
+@@ -2077,10 +2077,10 @@ void hostapd_ubus_notify_beacon_report(
  	ubus_notify(ctx, &hapd->ubus.obj, "beacon-report", b.head, -1);
  }
  
@@ -47,7 +43,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
  	int i			   = 0;
  
  	while (mac[i]) {
-@@ -1990,9 +1990,9 @@
+@@ -2089,9 +2089,9 @@ void hostapd_ubus_insert_wifi_log(char *
  	}
  
  	if (ident) {
@@ -59,11 +55,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.c
  	}
  
  	new_task.table	  = LLOG_CONNECTIONS;
-Index: hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.h
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/src/ap/ubus.h	2023-11-06 11:30:59.971637063 +0200
-+++ hostapd-2023-09-08-e5ccbfc6/src/ap/ubus.h	2023-11-06 11:30:59.971637063 +0200
-@@ -62,7 +62,7 @@
+--- a/src/ap/ubus.h
++++ b/src/ap/ubus.h
+@@ -63,7 +63,7 @@ void hostapd_ubus_notify_bss_transition_
  	struct hostapd_data *hapd, const u8 *addr, u8 dialog_token, u8 status_code,
  	u8 bss_termination_delay, const u8 *target_bssid,
  	const u8 *candidate_list, u16 candidate_list_len);

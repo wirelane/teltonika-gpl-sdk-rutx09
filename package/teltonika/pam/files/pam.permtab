@@ -1,2 +1,2 @@
-/etc/config/pam             pamd:pamd       666       -
+/etc/config/pam             pamd:pamd       660       -
 /var/run/pamd/raddb         pamd:pamd       -         cd

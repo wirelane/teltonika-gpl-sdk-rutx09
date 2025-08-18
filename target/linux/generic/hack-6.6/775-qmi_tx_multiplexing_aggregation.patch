@@ -176,15 +176,15 @@
  }
  
  static const struct net_device_ops qmimux_netdev_ops = {
-@@ -262,6 +388,7 @@ static void qmimux_setup(struct net_devi
- 	dev->netdev_ops      = &qmimux_netdev_ops;
+@@ -263,6 +389,7 @@ static void qmimux_setup(struct net_devi
  	dev->mtu             = 1500;
+ 	dev->pcpu_stat_type  = NETDEV_PCPU_STAT_TSTATS;
  	dev->needs_free_netdev = true;
 +	dev->features        |= NETIF_F_SG | NETIF_F_FRAGLIST;
  }
  
  static struct net_device *qmimux_find_dev(struct usbnet *dev, u8 mux_id)
-@@ -375,6 +502,25 @@ static struct attribute_group qmi_wwan_s
+@@ -376,6 +503,25 @@ static struct attribute_group qmi_wwan_s
  	.attrs = qmi_wwan_sysfs_qmimux_attrs,
  };
  
@@ -210,7 +210,7 @@
  static int qmimux_register_device(struct net_device *real_dev, u8 mux_id, int qmap_v5)
  {
  	struct net_device *new_dev;
-@@ -652,16 +798,84 @@ static ssize_t pass_through_store(struct
+@@ -646,16 +792,84 @@ static ssize_t pass_through_store(struct
  	return len;
  }
  
@@ -295,7 +295,7 @@
  	NULL,
  };
  
-@@ -888,10 +1102,16 @@ static int qmi_wwan_bind(struct usbnet *
+@@ -882,10 +1096,16 @@ static int qmi_wwan_bind(struct usbnet *
  	struct usb_driver *driver = driver_of(intf);
  	struct qmi_wwan_state *info = (void *)&dev->data;
  	struct usb_cdc_parsed_header hdr;
@@ -312,7 +312,7 @@
  	/* set up initial state */
  	info->control = intf;
  	info->data = intf;
-@@ -960,6 +1180,13 @@ static int qmi_wwan_bind(struct usbnet *
+@@ -954,6 +1174,13 @@ static int qmi_wwan_bind(struct usbnet *
  		qmi_wwan_change_dtr(dev, true);
  	}
  
@@ -326,7 +326,7 @@
  	/* Never use the same address on both ends of the link, even if the
  	 * buggy firmware told us to. Or, if device is assigned the well-known
  	 * buggy firmware MAC address, replace it with a random address,
-@@ -994,6 +1221,10 @@ static void qmi_wwan_unbind(struct usbne
+@@ -988,6 +1215,10 @@ static void qmi_wwan_unbind(struct usbne
  	struct qmi_wwan_state *info = (void *)&dev->data;
  	struct usb_driver *driver = driver_of(intf);
  	struct usb_interface *other;

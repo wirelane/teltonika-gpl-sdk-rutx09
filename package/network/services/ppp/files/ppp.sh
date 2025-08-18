@@ -405,8 +405,7 @@ proto_sstp_init_config() {
 proto_sstp_setup() {
 	local config="$1"
 	local ifname="sstp-$config"
-	mkdir -p /var/etc/sstp
-	local options="/var/etc/sstp/options.${ifname}"
+	local options="/var/run/sstpc/options.${ifname}"
 	local server ip serv_addr ca username password defaultroute default_dev gw metric up opts
 
 	json_get_vars server ca username password defaultroute
@@ -415,7 +414,12 @@ proto_sstp_setup() {
 	for opt in $opts; do
 		echo "$opt" >> "$options"
 	done
-	[ -e "$options" ] && options="file $options" || options=
+	if [ -e "$options" ];then
+		chown sstpc:sstpc "$options"
+		options="file $options"
+	else
+		options=
+	fi
 
 	server_and_port=$server
 	server="${server%%:*}" # split server and port
@@ -457,6 +461,7 @@ proto_sstp_setup() {
 		proto_send_update "$config"
 	}
 
+	proto_set_user sstpc
 	proto_run_command "$config" sstpc \
 	${ca:+--ca-cert $ca} \
 	--cert-warn \
@@ -478,7 +483,7 @@ proto_sstp_setup() {
 
 proto_sstp_teardown() {
 	local server
-	local options="/var/etc/sstp/options.sstp-${1}"
+	local options="/var/run/sstpc/options.sstp-${1}"
 	json_get_vars server
 	server="${server%%:*}" # split server and port
 

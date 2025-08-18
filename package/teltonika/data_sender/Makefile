@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.19
+PKG_SOURCE_VERSION:=1.20
 
 PKG_FIXUP:=autoreconf
 
@@ -144,7 +144,20 @@ pid=$$$$(pidof ubusd)
   endef
   endif
 endif
+  define Package/data-sender-mod-$(1)/postrm
+	#!/bin/sh
+	
+	[ -z "$$$${IPKG_INSTROOT}" ] || exit 0
 
+	. /lib/data_sender/libdata_sender.sh 
+	ds_remove_plugin_cfg $(1)
+
+	if [ -f "/tmp/data_sender/plugin_data.json" ]; then
+		rm -f "/tmp/data_sender/plugin_data.json"
+	fi
+
+	exit 0
+  endef
   $$(eval $$(call BuildPackage,data-sender-mod-$(1)))
 endef
 

@@ -1,6 +1,6 @@
 --- a/wpa_supplicant/wpa_supplicant.c
 +++ b/wpa_supplicant/wpa_supplicant.c
-@@ -926,7 +926,7 @@ void wpa_supplicant_set_state(struct wpa
+@@ -1147,7 +1147,7 @@ void wpa_supplicant_set_state(struct wpa
  	bool update_fils_connect_params = false;
  #endif /* CONFIG_FILS && IEEE8021X_EAPOL */
  

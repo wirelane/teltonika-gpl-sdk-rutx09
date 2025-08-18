@@ -20,7 +20,7 @@ Signed-off-by: Benas Bagvilas <benas.bagvilas@teltonika.lt>
 
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -1308,7 +1308,7 @@ fail_halt:
+@@ -1319,7 +1319,7 @@ fail_halt:
  				usb_free_urb(urb);
  				goto fail_lowmem;
  			}
@@ -29,7 +29,7 @@ Signed-off-by: Benas Bagvilas <benas.bagvilas@teltonika.lt>
  				resched = 0;
  			usb_autopm_put_interface(dev->intf);
  fail_lowmem:
-@@ -2074,7 +2074,7 @@ int usbnet_resume (struct usb_interface
+@@ -2079,7 +2079,7 @@ int usbnet_resume (struct usb_interface
  			if (netif_device_present(dev->net) &&
  				!timer_pending(&dev->delay) &&
  				!test_bit(EVENT_RX_HALT, &dev->flags))

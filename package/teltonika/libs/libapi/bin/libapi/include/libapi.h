@@ -36,6 +36,7 @@ struct lapi_response {
 	// struct blob_buf b; // Blob buffer for response data
 	struct blob_attr *api_data; // Pointer to API data blob
 	struct blob_attr *errors; // Pointer to errors blob
+	struct blob_attr *messages; // Pointer to messages blob
 };
 
 /**

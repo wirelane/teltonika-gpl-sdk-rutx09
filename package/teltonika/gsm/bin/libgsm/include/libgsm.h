@@ -728,6 +728,24 @@ typedef enum {
 } lgsm_pplmn_list_attrs_attrs_t;
 
 typedef enum {
+	LGSM_RI_SIGNAL_TYPE_VALUE,
+	LGSM_RI_SIGNAL_TYPE_MAX,
+} lgsm_ri_signal_type_attrs_t;
+
+typedef enum {
+	LGSM_RI_BEHAVIOR_TYPE_VALUE,
+	LGSM_RI_BEHAVIOR_PULSE_DURATION_VALUE,
+	LGSM_RI_BEHAVIOR_PULSE_COUNT_VALUE,
+	LGSM_RI_BEHAVIOR_MAX,
+} lgsm_ri_behavior_attrs_t;
+
+typedef enum {
+	LGSM_SLEEP_MODE_ENABLED_VALUE,
+	LGSM_SLEEP_MODE_SAVED_VALUE,
+	LGSM_SLEEP_MODE_MAX,
+} lgsm_sleep_mode_attrs_t;
+
+typedef enum {
 	LGSM_UBUS_INFO,
 	LGSM_UBUS_EXEC,
 	LGSM_UBUS_FW,
@@ -934,6 +952,12 @@ typedef enum {
 	LGSM_UBUS_SET_CIREG_URC,
 	LGSM_UBUS_SET_SIM_SLEEP_MODE,
 	LGSM_UBUS_GET_SIM_SLEEP_MODE,
+	LGSM_UBUS_SET_RI_SIGNAL_TYPE,
+	LGSM_UBUS_GET_RI_SIGNAL_TYPE,
+	LGSM_UBUS_SET_RI_BEHAVIOR,
+	LGSM_UBUS_GET_RI_BEHAVIOR,
+	LGSM_UBUS_SET_SLEEP_MODE,
+	LGSM_UBUS_GET_SLEEP_MODE,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -1494,6 +1518,17 @@ typedef struct {
 	bool is_default;
 } lgsm_pplmn_list_attrs_t;
 
+typedef struct {
+	char type[32];
+	uint32_t pulse_duration;
+	uint32_t pulse_count;
+} lgsm_ri_behavior_t;
+
+typedef struct {
+	bool enabled;
+	bool saved;
+} lgsm_sleep_mode_t;
+
 typedef enum {
 	LGSM_LABEL_STRING,
 	LGSM_LABEL_INT,
@@ -1582,6 +1617,8 @@ typedef enum {
 	LGSM_LABEL_SET_RPLMN_STATE_T,
 	LGSM_LABEL_HPLMN_SEARCH_TIMER,
 	LGSM_LABEL_PPLMN_LIST,
+	LGSM_LABEL_RI_BEHAVIOR_T,
+	LGSM_LABEL_SLEEP_MODE_T,
 	LGSM_LABEL_ERROR,
 } lgsm_resp_label_t;
 
@@ -1666,6 +1703,8 @@ typedef union {
 	lgsm_shutdown_gpio_t gpio;
 	lgsm_hplmn_search_timer_t hplmn_search_timer;
 	lgsm_pplmn_list_attrs_t pplmn_list;
+	lgsm_ri_behavior_t ri_behavior;
+	lgsm_sleep_mode_t sleep_mode;
 } lgsm_resp_data;
 
 typedef struct {
@@ -4105,6 +4144,27 @@ void handle_get_pplmn_list(struct blob_attr *info, lgsm_structed_info_t *parsed)
    */
 void handle_get_sim_sleep_mode(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
+/**
+ * Parse RI signal type method response
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+ */
+void handle_get_ri_signal_type(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+ * Parse RI behavior method response
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+ */
+void handle_get_ri_behavior(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+ * Parse sleep mode method response
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+ */
+void handle_get_sleep_mode(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
 /*********************
 *  STRUCT HANDLERS  *
 *********************/
@@ -4302,6 +4362,42 @@ lgsm_err_t lgsm_set_usbcfg(struct ubus_context *ctx, bool nmea, bool modem, bool
  * @return lgsm_err_t. Return function status code.
  */
 lgsm_err_t lgsm_update_esim_profile_id(struct ubus_context *ctx, func_t *resp, int index, uint32_t modem_num);
+
+/*
+ * Set RI signal type for the modem
+ * @param[ptr]  ctx        Ubus context.
+ * @param[in]   type       RI signal type.
+ * @param[in]   resp       Status code for modem setting configuration.
+ * @param[in]   modem_num  Modem number.
+ *
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_ri_signal_type(struct ubus_context *ctx, const char *type, func_t *resp,
+				   uint32_t modem_num);
+
+/*
+ * Set RI behavior for the modem
+ * @param[ptr]  ctx        Ubus context.
+ * @param[in]   type       RI behavior type.
+ * @param[in]   pulse_duration Pulse duration.
+ * @param[in]   pulse_count Pulse count.
+ * @param[in]   resp       Status code for modem setting configuration.
+ * @param[in]   modem_num  Modem number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_ri_behavior(struct ubus_context *ctx, const char *type, uint32_t pulse_duration,
+				uint32_t pulse_count, func_t *resp, uint32_t modem_num);
+/*
+ * Set sleep mode for the modem
+ * @param[ptr]  ctx        Ubus context.
+ * @param[in]   enable     Enable or disable sleep mode.
+ * @param[in]   save       Save the sleep mode setting to module NVM.
+ * @param[in]   resp       Status code for modem setting configuration.
+ * @param[in]   modem_num  Modem number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_sleep_mode(struct ubus_context *ctx, bool enable, bool save, func_t *resp, uint32_t modem_num);
+
 #ifdef __cplusplus
 }
 #endif

@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=apn_db
 
-PKG_SOURCE_VERSION:=7.16
+PKG_SOURCE_VERSION:=7.17
 
 PKG_LICENSE:=Teltonika-closed
 

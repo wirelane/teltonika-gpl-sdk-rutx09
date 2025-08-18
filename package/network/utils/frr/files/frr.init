@@ -10,7 +10,7 @@ USE_PROCD=1
 package_dirs="/usr/lib/opkg/info/ /usr/local/lib/opkg/info/"
 daemons_installed="$(find ${package_dirs} -name "frr-*d.list" 2>/dev/null | sed 's#.*/frr-##' | sed 's/d\.list *$//' | tr '\n' ' ')"
 [ -e "/etc/config/nhrp" ] && daemons_installed="${daemons_installed} nhrp"
-BASE_DIR="/var/etc/frr"
+BASE_DIR="/var/run/frr"
 CONFIG_FILE_BGP="$BASE_DIR/bgp.conf"
 CONFIG_FILE_RIP="$BASE_DIR/rip.conf"
 CONFIG_FILE_OSPF="$BASE_DIR/ospf.conf"
@@ -20,7 +20,7 @@ CONFIG_FILE_LDP="$BASE_DIR/ldp.conf"
 CONFIG_FILE_STATIC="$BASE_DIR/static.conf"
 CONFIG_FILE_BFD="$BASE_DIR/bfd.conf"
 
-mkdir -p /var/etc/frr
+mkdir -p "$BASE_DIR"
 
 #################################################
 #               Global functions                #
@@ -120,12 +120,12 @@ daemons_check_enabled() {
 daemons_launch() {
 	# Checks daemons_enabled variable and if not empty launches Zebra and Staticd
 	# Loops through daemons_enabled variable and launches enabled daemons one by one
-	local daemon
+	local daemon group="frr"
 	if [ -n "$daemons_enabled" ]; then
 		zebra_loc="/usr/sbin/zebra"
 		[ -x "$zebra_loc" ] || zebra_loc="/usr/local$zebra_loc"
 		procd_open_instance zebra
-		procd_set_param command "$zebra_loc"
+		procd_set_param command "$zebra_loc" -u "zebra" -g "$group"
 		procd_set_param respawn
 		procd_close_instance
 
@@ -133,20 +133,18 @@ daemons_launch() {
 		do
 			local daemon_loc="/usr/sbin/${daemon}d"
 			[ -x "$daemon_loc" ] || daemon_loc="/usr/local$daemon_loc"
+			local command="procd_set_param command ${daemon_loc} -u $daemon -g $group"
 			config_load "$daemon"
 			config_get CUSTOM_CONFIG_FILE "${daemon}" "${daemon}d_custom_conf"
+			procd_open_instance "${daemon}d"
 			if [ -z "$CUSTOM_CONFIG_FILE" ]; then
 				${daemon}_parse_config
-				procd_open_instance "${daemon}d"
-				procd_set_param command "${daemon_loc}" -f "${BASE_DIR}/${daemon}.conf"
-				procd_set_param respawn
-				procd_close_instance
+				eval "$command -f ${BASE_DIR}/${daemon}.conf"
 			else
-				procd_open_instance "${daemon}d"
-				procd_set_param command "${daemon_loc}" -f "$CUSTOM_CONFIG_FILE"
-				procd_set_param respawn
-				procd_close_instance
+				eval "$command -f $CUSTOM_CONFIG_FILE"
 			fi
+			procd_set_param respawn
+			procd_close_instance
 		done
 	else
 		return 1
@@ -221,6 +219,10 @@ add_interface_trigger() {
 	procd_add_interface_trigger "interface.*.up" "$section" /etc/init.d/frr reload
 }
 
+add_permissions() {
+	local service="$1"
+	chown "$service:frr" "$BASE_DIR/${service}.conf"
+}
 #################################################
 #                 BGP functions                 #
 #################################################
@@ -240,6 +242,7 @@ bgp_parse_config() {
 	echo -ne "$prefix_list" >> "$CONFIG_FILE_BGP"
 	prefix_list=""
 	echo "" >> "$CONFIG_FILE_BGP"
+	add_permissions "bgp"
 }
 
 bgp_parse_instance() {
@@ -514,6 +517,7 @@ rip_parse_config() {
 	rip_acl=""
 
 	echo "" >> "$CONFIG_FILE_RIP"
+	add_permissions "rip"
 }
 
 rip_parse_general(){
@@ -590,6 +594,7 @@ ospf_parse_config() {
 	config_foreach ospf_parse_interface ospf_interface
 
 	echo "" >> "$CONFIG_FILE_OSPF"
+	add_permissions "ospf"
 }
 
 ospf_parse_general(){
@@ -737,6 +742,7 @@ eigrp_parse_config() {
 	config_foreach eigrp_parse_general eigrp_general
 
 	echo "" >> "$CONFIG_FILE_EIGRP"
+	add_permissions "eigrp"
 }
 
 eigrp_parse_general(){
@@ -779,6 +785,7 @@ nhrp_parse_config() {
 	config_foreach nhrp_parse_instance nhrp_instance
 
 	echo "" >> "$CONFIG_FILE_NHRP"
+	add_permissions "nhrp"
 }
 
 nhrp_parse_general() {
@@ -893,6 +900,7 @@ ldp_parse_config() {
 	config_foreach ldp_parse_general ldp_general
 
 	echo "" >> "$CONFIG_FILE_LDP"
+	add_permissions "ldp"
 }
 
 ldp_parse_general() {

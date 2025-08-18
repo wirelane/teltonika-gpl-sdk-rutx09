@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for DMVPN
 
-APP_DEPENDS:=+dmvpn +vuci-app-dynamic-routes-nhrp-api
+APP_DEPENDS:=+dmvpn
 
 include ../api.mk
 

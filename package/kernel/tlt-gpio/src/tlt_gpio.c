@@ -20,6 +20,10 @@
 
 #define MNF_ERROR_STRING(s) pr_err("\033[1;31mtlt_gpio: error setting GPIO's - %s\033[0m\n", s)
 
+#define ERROR_MESSAGE(fmt, ...) \
+	pr_err("\033[1;31mtlt_gpio: error " fmt "\033[0m\n", ##__VA_ARGS__)
+
+
 static int read_mnf(const char **model, int *hwver, const char **branch)
 {
 	*model = mnf_info_get_device_name();
@@ -164,6 +168,7 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 		memset(line_property_name, 0, PROPERTY_STR_SIZE);
 		memset(branch_property_name, 0, PROPERTY_STR_SIZE);
 		memset(mode_property_name, 0, PROPERTY_STR_SIZE);
+		compatible = 0;
 
 		if (prop_count == 1) {
 			snprintf(version_property_name, PROPERTY_STR_SIZE, "compatible_versions");
@@ -256,6 +261,9 @@ static int set_line_name(struct gpio_chip *gc, int gpio_offset, const char *devi
 	char ret	= 0;
 	int i		= 0;
 	enum gpiod_flags dflags;
+	const char **names;
+
+	names = kcalloc(gc->ngpio, sizeof(char*), GFP_KERNEL);
 
 	for (i = gpio_offset; i < (gc->ngpio + gpio_offset); i++) {
 		const char *str = NULL;
@@ -266,6 +274,14 @@ static int set_line_name(struct gpio_chip *gc, int gpio_offset, const char *devi
 
 		if ((str = gpio_find_node(token, device, hwver, branch, &active_low, &dflags)) != NULL) {
 			struct gpio_desc *desc = gpiochip_get_desc(gc, i - gpio_offset);
+			int j;
+			for (j = 0; j < i - gpio_offset; j++) {
+				if (names[j] && (strcmp(names[j], str) == 0)) {
+					ERROR_MESSAGE("DUPLICATE: \"%s\" found in gpiochips: \"%s\" line %d and line %d",
+						str, gc->label, i - gpio_offset, j);
+				}
+			}
+			names[i - gpio_offset] = str;
 
 			if (active_low) {
 				tlt_gpio_set_active_low(gc, i - gpio_offset);
@@ -300,6 +316,7 @@ static int set_line_name(struct gpio_chip *gc, int gpio_offset, const char *devi
 		}
 		kfree(token); // Only free if tlt_gpio_set_line_name failed
 	}
+	kfree(names);
 
 	return 0;
 }
@@ -339,7 +356,7 @@ static int __init tlt_gpio_init(void)
 		chip_index++;
 		pr_info("tlt-gpio: set names for %s chip\n", gc->label);
 	}
-
+	
 	return 0;
 }
 

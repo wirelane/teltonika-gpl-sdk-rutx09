@@ -90,7 +90,7 @@
 				"get_tag_value"
 			]
 		},
-		"api" : {
+		"api": {
 			"methods": [
 				"get"
 			]

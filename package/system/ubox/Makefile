@@ -27,6 +27,7 @@ define Package/ubox
   CATEGORY:=Base system
   DEPENDS:=+libubox +ubusd +ubus +libubus +libuci
   TITLE:=OpenWrt system helper toolbox
+  FATTRS:=/sbin/logd::::cap_dac_read_search,cap_syslog=eip
   ALTERNATIVES:=\
     100:/sbin/rmmod:/sbin/kmodloader \
     100:/sbin/insmod:/sbin/kmodloader \
@@ -62,10 +63,12 @@ define Package/ubox/install
 endef
 
 define Package/logd/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/
+	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/ $(1)/etc/uci-defaults/7.17/ $(1)/usr/share/acl.d/
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{logd,logread} $(1)/sbin/
 	$(INSTALL_BIN) ./files/log.init $(1)/etc/init.d/log
+	$(INSTALL_BIN) ./files/defaults/7.17/99_migrate_log_permissions $(1)/etc/uci-defaults/7.17/99_migrate_log_permissions
+	$(INSTALL_DATA) ./files/logd.json $(1)/usr/share/acl.d/logd.json
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) sysinit logd ./files/logd.openrc $(1); \

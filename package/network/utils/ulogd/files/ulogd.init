@@ -10,6 +10,7 @@ PLUGIN_DIR=/usr/lib/ulogd/
 UNDO_FILE=${HOME_DIR}/ulogd_firewall.sh
 CRONTABS_FILE=/etc/crontabs/ulogd
 PROG=/usr/sbin/ulogd
+SET_HOTSPOT=0
 
 if [ ! -d "$PLUGIN_DIR" ]; then
 	PLUGIN_DIR=/usr/local$PLUGIN_DIR
@@ -33,7 +34,6 @@ undo_firewall() {
 		iptables -F LOGGING
 		ip6tables -F LOGGING
 		sh ${UNDO_FILE}
-		rm -f ${UNDO_FILE}
 		iptables -X LOGGING
 		ip6tables -X LOGGING
 	} 2>/dev/null
@@ -43,9 +43,7 @@ add_logging_rule() {
 	local ifname
 
 	[[ "$1" == "hotspot" ]] && {
-		ipt -N LOGGING
-		ipt -I FORWARD -i tun0 -p tcp -m multiport --dports 80,443 -j LOGGING
-
+		SET_HOTSPOT=1
 		return
 	}
 
@@ -53,6 +51,39 @@ add_logging_rule() {
 	[[ -n "$ifname" ]] && \
 		ipt -I forwarding_rule -i $ifname -p tcp -m multiport --dports 80,443 -j LOGGING
 		ipt6 -I forwarding_rule -i $ifname -p tcp -m multiport --dports 80,443 -j LOGGING
+}
+
+add_hotspot_config_moreif() {
+	eval "$2=\"\$$2 $1\""
+}
+
+add_hotspot_config_network() {
+	local sec="$1"
+
+	config_get enabled "$sec" enabled 0
+	[ "$enabled" -ne 1 ] && return
+
+	config_get network "$sec" network ""
+	[ -z "$network" ] && return
+
+	eval "$2=\"\$$2 $network\""
+
+	config_list_foreach "$sec" "moreif" add_hotspot_config_moreif "$2"
+}
+
+get_interface() {
+	local var=""
+	local net="$2"
+
+	if [ "$(echo "$1" | grep -c "wifi")" ]; then
+		. /etc/chilli/wireless.sh
+		wireless_get_ifname var "$net"
+		[ -z "$var" ] && var=$(cat /var/run/"${net}".wifi_id 2>/dev/null)
+	else
+		network_get_device var "$net"
+	fi
+
+	[ -n "$var" ] && eval "$1=\"$var\"" || unset "$1"
 }
 
 set_firewall() {
@@ -64,6 +95,24 @@ set_firewall() {
 	ipt6 -N LOGGING
 	ipt6 -A LOGGING -m conntrack --ctstate NEW -j NFLOG --nflog-group 1
 	config_list_foreach global network add_logging_rule
+
+	[ "$SET_HOTSPOT" -ne 1 ] && return # Skip hotspot setting if not configured
+
+	# Set hotspot logging
+	local hs_ifaces=""
+	config_load chilli
+	config_foreach add_hotspot_config_network chilli hs_ifaces
+	hs_ifaces=$(echo "$hs_ifaces" | \
+		    awk '{for (i=1; i<=NF; i++) if (!seen[$i]++) printf "%s ", $i}')
+	for hs_iface in $hs_ifaces; do
+		get_interface iface "$hs_iface"
+		[ -z "$iface" ] && continue
+		for if in $iface; do
+			ipt -N LOGGING
+			ipt -I FORWARD -i "$if" -p tcp -m multiport --dports 80,443 -j LOGGING
+		done
+	done
+	config_load ulogd
 }
 
 set_ftp() {
@@ -182,6 +231,7 @@ add_interface_trigger() {
 
 service_triggers() {
 	procd_add_reload_trigger "ulogd"
+	[ "$SET_HOTSPOT" -eq 1 ] && procd_add_reload_trigger "chilli"
 
 	NO_CALLBACK=1
 	config_load ulogd

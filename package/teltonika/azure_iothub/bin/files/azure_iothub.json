@@ -2,9 +2,12 @@
 	"user": "azure",
 	"publish": [ "azure.*" ],
 	"access": {
-		"file": {
+		"api": {
 			"methods": [
-				"exec"
+				"get",
+				"post",
+				"put",
+				"delete"
 			]
 		}
 	}

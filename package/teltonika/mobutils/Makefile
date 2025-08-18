@@ -7,7 +7,8 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobutils
 
-PKG_SOURCE_VERSION:=3.16.3
+PKG_SOURCE_VERSION:=3.17
+PKG_RELEASE:=1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -62,7 +63,7 @@ define Package/mobutils-sms_utilities
 		+libboardjson +liblog +SMS_UTILS_HANDLER_IO:iomand \
 		+SMS_UTILS_HANDLER_GPS:libgps +libcurl +@LIBCURL_SMTP \
 		+libparam +SMS_UTILS_HANDLER_RMS:librms \
-		+SMS_UTILS_HANDLER_API:libapi
+		+SMS_UTILS_HANDLER_API:libapi +libuacl
 endef
 
 define Package/mobutils-sms_utilities/conffiles
@@ -120,11 +121,12 @@ define Package/mobutils-sms_utilities/install
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.init $(1)/etc/init.d/sms_utils
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/sms_utils $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/etc
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/etc $(1)/usr/share/sms_utils/
 
 	$(CP) $(PKG_BUILD_DIR)/files/99_sms_utils-mobutils $(1)/etc/uci-defaults/etc
 	$(CP) $(PKG_BUILD_DIR)/files/99_sms_utils-mobutils_3 $(1)/etc/uci-defaults/etc
 	$(CP) $(PKG_BUILD_DIR)/files/99_sms_gateway $(1)/etc/uci-defaults/etc
+	$(CP) $(PKG_BUILD_DIR)/sms_utils/files/uci_acl.json $(1)/usr/share/sms_utils/uci_acl.json
 
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.conf $(1)/etc/config/sms_utils;
 

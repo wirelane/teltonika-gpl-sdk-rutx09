@@ -120,6 +120,7 @@ proto_dhcpv6_setup() {
 	[ "$ignore_valid" = "1" ] && proto_export "IGNORE_VALID=1"
 
 	proto_export "INTERFACE=$config"
+	proto_set_user odhcp6c
 	proto_run_command "$config" odhcp6c \
 		-s /lib/netifd/dhcpv6.script \
 		$opts $iface

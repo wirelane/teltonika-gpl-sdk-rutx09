@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2025-07-21-7efce2bb86e
+PKG_VERSION:=2025-08-08-3a282822359
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -129,7 +129,9 @@ define Package/vuci-ui-core/install
 		mkdir -p $(MENU_OUTPUT_DIR) && \
 		$(foreach app_dir,$(VUCI_APPS), \
 			$(eval app_ui_dir=$(notdir $(app_dir))) \
-			$(CP) -fpR ../$(app_ui_dir)/files/usr/share/vuci/menu.d/*.json "$(MENU_OUTPUT_DIR)/" 2>/dev/null || true; \
+			$(if $(shell find ../$(app_ui_dir)/src -type f -name '*.vue' -print -quit),, \
+				$(CP) -fpR ../$(app_ui_dir)/files/usr/share/vuci/menu.d/*.json "$(MENU_OUTPUT_DIR)/" 2>/dev/null || true; \
+			) \
 		) \
 	)
 	$(PKG_BUILD_DIR)/menu_static.sh $(PKG_BUILD_DIR)/menu.json $(MENU_OUTPUT_DIR)

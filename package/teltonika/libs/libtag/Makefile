@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libtag
-PKG_VERSION:=2025-07-02
+PKG_VERSION:=2025-07-31
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.16
+PKG_SOURCE_VERSION:=7.17
 
 PKG_LICENSE:=Teltonika-closed
 

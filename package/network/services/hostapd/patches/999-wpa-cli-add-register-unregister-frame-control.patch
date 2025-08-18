@@ -1,10 +1,8 @@
-Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver.h
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6/src/drivers/driver.h
-+++ hostapd-2023-09-08-e5ccbfc6/src/drivers/driver.h
-@@ -5097,6 +5097,10 @@ struct wpa_driver_ops {
- 	 */
- 	int (*link_add)(void *priv, u8 link_id, const u8 *addr);
+--- a/src/drivers/driver.h
++++ b/src/drivers/driver.h
+@@ -5480,6 +5480,10 @@ struct wpa_driver_ops {
+ 	bool (*can_share_drv)(void *ctx, struct wpa_init_params *params,
+ 			      void **hapd);
  
 +	int (*frame_registration)(void *priv, u16 type,
 +					  const u8 *match, size_t match_len,
@@ -13,11 +11,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver.h
  #ifdef CONFIG_TESTING_OPTIONS
  	int (*register_frame)(void *priv, u16 type,
  			      const u8 *match, size_t match_len,
-Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
-+++ hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
-@@ -2393,6 +2393,35 @@ static int nl80211_register_frame(struct
+--- a/src/drivers/driver_nl80211.c
++++ b/src/drivers/driver_nl80211.c
+@@ -2493,6 +2493,35 @@ static int nl80211_register_frame(struct
  	return ret;
  }
  
@@ -38,8 +34,8 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
 +		return -1;
 +	}
 +
-+	ret = send_and_recv(drv->global, nl_handle, msg, NULL, NULL,
-+			    NULL, NULL);
++	ret = send_and_recv(drv, nl_handle, msg, NULL, NULL,
++			    NULL, NULL, NULL);
 +
 +	if (ret) {
 +		wpa_printf(MSG_DEBUG, "nl80211: Unregister frame command "
@@ -53,7 +49,7 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
  
  static int nl80211_alloc_mgmt_handle(struct i802_bss *bss)
  {
-@@ -2596,18 +2625,6 @@ static int nl80211_mgmt_subscribe_non_ap
+@@ -2715,18 +2744,6 @@ static int nl80211_mgmt_subscribe_non_ap
  					  5) < 0)
  		ret = -1;
  
@@ -72,8 +68,8 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
  	nl80211_mgmt_handle_register_eloop(bss);
  
  	return ret;
-@@ -13713,6 +13730,26 @@ static int nl80211_link_add(void *priv,
- 	return 0;
+@@ -11895,6 +11912,26 @@ static int nl80211_del_ts(void *priv, u8
+ 	return ret;
  }
  
 +static int nl80211_frame_registration(void *priv, u16 type,
@@ -98,21 +94,19 @@ Index: hostapd-2023-09-08-e5ccbfc6/src/drivers/driver_nl80211.c
 +
  
  #ifdef CONFIG_TESTING_OPTIONS
- 
-@@ -13910,6 +13947,7 @@ const struct wpa_driver_ops wpa_driver_n
+ static int cmd_reply_handler(struct nl_msg *msg, void *arg)
+@@ -15047,6 +15084,7 @@ const struct wpa_driver_ops wpa_driver_n
  #endif /* CONFIG_DPP */
  	.get_sta_mlo_info = nl80211_get_sta_mlo_info,
  	.link_add = nl80211_link_add,
 +	.frame_registration = nl80211_frame_registration,
- #ifdef CONFIG_TESTING_OPTIONS
- 	.register_frame = testing_nl80211_register_frame,
- 	.radio_disable = testing_nl80211_radio_disable,
-Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/ctrl_iface.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/ctrl_iface.c
-+++ hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/ctrl_iface.c
-@@ -12035,6 +12035,33 @@ static int wpas_ctrl_iface_mlo_status(st
- 	return pos - buf;
+ #ifdef CONFIG_IEEE80211BE
+ 	.link_remove = driver_nl80211_link_remove,
+ 	.is_drv_shared = nl80211_is_drv_shared,
+--- a/wpa_supplicant/ctrl_iface.c
++++ b/wpa_supplicant/ctrl_iface.c
+@@ -12112,6 +12112,33 @@ free_scs_desc:
+ 	return -1;
  }
  
 +static int wpa_ctrl_frame_registration(struct wpa_supplicant *wpa_s,
@@ -143,9 +137,9 @@ Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/ctrl_iface.c
 +}
 +
  
- char * wpa_supplicant_ctrl_iface_process(struct wpa_supplicant *wpa_s,
- 					 char *buf, size_t *resp_len)
-@@ -13062,6 +13089,12 @@ char * wpa_supplicant_ctrl_iface_process
+ static int wpas_ctrl_iface_send_dscp_resp(struct wpa_supplicant *wpa_s,
+ 					  const char *cmd)
+@@ -13864,6 +13891,12 @@ char * wpa_supplicant_ctrl_iface_process
  	} else if (os_strcmp(buf, "MLO_SIGNAL_POLL") == 0) {
  		reply_len = wpas_ctrl_iface_mlo_signal_poll(wpa_s, reply,
  							    reply_size);
@@ -155,15 +149,13 @@ Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/ctrl_iface.c
 +	} else if (os_strncmp(buf, "UNREGISTER_FRAME", 16) == 0) {
 +		if (wpa_ctrl_frame_registration(wpa_s, buf + 17, false) < 0)
 +			reply_len = -1;
- 	} else {
- 		os_memcpy(reply, "UNKNOWN COMMAND\n", 16);
- 		reply_len = 16;
-Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/driver_i.h
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/driver_i.h
-+++ hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/driver_i.h
-@@ -1181,4 +1181,16 @@ wpas_drv_get_sta_mlo_info(struct wpa_sup
- 	return wpa_s->driver->get_sta_mlo_info(wpa_s->drv_priv, mlo_info);
+ 	} else if (os_strcmp(buf, "NEW_RANDOM_MAC_ADDRESS") == 0) {
+ 		enum wpas_mac_addr_style mac_addr_style =
+ 			wpa_s->conf->preassoc_mac_addr;
+--- a/wpa_supplicant/driver_i.h
++++ b/wpa_supplicant/driver_i.h
+@@ -1257,4 +1257,16 @@ wpas_drv_nan_cancel_subscribe(struct wpa
+ 						   subscribe_id);
  }
  
 +static inline int
@@ -179,13 +171,11 @@ Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/driver_i.h
 +}
 +
  #endif /* DRIVER_I_H */
-Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/wpa_cli.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/wpa_cli.c
-+++ hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/wpa_cli.c
-@@ -3323,6 +3323,17 @@ static int wpa_cli_cmd_dscp_query(struct
- 	return wpa_cli_cmd(ctrl, "DSCP_QUERY", 1, argc, argv);
+--- a/wpa_supplicant/wpa_cli.c
++++ b/wpa_supplicant/wpa_cli.c
+@@ -3313,6 +3313,17 @@ static int wpa_cli_cmd_dscp_query(struct
  }
+ 
  
 +static int wpa_cli_cmd_register_frame(struct wpa_ctrl *ctrl, int argc, char *argv[])
 +{
@@ -198,10 +188,10 @@ Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/wpa_cli.c
 +	return wpa_cli_cmd(ctrl, "UNREGISTER_FRAME", 1, argc, argv);
 +}
 +
+ #ifdef CONFIG_NAN_USD
  
- enum wpa_cli_cmd_flags {
- 	cli_cmd_flag_none		= 0x00,
-@@ -3528,6 +3539,12 @@ static const struct wpa_cli_cmd wpa_cli_
+ static int wpa_cli_cmd_nan_publish(struct wpa_ctrl *ctrl, int argc,
+@@ -3573,6 +3584,12 @@ static const struct wpa_cli_cmd wpa_cli_
  	{ "scan_results", wpa_cli_cmd_scan_results, NULL,
  	  cli_cmd_flag_none,
  	  "= get latest scan results" },

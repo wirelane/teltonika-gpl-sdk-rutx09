@@ -151,6 +151,8 @@ module.exports = {
       { type: 'hw', name: 'dsa', value: false },
       { type: 'hw', name: 'is_access_point' },
       { type: 'hw', name: 'is_access_point', value: false },
+      { type: 'hw', name: '128mb_ram' },
+      { type: 'hw', name: '128mb_ram', value: false },
       { type: 'hw', name: 'has_tpm' }
     ]
   },

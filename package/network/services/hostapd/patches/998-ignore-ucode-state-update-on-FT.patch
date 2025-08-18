@@ -1,8 +1,6 @@
-Index: hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/wpa_supplicant.c
-===================================================================
---- hostapd-2023-09-08-e5ccbfc6.orig/wpa_supplicant/wpa_supplicant.c	2024-06-28 11:03:29.475749939 +0300
-+++ hostapd-2023-09-08-e5ccbfc6/wpa_supplicant/wpa_supplicant.c	2024-06-28 11:04:52.271293897 +0300
-@@ -1044,7 +1044,9 @@
+--- a/wpa_supplicant/wpa_supplicant.c
++++ b/wpa_supplicant/wpa_supplicant.c
+@@ -1271,7 +1271,9 @@ void wpa_supplicant_set_state(struct wpa
  		sme_sched_obss_scan(wpa_s, 0);
  	}
  	wpa_s->wpa_state = state;

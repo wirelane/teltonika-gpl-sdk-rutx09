@@ -38,7 +38,7 @@
 					],
 					[ "if",
 						[ "eq", "DEVNAME", "net/tun" ],
-						[ "makedev", "/dev/%DEVNAME%", "0660", "dialout" ]
+						[ "makedev", "/dev/%DEVNAME%", "0666", "dialout" ]
 					],
 					[ "if",
 						[ "eq", "DEVNAME", "tpmrm0" ],

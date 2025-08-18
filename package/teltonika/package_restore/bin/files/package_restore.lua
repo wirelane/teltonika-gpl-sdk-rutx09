@@ -32,6 +32,15 @@ local function add_to_failed_packages(app_name)
 	end
 end
 
+local function trigger_pkg_event_msg(pkg, type)
+	opkg._trigger_pkg_event({ 
+		package = pkg.app_name,
+		name = (pkg and pkg.get and pkg:get("tlt_name")) or nil,
+		messages = (pkg and pkg.get_pkg_msgs and pkg:get_pkg_msgs()) or nil,
+		type = type
+	})
+end
+
 -- handles file locking when calling opkg to avoid opkg lock conflicts with api
 local function opkg_cmd(cmd)
 	while fs.access("/var/lock/opkg.lock") do
@@ -104,6 +113,7 @@ for _, app_name in ipairs(app_names) do
 		end
 	else
 		add_to_failed_packages(app_name)
+		trigger_pkg_event_msg({app_name = app_name}, opkg.PKG_TYPES.PENDING_ERRORED)
 	end
 end
 
@@ -123,18 +133,19 @@ for i = 1, MAX_RETRIES do -- retry pkg install 3 times in case pkg install fails
 			if not ok then
 				if i == MAX_RETRIES then
 					add_to_failed_packages(pkg.app_name)
+					trigger_pkg_event_msg(pkg, opkg.PKG_TYPES.PENDING_ERRORED)
 				end
 				return --continue
 			end
 			ok, err_code = pkg:_install_package_online()
-			opkg._trigger_pkg_event()
 			if not ok then
 				if i == MAX_RETRIES then
 					add_to_failed_packages(pkg.app_name)
+					trigger_pkg_event_msg(pkg, opkg.PKG_TYPES.PENDING_ERRORED)
 				end
 				return --continue
 			end
-
+			trigger_pkg_event_msg(pkg, opkg.PKG_TYPES.INSTALLED)
 			table.remove(packages, j)
 			opkg._restart_services()
 			if pkg:get("pkg_reboot") == "1" then PKG_REBOOT = true end

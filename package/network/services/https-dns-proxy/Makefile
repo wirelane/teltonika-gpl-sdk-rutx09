@@ -24,6 +24,8 @@ define Package/https-dns-proxy
 	TITLE:=DNS Over HTTPS Proxy
 	URL:=https://docs.openwrt.melmac.net/https-dns-proxy/
 	DEPENDS:=+libcares +libcurl +libev +ca-bundle
+	USERID:=https_dns_proxy:https_dns_proxy
+	FATTRS:=/usr/sbin/https-dns-proxy::::cap_net_bind_service=ep
 	CONFLICTS:=https_dns_proxy
 endef
 
@@ -38,12 +40,13 @@ define Package/https-dns-proxy/conffiles
 endef
 
 define Package/https-dns-proxy/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d ${1}/etc/config $(1)/etc/hotplug.d/iface
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d ${1}/etc/config $(1)/etc/hotplug.d/iface $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/https_dns_proxy $(1)/usr/sbin/https-dns-proxy
 	$(INSTALL_BIN) ./files/https-dns-proxy.init $(1)/etc/init.d/https-dns-proxy
 	$(SED) "s|^\(PKG_VERSION\).*|\1='$(PKG_VERSION)-$(PKG_RELEASE)'|" $(1)/etc/init.d/https-dns-proxy
-	$(INSTALL_CONF) ./files/https-dns-proxy.config $(1)/etc/config/https-dns-proxy
+	$(INSTALL_CONF_USR) ./files/https-dns-proxy.config $(1)/etc/config/https-dns-proxy
 	$(INSTALL_DATA) ./files/https-dns-proxy.hotplug.iface $(1)/etc/hotplug.d/iface/90-https-dns-proxy
+	$(INSTALL_DATA) ./files/https-dns-proxy.permtab $(1)/etc/permtab.d/https-dns-proxy
 endef
 
 $(eval $(call BuildPackage,https-dns-proxy))

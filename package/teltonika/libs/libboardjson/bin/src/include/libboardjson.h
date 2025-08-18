@@ -6,20 +6,9 @@ extern "C" {
 #endif
 
 #include <stdbool.h>
-#include <syslog.h>
 #include <libubox/blob.h>
 #include <libubox/blobmsg.h>
 #include <libubox/blobmsg_json.h>
-#include <libubox/blob.h>
-
-// filepaths
-#define BJSON_FILEPATH "/etc/board.json"
-#define BJSON_FILEPATH_TEMP "/tmp/board.json"
-
-// ubus values
-#define BJSON_UBUS_OBJECT "boardjson"
-#define BJSON_UBUS_METHOD_GET "get"
-#define BJSON_POLICY_SECTION "section"
 
 // array limits
 #define BJSON_NETWORK_MAX 15
@@ -27,7 +16,7 @@ extern "C" {
 #define BJSON_SWITCH_MAX 5
 #define BJSON_ROLE_MAX 20
 #define BJSON_PORT_MAX 20
-#define BJSON_SERIAL_DEVICES_MAX 3 // rs232, rs485 and usb
+#define BJSON_SERIAL_DEVICES_MAX 4 // mbus, rs232, rs485 and usb
 
 // enum that represents possible
 // output states of any lbjson function
@@ -163,8 +152,9 @@ struct lbjson_hwinfo {
 	bool gigabit_port_2_5 : 1;
 	bool esim             : 1;
 	bool custom_usbcfg    : 1;
-	bool mbus	      : 1;
+	bool mbus             : 1;
 	bool urc_control      : 1;
+	bool itxpt            : 1;
 };
 
 ///////////////////////////////////////////////
@@ -212,8 +202,6 @@ struct lbjson_serial_device {
 	char device[64];
 	char path[64];
 };
-
-int lbjson_parse_serial(struct lbjson_serial_device *devices, int max_count, struct blob_attr *data, struct lbjson_hwinfo *hw);
 
 ////////////////////////////
 
@@ -306,16 +294,6 @@ const char *lbjson_modem_type_itoa(enum lbjson_modem_type type);
 // A good place to call this function would be just
 // before the program closes so that valgrind is happy.
 void lbjson_free();
-
-bool is_string_defined(const char *str);
-void free_string(char **text);
-
-// macros that retreive and null-check parsed blobmsg values
-#define blob_get_str_nullchk(value) (value) ? strdup(blobmsg_get_string(value)) : ""
-#define blob_get_bool_nullchk(value) (value) ? blobmsg_get_bool(value) : 0
-#define blob_get_num_nullchk(value) (value) ? atoi(blobmsg_get_string(value)) : 0 // for string->int conversion
-#define blob_get_u32_nullchk(value) (value) ? blobmsg_get_u32(value) : 0
-#define blob_memdup_nullchk(value) (value) ? blob_memdup(value) : NULL
 
 #ifdef __cplusplus
 }

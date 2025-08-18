@@ -32,6 +32,8 @@ define Package/zerotier
   TITLE:=Create flat virtual Ethernet networks of almost unlimited size
   URL:=https://www.zerotier.com
   SUBMENU:=VPN
+  FATTRS:=/usr/bin/zerotier-one::::cap_net_admin,cap_net_bind_service+ep
+  USERID:=zerotier:zerotier
 endef
 
 define Package/zerotier/description
@@ -70,11 +72,11 @@ define Package/zerotier/conffiles
 endef
 
 define Package/zerotier/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15 $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-cli
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-idtool
-	$(INSTALL_CONF) /dev/null $(1)/etc/config/zerotier
+	$(INSTALL_CONF_USR) /dev/null $(1)/etc/config/zerotier
 
 ifeq ($(CONFIG_ZEROTIER_ENABLE_SELFTEST),y)
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-selftest $(1)/usr/bin/
@@ -83,6 +85,7 @@ endif
 	$(CP) ./files/etc/init.d $(1)/etc/
 	$(INSTALL_BIN) ./files/etc/mwan3/mwan3.zerotier $(1)/etc/mwan3/
 	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.15/99_zerotier_device_name
+	$(INSTALL_DATA) files/zerotier.permtab $(1)/etc/permtab.d/zerotier
 endef
 
 define Package/zerotier/prerm

@@ -80,7 +80,7 @@
  
 --- a/src/ap/ap_config.c
 +++ b/src/ap/ap_config.c
-@@ -1027,23 +1027,22 @@ void hostapd_config_free(struct hostapd_
+@@ -1050,23 +1050,22 @@ void hostapd_config_free(struct hostapd_
  int hostapd_maclist_found(struct mac_acl_entry *list, int num_entries,
  			  const u8 *addr, struct vlan_description *vlan_id)
  {
@@ -116,7 +116,7 @@
  	}
  
  	return 0;
-@@ -1720,7 +1719,7 @@ int hostapd_acl_comp(const void *a, cons
+@@ -1755,7 +1754,7 @@ int hostapd_acl_comp(const void *a, cons
  
  
  int hostapd_add_acl_maclist(struct mac_acl_entry **acl, int *num,
@@ -125,7 +125,7 @@
  {
  	struct mac_acl_entry *newacl;
  
-@@ -1732,6 +1731,13 @@ int hostapd_add_acl_maclist(struct mac_a
+@@ -1767,6 +1766,13 @@ int hostapd_add_acl_maclist(struct mac_a
  
  	*acl = newacl;
  	os_memcpy((*acl)[*num].addr, addr, ETH_ALEN);
@@ -139,7 +139,7 @@
  	os_memset(&(*acl)[*num].vlan_id, 0, sizeof((*acl)[*num].vlan_id));
  	(*acl)[*num].vlan_id.untagged = vlan_id;
  	(*acl)[*num].vlan_id.notempty = !!vlan_id;
-@@ -1742,7 +1748,7 @@ int hostapd_add_acl_maclist(struct mac_a
+@@ -1777,7 +1783,7 @@ int hostapd_add_acl_maclist(struct mac_a
  
  
  void hostapd_remove_acl_mac(struct mac_acl_entry **acl, int *num,
@@ -148,8 +148,8 @@
  {
  	int i = 0;
  
-@@ -1750,6 +1756,10 @@ void hostapd_remove_acl_mac(struct mac_a
- 		if (os_memcmp((*acl)[i].addr, addr, ETH_ALEN) == 0) {
+@@ -1785,6 +1791,10 @@ void hostapd_remove_acl_mac(struct mac_a
+ 		if (ether_addr_equal((*acl)[i].addr, addr)) {
  			os_remove_in_array(*acl, *num, sizeof(**acl), i);
  			(*num)--;
 +		} else if (from && to && os_memcmp((*acl)[i].from, from, ETH_ALEN) == 0 &&
@@ -170,7 +170,7 @@
  	struct vlan_description vlan_id;
  };
  
-@@ -1312,8 +1314,8 @@ bool hostapd_sae_pk_exclusively(struct h
+@@ -1433,8 +1435,8 @@ bool hostapd_sae_pk_exclusively(struct h
  int hostapd_setup_sae_pt(struct hostapd_bss_config *conf);
  int hostapd_acl_comp(const void *a, const void *b);
  int hostapd_add_acl_maclist(struct mac_acl_entry **acl, int *num,
@@ -183,7 +183,7 @@
  #endif /* HOSTAPD_CONFIG_H */
 --- a/src/ap/ctrl_iface_ap.c
 +++ b/src/ap/ctrl_iface_ap.c
-@@ -1393,7 +1393,7 @@ int hostapd_ctrl_iface_acl_del_mac(struc
+@@ -1556,7 +1556,7 @@ int hostapd_ctrl_iface_acl_del_mac(struc
  		return -1;
  
  	if (hostapd_maclist_found(*acl, *num, addr, &vlan_id))
@@ -192,7 +192,7 @@
  
  	return 0;
  }
-@@ -1403,7 +1403,7 @@ void hostapd_ctrl_iface_acl_clear_list(s
+@@ -1566,7 +1566,7 @@ void hostapd_ctrl_iface_acl_clear_list(s
  				       int *num)
  {
  	while (*num)
@@ -201,7 +201,7 @@
  }
  
  
-@@ -1445,7 +1445,7 @@ int hostapd_ctrl_iface_acl_add_mac(struc
+@@ -1608,7 +1608,7 @@ int hostapd_ctrl_iface_acl_add_mac(struc
  		vlanid = atoi(pos + 8);
  
  	if (!hostapd_maclist_found(*acl, *num, addr, &vlan_id)) {

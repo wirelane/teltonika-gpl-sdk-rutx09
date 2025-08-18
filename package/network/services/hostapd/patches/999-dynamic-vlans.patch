@@ -7,15 +7,13 @@ Subject: [PATCH] dynamic wired VLANs
  hostapd/config_file.c | 36 ++++++++++++++++++++++++++++++++++++
  src/ap/ap_config.h    |  4 ++++
  src/ap/hostapd.h      |  1 +
- src/ap/ieee802_1x.c   | 26 ++++++++++++++++++++++----
+ src/ap/ieee802_1x.c   | 29 ++++++++++++++++++++++----
  src/ap/vlan_init.c    |  3 ++-
  5 files changed, 65 insertions(+), 5 deletions(-)
 
-diff --git a/hostapd/config_file.c b/hostapd/config_file.c
-index f138681..a2941f8 100644
 --- a/hostapd/config_file.c
 +++ b/hostapd/config_file.c
-@@ -3411,6 +3411,42 @@ static int hostapd_config_fill(struct hostapd_config *conf,
+@@ -3475,6 +3475,42 @@ static int hostapd_config_fill(struct ho
  				   line, bss->ssid.vlan_naming);
  			return 1;
  		}
@@ -58,11 +56,9 @@ index f138681..a2941f8 100644
  #ifdef CONFIG_FULL_DYNAMIC_VLAN
  	} else if (os_strcmp(buf, "vlan_tagged_interface") == 0) {
  		os_free(bss->ssid.vlan_tagged_interface);
-diff --git a/src/ap/ap_config.h b/src/ap/ap_config.h
-index c370134..b75afa5 100644
 --- a/src/ap/ap_config.h
 +++ b/src/ap/ap_config.h
-@@ -303,6 +303,10 @@ struct hostapd_bss_config {
+@@ -305,6 +305,10 @@ struct hostapd_bss_config {
  	unsigned int chan_util_avg_period;
  
  	int ieee802_1x; /* use IEEE 802.1X */
@@ -73,23 +69,19 @@ index c370134..b75afa5 100644
  	int eapol_version;
  	int eap_server; /* Use internal EAP server instead of external
  			 * RADIUS server */
-diff --git a/src/ap/hostapd.h b/src/ap/hostapd.h
-index 0807fb1..00c47c0 100644
 --- a/src/ap/hostapd.h
 +++ b/src/ap/hostapd.h
-@@ -496,6 +496,7 @@ struct hostapd_data {
- #ifdef CONFIG_CTRL_IFACE_UDP
-        unsigned char ctrl_iface_cookie[CTRL_IFACE_COOKIE_LEN];
- #endif /* CONFIG_CTRL_IFACE_UDP */
+@@ -540,6 +540,7 @@ struct hostapd_data {
+ 
+ 	u64 scan_cookie; /* Scan instance identifier for the ongoing HT40 scan
+ 			  */
 +	   unsigned int radius_rejected;
  };
  
  
-diff --git a/src/ap/ieee802_1x.c b/src/ap/ieee802_1x.c
-index f9d05d1..c92d1b7 100644
 --- a/src/ap/ieee802_1x.c
 +++ b/src/ap/ieee802_1x.c
-@@ -2097,10 +2097,11 @@ ieee802_1x_receive_auth(struct radius_msg *msg, struct radius_msg *req,
+@@ -2098,10 +2098,14 @@ ieee802_1x_receive_auth(struct radius_ms
  	switch (hdr->code) {
  	case RADIUS_CODE_ACCESS_ACCEPT:
  #ifndef CONFIG_NO_VLAN
@@ -100,12 +92,15 @@ index f9d05d1..c92d1b7 100644
 +		if (hapd->conf->ssid.dynamic_vlan != DYNAMIC_VLAN_DISABLED) {
 +			if(hapd->conf->accept_vlan > 0)
 +				ap_sta_set_vlan(hapd, sta, &(struct vlan_description){1, hapd->conf->accept_vlan, {0}});
-+			else if(ieee802_1x_update_vlan(msg, hapd, sta) < 0) break;
++			else if(ieee802_1x_update_vlan(msg, hapd, sta) < 0) {
++				override_eapReq = 1; // this will keep hostapd from sending success on fail
++				break;
++			}
 +		}
  		if (sta->vlan_id > 0) {
  			hostapd_logger(hapd, sta->addr,
  				       HOSTAPD_MODULE_RADIUS,
-@@ -2140,6 +2141,7 @@ ieee802_1x_receive_auth(struct radius_msg *msg, struct radius_msg *req,
+@@ -2142,6 +2146,7 @@ ieee802_1x_receive_auth(struct radius_ms
  	case RADIUS_CODE_ACCESS_REJECT:
  		sm->eap_if->aaaFail = true;
  		override_eapReq = 1;
@@ -113,7 +108,7 @@ index f9d05d1..c92d1b7 100644
  		if (radius_msg_get_attr_int32(msg, RADIUS_ATTR_WLAN_REASON_CODE,
  					      &reason_code) == 0) {
  			wpa_printf(MSG_DEBUG,
-@@ -2147,6 +2149,8 @@ ieee802_1x_receive_auth(struct radius_msg *msg, struct radius_msg *req,
+@@ -2149,6 +2154,8 @@ ieee802_1x_receive_auth(struct radius_ms
  				   MACSTR, reason_code, MAC2STR(sta->addr));
  			sta->disconnect_reason_code = reason_code;
  		}
@@ -122,7 +117,7 @@ index f9d05d1..c92d1b7 100644
  		break;
  	case RADIUS_CODE_ACCESS_CHALLENGE:
  		sm->eap_if->aaaEapReq = true;
-@@ -2464,6 +2468,7 @@ static void ieee802_1x_set_port_authorized(void *ctx, void *sta_ctx,
+@@ -2465,6 +2472,7 @@ static void ieee802_1x_set_port_authoriz
  	struct hostapd_data *hapd = ctx;
  	struct sta_info *sta = sta_ctx;
  
@@ -130,7 +125,7 @@ index f9d05d1..c92d1b7 100644
  	ieee802_1x_set_sta_authorized(hapd, sta, authorized);
  }
  
-@@ -2538,10 +2543,17 @@ static int ieee802_1x_erp_add_key(void *ctx, struct eap_server_erp_key *erp)
+@@ -2539,10 +2547,17 @@ static int ieee802_1x_erp_add_key(void *
  #endif /* CONFIG_ERP */
  
  
@@ -146,9 +141,9 @@ index f9d05d1..c92d1b7 100644
  	struct eapol_auth_cb cb;
 +	hapd->radius_rejected = 0;
  
- 	if (hapd->mld_first_bss) {
- 		wpa_printf(MSG_DEBUG,
-@@ -2617,6 +2629,9 @@ int ieee802_1x_init(struct hostapd_data *hapd)
+ #ifdef CONFIG_IEEE80211BE
+ 	if (!hostapd_mld_is_first_bss(hapd)) {
+@@ -2632,6 +2647,9 @@ int ieee802_1x_init(struct hostapd_data
  	}
  #endif /* CONFIG_WEP */
  
@@ -158,9 +153,9 @@ index f9d05d1..c92d1b7 100644
  	return 0;
  }
  
-@@ -2643,6 +2658,9 @@ void ieee802_1x_deinit(struct hostapd_data *hapd)
- 		return;
+@@ -2660,6 +2678,9 @@ void ieee802_1x_deinit(struct hostapd_da
  	}
+ #endif /* CONFIG_IEEE80211BE */
  
 +	if (hapd->conf->wired_vlans && hapd->conf->guest_vlan > 0)
 +		eloop_cancel_timeout(guest_vlan, hapd, NULL);
@@ -168,11 +163,9 @@ index f9d05d1..c92d1b7 100644
  #ifdef CONFIG_WEP
  	eloop_cancel_timeout(ieee802_1x_rekey, hapd, NULL);
  #endif /* CONFIG_WEP */
-diff --git a/src/ap/vlan_init.c b/src/ap/vlan_init.c
-index b69f3de..38900bb 100644
 --- a/src/ap/vlan_init.c
 +++ b/src/ap/vlan_init.c
-@@ -115,6 +115,7 @@ static void vlan_dynamic_remove(struct hostapd_data *hapd,
+@@ -115,6 +115,7 @@ static void vlan_dynamic_remove(struct h
  {
  	struct hostapd_vlan *next;
  
@@ -180,7 +173,7 @@ index b69f3de..38900bb 100644
  	while (vlan) {
  		next = vlan->next;
  
-@@ -123,7 +124,7 @@ static void vlan_dynamic_remove(struct hostapd_data *hapd,
+@@ -123,7 +124,7 @@ static void vlan_dynamic_remove(struct h
  		if (vlan->vlan_id != VLAN_ID_WILDCARD)
  			vlan_dellink(vlan->ifname, hapd);
  #else /* CONFIG_FULL_DYNAMIC_VLAN */
@@ -189,6 +182,3 @@ index b69f3de..38900bb 100644
  		    vlan_if_remove(hapd, vlan)) {
  			wpa_printf(MSG_ERROR, "VLAN: Could not remove VLAN "
  				   "iface: %s: %s",
--- 
-2.48.1
-

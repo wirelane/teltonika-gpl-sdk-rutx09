@@ -1,46 +1,5 @@
-index 74a08a6..72b2dc7 100644
---- a/development/include/bytebuffer.h
-+++ b/development/include/bytebuffer.h
-@@ -404,15 +404,9 @@ extern "C" {
-         gxByteBuffer* bb,
-         char ch);
- 
--#if defined(GX_DLMS_BYTE_BUFFER_SIZE_32) || (!defined(GX_DLMS_MICROCONTROLLER) && (defined(_WIN32) || defined(_WIN64) || defined(__linux__)))
--    void bb_reverse(gxByteBuffer* bb,
--        uint32_t index,
--        uint32_t count);
--#else
-     void bb_reverse(gxByteBuffer* bb,
--        uint16_t index,
--        uint16_t count);
--#endif
-+        bb_size_t index,
-+        bb_size_t count);
- 
- #if defined(_WIN32) || defined(_WIN64) || defined(__linux__)
-     //Print content of byte buffer to cout.
-index bb00eeb..df0cf26 100644
---- a/development/src/bytebuffer.c
-+++ b/development/src/bytebuffer.c
-@@ -1143,15 +1143,9 @@ bb_size_t bb_indexOf(
-     return (bb_size_t)-1;
- }
- 
--#if defined(GX_DLMS_BYTE_BUFFER_SIZE_32) || (!defined(GX_DLMS_MICROCONTROLLER) && (defined(_WIN32) || defined(_WIN64) || defined(__linux__)))
- void bb_reverse(gxByteBuffer* bb,
--    uint32_t index,
--    uint32_t count)
--#else
--void bb_reverse(gxByteBuffer* bb,
--    uint16_t index,
--    uint16_t count)
--#endif
-+    bb_size_t index,
-+    bb_size_t count)
- {
-     unsigned long pos;
-     unsigned long endPos;
-index 2515230..4e374a8 100644
+diff --git a/development/src/dlms.c b/development/src/dlms.c
+index 2894e57..d539d08 100644
 --- a/development/src/dlms.c
 +++ b/development/src/dlms.c
 @@ -3750,17 +3750,10 @@ unsigned char dlms_isPlcSfskData(gxByteBuffer* buff)
@@ -48,18 +7,16 @@ index 2515230..4e374a8 100644
  #endif //DLMS_IGNORE_PLC
  
 -#if defined(GX_DLMS_BYTE_BUFFER_SIZE_32) || (!defined(GX_DLMS_MICROCONTROLLER) && (defined(_WIN32) || defined(_WIN64) || defined(__linux__)))
--int dlms_getDataFromBlock(gxByteBuffer* data, uint32_t index)
+ int dlms_getDataFromBlock(gxByteBuffer* data, uint32_t index)
 -#else
 -int dlms_getDataFromBlock(gxByteBuffer* data, uint16_t index)
 -#endif
-+int dlms_getDataFromBlock(gxByteBuffer* data, bb_size_t index)
  {
 -#if defined(GX_DLMS_BYTE_BUFFER_SIZE_32) || (!defined(GX_DLMS_MICROCONTROLLER) && (defined(_WIN32) || defined(_WIN64) || defined(__linux__)))
--    uint32_t pos, len = data->position - index;
+     uint32_t pos, len = data->position - index;
 -#else
 -    uint16_t pos, len = data->position - index;
 -#endif
-+    bb_size_t pos, len = data->position - index;
 +
      if (data->size == data->position)
      {

@@ -20,7 +20,7 @@ if ip $six route "$add_del" "$route" $device; then
 	if [ -n "$cname" ] && [ -n "$dev" ]; then
 		logger -t "openvpn(${dev##*_s_})" "${cname}/route $add_del $route"
 	else
-		file=$(grep -I "learn-address /etc/openvpn/route.sh" /tmp/etc/openvpn-* | head -n 1)
+		file=$(grep -I "learn-address /etc/openvpn/route.sh" /var/run/openvpn/openvpn-* | head -n 1)
 		if [ -n "$file" ]; then
 			instance="${file%%.conf*}"
 			instance=${instance##*/openvpn-}

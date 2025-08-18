@@ -2,9 +2,12 @@
 	"user": "aws",
 	"publish": [ "aws" ],
 	"access": {
-		"file": {
+		"api": {
 			"methods": [
-				"exec"
+				"post",
+				"get",
+				"put",
+				"delete"
 			]
 		}
 	}
