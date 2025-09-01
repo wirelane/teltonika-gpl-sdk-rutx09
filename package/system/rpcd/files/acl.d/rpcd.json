@@ -33,6 +33,9 @@
 		},
 		"file": {
 			"methods": [ "read", "write" ]
+		},
+		"service": {
+			"methods": [ "event" ]
 		}
 	},
 	"subscribe": ["gsm.modem*"],

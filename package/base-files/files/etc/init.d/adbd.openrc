@@ -17,7 +17,7 @@ get_model_data() {
 	json_select ..
 
 	case $pid in
-	0x0005)
+	0x0005|0x0006)
 		ifname="usb"
 		udc_name="a600000.dwc3"
 		;;

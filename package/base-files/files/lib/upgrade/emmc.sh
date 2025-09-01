@@ -8,13 +8,16 @@ emmc_upgrade_tar() {
 	[ "$CI_KERNPART" ] && [ -z "$EMMC_KERN_DEV" ] && export EMMC_KERN_DEV="$(find_mmc_part $CI_KERNPART $CI_ROOTDEV)"
 	[ "$CI_ROOTPART" ] && [ -z "$EMMC_ROOT_DEV" ] && export EMMC_ROOT_DEV="$(find_mmc_part $CI_ROOTPART $CI_ROOTDEV)"
 	[ "$CI_DATAPART" ] && [ -z "$EMMC_DATA_DEV" ] && export EMMC_DATA_DEV="$(find_mmc_part $CI_DATAPART $CI_ROOTDEV)"
+	[ "$CI_BOOTPART" ] && [ -z "$EMMC_BOOT_DEV" ] && export EMMC_BOOT_DEV="$(find_mmc_part $CI_BOOTPART $CI_ROOTDEV)"
 	local has_kernel
 	local has_rootfs
+	local has_boot
 	local board_dir=$(tar tf "$tar_file" | grep -m 1 '^sysupgrade-.*/$')
 	board_dir=${board_dir%/}
 
 	tar tf "$tar_file" ${board_dir}/kernel 1>/dev/null 2>/dev/null && has_kernel=1
 	tar tf "$tar_file" ${board_dir}/root 1>/dev/null 2>/dev/null && has_rootfs=1
+	tar tf "$tar_file" ${board_dir}/boot 1>/dev/null 2>/dev/null && has_boot=1
 
 	[ "$has_kernel" = 1 ] && [ "$EMMC_KERN_DEV" ] &&
 		export EMMC_KERNEL_BLOCKS=$(($(tar xf "$tar_file" ${board_dir}/kernel -O | dd of="$EMMC_KERN_DEV" bs=512 2>&1 | grep "records out" | cut -d' ' -f1)))
@@ -24,6 +27,9 @@ emmc_upgrade_tar() {
 		# Account for 64KiB ROOTDEV_OVERLAY_ALIGN in libfstools
 		EMMC_ROOTFS_BLOCKS=$(((EMMC_ROOTFS_BLOCKS + 127) & ~127))
 	}
+
+	[ "$has_boot" = 1 ] && [ "$EMMC_BOOT_DEV" ] &&
+		export EMMC_BOOT_BLOCKS=$(($(tar xf "$tar_file" ${board_dir}/boot -O | dd of="$EMMC_BOOT_DEV" bs=512 2>&1 | grep "records out" | cut -d' ' -f1)))
 
 	if [ -z "$UPGRADE_BACKUP" ]; then
 		if [ "$EMMC_DATA_DEV" ]; then

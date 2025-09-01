@@ -26,7 +26,7 @@
  
 --- a/include/iwinfo.h
 +++ b/include/iwinfo.h
-@@ -412,6 +412,7 @@ extern const struct iwinfo_ops wext_ops;
+@@ -429,6 +429,7 @@ extern const struct iwinfo_ops wext_ops;
  extern const struct iwinfo_ops madwifi_ops;
  extern const struct iwinfo_ops nl80211_ops;
  extern const struct iwinfo_ops wl_ops;
@@ -49,7 +49,7 @@
  	{ #op, iwinfo_L_##type##_##op }
 --- a/iwinfo_lib.c
 +++ b/iwinfo_lib.c
-@@ -391,6 +391,9 @@ static const struct iwinfo_ops *backends
+@@ -398,6 +398,9 @@ static const struct iwinfo_ops *backends
  #ifdef USE_WL
  	&wl_ops,
  #endif
@@ -61,7 +61,7 @@
  #endif
 --- a/iwinfo_lua.c
 +++ b/iwinfo_lua.c
-@@ -777,6 +777,35 @@ LUA_WRAP_STRUCT_OP(nl80211,mbssid_suppor
+@@ -788,6 +788,35 @@ LUA_WRAP_STRUCT_OP(nl80211,mbssid_suppor
  LUA_WRAP_STRUCT_OP(nl80211,hardware_id)
  #endif
  
@@ -97,7 +97,7 @@
  /* Wext */
  #ifdef USE_WEXT
  LUA_WRAP_INT_OP(wext,channel)
-@@ -906,6 +935,39 @@ static const luaL_reg R_nl80211[] = {
+@@ -917,6 +946,39 @@ static const luaL_reg R_nl80211[] = {
  };
  #endif
  
@@ -137,7 +137,7 @@
  /* Wext table */
  #ifdef USE_WEXT
  static const luaL_reg R_wext[] = {
-@@ -977,6 +1039,15 @@ LUALIB_API int luaopen_iwinfo(lua_State
+@@ -988,6 +1050,15 @@ LUALIB_API int luaopen_iwinfo(lua_State
  	lua_setfield(L, -2, "nl80211");
  #endif
  

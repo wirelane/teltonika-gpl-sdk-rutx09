@@ -1,6 +1,6 @@
 --- a/iwinfo.c
 +++ b/iwinfo.c
-@@ -1066,5 +1066,6 @@
+@@ -1002,5 +1002,6 @@ static struct ubus_object
  
  struct rpc_plugin rpc_plugin = {
  	.init = rpc_iwinfo_api_init,

@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/exec.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/exec.c
-+++ rpcd-2021-03-11-ccb75178/exec.c
+--- a/exec.c
++++ b/exec.c
 @@ -16,6 +16,7 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -57,10 +55,8 @@ Index: rpcd-2021-03-11-ccb75178/exec.c
  		dup2(ipipe[0], 0);
  		dup2(opipe[1], 1);
  		dup2(epipe[1], 2);
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/exec.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/exec.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/exec.h
+--- a/include/rpcd/exec.h
++++ b/include/rpcd/exec.h
 @@ -25,6 +25,8 @@
  
  #define RPC_EXEC_MAX_SIZE		(4096 * 64)
@@ -78,10 +74,8 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/exec.h
 +             struct ubus_request_data *req, int uid, int gid);
  
  #endif
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/plugin.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
+--- a/include/rpcd/plugin.h
++++ b/include/rpcd/plugin.h
 @@ -53,7 +53,7 @@ struct rpc_daemon_ops {
                  rpc_exec_write_cb_t in, rpc_exec_read_cb_t out,
                  rpc_exec_read_cb_t err, rpc_exec_done_cb_t end,
@@ -91,10 +85,8 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
      int *exec_timeout;
  };
  
-Index: rpcd-2021-03-11-ccb75178/plugin.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/plugin.c
-+++ rpcd-2021-03-11-ccb75178/plugin.c
+--- a/plugin.c
++++ b/plugin.c
 @@ -17,6 +17,7 @@
   */
  
@@ -131,10 +123,8 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  
  	if (rv == UBUS_STATUS_OK)
  		return rv;
-Index: rpcd-2021-03-11-ccb75178/sys.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/sys.c
-+++ rpcd-2021-03-11-ccb75178/sys.c
+--- a/sys.c
++++ b/sys.c
 @@ -16,6 +16,7 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */

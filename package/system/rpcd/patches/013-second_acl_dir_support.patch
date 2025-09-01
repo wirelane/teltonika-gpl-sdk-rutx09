@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/session.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/session.h
+--- a/include/rpcd/session.h
++++ b/include/rpcd/session.h
 @@ -35,6 +35,7 @@
  #define RPC_DEFAULT_SESSION_ID	"00000000000000000000000000000000"
  #define RPC_SESSION_DIRECTORY	"/var/run/rpcd/sessions"
@@ -10,10 +8,8 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
  
  #ifdef ENABLE_PAM_SUPPORT
  enum {
-Index: rpcd-2021-03-11-ccb75178/session.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/session.c
-+++ rpcd-2021-03-11-ccb75178/session.c
+--- a/session.c
++++ b/session.c
 @@ -1517,8 +1517,13 @@ rpc_login_setup_acls(struct rpc_session
  	INIT_LIST_HEAD(&permissions_manager.source_permissions);
  	INIT_LIST_HEAD(&permissions_manager.endpoint_permissions);

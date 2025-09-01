@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/main.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/main.c
-+++ rpcd-2021-03-11-ccb75178/main.c
+--- a/main.c
++++ b/main.c
 @@ -17,6 +17,8 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -246,10 +244,8 @@ Index: rpcd-2021-03-11-ccb75178/main.c
  
  	return 0;
  }
-Index: rpcd-2021-03-11-ccb75178/session.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/session.c
-+++ rpcd-2021-03-11-ccb75178/session.c
+--- a/session.c
++++ b/session.c
 @@ -45,6 +45,7 @@ static struct avl_tree sessions;
  static struct blob_buf buf;
  struct rpc_session_acl *rpc_session_get_acl(struct rpc_session *ses, const char *scope, const char *object);

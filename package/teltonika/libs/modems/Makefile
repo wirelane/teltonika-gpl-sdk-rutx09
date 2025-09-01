@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=modems
-PKG_VERSION:=3.16
+PKG_VERSION:=3.17
 
 
 

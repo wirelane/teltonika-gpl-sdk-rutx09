@@ -10,7 +10,7 @@
     "acls": ["network/ports/port_mirroring"],
     "depends": {
       "board": {
-        "allOf": ["has_soft_port_mirror"],
+        "anyOf": ["has_soft_port_mirror", "has_port_link"],
         "notAllOf": ["is_switch"]
       }
     }

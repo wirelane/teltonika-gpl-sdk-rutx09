@@ -1,8 +1,6 @@
-diff --git a/plugin.c b/plugin.c
-index d0e8a2f..9c803b3 100644
 --- a/plugin.c
 +++ b/plugin.c
-@@ -763,8 +763,10 @@ static int rpc_plugin_register_library(struct ubus_context *ctx, const char *pat
+@@ -821,8 +821,10 @@ static int rpc_plugin_register_library(s
  	void *dlh;
  
  	dlh = dlopen(path, RTLD_LAZY | RTLD_LOCAL);

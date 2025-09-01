@@ -19,27 +19,6 @@ log() {
 	[ "$type" = "err" ] && echo "$msg" >> ${TMP_DIR}/err
 }
 
-add_dns() {
-	local servers ip
-	local local_dns="/var/resolv.conf.d/resolv.conf.auto"
-	log "info" "Adding Tailscale DNS (100.100.100.100) for 'ts.net' domain"
-	servers="$(/sbin/api get /dns/config/general | jsonfilter -e '@.http_body.data.server')"
-	[ -n "$servers" ] && echo "$servers" > "/etc/tailscale/dns_backup" || echo "[ ]" > "/etc/tailscale/dns_backup"
-	chown tailscale:tailscale /etc/tailscale/dns_backup
-	/sbin/api put /dns/config/general '{"data":{"server":["/ts.net/100.100.100.100"]}}' 1>/dev/null 2>&1
-	if [ -f "$local_dns" ]; then
-		while IFS= read -r line; do
-			case "$line" in
-				nameserver\ *)
-					ip=$(printf "%s\n" "$line" | cut -d' ' -f2)
-					if [ -n "$ip" ]; then
-						ip route add throw "$ip" table 52 2>/dev/null
-					fi
-			esac
-		done < "$local_dns"
-	fi
-}
-
 connect() {
 	local status auth_url state param routes flags answ auth_arg
 	local counter=0
@@ -60,11 +39,11 @@ connect() {
 		[ $counter -ge 5 ] && exit
 	done
 
-	param="--accept-dns=false"
 	[ -n "$login_server" ] && param="$param --login-server=$login_server"
 	if [ "$default_route" -eq 1 ]; then
-		[ -n "$exit_node_ip" ] && param="$param --exit-node=$exit_node_ip --exit-node-allow-lan-access"
+		[ -n "$exit_node_ip" ] && param="$param --exit-node=$exit_node_ip --exit-node-allow-lan-access --accept-dns"
 	else
+		param="$param --accept-dns=false"
 		[ "$exit_node" -eq 1 ] && param="$param --advertise-exit-node"
 	fi
 	if [ -n "$advert_routes" ]; then
@@ -97,8 +76,6 @@ connect() {
 		answ=$($PROG up $auth_arg $param --reset --timeout 5s 2>&1) || type="err"
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
-
-	[ "$default_route" -eq 1 ] && add_dns
 
 	if [ -e "/etc/config/mwan3" ] && [ -n "$(ip route show table 52)" ] && { [ "$exit_node" -eq 1 ] || [ "$default_route" -eq 1 ]; }; then
 		log "info" "Adding Tailscale networks routes to mwan3 configuration"
@@ -136,7 +113,6 @@ start_service() {
 
 	log "info" "Service starting"
 	procd_open_instance
-	procd_set_param env TS_DEBUG_FIREWALL_MODE=nftables
 	procd_set_param command ${PROG}d
 
 # Set the port to listen on for incoming VPN packets.
@@ -170,13 +146,6 @@ stop_service() {
 		${PROG}d --cleanup 1>/dev/null 2>&1
 	}
 	: >"${TMP_DIR}/status"
-
-	[ -f "/etc/tailscale/dns_backup" ] && {
-		log "info" "Removing Tailscale DNS configuration"
-		/sbin/api put /dns/config/general "{\"data\":{\"server\":$(cat /etc/tailscale/dns_backup)}}" 1>/dev/null 2>&1
-		rm -f /etc/tailscale/dns_backup
-		ip route flush table 52
-	}
 
 	if [ -e "/etc/config/mwan3" ]; then
 		rt_table_lookup=$(uci -q get mwan3.globals.rt_table_lookup)

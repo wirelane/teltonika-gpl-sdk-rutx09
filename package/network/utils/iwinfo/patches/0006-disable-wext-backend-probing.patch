@@ -1,8 +1,6 @@
-Index: libiwinfo-2022-08-19-0dad3e66/iwinfo_wext.c
-===================================================================
---- libiwinfo-2022-08-19-0dad3e66.orig/iwinfo_wext.c	2023-06-28 15:31:48.247798555 +0300
-+++ libiwinfo-2022-08-19-0dad3e66/iwinfo_wext.c	2023-06-28 15:36:00.874172301 +0300
-@@ -57,8 +57,8 @@
+--- a/iwinfo_wext.c
++++ b/iwinfo_wext.c
+@@ -57,8 +57,8 @@ static int wext_probe(const char *ifname
  {
  	struct iwreq wrq;
  

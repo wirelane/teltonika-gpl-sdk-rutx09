@@ -1,16 +1,14 @@
-Index: rpcd-2021-03-11-ccb75178/plugin.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/plugin.c
-+++ rpcd-2021-03-11-ccb75178/plugin.c
-@@ -22,6 +22,7 @@
- #include <libubox/ustream.h>
+--- a/plugin.c
++++ b/plugin.c
+@@ -24,6 +24,7 @@
+ 
  #define RPC_FILE_MAX_SIZE		(4096 * 64)
  
 +
  static struct blob_buf buf;
  static bool child_process = false;
  
-@@ -281,12 +282,20 @@ rpc_plugin_call(struct ubus_context *ctx
+@@ -283,12 +284,20 @@ rpc_plugin_call(struct ubus_context *ctx
  		goto fail;
  
  	plugin = c->path + sprintf(c->path, "%s/", RPC_PLUGIN_DIRECTORY);
@@ -30,9 +28,9 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
 +		}
 +	}
  
- 	pw = getpwnam(plugin);
- 
-@@ -821,61 +830,43 @@ rpc_plugin_load_library(struct ubus_cont
+ 	if (stat(c->path, &st) != 0) {
+ 		rv = UBUS_STATUS_NOT_FOUND;
+@@ -879,61 +888,43 @@ rpc_plugin_load_library(struct ubus_cont
  	return p->init(&ops, ctx);
  }
  

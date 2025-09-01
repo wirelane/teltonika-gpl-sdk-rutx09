@@ -592,6 +592,8 @@ get_fw_list() {
         get_compatible_fw_list "TRB1/fwlist.txt"
     elif [ "$PRODUCT_NAME" = "TRB5" ]; then
         get_compatible_fw_list "TRB5/fwlist.txt"
+    elif [ "$PRODUCT_NAME" = "CAP7" ]; then
+        get_compatible_fw_list "CAP7/fwlist.txt"
     elif [ "$DEVICE" = "QuectelASR" ]; then
         get_compatible_fw_list "EC200/fwlist.txt"
     elif [ "$DEVICE" = "MeiglinkASR" ]; then
@@ -1021,6 +1023,9 @@ trb_prep() {
     elif [ "$PRODUCT_NAME" = "TRB5" ]; then
         curl -Ss --ssl-reqd https://$HOSTNAME/TRB5/"$VERSION" \
             --output "$UPDATE_BIN" --connect-timeout 300
+    elif [ "$PRODUCT_NAME" = "CAP7" ]; then
+        curl -Ss --ssl-reqd https://$HOSTNAME/CAP7/"$VERSION" \
+            --output "$UPDATE_BIN" --connect-timeout 300
     fi
 }
 
@@ -1282,7 +1287,7 @@ if [ "$MODEM_N" = "" ]; then
 fi
 
 if [ "$JUST_REQUIREMENTS" = "1" ]; then
-    if [ "$PRODUCT_NAME" = "TRB1" ] || [ "$PRODUCT_NAME" = "TRB5" ] &&
+    if [ "$PRODUCT_NAME" = "TRB1" ] || [ "$PRODUCT_NAME" = "TRB5" ] || [ "$PRODUCT_NAME" = "CAP7" ] &&
         [ "$SKIP_VALIDATION" = "0" ]; then
         echo "[INFO] Not required for $PRODUCT_NAME modems."
     else
@@ -1298,7 +1303,7 @@ fi
 
 common_validation
 
-if [ "$PRODUCT_NAME" = "TRB1" ] || [ "$PRODUCT_NAME" = "TRB5" ]; then
+if [ "$PRODUCT_NAME" = "TRB1" ] || [ "$PRODUCT_NAME" = "TRB5" ] || [ "$PRODUCT_NAME" = "CAP7" ]; then
     trb_start
 elif [ "$DEVICE" = "QuectelASR" ] || [ "$DEVICE" = "MeiglinkASR" ] || [ "$DEVICE" = "TeltonikaASR" ]; then
     ASR_start

@@ -1,6 +1,6 @@
 --- a/iwinfo.c
 +++ b/iwinfo.c
-@@ -29,7 +29,12 @@
+@@ -30,7 +30,12 @@
  
  #include <rpcd/plugin.h>
  
@@ -13,7 +13,7 @@
  static struct blob_buf buf;
  static const struct iwinfo_ops *iw;
  static const char *ifname;
-@@ -411,6 +416,29 @@ rpc_iwinfo_info(struct ubus_context *ctx
+@@ -373,6 +378,29 @@ rpc_iwinfo_info(struct ubus_context *ctx
  	return UBUS_STATUS_OK;
  }
  
@@ -43,7 +43,7 @@
  static int
  rpc_iwinfo_scan(struct ubus_context *ctx, struct ubus_object *obj,
                  struct ubus_request_data *req, const char *method,
-@@ -479,6 +507,8 @@ rpc_iwinfo_scan(struct ubus_context *ctx
+@@ -445,6 +473,8 @@ rpc_iwinfo_scan(struct ubus_context *ctx
  
  	blobmsg_close_array(&buf, c);
  
@@ -52,7 +52,7 @@
  	ubus_send_reply(ctx, req, buf.head);
  
  	rpc_iwinfo_close();
-@@ -913,12 +943,35 @@ rpc_iwinfo_devices(struct ubus_context *
+@@ -900,12 +930,35 @@ rpc_iwinfo_devices(struct ubus_context *
  	return UBUS_STATUS_OK;
  }
  

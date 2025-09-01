@@ -1,8 +1,6 @@
-Index: rpcd-2021-03-11-ccb75178/sys.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/sys.c
-+++ rpcd-2021-03-11-ccb75178/sys.c
-@@ -22,6 +22,7 @@
+--- a/sys.c
++++ b/sys.c
+@@ -23,6 +23,7 @@
  #include <rpcd/plugin.h>
  #include <rpcd/session.h>
  #include <sys/reboot.h>
@@ -10,7 +8,7 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  
  static const struct rpc_daemon_ops *ops;
  
-@@ -54,6 +55,17 @@ static const struct blobmsg_policy rpc_p
+@@ -55,6 +56,17 @@ static const struct blobmsg_policy rpc_p
  	[RPC_PACKAGELIST_ALL] = { .name = "all",    .type = BLOBMSG_TYPE_BOOL },
  };
  
@@ -28,7 +26,7 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  static int
  rpc_errno_status(void)
  {
-@@ -308,33 +320,90 @@ rpc_sys_upgrade_clean(struct ubus_contex
+@@ -309,33 +321,90 @@ rpc_sys_upgrade_clean(struct ubus_contex
  	return 0;
  }
  
@@ -130,7 +128,7 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  	}
  
  	return 0;
-@@ -351,7 +420,8 @@ static struct ubus_object
+@@ -352,7 +421,8 @@ static struct ubus_object
  		                                  rpc_upgrade_policy),
  		UBUS_METHOD_NOARG("upgrade_clean", rpc_sys_upgrade_clean),
  		UBUS_METHOD_NOARG("factory", rpc_sys_factory),
@@ -140,7 +138,7 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  	};
  
  	static struct ubus_object_type sys_type =
-@@ -373,5 +443,6 @@ static struct ubus_object
+@@ -374,5 +444,6 @@ static struct ubus_object
  }
  
  struct rpc_plugin rpc_plugin = {

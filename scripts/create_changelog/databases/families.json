@@ -40,7 +40,7 @@
   },
   {
     "name": "RUTE",
-    "devices": ["RUT206", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981"]
+    "devices": ["RUT206", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981", "RUT986"]
   },
   {
     "name": "RUT2M",
@@ -77,5 +77,9 @@
   {
     "name": "TRB2M",
     "devices": ["TRB236", "TRB246", "TRB247", "TRB256"]
+  },
+  {
+    "name": "CAP",
+    "devices": ["CAP700"]
   }
 ]

@@ -574,6 +574,8 @@ uci_apply_defaults() {
 		uci set system.system.device_fw_version="$new_version"
 		echo "$old_version" > /etc/last_version
 	}
+	# ensure that last_version is always available
+	[ -e /etc/last_version ] || echo "$old_version" > /etc/last_version
 	[ -z "$(ls -A /etc/uci-defaults/)" ] && return
 
 	local old_major=$(echo "$old_version" | awk -F . '{ print $2 }')

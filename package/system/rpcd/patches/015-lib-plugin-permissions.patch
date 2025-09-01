@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/file.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/file.c
-+++ rpcd-2021-03-11-ccb75178/file.c
+--- a/file.c
++++ b/file.c
 @@ -32,11 +32,13 @@
  #include <libubus.h>
  #include <libubox/blobmsg.h>
@@ -530,10 +528,8 @@ Index: rpcd-2021-03-11-ccb75178/file.c
  }
  
  struct rpc_plugin rpc_plugin = {
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/plugin.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
+--- a/include/rpcd/plugin.h
++++ b/include/rpcd/plugin.h
 @@ -21,6 +21,17 @@
  
  #define _GNU_SOURCE /* asprintf() */
@@ -580,11 +576,9 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
  int rpc_plugin_api_init(struct ubus_context *ctx);
  
  #endif
-Index: rpcd-2021-03-11-ccb75178/iwinfo.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/iwinfo.c
-+++ rpcd-2021-03-11-ccb75178/iwinfo.c
-@@ -530,7 +530,7 @@ rpc_iwinfo_scan(struct ubus_context *ctx
+--- a/iwinfo.c
++++ b/iwinfo.c
+@@ -452,7 +452,7 @@ rpc_iwinfo_scan(struct ubus_context *ctx
  			if (e->ht_chan_info.primary_chan) {
  				t = blobmsg_open_table(&buf, "ht_operation");
  				blobmsg_add_u32(&buf, "primary_channel", e->ht_chan_info.primary_chan);
@@ -593,7 +587,7 @@ Index: rpcd-2021-03-11-ccb75178/iwinfo.c
  				blobmsg_add_string(&buf, "secondary_channel_offset", e->ht_chan_info.secondary_chan_off > ARRAY_SIZE(ht_secondary_offset) ?
  				"unknown" : ht_secondary_offset[e->ht_chan_info.secondary_chan_off]);
  
-@@ -1033,8 +1033,8 @@ rpc_iwinfo_scanlist(struct ubus_context
+@@ -969,8 +969,8 @@ rpc_iwinfo_scanlist(struct ubus_context
  }
  
  
@@ -604,9 +598,9 @@ Index: rpcd-2021-03-11-ccb75178/iwinfo.c
  {
  	static const struct ubus_method iwinfo_methods[] = {
  		UBUS_METHOD_NOARG("devices", rpc_iwinfo_devices),
-@@ -1052,16 +1052,19 @@ rpc_iwinfo_api_init(const struct rpc_dae
+@@ -988,16 +988,19 @@ rpc_iwinfo_api_init(const struct rpc_dae
  	static struct ubus_object_type iwinfo_type =
- 		UBUS_OBJECT_TYPE("luci-rpc-iwinfo", iwinfo_methods);
+ 		UBUS_OBJECT_TYPE("rpcd-plugin-iwinfo", iwinfo_methods);
  
 -	static struct ubus_object obj = {
 -		.name = "iwinfo",
@@ -632,10 +626,8 @@ Index: rpcd-2021-03-11-ccb75178/iwinfo.c
 +	.init = rpc_iwinfo_api_init,
 +	.capabilities = "cap_net_admin=ep"
  };
-Index: rpcd-2021-03-11-ccb75178/plugin.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/plugin.c
-+++ rpcd-2021-03-11-ccb75178/plugin.c
+--- a/plugin.c
++++ b/plugin.c
 @@ -18,8 +18,14 @@
  
  #include <rpcd/plugin.h>
@@ -714,7 +706,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  static void
  rpc_plugin_lookup_plugin_cb(struct ubus_context *ctx,
                              struct ubus_object_data *obj, void *priv)
-@@ -474,9 +536,6 @@ out:
+@@ -477,9 +539,6 @@ out:
  	}
  }
  
@@ -724,7 +716,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  static const struct rpc_daemon_ops ops = {
  	.session_access     = rpc_session_access,
  	.session_create_cb  = rpc_session_create_cb,
-@@ -485,24 +544,335 @@ static const struct rpc_daemon_ops ops =
+@@ -488,24 +547,335 @@ static const struct rpc_daemon_ops ops =
  	.exec_timeout       = &rpc_exec_timeout,
  };
  
@@ -1066,7 +1058,7 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  	return p->init(&ops, ctx);
  }
  
-@@ -528,6 +898,22 @@ int rpc_plugin_api_init(struct ubus_cont
+@@ -531,6 +901,22 @@ int rpc_plugin_api_init(struct ubus_cont
  		}
  
  		closedir(d);
@@ -1089,11 +1081,9 @@ Index: rpcd-2021-03-11-ccb75178/plugin.c
  	}
  
  	if ((d = opendir(RPC_LIBRARY_DIRECTORY)) != NULL)
-Index: rpcd-2021-03-11-ccb75178/sys.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/sys.c
-+++ rpcd-2021-03-11-ccb75178/sys.c
-@@ -340,8 +340,8 @@ rpc_sys_reboot(struct ubus_context *ctx,
+--- a/sys.c
++++ b/sys.c
+@@ -341,8 +341,8 @@ rpc_sys_reboot(struct ubus_context *ctx,
  	return 0;
  }
  
@@ -1104,7 +1094,7 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  {
  	static const struct ubus_method sys_methods[] = {
  		UBUS_METHOD("packagelist", rpc_sys_packagelist, rpc_packagelist_policy),
-@@ -357,16 +357,19 @@ rpc_sys_api_init(const struct rpc_daemon
+@@ -358,16 +358,19 @@ rpc_sys_api_init(const struct rpc_daemon
  	static struct ubus_object_type sys_type =
  		UBUS_OBJECT_TYPE("luci-rpc-sys", sys_methods);
  
@@ -1131,10 +1121,8 @@ Index: rpcd-2021-03-11-ccb75178/sys.c
  }
  
  struct rpc_plugin rpc_plugin = {
-Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
-+++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
 @@ -33,6 +33,7 @@ FIND_LIBRARY(ubox NAMES ubox)
  FIND_LIBRARY(blobmsg_json NAMES blobmsg_json)
  FIND_LIBRARY(json NAMES json-c json)

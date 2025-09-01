@@ -1,7 +1,5 @@
-Index: libiwinfo-2022-08-19-0dad3e66/api/wext.h
-===================================================================
---- libiwinfo-2022-08-19-0dad3e66.orig/api/wext.h
-+++ libiwinfo-2022-08-19-0dad3e66/api/wext.h
+--- a/api/wext.h
++++ b/api/wext.h
 @@ -543,7 +543,7 @@
  #define IW_SCAN_TYPE_ACTIVE 0
  #define IW_SCAN_TYPE_PASSIVE 1

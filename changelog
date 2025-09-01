@@ -1,3 +1,19 @@
+# 2025-08-27 00.07.17.1
+
+### Fix
+
+* DNS: fixed saving of DNS server IPs (ID: 27764)
+* Mobile: fixed SIM switch rule triggering unexpectedly due to NTP time adjustments (ID: 27907)
+* Network: fixed random network interface MAC address bug for TRB501 (ID: 28026)
+* Tailscale: fixed dns resolution errors caused by enabling MagicDNS (ID: 27762)
+* Tailscale: fixed package installation for TRB5 family (ID: 27762)
+* TR-069: fixed connection initialization for CAP700 (ID: 27809)
+* WebUI: fixed missing "Port Mirroring" page for RUTX family, RUT301, RUT2M family (ID: 27760)
+
+### Updates
+
+* iwinfo: updated version to  2025-02-06 (ID: 27511)
+
 # 2025-08-07 00.07.17
 
 ### New

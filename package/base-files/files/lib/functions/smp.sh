@@ -18,12 +18,12 @@ default_rps() {
 		[ -d "$dev" ] || continue
 
 		# ignore virtual interfaces
-		[ -n "$(ls "${dev}/" | grep '^lower_')" ] && { 
-			[ "${dev:15:6}" == "qmimux" ] || continue
-		} 
-		[ -d "${dev}/device" ] || { 
-			[ "${dev:15:6}" == "qmimux" ] || continue
-		} 
+		[ -n "$(ls "${dev}/" | grep '^lower_')" ] && {
+			[ "${dev:15:6}" = "qmimux" ] || [ "${dev:15:3}" = "ath" ] || continue
+		}
+		[ -d "${dev}/device" ] || {
+			[ "${dev:15:6}" = "qmimux" ] || [ "${dev:15:3}" = "ath" ] || continue
+		}
 
 		device="$(readlink "${dev}/device")"
 		device="$(basename "$device")"

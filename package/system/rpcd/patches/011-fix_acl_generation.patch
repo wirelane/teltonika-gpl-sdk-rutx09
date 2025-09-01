@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/session.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/session.c
-+++ rpcd-2021-03-11-ccb75178/session.c
+--- a/session.c
++++ b/session.c
 @@ -22,12 +22,14 @@
  #include <libubox/avl-cmp.h>
  #include <libubox/blobmsg.h>
@@ -435,10 +433,8 @@ Index: rpcd-2021-03-11-ccb75178/session.c
  	uci_free_context(uci);
  }
 +
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/session.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/session.h
+--- a/include/rpcd/session.h
++++ b/include/rpcd/session.h
 @@ -83,6 +83,16 @@ struct rpc_session_acl {
  	int sort_len;
  };

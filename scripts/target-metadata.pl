@@ -105,7 +105,8 @@ sub target_config_features(@) {
 		/^industrial_access_point$/ and $ret .= "\tselect INDUSTRIAL_AP\n";
 		/^emmc$/ and $ret .= "\tselect EMMC_SUPPORT\n";
 		/^no-wired-wan$/ and $ret .= "\tselect NO_WIRED_WAN\n";
-		/^test-image$/ and $ret .= "\tselect TEST_IMAGE\n"
+		/^test-image$/ and $ret .= "\tselect TEST_IMAGE\n";
+		/^consumer_access_point$/ and $ret .= "\tselect CONSUMER_AP\n"
 	}
 	return $ret;
 }

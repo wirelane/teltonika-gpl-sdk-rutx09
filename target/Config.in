@@ -229,6 +229,9 @@ config NO_WIRED_WAN
 config TEST_IMAGE
 	bool
 
+config CONSUMER_AP
+	bool
+
 # Architecture selection
 
 config aarch64

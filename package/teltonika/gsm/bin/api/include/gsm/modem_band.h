@@ -526,4 +526,45 @@ enum modem_nsa5g_band_id nsa_5g_band_val(const char *name);
  */
 enum modem_5g_band_id sa_5g_band_val(const char *name);
 
+/**
+ * Convert band number to LTE band enumeration value.
+ * @param[in]	band	lte band number.
+ * @return enum modem_lte_band_id. Enumeration value of LTE band.
+ */
+enum modem_lte_band_id band_num_to_lte_band(int band);
+
+/**
+ * Convert band number to NSA5G band enumeration value.
+ * @param[in]	band	NSA5G band number.
+ * @return enum modem_nsa5g_band_id. Enumeration value of NSA5G band.
+ */
+enum modem_nsa5g_band_id band_num_to_nsa5g_band(int band);
+
+/**
+ * Convert band number to 5GSA band enumeration value.
+ * @param[in]	band	5GSA band number.
+ * @return enum modem_5g_band_id. Enumeration value of 5GSA band.
+ */
+enum modem_5g_band_id band_num_to_sa5g_band(int band);
+
+/**
+ * Convert LTE band enumeration value to band number.
+ * @param[in]	band	Enumeration value of LTE band.
+ * @return int. Band number of LTE band.
+ */
+int lte_band_to_num(enum modem_lte_band_id band);
+
+/**
+ * Convert NSA5G band enumeration value to band number.
+ * @param[in]	band	Enumeration value of NSA5G band.
+ * @return int. Band number of NSA5G band.
+ */
+int nsa5g_band_to_num(enum modem_nsa5g_band_id band);
+
+/**
+ * Convert 5GSA band enumeration value to band number.
+ * @param[in]	band	Enumeration value of 5GSA band.
+ * @return int. Band number of 5GSA band.
+ */
+int sa5g_band_to_num(enum modem_5g_band_id band);
 #endif // GSM_MODEM_BAND_H

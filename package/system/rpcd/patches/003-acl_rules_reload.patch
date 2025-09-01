@@ -8,7 +8,6 @@
  
  	int timeout;
  };
-
 --- a/session.c
 +++ b/session.c
 @@ -27,6 +27,7 @@
@@ -19,7 +18,7 @@
  
  #ifdef HAVE_SHADOW
  #include <shadow.h>
-@@ -255,10 +256,22 @@ rpc_touch_session(struct rpc_session *ses)
+@@ -255,10 +256,22 @@ rpc_touch_session(struct rpc_session *se
  		uloop_timeout_set(&ses->t, ses->timeout * 1000);
  }
  
@@ -43,7 +42,7 @@
  	struct rpc_session_acl_scope *acl_scope, *nacl_scope;
  	struct rpc_session_data *data, *ndata;
  	struct rpc_session_cb *cb;
-@@ -269,17 +282,14 @@ rpc_session_destroy(struct rpc_session *ses)
+@@ -269,17 +282,14 @@ rpc_session_destroy(struct rpc_session *
  	uloop_timeout_cancel(&ses->t);
  
  	avl_for_each_element_safe(&ses->acls, acl_scope, avl, nacl_scope) {
@@ -63,7 +62,7 @@
  	free(ses);
  }
  
-@@ -467,10 +477,7 @@ rpc_session_revoke(struct rpc_session *ses,
+@@ -467,10 +477,7 @@ rpc_session_revoke(struct rpc_session *s
  		return 0;
  
  	if (!object && !function) {
@@ -75,7 +74,7 @@
  		return 0;
  	}
  
-@@ -830,14 +837,21 @@ rpc_login_test_login(struct uci_context *uci,
+@@ -830,14 +837,21 @@ rpc_login_test_login(struct uci_context
                       const char *username, const char *password)
  {
  	struct uci_package *p = NULL;
@@ -101,7 +100,7 @@
  
  	uci_foreach_element(&p->sections, e)
  	{
-@@ -1162,6 +1176,13 @@ rpc_handle_login(struct ubus_context *ctx, struct ubus_object *obj,
+@@ -1162,6 +1176,13 @@ rpc_handle_login(struct ubus_context *ct
  		goto out;
  	}
  
@@ -165,7 +164,7 @@
  
  static bool
  rpc_validate_sid(const char *id)
-@@ -1297,8 +1361,16 @@ rpc_session_from_blob(struct uci_context *uci, struct blob_attr *attr)
+@@ -1297,8 +1361,16 @@ rpc_session_from_blob(struct uci_context
  
  	if (uci && user) {
  		login = rpc_login_test_login(uci, user, NULL);
@@ -183,7 +182,7 @@
  	}
  
  	avl_insert(&sessions, &ses->avl);
-@@ -1323,6 +1395,7 @@ int rpc_session_api_init(struct ubus_context *ctx)
+@@ -1323,6 +1395,7 @@ int rpc_session_api_init(struct ubus_con
  		UBUS_METHOD("unset",   rpc_handle_unset,   get_policy),
  		UBUS_METHOD("destroy", rpc_handle_destroy, sid_policy),
  		UBUS_METHOD("login",   rpc_handle_login,   login_policy),

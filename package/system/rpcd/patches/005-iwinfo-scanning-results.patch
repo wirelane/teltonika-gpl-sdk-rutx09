@@ -1,6 +1,6 @@
 --- a/iwinfo.c
 +++ b/iwinfo.c
-@@ -504,6 +504,14 @@
+@@ -470,6 +470,14 @@ rpc_iwinfo_scan(struct ubus_context *ctx
  			blobmsg_close_table(&buf, d);
  		}
  	}

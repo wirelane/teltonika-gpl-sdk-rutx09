@@ -80,7 +80,6 @@
 	"vuci-app-tailscale-ui": {
 		"base_dep": "tailscale",
 		"vuci_dep": "vuci-app-tailscale-api",
-		"kmod_dep": "kmod-nft-nat",
 		"name": "tailscale"
 	},
 	"vuci-app-netbird-ui": {

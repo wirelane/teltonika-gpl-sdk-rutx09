@@ -46,7 +46,7 @@ define Package/tailscale
   SUBMENU:=VPN
   TITLE:=Zero config VPN
   URL:=https://tailscale.com
-  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +kmod-tun +kmod-nft-nat
+  DEPENDS:=$(GO_ARCH_DEPENDS) +ca-bundle +kmod-tun
   USERID:=tailscale:tailscale
   FATTRS:=/usr/sbin/tailscale.combined::::cap_net_admin,cap_net_raw+ep
 endef

@@ -7,19 +7,20 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libiwinfo
-PKG_RELEASE:=1
+PKG_RELEASE:=3
 
-PKG_SOURCE_DATE:=2023-05-17
+
+PKG_SOURCE_DATE:=2025-02-06
 
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/iwinfo.git
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_VERSION:=c9f5c3f7b50d146f18be1458ab5591defc0af6da
+PKG_SOURCE_VERSION:=9cec6b4dd2df80d4c02bad322a5db14203a92cba
 
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=COPYING
 
-IWINFO_ABI_VERSION:=20230121
+IWINFO_ABI_VERSION:=20230701
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -82,8 +83,15 @@ MAKE_FLAGS += \
 	FPIC="$(FPIC)" \
 	CFLAGS="$(TARGET_CFLAGS)" \
 	LDFLAGS="$(TARGET_LDFLAGS)" \
-	BACKENDS="nl80211 ralink" \
 	SOVERSION="$(IWINFO_ABI_VERSION)"
+
+ifeq ($(CONFIG_TARGET_sdxpinn),y)
+MAKE_FLAGS += \
+	BACKENDS="qcawifi nl80211"
+else
+MAKE_FLAGS += \
+	BACKENDS="nl80211 ralink"
+endif
 
 define Build/Prepare
 	$(call Build/Prepare/Default)	

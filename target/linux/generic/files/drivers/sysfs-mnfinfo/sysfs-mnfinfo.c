@@ -4,16 +4,22 @@
 #include <linux/device.h>
 #include <linux/ctype.h>
 #include <linux/mtd/mtd.h>
+#include <linux/fs.h>
+#include <linux/bio.h>
+#include <linux/blkdev.h>
+#include <linux/completion.h>
+#include <linux/uaccess.h>
 #include <linux/mod_devicetable.h>
 #include <linux/property.h>
 #include <linux/platform_device.h>
 #include <linux/of_device.h>
+#include <linux/version.h>
 
 #include <linux/sysfs-mnfinfo.h>
 
 #define DRV_NAME "sysfs-mnfinfo"
 
-#define SCAN_BLK_SIZE 512
+#define SCAN_BLK_SIZE SECTOR_SIZE
 #define BLVER_SCAN    2
 
 #ifndef ARRAY_SIZE
@@ -149,6 +155,177 @@ struct mnfinfo_entry {
 	bool in_log;
 	bool sec;
 };
+
+struct mnf_readable {
+	struct mtd_info *mtd;
+	struct block_device *bdev;
+	bool is_bdev;
+};
+
+struct bio_context {
+	struct completion done;
+	int status;
+};
+
+static void bio_end_io_cb(struct bio *bio)
+{
+	struct bio_context *ctx = bio->bi_private;
+	ctx->status		= blk_status_to_errno(bio->bi_status);
+	complete(&ctx->done);
+}
+
+static int mnf_readable_open(struct device_node *node, struct mnf_readable *rd)
+{
+	const char *part;
+	int ret;
+	u32 major, minor;
+	dev_t bdev;
+
+	if (!node | !rd)
+		return -EINVAL;
+
+	memset(rd, 0, sizeof(*rd));
+
+	if (of_find_property(node, "is-bdev", NULL)) {
+		ret = of_property_read_u32_index(node, "devnum", 0, &major);
+		if (ret) {
+			pr_err("Failed to get major device number\n");
+			return ret;
+		}
+
+		ret = of_property_read_u32_index(node, "devnum", 1, &minor);
+		if (ret) {
+			pr_err("Failed to get major device number\n");
+			return ret;
+		}
+
+		bdev = MKDEV(major, minor);
+#if LINUX_VERSION_CODE > KERNEL_VERSION(6, 4, 16)
+		rd->bdev = blkdev_get_by_dev(bdev, FMODE_READ, NULL, NULL);
+#else
+		rd->bdev = blkdev_get_by_dev(bdev, FMODE_READ, NULL);
+#endif
+		if (IS_ERR(rd->bdev)) {
+			pr_debug("Failed to get block device from dev_t (%u:%u) %ld\n", major, minor,
+				 PTR_ERR(rd->bdev));
+			return -EPROBE_DEFER;
+		}
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0)
+		rd->bdev->bd_read_only = true;
+#else
+		rd->bdev->bd_part->policy = true;
+#endif
+		rd->is_bdev = true;
+	} else {
+		part = of_get_property(node, "label", NULL);
+		of_node_put(node);
+		if (!part) {
+			pr_err("MTD label not found\n");
+			return -EINVAL;
+		}
+
+		rd->mtd = get_mtd_device_nm(part);
+		if (IS_ERR(rd->mtd)) {
+			pr_warn("MTD partition: '%s' not found\n", part);
+			return PTR_ERR(rd->mtd);
+		}
+	}
+	return 0;
+}
+
+static void mnf_readable_close(struct mnf_readable *rd)
+{
+	if (!rd)
+		return;
+
+	if (rd->is_bdev) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 5, 0)
+		blkdev_put(rd->bdev, NULL);
+#else
+		blkdev_put(rd->bdev, FMODE_READ);
+#endif
+	} else {
+		put_mtd_device(rd->mtd);
+	}
+
+	memset(rd, 0, sizeof(*rd));
+}
+
+static int blockdev_read(struct mnf_readable *rd, loff_t start, size_t len, u8 *buffer)
+{
+	struct bio *bio;
+	struct bio_context ctx;
+	struct page *page;
+	sector_t start_alligned = start / SECTOR_SIZE;
+	size_t len_alligned	= SECTOR_SIZE * DIV_ROUND_UP(len, SECTOR_SIZE);
+	int ret;
+
+	if (len > PAGE_SIZE) {
+		pr_err("Contents to read must fit in a single page\n");
+		return -EINVAL;
+	}
+
+	page = alloc_page(GFP_KERNEL);
+	if (!page) {
+		pr_err("Failed to allocate page\n");
+		return -ENOMEM;
+	}
+
+	init_completion(&ctx.done);
+
+	/* 1 page will be enough for now */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 0)
+	bio = bio_alloc(rd->bdev, 1, REQ_OP_READ, GFP_NOIO);
+#else
+	bio = bio_alloc(GFP_NOIO, 1);
+#endif
+	if (!bio) {
+		__free_page(page);
+		return -ENOMEM;
+	}
+
+	bio_set_dev(bio, rd->bdev);
+	bio->bi_iter.bi_sector = 0;
+	bio->bi_opf	       = REQ_OP_READ;
+	bio->bi_end_io	       = bio_end_io_cb;
+	bio->bi_private	       = &ctx;
+
+	ret = bio_add_page(bio, page, len_alligned, start_alligned);
+	if (ret != len_alligned) {
+		pr_err("Adding page failed\n");
+		bio_put(bio);
+		__free_page(page);
+		return -EIO;
+	}
+	submit_bio(bio);
+	wait_for_completion(&ctx.done);
+
+	if (ctx.status == 0) {
+		void *data = kmap(page);
+		memcpy(buffer, data + start, len);
+		kunmap(page);
+	} else {
+		pr_err("BIO read failed: %d\n", ctx.status);
+	}
+
+	bio_put(bio);
+	__free_page(page);
+	return ctx.status;
+}
+
+static int mnf_readable_read(struct mnf_readable *rd, loff_t start, size_t len, size_t *retlen, u8 *buffer)
+{
+	if (!rd | !buffer) {
+		return -EINVAL;
+	}
+
+	if (rd->is_bdev) {
+		*retlen = len;
+		return blockdev_read(rd, start, len, buffer);
+	} else {
+		return mtd_read(rd->mtd, start, len, retlen, buffer);
+	}
+}
 
 static ssize_t mnf_attr_show(struct kobject *kobj, struct kobj_attribute *attr, char *buffer);
 static umode_t mnfinfo_attr_is_visible(struct kobject *kobj, struct attribute *attr, int n);
@@ -450,7 +627,7 @@ static int fix_types(struct mnfinfo_entry *e, size_t len, const char *type, cons
 	return rc;
 }
 
-static long find_last_non_null_byte_idx(struct mtd_info *mtd, loff_t from)
+static long find_last_non_null_byte_idx(struct mnf_readable *rd, loff_t from)
 {
 	unsigned char buf[SCAN_BLK_SIZE + 1] = { 0 };
 	long blk_off;
@@ -460,7 +637,7 @@ static long find_last_non_null_byte_idx(struct mtd_info *mtd, loff_t from)
 	blk_off = from - SCAN_BLK_SIZE; //last block can be smaller than block size
 
 	while (blk_off > 0) {
-		status = mtd_read(mtd, blk_off, SCAN_BLK_SIZE, &retlen, buf);
+		status = mnf_readable_read(rd, blk_off, SCAN_BLK_SIZE, &retlen, buf);
 		if (status < 0) {
 			return -1;
 		}
@@ -477,14 +654,14 @@ static long find_last_non_null_byte_idx(struct mtd_info *mtd, loff_t from)
 	return -1;
 }
 
-static int find_trailling_data(struct mtd_info *mtd, loff_t from, size_t len, size_t *retlen, u_char *buf)
+static int find_trailling_data(struct mnf_readable *rd, loff_t from, size_t len, size_t *retlen, u_char *buf)
 {
 	long off;
 	int status, idx = 0;
 
-	off = find_last_non_null_byte_idx(mtd, from);
+	off = find_last_non_null_byte_idx(rd, from);
 	if (off < 0) {
-		pr_err("MTD partition %s was empty\n", mtd->name);
+		pr_err("MTD partition was empty\n");
 		return -1;
 	}
 
@@ -496,7 +673,7 @@ static int find_trailling_data(struct mtd_info *mtd, loff_t from, size_t len, si
 			return -1;
 		}
 
-		status = mtd_read(mtd, off, len, retlen, buf);
+		status = mnf_readable_read(rd, off, len, retlen, buf);
 		if (status || *retlen != len) {
 			pr_err("Read %zu bytes from %lx failed with %d\n", len, off, status);
 			return -1;
@@ -621,9 +798,10 @@ EXPORT_SYMBOL(mnf_info_get_batch);
 
 static int parse_prop(struct device_node *node)
 {
-	struct device_node *mtdnode;
-	struct mtd_info *mtd;
-	size_t retlen;
+	struct device_node *rd_node;
+	struct mnf_readable rd = { 0 };
+	size_t retlen, reg_len = 0;
+	loff_t reg_off = 0;
 	int status, size, i;
 	const char *part, *def, *type;
 	const __be32 *list, *min_rlen;
@@ -668,62 +846,57 @@ static int parse_prop(struct device_node *node)
 		goto end;
 	} else if (!list || (size != (3 * sizeof(*list)))) {
 		pr_err("Bad \"reg\" attribute\n");
-		return -1;
+		return -EINVAL;
 	}
 
 	type = of_get_property(node, "type", NULL);
 	if (!type) {
 		pr_err("\"%s\" property not found\n", "type");
-		return -1;
+		return -EINVAL;
 	}
+
+	reg_off = be32_to_cpup(list + 1);
+	reg_len = be32_to_cpup(list + 2);
 
 	phandle = be32_to_cpup(list);
 	if (phandle)
-		mtdnode = of_find_node_by_phandle(phandle);
+		rd_node = of_find_node_by_phandle(phandle);
 
-	if (!mtdnode) {
+	if (!rd_node) {
 		pr_err("Bad phandle for mtd partition\n");
-		return -1;
+		return -EINVAL;
 	}
 
-	part = of_get_property(mtdnode, "label", NULL);
-	of_node_put(mtdnode);
-	if (!part) {
-		pr_err("MTD label not found\n");
-		return -1;
-	}
-
-	mtd = get_mtd_device_nm(part);
-	if (IS_ERR(mtd)) {
-		pr_warn("MTD partition: '%s' not found\n", part);
-		return PTR_ERR(mtd);
+	status = mnf_readable_open(rd_node, &rd);
+	if (status) {
+		pr_err("Failed to open device: %d\n", status);
+		return status;
 	}
 
 	min_rlen = of_get_property(node, "min-res-len", &size);
-	if (min_rlen && (size == sizeof(*min_rlen)) && be32_to_cpup(list + 2) < be32_to_cpup(min_rlen)) {
+	if (min_rlen && (size == sizeof(*min_rlen)) && reg_len < be32_to_cpup(min_rlen)) {
 		e->dt_len = be32_to_cpup(min_rlen) + 1;
 	} else {
-		e->dt_len = be32_to_cpup(list + 2) + 1;
+		e->dt_len = reg_len + 1;
 	}
 
 	e->data = kzalloc(e->dt_len, GFP_KERNEL);
 	if (!e->data) {
-		return -1;
+		mnf_readable_close(&rd);
+		return -ENOMEM;
 	}
 
 	if (of_find_property(node, "trailling-data", NULL)) {
-		status = find_trailling_data(mtd, be32_to_cpup(list + 1), be32_to_cpup(list + 2), &retlen,
-					     e->data);
+		status = find_trailling_data(&rd, reg_off, reg_len, &retlen, e->data);
 	} else {
-		status = mtd_read(mtd, be32_to_cpup(list + 1), be32_to_cpup(list + 2), &retlen, e->data);
+		status = mnf_readable_read(&rd, reg_off, reg_len, &retlen, e->data);
 	}
 
-	put_mtd_device(mtd);
+	mnf_readable_close(&rd);
 	if (status) {
-		pr_err("Read %zu of %d bytes from \"%s\" mtd failed with: %d\n", retlen,
-		       be32_to_cpup(list + 2), part, status);
+		pr_err("Read %zu of %zd bytes from \"%s\" failed with: %d\n", retlen, reg_len, part, status);
 		kfree(e->data);
-		return -1;
+		return -EINVAL;
 	}
 
 	strip		    = !!of_find_property(node, "strip-whitespaces", NULL);
@@ -733,7 +906,7 @@ static int parse_prop(struct device_node *node)
 	if (fix_types(e, retlen, type, def, strip, right_side_alligned, keep_sim_presence)) {
 		pr_debug("Failed to fix type for \"%s\"\n", e->name);
 		kfree(e->data);
-		return -1;
+		return -EINVAL;
 	}
 
 end:
@@ -762,7 +935,7 @@ static int mnfinfo_probe(struct platform_device *pdev)
 	for_each_child_of_node(dnode, cnode)
 	{
 		ret = parse_prop(cnode);
-		if (ret == -ENODEV)
+		if (ret == -EPROBE_DEFER || ret == -ENODEV)
 			return -EPROBE_DEFER;
 	}
 

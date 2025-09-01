@@ -1,28 +1,28 @@
 --- a/main.c
 +++ b/main.c
-@@ -115,7 +115,7 @@
+@@ -115,7 +115,7 @@ int main(int argc, char **argv)
  	conn.cb	  = ubus_connect_handler;
  	conn.path = ubus_socket;
-
+ 
 -	ubus_auto_connect(&conn);
 +	rpc_session_init();
-
+ 
  	hangup = getenv("RPC_HANGUP");
-
-@@ -124,6 +124,7 @@
+ 
+@@ -124,6 +124,7 @@ int main(int argc, char **argv)
  	else
  		rpc_session_thaw();
-
+ 
 +	ubus_auto_connect(&conn);
  	uloop_run();
  	uloop_done();
  	ubus_auto_shutdown(&conn);
 --- a/session.c
 +++ b/session.c
-@@ -1847,10 +1847,22 @@
+@@ -1842,10 +1842,22 @@ rpc_session_from_blob(struct uci_context
  	return true;
  }
-
+ 
 -int rpc_session_api_init(struct ubus_context *ctx)
 +void rpc_session_init(void)
  {
@@ -38,16 +38,16 @@
 +		avl_insert(&sessions, &ses->avl);
 +	}
 +}
-
+ 
 +int rpc_session_api_init(struct ubus_context *ctx)
 +{
  	static const struct ubus_method session_methods[] = {
  		UBUS_METHOD("create",  rpc_handle_create,  new_policy),
  		UBUS_METHOD("list",    rpc_handle_list,    sid_policy),
-@@ -1875,17 +1887,6 @@
+@@ -1870,17 +1882,6 @@ int rpc_session_api_init(struct ubus_con
  		.n_methods = ARRAY_SIZE(session_methods),
  	};
-
+ 
 -	avl_init(&sessions, avl_strcmp, false, NULL);
 -
 -	/* setup the default session */
@@ -61,14 +61,14 @@
 -
  	return ubus_add_object(ctx, &obj);
  }
-
+ 
 --- a/include/rpcd/session.h
 +++ b/include/rpcd/session.h
-@@ -90,6 +90,7 @@
-     int endpoint_count;
+@@ -93,6 +93,7 @@ struct rpc_permissions_manager {
+ 	struct list_head endpoint_permissions;
  };
-
+ 
 +void rpc_session_init(void);
  int rpc_session_api_init(struct ubus_context *ctx);
-
+ 
  bool rpc_session_access(const char *sid, const char *scope,

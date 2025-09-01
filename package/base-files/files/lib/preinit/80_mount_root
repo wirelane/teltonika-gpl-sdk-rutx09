@@ -183,7 +183,6 @@ do_mount_root() {
 		sync
 		[ -x /bin/sme.sh ] && { sme.sh --preboot || echo "- sme.sh failed with code $? -"; }
 	fi
-	[ -f /etc/last_version ] || cat /etc/version > /etc/last_version
 }
 
 [ "$INITRAMFS" = "1" ] || boot_hook_add preinit_main do_mount_root

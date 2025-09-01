@@ -44,7 +44,7 @@ switch_to_ramfs() {
 		ubidetach ubirsvol ubirmvol ubimkvol			\
 		snapshot snapshot_tool date jshn dtbtool dtc mkbootimg	\
 		ubinize-image.sh sysupgrade-tar.sh which ubinize mktemp	\
-		dumpimage ledman fwtool fitblk block \
+		dumpimage ledman fwtool fitblk block abctl tr \
 		$RAMFS_COPY_BIN
 	do
 		local file="$(command -v "$binary" 2>/dev/null)"

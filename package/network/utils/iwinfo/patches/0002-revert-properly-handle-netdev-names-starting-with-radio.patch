@@ -1,7 +1,5 @@
-Index: libiwinfo-2023-05-17-c9f5c3f7/iwinfo_nl80211.c
-===================================================================
---- libiwinfo-2023-05-17-c9f5c3f7.orig/iwinfo_nl80211.c
-+++ libiwinfo-2023-05-17-c9f5c3f7/iwinfo_nl80211.c
+--- a/iwinfo_nl80211.c
++++ b/iwinfo_nl80211.c
 @@ -470,9 +470,9 @@ static struct nl80211_msg_conveyor * nl8
  	if (!cv)
  		return NULL;

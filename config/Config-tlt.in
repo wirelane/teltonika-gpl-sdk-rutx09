@@ -392,8 +392,7 @@ config WIFI_SUPPORT
 	imply PACKAGE_vuci-app-channel-analysis-ui
 	imply PACKAGE_wpad-openssl if !USES_VENDOR_WIFI_DRIVER
 	imply PACKAGE_vuci-app-wireless-ui
-	imply PACKAGE_vuci-app-multi-ap-ui
-	imply PACKAGE_multiple_ap if !AP_DEVICE
+	imply PACKAGE_multiple_ap if !AP_DEVICE && !USES_VENDOR_WIFI_DRIVER
 	detail if !AP_DEVICE
 		Wi-Fi Modes: Access Point (AP), Client (STA), Mesh (802.11s), Multi AP
 		Wi-Fi Access Point: Fast roaming (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, WMM
@@ -430,7 +429,7 @@ config TRAVELMATE_SUPPORT
 	tristate "Travelmate"
 	maintainer "Network"
 	label "Wi-Fi"
-	depends on PKG_SUPPORT && WIFI_SUPPORT
+	depends on PKG_SUPPORT && WIFI_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if NAND_SUPPORT || TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-travelmate-ui
@@ -520,7 +519,7 @@ config BFD_FRR_SUPPORT
 	tristate
 	maintainer "Network"
 	label "Network"
-	depends on PKG_SUPPORT && FRR_SUPPORT
+	depends on PKG_SUPPORT && FRR_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	detail
@@ -552,7 +551,7 @@ config IPTABLES_NAT_EXTRA_SUPPORT
 	tristate
 	maintainer "Network"
 	label "Network"
-	depends on !AP_DEVICE && PKG_SUPPORT
+	depends on !AP_DEVICE && PKG_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_iptables-mod-nat-extra
@@ -563,7 +562,7 @@ config IPTABLES_FILTER_EXTENSION
 	tristate
 	maintainer "Network"
 	label "Network"
-	depends on PKG_SUPPORT
+	depends on PKG_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_iptables-mod-filter
@@ -597,7 +596,7 @@ config VXLAN_SUPPORT
 	tristate "VXLAN"
 	maintainer "Network"
 	label "Network"
-	depends on PKG_SUPPORT
+	depends on PKG_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-vxlan-ui
@@ -686,7 +685,7 @@ config IGMPPROXY_SUPPORT
 	maintainer "Network"
 	label "Network Utilities"
 	depends on PKG_SUPPORT
-	default y if TEST_IMAGE
+	default y if TEST_IMAGE || USES_VENDOR_WIFI_DRIVER
 	default m
 	imply PACKAGE_vuci-app-igmp-proxy-ui
 	detail
@@ -718,7 +717,7 @@ config RELAYD_SUPPORT
 	tristate "Relayd"
 	maintainer "Network"
 	label "Network Utilities"
-	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !NETWORKS_EXTERNAL && !x86_64
+	depends on PKG_SUPPORT && !GATEWAY_DEVICE && !BASIC_ROUTER && !NETWORKS_EXTERNAL && !USES_VENDOR_WIFI_DRIVER && !x86_64
 	default y if NAND_SUPPORT || TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-relayd-ui
@@ -748,7 +747,7 @@ config UDPRELAY_SUPPORT
 	tristate "UDP Relay"
 	maintainer "Network"
 	label "Network Utilities"
-	depends on PKG_SUPPORT
+	depends on PKG_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-udprelay-ui
@@ -761,7 +760,7 @@ config VRF_SUPPORT
 	label "Network Utilities"
 	detail
 		Virtual routing and forwarding, IP technology allows users to configure multiple routing table instances to simultaneously co-exist within the same router
-	depends on PKG_SUPPORT
+	depends on PKG_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if NAND_SUPPORT || TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-vrf-ui
@@ -770,7 +769,7 @@ config VRRP_SUPPORT
 	tristate "VRRP"
 	maintainer "Network"
 	label "Network Utilities"
-	depends on PKG_SUPPORT && ADVANCED_NETWORK
+	depends on PKG_SUPPORT && ADVANCED_NETWORK && !USES_VENDOR_WIFI_DRIVER
 	default m if (!NAND_SUPPORT || GATEWAY_DEVICE) && !TEST_IMAGE
 	default y
 	imply PACKAGE_vuci-app-vrrp-ui
@@ -1713,7 +1712,7 @@ config ENCHANCED_SECURITY_SUPPORT
 	imply PACKAGE_libcap-bin
 	imply KERNEL_UBIFS_FS_SECURITY
 	imply KERNEL_JFFS2_FS_SECURITY
-	imply KERNEL_EXT4_FS_SECURITY if x86_64
+	imply KERNEL_EXT4_FS_SECURITY
 
 config REALTIME_GRAPH_SUPPORT
 	bool "Realtime Data"
@@ -1859,7 +1858,7 @@ config HTTPS_DNS_PROXY_SUPPORT
 	tristate "DNS over HTTPS"
 	maintainer "Network"
 	label "Utilities"
-	depends on PKG_SUPPORT
+	depends on PKG_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_vuci-app-https-dns-proxy-ui
@@ -2015,7 +2014,7 @@ config WIFI_SCANNER_SUPPORT
 	tristate "Wi-Fi Scanner"
 	maintainer "SysApp"
 	label "Utilities"
-	depends on WIFI_SUPPORT || TEST_IMAGE
+	depends on (WIFI_SUPPORT && !USES_VENDOR_WIFI_DRIVER) || TEST_IMAGE
 	default m if PKG_SUPPORT && !NAND_SUPPORT && !TEST_IMAGE
 	default y
 	imply PACKAGE_vuci-app-wifi-scanner-ui
@@ -2185,6 +2184,11 @@ config EMMC_SUPPORT
 	bool
 	maintainer "Embedded/BBU"
 	imply BUSYBOX_CONFIG_BLKDISCARD
+	imply BUSYBOX_CONFIG_BLKID
+	imply BUSYBOX_CONFIG_FEATURE_BLKID_TYPE
+	imply BUSYBOX_CONFIG_FEATURE_VOLUMEID_EXT
+	imply BUSYBOX_CONFIG_FEATURE_VOLUMEID_FAT
+	imply BUSYBOX_CONFIG_FEATURE_VOLUMEID_F2FS
 
 config BLUETOOTH_SUPPORT
 	bool "Bluetooth"

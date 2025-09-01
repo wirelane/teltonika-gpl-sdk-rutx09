@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/rc.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/rc.c
-+++ rpcd-2021-03-11-ccb75178/rc.c
+--- a/rc.c
++++ b/rc.c
 @@ -6,18 +6,18 @@
   */
  
@@ -158,10 +156,8 @@ Index: rpcd-2021-03-11-ccb75178/rc.c
 +struct rpc_plugin rpc_plugin = {
 +	.init = rpc_rc_api_init
 +};
-Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
-+++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
 @@ -10,6 +10,7 @@ OPTION(FILE_SUPPORT "File plugin support
  OPTION(IWINFO_SUPPORT "libiwinfo plugin support" ON)
  OPTION(UCI_SUPPORT "uci plugin support" ON)
@@ -193,10 +189,8 @@ Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
  INSTALL(TARGETS rpcd ${PLUGINS}
  	RUNTIME DESTINATION sbin
  	LIBRARY DESTINATION lib
-Index: rpcd-2021-03-11-ccb75178/main.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/main.c
-+++ rpcd-2021-03-11-ccb75178/main.c
+--- a/main.c
++++ b/main.c
 @@ -29,7 +29,6 @@
  
  #include <rpcd/exec.h>
@@ -205,9 +199,7 @@ Index: rpcd-2021-03-11-ccb75178/main.c
  #include <rpcd/session.h>
  #include <rpcd/uci.h>
  #define RPC_UCI_DIR_PREFIX	"/var/run/rpcd"
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/rc.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/rc.h
+--- a/include/rpcd/rc.h
 +++ /dev/null
 @@ -1,7 +0,0 @@
 -// SPDX-License-Identifier: ISC OR MIT

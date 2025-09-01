@@ -1,7 +1,5 @@
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/session.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/session.h
+--- a/include/rpcd/session.h
++++ b/include/rpcd/session.h
 @@ -53,8 +53,6 @@ struct auth_cb_data {
  };
  #endif
@@ -11,10 +9,8 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
  struct rpc_session {
  	struct avl_node avl;
  	char id[RPC_SID_LEN + 1];
-Index: rpcd-2021-03-11-ccb75178/include/rpcd/uci.h
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/include/rpcd/uci.h
-+++ rpcd-2021-03-11-ccb75178/include/rpcd/uci.h
+--- a/include/rpcd/uci.h
++++ b/include/rpcd/uci.h
 @@ -30,6 +30,8 @@
  #include <libubus.h>
  #include <uci.h>
@@ -33,10 +29,8 @@ Index: rpcd-2021-03-11-ccb75178/include/rpcd/uci.h
 -void rpc_uci_purge_savedirs(void);
 -
  #endif
-Index: rpcd-2021-03-11-ccb75178/main.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/main.c
-+++ rpcd-2021-03-11-ccb75178/main.c
+--- a/main.c
++++ b/main.c
 @@ -30,13 +30,57 @@
  #include <rpcd/rc.h>
  #include <rpcd/session.h>
@@ -104,10 +98,8 @@ Index: rpcd-2021-03-11-ccb75178/main.c
  	rpc_rc_api_init(ctx);
  	rpc_plugin_api_init(ctx);
  }
-Index: rpcd-2021-03-11-ccb75178/session.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/session.c
-+++ rpcd-2021-03-11-ccb75178/session.c
+--- a/session.c
++++ b/session.c
 @@ -49,6 +49,8 @@ void rpc_grant_endpoint_options(struct r
  static LIST_HEAD(create_callbacks);
  static LIST_HEAD(destroy_callbacks);
@@ -117,10 +109,8 @@ Index: rpcd-2021-03-11-ccb75178/session.c
  enum {
  	RPC_SN_TIMEOUT,
  	__RPC_SN_MAX,
-Index: rpcd-2021-03-11-ccb75178/uci.c
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/uci.c
-+++ rpcd-2021-03-11-ccb75178/uci.c
+--- a/uci.c
++++ b/uci.c
 @@ -18,6 +18,7 @@
  
  #include <libgen.h>
@@ -354,10 +344,8 @@ Index: rpcd-2021-03-11-ccb75178/uci.c
 +	.init = rpc_uci_api_init,
 +	.user = "uci"
 +};
-Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
-===================================================================
---- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
-+++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
 @@ -8,6 +8,7 @@ INCLUDE_DIRECTORIES(include)
  
  OPTION(FILE_SUPPORT "File plugin support" ON)
