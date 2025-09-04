@@ -76,7 +76,7 @@ poeman:x:563:mobutils
 system:x:564:opcua_server,modbus_server,mobutils,rut_fota,ntpclient,modbus_client,iot,ledman
 connchecker:x:565:mobutils,uci
 dropbear:x:566:dropbear,mobutils,uci,ip_blockd
-dnsmasq:x:567:easycwmp,mobutils,openvpn,openconnect,uci,odhcpd,https_dns_proxy,tailscale
+dnsmasq:x:567:easycwmp,mobutils,openvpn,openconnect,uci,odhcpd,https_dns_proxy,tailscale,hostblock
 odhcpd:x:568:dnsmasq,mobutils
 igmpproxy:x:569:mobutils,uci
 vrrpd:x:570:mobutils,uci

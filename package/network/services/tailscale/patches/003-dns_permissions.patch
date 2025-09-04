@@ -1,8 +1,8 @@
-Index: tailscale-1.70.0/net/dns/direct.go
+Index: tailscale-1.86.2/net/dns/direct.go
 ===================================================================
---- tailscale-1.70.0.orig/net/dns/direct.go
-+++ tailscale-1.70.0/net/dns/direct.go
-@@ -239,9 +239,13 @@ func (m *directManager) restoreBackup()
+--- tailscale-1.86.2.orig/net/dns/direct.go
++++ tailscale-1.86.2/net/dns/direct.go
+@@ -241,9 +241,13 @@ func (m *directManager) restoreBackup()
  		return false, nil
  	}
  
@@ -19,7 +19,7 @@ Index: tailscale-1.70.0/net/dns/direct.go
  	}
  
  	return true, nil
-@@ -328,9 +332,10 @@ func (m *directManager) SetDNS(config OS
+@@ -330,9 +334,10 @@ func (m *directManager) SetDNS(config OS
  			return err
  		}
  
@@ -31,7 +31,7 @@ Index: tailscale-1.70.0/net/dns/direct.go
  			return err
  		}
  
-@@ -446,9 +451,10 @@ func (m *directManager) Close() error {
+@@ -448,9 +453,10 @@ func (m *directManager) Close() error {
  		return nil
  	}
  
@@ -45,7 +45,7 @@ Index: tailscale-1.70.0/net/dns/direct.go
  	}
  
  	if isResolvedRunning() && !runningAsGUIDesktopUser() {
-@@ -463,6 +469,13 @@ func (m *directManager) Close() error {
+@@ -465,6 +471,13 @@ func (m *directManager) Close() error {
  	return nil
  }
  
@@ -59,10 +59,10 @@ Index: tailscale-1.70.0/net/dns/direct.go
  func (m *directManager) atomicWriteFile(fs wholeFileFS, filename string, data []byte, perm os.FileMode) error {
  	var randBytes [12]byte
  	if _, err := rand.Read(randBytes[:]); err != nil {
-Index: tailscale-1.70.0/net/dns/resolvconfpath_default.go
+Index: tailscale-1.86.2/net/dns/resolvconfpath_default.go
 ===================================================================
---- tailscale-1.70.0.orig/net/dns/resolvconfpath_default.go
-+++ tailscale-1.70.0/net/dns/resolvconfpath_default.go
+--- tailscale-1.86.2.orig/net/dns/resolvconfpath_default.go
++++ tailscale-1.86.2/net/dns/resolvconfpath_default.go
 @@ -7,5 +7,5 @@ package dns
  
  const (
