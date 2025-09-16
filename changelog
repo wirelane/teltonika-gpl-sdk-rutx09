@@ -1,3 +1,21 @@
+# 2025-09-11 00.07.16.6
+
+### Fix
+
+* Profiles: fixed keep-settings execution for older profiles (ID: 28274)
+
+# 2025-08-06 00.07.16.5
+
+### Fix
+
+* GPS: fixed NMEA sentences being completely disabled in some cases for RUTM54 (ID: 27625)
+
+# 2025-07-30 00.07.16.4
+
+### Fix
+
+* GPS: fixed NMEA value configuration for RUTM54 (ID: 27512)
+
 # 2025-07-24 00.07.16.3
 
 ### Fix

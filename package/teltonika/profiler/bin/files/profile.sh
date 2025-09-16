@@ -280,10 +280,8 @@ __check_compatibility() {
 
 __apply_defaults() {
 	local dir="$1"
-
-	for file in $(ls -v "$dir"); do
-		[ -d "${dir}/${file}" ] && continue
-		( . "${dir}/${file}" 2>/dev/null ) && rm -f "${dir}/${file}"
+	find "$dir" -maxdepth 1 -type f | sort -V | while read -r file; do
+		( . "$file" 2>/dev/null ) && rm -f "$file"
 	done
 }
 
@@ -294,9 +292,10 @@ uci_apply_defaults() {
 	chmod -R +x "$top_dir/"
 	[ -z "$(ls -A "$top_dir/")" ] && return 0
 
-	local old_version="$(cat "${TMP_PATH}${PROFILE_VERSION_FILE}")"
+	local old_version="$(cat "$PROFILE_VERSION_FILE")"
 	local new_version="$(cat /etc/version)"
 
+	[ "$old_version" = "$new_version" ] && return 0
 	[ -z "$old_version" ] && old_version="$new_version"
 
 	local old_major=$(echo "$old_version" | awk -F . '{ print $2 }')
@@ -319,12 +318,16 @@ uci_apply_defaults() {
 		cp /rom/etc/migrate.conf/* /etc/migrate.conf/
 	}
 
-	for dir in $(ls -v $top_dir); do
-		[ -d "${top_dir}/$dir" ] || continue
-		__check_compatibility "$old_major" "$old_minor" "$dir" || continue
-		__apply_defaults "${top_dir}/$dir"
+	mkdir -p "/tmp/.uci"
+
+	find "$top_dir" -maxdepth 1 -type d | sort -V | while read -r dir; do
+		[ "$dir" == "$top_dir" ] && continue
+		__check_compatibility "$old_major" "$old_minor" "$(basename "$dir")" || continue
+		__apply_defaults "$dir"
 	done
 	__apply_defaults "$top_dir"
+
+	uci commit
 
 	rm -rf "$top_dir/"
 	rm -f /etc/migrate.conf/*
@@ -399,12 +402,9 @@ change_config() {
 	# Fixing legacy profiles
 	remove_exceptions_from_file "$TMP_PATH"
 
-	# the /etc/config folder itself is not added into the archive
-	# so we need to restore the permissions to what we expect
-	chown 100:users "$TMP_DIR"/etc/config/
-	chmod 777 "$TMP_DIR"/etc/config/
-
+	rm -f "$PROFILE_VERSION_FILE"
 	cp -af "$TMP_PATH"/* /
+	sync_permissions_and_ownerships 2> /dev/null
 
 	rm -rf "$TMP_PATH"
 	uci_set "profiles" "general" "profile" "$new" || {

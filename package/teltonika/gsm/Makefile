@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=7.16.2
+PKG_SOURCE_VERSION:=7.16.5
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \

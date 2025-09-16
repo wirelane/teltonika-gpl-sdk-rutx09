@@ -830,7 +830,7 @@ add_modem_section() {
 		# Manual APN if bootstrap profile
 		[ $is_bootstrap_profile -eq 1 ]  && {
 			uci_set network "${interface}" auto_apn "0"
-			uci_set network "${interface}" apn "data641003"
+			uci_set network "${interface}" apn "360connect"
 		} || uci_set network "${interface}" auto_apn "1"
 
 		# if needed, use custom ifname for rmnet/other devices
