@@ -11,7 +11,7 @@ A template package demonstrating how to create and build OpenWrt packages for RU
    Copy the example package to the OpenWrt packages directory:
 
    ```sh
-   cp -r "ipk-example" "RUTX_R_GPL_00.07.17.3/package/base/example_package"
+   cp -r "ipk-example" "RUTX_R_GPL_00.07.17.4/package/base/example_package"
    ```
 
 2. **Configure OpenWrt**
@@ -40,7 +40,7 @@ A template package demonstrating how to create and build OpenWrt packages for RU
    ```
 
    > After building, the package will be available in:  
-   > `RUTX_R_GPL_00.07.17.3/bin/packages/ipq40xx/base`
+   > `RUTX_R_GPL_00.07.17.4/bin/packages/ipq40xx/base`
 
 ## Manual Installation
 
@@ -49,7 +49,7 @@ A template package demonstrating how to create and build OpenWrt packages for RU
    Copy the built package to the device:
 
    ```sh
-   scp "RUTX_R_GPL_00.07.17.3/bin/packages/ipq40xx/base/example_package_1.0-1_ipq40xx.ipk" \
+   scp "RUTX_R_GPL_00.07.17.4/bin/packages/ipq40xx/base/example_package_1.0-1_ipq40xx.ipk" \
        root@192.168.1.1:/tmp
    ```
 
@@ -65,7 +65,7 @@ A template package demonstrating how to create and build OpenWrt packages for RU
 
 1. **Modify Package Configuration**
 
-   Edit `RUTX_R_GPL_00.07.17.3/ipk_packages.json`:
+   Edit `RUTX_R_GPL_00.07.17.4/ipk_packages.json`:
 
    ```json
    {
@@ -97,7 +97,7 @@ A template package demonstrating how to create and build OpenWrt packages for RU
    ```
 
    > After compilation, the package will be available as `example_package.tar.gz` in:  
-   > `RUTX_R_GPL_00.07.17.3/bin/packages/<arch_name>/zipped_packages`
+   > `RUTX_R_GPL_00.07.17.4/bin/packages/<arch_name>/zipped_packages`
 
 ## Package Contents
 
