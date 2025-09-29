@@ -112,8 +112,9 @@ define Package/emailrelay/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
 	$(INSTALL_BIN) files/$(PKG_NAME).permtab $(1)/etc/permtab.d/$(PKG_NAME)
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.16/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.16/ $(1)/etc/uci-defaults/7.17/
 	$(INSTALL_BIN) files/defaults/99_add_emailrelay_name $(1)/etc/uci-defaults/7.16/99_add_emailrelay_name
+	$(INSTALL_BIN) files/defaults/99_add_emailrelay_name $(1)/etc/uci-defaults/7.17/99_add_emailrelay_name
 endef
 
 $(eval $(call BuildPackage,emailrelay))

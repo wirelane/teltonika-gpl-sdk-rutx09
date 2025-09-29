@@ -6,8 +6,9 @@
 
 add_ebgp() {
 	local section="$1"
-
-	uci_set "frr" "$section" "ebgp_requires_policy" 0
+	local ebgp_requires_policy
+	config_get ebgp_requires_policy "$section" ebgp_requires_policy "0"
+	uci_set "frr" "$section" "ebgp_requires_policy" "$ebgp_requires_policy"
 }
 
 get_ospf_area() {

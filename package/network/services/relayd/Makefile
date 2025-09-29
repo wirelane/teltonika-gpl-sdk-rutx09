@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=relayd
 PKG_VERSION:=2020-04-25
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_DATE:=2020-04-25
 
@@ -55,8 +55,8 @@ define Package/relayd/install
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) ./files/relayd_acl.json $(1)/usr/share/acl.d/relayd_acl.json
 
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11
-	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.11/10-move-relayd-from-network-conf
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
+	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.17/10-move-relayd-from-network-conf
 
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/relayd.permtab $(1)/etc/permtab.d/relayd

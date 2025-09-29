@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=igmpproxy
 PKG_VERSION:=0.2.1
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 PKG_LICENSE:=GPL-2.0-or-later
 
 PKG_SOURCE_VERSION:=0.2.1
@@ -53,8 +53,8 @@ define Package/igmpproxy/install
 	$(INSTALL_BIN) ./files/igmpproxy.init $(1)/etc/init.d/igmpproxy
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/igmpproxy $(1)/usr/sbin/
-	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_DATA) ./files/igmpproxy.defaults $(1)/etc/uci-defaults/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
+	$(INSTALL_DATA) ./files/igmpproxy.defaults $(1)/etc/uci-defaults/7.17/99_igmpproxy_add_index
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/igmpproxy.permtab $(1)/etc/permtab.d/igmpproxy
 endef

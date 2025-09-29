@@ -100,7 +100,7 @@ echo "$IMG_NAME" | grep -q '/buildsys/' && {
 	TOKEN=aCb3RawxFnwuSZymE7XM
 }
 echo "$IMG_NAME" | grep -qP '(^|/)tbot' && {
-	TOKEN=CDFnJK15XBkAu8nU13fS
+	TOKEN=bb9IvKvWTEFTlKf7i1A9v286MQp1OmZmCA.01.0y003o9dw
 	FUNC=run_tbot
 }
 

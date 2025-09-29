@@ -1408,6 +1408,7 @@ config SERIAL_SUPPORT
 	label "Monitoring & Management"
 	imply PACKAGE_serial
 	imply PACKAGE_modbusgwd
+	imply PACKAGE_gpiod-tools
 	imply PACKAGE_vuci-app-overip-ui
 	imply PACKAGE_vuci-app-modbus-serial-gateway-ui
 	imply PACKAGE_vuci-app-getty-ui

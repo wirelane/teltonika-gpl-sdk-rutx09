@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zerotier
 PKG_VERSION:=1.14.0
-PKG_RELEASE:=4
+PKG_RELEASE:=6
 
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -72,7 +72,7 @@ define Package/zerotier/conffiles
 endef
 
 define Package/zerotier/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15 $(1)/etc/permtab.d
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15 $(1)/etc/permtab.d $(1)/etc/uci-defaults/7.17
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-cli
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-idtool
@@ -85,6 +85,7 @@ endif
 	$(CP) ./files/etc/init.d $(1)/etc/
 	$(INSTALL_BIN) ./files/etc/mwan3/mwan3.zerotier $(1)/etc/mwan3/
 	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.15/99_zerotier_device_name
+	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.17/99_zerotier_device_name
 	$(INSTALL_DATA) files/zerotier.permtab $(1)/etc/permtab.d/zerotier
 endef
 

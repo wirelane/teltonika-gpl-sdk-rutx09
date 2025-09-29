@@ -334,6 +334,7 @@ set_file_attributes() {
 		parse_attr_line "$1"
 		shift
 	done
+	IFS="$oIFS"
 }
 
 default_postinst() {

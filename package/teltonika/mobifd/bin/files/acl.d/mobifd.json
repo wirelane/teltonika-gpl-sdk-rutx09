@@ -36,7 +36,7 @@
                 }
         },
         "publish": [ "mobifd", "mobifd.modem*" ],
-        "send": [ "gsm.*", "mobifd.*", "vuci.*", "lpac.updates", "rms.notify" ],
+        "send": [ "gsm.*", "esim.uci_cfg_deleted", "mobifd.*", "vuci.*", "lpac.updates", "rms.notify" ],
         "listen": [
                 "gsm",
                 "gsm.new_modem",

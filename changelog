@@ -1,3 +1,15 @@
+# 2025-09-26 00.07.17.5
+
+### Improvements
+
+* Mobile: added ability to download eSIM profiles via Setup Wizard (ID: 28272)
+
+### Fix
+
+* Ledman: fixed possible undefined LED behavior for RUTM family (ID: 28492)
+* Mobile: fixed possible hang when downloading eSIM profile (ID: 28383)
+* Network: fixed assigning interface to incorrect firewall zone when changing its settings (ID: 28479)
+
 # 2025-09-10 00.07.17.4
 
 ### Fix

@@ -34,13 +34,18 @@ endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/etc/permtab.d $(1)/usr/sbin $(1)/usr/share/acl.d $(1)/etc/uci-defaults/7.15/
+	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/etc/permtab.d $(1)/usr/sbin $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modbus_server $(1)/usr/sbin/modbus_server
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_server.init $(1)/etc/init.d/modbus_server
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/modbus_server.conf $(1)/etc/config/modbus_server
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/modbus_server.json $(1)/usr/share/acl.d/modbus_server.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/modbus_server.permtab $(1)/etc/permtab.d/modbus_server
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.15/99_modbus_server_migrate_regfile $(1)/etc/uci-defaults/7.15/
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.15/99_modbus_server_migrate_regfile $(1)/etc/uci-defaults/7.17/
 endef
 
 define Package/$(PKG_NAME)/prerm

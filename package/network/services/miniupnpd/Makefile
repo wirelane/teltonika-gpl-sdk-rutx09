@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=miniupnpd
 PKG_VERSION:=2.3.4
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_VERSION:=2.3.4
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -73,6 +73,7 @@ define Package/miniupnpd/install
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.4
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.14
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 
 	$(INSTALL_DATA) ./files/miniupnpd.permtab $(1)/etc/permtab.d/miniupnpd
@@ -82,6 +83,9 @@ define Package/miniupnpd/install
 	$(INSTALL_DATA) ./files/miniupnpd.hotplug $(1)/etc/hotplug.d/iface/50-miniupnpd
 	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_port_range $(1)/etc/uci-defaults/7.4/
 	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_lease_file $(1)/etc/uci-defaults/7.14/
+
+	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_port_range $(1)/etc/uci-defaults/7.17/
+	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_lease_file $(1)/etc/uci-defaults/7.17/
 
 	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_miniupnpd)),,/usr/local))
 	$(INSTALL_DIR) $(DEST_DIR)/share/miniupnpd

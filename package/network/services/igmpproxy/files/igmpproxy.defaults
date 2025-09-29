@@ -19,3 +19,5 @@ config_cb() {
 
 config_load "igmpproxy"
 uci_commit "igmpproxy"
+
+exit 0

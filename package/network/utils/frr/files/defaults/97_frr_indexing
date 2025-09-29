@@ -11,7 +11,7 @@ config_cb() {
 	[ "$1" = "ospf_neighbor" ] || [ "_${1##*_}" = "_map" ] || return
 	index=$((index + 1))
 
-	while uci_get "frr" "$index" >/dev/null; do
+	while [ "$index" != "$2" ] && uci_get "frr" "$index" >/dev/null; do
 		index=$((index + 1))
 	done
 

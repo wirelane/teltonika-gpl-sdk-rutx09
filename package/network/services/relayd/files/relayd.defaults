@@ -34,3 +34,5 @@ config_load "network"
 config_foreach move_relayd_to_separate_config "interface"
 uci_commit "network"
 uci_commit "relayd"
+
+exit 0

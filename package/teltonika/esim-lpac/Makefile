@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=esim-lpac
 
-PKG_SOURCE_VERSION:=1.6.1
+PKG_SOURCE_VERSION:=1.6.2
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
