@@ -10,7 +10,7 @@ local fs = require("nixio.fs")
 local sqlite = require("vuci.sqlite").init()
 
 local function connect_db()
-    local db = sqlite.database(CFG.APN_DB)
+    local db = sqlite.database({ path = CFG.APN_DB })
     if not db:get_db() then os.exit(1) end
     return db
 end
@@ -60,6 +60,8 @@ local function restore_data()
     db:close()
     -- Compress and store database
     os.execute("gzip -kc " .. CFG.APN_DB .. " > " .. CFG.APN_DB_COMPRESSED)
+    -- Adjust permissions
+    os.execute("perm " .. CFG.APN_DB_COMPRESSED .. " > /dev/null")
     fs.unlink(CFG.BACKUP_FILE)
 end
 

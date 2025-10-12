@@ -17,6 +17,7 @@ pkcs12
 key_direction
 ifconfig_ipv6_pool
 topology
+auth_user_pass
 '
 
 OPENVPN_BOOLS='
@@ -36,7 +37,6 @@ up
 down
 client_config_dir
 status
-auth_user_pass
 auth_user_pass_verify
 learn_address
 askpass

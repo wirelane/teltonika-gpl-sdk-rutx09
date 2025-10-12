@@ -188,6 +188,7 @@ define Package/base-files/install
 	chmod 1777 $(1)/tmp
 	chmod 0664 $(1)/etc/config/system
 	chmod 0660 $(1)/etc/config/buttons
+	chmod 0760 $(1)/etc/rc.local
 
 	$(call Package/base-files/install-target,$(1))
 	for conffile in $(1)/etc/config/*; do \

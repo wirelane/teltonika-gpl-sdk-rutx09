@@ -152,6 +152,8 @@ exec_internal_call() {
 			\"CONF_PASSWORD=$CONF_PASSWORD\", \
 			\"CONF_TAR=$CONF_TAR\", \
 			\"FORCE=$FORCE\", \
+			\"USER_ID=$(id -u)\", \
+			\"GROUP_ID=$(id -g)\", \
 			\"$env\" \
 		], \
 	}")"

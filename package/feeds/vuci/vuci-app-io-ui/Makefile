@@ -14,6 +14,9 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(call Package/$(PKG_NAME)/install/Default,$(1))
+	if [ -z "$(TLT_PLATFORM_TSW2)" ]; then \
+		$(call SelectPinoutIcon,$(1),power_4pin.svg) \
+	fi; \
 	if [ $(TLT_PLATFORM_TRB1) ]; then \
 		$(call SelectPinoutIcon,$(1),io_16pin.svg) \
 	elif [ $(TLT_PLATFORM_TRB2M) ]; then \
@@ -22,6 +25,9 @@ define Package/$(PKG_NAME)/install
 		$(call SelectPinoutIcon,$(1),io_16pin_rs_rutm.svg) \
 	elif [ $(TLT_PLATFORM_RUT9) ] || [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
 		$(call SelectPinoutIcon,$(1),io_10pin.svg) \
+	elif [ $(TLT_PLATFORM_TSW2) ]; then \
+		$(call SelectPinoutIcon,$(1),io_2pin.svg) \
+		$(call SelectPinoutIcon,$(1),power_5pin.svg) \
 	fi;
 endef
 

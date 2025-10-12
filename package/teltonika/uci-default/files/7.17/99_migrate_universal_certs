@@ -158,10 +158,8 @@ move_cert_file() {
 		fi
 		uci_set "certificates" "$section" "path" "$new_path"
 		uci_commit "certificates"
-		add_service_to_config "$new_path" "$service" "$instance"
-	else
-		add_service_to_config "$new_path" "$service" "$instance"
 	fi
+	add_service_to_config "$new_path" "$service" "$instance"
 	echo "$new_path"
 }
 

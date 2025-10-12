@@ -55,6 +55,7 @@ sub target_config_features(@) {
 		/^mbus$/ and $ret .= "\tselect MBUS_SUPPORT\n";
 		/^gps$/ and $ret .= "\tselect GPS_SUPPORT\n";
 		/^serial$/ and $ret .= "\tselect SERIAL_SUPPORT\n";
+		/^itxpt$/ and $ret .= "\tselect ITXPT_SUPPORT\n";
 		/^modbus$/ and $ret .= "\tselect HAS_MODBUS\n";
 		/^ios$/ and $ret .= "\tselect HAS_IO\n";
 		/^dot1x-client$/ and $ret .= "\tselect HAS_DOT1X_CLIENT\n";
@@ -62,9 +63,8 @@ sub target_config_features(@) {
 		/^power-control$/ and $ret .= "\tselect HAS_POWER_CONTROL\n";
 		/^single_port$/ and $ret .= "\tselect HAS_SINGLE_ETH_PORT\n";
 		/^wifi$/ and $ret .= "\tselect WIFI_SUPPORT\n";
-		/^bt$/ and $ret .= "\tselect BLUETOOTH_SUPPORT\n";
+		/^bluetooth$/ and $ret .= "\tselect BLUETOOTH_SUPPORT\n";
 		/^mobile$/ and $ret .= "\tselect MOBILE_SUPPORT\n";
-		/^bypass-mobile-counters$/ and $ret .= "\tselect BYPASS_MOBILE_COUNTERS\n";
 		/^custom-data-limit$/ and $ret .= "\tselect CUSTOM_DATA_LIMIT\n";
 		/^dualsim$/ and $ret .= "\tselect DUAL_SIM_SUPPORT\n";
 		/^tpm$/ and $ret .= "\tselect TPM_SUPPORT\n";
@@ -91,6 +91,7 @@ sub target_config_features(@) {
 		/^64mb_ram$/ and $ret .= "\tselect 64MB_RAM\n";
 		/^128mb_ram$/ and $ret .= "\tselect 128MB_RAM\n";
 		/^ledman-lite$/ and $ret .= "\tselect LEDMAN_LITE\n";
+		/^ethtool-tiny$/ and $ret .= "\tselect ETHTOOL_TINY\n";
 		/^sw-offload$/ and $ret .= "\tselect SW_OFFLOAD\n";
 		/^hw-offload$/ and $ret .= "\tselect HW_OFFLOAD\n";
 		/^xfrm-offload$/ and $ret .= "\tselect XFRM_OFFLOAD\n";

@@ -391,7 +391,7 @@ config_child() {
 			remote_subnet="$remote_subnet_join"
 		fi
 	fi
-	[ "$defaultroute" = 1 ] && remote_subnet="0.0.0.0/0"
+	[ "$defaultroute" = 1 ] && remote_subnet="0.0.0.0/0,::/0"
 
 	local esp_proposal
 	iter_esp_proposal "$conf" esp_proposal

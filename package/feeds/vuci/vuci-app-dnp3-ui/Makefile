@@ -1,6 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for DNP3
+APP_DEPENDS:=+vuci-app-universal-gateway-api
 
 APP_TLT_NAME:=DNP3
 APP_ROUTER:=$(TLT_PLATFORM_NAME)

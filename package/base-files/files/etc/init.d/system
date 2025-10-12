@@ -19,6 +19,7 @@ reload_service() {
 		|| dmesg ${conloglevel:+-n $conloglevel} ${buffersize:+-s $buffersize}
 	echo "$timezone" > /tmp/TZ
 	chown ntpclient:ntpclient /tmp/TZ
+	chmod 664 /tmp/TZ
 	[ -n "$zonename" ] && [ -f "/usr/share/zoneinfo/${zonename// /_}" ] \
 		&& ln -sf "/usr/share/zoneinfo/${zonename// /_}" /tmp/localtime \
 		&& rm -f /tmp/TZ

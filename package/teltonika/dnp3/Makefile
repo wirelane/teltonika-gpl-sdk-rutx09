@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dnp3
-PKG_VERSION:=2025-08-04
+PKG_VERSION:=2025-09-19
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.17
+PKG_SOURCE_VERSION:=7.18-1
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 
@@ -62,6 +62,7 @@ define Package/dnp3/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dnp3_outstation.init $(1)/etc/init.d/dnp3_outstation
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.8/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.8/99_dnp3_add_global_section $(1)/etc/uci-defaults/7.8/
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_client.permtab $(1)/etc/permtab.d/dnp3_client
@@ -77,7 +78,7 @@ define Package/dnp3/prerm
 	#!/bin/sh
 
 	rm -f /var/run/dnp3_client/dnp3.db
-	rm -f /usr/share/dnp3.db
+	rm -f /usr/share/dnp3_client/dnp3.db
 endef
 
 define Package/dnp3/postinst

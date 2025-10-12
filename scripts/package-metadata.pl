@@ -75,7 +75,7 @@ sub gen_kconfig_overrides() {
 			my @config = split /\s+/, $1;
 			foreach my $config (version_filter_list($patchver, @config)) {
 				my $val = 'm';
-				if($cfg_lkp{"CONFIG_SMALL_FLASH"}) {
+				if($cfg_lkp{"CONFIG_SMALL_FLASH"} and ($ENV{FORCE_BUNDLE_KMODULES} ne '0')) {
 					$val = $cfg_lkp{"CONFIG_PACKAGE_$package"};
 				}
 				my $override;

@@ -236,7 +236,12 @@ local function start()
 		return 1
 	end
 
-	file:write(rule .. " lua /usr/bin/email_to_sms read")
+	local path = "/usr/bin/email_to_sms"
+	local f = io.open(path, "r")
+	if not f then
+		path = "/usr/local" .. path
+	end
+	file:write(rule .. " lua " .. path .. " read")
 	file:close()
 
 	os.execute("/etc/init.d/cron reload")

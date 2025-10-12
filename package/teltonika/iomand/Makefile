@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iomand
 
-PKG_SOURCE_VERSION:=2.24
+PKG_SOURCE_VERSION:=2.26
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -32,7 +32,7 @@ define Package/iomand/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/iomand $(1)/usr/bin/iomand
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iomand.init $(1)/etc/init.d/ioman
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/ioman.json $(1)/usr/share/acl.d/ioman.json
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/001-iomand $(1)/etc/permtab.d/001-iomand
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/iomand $(1)/etc/permtab.d/iomand
 
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/libioman.so $(1)/usr/lib/

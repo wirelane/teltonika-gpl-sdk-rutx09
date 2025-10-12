@@ -35,7 +35,7 @@ define Package/e2fsprogs
   SUBMENU:=Filesystem
   TITLE:=Ext2/3/4 filesystem utilities
   URL:=http://e2fsprogs.sourceforge.net/
-  DEPENDS:=+libuuid +libblkid
+  DEPENDS:=+libuuid
 endef
 
 define Package/e2fsprogs/description
@@ -109,7 +109,7 @@ CONFIGURE_ARGS += \
 	--disable-testio-debug \
 	--disable-elf-shlibs	\
 	--disable-libuuid	\
-	--disable-libblkid	\
+	--enable-libblkid	\
 	--disable-uuidd		\
 	--disable-tls		\
 	--disable-nls		\

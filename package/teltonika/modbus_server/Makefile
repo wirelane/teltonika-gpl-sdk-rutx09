@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_server
-PKG_VERSION:=2025-08-09
+PKG_VERSION:=2025-09-11
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
-PKG_SOURCE_VERSION:=7.17-1
+PKG_SOURCE_VERSION:=7.18
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 PKG_RELEASE:=1
@@ -46,6 +46,9 @@ define Package/$(PKG_NAME)/install
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.15/99_modbus_server_migrate_regfile $(1)/etc/uci-defaults/7.17/
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.15/99_modbus_server_migrate_regfile $(1)/etc/uci-defaults/7.18/
 endef
 
 define Package/$(PKG_NAME)/prerm

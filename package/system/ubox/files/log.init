@@ -82,6 +82,7 @@ start_service_local() {
 		log_dir=$(dirname "${log_file}")
 		[ -d "${log_dir}" ] || mkdir -p "${log_dir}"
 		chown logd:logd "${log_dir}"
+		chmod 770 "$log_dir"
 	}
 
 	procd_open_instance

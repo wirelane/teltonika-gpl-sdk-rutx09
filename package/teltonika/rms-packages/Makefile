@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rms-packages
-PKG_VERSION:=2025-09-26
+PKG_VERSION:=2025-09-29
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.19.1
+PKG_SOURCE_VERSION:=3.21.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -36,23 +36,6 @@ define Package/rms_mqtt
 	#FATTRS:=/usr/sbin/rms_mqtt::::cap_setuid,cap_setgid=ep
 endef
 
-define Package/rms_json
-  	SUBMENU:=RMS
-	SECTION:=base
-	CATEGORY:=Base system
-	TITLE:=Collects and prints out information about device.
-	DEPENDS:=+libuci +MOBILE_SUPPORT:libgsm +GPS_SUPPORT:libgps +libmnfinfo +libblobmsg-json +libubus \
-		+libubox +libjson-c +MOBILE_SUPPORT:libmdcollect +IO_SUPPORT:iomand +libboardjson +libtlt_uci
-endef
-
-define Package/rms-json-hotspot
-	SUBMENU:=RMS
-	SECTION:=base
-	CATEGORY:=Base system
-	TITLE+=Hotspot information collector for RMS JSON
-	DEPENDS:=+libuci +libubox +libubus +libblobmsg-json +libjson-c +libsqlite3
-endef
-
 ifeq ($(CONFIG_GATEWAY_DEVICE), y)
 	TARGET_CFLAGS += -DGATEWAY_DEVICE
 endif
@@ -69,7 +52,7 @@ endef
 
 
 define Package/rms_mqtt/install
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rms_mqtt/rms_mqtt $(1)/usr/sbin/rms_mqtt
 
 	$(INSTALL_DIR) $(1)/etc/init.d
@@ -85,17 +68,12 @@ define Package/rms_mqtt/install
 
 	# $(INSTALL_DIR) $(1)/usr/share/acl.d
 	# $(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rms_mqtt.json $(1)/usr/share/acl.d/rms_mqtt.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rms.permtab $(1)/etc/permtab.d/
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.18/01-rms_cfg_files_cleanup $(1)/etc/uci-defaults/7.18/
 endef
 
-define Package/rms_json/install
-	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rms_json/rms_json $(1)/sbin/rms_json
-endef
-
-define Package/rms-json-hotspot/install
-	$(INSTALL_DIR) $(1)/usr/lib/rms_json
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rms_json/rms-json-hotspot.so $(1)/usr/lib/rms_json/rms-json-hotspot.so
-endef
 
 define Package/librms/install
 	$(INSTALL_DIR) $(1)/usr/lib/
@@ -103,6 +81,4 @@ define Package/librms/install
 endef
 
 $(eval $(call BuildPackage,rms_mqtt))
-$(eval $(call BuildPackage,rms_json))
-$(eval $(call BuildPackage,rms-json-hotspot))
 $(eval $(call BuildPackage,librms))

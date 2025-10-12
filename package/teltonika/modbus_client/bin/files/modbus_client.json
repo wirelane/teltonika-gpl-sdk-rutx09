@@ -1,6 +1,6 @@
 {
 	"user": "modbus_client",
-	"publish": [ "modbus_client.rpc", "modbus_client.app" ],
+	"publish": [ "modbus_client.app" ],
 	"send": [ "modbus_client.alarm" ],
 	"access": {
 		"modbus_client.app": {

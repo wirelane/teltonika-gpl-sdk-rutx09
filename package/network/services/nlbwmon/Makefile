@@ -2,11 +2,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=nlbwmon
-PKG_VERSION:=2025-03-25
+PKG_VERSION:=2025-08-26
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=COPYING
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=c7616bcfaaef440848152f4dc738c990b2d0b90b
 PKG_SOURCE_URL:=https://codeload.github.com/jow-/nlbwmon/tar.gz/$(PKG_SOURCE_VERSION)?

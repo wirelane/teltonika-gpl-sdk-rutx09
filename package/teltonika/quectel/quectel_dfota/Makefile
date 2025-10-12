@@ -31,11 +31,13 @@ endef
 
 
 define Package/dfota/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/config $(1)/usr/share/acl.d/
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d/ $(1)/etc/config $(1)/usr/share/acl.d/ $(1)/usr/libexec/rpcd/ $(1)/etc/permtab.d/
 	$(INSTALL_BIN) ./files/dfota.init $(1)/etc/init.d/dfota
 	$(INSTALL_BIN) ./files/dfota $(1)/usr/sbin/dfota
 	$(INSTALL_CONF_USR) ./files/dfota.config $(1)/etc/config/dfota
 	$(INSTALL_DATA) ./files/acl.d/dfota.json $(1)/usr/share/acl.d/dfota.json
+	$(INSTALL_BIN) ./files/rpcd/rpc-dfota $(1)/usr/libexec/rpcd/rpc-dfota
+	$(INSTALL_DATA) ./files/permtab.d/dfota $(1)/etc/permtab.d/dfota
 endef
 
 $(eval $(call BuildPackage,dfota))

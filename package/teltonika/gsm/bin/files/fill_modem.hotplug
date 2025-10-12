@@ -8,6 +8,7 @@ CFG=/etc/board.json
 [ -s $CFG ] || /bin/board_modem || exit 1
 
 . /usr/share/libubox/jshn.sh
+. /lib/functions/mobile.sh
 
 b_multi_apn=""
 b_operator_scan=""
@@ -32,6 +33,16 @@ tmp_dir="/tmp/mobile"
 
 [ -z "$OBJECT_NAME" ] || [[ "$OBJECT_NAME" == *"gsm."* ]] || {
 	exit 1
+}
+
+log() {
+    ubus call log write_ext "{
+        \"event\": \"$2\",
+        \"sender\": \"$1\",
+        \"table\": 1,
+	\"priority\": 6,
+        \"write_db\": 1
+    }"
 }
 
 compare_changes() {
@@ -93,6 +104,9 @@ compare_changes() {
 	[ "$b_multi_apn" -ne "$multi_apn" ] || [ "$b_operator_scan" -ne "$operator_scan" ] || [ "$b_dhcp_filter" -ne "$dhcp_filter" ] || [ "$b_dynamic_mtu" -ne "$dynamic_mtu" ] || [ "$b_ipv6" -ne "$ipv6" ] ||
 	[ "$b_volte" -ne "$volte" ] || [ "$b_csd" -ne "$csd" ] || [ "$b_wwan_gnss_conflict" -ne "$wwan_gnss_conflict" ] || [ "$b_framed_routing" -ne "$framed_routing" ] || [ "$b_low_signal_reconnect" -ne "$low_signal_reconnect" ] ||
 	[ "$b_auto_5g_mode" -ne "$auto_5g_mode" ] || [ "$b_revision" != "$revision" ] || [ "$b_modem_func_id" -ne "$modem_func_id" ] || [ "$b_verizon_disable_5g_sa" -ne "$verizon_disable_5g_sa" ] && {
+		[ ! $b_revision = 0 ] && [ ! $revision = 0 ] && [ "$b_revision" != "$revision" ] && {
+                    log "Firmware" "Updated $(get_modem_type "$id") modem firmware from $b_revision to $revision"
+		}
 		/bin/board_modem "$id" "$info" "$modem_func"
 	}
 }

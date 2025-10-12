@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mobutils
 
-PKG_SOURCE_VERSION:=3.17
+PKG_SOURCE_VERSION:=3.18
 PKG_RELEASE:=1
 
 PKG_LICENSE:=Teltonika-closed
@@ -19,25 +19,27 @@ include $(INCLUDE_DIR)/package.mk
 define Package/mobutils/Default
 	SECTION:=base
 	CATEGORY:=Base system
-	DEPENDS:=+libuci +libtlt_uci +libubus +libubox +libtlt-logger \
-		+libmnfinfo
-	USERID:=mobutils=513:mobutils=513
 endef
 
 define Package/mobutils
 	$(call Package/mobutils/Default)
 	TITLE:=Mobile utilities
 	MENU:=1
-	USER_GROUPS:=mobutils:network gsm dropbear uhttpd gpsd rms log shadow
+	DEPENDS:=+libuci +libtlt_uci +libubus +libubox +libtlt-logger \
+		+libmnfinfo +libgsm +liblog +libboardjson \
+		+CALL_UTILS_HANDLER_IO:iomand +libparam +MOBILE_SUPPORT:libmdcollect \
+		+SMS_UTILS_HANDLER_IO:iomand +SMS_UTILS_HANDLER_GPS:libgps \
+		+libcurl +@LIBCURL_SMTP +SMS_UTILS_HANDLER_RMS:librms \
+		+SMS_UTILS_HANDLER_API:libapi +libuacl
+	USERID:=mobutils=513:mobutils=513
 	#cap_net_raw is needed for sms_utils WOL feature, cap_setuid and cap_setgid are needed for sms_utils exec feature
-	FATTRS:=/usr/sbin/sms_utils::::cap_net_raw,cap_setuid,cap_setgid+eip
+	FATTRS:=/usr/sbin/mobutils::::cap_net_raw,cap_setuid,cap_setgid+eip
 endef
 
 define Package/mobutils-call_utilities
 	$(call Package/mobutils/Default)
 	TITLE:=Call utilities
-	DEPENDS+=mobutils +libgsm +liblog +libboardjson \
-		+CALL_UTILS_HANDLER_IO:iomand +libparam
+	DEPENDS:=mobutils
 endef
 
 define Package/mobutils/conffiles
@@ -59,11 +61,7 @@ endef
 define Package/mobutils-sms_utilities
 	$(call Package/mobutils/Default)
 	TITLE:=SMS utilities
-	DEPENDS+=mobutils +libgsm +libcgi +MOBILE_SUPPORT:libmdcollect \
-		+libboardjson +liblog +SMS_UTILS_HANDLER_IO:iomand \
-		+SMS_UTILS_HANDLER_GPS:libgps +libcurl +@LIBCURL_SMTP \
-		+libparam +SMS_UTILS_HANDLER_RMS:librms \
-		+SMS_UTILS_HANDLER_API:libapi +libuacl
+	DEPENDS:=mobutils
 endef
 
 define Package/mobutils-sms_utilities/conffiles
@@ -103,15 +101,18 @@ CONFIGURE_ARGS += \
 
 
 define Package/mobutils/install
-	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/usr/share/acl.d $(1)/etc/permtab.d
+	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ \
+		$(1)/usr/share/acl.d $(1)/etc/permtab.d \
+		$(1)/usr/sbin/
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/sms_gateway.conf $(1)/etc/config/sms_gateway
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mobutils.json $(1)/usr/share/acl.d/mobutils.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mobutils.permtab $(1)/etc/permtab.d/mobutils
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/mobutils $(1)/usr/sbin/
 endef
 
 define Package/mobutils-call_utilities/install
 	$(INSTALL_DIR) $(1)/sbin/ $(1)/etc/config/ $(1)/etc/init.d/
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/call_utils $(1)/sbin/
+	$(LN) /usr/sbin/mobutils $(1)/sbin/call_utils
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/call_utils/files/call_utils.init $(1)/etc/init.d/call_utils
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/call_utils/files/call_utils.conf $(1)/etc/config/call_utils
 endef
@@ -120,7 +121,7 @@ define Package/mobutils-sms_utilities/install
 	$(INSTALL_DIR) $(1)/usr/sbin/ $(1)/etc/init.d/ $(1)/etc/config/ \
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.init $(1)/etc/init.d/sms_utils
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/sms_utils $(1)/usr/sbin/
+	$(LN) /usr/sbin/mobutils $(1)/usr/sbin/sms_utils
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/etc $(1)/usr/share/sms_utils/
 
 	$(CP) $(PKG_BUILD_DIR)/files/99_sms_utils-mobutils $(1)/etc/uci-defaults/etc

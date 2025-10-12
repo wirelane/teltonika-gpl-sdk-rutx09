@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/CMakeLists.txt src/CMakeLists.txt
 --- upstream/CMakeLists.txt	2024-02-21 20:13:50.000000000 +0000
-+++ src/CMakeLists.txt	2025-02-17 05:47:02.000000000 +0000
++++ src/CMakeLists.txt	2025-07-15 10:14:59.000000000 +0000
 @@ -31,7 +31,7 @@
    add_definitions(-DHAVE_ULOOP_INTERVAL)
  endif()
@@ -12,7 +12,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/client.c src/client.c
 --- upstream/client.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/client.c	2025-02-17 05:47:02.000000000 +0000
++++ src/client.c	2025-07-15 10:14:59.000000000 +0000
 @@ -58,16 +58,18 @@
  	PORT     =  2,
  	MAC      =  3,
@@ -304,7 +304,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (!cmd) {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/database.c src/database.c
 --- upstream/database.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/database.c	2025-02-17 05:47:02.000000000 +0000
++++ src/database.c	2025-07-15 10:14:59.000000000 +0000
 @@ -25,6 +25,7 @@
  #include <dirent.h>
  #include <unistd.h>
@@ -499,7 +499,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	int i, fd;
  
 -	fd = open(path, O_WRONLY|O_CREAT|O_TRUNC, 0640);
-+	fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0640);
++	fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0660);
  
  	if (fd < 0)
  		return -errno;
@@ -518,7 +518,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	len = db_disksize(h->db);
 -	fd = open(path, O_CREAT|O_RDWR, 0640);
-+	fd  = open(path, O_CREAT | O_RDWR, 0640);
++	fd  = open(path, O_CREAT | O_RDWR, 0660);
  
  	if (fd < 0)
  		goto out;
@@ -713,7 +713,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		h->db->timestamp = htobe32(next_ts);
  
  		database_reindex(h);
-@@ -637,9 +623,363 @@
+@@ -637,9 +623,366 @@
  	return 0;
  }
  
@@ -746,6 +746,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return rc;
 +	}
 +
++	chmod(db_path, 0660);
 +	sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
 +	sqlite3_busy_timeout(db, DB_TIMEOUT);
 +
@@ -867,6 +868,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return rc;
 +	}
 +
++	chmod(db_path, 0660);
 +	sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
 +	sqlite3_busy_timeout(db, DB_TIMEOUT);
 +
@@ -1016,6 +1018,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return rc;
 +	}
 +
++	chmod(db_path, 0660);
 +	sqlite3_exec(db, "PRAGMA journal_mode=DELETE;", 0, 0, 0);
 +	sqlite3_busy_timeout(db, DB_TIMEOUT);
 +
@@ -1081,7 +1084,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/database.h src/database.h
 --- upstream/database.h	2024-02-21 20:13:50.000000000 +0000
-+++ src/database.h	2025-02-17 05:47:02.000000000 +0000
++++ src/database.h	2025-07-15 10:14:59.000000000 +0000
 @@ -25,12 +25,15 @@
  #include <netinet/ether.h>
  
@@ -1132,7 +1135,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #endif /* __DATABASE_H__ */
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/nfnetlink.c src/nfnetlink.c
 --- upstream/nfnetlink.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/nfnetlink.c	2025-02-17 05:47:02.000000000 +0000
++++ src/nfnetlink.c	2025-07-15 10:14:59.000000000 +0000
 @@ -75,13 +75,22 @@
  	struct record record;
  };
@@ -1225,7 +1228,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/nlbwmon.c src/nlbwmon.c
 --- upstream/nlbwmon.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/nlbwmon.c	2025-02-17 05:47:02.000000000 +0000
++++ src/nlbwmon.c	2025-07-15 10:14:59.000000000 +0000
 @@ -71,54 +71,31 @@
  
  	.netlink_buffer_size = 524288,
@@ -1359,7 +1362,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		        strerror(-err));
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/nlbwmon.h src/nlbwmon.h
 --- upstream/nlbwmon.h	2024-02-21 20:13:50.000000000 +0000
-+++ src/nlbwmon.h	2025-02-17 05:47:02.000000000 +0000
++++ src/nlbwmon.h	2025-07-15 10:14:59.000000000 +0000
 @@ -42,6 +42,8 @@
  	const char *tempdir;
  	const char *socket;
@@ -1371,7 +1374,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		bool prealloc;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/socket.c src/socket.c
 --- upstream/socket.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/socket.c	2025-02-17 05:47:02.000000000 +0000
++++ src/socket.c	2025-07-15 10:14:59.000000000 +0000
 @@ -66,34 +66,9 @@
  static int
  handle_dump(int sock, const char *arg)
@@ -1495,9 +1498,18 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
  
  
+@@ -233,6 +210,8 @@
+ {
+ 	struct stat s;
+ 
++	umask(0007);
++
+ 	if (!stat(path, &s) && S_ISSOCK(s.st_mode)) {
+ 		if (unlink(path))
+ 			return -errno;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/timing.c src/timing.c
 --- upstream/timing.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/timing.c	2025-02-17 05:47:02.000000000 +0000
++++ src/timing.c	2025-07-15 10:14:59.000000000 +0000
 @@ -24,9 +24,7 @@
  
  #include "timing.h"
@@ -1727,7 +1739,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	return -EINVAL;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/timing.h src/timing.h
 --- upstream/timing.h	2024-02-21 20:13:50.000000000 +0000
-+++ src/timing.h	2025-02-17 05:47:02.000000000 +0000
++++ src/timing.h	2025-07-15 10:14:59.000000000 +0000
 @@ -25,6 +25,7 @@
  enum interval_type {
  	MONTHLY = 1,
@@ -1746,7 +1758,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/utils.c src/utils.c
 --- upstream/utils.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/utils.c	2025-02-17 05:47:02.000000000 +0000
++++ src/utils.c	2025-07-15 10:14:59.000000000 +0000
 @@ -36,7 +36,22 @@
  	if (strlen(path) + 1 >= sizeof(tmp))
  		return -ENAMETOOLONG;

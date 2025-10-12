@@ -37,6 +37,7 @@ check_variable "$mount_path" mount_path
 
 config_get mount_point "sshfs" mount_point "$DEF_MOUNT_POINT"
 
-mkdir -p "/mnt/sshfs$mount_point"
-echo "$password" | $PROG ${port:+-p $port} -o ssh_command='ssh -y' "$username@[$hostname]:$mount_path" "/mnt/sshfs$mount_point" -o password_stdin -o allow_other
+mkdir -p "/tmp/sshfs" -m 775
+mkdir -p "/tmp/sshfs$mount_point" -m 775
+echo "$password" | $PROG ${port:+-p $port} -o ssh_command='ssh -y' "$username@[$hostname]:$mount_path" "/tmp/sshfs$mount_point" -o password_stdin -o allow_other
 

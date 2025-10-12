@@ -202,7 +202,7 @@ CONFIGURE_ARGS += \
 	--with-default-snmp-version=1 \
 	--with-sys-contact=root@localhost \
 	--with-sys-location=Unknown \
-	--disable-applications \
+	--enable-applications \
 	--disable-debugging \
 	--disable-manuals \
 	--disable-scripts \

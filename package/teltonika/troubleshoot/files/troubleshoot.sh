@@ -46,10 +46,7 @@ DIR_LIST="/etc/config /etc/crontabs /etc/dropbear /etc/firewall.user /etc/group 
 /etc/inittab /etc/passwd /etc/profile /etc/rc.local /etc/shells /etc/sysctl.conf \
 /etc/uhttpd.crt /etc/uhttpd.key /etc/board.json"
 
-#ignore sshfs mount dir if it on tmp directory
-SSHFS_DIR=$(grep "fuse.sshfs" /etc/mtab | awk '{print $2}' | awk -F'/' '/^\/tmp\//{print $3}')
-
-IGNORE_DIR_LIST="troubleshoot luci-indexcache luci-indexcache luci-modulecache firmware.img $SSHFS_DIR"
+IGNORE_DIR_LIST="troubleshoot luci-indexcache luci-indexcache luci-modulecache firmware.img sshfs"
 
 generate_random_str() {
 	local out="$(tr </dev/urandom -dc A-Za-z0-9 2>/dev/null | head -c $1)"
@@ -283,8 +280,7 @@ cloud_solutions_hook() {
 	# RMS
 	troubleshoot_add_log "RMS" "$log_file"
 	rms_ubus_res=$(ubus call rms get_status 2>&1)
-	rms_json_res=$(rms_json -p -v 18446744073709551615 -v 127 2>&1)
-	printf "%s:\n%s\n\n%s\n" "rms get_status" "$rms_ubus_res" "$rms_json_res" >> "$log_file"
+	printf "%s:\n%s\n\n%s\n" "rms get_status" "$rms_ubus_res" >> "$log_file"
 }
 
 services_secure_passwords() {
@@ -387,6 +383,7 @@ generate_package() {
 
 	if [ -z "$1" ]; then
 		tar -czf "${PACK_FILE}.gz" troubleshoot >/dev/null 2>&1
+		chmod 777 "${PACK_FILE}.gz" >/dev/null 2>&1
 	else
 		tar -cf "$PACK_FILE" troubleshoot >/dev/null 2>&1
 		which minizip >/dev/null || {
@@ -395,6 +392,7 @@ generate_package() {
 			exit 1
 		}
 		minizip -s -p "$1" "${PACK_FILE}.zip" "$PACK_FILE" >/dev/null 2>&1
+		chmod 777 "${PACK_FILE}.zip" >/dev/null 2>&1
 	fi
 
 	rm -r "$PACK_DIR"

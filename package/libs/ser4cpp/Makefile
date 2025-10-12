@@ -37,9 +37,4 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/src/ser4cpp $(1)/usr/include/
 endef
 
-define Build/Install
-	$(INSTALL_DIR) $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/src/ser4cpp $(1)/usr/include/
-endef
-
 $(eval $(call BuildPackage,ser4cpp))

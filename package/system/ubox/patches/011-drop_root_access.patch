@@ -1,7 +1,5 @@
-Index: ubox-2020-10-25-9ef88681/log/logdb.c
-===================================================================
---- ubox-2020-10-25-9ef88681.orig/log/logdb.c
-+++ ubox-2020-10-25-9ef88681/log/logdb.c
+--- a/log/logdb.c
++++ b/log/logdb.c
 @@ -509,6 +509,7 @@ sqlite3_stmt *db_prepare(char *query)
  
  int init_db(void)
@@ -10,10 +8,8 @@ Index: ubox-2020-10-25-9ef88681/log/logdb.c
  	if (sqlite3_open(DB, &conn)) {
  		syslog(LOG_ERR, "Can't open database\n");
  		return SQLITE_ERROR;
-Index: ubox-2020-10-25-9ef88681/log/syslog.c
-===================================================================
---- ubox-2020-10-25-9ef88681.orig/log/syslog.c
-+++ ubox-2020-10-25-9ef88681/log/syslog.c
+--- a/log/syslog.c
++++ b/log/syslog.c
 @@ -41,7 +41,7 @@
  #include "syslog.h"
  
@@ -23,10 +19,8 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  #define SYSLOG_PADDING		16
  
  #define KLOG_DEFAULT_PROC	"/proc/kmsg"
-Index: ubox-2020-10-25-9ef88681/log/logd.c
-===================================================================
---- ubox-2020-10-25-9ef88681.orig/log/logd.c
-+++ ubox-2020-10-25-9ef88681/log/logd.c
+--- a/log/logd.c
++++ b/log/logd.c
 @@ -501,7 +501,6 @@ static void
  ubus_connect_handler(struct ubus_context *ctx)
  {
@@ -65,3 +59,42 @@ Index: ubox-2020-10-25-9ef88681/log/logd.c
  	uloop_run();
  	log_shutdown();
  	uloop_done();
+--- a/log/logread.c
++++ b/log/logread.c
+@@ -226,6 +226,7 @@ static void compress_log_file(const char
+ 		syslog(LOG_ERR, "Failed to open compressed file %s: %s", compressed_file, gzerror(out, NULL));
+ 		return;
+ 	}
++	chmod(compressed_file, 0660);
+ 
+ 	int in = open(log_file, O_RDONLY);
+ 	if (in < 0) {
+@@ -318,12 +319,13 @@ static int log_notify(struct blob_attr *
+ 		if (next_index) {
+ 			close(sender.fd);
+ 			rotate_log_file(log_file, next_index);
+-			sender.fd = open(log_file, O_CREAT | O_WRONLY | O_APPEND, 0600);
++			sender.fd = open(log_file, O_CREAT | O_WRONLY | O_APPEND, 0660);
+ 		}
+ 		if (sender.fd < 0) {
+ 			fprintf(stderr, "failed to open %s: %m\n", log_file);
+ 			exit(-1);
+ 		}
++		chmod(log_file, 0660);
+ 	}
+ 	p = blobmsg_get_u32(tb[LOG_PRIO]);
+ 
+@@ -511,11 +513,12 @@ static void logread_setup_output(void)
+ 		uloop_timeout_set(&retry, 1000);
+ 	} else if (log_file) {
+ 		log_type = LOG_FILE;
+-		sender.fd = open(log_file, O_CREAT | O_WRONLY| O_APPEND, 0600);
++		sender.fd = open(log_file, O_CREAT | O_WRONLY| O_APPEND, 0660);
+ 		if (sender.fd < 0) {
+ 			fprintf(stderr, "failed to open %s: %m\n", log_file);
+ 			exit(-1);
+ 		}
++		chmod(log_file, 0660);
+ 	} else {
+ 		sender.fd = STDOUT_FILENO;
+ 	}

@@ -2,9 +2,11 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for TR-069
 
-APP_TLT_NAME:=TR-069
-APP_ROUTER:=$(TLT_PLATFORM_NAME)
-APP_APP_NAME:=easycwmp
+ifeq (m, $(CONFIG_PACKAGE_vuci-app-tr069-ui))
+	APP_TLT_NAME:=TR-069
+	APP_ROUTER:=$(TLT_PLATFORM_NAME)
+	APP_APP_NAME:=easycwmp
+endif
 
 include ../app.mk
 

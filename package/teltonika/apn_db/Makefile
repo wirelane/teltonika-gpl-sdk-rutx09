@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=apn_db
 
-PKG_SOURCE_VERSION:=7.17
+PKG_SOURCE_VERSION:=7.18.0.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -26,10 +26,11 @@ endef
 
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/usr/local/share/mobifd $(1)/usr/local/bin $(1)/etc/uci-defaults/etc
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/apn.db.gz $(1)/usr/local/share/mobifd/apn.db.gz
+	$(INSTALL_DIR) $(1)/usr/local/share/mobifd $(1)/usr/local/bin $(1)/etc/uci-defaults/etc $(1)/etc/permtab.d
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/apn.db.gz $(1)/usr/local/share/mobifd/apn.db.gz
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scripts/backup_apn_db $(1)/usr/local/bin/backup_apn_db
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/99_apn_db $(1)/etc/uci-defaults/etc/99_apn_db
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/apn_db $(1)/etc/permtab.d/apn_db
 endef
 
 $(eval $(call BuildPackage,$(PKG_NAME)))

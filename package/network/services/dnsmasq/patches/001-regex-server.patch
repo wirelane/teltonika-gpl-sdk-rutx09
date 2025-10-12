@@ -1,13 +1,9 @@
-Index: dnsmasq-2.89/Makefile
-===================================================================
---- dnsmasq-2.89.orig/Makefile
-+++ dnsmasq-2.89/Makefile
-@@ -23,8 +23,12 @@ BINDIR        = $(PREFIX)/sbin
- MANDIR        = $(PREFIX)/share/man
+--- a/Makefile
++++ b/Makefile
+@@ -24,7 +24,11 @@ MANDIR        = $(PREFIX)/share/man
  LOCALEDIR     = $(PREFIX)/share/locale
  BUILDDIR      = $(SRC)
--DESTDIR       = 
-+DESTDIR       =
+ DESTDIR       = 
 +ifndef BUILD_DEBUG
  CFLAGS        = -Wall -W -O2
 +else
@@ -16,7 +12,7 @@ Index: dnsmasq-2.89/Makefile
  LDFLAGS       = 
  COPTS         = 
  RPM_OPT_FLAGS = 
-@@ -69,6 +73,8 @@ nettle_libs =   `echo $(COPTS) | $(top)/
+@@ -70,6 +74,8 @@ nettle_libs =   `echo $(COPTS) | $(top)/
                                                          HAVE_CRYPTOHASH $(PKG_CONFIG) --libs nettle \
                                                          HAVE_NETTLEHASH $(PKG_CONFIG) --libs nettle`
  gmp_libs =      `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_DNSSEC NO_GMP --copy -lgmp`
@@ -25,7 +21,7 @@ Index: dnsmasq-2.89/Makefile
  sunos_libs =    `if uname | grep SunOS >/dev/null 2>&1; then echo -lsocket -lnsl -lposix4; fi`
  nft_cflags =    `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_NFTSET $(PKG_CONFIG) --cflags libnftables` 
  nft_libs =      `echo $(COPTS) | $(top)/bld/pkg-wrapper HAVE_NFTSET $(PKG_CONFIG) --libs libnftables`
-@@ -92,8 +98,8 @@ hdrs = dnsmasq.h config.h dhcp-protocol.
+@@ -93,8 +99,8 @@ hdrs = dnsmasq.h config.h dhcp-protocol.
  all : $(BUILDDIR)
  	@cd $(BUILDDIR) && $(MAKE) \
   top="$(top)" \
@@ -36,7 +32,7 @@ Index: dnsmasq-2.89/Makefile
   -f $(top)/Makefile dnsmasq 
  
  mostly_clean :
-@@ -117,8 +123,8 @@ all-i18n : $(BUILDDIR)
+@@ -118,8 +124,8 @@ all-i18n : $(BUILDDIR)
  	@cd $(BUILDDIR) && $(MAKE) \
   top="$(top)" \
   i18n=-DLOCALEDIR=\'\"$(LOCALEDIR)\"\' \
@@ -47,11 +43,9 @@ Index: dnsmasq-2.89/Makefile
   -f $(top)/Makefile dnsmasq
  	for f in `cd $(PO); echo *.po`; do \
  		cd $(top) && cd $(BUILDDIR) && $(MAKE) top="$(top)" -f $(top)/Makefile $${f%.po}.mo; \
-Index: dnsmasq-2.89/src/config.h
-===================================================================
---- dnsmasq-2.89.orig/src/config.h
-+++ dnsmasq-2.89/src/config.h
-@@ -200,6 +200,7 @@ RESOLVFILE
+--- a/src/config.h
++++ b/src/config.h
+@@ -203,6 +203,7 @@ RESOLVFILE
  /* #define HAVE_CRYPTOHASH */
  /* #define HAVE_DNSSEC */
  /* #define HAVE_NFTSET */
@@ -59,7 +53,7 @@ Index: dnsmasq-2.89/src/config.h
  
  /* Default locations for important system files. */
  
-@@ -389,6 +390,10 @@ static char *compile_opts =
+@@ -392,6 +393,10 @@ static char *compile_opts =
  "no-"
  #endif
  "i18n "
@@ -70,10 +64,8 @@ Index: dnsmasq-2.89/src/config.h
  #if defined(HAVE_LIBIDN2)
  "IDN2 "
  #else
-Index: dnsmasq-2.89/src/dnsmasq.h
-===================================================================
---- dnsmasq-2.89.orig/src/dnsmasq.h
-+++ dnsmasq-2.89/src/dnsmasq.h
+--- a/src/dnsmasq.h
++++ b/src/dnsmasq.h
 @@ -155,6 +155,10 @@ extern int capget(cap_user_header_t head
  #include <priv.h>
  #endif
@@ -85,7 +77,7 @@ Index: dnsmasq-2.89/src/dnsmasq.h
  /* Backwards compat with 2.83 */
  #if defined(HAVE_NETTLEHASH)
  #  define HAVE_CRYPTOHASH
-@@ -579,6 +583,10 @@ struct randfd_list {
+@@ -590,6 +594,10 @@ struct randfd_list {
  struct server {
    u16 flags, domain_len;
    char *domain;
@@ -96,7 +88,7 @@ Index: dnsmasq-2.89/src/dnsmasq.h
    struct server *next;
    int serial, arrayposn;
    int last_server;
-@@ -601,6 +609,10 @@ struct server {
+@@ -612,6 +620,10 @@ struct server {
  struct serv_addr4 {
    u16 flags, domain_len;
    char *domain;
@@ -107,7 +99,7 @@ Index: dnsmasq-2.89/src/dnsmasq.h
    struct server *next;
    struct in_addr addr;
  };
-@@ -608,6 +620,10 @@ struct serv_addr4 {
+@@ -619,6 +631,10 @@ struct serv_addr4 {
  struct serv_addr6 {
    u16 flags, domain_len;
    char *domain;
@@ -118,7 +110,7 @@ Index: dnsmasq-2.89/src/dnsmasq.h
    struct server *next;
    struct in6_addr addr;
  };
-@@ -615,6 +631,10 @@ struct serv_addr6 {
+@@ -626,6 +642,10 @@ struct serv_addr6 {
  struct serv_local {
    u16 flags, domain_len;
    char *domain;
@@ -129,7 +121,7 @@ Index: dnsmasq-2.89/src/dnsmasq.h
    struct server *next;
  };
  
-@@ -1147,6 +1167,9 @@ extern struct daemon {
+@@ -1178,6 +1198,9 @@ extern struct daemon {
    struct rebind_domain *no_rebind;
    int server_has_wildcard;
    int serverarraysz, serverarrayhwm;
@@ -139,7 +131,7 @@ Index: dnsmasq-2.89/src/dnsmasq.h
    struct ipsets *ipsets, *nftsets;
    u32 allowlist_mask;
    struct allowlist *allowlists;
-@@ -1843,6 +1866,12 @@ void dump_packet_icmp(int mask, void *pa
+@@ -1884,6 +1907,12 @@ void dump_packet_icmp(int mask, void *pa
  #endif
  
  /* domain-match.c */
@@ -152,27 +144,24 @@ Index: dnsmasq-2.89/src/dnsmasq.h
  void build_server_array(void);
  int lookup_domain(char *qdomain, int flags, int *lowout, int *highout);
  int filter_servers(int seed, int flags, int *lowout, int *highout);
-Index: dnsmasq-2.89/src/domain-match.c
-===================================================================
---- dnsmasq-2.89.orig/src/domain-match.c
-+++ dnsmasq-2.89/src/domain-match.c
+--- a/src/domain-match.c
++++ b/src/domain-match.c
 @@ -27,47 +27,88 @@ void build_server_array(void)
  {
    struct server *serv;
    int count = 0;
--  
--  for (serv = daemon->servers; serv; serv = serv->next)
 +#ifdef HAVE_REGEX
 +  int regexserverarrayidx = 0;
 +  int regexlocaldomainarrayidx = 0;
 +  int regexserverarraysz = 0;
 +  int regexlocaldomainarraysz = 0;
 +#endif
-+
-+  for (serv = daemon->servers; serv; serv = serv->next) {
+   
+-  for (serv = daemon->servers; serv; serv = serv->next)
++  for (serv = daemon->servers; serv; serv = serv->next){
  #ifdef HAVE_LOOP
 -    if (!(serv->flags & SERV_LOOP))
-+    if (!(serv->flags & SERV_LOOP)) {
++    if (!(serv->flags & SERV_LOOP)){
 +#endif
 +#ifdef HAVE_REGEX
 +    if(serv->regex)
@@ -188,7 +177,7 @@ Index: dnsmasq-2.89/src/domain-match.c
 +  }
    
 -  for (serv = daemon->local_domains; serv; serv = serv->next)
-+  for (serv = daemon->local_domains; serv; serv = serv->next) {
++  for (serv = daemon->local_domains; serv; serv = serv->next){
 +#ifdef HAVE_REGEX
 +    if(serv->regex)
 +      ++regexlocaldomainarraysz;
@@ -238,16 +227,16 @@ Index: dnsmasq-2.89/src/domain-match.c
 +#endif
    
 -  for (serv = daemon->servers; serv; serv = serv->next)
-+  for (serv = daemon->servers; serv; serv = serv->next) {
++  for (serv = daemon->servers; serv; serv = serv->next){
  #ifdef HAVE_LOOP
 -    if (!(serv->flags & SERV_LOOP))
-+    if (!(serv->flags & SERV_LOOP)) {
++    if (!(serv->flags & SERV_LOOP)){
 +#endif
 +#ifdef HAVE_REGEX
 +    if(serv->regex){
 +      daemon->serverarray[regexserverarrayidx++]=serv;
 +      continue;
-+    } else
++    }else
  #endif
        {
  	daemon->serverarray[count] = serv;
@@ -265,7 +254,7 @@ Index: dnsmasq-2.89/src/domain-match.c
 +    if(serv->regex){
 +      daemon->serverarray[regexlocaldomainarrayidx++]=serv;
 +      continue;
-+    } else
++    }else
 +#endif
 +    daemon->serverarray[count++] = serv;
 +  }
@@ -305,49 +294,48 @@ Index: dnsmasq-2.89/src/domain-match.c
    int rc, crop_query, nodots;
    ssize_t qlen;
    int try, high, low = 0;
-@@ -111,8 +180,8 @@ int lookup_domain(char *domain, int flag
+@@ -111,7 +180,7 @@ int lookup_domain(char *domain, int flag
  
    /* may be no configured servers. */
    if (daemon->serverarraysz == 0)
 -    return 0;
--  
 +    goto search_regex;
-+
+   
    /* find query length and presence of '.' */
    for (cp = qdomain, nodots = 1, qlen = 0; *cp; qlen++, cp++)
-     if (*cp == '.')
-@@ -254,9 +323,42 @@ int lookup_domain(char *domain, int flag
-     *highout = nhigh;
+@@ -255,9 +324,42 @@ int lookup_domain(char *domain, int flag
  
-   if (nlow == nhigh)
+   /* qlen == -1 when we failed to match even an empty query, if there are no default servers. */
+   if (nlow == nhigh || qlen == -1)
 -    return 0;
-+    goto search_regex;
- 
+-  
 -  return 1;
++    goto search_regex;
++
 +  founddomain = 1;
 +
 +search_regex:
 +#ifdef HAVE_REGEX
-+  if (founddomain) {
++  if (founddomain){
 +    if (daemon->serverarray[nlow]->domain_len > 0) // have found a valid upstream
 +      needsearchregex = 0;
 +  }
 +
-+  if (needsearchregex) {
++  if (needsearchregex){
 +    int found_regex = find_regex_server(originaldomain, 0, &low);
 +
-+    if(!found_regex && find_regex_server(originaldomain, 1, &low)) {
++    if(!found_regex && find_regex_server(originaldomain, 1, &low)){
 +      found_regex=1;
 +
 +      // special step for parse "server=/:xxx:/#"
-+      if(daemon->serverarray[low]->flags & SERV_USE_RESOLV) {
-+        if(filter_servers(try, F_SERVER, &nlow, &nhigh)) {
++      if(daemon->serverarray[low]->flags & SERV_USE_RESOLV){
++        if(filter_servers(try, F_SERVER, &nlow, &nhigh)){
 +          low=nlow;
 +        }
 +      }
 +    }
 +
-+    if(found_regex) {
++    if(found_regex){
 +      if (lowout)
 +        *lowout = low;
 +      if (highout)
@@ -361,11 +349,10 @@ Index: dnsmasq-2.89/src/domain-match.c
  }
  
  /* Return first server in group of equivalent servers; this is the "master" record. */
-@@ -269,7 +371,15 @@ int filter_servers(int seed, int flags,
+@@ -270,6 +372,14 @@ int filter_servers(int seed, int flags,
  {
    int nlow = seed, nhigh = seed;
    int i;
--  
 +
 +#ifdef HAVE_REGEX
 +  if(nlow >= daemon->serverarrayhwm){
@@ -374,11 +361,10 @@ Index: dnsmasq-2.89/src/domain-match.c
 +    return 1;
 +  }
 +#endif
-+
+   
    /* expand nlow and nhigh to cover all the records with the same domain 
       nlow is the first, nhigh - 1 is the last. nlow=nhigh means no servers,
-      which can happen below. */
-@@ -365,6 +475,89 @@ int filter_servers(int seed, int flags,
+@@ -366,6 +476,89 @@ int filter_servers(int seed, int flags,
    return (nlow != nhigh);
  }
  
@@ -468,7 +454,17 @@ Index: dnsmasq-2.89/src/domain-match.c
  int is_local_answer(time_t now, int first, char *name)
  {
    int flags = 0;
-@@ -625,6 +818,9 @@ int add_update_server(int flags,
+@@ -505,6 +698,9 @@ static int order(char *qdomain, size_t q
+ static int order_servers(struct server *s1, struct server *s2)
+ {
+   int rc;
++#ifdef HAVE_REGEX
++  if(!s1) return -1;
++#endif
+ 
+   /* need full comparison of dotless servers in 
+      order_qsort() and filter_servers() */
+@@ -626,6 +822,9 @@ int add_update_server(int flags,
  		      const char *domain,
  		      union all_addr *local_addr)
  {
@@ -478,7 +474,7 @@ Index: dnsmasq-2.89/src/domain-match.c
    struct server *serv = NULL;
    char *alloc_domain;
    
-@@ -640,7 +836,18 @@ int add_update_server(int flags,
+@@ -641,10 +840,32 @@ int add_update_server(int flags,
        if (*domain != 0)
  	flags |= SERV_WILDCARD;
      }
@@ -488,9 +484,17 @@ Index: dnsmasq-2.89/src/domain-match.c
 +    size_t domainLen=strlen(domain);
 +    char* regex_end=(char*)domain+domainLen-1;
 +    if (domainLen > 2 && *domain == ':' && *regex_end == ':'){
++      const char* err = NULL;
++
 +      ++domain; // skip leading ':'
++      --domainLen; // skip leading ':'
++
 +      *regex_end = '\0'; // skip tailing ':'
 +      regex = domain;
++
++      // call whine_malloc() instead of canonicalise()
++      if ((alloc_domain = whine_malloc(domainLen)))
++        memcpy(alloc_domain, domain, domainLen);
 +    }
 +  }
 +#endif
@@ -498,11 +502,16 @@ Index: dnsmasq-2.89/src/domain-match.c
    if (*domain == 0)
      alloc_domain = whine_malloc(1);
    else
-@@ -743,7 +950,17 @@ int add_update_server(int flags,
++#ifdef HAVE_REGEX
++  if(!regex)
++#endif
+     alloc_domain = canonicalise((char *)domain, NULL);
+ 
+   if (!alloc_domain)
+@@ -744,6 +965,16 @@ int add_update_server(int flags,
    serv->flags = flags;
    serv->domain = alloc_domain;
    serv->domain_len = strlen(alloc_domain);
--  
 +
 +#ifdef HAVE_REGEX
 +  if (regex){
@@ -513,14 +522,11 @@ Index: dnsmasq-2.89/src/domain-match.c
 +    }
 +  }
 +#endif
-+
+   
    return 1;
  }
- 
-Index: dnsmasq-2.89/src/forward.c
-===================================================================
---- dnsmasq-2.89.orig/src/forward.c
-+++ dnsmasq-2.89/src/forward.c
+--- a/src/forward.c
++++ b/src/forward.c
 @@ -306,6 +306,11 @@ static int forward_query(int udpfd, unio
        /* Configured answer. */
        if (flags || ede == EDE_NOT_READY)
@@ -533,7 +539,7 @@ Index: dnsmasq-2.89/src/forward.c
        
        master = daemon->serverarray[first];
        
-@@ -359,6 +364,9 @@ static int forward_query(int udpfd, unio
+@@ -360,6 +365,9 @@ static int forward_query(int udpfd, unio
  	      forward->forwardall = 1;
  	    }
  	  else
@@ -543,7 +549,7 @@ Index: dnsmasq-2.89/src/forward.c
  	    start = master->last_server;
  	}
      }
-@@ -401,7 +409,14 @@ static int forward_query(int udpfd, unio
+@@ -402,7 +410,14 @@ static int forward_query(int udpfd, unio
  	    forward->sentto->failed_queries++;
  	  else
  	    forward->sentto->retrys++;
@@ -559,7 +565,7 @@ Index: dnsmasq-2.89/src/forward.c
  	  if (!filter_servers(forward->sentto->arrayposn, F_SERVER, &first, &last))
  	    goto reply;
  	  
-@@ -493,11 +508,16 @@ static int forward_query(int udpfd, unio
+@@ -494,8 +509,13 @@ static int forward_query(int udpfd, unio
    while (1)
      { 
        int fd;
@@ -574,17 +580,13 @@ Index: dnsmasq-2.89/src/forward.c
 +
        if ((fd = allocate_rfd(&forward->rfds, srv)) != -1)
  	{
--	  
-+
- #ifdef HAVE_CONNTRACK
- 	  /* Copy connection mark of incoming query to outgoing connection. */
- 	  if (option_bool(OPT_CONNTRACK))
-@@ -2302,9 +2322,17 @@ unsigned char *tcp_request(int confd, ti
- 	      struct server *master;
- 	      int start;
- 
+ 	  
+@@ -2360,9 +2380,17 @@ unsigned char *tcp_request(int confd, ti
+ 	      blockdata_retrieve(saved_question, (size_t)saved_size, header);
+ 	      size = saved_size;
+ 	      
 -	      if (lookup_domain(daemon->namebuff, gotname, &first, &last))
-+	      if (lookup_domain(daemon->namebuff, gotname, &first, &last)) {
++	      if (lookup_domain(daemon->namebuff, gotname, &first, &last)){
  		flags = is_local_answer(now, first, daemon->namebuff);
 +#ifdef HAVE_REGEX
 +		if(!flags)
@@ -598,17 +600,10 @@ Index: dnsmasq-2.89/src/forward.c
  		{
  		  /* No configured servers */
  		  ede = EDE_NOT_READY;
-@@ -2318,12 +2346,16 @@ unsigned char *tcp_request(int confd, ti
- 		  !strchr(daemon->namebuff, '.') &&
- 		  strlen(daemon->namebuff) != 0)
- 		flags = check_for_local_domain(daemon->namebuff, now) ? F_NOERR : F_NXDOMAIN;
--		
-+
- 	      if (!flags && ede != EDE_NOT_READY)
+@@ -2381,7 +2409,11 @@ unsigned char *tcp_request(int confd, ti
  		{
  		  master = daemon->serverarray[first];
--		  
-+
+ 		  
 +#ifdef HAVE_REGEX
 +		  if (option_bool(OPT_ORDER) || master->regex || master->last_server == -1)
 +#else
@@ -617,11 +612,9 @@ Index: dnsmasq-2.89/src/forward.c
  		    start = first;
  		  else
  		    start = master->last_server;
-Index: dnsmasq-2.89/src/network.c
-===================================================================
---- dnsmasq-2.89.orig/src/network.c
-+++ dnsmasq-2.89/src/network.c
-@@ -1657,6 +1657,10 @@ void check_servers(int no_loop_check)
+--- a/src/network.c
++++ b/src/network.c
+@@ -1671,6 +1671,10 @@ void check_servers(int no_loop_check)
  	    s1 = _("unqualified"), s2 = _("names");
  	  else if (strlen(serv->domain) == 0)
  	    s1 = _("default"), s2 = "";
@@ -632,12 +625,12 @@ Index: dnsmasq-2.89/src/network.c
  	  else
  	    s1 = _("domain"), s2 = serv->domain, s4 = (serv->flags & SERV_WILDCARD) ? "*" : "";
  	  
-@@ -1686,8 +1690,14 @@ void check_servers(int no_loop_check)
+@@ -1700,8 +1704,14 @@ void check_servers(int no_loop_check)
  	   if (++locals <= LOCALS_LOGGED)
  	     my_syslog(LOG_INFO, _("using only locally-known addresses for %s"), serv->domain);
  	 }
 -       else if (serv->flags & SERV_USE_RESOLV)
-+       else if (serv->flags & SERV_USE_RESOLV) {
++       else if (serv->flags & SERV_USE_RESOLV){
 +#ifdef HAVE_REGEX
 +    if (serv->regex)
 +      my_syslog(LOG_INFO, _("using standard nameservers for regex domain %s"), serv->domain);

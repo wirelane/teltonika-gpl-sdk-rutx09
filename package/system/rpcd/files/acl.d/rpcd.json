@@ -7,6 +7,9 @@
 		"rpc-ping": {
 			"methods": [ "pingv4", "pingv6" ]
 		},
+		"rpc-dfota": {
+			"methods": [ "export_updates", "update" ]
+		},
 		"rpc-sys-ext": {
 				"methods": [ "*" ]
 		},
@@ -23,10 +26,13 @@
 			"methods": [ "status"]
 		},
 		"sys": {
-			"methods": [ "reboot", "firstboot", "userdefaults" ]
+			"methods": [ "reboot", "firstboot", "userdefaults", "dmesg", "drop_caches" ]
 		},
 		"gsm.modem*": {
 			"methods": [ "get_sim_slot", "info" ]
+		},
+		"mobifd.modem*": {
+			"methods": [ "reload" ]
 		},
 		"network.interface": {
 			"methods": [ "dump" ]
@@ -43,7 +49,7 @@
 	"listen": [ "sim.changed", "lpac.updates", "ubus.object.add" ],
 	"publish": [ "session", "iwinfo", "sys", "rpc-sys", "rpc-sys-ext", "rpc-format", "mnfinfo",
 				 "profile", "rut_fota", "mwan3", "rpc-ping", "lan_info", "wan_info",
-				 "serial", "file", "esim.modem*", "sms_limit", "boardjson",
+				 "serial", "file", "esim.modem*", "sms_limit", "boardjson", "rpc-dfota",
 				 "modbus_client.rpc", "network.rrdns", "uci", "rc",
 				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan", "dnp3_client.rpc" ]
 }

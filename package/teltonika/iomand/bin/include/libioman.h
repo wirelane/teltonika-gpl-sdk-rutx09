@@ -195,6 +195,14 @@ lioman_status lioman_get_by_id(struct ubus_context *ctx, uint32_t id, struct lio
   * Retrieves all available IOs
   * @param[in] ctx Ubus context
   * @param[out] array must be freed()! pointer to a struct pointer, which holds a variable length array of struct lioman_io
+  * @param[in] tmo ubus timeout (in milliseconds, cumulative).
+  */
+lioman_status lioman_get_all_tmo(struct ubus_context *ctx, struct lioman_io_array **array, int tmo);
+
+/**
+  * Retrieves all available IOs
+  * @param[in] ctx Ubus context
+  * @param[out] array must be freed()! pointer to a struct pointer, which holds a variable length array of struct lioman_io
   */
 lioman_status lioman_get_all(struct ubus_context *ctx, struct lioman_io_array **array);
 

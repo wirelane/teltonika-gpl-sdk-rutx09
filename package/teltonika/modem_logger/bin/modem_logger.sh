@@ -254,7 +254,7 @@ set_logger(){
                     #[ -z "$LOG_DEV" ] && find_modem_log_port "$tty_port"
                     return
                 ;;
-                "FN990"* | "LE910"*)
+                "FN990"* | "LE910"* | "LN920"*)
                     LOGGER_PATH="$(get_bin_path qc_trace_collector)"
                     return
                 ;;
@@ -354,10 +354,10 @@ start_logger(){
             local modems="$(ubus list gsm.modem* | tr "\n" " ")"
             for modem in $modems; do
                 local info="$(ubus call "$modem" info)"
-                local model="$(echo "$info" | jsonfilter -e "@.model")"
+                local manuf="$(echo "$info" | jsonfilter -e "@.manuf")"
                 local usb_id="$(echo "$info" | jsonfilter -e "@.usb_id")"
                 [ -n "$MODEM_ID" ] && [ "$usb_id" != "$MODEM_ID" ] && continue
-                if [ "$model" = "FN990-A28" ] || [ "$model" = "LE910C4-WWX" ]; then
+                if [ "$manuf" = "Telit" ]; then
                     [ -z "$FILTER_PATH" ] && [ -f "$DEFAULT_TELIT_FILTER_FILE_PATH" ] && FILTER_PATH="$DEFAULT_TELIT_FILTER_FILE_PATH"
                 fi
 

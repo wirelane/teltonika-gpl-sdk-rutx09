@@ -7,6 +7,8 @@
 		"network.interface": {
 			"methods": ["dump"]
 		},
-
+		"ip_block": {
+			"methods": ["show", "unblock", "push"]
+		}
 	}
 }

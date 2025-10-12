@@ -220,6 +220,7 @@ start_service() {
 		procd_open_instance
 		procd_set_param file /etc/config/mosquitto
 		procd_set_param command $APP -c $CONFIG
+		procd_set_param user mosquitto
 		procd_set_param respawn ${respawn_threshold:-2} ${respawn_timeout:-10} ${respawn_retry:-3}
 		procd_close_instance
 	fi

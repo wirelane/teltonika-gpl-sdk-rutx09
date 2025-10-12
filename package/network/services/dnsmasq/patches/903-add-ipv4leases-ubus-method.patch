@@ -1,6 +1,6 @@
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
-@@ -1545,6 +1545,7 @@ char *host_from_dns(struct in_addr addr)
+@@ -1603,6 +1603,7 @@ char *host_from_dns(struct in_addr addr)
  
  /* lease.c */
  #ifdef HAVE_DHCP
@@ -10,7 +10,7 @@
  void lease_init(time_t now);
 --- a/src/lease.c
 +++ b/src/lease.c
-@@ -21,6 +21,11 @@
+@@ -20,6 +20,11 @@
  static struct dhcp_lease *leases = NULL, *old_leases = NULL;
  static int dns_dirty, file_dirty, leases_left;
  
@@ -42,7 +42,7 @@
  #ifdef HAVE_CONNTRACK
    UBUS_METHOD("set_connmark_allowlist", ubus_handle_set_connmark_allowlist, set_connmark_allowlist_policy),
  #endif
-@@ -200,6 +204,55 @@ static int ubus_handle_metrics(struct ub
+@@ -226,6 +230,55 @@ static int ubus_handle_metrics(struct ub
    return UBUS_STATUS_OK;
  }
  

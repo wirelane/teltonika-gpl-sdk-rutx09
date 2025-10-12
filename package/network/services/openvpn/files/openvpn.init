@@ -351,6 +351,10 @@ start_instance() {
 		config_get dev "$s" dev
 		[ -n "$dev" ] && sed -i "s/dev .*/dev ${dev}/" "$OPENVPN_CONFIG"
 		append UCI_STARTED "$config" "$LIST_SEP"
+		# placeholder status file for permissions
+		touch "${TMP_DIR}/openvpn.$s.status"
+		chown openvpn:openvpn "${TMP_DIR}/openvpn.$s.status"
+		chmod 660 "${TMP_DIR}/openvpn.$s.status"
 	else
 		echo -e "\n# MAIN PARAMETERS" >> "$OPENVPN_CONFIG"
 		append_bools "$s" $OPENVPN_BOOLS
@@ -371,6 +375,7 @@ start_instance() {
 		[ -n "$config" ] && [ "$config_parsed" != "1" ] && echo "status ${TMP_DIR}/openvpn.$s.status 10"
 	} >> "$OPENVPN_CONFIG"
 
+	[ -z "$script_security" ] && script_security="2"
 	openvpn_add_instance "$s" "${OPENVPN_CONFIG%/*}" "${OPENVPN_CONFIG##*/}" "$script_security"
 }
 

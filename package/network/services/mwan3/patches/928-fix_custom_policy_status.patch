@@ -1,7 +1,5 @@
-Index: mwan3-2.10.12/files/lib/mwan3/mwan3.sh
-===================================================================
---- mwan3-2.10.12.orig/files/lib/mwan3/mwan3.sh
-+++ mwan3-2.10.12/files/lib/mwan3/mwan3.sh
+--- a/files/lib/mwan3/mwan3.sh
++++ b/files/lib/mwan3/mwan3.sh
 @@ -25,6 +25,7 @@ IPv4_REGEX="((25[0-5]|2[0-4][0-9]|[01]?[
  DEFAULT_LOWEST_METRIC=256
  MWAN_HIGHEST_EVENT_METRIC=256
@@ -32,7 +30,7 @@ Index: mwan3-2.10.12/files/lib/mwan3/mwan3.sh
  		mwan3_push_update -F "mwan3_policy_$policy"
  		mwan3_push_update -A "mwan3_policy_$policy" \
  				  -m mark --mark 0x0/$MMX_MASK \
-@@ -1251,90 +1258,125 @@ mwan3_track_clean()
+@@ -1251,90 +1258,126 @@ mwan3_track_clean()
  
  mwan3_find_lowest()
  {
@@ -190,7 +188,8 @@ Index: mwan3-2.10.12/files/lib/mwan3/mwan3.sh
 +	if [ "$BACKUPS" -ge 1 ]; then
  		backup=$(cat "$ACTIVE_WAN")
 -		config_get backup_metric $backup"_member_mwan" metric
-+		config_get backup_metric $member metric
++		local backup_member=$(mwan3_iface_belong_to_policy $MAIN_POLICY $backup)
++		config_get backup_metric $backup_member metric 1
  		[ "$backup_metric" -lt "$metric" ] && return
  		echo "$backup" > "$ACTIVE_WAN"
 -

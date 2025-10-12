@@ -1,5 +1,31 @@
 [
   {
+    "category": "System",
+    "name": "JSON-RPC",
+    "depends": []
+  },
+  {
+    "category": "Network",
+    "name": "Starlink",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "flash16mb",
+        "value": false
+      },
+      {
+        "type": "hw",
+        "name": "is_access_point",
+        "value": false
+      },
+      {
+        "type": "hw",
+        "name": "is_gateway",
+        "value": false
+      }
+    ]
+  },
+  {
     "category": "Services",
     "name": "Netbird",
     "depends": [
@@ -78,6 +104,16 @@
   {
     "category": "Services",
     "name": "Power Control",
+    "depends": [
+      {
+        "type": "device",
+        "name": "ATRM50"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "ITxPT",
     "depends": [
       {
         "type": "device",

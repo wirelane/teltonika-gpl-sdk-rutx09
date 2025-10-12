@@ -6,8 +6,8 @@ STOP=01
 USE_PROCD=1
 
 PROG_NAT64="/usr/local/usr/bin/jool"
-CONFIG_FILE="/var/etc/jool/jool-nat64.json"
-BASE_DIR="/var/etc/jool"
+CONFIG_FILE="/var/run/jool/jool-nat64.json"
+BASE_DIR="/var/run/jool"
 
 add_interface_trigger() {
 	local section="$1"
@@ -46,12 +46,16 @@ start_service() {
 
 	json_dump -i > "$CONFIG_FILE"
 
-	$PROG_NAT64 file handle "$CONFIG_FILE"
+	procd_open_instance
+	procd_set_param command	$PROG_NAT64 file handle "$CONFIG_FILE"
+	procd_set_user jool
+	procd_set_param file "$CONFIG_FILE"
+	procd_close_instance
 }
 
 stop_service() {
 	$PROG_NAT64 -f $CONFIG_FILE instance remove
-	rm -rf "$BASE_DIR"
+	[ -d "$BASE_DIR" ] && rm -rf "$BASE_DIR"
 }
 
 reload_service() {

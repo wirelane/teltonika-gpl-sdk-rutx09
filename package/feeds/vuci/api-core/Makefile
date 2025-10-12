@@ -17,7 +17,7 @@ define Package/api-core
   CATEGORY:=WebUI
   TITLE:= API core
   DEPENDS:=+rpcd +WIFI_SUPPORT:rpcd-mod-iwinfo +rpcd-mod-file +rpcd-mod-rpcsys +uhttpd \
-		+uhttpd-mod-ubus +lua +libubox-lua +libubus-lua \
+		+lua +libubox-lua +libubus-lua \
 		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
 		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto +lua_extra_validators \
 		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci \
@@ -34,6 +34,8 @@ endef
 
 define Package/api-core/conffiles
 /etc/config/vuci
+/etc/vuci-uploads
+/etc/certificates
 endef
 
 
@@ -55,6 +57,7 @@ define install_closed_gpl
 		$(PKG_GPL_BUILD_DIR)/files/usr/sbin \
 		$(PKG_GPL_BUILD_DIR)/files/etc/init.d \
 		$(PKG_GPL_BUILD_DIR)/files/etc/permtab.d \
+		$(PKG_GPL_BUILD_DIR)/files/usr/share/acl.d \
 		$(PKG_GPL_BUILD_DIR)/files/etc/config \
 		$(PKG_GPL_BUILD_DIR)/files/etc/uci-defaults \
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/vuci/network \
@@ -74,6 +77,8 @@ define install_closed_gpl
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
 	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
 	$(CP) $(GPL_FILES_DIR)/etc/permtab.d/vuci $(PKG_GPL_BUILD_DIR)/files/etc/permtab.d
+	$(CP) $(GPL_FILES_DIR)/usr/share/acl.d/api_acl.json $(PKG_GPL_BUILD_DIR)/files/usr/share/acl.d
+	$(CP) $(GPL_FILES_DIR)/usr/share/acl.d/api_modem_lib_acl.json $(PKG_GPL_BUILD_DIR)/files/usr/share/acl.d
 	$(CP) $(GPL_FILES_DIR)/sbin/event_server.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/sbin/api.lua $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/api/core/* $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/core
@@ -130,10 +135,12 @@ define Package/api-core/install
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/*.lua $(1)/usr/lib/lua/api ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/core/* $(1)/usr/lib/lua/api/core ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/services/* $(1)/usr/lib/lua/api/services ; \
+	$(INSTALL_DATA) -D "$$$$files_dir"/usr/share/acl.d/api_acl.json $(1)/usr/share/acl.d/api_acl.json ; \
+	$(INSTALL_DATA) -D "$$$$files_dir"/usr/share/acl.d/api_modem_lib_acl.json $(1)/usr/share/acl.d/api_modem_lib_acl.json ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/network/* $(1)/usr/lib/lua/api/network
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/vuci.so $(1)/usr/lib/lua
-
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
 	# remove some core api files if none of these features are supported
 	$(if $(or $(CONFIG_IO_SUPPORT),\
 	     $(CONFIG_GPS_SUPPORT),\

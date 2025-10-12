@@ -136,7 +136,7 @@ do_save_conffiles() {
 	}
 
 	# Save user modified apn list
-	[ -e /usr/bin/backup_apn_db ] && lua /usr/bin/backup_apn_db -b
+	[ -e /usr/local/bin/backup_apn_db ] && lua /usr/local/bin/backup_apn_db -b
 
 	{
 		[ -z "$CONF_BACKUP" ] && [ -d "/etc/api" ] && echo "/etc/api"
@@ -475,6 +475,7 @@ if [ -n "$CONF_BACKUP" ]; then
 	save_conffile_code=$?
 	restore_configs "network" "rms_mqtt"
 	[ "$save_conffile_code" -eq 0 ] && {
+		[ -n "$USER_ID" ] && [ -n "$GROUP_ID" ] && chown "$USER_ID":"$GROUP_ID" "$CONF_BACKUP"
 		ubus call log write_ext "{
 			\"event\": \"Backup \\\"$(basename "$CONF_BACKUP")\\\" generated from current configuration\",
 			\"sender\": \"Backup\",

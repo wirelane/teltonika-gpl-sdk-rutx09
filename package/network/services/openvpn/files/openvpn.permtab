@@ -1,2 +1,2 @@
-/etc/openvpn	openvpn:openvpn	-	r
-/etc/config/openvpn	openvpn:openvpn	660	-
+/etc/openvpn        openvpn:openvpn 770 r
+/etc/config/openvpn openvpn:openvpn 660 -

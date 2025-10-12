@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=package_restore
-PKG_VERSION:=2025-07-31
+PKG_VERSION:=2025-09-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.13
+PKG_SOURCE_VERSION:=3.15
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -44,6 +44,8 @@ define Package/package_restore/install
 	$(INSTALL_DIR) $(1)/etc/permtab.d/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/package_restore.permtab $(1)/etc/permtab.d/package_restore
 
+	$(INSTALL_DIR) $(1)/usr/share/acl.d/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/opkg.json $(1)/usr/share/acl.d/
 endef
 
 $(eval $(call BuildPackage,package_restore))

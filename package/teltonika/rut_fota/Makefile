@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.20
+PKG_SOURCE_VERSION:=2.21
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -46,7 +46,7 @@ define Package/librut_fota/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/librut_fota.so $(1)/usr/lib/
 endef
 
-FOTA_HOST:=$(shell echo $(TLT_VERSION) | grep -Pq '[^_]+_R_\d' || echo 'demo')rut.teltonika.lt
+FOTA_HOST:=rut.teltonika.lt
 
 define Package/rut_fota/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/sbin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d

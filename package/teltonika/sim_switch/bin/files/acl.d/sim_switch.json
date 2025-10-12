@@ -35,6 +35,6 @@
         },
         "publish": ["sim_switch"],
         "listen": [
-                "sim.changed"
+                "sim.changed", "quota", "sms.limit.reset"
         ]
 }

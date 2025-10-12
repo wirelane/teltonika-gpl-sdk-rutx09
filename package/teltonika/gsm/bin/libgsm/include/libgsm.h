@@ -63,6 +63,7 @@ typedef enum {
 	LGSM_INFO_FEATURE_WWAN_GNSS_CONFLICT,
 	LGSM_INFO_FEATURE_DHCP_FILTER,
 	LGSM_INFO_FEATURE_VERIZON_DISABLE_5G_SA,
+	LGSM_INFO_FEATURE_COPS_2_APN_CHANGE,
 	LGSM_INFO_HW_STATS,
 	LGSM_INFO_FEATURE_CSD,
 	LGSM_INFO_FEATURE_FRAMED_ROUTING,
@@ -1290,6 +1291,7 @@ typedef struct {
 	uint32_t esim_profile_id;
 	uint32_t gnss_state;
 	bool disabled_nr5g_sa_mode; // Mark webui to hide 5G management
+	bool cops_2_apn_change;
 
 } lgsm_t;
 

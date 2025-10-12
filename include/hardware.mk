@@ -42,6 +42,7 @@ HW_INTERFACE_POWER_RJ45:=RJ45, PoE In, 42.5-57.0 VDC
 
 # input/output
 HW_INPUT_DI_30V:=x Digital Input, 0-6 V detected as logic low, 8-30 V detected as logic high
+HW_INPUT_DI_40V:=x Digital Input, 0-5 V detected as logic low, 8-40 V detected as logic high
 HW_INPUT_DI_50V:=x Digital Input, 0-6 V detected as logic low, 8-50 V detected as logic high
 HW_OUTPUT_DO_30V:=x Digital Output, Open collector output, max output 30 V, 300 mA
 HW_OUTPUT_DO_40V:=x Digital Output, Open collector output, max output 40 V, 400 mA

@@ -33,6 +33,16 @@ include $(INCLUDE_DIR)/package.mk
 define Package/ethtool
   SECTION:=net
   CATEGORY:=Network
+  VARIANT:=full
+  CONFLICTS:=ethtool-tiny
+  TITLE:=Display or change ethernet card settings
+  URL:=http://www.kernel.org/pub/software/network/ethtool/
+endef
+
+define Package/ethtool-tiny
+  SECTION:=net
+  CATEGORY:=Network
+  VARIANT:=tiny
   TITLE:=Display or change ethernet card settings
   URL:=http://www.kernel.org/pub/software/network/ethtool/
 endef
@@ -42,7 +52,19 @@ define Package/ethtool/description
  network interface
 endef
 
+define Package/ethtool-tiny/description
+ ethtool is even smaller utility for examining and tuning your ethernet-based
+ network interface
+endef
+
 define Package/ethtool/config
+	config ETHTOOL_PRETTY_DUMP
+		depends on PACKAGE_ethtool
+		bool "Enable pretty printing"
+		default n
+endef
+
+define Package/ethtool-tiny/config
 	config ETHTOOL_PRETTY_DUMP
 		depends on PACKAGE_ethtool
 		bool "Enable pretty printing"
@@ -57,9 +79,32 @@ else
 CONFIGURE_ARGS += --disable-pretty-dump
 endif
 
+
+define Build/Patch
+	$(if $(QUILT),rm -rf $(PKG_BUILD_DIR)/patches; mkdir -p $(PKG_BUILD_DIR)/patches)
+	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/generic,generic/)
+ifeq ($(BUILD_VARIANT),tiny)
+	$(call PatchDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/tiny,tiny/)
+endif
+	$(if $(QUILT),touch $(PKG_BUILD_DIR)/.quilt_used)
+endef
+
+define Quilt/Refresh/Package
+	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/generic,generic/)
+ifeq ($(BUILD_VARIANT),tiny)
+	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR)/tiny,tiny/)
+endif
+endef
+
 define Package/ethtool/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ethtool $(1)/usr/sbin
 endef
 
+define Package/ethtool-tiny/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ethtool $(1)/usr/sbin
+endef
+
 $(eval $(call BuildPackage,ethtool))
+$(eval $(call BuildPackage,ethtool-tiny))

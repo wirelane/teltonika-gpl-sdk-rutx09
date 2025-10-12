@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2025-08-04
-PKG_RELEASE:=2
+PKG_VERSION:=2025-09-11
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.17
+PKG_SOURCE_VERSION:=7.18
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -20,7 +20,8 @@ define Package/gpsd
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Deamon providing gps related functionality.
-	DEPENDS:=+libsqlite3 +libpthread +libuci +libtlt_uci +liblog +libubus +liburc +libgsm +zlib +libcurl +libboardjson +IO_SUPPORT:iomand +libmnfinfo +libtlt_termios
+	DEPENDS:=+libsqlite3 +libpthread +libuci +libtlt_uci +liblog +libubus +liburc +libgsm +zlib +libcurl +libboardjson +IO_SUPPORT:iomand +libmnfinfo +libgps +libtlt_termios
+	USERID:=gps=576:gps=576
 endef
 
 define Package/gpsctl
@@ -35,6 +36,7 @@ define Package/ntp_gps
 	CATEGORY:=Base system
 	TITLE:=Daemon meant for syncing system time with GPS data.
 	DEPENDS:=+libgps +gpsd +libuci
+	USERID:=ntp_gps=634:ntp_gps=634
 endef
 
 define Package/libgps
@@ -49,6 +51,7 @@ define Package/avl
 	CATEGORY:=Base system
 	TITLE:=Daemon for sending data to AVL server.
 	DEPENDS:=+libpthread +libuci +liblog +libubus +libgsm +zlib +libgps +iomand +libtlt_uci +libmnfinfo
+	USERID:=avl=635:avl=635
 endef
 
 define Package/avl/conffiles
@@ -74,9 +77,10 @@ define Package/gpsd/conffiles
 endef
 
 define Package/gpsd/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/etc/hotplug.d/usb $(1)/etc/permtab.d $(1)/etc/gps
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/config $(1)/etc/init.d $(1)/etc/hotplug.d/usb $(1)/usr/share/acl.d $(1)/etc/permtab.d $(1)/etc/gps
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gpsd/gpsd $(1)/usr/sbin/gpsd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gpsd.init $(1)/etc/init.d/gpsd
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/gpsd.json $(1)/usr/share/acl.d/gpsd.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/gps.permtab $(1)/etc/permtab.d/gps
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/gps.conf $(1)/etc/config/gps
 
@@ -96,15 +100,18 @@ define Package/gpsctl/install
 endef
 
 define Package/ntp_gps/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ntp_gps.init $(1)/etc/init.d/ntp_gps
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ntp_gps/ntp_gps $(1)/usr/sbin/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ntp_gps.json $(1)/usr/share/acl.d/ntp_gps.json
 endef
 
 define Package/avl/install
-	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config $(1)/usr/share/acl.d $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/avl.init $(1)/etc/init.d/avl
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/avl/avl $(1)/usr/sbin/avl
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/avl.json $(1)/usr/share/acl.d/avl.json
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/avl.permtab $(1)/etc/permtab.d/avl
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/avl.conf $(1)/etc/config/avl
 endef
 

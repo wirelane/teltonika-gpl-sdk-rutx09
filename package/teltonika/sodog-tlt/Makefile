@@ -2,8 +2,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sodog-tlt
-PKG_VERSION:=2025-07-31
-PKG_SOURCE_VERSION:=7.17
+PKG_VERSION:=2025-09-11
+PKG_SOURCE_VERSION:=7.18
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

@@ -19,6 +19,7 @@ start_service() {
 	[ "$enabled" = "1" ] || { ubus call gsm.modem* gnss_stop > /dev/null 2>&1; return; }
 
 	procd_open_instance gpsd
+	procd_set_param user gps
 	procd_set_param command "$PROGRAM"
 	procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-0}
 	procd_close_instance

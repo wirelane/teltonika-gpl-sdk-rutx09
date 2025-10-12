@@ -11,7 +11,7 @@ show () {
 
 main () {
 	case "$1" in
-		list) echo '{ "troubleshoot": { "pass": "str" }, "firstboot": { "factory": true }, "userdefaults": {  } }' ;;
+		list) echo '{ "troubleshoot": { "pass": "str" }, "firstboot": { "factory": true }, "userdefaults": {  }, "dmesg": {  }, "drop_caches": { "type": "str"} }' ;;
 		call)
 			case "$2" in
 				troubleshoot)
@@ -23,14 +23,27 @@ main () {
 				firstboot)
 						read input;
 						[ "$(jsonfilter -s $input -e '@.factory')" = "true" ] && args=" -f"
-						/sbin/firstboot -y $args
+						/sbin/firstboot -y $args > /dev/null
 						code=$?
 						echo "{ \"result\": $code }"
 				;;
 				userdefaults)
-					/sbin/user_defaults
+					/sbin/user_defaults > /dev/null
 					# procd implementation used to return error only on fork failure
 					echo "{ \"result\": 0 }"
+				;;
+				dmesg)
+					res="$(dmesg)"
+					code=$?
+					show "$res" "$code"
+				;;
+				drop_caches)
+					read input
+					type="$(echo "$input" | jsonfilter -e '@.type' | tr -d '"')"
+					case "$type" in 1|2|3) ;; *) show "Invalid type" 1; exit 1;; esac
+					echo $type > /proc/sys/vm/drop_caches 2>&1
+					code=$?
+					echo "{ \"result\": $code }"
 				;;
 			esac
 		;;

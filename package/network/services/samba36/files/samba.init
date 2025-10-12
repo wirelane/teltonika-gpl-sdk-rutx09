@@ -84,6 +84,9 @@ smb_header() {
 EOT
 	}
 
+	chown samba:samba "$WORKDIR/smb.conf"
+	chmod 660 "$WORKDIR/smb.conf"
+
 	[ -L /etc/samba/smb.conf ] || ln -nsf "$WORKDIR/smb.conf" /etc/samba/smb.conf
 }
 

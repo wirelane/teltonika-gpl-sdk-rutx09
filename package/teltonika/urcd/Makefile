@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=urcd
 
-PKG_SOURCE_VERSION:=1.8
+PKG_SOURCE_VERSION:=1.9
 
 PKG_LICENSE:=Teltonika-closed
 

@@ -36,7 +36,7 @@ define Device/teltonika_rutx
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
 	FILESYSTEMS := squashfs
-	DEVICE_FEATURES := usb-port gps serial modbus ios wifi bt dualsim \
+	DEVICE_FEATURES := usb-port gps serial modbus ios wifi bluetooth dualsim \
 			port-mirror ntrip mobile dot1x-client portlink \
 			sw-offload xfrm-offload tpm reset_button
 

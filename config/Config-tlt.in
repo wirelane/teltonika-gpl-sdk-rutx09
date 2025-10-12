@@ -217,12 +217,10 @@ config MOBILE_USAGE_SUPPORT
 	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	default y
-	imply PACKAGE_quota_limit if !BYPASS_MOBILE_COUNTERS
+	imply PACKAGE_quota_limit
 	imply PACKAGE_mdcollectd
 	imply PACKAGE_vuci-app-mobile-usage-ui
 	detail
-		Mobile Data Usage: Enables tracking of mobile data usage across daily, weekly, monthly periods, or in total
-	detail if !BYPASS_OFFLOAD_FEATURE
 		Mobile Data Limit: Provides warnings about limit and control to used data within customizable period
 
 config GSM_CHECKER_SUPPORT
@@ -459,7 +457,8 @@ config ADVANCED_NETWORK
 	default y
 	label "Network"
 	imply PACKAGE_vuci-app-ports-settings-ui if PORT_LINK
-	imply PACKAGE_ethtool
+	imply PACKAGE_ethtool-tiny if ETHTOOL_TINY
+	imply PACKAGE_ethtool if !ETHTOOL_TINY
 	imply BUSYBOX_DEFAULT_ARPING
 	imply PACKAGE_vuci-app-dhcp-ui
 	imply PACKAGE_odhcpd-ipv6only
@@ -525,6 +524,17 @@ config BFD_FRR_SUPPORT
 	detail
 		Protocol intended to detect faults in the bidirectional path between two forwarding engines
 	imply PACKAGE_vuci-app-bfd-ui
+
+config STARLINK_SUPPORT
+	tristate
+	maintainer "Network"
+	label "Network"
+	depends on PKG_SUPPORT && !SMALL_FLASH && !GATEWAY_DEVICE
+	default y if TEST_IMAGE
+	default m
+	detail
+		Starlink management integration
+	imply PACKAGE_vuci-app-starlink-ui
 
 config FIREWALL_SUPPORT
 	bool "Firewall"
@@ -1080,7 +1090,6 @@ config RMS_SUPPORT
 	maintainer "Apps/Apps1"
 	default n if x86_64 && !TEST_IMAGE
 	default y
-	imply PACKAGE_rms_json
 	imply PACKAGE_rms_mqtt
 	imply PACKAGE_vuci-app-cloud-solutions-ui
 	detail
@@ -1366,7 +1375,9 @@ config JSON_RPC
 	tristate "JSON-RPC"
 	label "Monitoring & Management"
 	maintainer "SysApp"
+	default m if PKG_SUPPORT && !TEST_IMAGE
 	default y
+	imply PACKAGE_uhttpd-mod-ubus
 	detail
 		Remote procedure call (RPC) system configuration protocol
 
@@ -2273,5 +2284,21 @@ config TPM_FLASHER
 	imply PACKAGE_tpm_flasher
 	detail
 		Utility meant for flashing TPM devices
+
+config ITXPT_SUPPORT
+	bool "ITxPT service"
+	maintainer "Apps/Apps2"
+	default n
+	imply PACKAGE_itxpt
+	imply PACKAGE_vuci-app-itxpt-ui
+	imply PACKAGE_umdns
+	help
+		Information Technology for Public Transport Vehicle Communication Gateway (VCG) implementation
+	detail
+		Supported services: Inventory, Time
+	detail if GPS_SUPPORT
+		\, GNSS Location
+	detail if MQTT_SUPPORT
+		\, MQTT Broker
 
 endmenu

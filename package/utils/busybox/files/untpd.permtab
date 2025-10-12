@@ -1,1 +1,1 @@
-/etc/config/ntpserver   ntp:ntp 666 -
+/etc/config/ntpserver   ntp:ntp 660 -

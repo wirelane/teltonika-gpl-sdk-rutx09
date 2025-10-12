@@ -403,9 +403,9 @@ class Profile:
         self.fetch_features()
         self.fetch_packages()
 
-        data["packages"] = list(self.cached_packages.keys())
-
-        data["software"] = dump_features(self.features, descriptions_only)
+        if len(list(self.features_profile)) > 0:
+            data["packages"] = list(self.cached_packages.keys())
+            data["software"] = dump_features(self.features, descriptions_only)
 
         return data
 

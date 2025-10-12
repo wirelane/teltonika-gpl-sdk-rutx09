@@ -63,18 +63,24 @@ connect() {
 	if [ "$auth_type" = "url" ]; then
 		log "info" "Trying to connect using 'URL' mode $flags"
 		if [ "$state" = "NeedsLogin" ] && [ -z "$auth_url" ]; then
-			answ=$($PROG login $param --timeout 5s 2>&1) || type="err"
+			answ=$($PROG login --operator=uhttpd $param --timeout 5s 2>&1) || type="err"
 		else
-			answ=$($PROG up $param --reset --timeout 5s 2>&1) || type="err"
+			answ=$($PROG up --operator=uhttpd $param --reset --timeout 5s 2>&1) || type="err"
 		fi
 		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
 	fi
 
 	if [ "$auth_type" = "key" ] && [ -n "$auth_key" ]; then
-		log "info" "Trying to connect using 'KEY' mode $flags"
-		[ "$state" != "Running" ] && auth_arg="--auth-key $auth_key"
-		answ=$($PROG up $auth_arg $param --reset --timeout 5s 2>&1) || type="err"
-		[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
+		if [ -f "${TMP_DIR}/logout" ] && [ "$(cat ${TMP_DIR}/logout)" = "1" ]; then
+			log "info" "Trying to connect using 'URL' mode $flags"
+			$PROG login --operator=uhttpd $param --timeout 5s 2>&1
+			echo -n "2" > ${TMP_DIR}/logout
+		else
+			log "info" "Trying to connect using 'KEY' mode $flags"
+			[ "$state" != "Running" ] && auth_arg="--auth-key $auth_key"
+			answ=$($PROG up --operator=uhttpd $auth_arg $param --reset --timeout 5s 2>&1) || type="err"
+			[ -n "$answ" ] && answ=$(echo "$answ" | tr '\n' ' ') && log "$type" "$answ"
+		fi
 	fi
 
 	if [ -e "/etc/config/mwan3" ] && [ -n "$(ip route show table 52)" ] && { [ "$exit_node" -eq 1 ] || [ "$default_route" -eq 1 ]; }; then
@@ -129,6 +135,10 @@ start_service() {
 	procd_set_param user tailscale
 	procd_close_instance
 	: >"${TMP_DIR}/err"
+	# Create the status file to preset permissions
+	touch "${TMP_DIR}/status"
+	chown tailscale:tailscale "${TMP_DIR}/status"
+	chmod 660 "${TMP_DIR}/status"
 	chown tailscale:tailscale "${TMP_DIR}/err"
 
 	#Connect the device when tailscale service started

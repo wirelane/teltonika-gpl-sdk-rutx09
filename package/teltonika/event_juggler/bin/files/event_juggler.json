@@ -116,7 +116,8 @@
 		},
 		"rut_fota" : {
 			"methods": [
-				"get_info"
+				"get_info",
+				"set_crontab"
 			]
 		},
 		"rms" : {

@@ -153,7 +153,9 @@ module.exports = {
       { type: 'hw', name: 'is_access_point', value: false },
       { type: 'hw', name: '128mb_ram' },
       { type: 'hw', name: '128mb_ram', value: false },
-      { type: 'hw', name: 'has_tpm' }
+      { type: 'hw', name: 'has_tpm' },
+      { type: 'hw', name: 'is_gateway', value: false },
+      { type: 'hw', name: 'is_gateway' }
     ]
   },
   /** @return {Record<string, string>} */

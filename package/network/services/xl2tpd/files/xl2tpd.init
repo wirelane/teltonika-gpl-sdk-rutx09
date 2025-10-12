@@ -185,7 +185,7 @@ start_service() {
 
 	mkdir -p /tmp/state/l2tp
 	[ -n "$SERVER" ] && date "+%s" > /tmp/state/l2tp/uptime
-
+	chown -R xl2tpd:xl2tpd /tmp/state/l2tp
 }
 
 stop_service() {

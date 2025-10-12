@@ -8,3 +8,5 @@
 /etc/lpac_config.json			gsm:gsm		660	-
 # setup /tmp/mobile
 /tmp/mobile				gsm:gsm		770	cd
+# package restore and API depends on this lock file
+/var/run/board_modem.lock	root:lock	664	cf

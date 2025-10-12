@@ -313,9 +313,9 @@ define Package/frr/install
 	$(CP) ./files/defaults/99_migrate-frr.sh $(1)/etc/uci-defaults/7.5/99_migrate-frr.sh
 	$(CP) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.7/99-migrate-main_instance.sh
 
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
-	$(CP) ./files/defaults/99_fix_frr_broken_uci_default $(1)/etc/uci-defaults/7.17/99-recover-broken-config
-	$(CP) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.17/99-migrate-main_instance.sh
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
+	$(CP) ./files/defaults/99_fix_frr_broken_uci_default $(1)/etc/uci-defaults/7.18/99-recover-broken-config
+	$(CP) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.18/99-migrate-main_instance.sh
 endef
 
 define Package/frr-watchfrr/install

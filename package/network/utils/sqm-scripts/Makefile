@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sqm-scripts
 PKG_VERSION:=1.5.1
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v1.5.1
@@ -29,6 +29,7 @@ define Package/sqm-scripts
 	+kmod-sched-cake +kmod-sched-act-ipt
   TITLE:=SQM Scripts (QoS)
   PKGARCH:=all
+  USERID:=sqm:sqm
 endef
 
 define Package/sqm-scripts/description
@@ -45,6 +46,8 @@ define Package/sqm-scripts/install
 	make -C $(PKG_BUILD_DIR) USRDIR=$(USR_DIR) DESTDIR=$(1) PLATFORM=openwrt install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/sqm.conf $(1)/etc/config/sqm
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/sqm.permtab $(1)/etc/permtab.d/sqm
 endef
 
 $(eval $(call BuildPackage,sqm-scripts))

@@ -1,6 +1,6 @@
 --- a/sys.c
 +++ b/sys.c
-@@ -23,6 +23,7 @@
+@@ -23,18 +23,21 @@
  #include <rpcd/plugin.h>
  #include <rpcd/session.h>
  #include <sys/reboot.h>
@@ -8,7 +8,21 @@
  
  static const struct rpc_daemon_ops *ops;
  
-@@ -55,6 +56,17 @@ static const struct blobmsg_policy rpc_p
+ enum {
+ 	RPC_P_USER,
+ 	RPC_P_PASSWORD,
++	RPC_P_ENCRYPTED,
+ 	__RPC_P_MAX
+ };
+ 
+ static const struct blobmsg_policy rpc_password_policy[__RPC_P_MAX] = {
+ 	[RPC_P_USER]     = { .name = "user",     .type = BLOBMSG_TYPE_STRING },
+ 	[RPC_P_PASSWORD] = { .name = "password", .type = BLOBMSG_TYPE_STRING },
++	[RPC_P_ENCRYPTED] = { .name = "encrypted", .type = BLOBMSG_TYPE_BOOL },
+ };
+ 
+ enum {
+@@ -55,6 +58,56 @@ static const struct blobmsg_policy rpc_p
  	[RPC_PACKAGELIST_ALL] = { .name = "all",    .type = BLOBMSG_TYPE_BOOL },
  };
  
@@ -23,10 +37,349 @@
 +    [RPC_R_ARGS] = { .name = "args", .type = BLOBMSG_TYPE_ARRAY },
 +};
 +
++enum {
++	RPC_A_USER,
++	RPC_A_SHELL,
++	RPC_A_GROUP,
++	RPC_A_HOME,
++	RPC_A_CREATE_HOME,
++	RPC_A_MAX
++};
++
++static const struct blobmsg_policy rpc_adduser_policy[RPC_A_MAX] = {
++	[RPC_A_USER]         = { .name = "user",          .type = BLOBMSG_TYPE_STRING },
++	[RPC_A_SHELL]        = { .name = "shell",         .type = BLOBMSG_TYPE_STRING },
++	[RPC_A_GROUP]        = { .name = "group",         .type = BLOBMSG_TYPE_STRING },
++	[RPC_A_HOME]         = { .name = "home",          .type = BLOBMSG_TYPE_STRING },
++	[RPC_A_CREATE_HOME]  = { .name = "create_home",   .type = BLOBMSG_TYPE_BOOL },
++};
++
++enum {
++	RPC_DELUSER_USER,
++	RPC_DELUSER_REMOVE_HOME,
++	RPC_DELUSER_MAX
++};
++
++static const struct blobmsg_policy rpc_deluser_policy[RPC_DELUSER_MAX] = {
++	[RPC_DELUSER_USER]         = { .name = "user",          .type = BLOBMSG_TYPE_STRING },
++	[RPC_DELUSER_REMOVE_HOME]  = { .name = "remove_home",   .type = BLOBMSG_TYPE_BOOL },
++};
++
++enum {
++	RPC_SET_SHELL_USER,
++	RPC_SET_SHELL_PATH,
++	RPC_SET_SHELL_MAX
++};
++
++static const struct blobmsg_policy rpc_setshell_policy[RPC_SET_SHELL_MAX] = {
++	[RPC_SET_SHELL_USER]  = { .name = "user",  .type = BLOBMSG_TYPE_STRING },
++	[RPC_SET_SHELL_PATH]  = { .name = "path",  .type = BLOBMSG_TYPE_STRING },
++};
++
  static int
  rpc_errno_status(void)
  {
-@@ -309,33 +321,90 @@ rpc_sys_upgrade_clean(struct ubus_contex
+@@ -88,8 +141,7 @@ rpc_cgi_password_set(struct ubus_context
+ 	struct blob_attr *tb[__RPC_P_MAX];
+ 	ssize_t n;
+ 	int ret;
+-	const char *const passwd = "/bin/passwd";
+-	const struct timespec ts = {0, 100 * 1000 * 1000};
++	const char *const passwd = "/usr/sbin/chpasswd";
+ 
+ 	blobmsg_parse(rpc_password_policy, __RPC_P_MAX, tb,
+ 	              blob_data(msg), blob_len(msg));
+@@ -131,40 +183,281 @@ rpc_cgi_password_set(struct ubus_context
+ 		if (ret < 0)
+ 			return rpc_errno_status();
+ 
+-		if (execl(passwd, passwd,
+-		          blobmsg_data(tb[RPC_P_USER]), NULL))
++		if (execl(passwd, passwd, tb[RPC_P_ENCRYPTED] && blobmsg_get_bool(tb[RPC_P_ENCRYPTED]) ? "-e" : NULL, NULL))
+ 			return rpc_errno_status();
+ 
+ 	default:
+ 		close(fds[0]);
+ 
+-		n = write(fds[1], blobmsg_data(tb[RPC_P_PASSWORD]),
+-		              blobmsg_data_len(tb[RPC_P_PASSWORD]) - 1);
++		n = write(fds[1], blobmsg_data(tb[RPC_P_USER]),
++		              blobmsg_data_len(tb[RPC_P_USER]) - 1);
+ 		if (n < 0)
+ 			return rpc_errno_status();
+ 
+-		n = write(fds[1], "\n", 1);
++		n = write(fds[1], ":", 1);
+ 		if (n < 0)
+ 			return rpc_errno_status();
+ 
+-		nanosleep(&ts, NULL);
+-
+ 		n = write(fds[1], blobmsg_data(tb[RPC_P_PASSWORD]),
+ 		              blobmsg_data_len(tb[RPC_P_PASSWORD]) - 1);
+ 		if (n < 0)
+ 			return rpc_errno_status();
++
+ 		n = write(fds[1], "\n", 1);
+ 		if (n < 0)
+ 			return rpc_errno_status();
+ 
+ 		close(fds[1]);
+ 
+-		waitpid(pid, NULL, 0);
++		int status;
++		if (waitpid(pid, &status, 0) == -1)
++			return rpc_errno_status();
++
++		int exit_code = 0;
++		if (WIFEXITED(status)) {
++			exit_code = WEXITSTATUS(status);
++		} else if (WIFSIGNALED(status)) {
++			return rpc_errno_status();
++		}
+ 
++		struct blob_buf b = { 0 };
++		blob_buf_init(&b, 0);
++		char res_buf[8];
++		snprintf(res_buf, sizeof(res_buf), "%d", exit_code);
++
++		blobmsg_add_string(&b, "res", res_buf);
++		ubus_send_reply(ctx, req, b.head);
++		blob_buf_free(&b);
+ 		return 0;
+ 	}
+ }
+ 
++static int rpc_cgi_add_user(struct ubus_context *ctx, struct ubus_object *obj,
++    struct ubus_request_data *req, const char *method,
++    struct blob_attr *msg)
++{
++	struct stat s;
++	struct blob_attr *tb[RPC_A_MAX];
++
++	char *adduser = "/usr/sbin/adduser";
++
++	blobmsg_parse(rpc_adduser_policy, RPC_A_MAX, tb, blob_data(msg), blob_len(msg));
++
++	if (!tb[RPC_A_USER])
++		return UBUS_STATUS_INVALID_ARGUMENT;
++
++	if (stat(adduser, &s))
++		return UBUS_STATUS_NOT_FOUND;
++
++	if (!(s.st_mode & S_IXUSR))
++		return UBUS_STATUS_PERMISSION_DENIED;
++
++	pid_t pid = fork();
++	if (pid == 0) {
++		char **args = calloc(11, sizeof(char *));
++		if (!args)
++			return rpc_errno_status();
++
++		int i = 0;
++		args[i++] = adduser;
++		args[i++] = "-D";
++
++		if (!tb[RPC_A_CREATE_HOME] || !blobmsg_get_bool(tb[RPC_A_CREATE_HOME])) {
++			args[i++] = "-H";
++		}
++
++		if (tb[RPC_A_SHELL]) {
++			args[i++] = "-s";
++			args[i++] = blobmsg_get_string(tb[RPC_A_SHELL]);
++		}
++
++		if (tb[RPC_A_GROUP]) {
++			args[i++] = "-G";
++			args[i++] = blobmsg_get_string(tb[RPC_A_GROUP]);
++		}
++
++		if (tb[RPC_A_HOME]) {
++			args[i++] = "-h";
++			args[i++] = blobmsg_get_string(tb[RPC_A_HOME]);
++		}
++
++		args[i++] = blobmsg_get_string(tb[RPC_A_USER]);
++		args[i] = NULL;
++
++		execv(args[0], args);
++		free(args);
++		return rpc_errno_status();
++	} else if (pid < 0) {
++		return rpc_errno_status();
++	}
++
++	int status;
++	if (waitpid(pid, &status, 0) == -1)
++		return rpc_errno_status();
++
++	int exit_code = 0;
++	if (WIFEXITED(status)) {
++		exit_code = WEXITSTATUS(status);
++	} else if (WIFSIGNALED(status)) {
++		return rpc_errno_status();
++	}
++
++	struct blob_buf b = { 0 };
++	blob_buf_init(&b, 0);
++	char res_buf[8];
++	snprintf(res_buf, sizeof(res_buf), "%d", exit_code);
++
++	blobmsg_add_string(&b, "res", res_buf);
++	ubus_send_reply(ctx, req, b.head);
++	blob_buf_free(&b);
++	return 0;
++}
++
++static int rpc_cgi_del_user(struct ubus_context *ctx, struct ubus_object *obj,
++    struct ubus_request_data *req, const char *method,
++    struct blob_attr *msg)
++{
++	struct stat s;
++	struct blob_attr *tb[RPC_DELUSER_MAX];
++
++	char *deluser = "/usr/sbin/deluser";
++
++	blobmsg_parse(rpc_deluser_policy, RPC_DELUSER_MAX, tb, blob_data(msg), blob_len(msg));
++
++	if (!tb[RPC_DELUSER_USER])
++		return UBUS_STATUS_INVALID_ARGUMENT;
++
++	if (stat(deluser, &s))
++		return UBUS_STATUS_NOT_FOUND;
++
++	if (!(s.st_mode & S_IXUSR))
++		return UBUS_STATUS_PERMISSION_DENIED;
++
++	pid_t pid = fork();
++	if (pid == 0) {
++		char **args = calloc(4, sizeof(char *));
++		if (!args)
++			return rpc_errno_status();
++
++		int i = 0;
++		args[i++] = deluser;
++
++		if (tb[RPC_DELUSER_REMOVE_HOME] && blobmsg_get_bool(tb[RPC_DELUSER_REMOVE_HOME])) {
++			args[i++] = "--remove-home";
++		}
++
++		args[i++] = blobmsg_get_string(tb[RPC_DELUSER_USER]);
++		args[i] = NULL;
++
++		execv(args[0], args);
++		free(args);
++		return rpc_errno_status();
++	} else if (pid < 0) {
++		return rpc_errno_status();
++	}
++
++	int status;
++	if (waitpid(pid, &status, 0) == -1)
++		return rpc_errno_status();
++
++	int exit_code = 0;
++	if (WIFEXITED(status)) {
++		exit_code = WEXITSTATUS(status);
++	} else if (WIFSIGNALED(status)) {
++		return rpc_errno_status();
++	}
++
++	struct blob_buf b = { 0 };
++	blob_buf_init(&b, 0);
++	char res_buf[8];
++	snprintf(res_buf, sizeof(res_buf), "%d", exit_code);
++
++	blobmsg_add_string(&b, "res", res_buf);
++	ubus_send_reply(ctx, req, b.head);
++	blob_buf_free(&b);
++	return 0;
++}
++
++static int rpc_cgi_set_user_shell(struct ubus_context *ctx, struct ubus_object *obj,
++    struct ubus_request_data *req, const char *method,
++    struct blob_attr *msg)
++{
++	struct blob_attr *tb[RPC_SET_SHELL_MAX];
++
++	blobmsg_parse(rpc_setshell_policy, RPC_SET_SHELL_MAX, tb,
++					blob_data(msg), blob_len(msg));
++
++	if (!tb[RPC_SET_SHELL_USER] || !tb[RPC_SET_SHELL_PATH])
++		return UBUS_STATUS_INVALID_ARGUMENT;
++
++	const char *username = blobmsg_get_string(tb[RPC_SET_SHELL_USER]);
++	const char *shell_path = blobmsg_get_string(tb[RPC_SET_SHELL_PATH]);
++
++	FILE *fp = fopen("/etc/passwd", "r");
++	if (!fp)
++		return rpc_errno_status();
++
++	FILE *fp_tmp = fopen("/etc/passwd.tmp", "w");
++	if (!fp_tmp) {
++		fclose(fp);
++		return rpc_errno_status();
++	}
++
++	struct stat st;
++	if (stat("/etc/passwd", &st) == 0) {
++		chmod("/etc/passwd.tmp", st.st_mode);
++		chown("/etc/passwd.tmp", st.st_uid, st.st_gid);
++	}
++
++	char *line = NULL;
++	int updated = 0;
++	size_t len = 0;
++	ssize_t read;
++
++	while ((read = getline(&line, &len, fp)) != -1) {
++		char *saveptr = NULL;
++		char *user = strtok_r(line, ":", &saveptr);
++		if (!user) continue;
++
++		if (strcmp(user, username) == 0) {
++			char *pass = strtok_r(NULL, ":", &saveptr);
++			char *uid = strtok_r(NULL, ":", &saveptr);
++			char *gid = strtok_r(NULL, ":", &saveptr);
++			char *desc = strtok_r(NULL, ":", &saveptr);
++			char *home = strtok_r(NULL, ":", &saveptr);
++
++			if (!pass || !uid || !gid || !desc || !home) continue;
++
++			char *newline = strchr(home, '\n');
++			if (newline) *newline = '\0';
++
++			fprintf(fp_tmp, "%s:%s:%s:%s:%s:%s:%s\n",
++					user, pass, uid, gid, desc, home, shell_path);
++			updated = 1;
++		} else {
++			fprintf(fp_tmp, "%s:%s", user, saveptr);
++		}
++	}
++
++	free(line);
++	fclose(fp);
++	fclose(fp_tmp);
++
++	int ret = 0;
++	if (!updated || rename("/etc/passwd.tmp", "/etc/passwd") != 0) {
++		unlink("/etc/passwd.tmp");
++		ret = 1;
++	}
++
++	struct blob_buf b = {};
++	blob_buf_init(&b, 0);
++	blobmsg_add_string(&b, "res", ret == 0 ? "0" : "1");
++	ubus_send_reply(ctx, req, b.head);
++	blob_buf_free(&b);
++
++	return 0;
++}
++
+ static int
+ rpc_sys_packagelist(struct ubus_context *ctx, struct ubus_object *obj,
+                 struct ubus_request_data *req, const char *method,
+@@ -309,33 +602,90 @@ rpc_sys_upgrade_clean(struct ubus_contex
  	return 0;
  }
  
@@ -53,10 +406,10 @@
 +                sleep(2);
 +                return execv(cmd[0], cmd);
 +        }
- 
++
 +        return 0;
 +}
-+
+ 
 +static int rpc_sys_reboot(struct ubus_context *ctx, struct ubus_object *obj,
 +    struct ubus_request_data *req, const char *method,
 +    struct blob_attr *msg)
@@ -128,7 +481,15 @@
  	}
  
  	return 0;
-@@ -352,7 +421,8 @@ static struct ubus_object
+@@ -347,12 +697,16 @@ static struct ubus_object
+ 	static const struct ubus_method sys_methods[] = {
+ 		UBUS_METHOD("packagelist", rpc_sys_packagelist, rpc_packagelist_policy),
+ 		UBUS_METHOD("password_set", rpc_cgi_password_set, rpc_password_policy),
++		UBUS_METHOD("add_user", rpc_cgi_add_user, rpc_adduser_policy),
++		UBUS_METHOD("del_user", rpc_cgi_del_user, rpc_deluser_policy),
++		UBUS_METHOD("set_user_shell", rpc_cgi_set_user_shell, rpc_setshell_policy),
+ 		UBUS_METHOD_NOARG("upgrade_test", rpc_sys_upgrade_test),
+ 		UBUS_METHOD("upgrade_start",      rpc_sys_upgrade_start,
  		                                  rpc_upgrade_policy),
  		UBUS_METHOD_NOARG("upgrade_clean", rpc_sys_upgrade_clean),
  		UBUS_METHOD_NOARG("factory", rpc_sys_factory),
@@ -138,7 +499,7 @@
  	};
  
  	static struct ubus_object_type sys_type =
-@@ -374,5 +444,6 @@ static struct ubus_object
+@@ -374,5 +728,6 @@ static struct ubus_object
  }
  
  struct rpc_plugin rpc_plugin = {

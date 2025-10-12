@@ -106,7 +106,7 @@ function gen_private_key()
 		log "Error: generation of $size bit $KEYTYPE private key failed"
 		exit 1
 	fi
-	chmod 600 "$1"
+	chmod 660 "$1"
 	log "generated $size bit $KEYTYPE private key '""$1""'"
 }
 
@@ -122,7 +122,7 @@ function gen_cert_request()
 		log "Error: generation of PKCS#10 certificate request failed"
 		exit 1
 	fi
-	chmod 600 $1
+	chmod 660 $1
 	log "generated PKCS#10 certificate request"
 }
 

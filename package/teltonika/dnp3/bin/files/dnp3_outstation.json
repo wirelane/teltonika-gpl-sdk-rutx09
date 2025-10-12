@@ -51,8 +51,7 @@
 		},
 		"dnp3_client.rpc": {
 			"methods": [
-				"get_tag_value",
-				"set_tag_value"
+				"get_tag_value"
 			]
 		},
 		"modbus_client.rpc": {

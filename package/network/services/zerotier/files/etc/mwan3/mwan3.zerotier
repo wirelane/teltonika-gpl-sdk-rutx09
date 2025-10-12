@@ -9,7 +9,7 @@
 
 [ "$(uci -q get mwan3.globals.mode)" = "balance" ] && return 0
 
-ZEROTIER_DIRS=$(find /var/lib/ -type d -name "zerotier-one*")
+ZEROTIER_DIRS=$(find /var/run/zerotier/lib/ -type d -name "zerotier-one*")
 
 [ -z "$ZEROTIER_DIRS" ] && return 0
 

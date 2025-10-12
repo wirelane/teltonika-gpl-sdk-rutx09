@@ -1,47 +1,121 @@
-# 2025-09-26 00.07.17.5
+# 2025-10-09 00.07.18.1
+
+### Fix
+
+* Mobile: fixed operator selection under specific conditions (ID: 28796)
+
+# 2025-09-30 00.07.18
+
+### New
+
+* ITxPT: added ITxPT support. Supported services: Inventory, Time, GNSS Location, MQTT broker (ID: 19175)
+* Mobile: added "internet" APN for "Telenor" operator to APN database (ID: 28155)
+* Mobile: added historical signal information display (ID: 20740)
+* Starlink: added Starlink management support (ID: 18947)
 
 ### Improvements
 
-* Mobile: added ability to download eSIM profiles via Setup Wizard (ID: 28272)
+* Access Control: added JSON-RPC enable toggle (ID: 27229)
+* Channel Analysis: added diamond decoration showing primary channel position (ID: 26870)
+* Channel Analysis: aligned X axis ticks to 5GHz channels (ID: 26870)
+* Channel Analysis: removed low contrast color from possible figure colors (ID: 26870)
+* DHCP server: added option 82 support to DHCP relay (ID: 25687)
+* DLMS: improved COSEM value reading speed (ID: 27536)
+* DNP3 Client: added DNP3 client support for universal gateway (ID: 26363)
+* DNP3 Outstation: increased status report responsiveness (ID: 23854)
+* Event juggler: added new GPS operator 'Enter/Exit' for geofencing trigger (ID: 23980)
+* GPS: added warnings to NMEA sentence API endpoints (ID: 26240)
+* GPS: improved map loading logic to load modules only when needed (ID: 26901)
+* Input/Output: added "time" and "delay" options to I/O state change API endpoint (ID: 26454)
+* IPsec: added improvements for IPv6 support (ID: 27558)
+* IPsec: added requirement for local certificate and key fields when X.509 authentication method is selected (ID: 27444)
+* JSON-RPC: moved to Package Manager for Router family (ID: 27229)
+* Memory Expansion: added missing API endpoint documentation for RUT276, RUT206, RUTM52 (ID: 27556)
+* Mobile: added SIM switch historical data (ID: 26798)
+* Mobile: improved SIM switch status information (ID: 26798)
+* Modbus Client: added broadcast support (ID: 24931)
+* Modbus Client: increased test button and status report responsiveness (ID: 23854)
+* Modbus Client: made number zero as valid server ID (ID: 24931)
+* Modbus Server: added broadcast support (ID: 25104)
+* Modbus Server: increased status report responsiveness (ID: 23854)
+* MQTT Modbus Gateway: added broadcast support (ID: 25105)
+* Network: enabled TCP segmentation offload for ethernet driver for TRB501 (ID: 27289)
+* OpenVPN: added user and password options for export client configuration (ID: 23160)
+* OpenVPN: improved error messages (ID: 22712)
+* OpenVPN: removed disabled state from "logs" and "active clients" when user has no write permissions (ID: 22215)
+* RutOS: added ability to disable force-bundling kernel modules into the kernel via FORCE_BUNDLE_KMODULES environment variable (ID: 27304)
+* RutOS: updated SDK README with instructions for un-bundling kernel module packages (ID: 27304)
+* SD & USB Tools: added missing API endpoint documentation for RUT206, RUT276, RUTM52 (ID: 27556)
+* Security: updated permissions and ownerships for ioman and poe configuration files (ID: 27296)
+* SMS Utilities: added a warning about enabled SMS limit (ID: 27254)
+* SSHFS: updated mount point location (ID: 27812)
+* Update Firmware: added event log item about modem firmware update (ID: 18630)
+* WebUI: added "Skip to main content" accessibility feature (ID: 19425)
+* WebUI: added indicators when a form input inside an inactive tab was changed or invalid (ID: 14477)
+* WebUI: improved consistent formatting across all hints (ID: 27437)
+* WebUI: improved multi select design (ID: 25941)
+* WebUI: improved styles of drag hint on smaller screens (ID: 27007)
+* Wireless: enabled direct software flow offload path for bridged wireless interfaces for RUTC family, RUTX family (ID: 27389)
 
 ### Fix
 
-* Ledman: fixed possible undefined LED behavior for RUTM family (ID: 28492)
-* Mobile: fixed possible hang when downloading eSIM profile (ID: 28383)
-* Network: fixed assigning interface to incorrect firewall zone when changing its settings (ID: 28479)
+* 802.1X Server: fixed redirect link to "Radius" page (ID: 27378)
+* 802.1X Server: fixed unsupported Guest VLAN option being displayed (ID: 28473)
+* Administration: fixed "User group" input validation (ID: 27006)
+* API Core: fixed double quoted boundary parsing (ID: 21431)
+* Call Utilities: fixed answer action not triggering on second call (ID: 27253)
+* Channel Analysis: centered figures using center channels instead of primary ones (ID: 26870)
+* Channel Analysis: fixed 20 and 160 MHz width parsing (ID: 26870)
+* Channel Analysis: fixed chart display when signal goes below -100 dBm (ID: 26870)
+* Channel Analysis: fixed inconsistent figure widths between same width channels (ID: 26870)
+* Data to Server: fixed Modbus input raw data sending when data type is Modbus PDU (ID: 25242)
+* Email to SMS: fixed service's installation when installed via Package Manager for OTD140, TRB2M family, RUT14X family, DAP family, RUT2M family, RUT30X family, RUT36X family, RUT9M family (ID: 27688)
+* GPS: fixed an issue where GNSS location would not be updated due to unsynchronized GGA and RMC sentences (ID: 28137)
+* Hotspot 2.0: removed OSU provider (ID: 27369)
+* Hotspot: fixed console errors that occurred in certain scenarios when enabling or disabling an instance (ID: 27493)
+* Impulse Counter: disabled counter from isolated input for TRB141 (ID: 27562)
+* IPsec: fixed field validation to support % in custom options (ID: 26291)
+* Kernel: fixed compilation of 'fs-cifs' kernel module package (ID: 27304)
+* Ledman: fixed wifi LED not properly working for CAP700 (ID: 28210)
+* Mobile: fixed APN database backup and restore functionality (ID: 27953)
+* Mobile: fixed configuring mobile data limit for TRB501 (ID: 28132)
+* Mobile: fixed excessive SIM switching after changing configuration (ID: 26798)
+* Mobile: fixed segmentation fault during SIM switching (ID: 27904)
+* Modbus Client: fixed PDU data type data collection (ID: 25242)
+* Multi WAN: fixed incorrect log trigger (ID: 27308)
+* Network usage: fixed table columns visual bugs (ID: 27664)
+* Network: fixed interface settings change when framed routing is enabled for RUTM51, RUTC51, RUTM52, TRB500, ATRM50, RUTC50, RUTX50, RUTM50, RUTM59, TRB501, RUTM30, RUTM20 (ID: 27702)
+* Network: fixed issue when port state changes multiple times for RUT2M family, RUT9M family (ID: 27218)
+* Network: removed some features unsupported by hardware for RUT9M family (ID: 23605)
+* OpenVPN: fixed permissions for using IP Block (ID: 28316)
+* Ports Settings: fixed ports settings migration for OTD140 (ID: 27712)
+* Profiles: fixed endpoint response when calling from internal API (ID: 28234)
+* RMS: fixed RMS authentication under poor internet conditions (ID: 28160)
+* SMS Utilities: fixed incorrect 'Firmware on server' status message shown without internet connection (ID: 27661)
+* SMS Utilities: fixed mobile data usage display when mobile data is turned off (ID: 27396)
+* Stunnel: fixed disabled state of "enable" switch in overview page (ID: 26625)
+* UI Core: fixed 'Save & Apply' button reachability on mobile devices (ID: 25522)
+* Update Firmware: fixed incorrect FOTA address in SDK (ID: 28376)
+* VLAN: fixed VLAN device up/down loop when VLAN 0 is used for RUT2M family, RUT9M family, RUT14X family, RUT361, TRB2M family, TAP100, OTD140, RUT301 (ID: 25500)
+* WebUI: fixed incorrect search results for RUTE family (ID: 27515)
+* WebUI: fixed text-area width issues on small screen devices (ID: 25666)
+* Wireless: fixed redirection to LAN page when network is set to auto for CAP family (ID: 28177)
+* Wireless: fixed VHT operation IE values for 20MHz channel width to be the same regardless static/automatic channel configuration (ID: 26870)
+* Zerotier: fixed excessive ARP flooding on Zerotier interfaces (ID: 26786)
 
-# 2025-09-10 00.07.17.4
+### CVE Patches
 
-### Fix
-
-* Profiles: fixed keep-settings execution for older profiles (ID: 28189)
-
-# 2025-09-04 00.07.17.3
-
-### Fix
-
-* Bluetooth: fixed Bluetooth sensor values not updating on some devices for RUTX10, RUTX11, RUTX12 (ID: 28188)
-* Web Filter: fixed host blocking with hotspot interfaces (ID: 27937)
+* CVE-2025-6021 (ID: 25453)
+* CVE-2025-6069 (ID: 27307)
+* CVE-2025-8194 (ID: 27656)
+* CVE-2025-32415 (ID: 25453)
+* CVE-2025-49794 (ID: 25453)
+* CVE-2025-49796 (ID: 25453)
 
 ### Updates
 
-* Tailscale: updated version to  1.86.2 (ID: 27987)
-
-# 2025-08-27 00.07.17.1
-
-### Fix
-
-* DNS: fixed saving of DNS server IPs (ID: 27764)
-* Mobile: fixed SIM switch rule triggering unexpectedly due to NTP time adjustments (ID: 27907)
-* Network: fixed random network interface MAC address bug for TRB501 (ID: 28026)
-* Tailscale: fixed dns resolution errors caused by enabling MagicDNS (ID: 27762)
-* Tailscale: fixed package installation for TRB5 family (ID: 27762)
-* TR-069: fixed connection initialization for CAP700 (ID: 27809)
-* WebUI: fixed missing "Port Mirroring" page for RUTX family, RUT301, RUT2M family (ID: 27760)
-
-### Updates
-
-* iwinfo: updated version to  2025-02-06 (ID: 27511)
+* Dnsmasq: updated version to  2.90 (ID: 26963)
+* Iperf3: updated version to  3.19.1 (ID: 27763)
 
 # 2025-08-07 00.07.17
 
@@ -168,6 +242,56 @@
 * Kernel: updated version to  5.4.295 for TRB140, TRB141, TRB142, TRB143, TRB145 (ID: 7140)
 * Kernel: updated version to  5.15.186 for RUTC family, TRB2M family, RUT14X family, OTD140, OTD144, RUT2M family, RUT9M family, RUT30X family, RUT36X family, TAP100, TAP400, DAP family, RUTE family (ID: 7140)
 * Kernel: updated version to  6.6.96 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200 (ID: 7140)
+
+# 2025-08-06 00.07.16.5
+
+### Fix
+
+* GPS: fixed NMEA sentences being completely disabled in some cases for RUTM54 (ID: 27625)
+
+# 2025-07-30 00.07.16.4
+
+### Fix
+
+* GPS: fixed NMEA value configuration for RUTM54 (ID: 27512)
+
+# 2025-07-24 00.07.16.3
+
+### Fix
+
+* System Status: fixed SIM 1 and SIM 2 LEDs not working for ATRM family, RUTX family, RUTM family, RUTC family (ID: 27137)
+
+# 2025-07-22 00.07.16.2
+
+### New
+
+* SNMP: added LAN clients' table OID (ID: 27149)
+* SNMP: added wireless interfaces' clients' table OID (ID: 27149)
+
+### Fix
+
+* OpenVPN: fixed connectivity issues when using WAN failover (ID: 27285)
+* Update Firmware: fixed firmware download from FOTA for TRB160 (ID: 27251)
+
+# 2025-07-02 00.07.16.1
+
+### Improvements
+
+* SNMP: added access points' and meshes' clients' count OID (ID: 27103)
+
+### Fix
+
+* Kernel: fixed serial port flow control management (ID: 24945)
+
+# 2025-07-09 00.07.15.4
+
+### Improvements
+
+* Mobile: improved handling of ESM reject causes #33, #50, #51, and #52 (ID: 26293)
+
+### Fix
+
+* Backup: fixed internal firmware metadata not updating after applying backup (ID: 27082)
 
 # 2025-07-02 00.07.16
 

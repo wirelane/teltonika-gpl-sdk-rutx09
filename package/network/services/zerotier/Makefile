@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/zerotier
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libpthread +libstdcpp +kmod-tun +ip +libminiupnpc +libnatpmp +libatomic
+  DEPENDS:=+libpthread +libstdcpp +kmod-tun +ip +libminiupnpc +libnatpmp +libatomic +kmod-sched-flower +kmod-sched-act-police +tc-tiny
   TITLE:=Create flat virtual Ethernet networks of almost unlimited size
   URL:=https://www.zerotier.com
   SUBMENU:=VPN
@@ -72,7 +72,11 @@ define Package/zerotier/conffiles
 endef
 
 define Package/zerotier/install
-	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config $(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15 $(1)/etc/permtab.d $(1)/etc/uci-defaults/7.17
+	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config \
+	$(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15 \
+	$(1)/etc/uci-defaults/7.18 $(1)/etc/permtab.d \
+	$(1)/usr/share/zerotier
+
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-cli
 	$(LN) zerotier-one $(1)/usr/bin/zerotier-idtool
@@ -85,8 +89,10 @@ endif
 	$(CP) ./files/etc/init.d $(1)/etc/
 	$(INSTALL_BIN) ./files/etc/mwan3/mwan3.zerotier $(1)/etc/mwan3/
 	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.15/99_zerotier_device_name
-	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.17/99_zerotier_device_name
+	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.18/99_zerotier_device_name
+	$(CP) ./files/defaults/99_zerotier_bridge_device_name $(1)/etc/uci-defaults/7.18/99_zerotier_bridge_device_name
 	$(INSTALL_DATA) files/zerotier.permtab $(1)/etc/permtab.d/zerotier
+	$(INSTALL_BIN) files/hotplugs/97-zerotier $(1)/usr/share/zerotier
 endef
 
 define Package/zerotier/prerm

@@ -356,7 +356,7 @@ static int __init tlt_gpio_init(void)
 		chip_index++;
 		pr_info("tlt-gpio: set names for %s chip\n", gc->label);
 	}
-	
+
 	return 0;
 }
 

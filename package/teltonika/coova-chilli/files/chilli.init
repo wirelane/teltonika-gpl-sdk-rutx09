@@ -5,8 +5,8 @@ STOP=89
 USE_PROCD=1
 
 WORKING_DIR="/var/run/chilli"
-DB_PATH=/var/hotspot.db
-DB_PATH_FLASH=/etc/chilli/hotspot.db
+DEFAULT_DB_PATH="$WORKING_DIR/hotspot.db"
+FLASH_DIR="/etc/chilli"
 KMOD_PATH=lib/iptables/libxt_coova.so
 PROG="/usr/sbin/chilli"
 GENERATED_IPS=""
@@ -266,9 +266,10 @@ set_chilli() {
 		esac
 		;;
 	dbpath | usersdbpath)
-		touch "$2"
-		chown chilli:chilli "$2"
-		set_conf "$1" "$2"
+		touch "$value"
+		chown chilli:chilli "$value"
+		set_conf "$option" "$value"
+		[ "$option" = "dbpath" ] && eval "chilli_${option}_${CONFIG_SECTION}=$value"
 		;;
 	usersignup)
 		chmod 0760 "$2"
@@ -484,6 +485,20 @@ add_con_script() {
 	set_conf "$type" "$file"
 }
 
+copy_db_file() {
+	local cfg="$1"
+	local chilli_dbpath=$(eval "echo \$chilli_dbpath_$cfg")
+	local stop_script_path="${WORKING_DIR}/chilli_stop_${cfg}.sh"
+
+	[ -z "$chilli_dbpath" ] && chilli_dbpath="$DEFAULT_DB_PATH"
+	local chilli_dbpath_flash="${FLASH_DIR}/$(basename "$chilli_dbpath")"
+	[ -f "$chilli_dbpath_flash" ] && cp -a "$chilli_dbpath_flash" "$chilli_dbpath"
+
+	echo -e "#!/bin/sh\n\n[ -f "$chilli_dbpath" ] && cp -a "$chilli_dbpath" "$chilli_dbpath_flash" && rm -f "$chilli_dbpath"" > "$stop_script_path"
+	chown chilli:chilli "$stop_script_path"
+	chmod +x "$stop_script_path"
+}
+
 start_chilli() {
 	local cfg="$1" dhcpif=$2
 	local start_chilli=$(eval "echo \$start_chilli_$cfg")
@@ -492,11 +507,31 @@ start_chilli() {
 	local base="${WORKING_DIR}/chilli_${cfg}"
 	local network=$(eval "echo \$dhcpif_$cfg")
 	local uamdomainfile macaddr wifi_id interface int=0 pid_file
+	chilli_conf="${base}.conf"
 
 	[ "$start_chilli" = "1" ] || return
 
-	chilli_conf="${WORKING_DIR}/chilli_${cfg}.conf"
+	for wifi_id in $(ubus call network.wireless status | jsonfilter -e @[@.up=true].interfaces[@].config.wifi_id); do
+		[ "$wifi_id" = "$network" ] && int=1
+	done
 
+	[ $int -eq 0 ] && {
+		for interface in $(ubus call network.interface dump | jsonfilter -e @[*] | jsonfilter -e @[*].interface); do
+			[ "$interface" = "$network" ] && int=1
+		done
+	}
+
+	[ $int -eq 0 ] && return
+	[ -z "$dhcpif" ] && get_dhcp_interface dhcpif "$network"
+	[ -z "$dhcpif" ] && return
+
+	local ifname
+	for name in $dhcpif; do
+		[ -z "$ifname" ] && ifname=$name || set_conf "moreif" "$name"
+	done
+	[ -z "$ifname" ] && return
+
+	copy_db_file "$cfg"
 	add_kmod_conf "$cfg"
 
 	add_con_script "conup" "$cfg"
@@ -504,33 +539,13 @@ start_chilli() {
 	add_con_script "macup" "$cfg"
 	add_con_script "macdown" "$cfg"
 
-	set_conf "conrestart" "/etc/chilli/conrestart.sh"
+	set_conf "conrestart" "${FLASH_DIR}/conrestart.sh"
 
 	config_get uamdomainfile "$cfg" "uamdomainfile"
-
-	for wifi_id in $(ubus call network.wireless status | jsonfilter -e @[@.up=true].interfaces[@].config.wifi_id); do
-		[ "$wifi_id" = "$network" ] && int=1
-	done
-    
-	[ "$int" = 0 ] && {
-		for interface in $(ubus call network.interface dump | jsonfilter -e @[*] | jsonfilter -e @[*].interface); do
-			[ "$interface" = "$network" ] && int=1
-		done
-	}
-
-	[ "$int" = "0" ] && return
-	[ -z "$dhcpif" ] && get_dhcp_interface dhcpif "$network"
-	[ -z "$dhcpif" ] && return
 	[ -n "$chilli_group" ] && config_foreach set_dyn_limits group "$chilli_group" "dyn"
 	[ -n "$trial_group" ] && config_foreach set_dyn_limits group "$trial_group" "trial"
 
-	local ifname
-	for name in $dhcpif; do
-		[ -z "$ifname" ] && ifname=$name || set_conf "moreif" "$name"
-	done
-	[ -z "$ifname" ] && return
 	macaddr=$(cat /sys/class/net/"${ifname}"/address)
-
 	pid_file="${WORKING_DIR}/run_chilli_${cfg}.pid"
 
 	touch "$pid_file" && chown chilli:chilli "$pid_file"
@@ -560,20 +575,13 @@ start_service() {
 }
 
 service_stopped() {
-	[ -f "${DB_PATH}" ] && {
-		cp -a "${DB_PATH}" "${DB_PATH_FLASH}"
-	}
+	for file in "${WORKING_DIR}"/chilli_stop_*.sh; do
+		"$file"
+	done
 	rm -f "${WORKING_DIR}/chilli_"*
 }
 
 reload_service() {
 	stop
-	start
-}
-
-boot() {
-	[ -f "${DB_PATH_FLASH}" ] && {
-		cp -a "${DB_PATH_FLASH}" "${DB_PATH}"
-	}
 	start
 }

@@ -55,8 +55,8 @@ define Package/relayd/install
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) ./files/relayd_acl.json $(1)/usr/share/acl.d/relayd_acl.json
 
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
-	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.17/10-move-relayd-from-network-conf
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
+	$(INSTALL_DATA) ./files/relayd.defaults $(1)/etc/uci-defaults/7.18/10-move-relayd-from-network-conf
 
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/relayd.permtab $(1)/etc/permtab.d/relayd

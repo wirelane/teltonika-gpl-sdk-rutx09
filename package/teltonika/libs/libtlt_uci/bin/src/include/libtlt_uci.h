@@ -158,6 +158,28 @@ char *ucix_get_list_option(struct uci_context *ctx, const char *p, const char *s
 char **ucix_get_list(struct uci_context *ctx, const char *p, const char *s, const char *o, size_t *n);
 
 /**
+ * @brief add option to list
+ * @param ctx uci context
+ * @param p configuration name
+ * @param s section name
+ * @param o option name
+ * @param t option value
+ * @return on success function return 0, on failure 1 is returned
+ */
+int ucix_add_list_option(struct uci_context *ctx, const char *p, const char *s, const char *o, const char *t);
+
+/**
+ * @brief delete option from list
+ * @param ctx uci context
+ * @param p configuration name
+ * @param s section name
+ * @param o option name
+ * @param t option value
+ * @return on success function return 0, on failure 1 is returned
+ */
+int ucix_del_list_option(struct uci_context *ctx, const char *p, const char *s, const char *o, const char *t);
+
+/**
  * @brief count sections with the same type
  * @param pkg uci package
  * @param t section type

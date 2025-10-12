@@ -19,6 +19,7 @@ define Package/travelmate
 	TITLE:=A wlan connection manager for travel router
 	DEPENDS:=+iwinfo +jshn +jsonfilter +curl +ca-bundle
 	PKGARCH:=all
+	USERID:=travelmate:travelmate
 endef
 
 define Package/travelmate/conffiles
@@ -46,6 +47,9 @@ define Package/travelmate/install
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/travelmate.conf $(1)/etc/config/travelmate
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/travelmate.permtab $(1)/etc/permtab.d/travelmate
 
 	$(INSTALL_DIR) $(1)/etc/travelmate
 	$(INSTALL_BIN) ./files/travelmate.vpn $(1)/etc/travelmate

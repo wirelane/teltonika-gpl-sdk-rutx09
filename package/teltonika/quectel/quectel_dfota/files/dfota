@@ -54,6 +54,8 @@ TOTAL_LIST_RETRIES=10
 
 legacy_AT_commands=1
 
+old_fw=""
+
 get_from_info() {
 	ubus call "$1" info | grep "$2" | cut -d'"' -f 4
 }
@@ -269,6 +271,9 @@ add_json_object() {
 print_json_object() {
 	local json="$1"
 	echo "$json" > "$2"
+
+	# In case dfota ran as root, refresh the perms for WebUI status access
+	[[ "$2" = "$json_file_updates" || "$2" = "$json_file_status" ]] && perm "$2" >/dev/null
 }
 
 insert_json_on_failure() {
@@ -345,16 +350,16 @@ check_modem_status() {
 	#If fait for WAN is set, wait for modem too
 	local modem_id="$1"
 	local ret
+	ret=$(get_firmware "$modem_id")
+	old_fw="$ret"
 	if [ "$WAIT_FOR_WAN" = 1 ]; then
 		for i in $(seq 18); do
-			ret=$(get_firmware "$modem_id")
 			[ "$ret" != "" ] && [ "$ret" != "Command failed: Not found" ] && return 0
 			sleep 10
 		done
 		print_error "modem $modem_id not ready." "$EC_NOT_READY"
 		return 1
 	else
-		ret=$(get_firmware "$modem_id")
 		if [ "$ret" = "" ] || [ "$ret" = "Command failed: Not found" ]; then
 			print_error "modem $modem_id not ready." "$EC_NOT_READY"
 			return 1
@@ -783,6 +788,18 @@ do_update_mobile_only() {
 	return 1
 }
 
+log_fw_update() {
+	local modem_usb_id="$1"
+	local new_fw="$2"
+	ubus call log write_ext "{
+		\"event\": \"Updated $(get_modem_type "$modem_usb_id") modem firmware from $old_fw to $new_fw\",
+		\"sender\": \"Firmware\",
+		\"table\": 1,
+		\"priority\": 6,
+		\"write_db\": 1
+	}"
+}
+
 track_update_status() {
 	local modem_id="$1"
 	local ret
@@ -823,6 +840,9 @@ track_update_status() {
 		fi
 		sleep 2
 	done;
+
+	log_fw_update "$modem_usb_id" "$ret"
+
 	print_output "Update finished! Firmware version - \"$ret\""
 	json_update_modem_status "$modem_id" "finished"
 	notify_webui "upgrade" "$modem_json"
@@ -835,7 +855,6 @@ track_update_status_EG915Q() {
 	local cnt=0
 	print_output "Waiting for the update to start..."
 	json_update_modem_status "$modem_id" "waiting"
-	# modem_usb_id=$(get_from_info "$modem_id" "usb_id")
 	dfota_state=$(get_from_info "$modem_id" "\"state\": \"UPDATING\"") > /dev/null 2>&1
 
 	# Counter and max wait time
@@ -869,6 +888,10 @@ track_update_status_EG915Q() {
 		fi
 		sleep 2
 	done;
+
+	modem_usb_id=$(get_from_info "$modem_id" "usb_id")
+	log_fw_update "$modem_usb_id" "$ret"
+
 	print_output "Update finished! Firmware version - \"$ret\""
 	json_update_modem_status "$modem_id" "finished"
 

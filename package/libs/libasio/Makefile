@@ -47,10 +47,4 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/include/asio $(1)/usr/include/
 endef
 
-define Build/Install
-	$(INSTALL_DIR) $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/include/asio.hpp $(1)/usr/include/
-	$(CP) $(PKG_BUILD_DIR)/include/asio $(1)/usr/include/
-endef
-
 $(eval $(call BuildPackage,libasio))

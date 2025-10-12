@@ -32,6 +32,7 @@ define Package/iw-66
   URL:=http://wireless.kernel.org/en/users/Documentation/iw
   DEPENDS:= +libnl-tiny
   VARIANT:=tiny
+  FATTRS:=/usr/sbin/iw::::cap_net_admin+ei
 endef
 
 define Package/iw-66-full

@@ -27,6 +27,8 @@ set_status() {
 	json_add_string "remote_ip" "$2"
 	json_add_string "interface" "$3"
 	json_dump > /tmp/state/l2tp/"${3#l2tp-}".status
+	chown xl2tpd:xl2tpd /tmp/state/l2tp/"${3#l2tp-}".status
+	chmod 644 /tmp/state/l2tp/"${3#l2tp-}".status
 }
 
 if [ -n "$IPLOCAL" ] || [ -n "$IPREMOTE" ]; then

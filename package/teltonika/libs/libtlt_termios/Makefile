@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libtlt_termios
-PKG_SOURCE_VERSION:=7.17
+PKG_SOURCE_VERSION:=7.18
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -16,6 +16,7 @@ define Package/$(PKG_NAME)
 	TITLE:=Terminal settings handling library by Teltonika
 	ABI_VERSION:=1.0
 	DEPENDS:=+libubox +libtlt_uci +libcfgx +libuci +libboardjson +libgpiod +libcfgx
+	USERID:=tltserial=643:tltserial=643
 endef
 
 define Package/$(PKG_NAME)/description

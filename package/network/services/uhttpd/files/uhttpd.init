@@ -168,8 +168,8 @@ generate_keys() {
 	mv -f "$crt_final" "$crt"
 	[ "$crt_ca_cert" = "$DEFAULT_UHTTPD_CA_CERT" ] || mv -f "$crt_ca_cert" "$DEFAULT_UHTTPD_CA_CERT"
 	[ "$crt_ca_key" = "$DEFAULT_UHTTPD_CA_KEY" ] || mv -f "$crt_ca_key" "$DEFAULT_UHTTPD_CA_KEY"
-
 	register_certificate_in_config "$crt" "$key" "$days" "$key_type" "$ec_curve"
+	chown uhttpd:uhttpd "$crt" "$key"
 }
 
 append_lua_prefix() {
@@ -204,6 +204,8 @@ start_instance()
 		ln -s /usr/share/uhttpd/91-trigger-vuci-routes-reload.hotplug /etc/hotplug.d/net/91-trigger-vuci-routes-reload
 
 	procd_open_instance
+	procd_set_param user uhttpd
+	procd_set_param group uhttpd
 	procd_set_param respawn 0 5 0
 	procd_set_param stderr 1
 	procd_set_param command "$UHTTPD_BIN" -f
@@ -225,11 +227,9 @@ start_instance()
 			append_lua_prefix "$prefix=$handler"
 		fi
 	}
-	[ -f /usr/lib/uhttpd_ubus.so ] && {
-		append_arg "$cfg" ubus_prefix "-u"
-		append_arg "$cfg" ubus_socket "-U"
-		append_bool "$cfg" ubus_cors "-X" 0
-	}
+	append_arg "$cfg" ubus_prefix "-u"
+	append_arg "$cfg" ubus_socket "-U"
+	append_bool "$cfg" ubus_cors "-X" 0
 	append_arg "$cfg" script_timeout "-t"
 	append_arg "$cfg" network_timeout "-T"
 	append_arg "$cfg" http_keepalive "-k"
@@ -325,6 +325,7 @@ service_triggers()
 
 start_service() {
 	config_load uhttpd
+	chown uhttpd:uhttpd "${DEFAULT_UHTTPD_CA_CERT}" "${DEFAULT_UHTTPD_CA_KEY}"
 	config_foreach start_instance uhttpd
 }
 

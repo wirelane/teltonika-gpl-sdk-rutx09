@@ -1,16 +1,18 @@
 #!/bin/sh /etc/rc.common
 
+APP=/usr/bin/email_to_sms
 USE_PROCD=1
 START=70
 STOP=40
 
 start_service() {
-	mkdir -p /var/run/ets
-	/usr/bin/email_to_sms start
+	[ ! -x "$APP" ] && APP="/usr/local$APP"
+	"$APP" start
 }
 
 stop_service() {
-	/usr/bin/email_to_sms stop
+	[ ! -x "$APP" ] && APP="/usr/local$APP"
+	"$APP" stop
 }
 
 service_triggers()

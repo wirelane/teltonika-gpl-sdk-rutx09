@@ -28,6 +28,9 @@
                 },
 		"service": {
 			"methods": [ "set", "list", "delete", "signal" ]
+                },
+		"log": {
+			"methods": [ "write_ext" ]
 		}
         },
         "send": [ "vuci.*" ]

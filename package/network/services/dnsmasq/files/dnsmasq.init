@@ -816,7 +816,7 @@ dhcp_hostrecord_add() {
 
 dhcp_relay_add() {
 	local cfg="$1"
-	local local_addr server_addr interface
+	local local_addr server_addr circuit_id remote_id
 
 	config_get local_addr "$cfg" local_addr
 	[ -n "$local_addr" ] || return 0
@@ -824,12 +824,12 @@ dhcp_relay_add() {
 	config_get server_addr "$cfg" server_addr
 	[ -n "$server_addr" ] || return 0
 
-	config_get interface "$cfg" interface
-	if [ -z "$interface" ]; then
+	config_get circuit_id "$cfg" circuit_id
+	config_get remote_id "$cfg" remote_id
+	if [ -z "$circuit_id" ] && [ -z "$remote_id" ]; then
 		xappend "--dhcp-relay=$local_addr,$server_addr"
 	else
-		network_get_device ifname "$interface" || return
-		xappend "--dhcp-relay=$local_addr,$server_addr,$ifname"
+		xappend "--dhcp-relay=$local_addr,$server_addr,$circuit_id,$remote_id"
 	fi
 }
 

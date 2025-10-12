@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
 PKG_VERSION:=5.9.14
-PKG_RELEASE:=25
+PKG_RELEASE:=26
 
 PKG_SOURCE_VERSION:=5.9.14
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -362,7 +362,6 @@ $(call Package/strongswan/Default)
 	+strongswan-mod-openssl \
 	+strongswan-mod-eap-identity \
 	+strongswan-mod-eap-mschapv2 \
-	+strongswan-mod-sha1 \
 	+strongswan-mod-pkcs8
 endef
 
@@ -538,7 +537,7 @@ endef
 
 define Package/strongswan/install
 	$(INSTALL_DIR) $(1)/etc $(1)/etc/permtab.d
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/strongswan.conf $(1)/etc/
+	$(INSTALL_CONF) ./files/etc/strongswan.conf $(1)/etc/
 	echo -e "\ninclude /var/run/ipsec/ipsec/strongswan.conf" >> $(1)/etc/strongswan.conf
 	$(INSTALL_DIR) $(1)/usr/lib/ipsec
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/ipsec/libstrongswan.so.* $(1)/usr/lib/ipsec/
@@ -616,6 +615,8 @@ endef
 define Package/strongswan-pki/install
 	$(INSTALL_DIR) $(1)/etc/strongswan.d
 	$(CP) $(PKG_INSTALL_DIR)/etc/strongswan.d/pki.conf $(1)/etc/strongswan.d/
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/cert-enroll.permtab $(1)/etc/permtab.d/cert-enroll
 	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_strongswan-pki)),,/usr/local))
 	$(INSTALL_DIR) $(DEST_DIR)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/pki $(DEST_DIR)/usr/bin/
@@ -753,7 +754,7 @@ $(eval $(call BuildPlugin,duplicheck,advanced duplicate checking,))
 $(eval $(call BuildPlugin,eap-dynamic,EAP dynamic selector,))
 $(eval $(call BuildPlugin,eap-identity,EAP identity helper,))
 $(eval $(call BuildPlugin,eap-md5,EAP MD5 (CHAP) EAP auth,))
-$(eval $(call BuildPlugin,eap-mschapv2,EAP MS-CHAPv2 EAP auth,+strongswan-mod-md4 +strongswan-mod-des))
+$(eval $(call BuildPlugin,eap-mschapv2,EAP MS-CHAPv2 EAP auth,+strongswan-mod-md4))
 $(eval $(call BuildPlugin,eap-radius,EAP RADIUS auth,))
 $(eval $(call BuildPlugin,eap-tls,EAP TLS auth,+strongswan-libtls))
 $(eval $(call BuildPlugin,farp,fake arp respsonses,))

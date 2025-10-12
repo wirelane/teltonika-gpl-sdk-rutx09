@@ -184,6 +184,9 @@ config AP_DEVICE
 config LEDMAN_LITE
 	bool
 
+config ETHTOOL_TINY
+	bool
+
 config GATEWAY_DEVICE
 	bool
 
@@ -342,9 +345,6 @@ config ARCH
 	default "sh4eb"     if sh4eb
 	default "sparc"     if sparc
 	default "x86_64"    if x86_64
-
-config BYPASS_MOBILE_COUNTERS
-	bool
 
 config RESET_BUTTON_SUPPORT
 	bool

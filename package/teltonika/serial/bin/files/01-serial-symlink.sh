@@ -84,7 +84,11 @@ manage_serial() {
 	local usb_jack path modem_id idx usb_jack dev_type dev_path
 	local file="/tmp/board.json"
 
-	kinfo "New device $DEVICENAME at $DEVPATH appeared!"
+	if [ "$ACTION" == "add" ]; then
+		kinfo "New device $DEVICENAME at $DEVPATH appeared!"
+	elif [ "$ACTION" == "remove" ]; then
+		kinfo "Device $DEVICENAME at $DEVPATH disappeared!"
+	fi
 
 	[ -f "$file" ] || file="/etc/board.json"
 

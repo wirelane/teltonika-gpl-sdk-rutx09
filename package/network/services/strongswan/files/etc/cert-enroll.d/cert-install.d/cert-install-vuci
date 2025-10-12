@@ -53,6 +53,9 @@ config_foreach set_certificate "certificate" "ca-$FQDN.cert.pem" "$enddate_ca" "
 uci_commit "certificates"
 
 cron="0 0 * * 0 FQDN=$FQDN SCEP_URL=$SCEP_URL ${PASSWORD:+PASSWORD=$PASSWORD} cert-enroll.sh"
+# checks if crontab file exists, if not creates it
+crontab -l > /dev/null 2>&1 || printf "" | crontab -
+
 if ! crontab -l | grep -q "$(echo "$cron" | cut -d' ' -f 6-)"; then
 	(crontab -l ; echo "${cron}")| crontab -
 	logger "Updated crontab with new entry: \'${cron}\'"

@@ -26,6 +26,7 @@
       "RUTM09",
       "RUTM10",
       "RUTM11",
+      "RUTM16",
       "RUTM20",
       "RUTM30",
       "RUTM31",
@@ -52,7 +53,7 @@
   },
   {
     "name": "RUTC",
-    "devices": ["RUTC50", "RUTC51", "RUTC40", "RUTC41", "RUTC42"]
+    "devices": ["RUTC40", "RUTC41", "RUTC42", "RUTC50", "RUTC51"]
   },
   {
     "name": "RUT14X",

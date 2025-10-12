@@ -154,7 +154,24 @@
  
  static void
  rpc_timeout_cb(struct uloop_timeout *t)
-@@ -712,6 +747,7 @@ static int rpc_plugin_intercept(struct u
+@@ -654,6 +689,16 @@ rpc_process_cb(struct uloop_process *p,
+ 
+ 	ustream_poll(&c->opipe_rpcd.stream);
+ 	ustream_poll(&c->epipe_rpcd.stream);
++
++	if (!c->opipe_rpcd.stream.eof) {
++		c->opipe_rpcd.stream.eof = true;
++		ustream_state_change(&c->opipe_rpcd.stream);
++	}
++
++	if (!c->epipe_rpcd.stream.eof) {
++		c->epipe_rpcd.stream.eof = true;
++		ustream_state_change(&c->epipe_rpcd.stream);
++	}
+ }
+ 
+ static void set_capabilities(const char *cap_str) {
+@@ -712,6 +757,7 @@ static int rpc_plugin_intercept(struct u
  	int devnull;
  	int opipe_rpcd[2];
  	int epipe_rpcd[2];
@@ -162,7 +179,7 @@
  	int timeout_pipe[2];
  	struct rpc_plugin *plugin;
  	blob_buf_init(&buf, 0);
-@@ -720,6 +756,7 @@ static int rpc_plugin_intercept(struct u
+@@ -720,6 +766,7 @@ static int rpc_plugin_intercept(struct u
  	c = calloc(1, sizeof(*c));
  	pipe(opipe_rpcd);
  	pipe(epipe_rpcd);
@@ -170,7 +187,7 @@
  	pipe(timeout_pipe);
  	switch ((pid = fork()))
  	{
-@@ -727,6 +764,7 @@ static int rpc_plugin_intercept(struct u
+@@ -727,6 +774,7 @@ static int rpc_plugin_intercept(struct u
  		return UBUS_STATUS_UNKNOWN_ERROR;
  
  	case 0: {
@@ -178,7 +195,7 @@
  		child_process = true;
  		INIT_LIST_HEAD(&ctx->requests);
  		INIT_LIST_HEAD(&ctx->pending);
-@@ -742,11 +780,10 @@ static int rpc_plugin_intercept(struct u
+@@ -742,11 +790,10 @@ static int rpc_plugin_intercept(struct u
  		dup2(epipe_rpcd[1], 2);
  
  		if (devnull>2) close(devnull);
@@ -194,7 +211,7 @@
  
  		void *dlh = dlopen(obj->path, RTLD_LAZY | RTLD_LOCAL);
  		EXIT_ON_ERROR(!dlh, UBUS_STATUS_UNKNOWN_ERROR, "Failed to load plugin %s", obj->path);
-@@ -803,11 +840,11 @@ static int rpc_plugin_intercept(struct u
+@@ -803,11 +850,11 @@ static int rpc_plugin_intercept(struct u
  
  	default:
  		memset(c, 0, sizeof(*c));
@@ -209,7 +226,7 @@
  		c->process.pid = pid;
  		c->process.cb = rpc_process_cb;
  		uloop_process_add(&c->process);
-@@ -821,6 +858,7 @@ static int rpc_plugin_intercept(struct u
+@@ -821,6 +868,7 @@ static int rpc_plugin_intercept(struct u
  		uloop_timeout_set(&c->timeout, timeout);
  		close(opipe_rpcd[1]);
  		close(epipe_rpcd[1]);

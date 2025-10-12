@@ -5,5 +5,5 @@
 			"methods": [ "check", "update", "inc", "reset" ]
 		}
 	},
-	"send": [ "sms.limit" ]
+	"send": [ "sms.limit", "sms.limit.reset" ]
 }

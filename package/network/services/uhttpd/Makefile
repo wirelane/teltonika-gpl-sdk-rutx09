@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
-PKG_RELEASE:=12
+PKG_RELEASE:=15
 
 PKG_SOURCE_VERSION=15346de8d3ba422002496526ee24c62a3601ab8c
 PKG_SOURCE_DATE:=2021-03-21
@@ -41,7 +41,8 @@ endef
 
 define Package/uhttpd
   $(Package/uhttpd/default)
-  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua
+  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua +libcap
+  FATTRS:=/usr/sbin/uhttpd::::cap_net_bind_service,cap_net_admin,cap_net_raw=ep;/usr/lib/uhttpd_ubus.so:uhttpd:::;/usr/lib/uhttpd_lua.so:uhttpd:::
 endef
 
 define Package/uhttpd/description
@@ -72,11 +73,31 @@ define Package/uhttpd-mod-ubus
   $(Package/uhttpd/default)
   TITLE+= (ubus plugin)
   DEPENDS:=uhttpd +libubus +libblobmsg-json
+  ifeq (m, $(CONFIG_PACKAGE_uhttpd-mod-ubus))
+    PKG_TLT_NAME:=JSON-RPC support
+    PKG_ROUTER:=$(TLT_PLATFORM_NAME)
+    PKG_APP_NAME:=json_rpc_support
+  endif
 endef
 
 define Package/uhttpd-mod-ubus/description
  The ubus plugin adds a HTTP/JSON RPC proxy for ubus and publishes the
  session.* namespace and procedures.
+endef
+
+define Package/uhttpd-mod-ubus/postinst
+#!/bin/sh
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+kill -1 $$(pgrep uhttpd)
+exit 0
+endef
+
+define Package/uhttpd-mod-ubus/postrm
+#!/bin/sh
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+uci delete uhttpd.main.ubus_prefix
+uci commit uhttpd
+exit 0
 endef
 
 define Package/uhttpd/conffiles
@@ -99,18 +120,19 @@ CMAKE_OPTIONS += -DTLS_SUPPORT=on
 OPTION_HTTPS_SED_SCRIPT := sed -i "/config.*main/a\\\toption redirect_https '1'" $(1)
 
 define Package/uhttpd/install
-  $(INSTALL_DIR) $(1)/www/cgi-bin/custom
-	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_DIR) $(1)/www/cgi-bin/custom $(1)/etc/init.d $(1)/etc/config $(1)/usr/sbin $(1)/etc/permtab.d $(1)/tmp/vuci
 	$(INSTALL_BIN) ./files/uhttpd.init $(1)/etc/init.d/uhttpd
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_CONF) ./files/uhttpd.config $(1)/etc/config/uhttpd
+	$(INSTALL_CONF_USR) ./files/uhttpd.config $(1)/etc/config/uhttpd
+	$(INSTALL_DATA) ./files/uhttpd.permtab $(1)/etc/permtab.d/uhttpd
 	$(VERSION_SED_SCRIPT) $(1)/etc/config/uhttpd
-	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uhttpd $(1)/usr/sbin/uhttpd
 	$(if $(or $(CONFIG_TEST_IMAGE),$(CONFIG_x86_64)),,\
 		$(OPTION_HTTPS_SED_SCRIPT) $(1)/etc/config/uhttpd)
 	$(if $(CONFIG_USE_OPENRC), \
 		$(OPENRC_INSTALL) boot uhttpd ./files/uhttpd.openrc $(1))
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
+	$(INSTALL_DATA) ./files/uci-defaults/7.18/99_restore_json_rpc $(1)/etc/uci-defaults/7.18/
 endef
 
 define Package/uhttpd-mod-lua/install
@@ -121,6 +143,8 @@ endef
 define Package/uhttpd-mod-ubus/install
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uhttpd_ubus.so $(1)/usr/lib/
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DATA) ./files/json_rpc.json $(1)/usr/share/acl.d/json_rpc.json
 endef
 
 

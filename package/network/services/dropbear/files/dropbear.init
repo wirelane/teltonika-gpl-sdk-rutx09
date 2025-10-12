@@ -74,7 +74,7 @@ hk_generate_as_needed()
 
 	[ -z "${kgen}" ] && return
 
-	tdir=$(mktemp -d); chmod 0700 "${tdir}"
+	tdir=$(mktemp -d); chmod 0770 "${tdir}"
 
 	kcount=0
 	for ktype in ${kgen}; do
@@ -86,11 +86,14 @@ hk_generate_as_needed()
 			continue
 		fi
 
+		chown dropbear:dropbear "${tfile}"
+		chmod 0660 "${tfile}"
+
 		kcount=$((kcount+1))
 	done
 
 	if [ ${kcount} -ne 0 ]; then
-		mkdir -p "${kdir}"; chmod 0700 "${kdir}"; chown root "${kdir}"
+		mkdir -p "${kdir}"; chmod 0770 "${kdir}"; chown dropbear:dropbear "${kdir}"
 		mv -f "${tdir}/"* "${kdir}/"
 	fi
 

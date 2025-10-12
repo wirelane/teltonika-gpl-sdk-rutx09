@@ -830,6 +830,20 @@ endef
 
 $(eval $(call KernelPackage,sched-flower))
 
+define KernelPackage/sched-act-police
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=Traffic policing
+  DEPENDS:=+kmod-sched-core
+  KCONFIG:=CONFIG_NET_ACT_POLICE
+  FILES:=$(LINUX_DIR)/net/sched/act_police.ko
+  AUTOLOAD:=$(call AutoProbe, act_police)
+endef
+
+define KernelPackage/sched-act-police/description
+ Allows to configure rules for traffic policing.
+endef
+
+$(eval $(call KernelPackage,sched-act-police))
 
 define KernelPackage/sched-act-vlan
   SUBMENU:=$(NETWORK_SUPPORT_MENU)

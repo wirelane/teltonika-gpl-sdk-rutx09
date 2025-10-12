@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/download.mk
 RCOMPR:=EXCLUDE_PATTERN="chilli_script\|chilli_response" $(RCOMPR)
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2025-07-29
+PKG_VERSION:=2025-08-26
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
@@ -51,7 +51,7 @@ define Package/coova-chilli
   CATEGORY:=Network
   DEPENDS:=+libuci +libtlt_uci +kmod-tun +librt +COOVACHILLI_CYASSL:libcyassl +COOVACHILLI_OPENSSL:libopenssl \
 	+COOVACHILLI_DATABASE:libsqlite3 +MOBILE_SUPPORT:libgsm +libubus +libubox +libtltchilli +libjson-c +COOVACHILLI_CURL:libcurl \
-	+COOVACHILLI_KMOD:kmod-ipt-coova +libcap +rms-json-hotspot
+	+COOVACHILLI_KMOD:kmod-ipt-coova +libcap
   TITLE:=Wireless LAN HotSpot controller (Coova Chilli Version)
   URL:=https://coova.github.io/
   MENU:=1
@@ -193,7 +193,6 @@ endef
 
 define Package/coova-chilli/install
 	$(INSTALL_DIR) $(1)/etc
-	$(INSTALL_CONF) $(PKG_INSTALL_DIR)/etc/chilli.conf $(1)/etc/
 	$(INSTALL_DIR) $(1)/etc/chilli
 	$(CP) $(PKG_INSTALL_DIR)/etc/chilli/* $(1)/etc/chilli/
 	$(INSTALL_BIN) files/conup.sh $(1)/etc/chilli/
@@ -231,6 +230,9 @@ define Package/coova-chilli/install
 		echo 1 > $(1)/etc/chilli/limit, \
 		echo 5 > $(1)/etc/chilli/limit \
 	)
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
+	$(INSTALL_DATA) ./files/uci-default/7.18/99_migrate_db_path $(1)/etc/uci-defaults/7.18/
 endef
 
 $(eval $(call BuildPackage,coova-chilli))

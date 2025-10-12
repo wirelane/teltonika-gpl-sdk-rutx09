@@ -62,47 +62,48 @@ enum modem_lte_band_id {
 	/* */
 	MB_LTE_B7 = (1ULL << 6), //!< LTE B7
 	MB_LTE_B8 = (1ULL << 7), //!< LTE B8
+	MB_LTE_B9 = (1ULL << 8), //!< LTE B9
 	/* */
-	MB_LTE_B12 = (1ULL << 8), //!< LTE B12
-	MB_LTE_B13 = (1ULL << 9), //!< LTE B13
-	MB_LTE_B14 = (1ULL << 10), //!< LTE B14
+	MB_LTE_B12 = (1ULL << 9), //!< LTE B12
+	MB_LTE_B13 = (1ULL << 10), //!< LTE B13
+	MB_LTE_B14 = (1ULL << 11), //!< LTE B14
 	/* */
-	MB_LTE_B17 = (1ULL << 11), //!< LTE B17
-	MB_LTE_B18 = (1ULL << 12), //!< LTE B18
-	MB_LTE_B19 = (1ULL << 13), //!< LTE B19
-	MB_LTE_B20 = (1ULL << 14), //!< LTE B20
+	MB_LTE_B17 = (1ULL << 12), //!< LTE B17
+	MB_LTE_B18 = (1ULL << 13), //!< LTE B18
+	MB_LTE_B19 = (1ULL << 14), //!< LTE B19
+	MB_LTE_B20 = (1ULL << 15), //!< LTE B20
 	/* */
-	MB_LTE_B25 = (1ULL << 15), //!< LTE B25
-	MB_LTE_B26 = (1ULL << 16), //!< LTE B26
+	MB_LTE_B25 = (1ULL << 16), //!< LTE B25
+	MB_LTE_B26 = (1ULL << 17), //!< LTE B26
 	/* */
-	MB_LTE_B27 = (1ULL << 17), //!< LTE B27
-	MB_LTE_B28 = (1ULL << 18), //!< LTE B28
-	MB_LTE_B29 = (1ULL << 19), //!< LTE B29
-	MB_LTE_B30 = (1ULL << 20), //!< LTE B30
-	MB_LTE_B31 = (1ULL << 21), //!< LTE B31
+	MB_LTE_B27 = (1ULL << 18), //!< LTE B27
+	MB_LTE_B28 = (1ULL << 19), //!< LTE B28
+	MB_LTE_B29 = (1ULL << 20), //!< LTE B29
+	MB_LTE_B30 = (1ULL << 21), //!< LTE B30
+	MB_LTE_B31 = (1ULL << 22), //!< LTE B31
 	/* */
-	MB_LTE_B32 = (1ULL << 22), //!< LTE B32
+	MB_LTE_B32 = (1ULL << 23), //!< LTE B32
 	/* */
-	MB_LTE_B34 = (1ULL << 23), //!< LTE B34
+	MB_LTE_B34 = (1ULL << 24), //!< LTE B34
 	/* */
-	MB_LTE_B38 = (1ULL << 24), //!< LTE B38
-	MB_LTE_B39 = (1ULL << 25), //!< LTE B39
+	MB_LTE_B38 = (1ULL << 25), //!< LTE B38
+	MB_LTE_B39 = (1ULL << 26), //!< LTE B39
 	/* */
-	MB_LTE_B40 = (1ULL << 26), //!< LTE B40
-	MB_LTE_B41 = (1ULL << 27), //!< LTE B41
-	MB_LTE_B42 = (1ULL << 28), //!< LTE B42
-	MB_LTE_B43 = (1ULL << 29), //!< LTE B43
-	MB_LTE_B46 = (1ULL << 30), //!< LTE B46
+	MB_LTE_B40 = (1ULL << 27), //!< LTE B40
+	MB_LTE_B41 = (1ULL << 28), //!< LTE B41
+	MB_LTE_B42 = (1ULL << 29), //!< LTE B42
+	MB_LTE_B43 = (1ULL << 30), //!< LTE B43
+	MB_LTE_B46 = (1ULL << 31), //!< LTE B46
 	/* */
-	MB_LTE_B48 = (1ULL << 31), //!< LTE B48
+	MB_LTE_B48 = (1ULL << 32), //!< LTE B48
 	/* */
-	MB_LTE_B66 = (1ULL << 32), //!< LTE B66
+	MB_LTE_B66 = (1ULL << 33), //!< LTE B66
 	/* */
-	MB_LTE_B71 = (1ULL << 33), //!< LTE B71
-	MB_LTE_B72 = (1ULL << 34), //!< LTE B72
-	MB_LTE_B73 = (1ULL << 35), //!< LTE B73
+	MB_LTE_B71 = (1ULL << 34), //!< LTE B71
+	MB_LTE_B72 = (1ULL << 35), //!< LTE B72
+	MB_LTE_B73 = (1ULL << 36), //!< LTE B73
 	/* */
-	MB_LTE_B85 = (1ULL << 36), //!< LTE B85
+	MB_LTE_B85 = (1ULL << 37), //!< LTE B85
 
 	__MB_LTE_MAX,
 	__MB_LTE_ALIGN = ULLONG_MAX,
@@ -123,47 +124,48 @@ enum modem_lte_nb_band_id {
 	/* */
 	MB_LTE_NB7 = (1ULL << 6), //!< LTE B7
 	MB_LTE_NB8 = (1ULL << 7), //!< LTE B8
+	MB_LTE_NB9 = (1ULL << 8), //!< LTE B9
 	/* */
-	MB_LTE_NB12 = (1ULL << 8), //!< LTE B12
-	MB_LTE_NB13 = (1ULL << 9), //!< LTE B13
-	MB_LTE_NB14 = (1ULL << 10), //!< LTE B14
+	MB_LTE_NB12 = (1ULL << 9), //!< LTE B12
+	MB_LTE_NB13 = (1ULL << 10), //!< LTE B13
+	MB_LTE_NB14 = (1ULL << 11), //!< LTE B14
 	/* */
-	MB_LTE_NB17 = (1ULL << 11), //!< LTE B17
-	MB_LTE_NB18 = (1ULL << 12), //!< LTE B18
-	MB_LTE_NB19 = (1ULL << 13), //!< LTE B19
-	MB_LTE_NB20 = (1ULL << 14), //!< LTE B20
+	MB_LTE_NB17 = (1ULL << 12), //!< LTE B17
+	MB_LTE_NB18 = (1ULL << 13), //!< LTE B18
+	MB_LTE_NB19 = (1ULL << 14), //!< LTE B19
+	MB_LTE_NB20 = (1ULL << 15), //!< LTE B20
 	/* */
-	MB_LTE_NB25 = (1ULL << 15), //!< LTE B25
-	MB_LTE_NB26 = (1ULL << 16), //!< LTE B26
+	MB_LTE_NB25 = (1ULL << 16), //!< LTE B25
+	MB_LTE_NB26 = (1ULL << 17), //!< LTE B26
 	/* */
-	MB_LTE_NB27 = (1ULL << 17), //!< LTE B27
-	MB_LTE_NB28 = (1ULL << 18), //!< LTE B28
-	MB_LTE_NB29 = (1ULL << 19), //!< LTE B29
-	MB_LTE_NB30 = (1ULL << 20), //!< LTE B30
-	MB_LTE_NB31 = (1ULL << 21), //!< LTE B31
+	MB_LTE_NB27 = (1ULL << 18), //!< LTE B27
+	MB_LTE_NB28 = (1ULL << 19), //!< LTE B28
+	MB_LTE_NB29 = (1ULL << 20), //!< LTE B29
+	MB_LTE_NB30 = (1ULL << 21), //!< LTE B30
+	MB_LTE_NB31 = (1ULL << 22), //!< LTE B31
 	/* */
-	MB_LTE_NB32 = (1ULL << 22), //!< LTE B32
+	MB_LTE_NB32 = (1ULL << 23), //!< LTE B32
 	/* */
-	MB_LTE_NB34 = (1ULL << 23), //!< LTE B34
+	MB_LTE_NB34 = (1ULL << 24), //!< LTE B34
 	/* */
-	MB_LTE_NB38 = (1ULL << 24), //!< LTE B38
-	MB_LTE_NB39 = (1ULL << 25), //!< LTE B39
+	MB_LTE_NB38 = (1ULL << 25), //!< LTE B38
+	MB_LTE_NB39 = (1ULL << 26), //!< LTE B39
 	/* */
-	MB_LTE_NB40 = (1ULL << 26), //!< LTE B40
-	MB_LTE_NB41 = (1ULL << 27), //!< LTE B41
-	MB_LTE_NB42 = (1ULL << 28), //!< LTE B42
-	MB_LTE_NB43 = (1ULL << 29), //!< LTE B43
-	MB_LTE_NB46 = (1ULL << 30), //!< LTE B43
+	MB_LTE_NB40 = (1ULL << 27), //!< LTE B40
+	MB_LTE_NB41 = (1ULL << 28), //!< LTE B41
+	MB_LTE_NB42 = (1ULL << 29), //!< LTE B42
+	MB_LTE_NB43 = (1ULL << 30), //!< LTE B43
+	MB_LTE_NB46 = (1ULL << 31), //!< LTE B46
 	/* */
-	MB_LTE_NB48 = (1ULL << 31), //!< LTE B48
+	MB_LTE_NB48 = (1ULL << 32), //!< LTE B48
 	/* */
-	MB_LTE_NB66 = (1ULL << 32), //!< LTE B66
+	MB_LTE_NB66 = (1ULL << 33), //!< LTE B66
 	/* */
-	MB_LTE_NB71 = (1ULL << 33), //!< LTE B71
-	MB_LTE_NB72 = (1ULL << 34), //!< LTE B72
-	MB_LTE_NB73 = (1ULL << 35), //!< LTE B73
+	MB_LTE_NB71 = (1ULL << 34), //!< LTE B71
+	MB_LTE_NB72 = (1ULL << 35), //!< LTE B72
+	MB_LTE_NB73 = (1ULL << 36), //!< LTE B73
 	/* */
-	MB_LTE_NB85 = (1ULL << 36), //!< LTE B85
+	MB_LTE_NB85 = (1ULL << 37), //!< LTE B85
 
 	__MB_LTE_NB_MAX,
 	__MB_LTE_NB_ALIGN = ULLONG_MAX,

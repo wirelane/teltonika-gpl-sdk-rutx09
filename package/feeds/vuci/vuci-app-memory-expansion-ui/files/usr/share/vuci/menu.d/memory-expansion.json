@@ -1,7 +1,12 @@
 {
   "system/admin/memory_expansion": {
     "title": "Storage Memory Expansion",
-    "index": 80
+    "index": 80,
+    "depends": {
+      "board": {
+        "anyOf": ["has_sd", "has_usb"]
+      }
+    }
   },
   "system/admin/memory_expansion/usb": {
     "title": "USB",

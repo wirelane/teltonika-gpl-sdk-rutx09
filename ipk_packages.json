@@ -66,10 +66,10 @@
 		"name": "dlna"
 	},
 	"vuci-app-zerotier-ui": {
-		"base_dep": "zerotier",
+		"base_dep": "zerotier tc-tiny",
 		"vuci_dep": "vuci-app-zerotier-api",
 		"packages_dep": "libminiupnpc libnatpmp1",
-		"kmod_dep": "libstdcpp6",
+		"kmod_dep": "libstdcpp6 kmod-sched-core kmod-sched-flower kmod-sched-act-police",
 		"name": "zerotier"
 	},
 	"vuci-app-tinc-ui": {
@@ -114,7 +114,7 @@
 		"name": "snmp"
 	},
 	"vuci-app-samba-ui": {
-		"base_dep": "samba36-server libuuid1 libblkid1 e2fsprogs fmt-usb-msd exfat-mkfs",
+		"base_dep": "samba36-server libuuid1 e2fsprogs fmt-usb-msd exfat-mkfs",
 		"kmod_dep": "kmod-scsi-core kmod-fs-autofs4 kmod-fs-ext4 kmod-fs-msdos kmod-fs-ntfs kmod-fs-vfat kmod-lib-crc16 kmod-nls-cp437 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-usb-storage kmod-fuse block-mount",
 		"vuci_dep": "vuci-app-usb-tools-api vuci-app-usb-tools-ui vuci-app-samba-api",
 		"name": "network_shares"
@@ -130,7 +130,7 @@
 		"name": "wake_on_lan"
 	},
 	"vuci-app-coovachilli-ui": {
-		"base_dep": "libtltchilli coova-chilli libcap tc-tiny libjson-c libcurl rms-json-hotspot",
+		"base_dep": "libtltchilli coova-chilli libcap tc-tiny libjson-c libcurl",
 		"vuci_dep": "vuci-app-coovachilli-api vuci-app-landingpage tlt_hs_theme_default vuci-app-coovachilli-themes-ui vuci-app-coovachilli-themes-api",
 		"kmod_dep": "kmod-ipt-coova kmod-ifb kmod-sched-core",
 		"name": "hotspot"
@@ -647,5 +647,13 @@
 		"packages_dep": "libattr",
 		"kmod_dep": "libatomic1 libpthread",
 		"name": "freeradius"
+	},
+	"vuci-app-starlink-ui": {
+		"base_dep": "grpcurl",
+		"vuci_dep": "vuci-app-starlink-api",
+		"name": "starlink"
+	},
+	"uhttpd-mod-ubus": {
+		"name": "json_rpc_support"
 	}
 }

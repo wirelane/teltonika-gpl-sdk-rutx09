@@ -35,6 +35,7 @@ define Package/firewall
   CATEGORY:=Base system
   TITLE:=OpenWrt C Firewall
   DEPENDS:=+libubox +libubus +libuci +libip4tc +IPV6:libip6tc +libxtables +kmod-ipt-core +kmod-ipt-conntrack +IPV6:kmod-nf-conntrack6 +kmod-ipt-nat +libnetfilter-conntrack +libmnl +AP_DEVICE:iptables-mod-filter
+  USERID:=firewall:firewall
 endef
 
 define Package/firewall/description
@@ -93,9 +94,11 @@ define Package/firewall/install
 	$(SED) "s#%%WAN_NETWORK%%#"$(WAN_NETWORK)"#g" $(1)/etc/config/firewall
 
 	$(INSTALL_DIR) $(1)/etc/
-	$(INSTALL_CONF) ./files/firewall.user $(1)/etc/firewall.user
+	$(CP) ./files/firewall.user $(1)/etc/firewall.user
 	$(INSTALL_DIR) $(1)/usr/share/fw3
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/helpers.conf $(1)/usr/share/fw3
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/firewall.permtab $(1)/etc/permtab.d/firewall
 
 	$(if $(CONFIG_AP_DEVICE),,\
 		$(INSTALL_DIR) $(1)/usr $(1)/usr/bin; \

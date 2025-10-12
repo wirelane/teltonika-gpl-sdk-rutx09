@@ -69,6 +69,7 @@ function import_key() {
 	hash="$(get_hash "$key_path")"
 	local working_dir="${TPM2_IMPORTER_DATA_DIR}/${hash}"
 	mkdir -p "$working_dir"
+	chmod 0770 "$working_dir"
 	local key_type key_algo
 
 	key_type="$(get_key_type "$key_path")"  || { rc=$?; echo "$key_type"; return $rc; }
@@ -130,7 +131,7 @@ EOF
 }
 
 mkdir -p "$TPM2_IMPORTER_DATA_DIR"
-chmod 600 "$TPM2_IMPORTER_DATA_DIR"
+chmod 0770 "$TPM2_IMPORTER_DATA_DIR"
 
 case "$2" in
 	import)

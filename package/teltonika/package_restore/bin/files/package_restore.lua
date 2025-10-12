@@ -6,17 +6,19 @@ local nixio = require "nixio"
 local util = require "vuci.util"
 local opkg = require "vuci.opkg"
 local OpkgPkg = require "vuci.opkg_pkg"
+local o_utils = require "vuci.opkg_utils"
 
 local PACKAGE_FILE = "/etc/package_restore.txt"
 local BACKUP_PACKAGES = "/etc/backup_packages/"
-local FAILED_PACKAGES = "/etc/failed_packages"
-local THIRD_PARTY_FEEDS = "--force_feeds /etc/opkg/openwrt/distfeeds.conf"
+local FAILED_PACKAGES = "/etc/package_restore/failed_packages"
+local THIRD_PARTY_FEEDS = "/etc/opkg/openwrt/distfeeds.conf"
 local TLT_PACKAGES = "/var/opkg-lists/tlt_packages"
 local TIME_OF_SLEEP = 10
 local MAX_RETRIES = 3
 local PKG_REBOOT = false
 local PKG_NET_RESTART = false
 local ERROR_SENT = false
+local DEBUG = false
 
 local qt = util.shellquote
 
@@ -42,57 +44,117 @@ local function trigger_pkg_event_msg(pkg, type)
 end
 
 -- handles file locking when calling opkg to avoid opkg lock conflicts with api
-local function opkg_cmd(cmd)
+local function opkg_cmd(cmd, packages, options)
 	while fs.access("/var/lock/opkg.lock") do
 		nixio.nanosleep(TIME_OF_SLEEP)
 	end
+
 	local ok, lock_file = opkg.acquire_lock()
 	assert(ok, "lock error")
-	opkg.opkg_cmd(cmd, os.execute)
+
+	local code, res = o_utils.opkg_call(cmd, packages, options)
+
 	lock_file:lock("ulock")
 	lock_file:close()
+
+	return code
+end
+
+local function opkg_install(packages, options)
+	return opkg_cmd("install", packages, options)
+end
+
+local function opkg_update(options)
+	return opkg_cmd("update", nil, options)
 end
 
 
---------------- BACKUP PACKAGE INSTALL -----------------------
+local function file_cleanup(file)
+	print("Cleaning up file " .. file)
+	local f = io.open(file, "w")
+
+	if not f then
+		print("Failed to open file " .. file)
+		return
+	end
+
+	f:write("")
+	f:close()
+end
+
+local function __DBG(fmt, ...)
+	local msg = fmt:format(...)
+	print("> " .. msg)
+end
+
+local function DBG(fmt, ...)
+	return
+end
+
+for i, v in ipairs(arg) do
+	if v == "--debug" or v == "-d" then
+		DBG = __DBG
+	end
+end
+
+-------------- BACKUP PACKAGE INSTALL -----------------------
+DBG("Starting backup package installation")
 local backup_pkgs = {}
+
 for file in fs.glob(BACKUP_PACKAGES .. "*.ipk") do
 	util.exec("tar x -zf %s -C %s ./control.tar.gz" % {qt(file), BACKUP_PACKAGES})
 	util.exec("tar x -zf %s -C %s ./control" % {BACKUP_PACKAGES .. "control.tar.gz", BACKUP_PACKAGES})
 	if (fs.readfile(BACKUP_PACKAGES .. "control") or ""):find("tlt_name", nil, true) then
 		-- main pkg has tlt_name, it must be first in the list to install correctly
-		table.insert(backup_pkgs, 1, qt(file))
+		table.insert(backup_pkgs, 1, file)
+		DBG("Backup package found: %s", file)
 	else
-		table.insert(backup_pkgs, qt(file))
+		table.insert(backup_pkgs, file)
+		DBG("3rd party backup package found: %s", file)
 	end
 end
+
 if #backup_pkgs > 0 then
-	opkg_cmd("opkg install %s" % table.concat(backup_pkgs, " "))
+	print("Intsalling backup packages")
+	opkg_install(backup_pkgs)
 	util.exec("rm -rf %s 2> /dev/null" % BACKUP_PACKAGES)
 	opkg._trigger_pkg_event()
 	opkg._restart_services()
 end
 
-
 --------------- MAIN PACKAGE INSTALL -----------------------
 local pkg_text = util.trim(fs.readfile(PACKAGE_FILE) or "")
-if #pkg_text == 0 then os.exit(0) end
+if #pkg_text == 0 then
+	print("Nothing to install")
+	os.exit(0)
+end
 
 local third_party_pkg_names = {}
 local app_names = {}
 for _, line in ipairs(util.split(pkg_text)) do
-	local pkg_name, tlt_name = line:match("([%w%.%-%+_]+)%s*%-+%s*(.*)")
-	if pkg_name and tlt_name and not tlt_name:find("^%s*%-*%s*$") then
+	DBG("Processing line: " .. line)
+	local pkg_name, tlt_name = line:match("^(.-)%s%-%s(.+)$")
+	if not pkg_name then
+		pkg_name = line
+		tlt_name = nil
+	end
+
+	if pkg_name and tlt_name then
 		app_names_with_tlt_names[pkg_name] = line
 		table.insert(app_names, pkg_name)
+		DBG("Preparing to install package: %s", pkg_name)
 	else
 		table.insert(third_party_pkg_names, line)
+		DBG("Preparing to install 3rd party package: %s", line)
 	end
 end
-if #app_names == 0 and #third_party_pkg_names == 0 then os.exit(0) end
+if #app_names == 0 and #third_party_pkg_names == 0 then
+	print("No packages to install")
+	os.exit(0)
+end
 
 while true do
-	opkg_cmd("opkg update" .. (ERROR_SENT and " 2> /dev/null" or ""))
+	opkg_update()
 	ERROR_SENT = true
 	if fs.access(TLT_PACKAGES) then
 		local tlt_packages_stat = fs.stat(TLT_PACKAGES)
@@ -107,11 +169,13 @@ for _, app_name in ipairs(app_names) do
 	local pkg = OpkgPkg.get_available_pkg(app_name)
 	if pkg then
 		if pkg:is_installed() then
+			print("Package " .. pkg.app_name .. " is already installed")
 			pkg:_remove_pkg_from_pkg_restore()
 		else
 			table.insert(packages, pkg)
 		end
 	else
+		print("Package " .. app_name .. " not found in opkg")
 		add_to_failed_packages(app_name)
 		trigger_pkg_event_msg({app_name = app_name}, opkg.PKG_TYPES.PENDING_ERRORED)
 	end
@@ -137,6 +201,7 @@ for i = 1, MAX_RETRIES do -- retry pkg install 3 times in case pkg install fails
 				end
 				return --continue
 			end
+			print("Installing package %s", pkg.app_name)
 			ok, err_code = pkg:_install_package_online()
 			if not ok then
 				if i == MAX_RETRIES then
@@ -148,8 +213,8 @@ for i = 1, MAX_RETRIES do -- retry pkg install 3 times in case pkg install fails
 			trigger_pkg_event_msg(pkg, opkg.PKG_TYPES.INSTALLED)
 			table.remove(packages, j)
 			opkg._restart_services()
-			if pkg:get("pkg_reboot") == "1" then PKG_REBOOT = true end
-			if pkg:get("pkg_network_restart") == "1" then PKG_NET_RESTART = true end
+			if pkg:get("pkg_reboot") == "1" or pkg:get("pkg_reboot") == true then PKG_REBOOT = true end
+			if pkg:get("pkg_network_restart") == "1" or pkg:get("pkg_network_restart") == true then PKG_NET_RESTART = true end
 
 			pkg:_remove_pkg_from_pkg_restore()
 		end)()
@@ -160,15 +225,19 @@ end
 local uci = require "vuci.uci".cursor()
 local third_party_pkg = uci:get("package_restore" , "package_restore", "3rd_party_pkg") == "1"
 if third_party_pkg then
+	print("3rd party packages installation started\n")
 	while true do
-		opkg_cmd("opkg %s update" % THIRD_PARTY_FEEDS)
+		print("Waiting for opkg update to finish...")
+		opkg_update({"--force_feeds", THIRD_PARTY_FEEDS})
 		if fs.access("/var/opkg-lists/openwrt_packages") then break end
 		nixio.nanosleep(TIME_OF_SLEEP)
 	end
+
 	for _, pkg_name in ipairs(third_party_pkg_names) do
+		print("Installing package " .. pkg_name)
 		local is_installed = opkg.pkg_installed(pkg_name)
 		if not is_installed then
-			opkg_cmd("opkg %s install %s" % {THIRD_PARTY_FEEDS, qt(pkg_name)})
+			opkg_install(pkg_name, {"--force_feeds", THIRD_PARTY_FEEDS})
 			if not opkg.pkg_installed(pkg_name) then
 				util.perror("Failed to install package " .. pkg_name)
 			end
@@ -177,6 +246,12 @@ if third_party_pkg then
 	end
 end
 
-os.remove(PACKAGE_FILE)
-if PKG_NET_RESTART then util.exec("/etc/init.d/network restart") end
-if PKG_REBOOT then util.exec("reboot") end
+file_cleanup(PACKAGE_FILE)
+if PKG_NET_RESTART then
+	util.ubus("rc", "init", { action = "restart", name = "network" })
+end
+if PKG_REBOOT then
+	util.ubus("rpc-sys", "reboot", { safe = true })
+end
+
+print("Package installation finished")

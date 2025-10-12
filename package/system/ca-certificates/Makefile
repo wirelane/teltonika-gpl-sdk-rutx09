@@ -64,7 +64,7 @@ define Package/ca-certificates/install
 endef
 
 define Package/ca-bundle/install
-	$(INSTALL_DIR) $(1)/etc/ssl/certs
+	$(INSTALL_DIR) $(1)/etc/ssl/certs $(1)/etc/permtab.d
 	$(if $(CONFIG_CERTIFICATE_SUPPORT),\
 		$(INSTALL_DIR) $(1)/etc/uci-defaults/; \
 		$(INSTALL_DIR) $(1)/etc/certificates/; \
@@ -73,6 +73,7 @@ define Package/ca-bundle/install
 	cat $(PKG_INSTALL_DIR)/usr/share/ca-certificates/*/*.crt >$(1)/etc/ssl/certs/ca-certificates.crt
 	$(LN) /etc/ssl/certs/ca-certificates.crt $(1)/etc/ssl/cert.pem
 	$(LN) /etc/ssl/certs/ca-certificates.crt $(1)/etc/cacert.pem
+	$(INSTALL_DATA) ./files/ca-certificates.permtab $(1)/etc/permtab.d/ca-certificates
 endef
 
 $(eval $(call BuildPackage,ca-bundle))

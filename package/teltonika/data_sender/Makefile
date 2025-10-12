@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.20
+PKG_SOURCE_VERSION:=1.21
 
 PKG_FIXUP:=autoreconf
 
@@ -104,6 +104,7 @@ CONFIGURE_ARGS += \
 define Package/data-sender/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin \
 			$(1)/lib/troubleshoot $(1)/lib/data_sender $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender.init $(1)/etc/init.d/data_sender
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/datasender $(1)/usr/sbin/
@@ -111,6 +112,7 @@ define Package/data-sender/install
 			$(1)/lib/troubleshoot/data_sender.sh
 	$(CP) $(PKG_BUILD_DIR)/files/libdata_sender.sh $(1)/lib/data_sender/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/data_sender.json $(1)/usr/share/acl.d/
+	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.18/01-data_sender_move_dnp3_db $(1)/etc/uci-defaults/7.18/
 endef
 
 define BuildPlugin

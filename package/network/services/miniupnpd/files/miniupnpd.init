@@ -154,7 +154,7 @@ upnpd() {
 			echo "bitrate_up=$((upload * 1024 * 8))"
 		}
 
-		[ -n "$upnp_lease_file" ] && touch "$upnp_lease_file" && chown upnpd:upnpd "$upnp_lease_file" && echo "lease_file=$upnp_lease_file"
+		[ -n "$upnp_lease_file" ] && touch "$upnp_lease_file" && chown upnpd:upnpd "$upnp_lease_file" && chmod 0660 "$upnp_lease_file" && echo "lease_file=$upnp_lease_file"
 		[ -n "$presentation_url" ] && echo "presentation_url=$presentation_url"
 		[ -n "$notify_interval" ] && echo "notify_interval=$notify_interval"
 		[ -n "$clean_ruleset_threshold" ] && echo "clean_ruleset_threshold=$clean_ruleset_threshold"

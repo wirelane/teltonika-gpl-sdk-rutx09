@@ -98,7 +98,6 @@ setup_network() {
 		json_add_string "" "br-${bridge_to}"
 		json_close_object
 		json_dump > "${path}/local.conf"
-		echo "${network_id}=zt${network_id:0:13}" > "${path}/devicemap"
 	fi
 
 	args="$args -U" # Skip privilege check and do not attempt to drop privileges
@@ -142,6 +141,7 @@ setup_instance() {
 }
 
 start_service() {
+	[ -e "/etc/hotplug.d/net/97-zerotier" ] || ln -s /usr/local/usr/share/zerotier/97-zerotier /etc/hotplug.d/net/97-zerotier
 	config_load "zerotier"
 	config_foreach setup_instance "instance"
 	if [ "$(/etc/init.d/mwan3 status)" = "running" ]; then

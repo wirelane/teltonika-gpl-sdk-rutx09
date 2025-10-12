@@ -365,13 +365,15 @@ hostapd_common_add_bss_config() {
 	config_add_array roaming_consortium venue_name venue_url domain_name anqp_3gpp_cell_net nai_realm osu_method_list
 	config_add_array anqp_elem
 
-	config_add_boolean hs20 disable_dgaf osen
+	config_add_boolean hs20 disable_dgaf
 	config_add_int anqp_domain_id
 	config_add_int hs20_deauth_req_timeout
 	config_add_array hs20_oper_friendly_name
 	config_add_array operator_icon
 	config_add_array hs20_conn_capab
 	config_add_string hs20_operating_class hs20_t_c_filename hs20_t_c_timestamp hs20_wan_status hs20_wan_dw_speed hs20_wan_up_speed
+
+	config_add_string hs20_t_c_server_url
 
 	config_add_array airtime_sta_weight
 	config_add_int airtime_bss_weight airtime_bss_limit
@@ -477,30 +479,6 @@ append_domain_name() {
 
 append_anqp_elem() {
 	[ -n "$1" ] && append bss_conf "anqp_elem=$1" "$N"
-}
-
-append_hs20_icon() {
-	local width height lang type path
-	config_get width "$1" width "0"
-	config_get height "$1" height "0"
-	config_get lang "$1" lang "xx"
-	config_get type "$1" type "null"
-	config_get path "$1" path
-
-	append bss_conf "hs20_icon=$width:$height:$lang:$type:$1:$path" "$N"
-}
-
-append_hs20_icons() {
-	config_load wireless
-	config_foreach append_hs20_icon hs20-icon
-}
-
-append_operator_icon() {
-	append bss_conf "operator_icon=$1" "$N"
-}
-
-append_airtime_sta_weight() {
-	[ -n "$1" ] && append bss_conf "airtime_sta_weight=$1" "$N"
 }
 
 append_venue() {
@@ -637,7 +615,7 @@ hostapd_set_bss_options() {
 		ppsk airtime_bss_weight airtime_bss_limit airtime_sta_weight \
 		multicast_to_unicast_all proxy_arp per_sta_vif \
 		eap_server eap_user_file ca_cert server_cert private_key private_key_passwd server_id radius_server_clients radius_server_auth_port \
-		vendor_elements fils ocv apup interworking hs20 wifi_id
+		vendor_elements fils ocv apup hs20 wifi_id
 
 	set_default fils 0
 	set_default isolate 0
@@ -1206,53 +1184,22 @@ hostapd_set_bss_options() {
 	esac
 	[ -n "$iw_qos_map_set" ] && append bss_conf "qos_map_set=$iw_qos_map_set" "$N"
 
-	local hs20 disable_dgaf osen anqp_domain_id hs20_deauth_req_timeout \
-		osu_server_uri osu_service_desc osu_friendly_name osu_nai osu_ssid \
+	local hs20 disable_dgaf anqp_domain_id hs20_deauth_req_timeout \
 		hs20_operating_class hs20_t_c_filename hs20_t_c_timestamp \
-		hs20_t_c_server_url  hs20_wan_status hs20_wan_dw_speed \
+		hs20_t_c_server_url hs20_wan_status hs20_wan_dw_speed \
 		hs20_wan_up_speed osu_method_list hs20_conn_capab hs20_oper_friendly_name
-	json_get_vars hs20 disable_dgaf osen anqp_domain_id hs20_deauth_req_timeout \
-		osu_server_uri osu_service_desc osu_friendly_name osu_nai osu_ssid \
+	json_get_vars hs20 disable_dgaf anqp_domain_id hs20_deauth_req_timeout \
 		hs20_operating_class hs20_t_c_filename hs20_t_c_timestamp \
 		hs20_t_c_server_url hs20_wan_status hs20_wan_dw_speed \
 		hs20_wan_up_speed osu_method_list hs20_conn_capab hs20_oper_friendly_name
 
-	[ -n "$osu_ssid" ] && append bss_conf "osu_ssid=\"$osu_ssid\"" "$N"
-	[ -n "$osu_server_uri" ] && append bss_conf "osu_server_uri=$osu_server_uri" "$N"
-	[ -n "$osu_friendly_name" ] && {
-		[ "$osu_friendly_name" != ":" ] && append bss_conf "osu_friendly_name=$osu_friendly_name" "$N"
-	}
-	[ -n "$osu_nai" ] && {
-		append bss_conf "osu_nai=$osu_nai" "$N"
-		append bss_conf "osu_nai2=$osu_nai" "$N"
-	}
-	[ -n "$osu_method_list" ] && {
-		osu_method_string=""
-		json_select osu_method_list
-			json_get_keys osu_method_list_idxs
-			for key in $osu_method_list_idxs; do 
-				json_get_var value "$key"
-				osu_method_string="$osu_method_string $value"
-			done
-		json_select ".."
-		osu_method_string="$(echo "$osu_method_string" | xargs)"
-
-		append bss_conf "osu_method_list=$osu_method_string" "$N"
-	}
-	[ -n "$osu_service_desc" ] && {
-		[ "$osu_service_desc" != ":" ] && append bss_conf "osu_service_desc=$osu_service_desc" "$N"
-	} 
-
 	set_default hs20 0
 	set_default disable_dgaf $hs20
-	set_default osen 0
 	set_default anqp_domain_id 0
 	set_default hs20_deauth_req_timeout 60
 	if [ "$hs20" -eq "1" -a "$wpa" -ge 2 ]; then
 		append bss_conf "hs20=$hs20" "$N"
-		append_hs20_icons
 		append bss_conf "disable_dgaf=$disable_dgaf" "$N"
-		append bss_conf "osen=$osen" "$N"
 		append bss_conf "anqp_domain_id=$anqp_domain_id" "$N"
 		append bss_conf "hs20_deauth_req_timeout=$hs20_deauth_req_timeout" "$N"
 		[ -n "$hs20_operating_class" ] && append bss_conf "hs20_operating_class=$hs20_operating_class" "$N"
@@ -1265,7 +1212,6 @@ hostapd_set_bss_options() {
 
 		json_for_each_item append_oper_friendly_name hs20_oper_friendly_name
 		json_for_each_item append_conn_capab hs20_conn_capab
-		json_for_each_item append_operator_icon operator_icon
 	fi
 
 	if [ "$eap_server" = "1" ]; then

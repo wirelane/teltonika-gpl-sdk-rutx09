@@ -45,9 +45,10 @@ define Package/opkg
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=opkg package manager
-  DEPENDS:=+uclient-fetch +libpthread +libubox
+  DEPENDS:=+uclient-fetch +libpthread +libubox +libblobmsg-json
   URL:=$(PKG_SOURCE_URL)
   MENU:=1
+  FATTRS:=/bin/opkg::::cap_setuid,cap_setgid,cap_dac_override=ep
 endef
 
 define Package/opkg/description
@@ -69,6 +70,7 @@ endef
 EXTRA_CFLAGS += $(TARGET_CPPFLAGS)
 
 CMAKE_OPTIONS += \
+	-DBUILD_OPKG_EXT=ON \
 	-DBUILD_TESTS=OFF \
 	-DHOST_CPU=$(PKGARCH) \
 	-DPATH_SPEC="$(TARGET_INIT_PATH)" \

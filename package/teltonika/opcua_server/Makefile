@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=opcua_server
-PKG_VERSION:=2025-07-31
+PKG_VERSION:=2025-09-11
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
-PKG_SOURCE_VERSION:=7.17
+PKG_SOURCE_VERSION:=7.18
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -30,7 +30,7 @@ endef
 define Package/opcua_server/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/etc/permtab.d $(1)/usr/bin $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/opcua_server $(1)/usr/bin/opcua_server
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/opcua_server.init $(1)/etc/init.d/opcua_server
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/opcua_server.rutos.init $(1)/etc/init.d/opcua_server
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/opcua_server.conf $(1)/etc/config/opcua_server
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/opcua_server.json $(1)/usr/share/acl.d/opcua_server.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/opcua_server.permtab $(1)/etc/permtab.d/opcua_server

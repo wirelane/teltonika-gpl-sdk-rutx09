@@ -50,6 +50,8 @@ define Package/jool/Default
   SECTION:=net
   CATEGORY:=Network
   URL:=https://www.jool.mx
+  USERID:=jool:jool
+  FATTRS:=/usr/bin/jool::::cap_net_admin=ep
 endef
 
 define Package/jool/Default/description
@@ -123,6 +125,9 @@ define Package/jool/install
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/jool.init $(1)/etc/init.d/jool
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/jool.permtab $(1)/etc/permtab.d/jool
 endef
 
 $(eval $(call BuildPackage,jool))

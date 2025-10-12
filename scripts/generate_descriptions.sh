@@ -3,6 +3,8 @@ set -eo pipefail
 
 type_arg=target
 
+CACHE_KEY_FILES="config/ scripts/gen-desc.py scripts/generate_descriptions.sh target/Config.in target/linux/"
+
 while [[ $# -gt 0 ]]; do
 	case $1 in
 	-c | --cache-dir) CACHE_DIR=${2%%/} && shift ;;
@@ -40,8 +42,10 @@ DOCS_SCRIPT=./scripts/gen-desc.py
 	}
 }
 
-CACHE_SUBDIR=${CACHE_DIR}/$(find config target/linux target/Config.in -type f -exec sha512sum {} + | sort | sha512sum | cut -d ' ' -f1)
+#shellcheck disable=SC2086 # intended splitting
+CACHE_SUBDIR=${CACHE_DIR}/$(find $CACHE_KEY_FILES -type f -exec sha512sum {} + | sort | sha512sum | cut -d ' ' -f1)
 mkdir -p "$CACHE_SUBDIR"
+echo "Using cache subdir: $CACHE_SUBDIR"
 
 $VERSION_SCRIPT >/dev/null # dummy run to avoid version weirdness
 VERSION_CURRENT=$($VERSION_SCRIPT | cut -d'_' -f2-)

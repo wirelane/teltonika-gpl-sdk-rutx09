@@ -25,6 +25,7 @@ define Package/qos-scripts
 	  +iptables-mod-ipopt +iptables-mod-conntrack-extra
   TITLE:=QoS scripts
   PKGARCH:=all
+  USERID:=qos:qos
 endef
 
 define Package/qos-scripts/description
@@ -47,8 +48,14 @@ define Build/Compile
 endef
 
 define Package/qos-scripts/install
-	$(INSTALL_DIR) $(1)
-	$(CP) ./files/* $(1)/
+	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/hotplug.d/iface $(1)/etc/init.d $(1)/usr/bin $(1)/usr/lib/qos $(1)/etc/permtab.d
+	$(INSTALL_BIN) ./files/usr/bin/* $(1)/usr/bin
+	$(INSTALL_BIN) ./files/etc/hotplug.d/iface/10-qos $(1)/etc/hotplug.d/iface
+	$(INSTALL_BIN) ./files/etc/init.d/qos $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/usr/lib/qos/generate.sh $(1)/usr/lib/qos
+	$(INSTALL_DATA) ./files/usr/lib/qos/tcrules.awk $(1)/usr/lib/qos
+	$(INSTALL_CONF_USR) ./files/etc/config/qos $(1)/etc/config
+	$(INSTALL_DATA) ./files/etc/permtab.d/qos $(1)/etc/permtab.d/qos
 endef
 
 $(eval $(call BuildPackage,qos-scripts))

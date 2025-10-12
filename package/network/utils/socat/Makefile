@@ -31,6 +31,7 @@ define Package/socat
 	DEPENDS:=+libpthread +librt +SOCAT_SSL:libopenssl
 	TITLE:=A multipurpose relay (SOcket CAT)
 	URL:=http://www.dest-unreach.org/socat/
+	FATTRS:=/usr/bin/socat::::cap_net_bind_service=ep
         ifeq (m, $(CONFIG_PACKAGE_socat))
                 PKG_TLT_NAME:=socat
                 PKG_ROUTER:=$(TLT_PLATFORM_NAME)
@@ -94,6 +95,8 @@ define Package/socat/install
 	$(INSTALL_CONF_USR) ./files/socat.config $(1)/etc/config/socat
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/socat.init $(1)/etc/init.d/socat
+	$(INSTALL_DIR) $(1)/etc/permtab.d
+	$(INSTALL_DATA) ./files/socat.permtab $(1)/etc/permtab.d/socat
 endef
 
 $(eval $(call BuildPackage,socat))

@@ -246,7 +246,10 @@ mac80211_hostapd_setup_base() {
 
 	idx="$channel"
 	case "$htmode" in
-		VHT20|HE20|EHT20) enable_ac=1;;
+		VHT20|HE20|EHT20)
+			enable_ac=1
+			vht_center_seg0=$idx
+		;;
 		VHT40|HE40|EHT40)
 			case "$(( (($channel / 4) + $chan_ofs) % 2 ))" in
 				1) idx=$(($channel + 2));;

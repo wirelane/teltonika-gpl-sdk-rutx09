@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mwan3
 PKG_VERSION:=2.10.12
-PKG_RELEASE:=14
+PKG_RELEASE:=16
 PKG_MAINTAINER:=Florian Eckert <fe@dev.tdt.de>, \
 		Aaron Goodman <aaronjg@alumni.stanford.edu>
 PKG_LICENSE:=GPL-2.0-only
