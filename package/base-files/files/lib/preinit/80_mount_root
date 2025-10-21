@@ -60,12 +60,13 @@ merge_file() {
 
 check_modbus_register_file() {
 	local tar_file="$1"
-	local temp_dir="$2"
-	local exclude_file="$3"
+	local tar_args="$2"
+	local temp_dir="$3"
+	local exclude_file="$4"
 	local cfg="etc/config/modbus_server"
 	local regfile=""
 
-	tar -C /tmp -xzf "$tar_file" "$cfg" 2>/dev/null
+	tar -C /tmp -"$tar_args" "$tar_file" "$cfg" 2>/dev/null
 	[ ! -f "/tmp/$cfg" ] && return
 
 	regfile="$(uci -q -c "$(dirname /tmp/"$cfg")" get modbus_server.modbus.regfile)"
@@ -79,7 +80,7 @@ check_modbus_register_file() {
 	NEW_REGFILE="/usr/local/share/modbus$regfile"
 	echo "NEW_REGFILE: $NEW_REGFILE"
 	echo "$regfile" >> "$exclude_file"
-	tar -xzf "${tar_file}" -C "${temp_dir}" "${regfile:1}"
+	tar -"$tar_args" "${tar_file}" -C "${temp_dir}" "${regfile:1}"
 	mkdir -p "$(dirname "$NEW_REGFILE")"
 	cp -a "$temp_dir/$regfile" "$NEW_REGFILE"
 	rm -f "/tmp/$cfg"
@@ -93,6 +94,7 @@ update_modbus_register_file_config() {
 
 handle_extraction() {
 	local TAR_FILE="$1"
+	local TAR_ARGS="$2"
 	local EXCLUDE_FILE="/tmp/exclusions"
 	local REMAP_FILE="/lib/upgrade/remap.conf"
 	local TEMP_DIR="/tmp/kstemp"
@@ -103,7 +105,7 @@ etc/profile
 EOF
 
 	mkdir -p "${TEMP_DIR}"
-	check_modbus_register_file "$TAR_FILE" "$TEMP_DIR" "$EXCLUDE_FILE"
+	check_modbus_register_file "$TAR_FILE" "$TAR_ARGS" "$TEMP_DIR" "$EXCLUDE_FILE"
 
 	if [ -f "${REMAP_FILE}" ]; then
 		while IFS=: read -r src_path dst_path; do
@@ -123,7 +125,7 @@ EOF
 			rm -f "$target_dir/.write_test"
 			rm -rf "${TEMP_DIR}"/*
 
-			if ! tar -xzf "${TAR_FILE}" -C "${TEMP_DIR}" "$src_path" 2>/dev/null; then
+			if ! tar -"$TAR_ARGS" "${TAR_FILE}" -C "${TEMP_DIR}" "$src_path" 2>/dev/null; then
 				continue
 			fi
 
@@ -140,7 +142,7 @@ EOF
 		done < "${REMAP_FILE}"
 	fi
 
-	tar -C / -xzf "${TAR_FILE}" -X "${EXCLUDE_FILE}"
+	tar -C / -"$TAR_ARGS" "${TAR_FILE}" -X "${EXCLUDE_FILE}"
 	rm -f "${TAR_FILE}" "${EXCLUDE_FILE}"
 	update_modbus_register_file_config
 
@@ -162,11 +164,12 @@ do_mount_root() {
 		sync
 		[ -x /bin/sme.sh ] && { sme.sh --preboot || echo "- sme.sh failed with code $? -"; }
 
-	elif [ -f /overlay/sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tgz ]; then
+	elif [ -f /overlay/sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tgz ] || [ -f /tmp/sysupgrade.tar ]; then
 		echo "- config restore -"
 		[ -f /overlay/sysupgrade.tgz ] && mv /overlay/sysupgrade.tgz /tmp/
 		cp /etc/passwd /etc/group /etc/shadow /tmp
-		handle_extraction /tmp/sysupgrade.tgz
+		[ -f /tmp/sysupgrade.tgz ] && handle_extraction /tmp/sysupgrade.tgz xzf
+		[ -f /tmp/sysupgrade.tar ] && handle_extraction /tmp/sysupgrade.tar xf
 		missing_lines /tmp/passwd /etc/passwd /tmp/passwd_merged
 		merge_file /tmp/group /etc/group /tmp/group_merged
 		missing_lines /etc/shadow /tmp/shadow /tmp/shadow_merged

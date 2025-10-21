@@ -1,8 +1,14 @@
-# 2025-10-09 00.07.18.1
+# 2025-10-08 00.07.18.1
+
+### Improvements
+
+* Logging: reduced logging spam when opening the WebUI for TAP400 (ID: 28629)
 
 ### Fix
 
-* Mobile: fixed operator selection under specific conditions (ID: 28796)
+* IPsec: fixed issue where IPsec connections failed during WAN failover (ID: 28711)
+* OpenVPN: fixed status issue after firmware upgrade (ID: 28706)
+* Update Firmware: fixed keep-settings for devices with eMMC storage for CAP700, RUTC family (ID: 28653)
 
 # 2025-09-30 00.07.18
 

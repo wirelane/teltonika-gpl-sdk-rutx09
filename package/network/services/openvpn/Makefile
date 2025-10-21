@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=openvpn
 
 PKG_VERSION:=2.6.9
-PKG_RELEASE:=15
+PKG_RELEASE:=16
 
 PKG_HASH:=e08d147e15b4508dfcd1d6618a1f21f1495f9817a8dadc1eddf0532fa116d7e3
 
@@ -101,7 +101,8 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(1)/usr/libexec \
 		$(1)/etc/hotplug.d/openvpn \
 		$(1)/etc/permtab.d \
-		$(1)/usr/share/acl.d
+		$(1)/usr/share/acl.d \
+		$(1)/etc/uci-defaults/7.18
 
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/sbin/openvpn \
@@ -174,6 +175,10 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 	$(INSTALL_BIN) \
 		files/ping.sh \
 		$(1)/etc/openvpn/
+
+	$(CP) \
+		files/uci-defaults/7.18/99_openvpn_fix_status_path \
+		$(1)/etc/uci-defaults/7.18/99_openvpn_fix_status_path
 
 endef
 

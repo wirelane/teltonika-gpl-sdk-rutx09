@@ -33,6 +33,7 @@
 	"listen": [
 		"wireless.state",
 		"poe_change",
+		"user_led",
 		"ubus.object.remove",
 		"ubus.object.add"
 	],

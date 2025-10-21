@@ -840,6 +840,49 @@ get_interface_metric() {
 	fi
 }
 
+configure_interface() {
+	interface="mob${num}s${count}a1"
+
+	#~ Get sim slot and get bootstrap profile info
+	sim_pos=$(get_sim_position $num $count)
+	bootstrap_iccid=$(mnf_info -d ${sim_pos} 2>/dev/null)
+	[[ "$bootstrap_iccid" != "N/A" && -n "$bootstrap_iccid" ]] && is_bootstrap_profile="1" || is_bootstrap_profile="0"
+
+	metric=$((metric + 1))
+
+	uci -q delete network."${interface}"
+	uci_add network interface "${interface}"
+	uci_set network "${interface}" proto "wwan"
+	uci_set network "${interface}" modem "$id"
+	uci_set network "${interface}" metric "$metric"
+	uci_set network "${interface}" sim "${count}"
+	uci_set network "${interface}" dhcpv6 "0"
+	uci_set network "${interface}" pdptype "ipv4v6"
+	uci_set network "${interface}" method "nat"
+	uci_set network "${interface}" auth "none"
+	uci_set network "${interface}" area_type "wan"
+	# Manual APN if bootstrap profile
+	[ $is_bootstrap_profile -eq 1 ]  && {
+		uci_set network "${interface}" auto_apn "0"
+		uci_set network "${interface}" apn "360connect"
+		uci_set network "${interface}" bootstrap "1"
+	} || uci_set network "${interface}" auto_apn "1"
+
+	# Adding dhcp option only for RUT361
+	[ "$(mnf_info -n | cut -b 1-6)" = "RUT361" ] && {
+		uci_set network "${interface}" dhcp "0"
+	}
+
+	# if needed, use custom ifname for rmnet/other devices
+	[ -n "${custom_ifname}" ] &&
+		uci_set network "${interface}" device "${custom_ifname}"
+
+	uci_commit network
+
+	[ $is_bootstrap_profile -eq 1 ] && configure_firewall_bootstrap_esim_zone "$interface" ||
+		update_firewall_zone "wan" "$interface"
+}
+
 # config.d functions
 add_modem_section() {
 	local id="$1"
@@ -855,47 +898,7 @@ add_modem_section() {
 	json_get_vars custom_ifname
 	json_select modems
 	for count in $(seq "$simcount"); do
-		interface="mob${num}s${count}a1"
-
-		#~ Get sim slot and get bootstrap profile info
-		sim_pos=$(get_sim_position $num $count)
-		bootstrap_iccid=$(mnf_info -d${sim_pos} 2>/dev/null)
-		[[ "$bootstrap_iccid" != "N/A" && -n "$bootstrap_iccid" ]] && is_bootstrap_profile="1" || is_bootstrap_profile="0"
-
-		metric=$((metric + 1))
-
-		uci -q delete network."${interface}"
-		uci_add network interface "${interface}"
-		uci_set network "${interface}" proto "wwan"
-		uci_set network "${interface}" modem "$id"
-		uci_set network "${interface}" metric "$metric"
-		uci_set network "${interface}" sim "${count}"
-		uci_set network "${interface}" dhcpv6 "0"
-		uci_set network "${interface}" pdptype "ipv4v6"
-		uci_set network "${interface}" method "nat"
-		uci_set network "${interface}" auth "none"
-		uci_set network "${interface}" area_type "wan"
-		# Manual APN if bootstrap profile
-		[ $is_bootstrap_profile -eq 1 ]  && {
-			uci_set network "${interface}" auto_apn "0"
-			uci_set network "${interface}" apn "360connect"
-			uci_set network "${interface}" bootstrap "1"
-		} || uci_set network "${interface}" auto_apn "1"
-
-		# Adding dhcp option only for RUT361
-		[ "$(mnf_info -n | cut -b 1-6)" = "RUT361" ] && {
-			uci_set network "${interface}" dhcp "0"
-		}
-
-		# if needed, use custom ifname for rmnet/other devices
-		[ -n "${custom_ifname}" ] &&
-			uci_set network "${interface}" device "${custom_ifname}"
-
-		uci_commit network
-
-		[ $is_bootstrap_profile -eq 1 ] && configure_firewall_bootstrap_esim_zone "$interface" ||
-			update_firewall_zone "wan" "$interface"
-
+		configure_interface
 		create_multiwan_iface "$interface" "$metric"
 		add_simcard_config "$id" "${count}" "${count}" "$builtin"
 		add_sim_switch_config "$id" "${count}" "$is_bootstrap_profile"

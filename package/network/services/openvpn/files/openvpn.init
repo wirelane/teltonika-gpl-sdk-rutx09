@@ -7,7 +7,7 @@
 . /lib/functions/openvpn.sh
 
 START=90
-STOP=10
+STOP=11
 
 USE_PROCD=1
 PROG=/usr/sbin/openvpn
@@ -230,7 +230,6 @@ append_tracked_files() {
 	local s="$1"
 	shift
 	for p in "$@"; do
-		[ "$p" == "status" ] && continue
 		config_get v "$s" "$p"
 		IFS="$LIST_SEP"
 		[ -f "$v" ] && [ "$(dirname "$v")" != "." ] && procd_append_param file "$v"
@@ -241,10 +240,26 @@ append_tracked_files() {
 	[ -f "$userpass" ] && procd_append_param file "$userpass"
 }
 
+get_status() {
+	local value="$1"
+	local s="$2"
+	local path sec
+	set -- $value
+	path="$1"
+	sec="$2"
+	[ -z "$sec" ] && sec=10
+	if [ "${path%/*}" == "/var/run/openvpn" ]; then
+		echo "$value"
+	else
+		echo "/var/run/openvpn/openvpn.${s}.status $sec"
+	fi
+}
+
 append_other_options() {
 	local sid="$1"
 	local type="$2"
 	local nopool=""
+	local local_ip remote_ip local_ipv6 remote_ipv6 network_ip network_mask network server_ip server_netmask ifconfig_pool_start ifconfig_pool_end status auth_mode userpass
 
 	config_get local_ip "$sid" 'local_ip'
 	config_get remote_ip "$sid" 'remote_ip'
@@ -282,10 +297,6 @@ append_other_options() {
 		nopool="nopool"
 	fi
 	[ -n "$server_ip" ] && [ -n "$server_netmask" ] && echo "server $server_ip $server_netmask $nopool" >> ${TMP_DIR}/openvpn-"$sid".conf
-	[ -z "$status" ] && {
-		echo "status ${TMP_DIR}/openvpn.$sid.status 10" >> ${TMP_DIR}/openvpn-"$sid".conf
-		: > "${TMP_DIR}/openvpn.$sid.status"
-	}
 
 	# add addition options
 	{
@@ -311,14 +322,14 @@ openvpn_add_instance() {
 		--syslog "openvpn($name)" \
 		--cd "$dir" \
 		--config "${TMP_DIR}/openvpn-$name.conf"
-        if [ "$security" -lt 2 ]; then
-            logger -t "openvpn(${name})" "Not adding hotplug scripts due to script-security $security"
+		if [ "$security" -lt 2 ]; then
+			logger -t "openvpn(${name})" "Not adding hotplug scripts due to script-security $security"
 			awk '{print $1}' /proc/uptime > "${TMP_DIR}/openvpn-${name}.time"
-        else
-            procd_append_param command \
-            --up "/usr/libexec/openvpn-hotplug up $name" \
-            --down "/usr/libexec/openvpn-hotplug down $name"
-        fi
+		else
+			procd_append_param command \
+			--up "/usr/libexec/openvpn-hotplug up $name" \
+			--down "/usr/libexec/openvpn-hotplug down $name"
+		fi
 	procd_set_param file "$dir/$conf"
 	append_tracked_files "$name" $OPENVPN_PARAMS
 	procd_set_param respawn
@@ -331,7 +342,7 @@ openvpn_add_instance() {
 
 start_instance() {
 	local s="$1"
-	local type config config_parsed script_security
+	local type config config_parsed script_security status status_file
 	OPENVPN_CONFIG="${TMP_DIR}/openvpn-$s.conf"
 
 	config_get type "$s" type
@@ -351,10 +362,6 @@ start_instance() {
 		config_get dev "$s" dev
 		[ -n "$dev" ] && sed -i "s/dev .*/dev ${dev}/" "$OPENVPN_CONFIG"
 		append UCI_STARTED "$config" "$LIST_SEP"
-		# placeholder status file for permissions
-		touch "${TMP_DIR}/openvpn.$s.status"
-		chown openvpn:openvpn "${TMP_DIR}/openvpn.$s.status"
-		chmod 660 "${TMP_DIR}/openvpn.$s.status"
 	else
 		echo -e "\n# MAIN PARAMETERS" >> "$OPENVPN_CONFIG"
 		append_bools "$s" $OPENVPN_BOOLS
@@ -367,12 +374,19 @@ start_instance() {
 
 	get_openvpn_option "$OPENVPN_CONFIG" script_security script-security
 	get_openvpn_option "$OPENVPN_CONFIG" verb verb
+	get_openvpn_option "$OPENVPN_CONFIG" status status
+	[ -n "$status" ] && status="$(get_status "$status" "$s")" || status="/var/run/openvpn/openvpn.${s}.status 10"
+	status_file="$(echo "$status" | awk '{print $1}')"
+	: > "$status_file"
+	chown openvpn:openvpn "$status_file"
+	chmod 660 "$status_file"
+
 	{
 		echo -e "\n# ADDITIONAL PARAMETERS"
 		echo "auth-nocache"
 		[ -z "$script_security" ] && echo "script-security 2"
 		[ -z "$verb" ] && echo "verb 5"
-		[ -n "$config" ] && [ "$config_parsed" != "1" ] && echo "status ${TMP_DIR}/openvpn.$s.status 10"
+		echo "status $status"
 	} >> "$OPENVPN_CONFIG"
 
 	[ -z "$script_security" ] && script_security="2"

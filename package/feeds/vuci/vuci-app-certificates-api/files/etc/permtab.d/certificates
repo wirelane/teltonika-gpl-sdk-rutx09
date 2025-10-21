@@ -6,3 +6,4 @@
 /etc/certificates/cert-enroll         certificates:certificates       770       cd
 /etc/certificates/cert-enroll/new     certificates:certificates       770       cd
 /etc/certificates/cert-enroll/old     certificates:certificates       770       cd
+/etc/certificates/tpm2                certificates:certificates       770       r

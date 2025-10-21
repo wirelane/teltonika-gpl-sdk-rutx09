@@ -76,7 +76,7 @@ poeman:x:563:mobutils,uhttpd
 system:x:564:opcua_server,modbus_server,mobutils,rut_fota,ntpclient,modbus_client,iot,ledman,uhttpd,uci
 connchecker:x:565:mobutils,uci,uhttpd
 dropbear:x:566:dropbear,mobutils,uci,uhttpd,ip_blockd
-dnsmasq:x:567:easycwmp,mobutils,openvpn,openconnect,uci,odhcpd,https_dns_proxy,uhttpd,tailscale,hostblock
+dnsmasq:x:567:easycwmp,mobutils,openvpn,openconnect,uci,odhcpd,https_dns_proxy,uhttpd,tailscale,hostblock,ipsec
 odhcpd:x:568:dnsmasq,mobutils,uhttpd
 igmpproxy:x:569:mobutils,uci,uhttpd
 vrrpd:x:570:mobutils,uci,uhttpd
@@ -146,7 +146,7 @@ avl:x:635:uci,uhttpd
 dmvpn:x:636:dmvpn,uci,uhttpd
 travelmate:x:637:uhttpd,uci
 jool:x:638:uhttpd,uci
-mwan3:x:639:gsm,uhttpd,uci
+mwan3:x:639:gsm,uhttpd,uci,ipsec
 qos:x:640:uhttpd,uci
 sqm:x:641:uhttpd,uci,snmpd
 boardjson:x:642:

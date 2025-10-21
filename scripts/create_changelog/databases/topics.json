@@ -1,6 +1,11 @@
 [
   {
     "category": "System",
+    "name": "Logging",
+    "depends": []
+  },
+  {
+    "category": "System",
     "name": "JSON-RPC",
     "depends": []
   },

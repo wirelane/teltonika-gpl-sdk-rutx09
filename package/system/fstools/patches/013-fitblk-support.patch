@@ -20,7 +20,21 @@
  
 --- a/libfstools/common.c
 +++ b/libfstools/common.c
-@@ -113,18 +113,57 @@ int block_volume_format(struct volume *v
+@@ -63,9 +63,11 @@ int block_file_identify(FILE *f, uint64_
+ 		return -1;
+ 
+ 	n = fread(&magic, sizeof(magic), 1, f);
+-	if (magic == cpu_to_le32(0x88b1f)) {
++	if (magic == cpu_to_le32(0x88b1f))
+ 		return FS_TARGZ;
+-	}
++
++	if (magic == cpu_to_be32(0xdeadc0de))
++		return FS_DEADCODE;
+ 
+ 	if (fseeko(f, offset + 0x400, SEEK_SET) < 0)
+ 		return -1;
+@@ -113,18 +115,57 @@ int block_volume_format(struct volume *v
  {
  	int ret = 0;
  	char str[128];
@@ -66,7 +80,7 @@
 +		/* fall-through */
 +	case FS_TARGZ:
 +		snprintf(str, sizeof(str),
-+			 "dd if=%s bs=512 skip=%u 2>/dev/null  > /tmp/sysupgrade.tgz",
++			 "dd if=%s bs=512 skip=%u 2>/dev/null | gzip -cd > /tmp/sysupgrade.tar 2>/dev/null",
 +			 v->blk, skip_blocks);
 +		ret = system(str);
 +		if (ret < 0) {

@@ -4,13 +4,12 @@ get_openvpn_option() {
 	local config="$1"
 	local variable="$2"
 	local option="$3"
+	local value
 
-	local value="$(sed -rne 's/^[ \t]*'"$option"'[ \t]+'"'([^']+)'"'[ \t]*$/\1/p' "$config" | tail -n1)"
-	[ -n "$value" ] || value="$(sed -rne 's/^[ \t]*'"$option"'[ \t]+"(([^"\\]|\\.)+)"[ \t]*$/\1/p' "$config" | tail -n1 | sed -re 's/\\(.)/\1/g')"
-	[ -n "$value" ] || value="$(sed -rne 's/^[ \t]*'"$option"'[ \t]+(([^ \t\\]|\\.)+)[ \t]*$/\1/p' "$config" | tail -n1 | sed -re 's/\\(.)/\1/g')"
+	value=$(sed -n -e 's/^[[:space:]]*'"$option"'\s*[:]*[[:space:]]\+\(.*\)$/\1/p' "$config" | tail -n 1)
 	[ -n "$value" ] || return 1
+	value=$(echo "$value" | awk '{$1=$1; print}')
 
 	export -n "$variable=$value"
 	return 0
 }
-
