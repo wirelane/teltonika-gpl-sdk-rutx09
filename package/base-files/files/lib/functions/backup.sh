@@ -315,6 +315,7 @@ missing_lines() {
 }
 
 restore_sme_fstab() {
+	local dir="$1"
 	local rwm_device
 	local rwm_target
 	local overlay_uuid
@@ -336,7 +337,7 @@ restore_sme_fstab() {
 		config_get overlay_sme overlay sme
 		config_get log_enabled log enabled
 		config_get log_device log device
-		uci -c "/tmp/new_config_dir/etc/config" batch <<-EOF
+		uci -c "$dir/etc/config" batch <<-EOF
 			set fstab.rwm=$rwm
 			set fstab.rwm.device=$rwm_device
 			set fstab.rwm.target=$rwm_target
@@ -353,30 +354,32 @@ restore_sme_fstab() {
 }
 
 restore_rms_auth_code() {
+	local dir="$1"
 	local config="rms_mqtt"
 
 	[ -s "/etc/config/$config" ] || return
-	[ -s "/tmp/new_config_dir/etc/config/$config" ] || return
+	[ -s "$dir/etc/config/$config" ] || return
 
 	local auth_code="$(uci -q get $config.rms_connect_mqtt.auth_code)"
-	uci -c "/tmp/new_config_dir/etc/config" batch <<-EOF
+	uci -c "$dir/etc/config" batch <<-EOF
 		set $config.rms_connect_mqtt.auth_code="$auth_code"
 		commit $config
 	EOF
 }
 
 restore_rms_ids() {
+	local dir="$1"
 	local opts="rms_id demo_rms_id local_rms_id"
 	for opt_name in $opts; do
 		local opt_val_file=$(cat "/log/$opt_name" 2>/dev/null)
 
 		[ -n "$opt_val_file" ] && {
-			uci -q -c "/tmp/new_config_dir/etc/config" set "rms_mqtt.rms_mqtt.$opt_name=$opt_val_file"
+			uci -q -c "$dir/etc/config" set "rms_mqtt.rms_mqtt.$opt_name=$opt_val_file"
 		} || {
-			uci -q -c "/tmp/new_config_dir/etc/config" delete "rms_mqtt.rms_mqtt.$opt_name"
+			uci -q -c "$dir/etc/config" delete "rms_mqtt.rms_mqtt.$opt_name"
 		}
 	done
-	uci -c "/tmp/new_config_dir/etc/config" commit rms_mqtt
+	uci -c "$dir/etc/config" commit rms_mqtt
 }
 
 merge_file() {
@@ -421,26 +424,37 @@ merge_file() {
 	sed -i '/^:::/d' "$output_file"
 }
 
+restore_users_and_groups() {
+	local dir="$1"
+	cp /rom/etc/shadow /rom/etc/passwd /rom/etc/group /tmp/
+	[ -f "$dir/etc/passwd" ] || cp -af /etc/passwd "$dir/etc/passwd"
+	[ -f "$dir/etc/group" ] || cp -af /etc/group "$dir/etc/group"
+	[ -f "$dir/etc/shadow" ] || cp -af /etc/shadow "$dir/etc/shadow"
+
+	missing_lines /tmp/passwd "$dir/etc/passwd" /tmp/passwd_merged
+	merge_file /tmp/group "$dir/etc/group" /tmp/group_merged
+	missing_lines "$dir/etc/shadow" /tmp/shadow /tmp/shadow_merged
+
+	cp /tmp/passwd_merged "$dir/etc/passwd"
+	cp /tmp/group_merged "$dir/etc/group"
+	cp /tmp/shadow_merged "$dir/etc/shadow"
+	rm /tmp/passwd /tmp/shadow /tmp/group /tmp/*_merged
+}
+
 apply_backup() {
-	restore_rms_ids
-	restore_sme_fstab
-	restore_rms_auth_code
+	local extraction_dir="$1"
+	restore_rms_ids "$extraction_dir"
+	restore_sme_fstab "$extraction_dir"
+	restore_rms_auth_code "$extraction_dir"
+	restore_users_and_groups "$extraction_dir"
 	/etc/init.d/mdcollectd stop
 	/etc/init.d/simcard reload >/dev/null 2>/dev/null
-	rm -f /tmp/new_config_dir/etc/config/hwinfo /tmp/new_config_dir/etc/inittab 2>/dev/null
-	cp -af /tmp/new_config_dir/etc/ / 2>/dev/null
-	cp -af /tmp/new_config_dir/usr/ / 2>/dev/null
+	rm -f "$extraction_dir/etc/config/hwinfo" "$extraction_dir/etc/inittab" 2>/dev/null
+	cp -af "$extraction_dir/etc/" / 2>/dev/null
+	cp -af "$extraction_dir/usr/" / 2>/dev/null
 	cp -a /rom/etc/uci-defaults/* /etc/uci-defaults/ 2>/dev/null
-	rm -rf /tmp/new_config_dir
+	rm -rf "$extraction_dir"
 	rm -f /etc/last_version
-	cp /rom/etc/shadow /rom/etc/passwd /rom/etc/group /tmp/
-	missing_lines /tmp/passwd /etc/passwd /tmp/passwd_merged
-	merge_file /tmp/group /etc/group /tmp/group_merged
-	missing_lines /etc/shadow /tmp/shadow /tmp/shadow_merged
-	cp /tmp/passwd_merged /etc/passwd
-	cp /tmp/group_merged /etc/group
-	cp /tmp/shadow_merged /etc/shadow
-	rm /tmp/passwd /tmp/shadow /tmp/group /tmp/*_merged
 	sync_permissions_and_ownerships
 	fix_permissions 660 "/etc/config/network" "network:network"
 	fix_permissions 660 "/etc/config/wireless" "network:network"
@@ -557,7 +571,7 @@ if [ -n "$CONF_RESTORE" ]; then
 	}
 
 	v "Restoring config files..."
-	apply_backup
+	apply_backup "/tmp/new_config_dir"
 
 	[ "$ret" -eq 0 ] && {
 		ubus call log write_ext "{

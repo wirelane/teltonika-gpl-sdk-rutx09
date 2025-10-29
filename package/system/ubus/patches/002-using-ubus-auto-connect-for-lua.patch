@@ -1,7 +1,5 @@
-Index: ubus-2021-06-30-4fc532c8/lua/ubus.c
-===================================================================
---- ubus-2021-06-30-4fc532c8.orig/lua/ubus.c
-+++ ubus-2021-06-30-4fc532c8/lua/ubus.c
+--- a/lua/ubus.c
++++ b/lua/ubus.c
 @@ -14,6 +14,7 @@
   */
  
@@ -67,7 +65,7 @@ Index: ubus-2021-06-30-4fc532c8/lua/ubus.c
  static void
  ubus_lua_objects_cb(struct ubus_context *c, struct ubus_object_data *o, void *p)
  {
-@@ -935,8 +963,10 @@ ubus_lua__gc(lua_State *L)
+@@ -936,8 +964,10 @@ ubus_lua__gc(lua_State *L)
  	struct ubus_lua_connection *c = luaL_checkudata(L, 1, METANAME);
  
  	blob_buf_free(&c->buf);
@@ -80,7 +78,7 @@ Index: ubus-2021-06-30-4fc532c8/lua/ubus.c
  		ubus_free(c->ctx);
  		memset(c, 0, sizeof(*c));
  	}
-@@ -946,6 +976,7 @@ ubus_lua__gc(lua_State *L)
+@@ -947,6 +977,7 @@ ubus_lua__gc(lua_State *L)
  
  static const luaL_Reg ubus[] = {
  	{ "connect", ubus_lua_connect },

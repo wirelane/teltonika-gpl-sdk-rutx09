@@ -1,8 +1,6 @@
-Index: ubus-2018-10-06-221ce7e7/libubus.c
-===================================================================
---- ubus-2018-10-06-221ce7e7.orig/libubus.c
-+++ ubus-2018-10-06-221ce7e7/libubus.c
-@@ -181,6 +181,24 @@ static void ubus_lookup_id_cb(struct ubu
+--- a/libubus.c
++++ b/libubus.c
+@@ -199,6 +199,24 @@ static void ubus_lookup_id_cb(struct ubu
  	*id = blob_get_u32(attr[UBUS_ATTR_OBJID]);
  }
  
@@ -27,11 +25,9 @@ Index: ubus-2018-10-06-221ce7e7/libubus.c
  int ubus_lookup_id(struct ubus_context *ctx, const char *path, uint32_t *id)
  {
  	struct ubus_request req;
-Index: ubus-2018-10-06-221ce7e7/libubus.h
-===================================================================
---- ubus-2018-10-06-221ce7e7.orig/libubus.h
-+++ ubus-2018-10-06-221ce7e7/libubus.h
-@@ -285,6 +285,8 @@ int ubus_lookup(struct ubus_context *ctx
+--- a/libubus.h
++++ b/libubus.h
+@@ -316,6 +316,8 @@ int ubus_lookup(struct ubus_context *ctx
  		ubus_lookup_handler_t cb, void *priv);
  
  int ubus_lookup_id(struct ubus_context *ctx, const char *path, uint32_t *id);

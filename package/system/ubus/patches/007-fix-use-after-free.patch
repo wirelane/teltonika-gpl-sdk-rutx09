@@ -7,11 +7,9 @@ Subject: [PATCH 1/1] acls: fix use after free
  ubusd_acl.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/ubusd_acl.c b/ubusd_acl.c
-index 352c581..b94d3e3 100644
 --- a/ubusd_acl.c
 +++ b/ubusd_acl.c
-@@ -58,6 +58,7 @@ struct ubusd_acl_obj {
+@@ -60,6 +60,7 @@ struct ubusd_acl_obj {
  
  struct ubusd_acl_file {
  	struct vlist_node avl;
@@ -19,7 +17,7 @@ index 352c581..b94d3e3 100644
  
  	const char *user;
  	const char *group;
-@@ -223,6 +224,7 @@ ubusd_acl_file_free(struct ubusd_acl_file *file)
+@@ -284,6 +285,7 @@ ubusd_acl_file_free(struct ubusd_acl_fil
  		free(p);
  	}
  
@@ -27,7 +25,7 @@ index 352c581..b94d3e3 100644
  	free(file);
  }
  
-@@ -431,11 +433,12 @@ ubusd_acl_load_file(const char *filename)
+@@ -529,11 +531,12 @@ ubusd_acl_load_file(const char *filename
  		return -1;
  
  	file->blob = blob;
@@ -41,6 +39,3 @@ index 352c581..b94d3e3 100644
  	syslog(LOG_INFO, "loading %s\n", filename);
  
  	return 0;
--- 
-2.48.1
-

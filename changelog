@@ -1,3 +1,13 @@
+# 2025-10-24 00.07.18.3
+
+### Fix
+
+* Backup: fixed issues uploading older backup files (ID: 29068)
+
+### Updates
+
+* ubus: updated version to  2025-10-19 (ID: 29046)
+
 # 2025-10-08 00.07.18.1
 
 ### Improvements

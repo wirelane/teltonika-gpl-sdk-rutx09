@@ -1,6 +1,6 @@
 --- a/ubusd_acl.c
 +++ b/ubusd_acl.c
-@@ -433,7 +433,7 @@ ubusd_acl_load_file(const char *filename
+@@ -537,7 +537,7 @@ ubusd_acl_load_file(const char *filename
  	INIT_LIST_HEAD(&file->acl);
  
  	vlist_add(&ubusd_acl_files, &file->avl, file->avl_key);
@@ -9,7 +9,7 @@
  
  	return 0;
  }
-@@ -459,6 +459,7 @@ ubusd_acl_load(void)
+@@ -563,6 +563,7 @@ ubusd_acl_load(void)
  		return;
  	}
  

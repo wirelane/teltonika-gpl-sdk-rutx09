@@ -7,11 +7,9 @@ Subject: [PATCH 1/1] fix subscribe ACL when no methods are accessible
  ubusd_proto.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/ubusd_proto.c b/ubusd_proto.c
-index 48de9b9..062d1b6 100644
 --- a/ubusd_proto.c
 +++ b/ubusd_proto.c
-@@ -182,7 +182,8 @@ static void ubusd_send_obj(struct ubus_client *cl, struct ubus_msg_buf *ub, stru
+@@ -182,7 +182,8 @@ static void ubusd_send_obj(struct ubus_c
  	}
  	blob_nest_end(&b, s);
  
@@ -21,6 +19,3 @@ index 48de9b9..062d1b6 100644
  		ubus_proto_send_msg_from_blob(cl, ub, UBUS_MSG_DATA);
  }
  
--- 
-2.47.0
-
