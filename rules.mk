@@ -287,6 +287,7 @@ PATCH:=patch
 PYTHON:=python
 
 INSTALL_BIN:=install -m0755
+INSTALL_BIN_USR:=install -m0750
 INSTALL_SUID:=install -m4755
 INSTALL_DIR:=install -d -m0755
 INSTALL_DATA:=install -m0644

@@ -70,7 +70,7 @@
  #endif /* CONFIG_ANDROID_LOG */
  }
  
-@@ -194,6 +210,114 @@ void wpa_debug_close_linux_tracing(void)
+@@ -194,6 +210,118 @@ void wpa_debug_close_linux_tracing(void)
  
  #endif /* CONFIG_DEBUG_LINUX_TRACING */
  
@@ -106,8 +106,11 @@
 +	prefix = basename(bcpy);
 +	log_count = scandir(dir, &log_list, wpa_debug_logfile_filter, alphasort);
 +
-+	if (log_count < 0)
++	if (log_count < 0) {
++		os_free(bcpy);
++		os_free(dcpy);
 +		return;
++	}
 +
 +	while (log_count--) {
 +		if (strncmp(log_list[log_count]->d_name, prefix, os_strlen(prefix))) {
@@ -130,7 +133,6 @@
 +	os_free(log_list);
 +	os_free(bcpy);
 +	os_free(dcpy);
-+	wpa_debug_reopen_file();
 +}
 +
 +static int wpa_debug_log_write(const char *buf)
@@ -156,8 +158,10 @@
 +		goto err;
 +
 +	logfile.bytes_written += write_len;
-+	if (logfile.bytes_written >= MAX_LOG_SIZE)
++	if (logfile.bytes_written >= MAX_LOG_SIZE) {
 +		wpa_debug_rotate_log();
++		wpa_debug_reopen_file();
++	}
 +
 +	return write_len;
 +
@@ -185,7 +189,7 @@
  
  /**
   * wpa_printf - conditional printf
-@@ -206,10 +330,15 @@ void wpa_debug_close_linux_tracing(void)
+@@ -206,10 +334,15 @@ void wpa_debug_close_linux_tracing(void)
   *
   * Note: New line '\n' is added to the end of the text when printing to stdout.
   */
@@ -203,7 +207,7 @@
  	if (level >= wpa_debug_level) {
  #ifdef CONFIG_ANDROID_LOG
  		va_start(ap, fmt);
-@@ -224,22 +353,37 @@ void _wpa_printf(int level, const char *
+@@ -224,22 +357,37 @@ void _wpa_printf(int level, const char *
  			va_end(ap);
  		}
  #endif /* CONFIG_DEBUG_SYSLOG */
@@ -246,7 +250,7 @@
  	}
  
  #ifdef CONFIG_DEBUG_LINUX_TRACING
-@@ -351,23 +495,26 @@ void _wpa_hexdump(int level, const char
+@@ -351,23 +499,26 @@ void _wpa_hexdump(int level, const char
  			return;
  	}
  #endif /* CONFIG_DEBUG_SYSLOG */
@@ -281,7 +285,7 @@
  		printf("%s - hexdump(len=%lu):", title, (unsigned long) len);
  		if (buf == NULL) {
  			printf(" [NULL]");
-@@ -417,47 +564,50 @@ void _wpa_hexdump_ascii(int level, const
+@@ -417,47 +568,50 @@ void _wpa_hexdump_ascii(int level, const
  	if (wpa_debug_syslog)
  		_wpa_hexdump(level, title, buf, len, show, 1);
  #endif /* CONFIG_DEBUG_SYSLOG */
@@ -346,7 +350,7 @@
  		if (!show) {
  			printf("%s - hexdump_ascii(len=%lu): [REMOVED]\n",
  			       title, (unsigned long) len);
-@@ -495,10 +645,6 @@ file_done:
+@@ -495,10 +649,6 @@ file_done:
  }
  
  
@@ -357,7 +361,7 @@
  int wpa_debug_reopen_file(void)
  {
  #ifdef CONFIG_DEBUG_FILE
-@@ -526,17 +672,25 @@ int wpa_debug_open_file(const char *path
+@@ -526,17 +676,31 @@ int wpa_debug_open_file(const char *path
  {
  #ifdef CONFIG_DEBUG_FILE
  	int out_fd;
@@ -373,6 +377,12 @@
  		/* Save our path to enable re-open */
  		os_free(last_path);
  		last_path = os_strdup(path);
++
++		/* Log file is generated on program start, rotate log
++		   to clear excessive files that may have been generated
++		   due to many restarts (crashes, etc).
++		   last_path is only set at startup, so this runs once.*/
++		wpa_debug_rotate_log();
  	}
  
 -	out_fd = open(path, O_CREAT | O_APPEND | O_WRONLY,
@@ -384,7 +394,7 @@
  		      S_IRUSR | S_IWUSR | S_IRGRP);
  	if (out_fd < 0) {
  		wpa_printf(MSG_ERROR,
-@@ -545,6 +699,7 @@ int wpa_debug_open_file(const char *path
+@@ -545,6 +709,7 @@ int wpa_debug_open_file(const char *path
  		return -1;
  	}
  
@@ -392,7 +402,7 @@
  #ifdef __linux__
  	if (fcntl(out_fd, F_SETFD, FD_CLOEXEC) < 0) {
  		wpa_printf(MSG_DEBUG,
-@@ -553,15 +708,15 @@ int wpa_debug_open_file(const char *path
+@@ -553,15 +718,15 @@ int wpa_debug_open_file(const char *path
  	}
  #endif /* __linux__ */
  
@@ -411,7 +421,7 @@
  #endif /* _WIN32 */
  #else /* CONFIG_DEBUG_FILE */
  	(void)path;
-@@ -569,14 +724,13 @@ int wpa_debug_open_file(const char *path
+@@ -569,14 +734,13 @@ int wpa_debug_open_file(const char *path
  	return 0;
  }
  

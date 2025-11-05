@@ -1,8 +1,23 @@
 [
   {
-    "category": "System",
-    "name": "Logging",
-    "depends": []
+    "category": "Services",
+    "name": "Cloud of Things",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Cumulocity",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   },
   {
     "category": "System",
@@ -121,8 +136,8 @@
     "name": "ITxPT",
     "depends": [
       {
-        "type": "device",
-        "name": "ATRM50"
+        "type": "hw",
+        "name": "has_itxpt"
       }
     ]
   },
@@ -249,6 +264,16 @@
   {
     "category": "System",
     "name": "Speed Test",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "Events reporting",
     "depends": [
       {
         "type": "family",
@@ -501,8 +526,17 @@
     "name": "NAT64",
     "depends": [
       {
+        "type": "family",
+        "name": "Router"
+      },
+      {
         "type": "hw",
         "name": "flash16mb",
+        "value": false
+      },
+      {
+        "type": "hw",
+        "name": "is_gateway",
         "value": false
       }
     ]
@@ -1288,11 +1322,6 @@
       {
         "type": "family",
         "name": "Router"
-      },
-      {
-        "type": "hw",
-        "name": "is_trb5",
-        "value": false
       }
     ]
   },

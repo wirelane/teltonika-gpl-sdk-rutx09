@@ -37,7 +37,7 @@
 			"view": "services/DNP3OutstationDataSource",
 			"acls": [ "services/dnp3/dnp_outstation/data_source" ]
 		},
-		"services/dnp3/dnp3_serial_outstation": {
+		"services/dnp3/dnp_serial_outstation": {
 			"title": "DNP3 Serial Outstation",
 			"index": 40,
 			"depends": {
@@ -46,13 +46,13 @@
 				}
 			}
 		},
-		"services/dnp3/dnp3_serial_outstation/general": {
+		"services/dnp3/dnp_serial_outstation/general": {
 			"title": "General",
 			"index": 1,
 			"view": "services/DNP3SerialOutstation",
 			"acls": [ "services/dnp3/dnp_serial_outstation/general" ]
 		},
-		"services/dnp3/dnp3_serial_outstation/data_source": {
+		"services/dnp3/dnp_serial_outstation/data_source": {
 			"title": "Data Sources",
 			"index": 2,
 			"view": "services/DNP3SerialOutstationDataSource",

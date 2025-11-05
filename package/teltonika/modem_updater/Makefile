@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modem_updater
-PKG_SOURCE_VERSION:=7.18
+PKG_SOURCE_VERSION:=7.19
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -104,7 +104,7 @@ define Package/modem_updater-offline/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/permtab.d
 	$(if $(findstring Quectel,$(CONFIG_DEVICE_MODEM_VENDORS)),
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/quectel_flash/quectel_flash $(1)/usr/bin/quectel_flash
-		$(if $(TLT_PLATFORM_TRB2M)$(TLT_PLATFORM_RUT361),,
+		$(if $(TLT_PLATFORM_RUT361),,
 			$(INSTALL_BIN) $(PKG_BUILD_DIR)/QDLoader/quectel_loader $(1)/usr/bin/QDLoader
 		)
 		$(if $(TLT_PLATFORM_TRB2M),
@@ -146,7 +146,7 @@ endef
 define Package/QDLoader/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/QDLoader/quectel_loader $(1)/usr/bin/QDLoader
-	#Only for EC200 RG500
+	#Only for EC200 RG500 EG912
 endef
 define Package/fbfdownloader/install
 	$(INSTALL_DIR) $(1)/usr/bin

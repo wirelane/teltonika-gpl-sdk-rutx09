@@ -54,7 +54,6 @@ sub target_config_features(@) {
 		/^hnat$/ and $ret .= "\tselect HNAT\n";
 		/^mbus$/ and $ret .= "\tselect MBUS_SUPPORT\n";
 		/^gps$/ and $ret .= "\tselect GPS_SUPPORT\n";
-		/^serial$/ and $ret .= "\tselect SERIAL_SUPPORT\n";
 		/^itxpt$/ and $ret .= "\tselect ITXPT_SUPPORT\n";
 		/^modbus$/ and $ret .= "\tselect HAS_MODBUS\n";
 		/^ios$/ and $ret .= "\tselect HAS_IO\n";
@@ -82,9 +81,6 @@ sub target_config_features(@) {
 		/^vendor_wifi$/ and $ret .= "\tselect USES_VENDOR_WIFI_DRIVER\n";
 		/^mt7981-wifi$/ and $ret .= "\tselect MT7981_WIFI\n";
 		/^basic-router$/ and $ret .= "\tselect BASIC_ROUTER\n";
-		/^bacnet$/ and $ret .= "\tselect BACNET_MODULE_SUPPORT\n";
-		/^ntrip$/ and $ret .= "\tselect NTRIP_MODULE_SUPPORT\n";
-		/^impulse_counter$/ and $ret .= "\tselect IMPULSE_COUNTER_SUPPORT\n";
 		/^multi-device$/ and $ret .= "\tselect MULTI_DEVICE_QUIRK\n";
 		/^gateway$/ and $ret .= "\tselect GATEWAY_DEVICE\n";
 		/^access_point$/ and $ret .= "\tselect AP_DEVICE\n";
@@ -107,7 +103,10 @@ sub target_config_features(@) {
 		/^emmc$/ and $ret .= "\tselect EMMC_SUPPORT\n";
 		/^no-wired-wan$/ and $ret .= "\tselect NO_WIRED_WAN\n";
 		/^test-image$/ and $ret .= "\tselect TEST_IMAGE\n";
-		/^consumer_access_point$/ and $ret .= "\tselect CONSUMER_AP\n"
+		/^can-stm$/ and $ret .= "\tselect CAN_BUS_STM\n";
+		/^consumer_access_point$/ and $ret .= "\tselect CONSUMER_AP\n";
+		/^hid_buttons$/ and $ret .= "\tselect HID_BUTTON_SUPPORT\n";
+
 	}
 	return $ret;
 }
@@ -316,6 +315,13 @@ EOF
 				print "\tselect DEFAULT_$pkg\n";
 				$defaults{$pkg} = 1;
 			}
+			if ($profile->{libc}) {
+				if ($profile->{libc} eq 'musl') {
+					print "\tselect USE_MUSL\n";
+				} elsif ($profile->{libc} eq 'glibc') {
+					print "\tselect USE_GLIBC\n";
+				}
+			}
 			my $features = target_config_features(@{$profile->{features}});
 			if (length $features) {
 				print $features;
@@ -382,6 +388,13 @@ EOF
 				$defaults{$pkg} = 1;
 			}
 			my $features = target_config_features(@{$profile->{features}});
+			if ($profile->{libc}) {
+				if ($profile->{libc} eq 'musl') {
+					print "\tselect USE_MUSL\n";
+				} elsif ($profile->{libc} eq 'glibc') {
+					print "\tselect USE_GLIBC\n";
+				}
+			}
 			if (length $features) {
 				print $features;
 			}

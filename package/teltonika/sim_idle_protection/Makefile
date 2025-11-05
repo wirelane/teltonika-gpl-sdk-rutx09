@@ -75,7 +75,7 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/permtab.d/ $(1)/sbin/ $(1)/etc/config/ $(1)/usr/share/acl.d/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/sim_idle_protection.init $(1)/etc/init.d/sim_idle_protection
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/sim_idle_protection.init $(1)/etc/init.d/sim_idle_protection
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/sim_idle_protection.sh $(1)/sbin/sim_idle_protection.sh
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/sim_idle_protection.json $(1)/usr/share/acl.d/sim_idle_protection.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/permtab.d/sim_idle_protection $(1)/etc/permtab.d/sim_idle_protection

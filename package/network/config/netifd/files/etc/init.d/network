@@ -9,7 +9,7 @@ init_switch() {
 	setup_switch() { return 0; }
 
 	include /lib/network
-	setup_switch
+	setup_switch "$1"
 }
 
 compare_lan_dhcp_states() {
@@ -22,6 +22,27 @@ compare_lan_dhcp_states() {
 	return 1
 }
 
+compare_vlan_states() {
+	check_vlan_states() { return 1; }
+	include /lib/network
+
+	check_vlan_states
+}
+
+compare_vlan_tags() {
+	check_vlan_tags() { return 1; }
+	include /lib/network
+
+	check_vlan_tags
+}
+
+update_vlans() {
+	load_vlans() { return 1; }
+	include /lib/network
+
+	load_vlans
+}
+
 set_port_link() {
 	setup_port_links() { return 0; }
 
@@ -30,7 +51,7 @@ set_port_link() {
 }
 
 start_service() {
-	init_switch
+	init_switch "reset"
 
 	procd_open_instance
 	procd_set_param command /sbin/netifd
@@ -42,6 +63,8 @@ start_service() {
 	procd_close_instance
 
 	compare_lan_dhcp_states "init"
+	compare_vlan_tags
+
 	set_port_link "reset"
 }
 
@@ -49,10 +72,20 @@ reload_service() {
 	local rv=0
 	local reset=""
 
-	compare_lan_dhcp_states && {
-			init_switch
-			reset="reset"
-	}
+	# Execute all checks to make sure all states are updated
+	compare_lan_dhcp_states
+	local a=$?
+	compare_vlan_tags
+	local b=$?
+	compare_vlan_states
+	local c=$?
+
+	if [ "$a" = 0 ] || [ "$b" = 0 ]; then
+		init_switch "reset"
+		reset="reset"
+	elif [ "$c" = 0 ]; then
+		update_vlans
+	fi
 
 	set_port_link "$reset"
 

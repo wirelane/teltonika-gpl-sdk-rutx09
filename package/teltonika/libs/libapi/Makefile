@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libapi
-PKG_SOURCE_VERSION:=1.4
+PKG_SOURCE_VERSION:=1.5
 PKG_SOURCE_DATE:=2025-06-13
 
 PKG_LICENSE:=Teltonika-closed

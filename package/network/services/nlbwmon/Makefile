@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=nlbwmon
-PKG_VERSION:=2025-08-26
+PKG_VERSION:=2025-10-14
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=COPYING

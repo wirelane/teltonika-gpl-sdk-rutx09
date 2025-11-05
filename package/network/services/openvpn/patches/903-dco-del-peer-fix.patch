@@ -1,8 +1,8 @@
-Index: openvpn-2.6.9/src/openvpn/forward.c
+Index: openvpn-2.6.14/src/openvpn/forward.c
 ===================================================================
---- openvpn-2.6.9.orig/src/openvpn/forward.c
-+++ openvpn-2.6.9/src/openvpn/forward.c
-@@ -1241,6 +1241,8 @@ process_incoming_dco(struct context *c)
+--- openvpn-2.6.14.orig/src/openvpn/forward.c
++++ openvpn-2.6.14/src/openvpn/forward.c
+@@ -1256,6 +1256,8 @@ process_incoming_dco(struct context *c)
      switch (dco->dco_message_type)
      {
          case OVPN_CMD_DEL_PEER:

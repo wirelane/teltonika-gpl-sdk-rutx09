@@ -51,12 +51,23 @@ $VERSION_SCRIPT >/dev/null # dummy run to avoid version weirdness
 VERSION_CURRENT=$($VERSION_SCRIPT | cut -d'_' -f2-)
 VERSION_PREVIOUS_RELEASE=$($VERSION_SCRIPT --previous | cut -d'_' -f2-)
 
+TARGET_LIST_TO_BUILD=()
 for TARGET in $TARGET_LIST; do
 	FILE=${CACHE_SUBDIR}/${TARGET}.json
 	[[ -f ${FILE} ]] || {
-		$DOCS_SCRIPT --$type_arg "${TARGET}"
-		mv "out/${TARGET}.json" "${FILE}"
+		TARGET_LIST_TO_BUILD+=( ${TARGET} )
 	}
+done
+
+$DOCS_SCRIPT --$type_arg ${TARGET_LIST_TO_BUILD[@]}
+
+for TARGET in ${TARGET_LIST_TO_BUILD[@]}; do
+	FILE=${CACHE_SUBDIR}/${TARGET}.json
+	mv "out/${TARGET}.json" "${FILE}"
+done
+
+for TARGET in $TARGET_LIST; do
+	FILE=${CACHE_SUBDIR}/${TARGET}.json
 
 	FILE_LINK=${TARGET^^}_${VERSION_CURRENT}.json
 	[[ -f $CACHE_DIR/$FILE_LINK ]] || ln -fs "${FILE#"$CACHE_DIR/"}" "$CACHE_DIR/$FILE_LINK"

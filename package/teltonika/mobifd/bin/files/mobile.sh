@@ -233,6 +233,99 @@ qmi_error_handle() {
 	return 0
 }
 
+# When received, attempt to retry first
+handle_retryable_error() {
+	local error="$1"
+
+	echo "$error" | grep -qi "Unknown error" && {
+		return 1
+	}
+
+	echo "$error" | grep -qi "Failed to connect to service" && {
+		return 1
+	}
+
+	echo "$error" | grep -qi "Request canceled" && {
+		return 1
+	}
+
+	echo "$error" | grep -qi "Call Failed" && {
+		return 1
+	}
+
+	return 0
+}
+
+call_qmi_command_silent() {
+	local command="$1"
+	local skip_reset="$2"
+	local try=0
+
+	while [ $try -lt $qmi_call_retry_count ]; do
+		#log command
+		ret=$($command)
+
+		# no error
+		handle_retryable_error "$ret" && {
+			break
+		}
+
+		try=$((try+1))
+		sleep 1
+	done
+	[ -n "$ret" ] && echo "$ret"
+	qmi_error_handle "$ret" "$error_cnt" "$modem" "$skip_reset"
+}
+
+call_qmi_command() {
+	local command="$1"
+	local skip_reset="$2"
+	local try=0
+
+	while [ $try -lt $qmi_call_retry_count ]; do
+		#log command
+		logger -t "netifd" "$command"
+		ret=$($command)
+
+		#log output
+		[ -n "$ret" ] && {
+			logger -t "netifd" ""\"$ret"\""
+		}
+
+		# no error
+		handle_retryable_error "$ret" && {
+			break
+		}
+
+		try=$((try+1))
+		sleep 1
+	done
+	[ -n "$ret" ] && echo "$ret"
+	qmi_error_handle "$ret" "$error_cnt" "$modem" "$skip_reset"
+}
+
+call_qmi_command_no_output() {
+	local command="$1"
+	local skip_reset="$2"
+	local try=0
+
+	while [ $try -lt $qmi_call_retry_count ]; do
+		#log command
+		logger -t "netifd" "$command"
+		ret=$($command)
+
+		# no error
+		handle_retryable_error "$ret" && {
+			break
+		}
+
+		try=$((try+1))
+		sleep 1
+	done
+	[ -n "$ret" ] && echo "$ret"
+	qmi_error_handle "$ret" "$error_cnt" "$modem" "$skip_reset"
+}
+
 sim1_pass=
 sim2_pass=
 get_passthrough_interfaces() {
@@ -446,6 +539,7 @@ setup_dhcp_v6() {
 
 setup_static_v6() {
 	local dev="$1"
+	local ip6gw="${2:-::0}"
 	echo "Setting up $dev V6 static"
 	echo "$parameters6"
 
@@ -464,7 +558,8 @@ setup_static_v6() {
 		json_get_var ip_6 ip
 		json_get_var ip_prefix_length ip-prefix-length
 		ip_6="${ip_6%/*}"
-		ip6_with_prefix="$ip_6/$ip_prefix_length"
+		ip_prefix_length="${ip_prefix_length:-64}"
+		ip6_with_prefix=$(echo "$ip_6" | awk -F: '{OFS=":"; print $1, $2, $3, $4, ":"}')
 			[[ -z "$custom" ]] && {
 				json_get_var dns1_6 dns1
 				json_get_var dns2_6 dns2
@@ -476,16 +571,16 @@ setup_static_v6() {
 	json_add_string name "${interface}_6"
 	json_add_string ifname "$dev"
 	json_add_string proto static
-	json_add_string ip6gw "::0"
+	json_add_string ip6gw "$ip6gw"
 
 	[ -n "$delegate" ] && [ "$delegate" == 0 ] || {
 		json_add_array ip6prefix
-		json_add_string "" "$ip6_with_prefix"
+		json_add_string "" "$ip6_with_prefix/$ip_prefix_length"
 		json_close_array
 	}
 
 	json_add_array ip6addr
-		json_add_string "" "${ip_6}/128"
+	json_add_string "" "${ip_6}/128"
 	json_close_array
 
 	json_add_array dns
@@ -501,7 +596,7 @@ setup_static_v6() {
 
 check_digits() {
 	var="$1"
-	echo "$var" | grep -E '^[+-]?[0-9]+$'
+	echo "$var" | grep -Eq '^[+-]?[0-9]+$'
 }
 
 ubus_set_interface_data() {
@@ -530,7 +625,7 @@ get_config_sim() {
 	local sim
 	local DEFAULT_SIM="1"
 	config_load network
-	config_get sim "$1" "sim" "1"
+	config_get sim "$1" "sim"
 	[ -z "$sim" ] && logger -t "mobile.sh" "sim option not found in config. Taking default: $DEFAULT_SIM" \
 				  && sim="$DEFAULT_SIM"
 	echo "$sim"
@@ -538,10 +633,8 @@ get_config_sim() {
 
 get_config_esim() {
 	local esim
-	local DEFAULT_ESIM="0"
 	config_load network
 	config_get esim "$1" "esim_profile" "0"
-	[ -z "$esim" ] && esim="$DEFAULT_ESIM"
 	echo "$esim"
 }
 
@@ -947,4 +1040,89 @@ generate_dynamic_lte() {
 			add_sms_storage_config "$a"
 		}
 	done
+}
+
+parse_ipv4_information() {
+	local pdp="$1"
+	local modem_id="$2"
+	local parsed_ip primary_dns secondary_dns mdm_ubus_obj errno
+
+	mdm_ubus_obj="$(find_mdm_ubus_obj "$modem_id")"
+
+	json_load "$(ubus call "$mdm_ubus_obj" get_pdp_addr "{\"index\":${pdp}}")"
+	json_get_var parsed_ip addr
+
+	[ -z "$parsed_ip" ] && {
+		echo "Can't parse IP address!"
+		return 1
+	}
+
+	json_load "$(ubus call "$mdm_ubus_obj" get_dns_addr "{\"cid\":${pdp}}")"
+	json_get_var primary_dns pri_dns
+	json_get_var secondary_dns sec_dns
+	json_get_var errno errno
+
+	[ -n "$errno" ] && {
+		echo "Can't get primary and secondary DNS!"
+		return 1
+	}
+
+	get_netmask_gateway "$parsed_ip" "ipv4"
+
+	json_init
+	json_add_object "ipv4"
+	json_add_string ip "$parsed_ip"
+	json_add_string dns1 "$primary_dns"
+	json_add_string dns2 "$secondary_dns"
+	json_add_string gateway "$gateway"
+	json_add_string subnet "$netmask"
+	json_close_object
+
+	parameters4="$(json_dump)"
+	return 0
+}
+parse_ipv6_information() {
+	local pdp="$1"
+	local modem_id="$2"
+	local parsed_ip primary_dns secondary_dns mdm_ubus_obj errno
+
+	mdm_ubus_obj="$(find_mdm_ubus_obj "$modem_id")"
+
+	json_load "$(ubus call "$mdm_ubus_obj" get_pdp_addr "{\"index\":${pdp}}")"
+	json_get_var parsed_ip addr_v6
+
+	[ -z "$parsed_ip" ] && json_get_var parsed_ip addr
+
+	[ -z "$parsed_ip" ] && {
+		echo "Can't parse IP address!"
+		return 1
+	}
+
+	json_load "$(ubus call "$mdm_ubus_obj" get_dns_addr "{\"cid\":${pdp}}")"
+	json_get_var primary_dns pri_dns_v6
+	json_get_var secondary_dns sec_dns_v6
+
+	# If pri_dns_v6 and sec_dns_v6 are not received, fallback to pri_dns and sec_dns
+	[ -z "$primary_dns" ] && json_get_var primary_dns pri_dns
+	[ -z "$secondary_dns" ] && json_get_var secondary_dns sec_dns
+	json_get_var errno errno
+
+	[ -n "$errno" ] && {
+		echo "Can't get primary and secondary DNS!"
+		return 1
+	}
+
+	get_netmask_gateway "$parsed_ip" "ipv6"
+
+	json_init
+	json_add_object "ipv6"
+	json_add_string ip "$parsed_ip"
+	json_add_string dns1 "$primary_dns"
+	json_add_string dns2 "$secondary_dns"
+	json_add_string gateway "$gateway"
+	json_add_string subnet "$netmask"
+	json_close_object
+
+	parameters6="$(json_dump)"
+	return 0
 }

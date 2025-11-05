@@ -31,7 +31,7 @@ check_bind() {
 
 	[ "$bind_to" = "$2" ] || continue
 	if ! swanctl --list-sas --child ${1} 2>/dev/null | grep -q "INSTALLED"; then
-		logger "L2TP instance ${bind_to} cannot start, it's bound to unestablished IPsec connection ${1}."
+		logger -t "l2tp" "Interface '$bind_to' cannot start, it's bound to unestablished IPsec connection ${1}"
 		BIND_STOP=1
 	fi
 }

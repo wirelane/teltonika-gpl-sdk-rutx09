@@ -1,6 +1,6 @@
 --- a/drivers/usb/class/cdc-acm.c
 +++ b/drivers/usb/class/cdc-acm.c
-@@ -1968,6 +1968,21 @@ static const struct usb_device_id acm_id
+@@ -1969,6 +1969,21 @@ static const struct usb_device_id acm_id
  	{ USB_DEVICE(0x04e2, 0x1424), .driver_info = IGNORE_DEVICE },
  #endif
  

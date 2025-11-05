@@ -8,7 +8,7 @@
       "methods": ["write_ext"]
     },
     "system": {
-      "methods": ["backup", "sysupgrade"]
+      "methods": ["backup", "sysupgrade", "info"]
     },
     "gsm": {
       "methods": ["info"]
@@ -16,7 +16,7 @@
     "gsm.modem*": {
       "methods": ["info"]
     },
-    "uci": {
+    "api": {
       "methods": ["get"]
     }
   }

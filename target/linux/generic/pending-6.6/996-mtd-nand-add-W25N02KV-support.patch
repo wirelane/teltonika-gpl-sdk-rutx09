@@ -1,6 +1,6 @@
 --- a/drivers/mtd/nand/spi/core.c
 +++ b/drivers/mtd/nand/spi/core.c
-@@ -1096,6 +1096,7 @@ int spinand_match_and_init(struct spinan
+@@ -1099,6 +1099,7 @@ int spinand_match_and_init(struct spinan
  		spinand->flags = table[i].flags;
  		spinand->id.len = 1 + table[i].devid.len;
  		spinand->select_target = table[i].select_target;
@@ -8,7 +8,7 @@
  
  		op = spinand_select_op_variant(spinand,
  					       info->op_variants.read_cache);
-@@ -1145,7 +1146,8 @@ static int spinand_detect(struct spinand
+@@ -1148,7 +1149,8 @@ static int spinand_detect(struct spinand
  	}
  
  	dev_info(&spinand->spimem->spi->dev,

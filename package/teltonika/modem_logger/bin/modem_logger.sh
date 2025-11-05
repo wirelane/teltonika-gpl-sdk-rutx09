@@ -453,7 +453,7 @@ start_logging(){
         exit 0
     fi
 
-    if [[ "$LOGGER_PATH" =~ "/qlog$" ]] && [ $LOG_DIR == "9000" ]; then
+    if [[ ! "$LOGGER_PATH" =~ "qlog" ]] && [ "$LOG_DIR" == "9000" ]; then
         echo "[ERROR] Only qlog can be run as a TCP server. Exiting."
         available_loggers
         exit 1

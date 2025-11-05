@@ -348,7 +348,6 @@ config LPAC_APP
 	depends on MOBILE_SUPPORT
 	default y
 	imply PACKAGE_esim-lpac
-	imply PACKAGE_lua_lpac
 	imply PACKAGE_rpc_esim
 	imply BUSYBOX_CONFIG_TIMEOUT
 
@@ -671,7 +670,7 @@ config MULTIWAN_SUPPORT
 	tristate "Multiwan"
 	maintainer "Network"
 	label "Network Utilities"
-	depends on PKG_SUPPORT && (!GATEWAY_DEVICE || (GATEWAY_DEVICE && !CUSTOM_DATA_LIMIT))
+	depends on PKG_SUPPORT
 	default m if (HAS_SINGLE_ETH_PORT || NETWORKS_EXTERNAL) && !TEST_IMAGE
 	default y
 	imply PACKAGE_vuci-app-mwan3-ui
@@ -850,6 +849,18 @@ config OPENVPN_SUPPORT
 	detail
 		Client and server modes, Tunnel (TUN) or Bridged (TAP) types, NordVPN, ExpressVPN external providers
 		static key, TLS, password, PKCS#12 authentication methoods, 27 encryption methods
+
+config OPENVPN_DCO_SUPPORT
+	tristate
+	label "VPN"
+	maintainer "SysApp"
+	depends on PKG_SUPPORT && OPENVPN_SUPPORT && !LINUX_4_14
+	default m if SMALL_FLASH
+	default y
+	imply PACKAGE_kmod-ovpn-dco-v2
+	detail
+		This module enhances the performance of the OpenVPN userspace software
+		by offloading the data channel processing to kernelspace
 
 config STUNNEL_SUPPORT
 	tristate "Stunnel"
@@ -1147,12 +1158,17 @@ config BACNET_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-bacnet-ui
 	detail
-		Router mode, RTU(RS485) connection mode
+		Router mode
+	detail if HAS_RS485
+		\, RTU(RS485)
+	detail
+		connection types
 
 config MBUS_SUPPORT
 	bool "MBUS"
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
+	imply SERIAL_SUPPORT
 	imply PACKAGE_libmbus-util
 	imply PACKAGE_mbus_client
 	imply PACKAGE_vuci-app-mbus-ui
@@ -1195,10 +1211,11 @@ config DLMS_SUPPORT
 #
 
 config EVENTS_SUBSYSTEM
-	bool "Events Reporting"
+	tristate "Events Reporting"
 	label "Monitoring & Management"
 	maintainer "Apps/Apps1"
 	depends on !AP_DEVICE
+	default m if SMALL_FLASH && PKG_SUPPORT
 	default n if CONSUMER_AP
 	default y
 	imply PACKAGE_vuci-app-events-reporting-ui
@@ -1521,16 +1538,11 @@ config GPS_SUPPORT
 		Server Software: TAVL, RMS
 		Geofencing: Configurable multiple geofence zones
 
-config NTRIP_MODULE_SUPPORT
-	bool
-	maintainer "Apps/Apps2"
-	label "Location Tracking"
-
 config NTRIP_SUPPORT
 	tristate "NTRIP"
 	maintainer "Apps/Apps2"
 	label "Location Tracking"
-	depends on PKG_SUPPORT && NTRIP_MODULE_SUPPORT
+	depends on PKG_SUPPORT && SERIAL_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-ntrip-ui
 	detail
@@ -1582,6 +1594,15 @@ config IO_SCHEDULER
 	default m if SMALL_FLASH && PKG_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-io-scheduler-ui
+
+config IO_JUGGLER
+	tristate
+	label "Input/Output"
+	maintainer "Apps/Apps1"
+	depends on IO_SUPPORT
+	default m if SMALL_FLASH && PKG_SUPPORT
+	default y
+	imply PACKAGE_vuci-app-io-juggler-ui
 
 config POWER_CONTROL_SUPPORT
 	bool "Power Control"
@@ -1764,13 +1785,21 @@ config LETS_ENCRYPT_SUPPORT
 	default y
 	imply PACKAGE_letsencrypt
 
-config RECIPIENTS_SUPPORT
+config EMAIL_RECIPIENTS_SUPPORT
 	bool
 	maintainer "SysApp"
 	label "System"
-	depends on MOBILE_UTILS_SUPPORT || EVENTS_SUBSYSTEM || IO_UTILS
+	depends on MOBILE_UTILS_SUPPORT || EVENTS_SUBSYSTEM || IO_UTILS || EVENT_JUGGLER_SUPPORT
 	default y
-	imply PACKAGE_vuci-app-recipients-ui
+	imply PACKAGE_vuci-app-email-recipients-ui
+
+config PHONE_RECIPIENTS_SUPPORT
+	bool
+	maintainer "SysApp"
+	label "System"
+	depends on MOBILE_UTILS_SUPPORT || EVENTS_SUBSYSTEM || IO_UTILS  || EVENT_JUGGLER_SUPPORT
+	default y
+	imply PACKAGE_vuci-app-phone-recipients-ui
 
 config IP_BLOCK_SUPPORT
 	bool "IP Block"
@@ -2201,6 +2230,23 @@ config EMMC_SUPPORT
 	imply BUSYBOX_CONFIG_FEATURE_VOLUMEID_EXT
 	imply BUSYBOX_CONFIG_FEATURE_VOLUMEID_FAT
 	imply BUSYBOX_CONFIG_FEATURE_VOLUMEID_F2FS
+
+config CAN_BUS_STM
+	bool
+	maintainer "Embedded/BBU"
+	imply PACKAGE_dfu-util
+	imply PACKAGE_canutils
+	imply PACKAGE_canutils-candump
+	imply PACKAGE_canutils-cansend
+	imply PACKAGE_kmod-can
+	imply PACKAGE_kmod-can-usb-gs
+	imply PACKAGE_kmod-can-raw
+	imply PACKAGE_stm-usb-can
+
+config HID_BUTTON_SUPPORT
+	bool
+	maintainer "Embedded/BBU"
+	imply PACKAGE_cmdpad
 
 config BLUETOOTH_SUPPORT
 	bool "Bluetooth"

@@ -8,6 +8,7 @@ import re
 import argparse
 from os import path
 from subprocess import Popen
+from typing import List
 
 list_profiles = list()
 list_features = list()
@@ -159,7 +160,7 @@ class Profile:
             if is_match('^@@$', l):
                 break
             elif is_match('^Target-Profile-Name:', l):
-                self.name = l[21:-1]
+                self.name = l[21:-1].strip()
             elif is_match('^Target-Profile-Features: ', l):
                 self.features_profile = set(l[25:-1].split())
                 self.features = self.features_profile | self.target.features
@@ -396,7 +397,6 @@ class Profile:
         if descriptions_only:
             del data["target"]
             del data["hwinfo"]
-            del data["packages"]
 
         self.prepare_dotconfig()
         self.read_config()
@@ -407,6 +407,9 @@ class Profile:
             data["packages"] = list(self.cached_packages.keys())
             data["software"] = dump_features(self.features, descriptions_only)
 
+        if descriptions_only:
+            del data["packages"]
+
         return data
 
 def run_metadata_info(*args):
@@ -414,9 +417,38 @@ def run_metadata_info(*args):
     command += ' '.join(args)
     return subprocess.run(command, shell=True, capture_output=True, text=True).stdout.strip()
 
-def initialize_targets(targetDevice=None, targetFamily=None):
+def list_device_names_by_family(targetFamily: str):
+    res = run_metadata_info('target', 'tmp/.targetinfo', targetFamily)
+    match = re.search(r'DEVICE_PROFILE=(DEVICE_teltonika_\S+)', res)
+    if not match:
+        return []
+
+    familyProfile = match.group(1).replace("DEVICE_", "")
+    print(f'Found family profile: {familyProfile}')
+
+    res = run_metadata_info('option', 'tmp/.targetinfo', familyProfile, 'included_devices')
+    if not res:
+        # use family profile for backwards compatibility
+        devlist = [familyProfile]
+        print(f'Unable to find family devices, using family profile: {familyProfile}')
+    else:
+        devlist = res.split()
+
+    return devlist
+
+def list_profiles_by_family(targetFamily: str):
+    devlist = list_device_names_by_family(targetFamily)
+    print(f'Found {targetFamily} family devices: {", ".join(devlist)}')
+
+    result = []
+    for profile in list_profiles:
+        dev = profile.profile.removeprefix("DEVICE_")
+        if dev in devlist:
+            result.append(profile)
+    return result
+
+def initialize_targets(targetDevices=None):
     ti = 'tmp/.targetinfo'
-    devlist = None
 
     print('Initializing targets...')
 
@@ -428,24 +460,6 @@ def initialize_targets(targetDevice=None, targetFamily=None):
         print('Unable to initialize targets due to missing targetinfo data!')
         exit(1)
 
-    if targetFamily is not None:
-        res = run_metadata_info('target', 'tmp/.targetinfo', targetFamily)
-        match = re.search(r'DEVICE_PROFILE=(DEVICE_teltonika_\S+)', res)
-        if match:
-            familyProfile = match.group(1).replace("DEVICE_", "")
-            print(f'Found family profile: {familyProfile}')
-        else:
-            return
-
-        res = run_metadata_info('option', 'tmp/.targetinfo', familyProfile, 'included_devices')
-        if not res:
-            # use family profile for backwards compatibility
-            devlist = [ familyProfile ]
-            print(f'Unable to find family devices, using family profile: {", ".join(devlist)}')
-        else:
-            devlist = res.split()
-            print(f'Found family devices: {", ".join(devlist)}')
-
     f = open(ti, 'r')
     target = None
 
@@ -454,21 +468,9 @@ def initialize_targets(targetDevice=None, targetFamily=None):
             target = Target(line[8:-1])
             target.parse(f)
         elif is_match('^Target-Profile:', line):
-            if targetDevice is not None:
-                if targetDevice in line[33:-1]:
-                    profile = Profile(line[16:-1], target)
-                    profile.parse(f)
-                    list_profiles.append(profile)
-                    break
-            elif targetFamily is not None:
-                if line[23:-1] in devlist:
-                    profile = Profile(line[16:-1], target)
-                    profile.parse(f)
-                    list_profiles.append(profile)
-            else:
-                profile = Profile(line[16:-1], target)
-                profile.parse(f)
-                list_profiles.append(profile)
+            profile = Profile(line[16:-1], target)
+            profile.parse(f)
+            list_profiles.append(profile)
 
     f.close()
 
@@ -647,25 +649,6 @@ def initialize_features():
                 feature = Feature(line[7:-1])
                 feature.parse(f)
 
-                new_detail = []
-                new_tooltip = []
-
-                for d in feature.detail:
-                    if 'expr' in d and d['expr']:
-                        new_detail.append(d)
-                        continue
-                    new_item = {'key': d['key'], 'value': d['value']}
-                    append_or_insert_arr(new_detail, new_item)
-                for t in feature.tooltip:
-                    if 'expr' in t and t['expr']:
-                        new_tooltip.append(t)
-                        continue
-                    new_item = {'key': t['key'], 'value': t['value'], 'type': t['type']}
-                    append_or_insert_arr(new_tooltip, new_item)
-
-                feature.detail = new_detail
-                feature.tooltip = new_tooltip
-
                 list_features.append(feature)
 
         f.close()
@@ -699,12 +682,13 @@ def dump_features(data, descriptions_only=False, dump_list=False):
             continue
 
         for item in f.detail:
+            item['value'] = item['value'].lstrip('\\, ')
             if not item['key'] or not item['value']:
                 continue
 
             detail = {
                 'key': item['key'],
-                'value': item['value'],
+                'value': item['value']
             }
 
             if not descriptions_only:
@@ -817,78 +801,133 @@ def initialize_packageinfo():
 
         f.close()
 
-
-def generate_device_features(dump=False, dump_packages=False, descriptions_only=False, target=None, family=None):
-    default_dir='out'
-    default_name='features.json'
-    dump_list = False
-    json_data = None
-
-    print('Generating device features...')
-
-    if dump:
-        print('Dumping all possible device features.')
-        dump_list = True
-    if dump_packages:
-        print('Dumping all available packages.')
-        default_name = 'packages.json'
-    if target:
-        print(f'Generating features for target device: {target}')
-        default_name = f'{target}.json'
-    if family:
-        print(f'Generating features for device family: {family}')
-        default_name = f'{family}.json'
-
-    if not dump_list and not dump_packages:
-        initialize_targets(targetDevice=target, targetFamily=family)
-
-    initialize_features()
-    initialize_packageinfo()
+def save_json_ouput(name, json_data):
+    default_dir = 'out'
 
     if not os.path.exists(default_dir):
         os.makedirs(default_dir)
 
-    # prepare for defconfig generation
-    print('Initializing tmpinfo...')
-    Popen('make prepare-tmpinfo', shell=True, stdout=subprocess.DEVNULL).wait()
+    default_path = os.path.join(default_dir, name)
+    with open(default_path, 'w') as file:
+        json.dump(json_data, file, indent=2, ensure_ascii=False)
 
-    if dump_packages:
-        json_data = []
+    return default_path
 
-        for pkg in list_packages:
-            info = {
-                'name': pkg.name,
-                'title': pkg.title,
-                # 'maintainer': pkg.maint,
-                'description': pkg.desc,
-                # 'detail': pkg.detail,
-                'depends': [dep['name'] for dep in pkg.deps if dep['name']],
-            }
-            json_data.append(info)
-    elif dump_list:
-        json_data = dump_features(list_features, descriptions_only, dump_list)
-    else:
-        if family:
-            json_data = []
+def main_dump(descriptions_only=False):
+    print('Dumping all possible device features.')
 
-        for p in list_profiles:
-            print(f'Generating {p.name}...')
+    initialize_packageinfo()
+    initialize_features()
 
-            if target:
-                json_data = p.json(descriptions_only)
-                break
-
-            json_data.append(p.json(descriptions_only))
+    json_data = dump_features(list_features, descriptions_only, True)
 
     if len(json_data) == 0:
         print('Unable to generate json data!')
         print('Target, family is invalid or project files are corrupted!')
         return
 
-    default_path = os.path.join(default_dir, default_name)
-    with open(default_path, 'w') as file:
-        json.dump(json_data, file, indent=2, ensure_ascii=False)
+    output_path = save_json_ouput('features.json', json_data)
+    print(f'Data written to {output_path} path.')
 
+def main_dump_packages():
+    print('Dumping all available packages.')
+
+    initialize_packageinfo()
+
+    json_data = []
+
+    for pkg in list_packages:
+        info = {
+            'name': pkg.name,
+            'title': pkg.title,
+            # 'maintainer': pkg.maint,
+            'description': pkg.desc,
+            # 'detail': pkg.detail,
+            'depends': [dep['name'] for dep in pkg.deps if dep['name']],
+        }
+        json_data.append(info)
+
+    if len(json_data) == 0:
+        print('Unable to generate json data!')
+        print('Target, family is invalid or project files are corrupted!')
+        return
+
+    default_path = save_json_ouput("packages.json", json_data)
+    print(f'Data written to {default_path} path.')
+
+def main_generate_target(targets: List[str], descriptions_only=False):
+    if len(targets) == 0:
+        return
+
+    print(f'Generating features for target device: {targets}')
+
+    initialize_targets(targetDevices=targets)
+
+    initialize_features()
+    initialize_packageinfo()
+
+    # prepare for defconfig generation
+    print('Initializing tmpinfo...')
+    Popen('make prepare-tmpinfo', shell=True, stdout=subprocess.DEVNULL).wait()
+
+    for target in targets:
+        found_profile = None
+        for profile in list_profiles:
+            profile_name = profile.profile.removeprefix("DEVICE_TEMPLATE_teltonika_")
+            if target == profile_name:
+                found_profile = profile
+                break
+
+        if not found_profile:
+            continue
+
+        json_data = profile.json(descriptions_only)
+        default_path = save_json_ouput(f'{profile_name}.json', json_data)
+        print(f'Data written to {default_path} path.')
+
+def main_generate_family(families: List[str], descriptions_only=False):
+    if len(families) == 0:
+        return
+
+    print(f'Generating features for device family: {families}')
+
+    initialize_targets()
+    initialize_features()
+    initialize_packageinfo()
+
+    # prepare for defconfig generation
+    print('Initializing tmpinfo...')
+    Popen('make prepare-tmpinfo', shell=True, stdout=subprocess.DEVNULL).wait()
+
+    for family in families:
+        json_data = []
+
+        for p in list_profiles_by_family(family):
+            print(f'Generating {p.name}...')
+            json_data.append(p.json(descriptions_only))
+
+        if len(json_data) == 0:
+            print('Unable to generate json data!')
+            print('Target, family is invalid or project files are corrupted!')
+            return
+
+        default_path = save_json_ouput(f'{family}.json', json_data)
+        print(f'Data written to {default_path} path.')
+
+def main_device_features():
+    print('Generating DEVICE_FEATURES for every device')
+    initialize_targets()
+
+    json_data = {}
+
+    list_profiles.sort(key=lambda p: p.name)
+
+    for profile in list_profiles:
+        features = list(profile.features)
+        features.sort()
+        json_data[profile.name] = features
+
+    default_path = save_json_ouput('device-features.json', json_data)
     print(f'Data written to {default_path} path.')
 
 def main():
@@ -898,17 +937,25 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument('--dump', action='store_true', help='Generate all possible device features')
     group.add_argument('--dump-packages', action='store_true', help='Dump all available packages')
-    group.add_argument('--target', type=str, help='Generate device features for a specific target device')
-    group.add_argument('--family', type=str, help='Generate device features for a specific device family')
+    group.add_argument('--target', action='extend', nargs='*', help='Generate device features for a specific target device')
+    group.add_argument('--family', action='extend', nargs='*', help='Generate device features for a specific device family')
+    group.add_argument('--device-features', action='store_true', help='Show the DEVICE_FEATURES of all devices')
 
     args = parser.parse_args()
 
-    if not any([args.dump, args.dump_packages, args.target, args.family]):
+    if args.dump:
+        main_dump(args.descriptions_only)
+    elif args.dump_packages:
+        main_dump_packages()
+    elif args.target is not None:
+        main_generate_target(args.target, args.descriptions_only)
+    elif args.family is not None:
+        main_generate_family(args.family, args.descriptions_only)
+    elif args.device_features:
+        main_device_features()
+    else:
         parser.print_help()
         sys.exit(1)
-
-    generate_device_features(args.dump, args.dump_packages, args.descriptions_only, args.target, args.family)
-
 
 if __name__ == '__main__':
     main()

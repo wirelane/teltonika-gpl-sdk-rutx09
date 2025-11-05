@@ -20,8 +20,7 @@
 	},
 	"vuci-app-cumulocity-ui": {
 		"vuci_dep": "vuci-app-cumulocity-api",
-		"base_dep": "libsera cmStreamApp",
-		"kmod_dep": "libstdcpp6",
+		"base_dep": "cmStreamApp liblua libtlt_uci libcurl",
 		"name": "cumulocity_-_cloud_of_things"
 	},
 	"vuci-app-https-dns-proxy-ui": {
@@ -200,8 +199,8 @@
 		"name": "mqtt_modbus_gateway"
 	},
 	"vuci-app-modbus-client-ui": {
-		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx libtag",
-		"vuci_dep": "vuci-app-modbus-client-api vuci-app-modbus-serial-ui vuci-app-modbus-serial-api vuci-app-data-sender-api-mod-modbus vuci-app-data-sender-api-mod-modbus-alarm",
+		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx libtag libmodbus_client",
+		"vuci_dep": "vuci-app-modbus-client-api vuci-app-modbus-serial-ui vuci-app-modbus-serial-api vuci-app-data-sender-api-mod-modbus vuci-app-data-sender-api-mod-modbus-alarm vuci-app-universal-gateway-api",
 		"kmod_dep": "kmod-tlt-gpio",
 		"name": "modbus_client"
 	},
@@ -592,15 +591,24 @@
 		"base_dep": "curl",
 		"name": "letsencrypt"
 	},
+	"vuci-app-events-reporting-ui": {
+		"base_dep": "event-juggler",
+		"vuci_dep": "vuci-app-events-reporting-api",
+		"name": "events_reporting"
+	},
+	"vuci-app-io-juggler-ui": {
+		"base_dep": "event-juggler iomand",
+		"vuci_dep": "vuci-app-io-juggler-api",
+		"name": "io_juggler"
+	},
 	"vuci-app-io-scheduler-ui": {
 		"base_dep": "io_scheduler iomand",
 		"vuci_dep": "vuci-app-io-scheduler-api",
 		"name": "io_scheduler"
 	},
 	"vuci-app-eoip-ui": {
-		"base_dep": "eoip tc-tiny",
+		"base_dep": "eoip",
 		"vuci_dep": "vuci-app-eoip-api",
-		"kmod_dep": "kmod-sched-flower kmod-ifb kmod-sched-core",
 		"name": "eoip"
 	},
 	"vuci-app-p910nd-ui": {
@@ -655,5 +663,9 @@
 	},
 	"uhttpd-mod-ubus": {
 		"name": "json_rpc_support"
+	},
+	"kmod-ovpn-dco-v2": {
+		"kmod_dep": "kmod-crypto-aead kmod-udptunnel4 kmod-udptunnel6",
+		"name": "openvpn_dco_support"
 	}
 }

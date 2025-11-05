@@ -23,16 +23,6 @@ function get_hash() {
 	echo "$hash"
 }
 
-function get_key_type() {
-	local type
-	type=$(pki --print --type priv --in "$1" 2>/dev/null | awk '$1 == "privkey:" { print tolower($2) }')
-	[ -z "$type" ] && {
-		echo "failed to determine key type."
-		return $CODE_UNKNOWN_KEY_TYPE
-	}
-	echo "$type"
-}
-
 function find_available_persistent_slot() {
 	local handle
 	local all_handles
@@ -48,16 +38,25 @@ function find_available_persistent_slot() {
 	return $CODE_NO_SPACE
 }
 
-function get_key_algo() {
-	case "$1" in
+get_key_algo() {
+	local key_path="$1"
+	local algo
+
+	algo=$(openssl pkey -in "$key_path" -text -noout 2>/dev/null | awk '
+		/modulus:/ {print "rsa"; exit}
+		/NIST CURVE:/ {print "ecc"; exit}
+	')
+	[ -z "$algo" ] && algo="$CODE_UNKNOWN_KEY_TYPE"
+
+	case "$algo" in
 		rsa)
 			echo "rsa"
 			;;
-		ecdsa)
+		ecc)
 			echo "ecc"
 			;;
 		*)
-			echo "unsupported key type $1"
+			echo "unsupported key type: $algo"
 			return $CODE_KEY_NOT_SUPPORTED
 			;;
 	esac
@@ -70,10 +69,9 @@ function import_key() {
 	local working_dir="${TPM2_IMPORTER_DATA_DIR}/${hash}"
 	mkdir -p "$working_dir"
 	chmod 0770 "$working_dir"
-	local key_type key_algo
+	local key_algo
 
-	key_type="$(get_key_type "$key_path")"  || { rc=$?; echo "$key_type"; return $rc; }
-	key_algo="$(get_key_algo "$key_type")" || { rc=$?; echo "$key_algo"; return $rc; }
+	key_algo="$(get_key_algo "$key_path")" || { rc=$?; echo "$key_algo"; return $rc; }
 
 
 	tpm2_import -C $TPM_MANAGER_PRIMARY_KEY_HANDLE -G "$key_algo" -i "$key_path" -r "$working_dir/key.priv" -u "$working_dir/key.pub" > /dev/null 2>&1 || {

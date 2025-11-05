@@ -6,7 +6,7 @@ which more than negates the performace improvements of GRO.
 
 --- a/drivers/net/usb/cdc_ncm.c
 +++ b/drivers/net/usb/cdc_ncm.c
-@@ -1725,6 +1725,7 @@ int cdc_ncm_rx_fixup(struct usbnet *dev,
+@@ -1729,6 +1729,7 @@ int cdc_ncm_rx_fixup(struct usbnet *dev,
  	unsigned int len;
  	int nframes;
  	int x;
@@ -14,7 +14,7 @@ which more than negates the performace improvements of GRO.
  	unsigned int offset;
  	union {
  		struct usb_cdc_ncm_ndp16 *ndp16;
-@@ -1808,12 +1809,15 @@ next_ndp:
+@@ -1812,12 +1813,15 @@ next_ndp:
  			break;
  
  		} else {
@@ -35,7 +35,7 @@ which more than negates the performace improvements of GRO.
  			payload += len;	/* count payload bytes in this NTB */
  		}
  
-@@ -1901,7 +1905,8 @@ static void cdc_ncm_status(struct usbnet
+@@ -1913,7 +1917,8 @@ static void cdc_ncm_update_filter(struct
  static const struct driver_info cdc_ncm_info = {
  	.description = "CDC NCM (NO ZLP)",
  	.flags = FLAG_POINTTOPOINT | FLAG_NO_SETINT | FLAG_MULTI_PACKET
@@ -45,7 +45,7 @@ which more than negates the performace improvements of GRO.
  	.bind = cdc_ncm_bind,
  	.unbind = cdc_ncm_unbind,
  	.manage_power = usbnet_manage_power,
-@@ -1929,7 +1934,8 @@ static const struct driver_info cdc_ncm_
+@@ -1941,7 +1946,8 @@ static const struct driver_info cdc_ncm_
  static const struct driver_info wwan_info = {
  	.description = "Mobile Broadband Network Device",
  	.flags = FLAG_POINTTOPOINT | FLAG_NO_SETINT | FLAG_MULTI_PACKET
@@ -55,7 +55,7 @@ which more than negates the performace improvements of GRO.
  	.bind = cdc_ncm_bind,
  	.unbind = cdc_ncm_unbind,
  	.manage_power = usbnet_manage_power,
-@@ -1943,7 +1949,8 @@ static const struct driver_info wwan_inf
+@@ -1955,7 +1961,8 @@ static const struct driver_info wwan_inf
  static const struct driver_info wwan_noarp_info = {
  	.description = "Mobile Broadband Network Device (NO ARP)",
  	.flags = FLAG_POINTTOPOINT | FLAG_NO_SETINT | FLAG_MULTI_PACKET

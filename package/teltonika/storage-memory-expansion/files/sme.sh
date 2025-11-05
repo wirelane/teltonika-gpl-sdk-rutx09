@@ -12,10 +12,14 @@ mmc_driver='/etc/modules-late.d/mmc-spi'
 uuid_file='.sme_uuid'
 sme_maj_min='/tmp/.sme_major_minor'
 
+log() {
+	[ -n "$1" ] && logger "$1" && echo "$1"
+}
+
 [ "$(id -u)" != 0 ] && {
 	# Additional check: only users belonging to "mount" should be allowed
 	[[ " $(id -nG) " =~ " mount" ]] || {
-		logger "User($(id -u)) is not in \"mount\" group"
+		log "User($(id -u)) is not in \"mount\" group"
 		exit 1
 	}
 
@@ -31,7 +35,7 @@ sme_maj_min='/tmp/.sme_major_minor'
 	# This must be ACL protected
 	res=$(ubus -t 0 call rpc-format sme "$(json_dump)")
 	rc=$?
-	[ $rc -eq 4 ] && logger "Access denied for user($(id -u))"
+	[ $rc -eq 4 ] && log "Access denied for user($(id -u))"
 	[ $rc -ne 0 ] && exit $rc
 
 	json_load "$res"
@@ -89,7 +93,7 @@ rm_overlay_entry_exit_on_fail() {
 		return 0
 
 	uci delete fstab.$1 || {
-		logger "failed, couldn't remove mount entry"
+		log "failed, couldn't remove mount entry"
 		exit 1
 	}
 }
@@ -163,7 +167,7 @@ migrate_fstab() {
 expand() {
 	logger "started $msd formatting"
 	fmt-usb-msd.sh $usb_msd_fs $msd $usb_msd_label || {
-		logger "failed, couldn't format $msd"
+		log "failed, couldn't format $msd"
 		return 1
 	}
 
@@ -176,22 +180,22 @@ expand() {
 	}; do c=$((c+1)); sleep 1; done
 
 	[[ -n "$UUID" && -n "$MOUNT" ]] || {
-		logger "failed, couldn't get $msd info"
+		log "failed, couldn't get $msd info"
 		return 1
 	}
 
 	[ "$TYPE" = $usb_msd_fs ] || {
-		logger "failed, expecting $msd to be formatted as $usb_msd_fs"
+		log "failed, expecting $msd to be formatted as $usb_msd_fs"
 		return 1
 	}
 
 	fstab_entries || {
-		logger "failed, couldn't modify fstab"
+		log "failed, couldn't modify fstab"
 		return 1
 	}
 
 	cp -a /overlay/root/./ $MOUNT/ || {
-		logger "failed, couldn't copy overlay files"
+		log "failed, couldn't copy overlay files"
 		return 1
 	}
 
@@ -207,7 +211,7 @@ expand_wrapper() {
 
 	[ $ret -eq 0 ] && {
 		touch $pending_reboot
-		logger "expansion successful. pending reboot"
+		log "expansion successful. pending reboot"
 	}
 
 	return $ret
@@ -215,13 +219,13 @@ expand_wrapper() {
 
 expand_prelude() {
 	[ -e $pending_reboot ] && {
-		logger "expand failed, already pending reboot"
+		log "expand failed, already pending reboot"
 		return 1
 	}
 
 	msd="$(fmt-usb-msd.sh basedev $1)"
 	[ -z "$msd" ] && {
-		logger "failed, target device unavailable"
+		log "failed, target device unavailable"
 		return 1
 	}
 
@@ -235,7 +239,7 @@ expand_prelude() {
 
 shrink() {
 	[ -e $pending_reboot ] && {
-		logger "shrink failed, already pending reboot"
+		log "shrink failed, already pending reboot"
 		return 1
 	}
 
@@ -243,7 +247,7 @@ shrink() {
 
 	sync
 	touch $pending_reboot
-	logger "shrinkage successful. pending reboot"
+	log "shrinkage successful. pending reboot"
 	return 0
 }
 
@@ -271,7 +275,7 @@ operation() {
 		;;
 		new)
 			[ "$(cat $ongoing_file 2>&-)" = "ongoing" ] && {
-				logger "an operation is in progress"
+				echo "an operation is in progress"
 				exit 1
 			}
 
@@ -336,7 +340,7 @@ case $1 in
 		operation new
 
 		if is_expanded; then
-			logger "already expanded"
+			log "already expanded"
 			operation fail
 			exit 1
 		else
@@ -361,14 +365,14 @@ case $1 in
 				exit 1
 			}
 		else
-			logger "not expanded, won't shrink"
+			log "not expanded, won't shrink"
 			operation fail
 			exit 1
 		fi
 	;;
 	--status|-t)
 		[ "$(operation get)" = "ongoing" ] && {
-			echo "in_progress"
+			log "in_progress"
 			exit 0
 		}
 

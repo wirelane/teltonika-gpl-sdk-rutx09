@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openvpn
 
-PKG_VERSION:=2.6.9
-PKG_RELEASE:=16
+PKG_VERSION:=2.6.14
+PKG_RELEASE:=17
 
-PKG_HASH:=e08d147e15b4508dfcd1d6618a1f21f1495f9817a8dadc1eddf0532fa116d7e3
+PKG_HASH:=9eb6a6618352f9e7b771a9d38ae1631b5edfeed6d40233e243e602ddf2195e7a
 
-PKG_SOURCE_VERSION:=2.6.9
+PKG_SOURCE_VERSION:=2.6.14
 PKG_SOURCE=openvpn-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=\
 	https://build.openvpn.net/downloads/releases/ \
@@ -41,7 +41,7 @@ define Package/openvpn/Default
   SUBMENU:=VPN
   MENU:=1
   DEPENDS:=+kmod-tun +libcap +OPENVPN_$(1)_ENABLE_LZO:liblzo +OPENVPN_$(1)_ENABLE_LZ4:liblz4 +OPENVPN_$(1)_ENABLE_IPROUTE2:ip \
-	+OPENVPN_$(1)_ENABLE_DCO:libnl-genl +OPENVPN_$(1)_ENABLE_DCO:kmod-ovpn-dco-v2 $(3) +libubus +libubox
+	+OPENVPN_$(1)_ENABLE_DCO:libnl-genl $(3) +libubus +libubox
   VARIANT:=$(1)
   PROVIDES:=openvpn openvpn-crypto
   FATTRS:=/usr/sbin/openvpn::::cap_net_admin,cap_net_bind_service+ep

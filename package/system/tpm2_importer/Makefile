@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tpm2_importer
-PKG_VERSION:=2025-05-15
+PKG_VERSION:=2025-09-26
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 
@@ -14,7 +14,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+strongswan-pki +tpm2-tools
+  DEPENDS:=+tpm2-tools +openssl-util
   TITLE:=TPM2 importer
 endef
 

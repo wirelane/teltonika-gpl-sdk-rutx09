@@ -53,6 +53,7 @@ append_net_params() {
 		}
 		[ "$i" = "privatekeyfile" ] && {
 			cp "$val" "$TMP_TINC/$s/rsa_key.priv"
+			chmod 700 "$TMP_TINC/$s/rsa_key.priv"
 			continue
 		}
 		[ "$i" = "publickeyfile" ] && {
@@ -149,7 +150,10 @@ append_host_params() {
 append_route() {
 	local subnet="$1"
 	local net="$2"
-	[ -n "$subnet" ] && echo 'ip route add "'$subnet'" dev $INTERFACE' >> $TMP_TINC/${net}/tinc-up
+	if [ -z "$subnet" ] || echo "$subnet" | grep -Eq '^([0-9A-Fa-f]{2}([-:])){5}[0-9A-Fa-f]{2}$|^([0-9A-Fa-f]{4}\.){2}[0-9A-Fa-f]{4}$'; then
+		return
+	fi
+	echo 'ip route add "'$subnet'" dev $INTERFACE' >> $TMP_TINC/${net}/tinc-up
 }
 
 add_hosts_routes() {

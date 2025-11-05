@@ -30,6 +30,7 @@ struct lrms_status_st {
 #ifdef TEST
 void recv_status_cb(struct ubus_request *req, int type, struct blob_attr *blob);
 #endif
+lrms_t lrms_get_status_tmo(struct ubus_context *ubus, struct lrms_status_st *status, int tmo);
 lrms_t lrms_get_status(struct ubus_context *ubus, struct lrms_status_st *status);
 lrms_t lrms_publish_event(struct ubus_context *ubus, int action, int id, const char *message, const char *serial);
 

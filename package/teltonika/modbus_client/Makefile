@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modbus_client
-PKG_VERSION:=2025-09-11
-PKG_SOURCE_VERSION:=7.18
+PKG_VERSION:=2025-10-27
+PKG_SOURCE_VERSION:=7.19
 PKG_LICENSE:=Teltonika-closed
 TARGET_CFLAGS += "-DCACHE_HASH=\\\"$(PKG_SOURCE_VERSION)\\\""
-PKG_RELEASE:=2
+PKG_RELEASE:=1
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -19,8 +19,15 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=MODBUS TCP/Serial client daemon by Teltonika
 	DEPENDS:=+libuci +libtlt_uci +libtlt_termios +libsqlite3 +libmodbus +IO_SUPPORT:iomand \
-		 +MOBILE_SUPPORT:libgsm +libparam +libmosquitto +libtlt_smtp +libcurl +libtag
+		 +MOBILE_SUPPORT:libgsm +libparam +libmosquitto +libtlt_smtp +libcurl +libtag +libmodbus_client
 	USERID:=modbus_client=577:modbus_client=577
+endef
+
+define Package/lib$(PKG_NAME)
+	SECTION:=libs
+	CATEGORY:=Libraries
+	TITLE:=Library for Modbus client and its rpcd plug-in
+	DEPENDS:=+libmodbus +libtag +libtlt_termios +libtlt_uci +libuci +libubus +libtlt_smtp
 endef
 
 define Package/$(PKG_NAME)/description
@@ -32,19 +39,19 @@ define Package/$(PKG_NAME)/conffiles
 endef
 
 
-define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/permtab.d $(1)/etc/init.d $(1)/usr/sbin $(1)/usr/lib 
-	$(INSTALL_DIR) $(1)/usr/lib/rpcd
-	$(INSTALL_DIR) $(1)/usr/share/acl.d
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
+define Package/lib$(PKG_NAME)/install
+	$(INSTALL_DIR) $(1)/usr/lib
+	$(CP) $(PKG_BUILD_DIR)/libmodbus_client.so $(1)/usr/lib/
+endef
 
+define Package/$(PKG_NAME)/install
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d $(1)/etc/config $(1)/usr/lib/rpcd $(1)/etc/permtab.d $(1)/usr/share/acl.d $(1)/etc/uci-defaults/7.17
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/modbus_client $(1)/usr/sbin/modbus_client
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/modbus_client.init $(1)/etc/init.d/modbus_client
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/modbus_client.conf $(1)/etc/config/modbus_client
+	$(CP) $(PKG_BUILD_DIR)/modbus_client.so $(1)/usr/lib/rpcd/modbus_client.so
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/modbus_client.permtab $(1)/etc/permtab.d/modbus_client
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/modbus_client.json $(1)/usr/share/acl.d/modbus_client.json
-	$(CP) $(PKG_BUILD_DIR)/libalarms.so $(1)/usr/lib/libalarms.so
-	$(CP) $(PKG_BUILD_DIR)/modbus_client.so $(1)/usr/lib/rpcd/modbus_client.so
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.17/01_modbus_client_move_flash_db $(1)/etc/uci-defaults/7.17/01_modbus_client_move_flash_db
 endef
 
@@ -92,4 +99,5 @@ define Package/$(PKG_NAME)/postrm
 	/etc/init.d/rpcd reload
 endef
 
+$(eval $(call BuildPackage,lib$(PKG_NAME)))
 $(eval $(call BuildPackage,$(PKG_NAME)))

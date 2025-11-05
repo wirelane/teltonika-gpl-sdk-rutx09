@@ -1,7 +1,7 @@
-Index: openvpn-2.6.9/src/openvpn/run_command.c
+Index: openvpn-2.6.14/src/openvpn/run_command.c
 ===================================================================
---- openvpn-2.6.9.orig/src/openvpn/run_command.c
-+++ openvpn-2.6.9/src/openvpn/run_command.c
+--- openvpn-2.6.14.orig/src/openvpn/run_command.c
++++ openvpn-2.6.14/src/openvpn/run_command.c
 @@ -36,6 +36,10 @@
  
  #include "run_command.h"

@@ -1,0 +1,190 @@
+Index: rpcd-2021-03-11-ccb75178/session.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/session.c
++++ rpcd-2021-03-11-ccb75178/session.c
+@@ -144,12 +144,14 @@ enum {
+ 	RPC_L_USERNAME,
+ 	RPC_L_PASSWORD,
+ 	RPC_L_TIMEOUT,
++	RPC_L_BASIC_AUTH,
+ 	__RPC_L_MAX,
+ };
+ static const struct blobmsg_policy login_policy[__RPC_L_MAX] = {
+-	[RPC_L_USERNAME] = { .name = "username", .type = BLOBMSG_TYPE_STRING },
+-	[RPC_L_PASSWORD] = { .name = "password", .type = BLOBMSG_TYPE_STRING },
+-	[RPC_L_TIMEOUT]  = { .name = "timeout", .type = BLOBMSG_TYPE_INT32 },
++	[RPC_L_USERNAME]   = { .name = "username", .type = BLOBMSG_TYPE_STRING },
++	[RPC_L_PASSWORD]   = { .name = "password", .type = BLOBMSG_TYPE_STRING },
++	[RPC_L_BASIC_AUTH] = { .name = "basic", .type = BLOBMSG_TYPE_BOOL },
++	[RPC_L_TIMEOUT]	   = { .name = "timeout", .type = BLOBMSG_TYPE_INT32 },
+ };
+ 
+ /*
+@@ -242,13 +244,15 @@ rpc_session_dump_acls(struct rpc_session
+ }
+ 
+ static void
+-rpc_session_to_blob(struct rpc_session *ses, bool acls)
++rpc_session_to_blob(struct rpc_session *ses, bool acls, bool include_id)
+ {
+ 	void *c;
+ 
+ 	blob_buf_init(&buf, 0);
+ 
+-	blobmsg_add_string(&buf, "ubus_rpc_session", ses->id);
++	if (include_id)
++		blobmsg_add_string(&buf, "ubus_rpc_session", ses->id);
++
+ 	blobmsg_add_u32(&buf, "timeout", ses->timeout);
+ 	blobmsg_add_u32(&buf, "expires", uloop_timeout_remaining64(&ses->t) / 1000);
+ 
+@@ -265,9 +269,9 @@ rpc_session_to_blob(struct rpc_session *
+ 
+ static void
+ rpc_session_dump(struct rpc_session *ses, struct ubus_context *ctx,
+-                 struct ubus_request_data *req)
++                 struct ubus_request_data *req, bool include_id)
+ {
+-	rpc_session_to_blob(ses, true);
++	rpc_session_to_blob(ses, true, include_id);
+ 
+ 	ubus_send_reply(ctx, req, buf.head);
+ }
+@@ -359,7 +363,7 @@ rpc_session_new(void)
+ }
+ 
+ static struct rpc_session *
+-rpc_session_create(int timeout)
++rpc_session_create(int timeout, bool auto_register)
+ {
+ 	struct rpc_session *ses;
+ 
+@@ -373,7 +377,8 @@ rpc_session_create(int timeout)
+ 
+ 	ses->timeout = timeout;
+ 
+-	avl_insert(&sessions, &ses->avl);
++	if (auto_register)
++		avl_insert(&sessions, &ses->avl);
+ 
+ 	rpc_touch_session(ses);
+ 
+@@ -409,9 +414,9 @@ rpc_handle_create(struct ubus_context *c
+ 	if (tb)
+ 		timeout = blobmsg_get_u32(tb);
+ 
+-	ses = rpc_session_create(timeout);
++	ses = rpc_session_create(timeout, true);
+ 	if (ses)
+-		rpc_session_dump(ses, ctx, req);
++		rpc_session_dump(ses, ctx, req, true);
+ 
+ 	send_session_event(ctx, "session.created", ses->id);
+ 
+@@ -430,7 +435,7 @@ rpc_handle_list(struct ubus_context *ctx
+ 
+ 	if (!tb) {
+ 		avl_for_each_element(&sessions, ses, avl)
+-			rpc_session_dump(ses, ctx, req);
++			rpc_session_dump(ses, ctx, req, true);
+ 		return 0;
+ 	}
+ 
+@@ -438,7 +443,7 @@ rpc_handle_list(struct ubus_context *ctx
+ 	if (!ses)
+ 		return UBUS_STATUS_NOT_FOUND;
+ 
+-	rpc_session_dump(ses, ctx, req);
++	rpc_session_dump(ses, ctx, req, true);
+ 
+ 	return 0;
+ }
+@@ -1640,6 +1645,34 @@ rpc_reclaim_apply_session(const char *ex
+ 	return ses;
+ }
+ 
++static bool uci_basic_auth_enabled(struct uci_context *uci)
++{
++	struct uci_package *pkg = NULL;
++	struct uci_element *e;
++	bool enabled = false;
++
++	if (!uci)
++		return false;
++
++	if (uci_load(uci, "uhttpd", &pkg) != UCI_OK)
++		return false;
++
++	uci_foreach_element (&pkg->sections, e) {
++		struct uci_section *s = uci_to_section(e);
++
++		if (strcmp(e->name, "main") != 0)
++			continue;
++
++		struct uci_option *opt = uci_lookup_option(uci, s, "enable_basic_auth");
++		if (opt && opt->type == UCI_TYPE_STRING && strcmp(opt->v.string, "1") == 0) {
++			enabled = true;
++			break;
++		}
++	}
++
++	return enabled;
++}
++
+ static int
+ rpc_handle_login(struct ubus_context *ctx, struct ubus_object *obj,
+                  struct ubus_request_data *req, const char *method,
+@@ -1652,6 +1685,7 @@ rpc_handle_login(struct ubus_context *ct
+ 	struct blob_attr *tb[__RPC_L_MAX];
+ 	int timeout = RPC_DEFAULT_SESSION_TIMEOUT;
+ 	int rv = 0;
++	bool basic_auth = false;
+ 
+ 	blobmsg_parse(login_policy, __RPC_L_MAX, tb, blob_data(msg), blob_len(msg));
+ 
+@@ -1678,6 +1712,18 @@ rpc_handle_login(struct ubus_context *ct
+ 	if (tb[RPC_L_TIMEOUT])
+ 		timeout = blobmsg_get_u32(tb[RPC_L_TIMEOUT]);
+ 
++	if (tb[RPC_L_BASIC_AUTH]) {
++		if (!uci_basic_auth_enabled(uci)) {
++			static struct blob_buf buf;
++			blob_buf_init(&buf, 0);
++			blobmsg_add_string(&buf, "error", "Basic auth is not enabled");
++			ubus_send_reply(ctx, req, buf.head);
++			goto out;
++		}
++		timeout = 0; // Basic auth sessions do not persist
++		basic_auth = blobmsg_get_bool(tb[RPC_L_BASIC_AUTH]);
++	}
++
+ 	/*
+ 	 * attempt to reclaim a pending apply session, but only accept it
+ 	 * if the username matches, otherwise perform a new login
+@@ -1686,7 +1732,7 @@ rpc_handle_login(struct ubus_context *ct
+ 	ses = rpc_reclaim_apply_session(blobmsg_get_string(tb[RPC_L_USERNAME]));
+ 
+ 	if (!ses)
+-		ses = rpc_session_create(timeout);
++		ses = rpc_session_create(timeout, !basic_auth);
+ 
+ 	if (!ses) {
+ 		rv = UBUS_STATUS_UNKNOWN_ERROR;
+@@ -1712,7 +1758,7 @@ rpc_handle_login(struct ubus_context *ct
+ 		blob_buf_free(&buf);
+ 	}
+ 	send_session_event(ctx, "session.created", ses->id);
+-	rpc_session_dump(ses, ctx, req);
++	rpc_session_dump(ses, ctx, req, !basic_auth);
+ 
+ out:
+ 	if (uci)
+@@ -2002,7 +2048,7 @@ void rpc_session_freeze(void)
+ 			continue;
+ 
+ 		snprintf(path, sizeof(path) - 1, RPC_SESSION_DIRECTORY "/%s", ses->id);
+-		rpc_session_to_blob(ses, false);
++		rpc_session_to_blob(ses, false, true);
+ 		rpc_blob_to_file(path, buf.head);
+ 	}
+ }

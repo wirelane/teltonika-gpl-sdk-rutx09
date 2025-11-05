@@ -71,7 +71,7 @@ define Package/shellinabox/install
 	$(INSTALL_DIR) $(1)/www/cgi-bin
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_CONF_USR) files/cli.conf $(1)/etc/config/cli
-	$(INSTALL_BIN) files/shellinabox.init $(1)/etc/init.d/shellinabox
+	$(INSTALL_BIN_USR) files/shellinabox.init $(1)/etc/init.d/shellinabox
 	$(INSTALL_BIN) files/shellinabox.sh $(1)/www/cgi-bin/cli
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/shellinaboxd $(1)/usr/sbin/shellinaboxd
 	$(INSTALL_DATA) files/shellinabox.json $(1)/usr/share/acl.d/

@@ -1298,3 +1298,9 @@ config KERNEL_NF_FLOW_TABLE_XFRM
 	depends on PACKAGE_kmod-nf-flow
 	depends on PACKAGE_kmod-ipsec4
 	default y if XFRM_OFFLOAD
+
+config KERNEL_MNF_TEST
+	bool "sysfs-mnf option for x86 test image"
+	default y if TEST_IMAGE && x86_64
+	default n
+

@@ -4,7 +4,8 @@
 		"gsm.modem*": {
 			"methods": [
 				"info",
-				"send_sms"
+				"send_sms",
+				"get_sim_slot"
 			]
 		},
 		"log": {

@@ -612,7 +612,7 @@ config_round() {
 		[ "$auth_method" = pubkey ] && [ -n "$local_cert" ] && {
 			swanctl_xappend3 "certs = $local_cert"
 		}
-		[ -n "$local_identifier" ] && swanctl_xappend3 "id = \"$local_identifier\""
+		[ -n "$local_identifier" ] && [ "$auth_method" != "xauth" ] && swanctl_xappend3 "id = \"$local_identifier\""
 		swanctl_xappend2 "}"
 		;;
 	remote)
@@ -626,6 +626,10 @@ config_round() {
 				swanctl_xappend3 "auth = xauth"
 				[ -n "$xauth_identity" ] && swanctl_xappend3 "xauth_id = \"$xauth_identity\""
 				;;
+			psk)
+				swanctl_xappend3 "auth = psk"
+				swanctl_xappend3 "id = $gateway"
+				;;
 			*)
 				swanctl_xappend3 "auth = $auth_method"
 				;;
@@ -633,7 +637,7 @@ config_round() {
 		[ "$auth_method" = pubkey ] && [ -n "$remote_cert" ] && {
 			swanctl_xappend3 "certs = $remote_cert"
 		}
-		[ -n "$remote_identifier" ] && swanctl_xappend3 "id = \"$remote_identifier\""
+		[ -n "$remote_identifier" ] && [ "$auth_method" != "xauth" ] && swanctl_xappend3 "id = \"$remote_identifier\""
 		[ -n "$remote_ca_certs" ] && swanctl_xappend3 "cacerts = \"$remote_ca_certs\""
 		swanctl_xappend2 "}"
 		;;
@@ -688,9 +692,11 @@ config_remote() {
 	local pools
 	local xauth_identity
 	local forceencaps
+	local uptime_conf="${IPSEC_STATE_DIR}/uptime_$conf"
 
 	config_get_bool enabled "$conf" enabled 0
 	if [ $enabled = 0 ]; then
+		rm "$uptime_conf" 2>/dev/null
 		append DISABLED_INSTANCES "$conf"
 		return
 	fi
@@ -760,6 +766,11 @@ config_remote() {
 	esac
 
 	[ "$gateway" = "any" ] && remote_gateway="%any" || remote_gateway="$gateway"
+	if [ "$remote_gateway" = "%any" ]; then
+		[ -e "$uptime_conf" ] || date "+%s" > "$uptime_conf"
+	else
+		rm "$uptime_conf" 2>/dev/null
+	fi
 
 	if [ -n "$local_key" ]; then
 		[ "$(dirname "$local_key")" != "." ] && \
@@ -950,6 +961,8 @@ config_remote() {
 				if [ -n "$remote_identifier" ]; then
 					swanctl_xappend2 "id2 = \"$remote_identifier\""
 				fi
+			else
+				swanctl_xappend2 "id = $gateway"
 			fi
 			swanctl_xappend1 "}"
 			swanctl_xappend0 "}"
@@ -1165,6 +1178,4 @@ start_service() {
 		procd_set_param user ipsec
 		procd_close_instance
 	}
-
-	date "+%s" > ${IPSEC_STATE_DIR}/uptime
 }

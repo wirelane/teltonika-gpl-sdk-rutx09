@@ -21,6 +21,14 @@ kinfo() {
 	echo "[$(basename $script)] $@" > /dev/kmsg
 }
 
+is_modem() {
+	vendor="$1"
+	product="$2"
+
+	[ -e "/lib/network/wwan/${vendor}:${product}" ]
+}
+
+
 add_symlink() {
 	local path="/sys$DEVPATH/../../../../"
 	# attempts to create a unique symlink for each converter
@@ -48,6 +56,8 @@ add_symlink() {
 handle_multi_symlink() {
 	case "$ACTION" in
 	add)
+		local path="/sys$DEVPATH/../../../../"
+		is_modem "$(cat ${path}idVendor)" "$(cat ${path}idProduct)" && return
 		add_symlink
 		;;
 	remove)
@@ -63,6 +73,8 @@ handle_multi_symlink() {
 
 handle_symlink() {
 	local path="/sys$DEVPATH/../../../../"
+
+	is_modem "$(cat ${path}idVendor)" "$(cat ${path}idProduct)" && return
 
 	case "$ACTION" in
 	add)

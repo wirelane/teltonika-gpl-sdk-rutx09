@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libmodbus
-PKG_VERSION:=2025-09-11
+PKG_VERSION:=2025-10-27
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v3.1.6

@@ -169,17 +169,18 @@ local function main()
 	local ssl = tonumber(get_cfg("ssl")) == 1
 	local ssl_verify_cfg = get_cfg("ssl_verify")
 	local ssl_verify = tonumber(ssl_verify_cfg) == 1
+	local timeout = 3 * 60 -- 3 min
 
 	local mbox = pop3.new()
 	if ssl then
-		local ok, err = mbox:open_tls(some_mail.host, some_mail.port, nil, ssl_verify)
+		local ok, err = mbox:open_tls(some_mail.host, some_mail.port, timeout, ssl_verify)
 		if not ok then
 			perror("TLS connection error")
 			perror(err)
 			return
 		end
 	else
-		local ok, err = mbox:open(some_mail.host, some_mail.port)
+		local ok, err = mbox:open(some_mail.host, some_mail.port, timeout)
 		if not ok then
 			perror("Connection error")
 			perror(err)

@@ -11,11 +11,38 @@ if [ ! -x $WG ]; then
 	exit 0
 fi
 
+WATCHDOG=/usr/bin/wireguard_watchdog
+WATCHDOG_USER=wireguard
+
 [ -n "$INCLUDE_ONLY" ] || {
 	. /lib/functions.sh
 	. /lib/functions/network.sh
 	. /lib/netifd/netifd-proto.sh
 	init_proto "$@"
+}
+
+is_domain() {
+	local endpoint_host="$1"
+	[ -z "${endpoint_host}" ] && return 1
+	# check taken from packages/net/ddns-scripts/files/dynamic_dns_functions.sh
+	local IPV4_REGEX="[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}"
+	local IPV6_REGEX="\(\([0-9A-Fa-f]\{1,4\}:\)\{1,\}\)\(\([0-9A-Fa-f]\{1,4\}\)\{0,1\}\)\(\(:[0-9A-Fa-f]\{1,4\}\)\{1,\}\)"
+	local IPV4=$(echo ${endpoint_host} | grep -m 1 -o "$IPV4_REGEX$")
+	local IPV6=$(echo ${endpoint_host} | grep -m 1 -o "$IPV6_REGEX")
+	[ -n "${IPV4}${IPV6}" ] && return 1
+	return 0
+}
+
+add_watchdog_cron() {
+	local minutes="*"
+	[ "${1:-0}" -gt 1 ] && minutes="*/$1"
+	(crontab -l -u "$WATCHDOG_USER" 2>/dev/null | grep -v "$WATCHDOG"; echo "$minutes * * * * $WATCHDOG") | crontab -u "$WATCHDOG_USER" - \
+		&& logger -t "wireguard" "added watchdog cron job"
+}
+
+remove_watchdog_cron() {
+	crontab -l -u "$WATCHDOG_USER" 2>/dev/null | grep -v "$WATCHDOG" | crontab -u "$WATCHDOG_USER" - \
+		&& logger -t "wireguard" "removed watchdog cron job"
 }
 
 ip_to_int() {
@@ -65,6 +92,9 @@ proto_wireguard_setup_peer() {
 		echo "Skipping peer config $peer_config because public key is not defined."
 		return 0
 	fi
+
+	[ "${persistent_keepalive:-0}" -gt 0 ] && [ "$watchdog_interval" != "0" ] && \
+		is_domain "$endpoint_host" && add_watchdog_cron "$watchdog_interval"
 
 	echo "[Peer]" >> "${wg_cfg}"
 	echo "PublicKey=${public_key}" >> "${wg_cfg}"
@@ -152,6 +182,7 @@ proto_wireguard_setup() {
 	local private_key
 	local listen_port
 	local mtu wan_interface external_mtu
+	local watchdog_interval
 	local iter=0
 
 	config_load network
@@ -162,6 +193,7 @@ proto_wireguard_setup() {
 	config_get fwmark "${config}" "fwmark"
 	config_get ip6prefix "${config}" "ip6prefix"
 	config_get nohostroute "${config}" "nohostroute"
+	config_get watchdog_interval "${config}" "watchdog_interval"
 
 	ip link del dev "${config}" 2>/dev/null
 	ip link add dev "${config}" type wireguard
@@ -169,7 +201,9 @@ proto_wireguard_setup() {
 
 	if [ -z "${mtu}" ]; then
 		mtu=1420
-		wan_interfaces="$(ip route show default | awk -F 'dev' '{print $2}' | awk '{print $1}')"
+		wan_interfaces="$(ip -4 route show default | awk -F 'dev' '{print $2}' | awk '{print $1}')"
+		wan_interfaces="$wan_interfaces $(ip -6 route show default | awk -F 'dev' '{print $2}' | awk '{print $1}')"
+		wan_interfaces="$(echo "$wan_interfaces" | tr ' ' '\n' | sort -u | tr '\n' ' ')"
 		for wan_interface in $wan_interfaces; do
 			[ "$config" = "$wan_interface" ] && continue
 			curr_mtu="$(cat /sys/class/net/"${wan_interface}"/mtu)"
@@ -251,53 +285,62 @@ proto_wireguard_setup() {
 			config_get allowed_ips "$peer_config" allowed_ips
 			for allowed_ip in $allowed_ips; do
 				case "$allowed_ip" in
-					"0.0.0.0/0"|"::/0"|"0.0.0.0/1"|"128.0.0.0/1")
+					"0.0.0.0/0"|"::/0"|"::/1"|"8000::/1"|"0.0.0.0/1"|"128.0.0.0/1")
 						default_route_set=true
 						;;
 				esac
 			done
-			default="$(ip route show default)"
-			if [ -n "$default" ]; then
-				defaults="$(echo "$default" | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
-				echo "ip route add $default" >> "$DEFAULT_STATUS"
-			fi
-			[ "$mwan3_up" = true ] && [ "$default_route_set" = true ] && {
-				default_int=$(cat "/tmp/run/mwan3/active_wan")
-				network_get_device defaults "$default_int"
-				[ "$defaults" = "wwan0" ] && { network_get_device defaults "${default_int}_4" || network_get_device defaults "${default_int}_6"; }
-				gw="$(ip route show default dev "$defaults" | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
-			}
-			for dev in ${defaults}; do
-				metric="$(ip route show default dev "$dev" | awk -F"metric " '{print $2}' | sed 's/\s.*$//')"
-				gw="$(ip route show default dev "$dev" | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
-				for ip in $(resolveip -4 "$peer"); do
-					if [ -n "$tunlink" ] && [ "$tunlink" != "any" ]; then
-						network_get_device tunlink_dev $tunlink
-						[ "$tunlink_dev" = "wwan0" ] && { network_get_device tunlink_dev "${tunlink}"_4 || network_get_device tunlink_dev "${tunlink}"_6; }
-						if ip route add "$ip" dev "$tunlink_dev" metric "1" &>/dev/null; then
-							echo "ip route del $ip dev $tunlink_dev metric 1" >> "$DEFAULT_STATUS"
-						elif [ "$force_tunlink" = "1" ] && [ -z "$(ip route show "$ip")" ]; then
-							ip route add blackhole "$ip"
-							echo "ip route del blackhole $ip" >> "$DEFAULT_STATUS"
+			for proto in 4 6; do
+				ip_cmd="ip -$proto"
+				default="$($ip_cmd route show default)"
+				if [ -n "$default" ]; then
+					defaults="$(echo "$default" | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
+					echo "$default" | awk -v cmd="$ip_cmd" '{print cmd, "route add", $0}' >> "$DEFAULT_STATUS"
+				fi
+				[ "$mwan3_up" = true ] && [ "$default_route_set" = true ] && {
+					default_int=$(cat "/tmp/run/mwan3/active_wan")
+					network_get_device defaults "$default_int"
+					[ "$defaults" = "wwan0" ] && { network_get_device defaults "${default_int}_4" || network_get_device defaults "${default_int}_6"; }
+					gw="$($ip_cmd route show default dev "$defaults" | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
+				}
+				for dev in ${defaults}; do
+					metric="$($ip_cmd route show default dev "$dev" | awk -F"metric " '{print $2}' | sed 's/\s.*$//')"
+					gw="$($ip_cmd route show default dev "$dev" | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
+					for ip in $(resolveip -"$proto" "$peer"); do
+						if [ -n "$tunlink" ] && [ "$tunlink" != "any" ]; then
+							network_get_device tunlink_dev $tunlink
+							[ "$tunlink_dev" = "wwan0" ] && { network_get_device tunlink_dev "${tunlink}"_4 || network_get_device tunlink_dev "${tunlink}"_6; }
+							if $ip_cmd route add "$ip" dev "$tunlink_dev" metric "1" &>/dev/null; then
+								echo "$ip_cmd route del $ip dev $tunlink_dev metric 1" >> "$DEFAULT_STATUS"
+							elif [ "$force_tunlink" = "1" ] && [ -z "$($ip_cmd route show "$ip")" ]; then
+								$ip_cmd route add blackhole "$ip"
+								echo "$ip_cmd route del blackhole $ip" >> "$DEFAULT_STATUS"
+							fi
+							continue
 						fi
-						continue
-					fi
-					wan_ip="$(ip addr show dev "$dev" | awk '/inet / {print $2; exit}')"
-					eval "$(ipcalc.sh "$wan_ip")";wan_network="$NETWORK" wan_broadcast="$BROADCAST"
-					ip_dec=$(ip_to_int "$ip")
-					wan_network_dec=$(ip_to_int "$wan_network")
-					wan_broadcast_dec=$(ip_to_int "$wan_broadcast")
-					if [ "$ip_dec" -gt "$wan_network_dec" ] && [ "$ip_dec" -lt "$wan_broadcast_dec" ]; then
-						logger -t wireguard "Adding link-scope route to $ip via $dev"
-						if ip route add "$ip" dev "$dev" scope link metric "$metric" 2>/dev/null; then
-							echo "ip route del $ip dev $dev scope link metric $metric" >> "$DEFAULT_STATUS"
+						"$default_route_set" || continue
+						if [ "$proto" = 4 ]; then
+							wan_ip="$($ip_cmd addr show dev "$dev" | awk '/inet / {print $2; exit}')"
+							eval "$(ipcalc.sh "$wan_ip")";wan_network="$NETWORK" wan_broadcast="$BROADCAST"
+							ip_dec=$(ip_to_int "$ip")
+							wan_network_dec=$(ip_to_int "$wan_network")
+							wan_broadcast_dec=$(ip_to_int "$wan_broadcast")
+							in_subnet=$([ "$ip_dec" -gt "$wan_network_dec" ] && [ "$ip_dec" -lt "$wan_broadcast_dec" ] && echo 1 || echo 0)
+						else
+							in_subnet=0
 						fi
-					else
-						logger -t wireguard "Adding route to $ip via $gw"
-						if ip route add "$ip" ${gw:+via "$gw"} dev "$dev" metric "$metric"; then
-							echo "ip route del $ip ${gw:+via "$gw"} dev $dev metric $metric" >> "$DEFAULT_STATUS"
+						if [ "$in_subnet" = 1 ]; then
+							logger -t wireguard "Adding link-scope route to $ip via $dev"
+							if $ip_cmd route add "$ip" dev "$dev" scope link metric "$metric" 2>/dev/null; then
+								echo "$ip_cmd route del $ip dev $dev scope link metric $metric" >> "$DEFAULT_STATUS"
+							fi
+						else
+							logger -t wireguard "Adding route to $ip via $gw"
+							if $ip_cmd route add "$ip" ${gw:+via "$gw"} dev "$dev" metric "$metric"; then
+								echo "$ip_cmd route del $ip ${gw:+via "$gw"} dev $dev metric $metric" >> "$DEFAULT_STATUS"
+							fi
 						fi
-					fi
+					done
 				done
 			done
 		done
@@ -306,22 +349,39 @@ proto_wireguard_setup() {
 	proto_send_update "${config}"
 }
 
-count_sections(){
+count_peer_sections() {
+	local peer persistent_keepalive default_route_set=false
+	config_get peer "$1" endpoint_host
+	config_get persistent_keepalive "$1" persistent_keepalive
+
+	[ "${persistent_keepalive:-0}" -gt 0 ] && [ "$watchdog_interval" != "0" ] && \
+		is_domain "$peer" && count_watchdog=$(($count_watchdog+1))
+
+	count_peer=$(($count_peer+1))
+}
+
+count_sections() {
+	local proto disabled watchdog_interval
 	config_get proto "$1" proto
 	config_get disabled "$1" disabled
-	[ "$proto" = "wireguard" ] && [ "$disabled" != "1" ] && count=$(($count+1))
+	config_get watchdog_interval "$1" watchdog_interval
+	[ "$proto" = "wireguard" ] || return
+	[ "$disabled" != "1" ] || return
+	count=$(($count+1))
+	config_foreach count_peer_sections "wireguard_$1"
 }
 
 proto_wireguard_teardown() {
-	local config="$1" count=0
+	local config="$1" count=0 count_peer=0 count_watchdog=0
 	local DEFAULT_STATUS="${DEFAULT_STATUS}_$config"
 	config_load network
 	config_foreach count_sections interface
 	[ "$count" = 0 ] && rm /etc/hotplug.d/iface/18-wireguard &>/dev/null
+	[ "$count_watchdog" = 0 ] && remove_watchdog_cron
 	ip link del dev "${config}" >/dev/null 2>&1	
 	if [ -e "$DEFAULT_STATUS" ]; then
 		while read -r line; do
-			if echo "$line" | grep -q "ip route"; then
+			if echo "$line" | grep -q "ip -[46] route"; then
 				eval "$line"
 			fi
 		done < "$DEFAULT_STATUS"

@@ -1,0 +1,17 @@
+Index: rpcd-2021-03-11-ccb75178/session.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/session.c
++++ rpcd-2021-03-11-ccb75178/session.c
+@@ -798,6 +798,12 @@ rpc_handle_access(struct ubus_context *c
+ 			snprintf(key, sizeof(key), "%s:%s", object, function);
+ 
+ 			allow = rpc_session_acl_allowed(ses, scope, object, function);
++			if (!allow && strcmp(scope, "api") == 0) {
++				char modified_object_value[strlen(object) + 2];
++				strcpy(modified_object_value, object);
++				strcat(modified_object_value, "*");
++				rpc_session_dump_acls_for_object(ses, &buf, modified_object_value);
++			}
+ 			blobmsg_add_u8(&buf, key, allow);
+ 		}
+ 		blobmsg_close_table(&buf, results);

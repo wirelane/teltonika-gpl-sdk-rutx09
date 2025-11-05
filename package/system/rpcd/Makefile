@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=rpcd
-PKG_RELEASE:=29
+PKG_RELEASE:=33
 
 PKG_SOURCE_DATE:=2021-03-11
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
@@ -45,6 +45,13 @@ define Package/rpcd/default
   FATTRS:=/sbin/rpcd::::cap_setuid,cap_net_admin,cap_setgid,cap_sys_boot,cap_sys_admin=ep
 endef
 
+define Package/session
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=Session Daemon
+  DEPENDS:=+libubox +libubus +libuci +libblobmsg-json
+endef
+
 define Package/rpcd
   $(Package/rpcd/default)
   DEPENDS+= +libuci +libblobmsg-json +libjson-c
@@ -60,6 +67,10 @@ define Package/rpcd/description
  functionality to frontend programs via JSON-RPC.
 endef
 
+define Package/session/description
+  A standalone session management daemon with token and ACL support.
+endef
+
 define Package/rpcd/conffiles
 /etc/config/rpcd
 endef
@@ -68,7 +79,7 @@ TARGET_LDFLAGS += -lcrypt
 
 define Package/rpcd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/rpcd.init $(1)/etc/init.d/rpcd
+	$(INSTALL_BIN_USR) ./files/init.d/rpcd.init $(1)/etc/init.d/rpcd
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rpcd $(1)/sbin/rpcd
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
@@ -110,8 +121,18 @@ define Package/rpcd/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.13
 	$(INSTALL_DATA) ./files/uci-defaults/7.13/99_rpcd_increase_timeout $(1)/etc/uci-defaults/7.13/
 	$(INSTALL_DATA) ./files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths $(1)/etc/uci-defaults/7.13/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.19
+	$(INSTALL_DATA) ./files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry $(1)/etc/uci-defaults/7.19/
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/rpcd.permtab $(1)/etc/permtab.d/rpcd
+endef
+
+define Package/session/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/session $(1)/usr/sbin/
+
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN_USR) ./files/init.d/session.init $(1)/etc/init.d/session
 endef
 
 # 1: plugin name
@@ -146,6 +167,7 @@ CMAKE_OPTIONS += -DIWINFO_SUPPORT=$(if $(CONFIG_PACKAGE_libiwinfo),"ON","OFF")
 CMAKE_OPTIONS += -DUCI_SUPPORT=$(if $(CONFIG_PACKAGE_libuci),"ON","OFF")
 
 $(eval $(call BuildPackage,rpcd))
+$(eval $(call BuildPackage,session))
 $(eval $(call BuildPlugin,file,,Provides ubus calls for file and directory operations.))
 $(eval $(call BuildPlugin,rpcsys,,Provides ubus calls for sysupgrade and password changing.))
 $(eval $(call BuildPlugin,iwinfo,+libiwinfo,Provides ubus calls for accessing iwinfo data.))

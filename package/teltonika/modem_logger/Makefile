@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modem_logger
 
-PKG_SOURCE_VERSION:=7.18
+PKG_SOURCE_VERSION:=7.19
 
 PKG_LICENSE:=Teltonika-closed
 

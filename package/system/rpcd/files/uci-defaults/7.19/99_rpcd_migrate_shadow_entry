@@ -1,0 +1,16 @@
+#!/bin/sh
+
+. /lib/functions.sh
+
+CONFIG="rpcd"
+
+remove_password() {
+    local section="$1"
+    uci_remove "$CONFIG" "$section" "password"
+}
+
+config_load "$CONFIG"
+config_foreach remove_password "login"
+config_foreach remove_password "superuser"
+
+uci_commit "$CONFIG"

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-IMG_NAME_PREFIX=git.teltonika.lt:4567/docker/buildsys/
+IMG_NAME_PREFIX=git.teltonika.lt:4567/docker/buildsys/release-2-x/
 IMG_NAME=${IMG_NAME:-${IMG_NAME_PREFIX}tools}
-IMG_TAG=${IMG_TAG:-1.27}
+IMG_TAG=${IMG_TAG:-2.4}
 
 # Color codes
 RED='\033[0;31m'

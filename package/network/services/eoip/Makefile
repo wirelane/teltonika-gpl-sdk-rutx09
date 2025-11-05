@@ -1,63 +1,45 @@
-#
-# Copyright (C) 2020 Bogdan Shatik <bogdikxxx@mail.ru>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
-
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eoip
-PKG_VERSION:=0.5
-PKG_RELEASE:=6
+PKG_VERSION:=1.0
+PKG_RELEASE:=7
 
-PKG_HASH:=22f6f3864665adef26c7fbd57543a396108ba2dff1282af8143f18bc2a9912f8
+PKG_SOURCE_PROTO:=git
+PKG_SOURCE_URL:=https://github.com/Nat-Lab/eoip.git
+PKG_SOURCE_DATE:=2025-09-16
+PKG_SOURCE_VERSION:=HEAD
+PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_VERSION)
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_MIRROR_HASH:=skip
 
-PKG_SOURCE_VERSION:=0.5
-PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
-PKG_SOURCE_URL:=https://github.com/bogdik/openwrt-linux-eoip/releases/download/$(PKG_SOURCE_VERSION)/
-
-PKG_MAINTAINER:=Bogdan Shatik <bogdikxxx@mail.ru>
-PKG_LICENSE:=GPL-3.0-or-later
-PKG_LICENSE_FILES:=ether-wake.c
+PKG_LICENSE:=MIT
+PKG_LICENSE_FILE:=LICENSE
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
 
 define Package/eoip
-  TITLE:=Mikrotik-compatible userspace EoIP tunnel
-  URL:=https://code.google.com/p/linux-eoip/
-  SECTION:=net
-  CATEGORY:=Network
-  SUBMENU:=VPN
-  DEPENDS:=+kmod-tun +libpthread +liblzo +tc-tiny +kmod-sched-flower
-  FATTRS:=/usr/bin/eoip::::cap_net_admin,cap_net_raw+ep
-  USERID:=eoip:eoip
+	SECTION:=net
+	CATEGORY:=Network
+	SUBMENU:=VPN
+	TITLE:=Ethernet over IP tunnel (Mikrotik compatible)
+	DEPENDS:=+kmod-tun
+	FATTRS:=/usr/sbin/eoip::::cap_net_admin,cap_net_raw+ep
+	USERID:=eoip:eoip
 endef
 
-define Package/eoip/conffiles
-/etc/config/eoip
+define Build/Install
+    true
 endef
-
-define Package/eoip/description
-  linux-eoip can create ethernet tunnels compatible with Mikrotik EoIP tunnel.
-  At current moment it is easiest way to create stateless tunnel with Mikrotik.
-endef
-
-CONFIGURE_ARGS += \
-	--with-kernel="$(LINUX_DIR)" \
-	--with-zlib="$(STAGING_DIR)/usr" \
-	--with-lzo-include="$(STAGING_DIR)/usr/include/lzo"
 
 define Package/eoip/install
-	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/eoip $(1)/usr/bin/
+	mkdir -p $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/eoip $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/eoip.config $(1)/etc/config/eoip
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/eoip.init $(1)/etc/init.d/eoip
-	$(INSTALL_DIR) $(1)/etc/hotplug.d/net
-	$(INSTALL_BIN) ./files/01-eoip $(1)/etc/hotplug.d/net/01-eoip
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/eoip.permtab $(1)/etc/permtab.d/eoip
 endef

@@ -8,20 +8,27 @@ EXCLUDE_PROTOS="relay sstp pptp gre l2tp l2tpv3 wireguard mirror vrf"
 MWAN_TRACK_DIR="/var/run/mwan3track"
 MIN_METRIC=999999
 MIN_WANIF=""
-INCLUDE_VPN=0  # TODO: pass as an argument to get()
-IGNORE_FAILOVER=0  # TODO: pass as an argument to get()
+INCLUDE_VPN=0
+IGNORE_FAILOVER=0
 
 main() {
 	case "$1" in
 	list)
 		json_init
 		json_add_object "get"
+		json_add_boolean "include_vpn" 0
+		json_add_boolean "ignore_failover" 0
 		json_close_object
 		json_dump
 		;;
 	call)
 		case "$2" in
 		get)
+			read input
+			json_load "$input"
+			json_get_var INCLUDE_VPN "include_vpn"
+			json_get_var IGNORE_FAILOVER "ignore_failover"
+
 			json_init
 			get_wan_iface
 			json_add_string "interface" "$wanif"

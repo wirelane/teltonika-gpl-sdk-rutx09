@@ -42,14 +42,21 @@
 		},
 		"service": {
 			"methods": [ "event" ]
+		},
+		"session": {
+			"methods": [ "access" ]
+		},
+		"speedtest": {
+			"methods": [ "*" ]
 		}
 	},
 	"subscribe": ["gsm.modem*"],
 	"send": ["esim.state", "esim.cache_update", "sms.limit"],
-	"listen": [ "sim.changed", "lpac.updates", "ubus.object.add" ],
-	"publish": [ "session", "iwinfo", "sys", "rpc-sys", "rpc-sys-ext", "rpc-format", "mnfinfo",
+	"listen": [ "sim.changed", "lpac.updates", "ubus.object.add", "session.created", "session.destroyed" ],
+	"publish": [ "iwinfo", "sys", "rpc-sys", "rpc-sys-ext", "rpc-format", "mnfinfo",
 				 "profile", "rut_fota", "mwan3", "rpc-ping", "lan_info", "wan_info",
 				 "serial", "file", "esim.modem*", "sms_limit", "boardjson", "rpc-dfota",
 				 "modbus_client.rpc", "network.rrdns", "uci", "rc",
-				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan", "dnp3_client.rpc" ]
+				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan", "dnp3_client.rpc",
+				 "speedtest" ]
 }

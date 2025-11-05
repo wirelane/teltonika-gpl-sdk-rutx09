@@ -29,38 +29,90 @@
 static struct kobject *g_kobj;
 
 #ifndef CONFIG_OF
-#define SYSFS_ATTR_RO(_name, _value)                                                                         \
+#define SYSFS_ATTR_RO(_name, _value, ...)                                                                    \
 	static ssize_t _name##_show(struct kobject *kobj, struct kobj_attribute *attr, char *buf)            \
 	{                                                                                                    \
 		return sprintf(buf, "%s", _value);                                                           \
 	}                                                                                                    \
-	static struct kobj_attribute _name##_attr = __ATTR_RO(_name)
+	static struct kobj_attribute kobj_attr_##_name = {                                                   \
+		.attr = { .name = __stringify(_name), .mode = 0440 },                                        \
+		.show = _name##_show,                                                                        \
+	};
 
-/* value lenth up to 127 bytes */
-SYSFS_ATTR_RO(mac, "001E42350232");
-SYSFS_ATTR_RO(name, "x86_64000000");
-SYSFS_ATTR_RO(serial, "0000000000");
-SYSFS_ATTR_RO(hwver, "0000");
-SYSFS_ATTR_RO(hwver_lo, "0000");
-SYSFS_ATTR_RO(batch, "0000");
-SYSFS_ATTR_RO(sim_cfg, "0110000_0210000");
-SYSFS_ATTR_RO(sim_count, "2");
-SYSFS_ATTR_RO(wpass, "r3BJf52H");
+#define LIST_KOBJ_ATTR(_name, ...) &kobj_attr_##_name.attr,
+
+#define GEN_MNF_ENTRIES(_name, _val, _log, _sec, ...)                                                        \
+	{                                                                                                    \
+		.name	= __stringify(_name),                                                                \
+		.in_log = _log,                                                                              \
+		.sec	= _sec,                                                                              \
+	},
+
+#ifdef CONFIG_MNF_TEST
+#define LIST_MNF_FIELDS(ACT, ...)                                                                            \
+	ACT(mac, "001E42350232", true, false, ##__VA_ARGS__)                                                 \
+	ACT(maceth, "001E42350233", true, false, ##__VA_ARGS__)                                              \
+	ACT(name, "x86_64000000", true, false, ##__VA_ARGS__)                                                \
+	ACT(serial, "0000000000", true, false, ##__VA_ARGS__)                                                \
+	ACT(hwver, "0000", true, false, ##__VA_ARGS__)                                                       \
+	ACT(hwver_lo, "0000", true, false, ##__VA_ARGS__)                                                    \
+	ACT(branch, "Q", true, false, ##__VA_ARGS__)                                                         \
+	ACT(batch, "0000", true, false, ##__VA_ARGS__)                                                       \
+	ACT(sim_cfg, "0110000_0210000", true, false, ##__VA_ARGS__)                                          \
+	ACT(sim_count, "2", true, false, ##__VA_ARGS__)                                                      \
+	ACT(wpass, "r3BJf52H", false, true, ##__VA_ARGS__)                                                   \
+	ACT(wps, "3456", false, true, ##__VA_ARGS__)                                                         \
+	ACT(profiles, "123456789_987654321", true, false, ##__VA_ARGS__)                                     \
+	ACT(blver, "test-0", true, false, ##__VA_ARGS__)                                                     \
+	ACT(mob_cfg, "6666", false, true, ##__VA_ARGS__)                                                     \
+	ACT(pass, "TESTHASH", false, true, ##__VA_ARGS__)                                                    \
+	ACT(simpin1, "1111", false, true, ##__VA_ARGS__)
+#else
+#define LIST_MNF_FIELDS(ACT, ...)                                                                            \
+	ACT(mac, "001E42350232", true, false, ##__VA_ARGS__)                                                 \
+	ACT(maceth, "001E42350233", true, false, ##__VA_ARGS__)                                              \
+	ACT(name, "x86_64000000", true, false, ##__VA_ARGS__)                                                \
+	ACT(serial, "0000000000", true, false, ##__VA_ARGS__)                                                \
+	ACT(hwver, "0000", true, false, ##__VA_ARGS__)                                                       \
+	ACT(hwver_lo, "0000", true, false, ##__VA_ARGS__)                                                    \
+	ACT(batch, "0000", true, false, ##__VA_ARGS__)                                                       \
+	ACT(sim_cfg, "0110000_0210000", true, false, ##__VA_ARGS__)                                          \
+	ACT(sim_count, "2", true, false, ##__VA_ARGS__)                                                      \
+	ACT(wpass, "r3BJf52H", false, true, ##__VA_ARGS__)
+#endif // CONFIG_MNF_TEST
+
+struct mnfinfo_entry {
+	const char *name;
+	bool in_log;
+	bool sec;
+};
+
+LIST_MNF_FIELDS(SYSFS_ATTR_RO)
 
 static struct attribute *g_mnfinfo_attr[] = {
-	&mac_attr.attr,	  &name_attr.attr,    &serial_attr.attr,    &hwver_attr.attr, &hwver_lo_attr.attr,
-	&batch_attr.attr, &sim_cfg_attr.attr, &sim_count_attr.attr, &wpass_attr.attr, NULL,
+	LIST_MNF_FIELDS(LIST_KOBJ_ATTR) NULL,
 };
 
 static struct attribute_group g_mnfinfo_attr_group = {
 	.attrs = g_mnfinfo_attr,
 };
 
+static struct mnfinfo_entry mnf_data[] = { LIST_MNF_FIELDS(GEN_MNF_ENTRIES) };
+
 static int __init mnfinfo_probe(void)
 {
 	int i;
 	static struct kobj_attribute *attr = NULL;
 	char buf[128];
+	struct mnfinfo_entry *e;
+
+	/* enable o+r permissions for non-sec files */
+	for (i = 0; i < ARRAY_SIZE(mnf_data); i++) {
+		e = &mnf_data[i];
+		if (!e->sec) {
+			g_mnfinfo_attr[i]->mode |= 0444;
+		}
+	}
 
 	g_kobj = kobject_create_and_add("mnf_info", NULL);
 	if (!g_kobj) {
@@ -74,11 +126,19 @@ static int __init mnfinfo_probe(void)
 		return -ENOMEM;
 	}
 
+	/* set mnf_sec group ownership for sec files */
+	for (i = 0; i < ARRAY_SIZE(mnf_data); i++) {
+		e = &mnf_data[i];
+		if (e->sec) {
+			sysfs_file_change_owner(g_kobj, e->name, GLOBAL_ROOT_UID, GLOBAL_MNF_SEC_GID);
+		}
+	}
+
 	pr_info("MNFINFO PROPERTIES:\n");
 	for (i = 0; i < ARRAY_SIZE(g_mnfinfo_attr) - 1; i++) {
-		if (!strcmp(g_mnfinfo_attr[i]->name, "wpass")) {
+		e = &mnf_data[i];
+		if (!e->in_log)
 			continue;
-		}
 
 		attr = container_of(g_mnfinfo_attr[i], struct kobj_attribute, attr);
 		if (!attr->show) {
@@ -127,6 +187,7 @@ module_exit(mnfinfo_remove);
 // info: https://en.wikipedia.org/wiki/X_macro
 #define LIST_MNF_FIELDS(ACT, ...)                                                                            \
 	ACT(mac, ##__VA_ARGS__)                                                                              \
+	ACT(maceth, ##__VA_ARGS__)                                                                           \
 	ACT(name, ##__VA_ARGS__)                                                                             \
 	ACT(wps, ##__VA_ARGS__)                                                                              \
 	ACT(serial, ##__VA_ARGS__)                                                                           \
@@ -199,11 +260,11 @@ static int mnf_readable_open(struct device_node *node, struct mnf_readable *rd)
 			return ret;
 		}
 
-		bdev = MKDEV(major, minor);
+		bdev	 = MKDEV(major, minor);
 #if LINUX_VERSION_CODE > KERNEL_VERSION(6, 4, 16)
 		rd->bdev = blkdev_get_by_dev(bdev, FMODE_READ, NULL, NULL);
 #else
-		rd->bdev = blkdev_get_by_dev(bdev, FMODE_READ, NULL);
+		rd->bdev		  = blkdev_get_by_dev(bdev, FMODE_READ, NULL);
 #endif
 		if (IS_ERR(rd->bdev)) {
 			pr_debug("Failed to get block device from dev_t (%u:%u) %ld\n", major, minor,
@@ -215,7 +276,7 @@ static int mnf_readable_open(struct device_node *node, struct mnf_readable *rd)
 #else
 		rd->bdev->bd_part->policy = true;
 #endif
-		rd->is_bdev = true;
+		rd->is_bdev	       = true;
 	} else {
 		part = of_get_property(node, "label", NULL);
 		of_node_put(node);
@@ -343,10 +404,10 @@ static struct attribute_group g_mnfinfo_attr_group = {
 	.is_visible = mnfinfo_attr_is_visible,
 };
 
-static char mnf_device_name[16] __initdata    = "";
-static char mnf_device_hwver[16] __initdata   = "";
-static char mnf_device_hwbranch[8] __initdata = "";
-static char mnf_is_fullhwver[2] __initdata    = "";
+static char mnf_device_name[16]	   = "";
+static char mnf_device_hwver[16]   = "";
+static char mnf_device_hwbranch[8] = "";
+static char mnf_is_fullhwver[2]	   = "";
 
 static int __init mnf_device_setup(char *str)
 {
@@ -458,6 +519,22 @@ static void fix_rs_allign(struct mnfinfo_entry *e)
 
 	memmove(buf, buf + off, e->dt_len - off);
 	memset(buf + (e->dt_len - off), 0, off);
+}
+
+static void increment_mac(char *mac)
+{
+	const char symbol[] = "0123456789ABCDEF";
+	char *hex;
+	int i;
+	for (i = strlen(mac) - 1; i >= 0; i--) {
+		if (mac[i] != 'F') {
+			hex    = strchr(symbol, mac[i]);
+			mac[i] = hex[1];
+			break;
+		} else {
+			mac[i] = '0';
+		}
+	}
 }
 
 static int fix_mac_type(struct mnfinfo_entry *e, size_t len, const char *def)
@@ -610,6 +687,12 @@ static int fix_types(struct mnfinfo_entry *e, size_t len, const char *type, cons
 
 	if (!strcmp(type, "mac")) {
 		rc = fix_mac_type(e, len, def);
+	} else if (!strcmp(type, "maceth")) {
+		rc = fix_mac_type(e, len, def);
+		increment_mac(e->data);
+	} else if (!strcmp(type, "maceth_ascii")) {
+		rc = fix_ascii_type(e, len, def);
+		increment_mac(e->data);
 	} else if (!strcmp(type, "ascii")) {
 		rc = fix_ascii_type(e, len, def);
 	} else if (!strcmp(type, "simcfg")) {

@@ -1,0 +1,971 @@
+Index: rpcd-2021-03-11-ccb75178/CMakeLists.txt
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/CMakeLists.txt
++++ rpcd-2021-03-11-ccb75178/CMakeLists.txt
+@@ -49,10 +49,11 @@ INCLUDE_DIRECTORIES(${ubox_include_dir})
+ FIND_PATH(pcap_include_dir sys/capability.h)
+ INCLUDE_DIRECTORIES(${pcap_include_dir})
+ 
+-ADD_EXECUTABLE(rpcd main.c exec.c session.c plugin.c)
+-TARGET_LINK_LIBRARIES(rpcd ${ubox} ${ubus} ${uci} ${blobmsg_json} ${json} ${crypt} ${cap} dl)
++ADD_EXECUTABLE(rpcd main.c exec.c plugin.c)
++TARGET_LINK_LIBRARIES(rpcd ${ubox} ${ubus} ${uci} ${blobmsg_json} ${json} ${cap} dl)
+ 
+-SET(PLUGINS "")
++ADD_EXECUTABLE(session session.c)
++TARGET_LINK_LIBRARIES(session ${ubox} ${ubus} ${uci} ${blobmsg_json} ${crypt} dl)
+ 
+ IF(FILE_SUPPORT)
+   SET(PLUGINS ${PLUGINS} file_plugin)
+@@ -91,7 +92,7 @@ IF(RC_SUPPORT)
+   SET_TARGET_PROPERTIES(rc_plugin PROPERTIES OUTPUT_NAME rc PREFIX "")
+ ENDIF()
+ 
+-INSTALL(TARGETS rpcd ${PLUGINS}
++INSTALL(TARGETS rpcd session ${PLUGINS}
+ 	RUNTIME DESTINATION sbin
+ 	LIBRARY DESTINATION lib
+ )
+Index: rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/include/rpcd/plugin.h
++++ rpcd-2021-03-11-ccb75178/include/rpcd/plugin.h
+@@ -47,7 +47,6 @@
+ #include <json-c/json.h>
+ 
+ #include <rpcd/exec.h>
+-#include <rpcd/session.h>
+ 
+ /* location of plugin executables */
+ #define RPC_PLUGIN_DIRECTORY	"/usr/libexec/rpcd"
+@@ -61,8 +60,15 @@
+ /* Special value to indicate skipping plugin */
+ #define RPC_PLUGIN_SKIP ((struct ubus_object *)-1)
+ 
++
++struct rpc_session_cb {
++	struct list_head list;
++	void (*cb)(const char *rpc_session_id, void *);
++	void *priv;
++};
++
+ struct rpc_daemon_ops {
+-    bool (*session_access)(const char *sid, const char *scope,
++    bool (*session_access)(struct ubus_context *ctx, const char *sid, const char *scope,
+                            const char *object, const char *function);
+     void (*session_create_cb)(struct rpc_session_cb *cb);
+     void (*session_destroy_cb)(struct rpc_session_cb *cb);
+@@ -87,6 +93,14 @@ struct rpc_shared_plugin {
+     int (*init)(const struct rpc_daemon_ops *ops, struct ubus_context *ctx);
+ };
+ 
++void rpc_session_create_cb(struct rpc_session_cb *cb);
++void rpc_session_destroy_cb(struct rpc_session_cb *cb);
++void on_session_created(struct ubus_context *ctx,
++	struct ubus_event_handler *ev,
++	const char *type, struct blob_attr *msg);
++void on_session_destroyed(struct ubus_context *ctx,
++	struct ubus_event_handler *ev,
++	const char *type, struct blob_attr *msg);
+ 
+ int rpc_plugin_api_init(struct ubus_context *ctx);
+ 
+Index: rpcd-2021-03-11-ccb75178/include/rpcd/session.h
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/include/rpcd/session.h
++++ rpcd-2021-03-11-ccb75178/include/rpcd/session.h
+@@ -100,18 +100,9 @@ bool rpc_session_access(const char *sid,
+ 
+ struct blob_attr *rpc_session_data(const char *sid, const char *element);
+ 
+-struct rpc_session_cb {
+-	struct list_head list;
+-	void (*cb)(struct rpc_session *, void *);
+-	void *priv;
+-};
+ int rpc_session_revoke_similar(struct rpc_session *ses, const char *scope,
+ 					   const char *object);
+ int rpc_add_exceptions(struct rpc_session *ses, struct rpc_permissions_manager *permissions_manager);
+-
+-void rpc_session_create_cb(struct rpc_session_cb *cb);
+-void rpc_session_destroy_cb(struct rpc_session_cb *cb);
+-
+ void rpc_session_freeze(void);
+ void rpc_session_thaw(void);
+ 
+Index: rpcd-2021-03-11-ccb75178/main.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/main.c
++++ rpcd-2021-03-11-ccb75178/main.c
+@@ -26,11 +26,11 @@
+ #include <libubus.h>
+ #include <signal.h>
+ #include <sys/stat.h>
++#include <glob.h>
+ 
+ #include <rpcd/exec.h>
+ #include <rpcd/plugin.h>
+-#include <rpcd/session.h>
+-#include <rpcd/uci.h>
++
+ #define RPC_UCI_DIR_PREFIX	"/var/run/rpcd"
+ #define RPC_UCI_SAVEDIR_PREFIX	RPC_UCI_DIR_PREFIX "/uci-"
+ #define RPCD_CONNECT_RETRY	10
+@@ -52,6 +52,14 @@ struct reconnect_ctx {
+ 	int retries;
+ };
+ 
++static struct ubus_event_handler ev_session_created = {
++    .cb   = on_session_created,
++};
++
++static struct ubus_event_handler ev_session_destroyed = {
++    .cb   = on_session_destroyed,
++};
++
+ static void
+ rpc_uci_purge_dir(const char *path)
+ {
+@@ -121,7 +129,6 @@ static void reload_cb(struct uloop_fd *f
+ 	if (read(fd->fd, buf, sizeof(buf)) <= 0)
+ 		return;
+ 
+-	rpc_session_freeze();
+ 	uloop_cancelled = true;
+ 	respawn = true;
+ 	uloop_end();
+@@ -176,15 +183,13 @@ static void ubus_connect_handler(struct
+ {
+ 	int ret;
+ 
+-	if ((ret = rpc_session_api_init(ctx)) != 0) {
+-		fprintf(stderr, "Session API init failed: %d\n", ret);
+-		return;
+-	}
+-
+ 	if ((ret = rpc_plugin_api_init(ctx)) == UBUS_STATUS_CONNECTION_FAILED) {
+ 		fprintf(stderr, "Plugin API init failed: %d\n", ret);
+ 		return;
+ 	}
++	ubus_register_event_handler(ctx, &ev_session_created, "session.created");
++	ubus_register_event_handler(ctx, &ev_session_destroyed, "session.destroyed");
++
+ 	ubus_connected = true;
+ 	fprintf(stderr, "UBUS connection established\n");
+ }
+@@ -260,7 +265,6 @@ int main(int argc, char **argv)
+ 	uloop_init();
+ 	setup_signals();
+ 	setup_reload_pipe();
+-	rpc_session_init();
+ 
+ 	hangup = getenv("RPC_HANGUP");
+ 	if (!hangup || strcmp(hangup, "1"))
+@@ -268,9 +272,6 @@ int main(int argc, char **argv)
+ 
+ 	start_ubus_reconnect(ubus_socket);
+ 
+-	if (hangup && !strcmp(hangup, "1"))
+-		rpc_session_thaw();
+-
+ 	uloop_run();
+ 	uloop_done();
+ 	ubus_auto_shutdown(&conn);
+Index: rpcd-2021-03-11-ccb75178/session.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/session.c
++++ rpcd-2021-03-11-ccb75178/session.c
+@@ -30,6 +30,7 @@
+ #include <limits.h>
+ #include <string.h>
+ #include <errno.h>
++#include <syslog.h>
+ 
+ #ifdef HAVE_SHADOW
+ #include <shadow.h>
+@@ -46,9 +47,8 @@ static struct blob_buf buf;
+ struct rpc_session_acl *rpc_session_get_acl(struct rpc_session *ses, const char *scope, const char *object);
+ void rpc_grant_endpoint_options(struct rpc_session *ses, struct blob_attr *api_attr);
+ struct rpc_session *rpc_session_thaw_single(const char *sid);
+-
+-static LIST_HEAD(create_callbacks);
+-static LIST_HEAD(destroy_callbacks);
++static struct ubus_auto_conn conn;
++static bool respawn = false;
+ 
+ char apply_sid[RPC_SID_LEN + 1];
+ 
+@@ -105,6 +105,7 @@ enum {
+ 	RPC_SP_SCOPE,
+ 	RPC_SP_OBJECT,
+ 	RPC_SP_FUNCTION,
++	RPC_SP_CHECKS,
+ 	__RPC_SP_MAX,
+ };
+ static const struct blobmsg_policy perm_policy[__RPC_SP_MAX] = {
+@@ -112,6 +113,17 @@ static const struct blobmsg_policy perm_
+ 	[RPC_SP_SCOPE] = { .name = "scope", .type = BLOBMSG_TYPE_STRING },
+ 	[RPC_SP_OBJECT] = { .name = "object", .type = BLOBMSG_TYPE_STRING },
+ 	[RPC_SP_FUNCTION] = { .name = "function", .type = BLOBMSG_TYPE_STRING },
++	[RPC_SP_CHECKS] = { .name = "checks", .type = BLOBMSG_TYPE_ARRAY },
++};
++
++enum {
++	RPC_CHECK_OBJECT,
++	RPC_CHECK_FUNCTION,
++	__RPC_CHECK_MAX,
++};
++static const struct blobmsg_policy check_policy[__RPC_CHECK_MAX] = {
++    [RPC_CHECK_OBJECT] = { .name = "object", .type = BLOBMSG_TYPE_STRING },
++    [RPC_CHECK_FUNCTION] = { .name = "function", .type = BLOBMSG_TYPE_STRING },
+ };
+ 
+ enum {
+@@ -280,15 +292,29 @@ rpc_session_destroy_alcs(struct avl_tree
+ 	free(acl_scope);
+ }
+ 
++static void send_session_event(struct ubus_context *ctx, const char *event_name, const char *session_id)
++{
++	if (!ctx || !event_name || !session_id) {
++		return;
++	}
++
++	struct blob_buf b = {};
++	blob_buf_init(&b, 0);
++	blobmsg_add_string(&b, "ubus_rpc_session", session_id);
++	int ret = ubus_send_event(ctx, event_name, b.head);
++	if (ret != 0) {
++		blob_buf_free(&b);
++		return;
++	}
++
++	blob_buf_free(&b);
++}
++
+ static void
+ rpc_session_destroy(struct rpc_session *ses)
+ {
+ 	struct rpc_session_acl_scope *acl_scope, *nacl_scope;
+ 	struct rpc_session_data *data, *ndata;
+-	struct rpc_session_cb *cb;
+-
+-	list_for_each_entry(cb, &destroy_callbacks, list)
+-		cb->cb(ses, cb->priv);
+ 
+ 	uloop_timeout_cancel(&ses->t);
+ 
+@@ -336,7 +362,6 @@ static struct rpc_session *
+ rpc_session_create(int timeout)
+ {
+ 	struct rpc_session *ses;
+-	struct rpc_session_cb *cb;
+ 
+ 	ses = rpc_session_new();
+ 
+@@ -352,9 +377,6 @@ rpc_session_create(int timeout)
+ 
+ 	rpc_touch_session(ses);
+ 
+-	list_for_each_entry(cb, &create_callbacks, list)
+-		cb->cb(ses, cb->priv);
+-
+ 	return ses;
+ }
+ 
+@@ -391,6 +413,8 @@ rpc_handle_create(struct ubus_context *c
+ 	if (ses)
+ 		rpc_session_dump(ses, ctx, req);
+ 
++	send_session_event(ctx, "session.created", ses->id);
++
+ 	return 0;
+ }
+ 
+@@ -735,23 +759,46 @@ rpc_handle_access(struct ubus_context *c
+ 
+ 	blob_buf_init(&buf, 0);
+ 
+-	if (tb[RPC_SP_OBJECT] && tb[RPC_SP_FUNCTION])
+-	{
+-		if (tb[RPC_SP_SCOPE])
+-			scope = blobmsg_data(tb[RPC_SP_SCOPE]);
++	if (tb[RPC_SP_SCOPE])
++		scope = blobmsg_data(tb[RPC_SP_SCOPE]);
+ 
+-		allow = rpc_session_acl_allowed(ses, scope,
+-		                                blobmsg_data(tb[RPC_SP_OBJECT]),
+-		                                blobmsg_data(tb[RPC_SP_FUNCTION]));
++	if (tb[RPC_SP_OBJECT] && tb[RPC_SP_FUNCTION]) {
++		allow = rpc_session_acl_allowed(ses, scope, blobmsg_data(tb[RPC_SP_OBJECT]),
++						blobmsg_data(tb[RPC_SP_FUNCTION]));
+ 		blobmsg_add_u8(&buf, "access", allow);
+ 		ubus_send_reply(ctx, req, buf.head);
+ 		return 0;
++	} else if (tb[RPC_SP_CHECKS]) {
++		struct blob_attr *check;
++		int rem;
++		void *results = blobmsg_open_table(&buf, "results");
++		blobmsg_for_each_attr (check, tb[RPC_SP_CHECKS], rem) {
++			struct blob_attr *check_tb[__RPC_CHECK_MAX];
++			const char *object   = NULL;
++			const char *function = NULL;
++
++			blobmsg_parse(check_policy, __RPC_CHECK_MAX, check_tb, blobmsg_data(check),
++				      blobmsg_data_len(check));
++
++			if (check_tb[RPC_CHECK_OBJECT])
++				object = blobmsg_get_string(check_tb[RPC_CHECK_OBJECT]);
++			if (check_tb[RPC_CHECK_FUNCTION])
++				function = blobmsg_get_string(check_tb[RPC_CHECK_FUNCTION]);
++
++			char key[256];
++			snprintf(key, sizeof(key), "%s:%s", object, function);
++
++			allow = rpc_session_acl_allowed(ses, scope, object, function);
++			blobmsg_add_u8(&buf, key, allow);
++		}
++		blobmsg_close_table(&buf, results);
+ 	} else if (tb[RPC_SP_SCOPE] && tb[RPC_SP_OBJECT]) {
+-		const char *scope_value = blobmsg_get_string(tb[RPC_SP_SCOPE]);
++		const char *scope_value	 = blobmsg_get_string(tb[RPC_SP_SCOPE]);
+ 		const char *object_value = blobmsg_get_string(tb[RPC_SP_OBJECT]);
+ 
+ 		if (strcmp(scope_value, "exceptions") == 0) {
+-			char modified_object_value[strlen(object_value) + 2]; // +1 for '*', +1 for null terminator
++			char modified_object_value[strlen(object_value) +
++						   2]; // +1 for '*', +1 for null terminator
+ 			strcpy(modified_object_value, object_value);
+ 			strcat(modified_object_value, "*");
+ 			rpc_session_dump_acls_for_object(ses, &buf, modified_object_value);
+@@ -921,12 +968,12 @@ rpc_handle_destroy(struct ubus_context *
+ 	if (!ses)
+ 		return UBUS_STATUS_NOT_FOUND;
+ 
++	send_session_event(ctx, "session.destroyed", ses->id);
+ 	rpc_session_destroy(ses);
+ 
+ 	return 0;
+ }
+ 
+-
+ static bool
+ rpc_login_test_password(const char *hash, const char *password)
+ {
+@@ -1664,7 +1711,7 @@ rpc_handle_login(struct ubus_context *ct
+ 		rpc_session_set(ses, group_attr);
+ 		blob_buf_free(&buf);
+ 	}
+-
++	send_session_event(ctx, "session.created", ses->id);
+ 	rpc_session_dump(ses, ctx, req);
+ 
+ out:
+@@ -1890,35 +1937,6 @@ void rpc_session_init(void)
+ 	}
+ }
+ 
+-int rpc_session_api_init(struct ubus_context *ctx)
+-{
+-	static const struct ubus_method session_methods[] = {
+-		UBUS_METHOD("create",  rpc_handle_create,  new_policy),
+-		UBUS_METHOD("list",    rpc_handle_list,    sid_policy),
+-		UBUS_METHOD("grant",   rpc_handle_acl,     acl_policy),
+-		UBUS_METHOD("revoke",  rpc_handle_acl,     acl_policy),
+-		UBUS_METHOD("access",  rpc_handle_access,  perm_policy),
+-		UBUS_METHOD("set",     rpc_handle_set,     set_policy),
+-		UBUS_METHOD("get",     rpc_handle_get,     get_policy),
+-		UBUS_METHOD("unset",   rpc_handle_unset,   get_policy),
+-		UBUS_METHOD("destroy", rpc_handle_destroy, sid_policy),
+-		UBUS_METHOD("login",   rpc_handle_login,   login_policy),
+-		UBUS_METHOD_NOARG("reload_acls", rpc_handle_reload_acls),
+-	};
+-
+-	static struct ubus_object_type session_type =
+-		UBUS_OBJECT_TYPE("luci-rpc-session", session_methods);
+-
+-	static struct ubus_object obj = {
+-		.name = "session",
+-		.type = &session_type,
+-		.methods = session_methods,
+-		.n_methods = ARRAY_SIZE(session_methods),
+-	};
+-
+-	return ubus_add_object(ctx, &obj);
+-}
+-
+ struct blob_attr *rpc_session_data(const char *sid, const char *element)
+ {
+ 	struct rpc_session_data *data;
+@@ -1934,29 +1952,6 @@ struct blob_attr *rpc_session_data(const
+ 	return data->attr;
+ }
+ 
+-bool rpc_session_access(const char *sid, const char *scope,
+-                        const char *object, const char *function)
+-{
+-	struct rpc_session *ses = rpc_session_get(sid);
+-
+-	if (!ses)
+-		return false;
+-
+-	return rpc_session_acl_allowed(ses, scope, object, function);
+-}
+-
+-void rpc_session_create_cb(struct rpc_session_cb *cb)
+-{
+-	if (cb && cb->cb)
+-		list_add(&cb->list, &create_callbacks);
+-}
+-
+-void rpc_session_destroy_cb(struct rpc_session_cb *cb)
+-{
+-	if (cb && cb->cb)
+-		list_add(&cb->list, &destroy_callbacks);
+-}
+-
+ struct rpc_session
+ *rpc_session_thaw_single(const char *sid)
+ {
+@@ -2051,3 +2046,93 @@ void rpc_session_thaw(void)
+ 
+ 	uci_free_context(uci);
+ }
++
++static const struct ubus_method session_methods[] = {
++	UBUS_METHOD("create",  rpc_handle_create,  new_policy),
++	UBUS_METHOD("list",    rpc_handle_list,    sid_policy),
++	UBUS_METHOD("grant",   rpc_handle_acl,     acl_policy),
++	UBUS_METHOD("revoke",  rpc_handle_acl,     acl_policy),
++	UBUS_METHOD("access",  rpc_handle_access,  perm_policy),
++	UBUS_METHOD("set",     rpc_handle_set,     set_policy),
++	UBUS_METHOD("get",     rpc_handle_get,     get_policy),
++	UBUS_METHOD("unset",   rpc_handle_unset,   get_policy),
++	UBUS_METHOD("destroy", rpc_handle_destroy, sid_policy),
++	UBUS_METHOD("login",   rpc_handle_login,   login_policy),
++	UBUS_METHOD_NOARG("reload_acls", rpc_handle_reload_acls),
++};
++
++static struct ubus_object_type session_type =
++	UBUS_OBJECT_TYPE("luci-rpc-session", session_methods);
++
++static struct ubus_object session_object = {
++	.name = "session",
++	.type = &session_type,
++	.methods = session_methods,
++	.n_methods = ARRAY_SIZE(session_methods),
++};
++
++static void
++ubus_connect_handler(struct ubus_context *ctx)
++{
++	int ret;
++	ret = ubus_add_object(ctx, &session_object);
++	if (ret) {
++		fprintf(stderr, "Failed to add object: %s\n", ubus_strerror(ret));
++		exit(1);
++	}
++	fprintf(stderr, "session: connected to ubus\n");
++}
++
++static void session_die(struct ubus_context *ctx)
++{
++	(void)ctx;
++
++	fprintf(stderr, "Session: ubus connection was lost\n");
++	uloop_done();
++	ubus_auto_shutdown(&conn);
++
++	exit(EXIT_FAILURE);
++}
++
++static void signal_handler(int signo) {
++	if (signo == SIGHUP) {
++		respawn = true;
++	} else {
++		uloop_end();
++	}
++}
++
++static void check_respawn(struct uloop_timeout *t) {
++	if (respawn) {
++		respawn = false;
++		rpc_session_freeze();
++		rpc_session_thaw();
++		fprintf(stdout, "Session respawn completed.\n");
++	}
++	uloop_timeout_set(t, 1000);
++}
++
++int main(int argc, char **argv) {
++	struct uloop_timeout respawn_timeout = {
++		.cb = check_respawn,
++	};
++
++	signal(SIGINT, signal_handler);
++	signal(SIGTERM, signal_handler);
++	signal(SIGHUP, signal_handler);
++
++	uloop_init();
++	conn.cb = ubus_connect_handler;
++	ubus_auto_connect(&conn);
++	conn.ctx.connection_lost = session_die;
++
++	rpc_session_init();
++
++	uloop_timeout_set(&respawn_timeout, 1000);
++
++	uloop_run();
++	uloop_done();
++	ubus_auto_shutdown(&conn);
++
++	return 0;
++}
+Index: rpcd-2021-03-11-ccb75178/uci.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/uci.c
++++ rpcd-2021-03-11-ccb75178/uci.c
+@@ -18,6 +18,7 @@
+ 
+ #include <libgen.h>
+ #include <glob.h>
++#include <ctype.h>
+ #include <rpcd/plugin.h>
+ 
+ #include <libubox/blobmsg.h>
+@@ -25,13 +26,14 @@
+ 
+ #include <rpcd/uci.h>
+ #include <rpcd/exec.h>
+-#include <rpcd/session.h>
+ 
+ static struct blob_buf buf;
+ static struct uci_context *cursor;
+ static struct uloop_timeout apply_timer;
+ static struct ubus_context *apply_ctx;
++static const struct rpc_daemon_ops *ops;
+ 
++char apply_sid[RPC_SID_LEN + 1];
+ 
+ enum {
+ 	RPC_G_CONFIG,
+@@ -1297,7 +1299,7 @@ rpc_uci_changes(struct ubus_context *ctx
+ 	for (i = 0; configs[i]; i++)
+ 	{
+ 		if (tb[RPC_C_SESSION] &&
+-		    !rpc_session_access(blobmsg_data(tb[RPC_C_SESSION]), "uci",
++		    !ops->session_access(ctx, blobmsg_data(tb[RPC_C_SESSION]), "uci",
+ 		                        configs[i], "read"))
+ 			continue;
+ 
+@@ -1346,21 +1348,59 @@ rpc_uci_trigger_event(struct ubus_contex
+ 	free(pkg);
+ }
+ 
+-static char* rpc_uci_parse_session_username(struct blob_attr *sid)
++struct session_cb_priv {
++	char *username;
++};
++
++static void session_cb(struct ubus_request *req, int type, struct blob_attr *msg)
++{
++	struct session_cb_priv *priv = req->priv;
++	struct blob_attr *tb[2];
++	struct blob_attr *values;
++	struct blobmsg_policy policy[2] = {
++		{ "values", BLOBMSG_TYPE_TABLE },
++		{ "username", BLOBMSG_TYPE_STRING },
++	};
++
++	blobmsg_parse(policy, 1, tb, blob_data(msg), blob_len(msg));
++	if (!tb[0])
++		return;
++
++	values = tb[0];
++
++	policy[0].name = "username";
++	blobmsg_parse(policy, 1, tb, blobmsg_data(values), blobmsg_len(values));
++	if (!tb[0])
++		return;
++
++	priv->username = strdup(blobmsg_get_string(tb[0]));
++}
++
++static char* rpc_uci_parse_session_username(struct ubus_context *ctx, struct blob_attr *sid)
+ {
++	uint32_t id;
++	struct blob_buf req = { 0 };
++	struct session_cb_priv priv = { 0 };
++
+ 	const char *session = blobmsg_data(sid);
+ 	if (!session)
+ 		return NULL;
+ 
+-	struct blob_attr *attr = rpc_session_data(session, "username");
+-	if (!attr)
++	if (ubus_lookup_id(ctx, "session", &id))
+ 		return NULL;
+ 
+-	const char *username = blobmsg_data(attr);
+-	if (!username)
++	blob_buf_init(&req, 0);
++	blobmsg_add_string(&req, "ubus_rpc_session", session);
++	blobmsg_add_string(&req, "keys", "username");
++
++	if (ubus_invoke(ctx, id, "get", req.head, session_cb, &priv, 3000)) {
++		blob_buf_free(&req);
+ 		return NULL;
++	}
++
++	blob_buf_free(&req);
+ 
+-	return strdup(username);
++	return priv.username;
+ }
+ 
+ static int
+@@ -1390,7 +1430,7 @@ rpc_uci_revert_commit(struct ubus_contex
+ 		{
+ 			if (log)
+ 			{
+-				char* username = rpc_uci_parse_session_username(tb[RPC_C_SESSION] ? tb[RPC_C_SESSION] : tb[RPC_C_L_SESSION]);
++				char* username = rpc_uci_parse_session_username(ctx, tb[RPC_C_SESSION] ? tb[RPC_C_SESSION] : tb[RPC_C_L_SESSION]);
+ 				uci_logged_commit_user(cursor, &p, false, username);
+ 				if (username) {
+ 					free(username);
+@@ -1540,7 +1580,7 @@ rpc_uci_copy_file(const char *src, const
+ }
+ 
+ static int
+-rpc_uci_apply_access(const char *sid, glob_t *gl)
++rpc_uci_apply_access(struct ubus_context *ctx, const char *sid, glob_t *gl)
+ {
+ 	struct stat s;
+ 	int i, c = 0;
+@@ -1555,7 +1595,7 @@ rpc_uci_apply_access(const char *sid, gl
+ 			continue;
+ 		if (stat(gl->gl_pathv[i], &s) || !s.st_size)
+ 			continue;
+-		if (!rpc_session_access(sid, "uci", config, "write"))
++		if (!ops->session_access(ctx, sid, "uci", config, "write"))
+ 			return UBUS_STATUS_PERMISSION_DENIED;
+ 		c++;
+ 	}
+@@ -1576,7 +1616,7 @@ rpc_uci_do_rollback(struct ubus_context
+ 	 * If it does, restore the delta files as well, else just restore the
+ 	 * main configuration files. */
+ 	deny = apply_sid[0]
+-		? rpc_uci_apply_access(apply_sid, gl) : UBUS_STATUS_NOT_FOUND;
++		? rpc_uci_apply_access(ctx, apply_sid, gl) : UBUS_STATUS_NOT_FOUND;
+ 
+ 	if (!deny) {
+ 		snprintf(tmp, sizeof(tmp), RPC_UCI_SAVEDIR_PREFIX "%s/", apply_sid);
+@@ -1669,7 +1709,7 @@ rpc_uci_apply(struct ubus_context *ctx,
+ 
+ 		snprintf(tmp, sizeof(tmp), RPC_UCI_SAVEDIR_PREFIX "%s/", sid);
+ 
+-		ret = rpc_uci_apply_access(sid, &gl);
++		ret = rpc_uci_apply_access(ctx, sid, &gl);
+ 		if (ret) {
+ 			globfree(&gl);
+ 			return ret;
+@@ -1783,21 +1823,10 @@ rpc_uci_reload(struct ubus_context *ctx,
+ 	return execv(cmd[0], cmd);
+ }
+ 
+-/*
+- * Session destroy callback to purge associated delta directory.
+- */
+-static void
+-rpc_uci_purge_savedir_cb(struct rpc_session *ses, void *priv)
+-{
+-	char path[PATH_MAX];
+-
+-	snprintf(path, sizeof(path) - 1, RPC_UCI_SAVEDIR_PREFIX "%s", ses->id);
+-	rpc_uci_purge_dir(path);
+-}
+-
+ static struct ubus_object
+ *rpc_uci_api_init(const struct rpc_daemon_ops *o, struct ubus_context *ctx)
+ {
++	ops = o;
+ 	static const struct ubus_method uci_methods[] = {
+ 		{ .name = "configs", .handler = rpc_uci_configs },
+ 		UBUS_METHOD("get",      rpc_uci_get,      rpc_uci_get_policy),
+@@ -1820,16 +1849,11 @@ static struct ubus_object
+ 	static struct ubus_object_type uci_type =
+ 		UBUS_OBJECT_TYPE("luci-rpc-uci", uci_methods);
+ 
+-	static struct rpc_session_cb cb = {
+-		.cb = rpc_uci_purge_savedir_cb
+-	};
+-
+ 	cursor = uci_alloc_context();
+ 
+ 	if (!cursor)
+ 		return NULL;
+ 
+-	rpc_session_destroy_cb(&cb);
+ 	struct ubus_object *obj = calloc(1, sizeof(*obj));
+ 	if (!obj)
+ 		return NULL;
+Index: rpcd-2021-03-11-ccb75178/include/rpcd/uci.h
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/include/rpcd/uci.h
++++ rpcd-2021-03-11-ccb75178/include/rpcd/uci.h
+@@ -30,9 +30,10 @@
+ #include <libubus.h>
+ #include <uci.h>
+ 
++#define RPC_SID_LEN 32
+ extern char apply_sid[RPC_SID_LEN + 1];
+ 
+-#define RPC_UCI_DIR_PREFIX	"/var/run/rpcd"
++#define RPC_UCI_DIR_PREFIX	"/var/run/session"
+ #define RPC_UCI_SAVEDIR_PREFIX	RPC_UCI_DIR_PREFIX "/uci-"
+ #define RPC_SNAPSHOT_FILES	RPC_UCI_DIR_PREFIX "/snapshot-files/"
+ #define RPC_SNAPSHOT_DELTA	RPC_UCI_DIR_PREFIX "/snapshot-delta/"
+Index: rpcd-2021-03-11-ccb75178/plugin.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/plugin.c
++++ rpcd-2021-03-11-ccb75178/plugin.c
+@@ -24,10 +24,12 @@
+ 
+ #define RPC_FILE_MAX_SIZE		(4096 * 64)
+ 
+-
+ static struct blob_buf buf;
+ static bool child_process = false;
+ static int rpc_response_fd = -1;
++static LIST_HEAD(create_callbacks);
++static LIST_HEAD(destroy_callbacks);
++static struct ubus_context *ubus_ctx = NULL;
+ 
+ struct rpc_plugin_lookup_context {
+ 	uint32_t id;
+@@ -168,6 +170,84 @@ rpc_plugin_json_element_to_blob(const ch
+ 	}
+ }
+ 
++void on_session_created(struct ubus_context *ctx, struct ubus_event_handler *ev, const char *type,
++			struct blob_attr *msg)
++{
++	struct rpc_session_cb *cb;
++
++	struct blob_attr *tb[UBUS_ATTR_MAX];
++	static const struct blobmsg_policy policy = {
++		.name = "ubus_rpc_session",
++		.type = BLOBMSG_TYPE_STRING,
++	};
++
++	blobmsg_parse(&policy, 1, tb, blob_data(msg), blob_len(msg));
++	const char *sid = tb[0] ? blobmsg_get_string(tb[0]) : NULL;
++
++	list_for_each_entry (cb, &create_callbacks, list) {
++		cb->cb(sid, cb->priv);
++	}
++}
++
++void on_session_destroyed(struct ubus_context *ctx, struct ubus_event_handler *ev, const char *type,
++			  struct blob_attr *msg)
++{
++	struct rpc_session_cb *cb;
++
++	struct blob_attr *tb[UBUS_ATTR_MAX];
++	static const struct blobmsg_policy policy = {
++		.name = "ubus_rpc_session",
++		.type = BLOBMSG_TYPE_STRING,
++	};
++
++	blobmsg_parse(&policy, 1, tb, blob_data(msg), blob_len(msg));
++	const char *sid = tb[0] ? blobmsg_get_string(tb[0]) : NULL;
++
++	list_for_each_entry (cb, &destroy_callbacks, list) {
++		cb->cb(sid, cb->priv);
++	}
++}
++
++static bool
++rpcd_session_access(struct ubus_context *ctx,
++                    const char *sid,
++                    const char *scope,
++                    const char *object,
++                    const char *function)
++{
++	uint32_t id;
++	struct blob_buf req = { 0 };
++
++	if (!ctx || !sid || !scope || !object || !function)
++		return false;
++
++	if (ubus_lookup_id(ctx, "session", &id))
++		return false;
++
++	blob_buf_init(&req, 0);
++	blobmsg_add_string(&req, "ubus_rpc_session", sid);
++	blobmsg_add_string(&req, "scope", scope);
++	blobmsg_add_string(&req, "object", object);
++	blobmsg_add_string(&req, "function", function);
++
++	int ret = ubus_invoke(ctx, id, "access", req.head, NULL, NULL, 3000);
++	blob_buf_free(&req);
++
++	return ret==0;
++}
++
++void rpc_session_create_cb(struct rpc_session_cb *cb)
++{
++	if (cb && cb->cb)
++		list_add(&cb->list, &create_callbacks);
++}
++
++void rpc_session_destroy_cb(struct rpc_session_cb *cb)
++{
++	if (cb && cb->cb)
++		list_add(&cb->list, &destroy_callbacks);
++}
++
+ static void
+ rpc_plugin_json_array_to_blob(struct array_list *a, struct blob_buf *blob)
+ {
+@@ -550,7 +630,7 @@ out:
+ }
+ 
+ static const struct rpc_daemon_ops ops = {
+-	.session_access     = rpc_session_access,
++	.session_access     = rpcd_session_access,
+ 	.session_create_cb  = rpc_session_create_cb,
+ 	.session_destroy_cb = rpc_session_destroy_cb,
+ 	.exec               = rpc_exec,
+@@ -981,8 +1061,10 @@ int process_directory(struct ubus_contex
+ 	}
+ 	return rv;
+ }
++
+ int rpc_plugin_api_init(struct ubus_context *ctx)
+ {
++	ubus_ctx = ctx;
+ 	int rv = 0;
+ 
+ 	rv |= process_directory(ctx, RPC_PLUGIN_DIRECTORY, rpc_plugin_register_exec);
+Index: rpcd-2021-03-11-ccb75178/file.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/file.c
++++ rpcd-2021-03-11-ccb75178/file.c
+@@ -151,13 +151,13 @@ rpc_errno_status(void)
+ }
+ 
+ static bool
+-rpc_file_access(const struct blob_attr *sid,
++rpc_file_access(struct ubus_context *ctx, const struct blob_attr *sid,
+                 const char *path, const char *perm)
+ {
+ 	if (!sid)
+ 		return true;
+ 
+-	return ops->session_access(blobmsg_data(sid), "file", path, perm);
++	return ops->session_access(ctx, blobmsg_data(sid), "file", path, perm);
+ }
+ 
+ static char *
+@@ -222,7 +222,7 @@ next:
+ }
+ 
+ static struct blob_attr **
+-__rpc_check_path(const struct blobmsg_policy *policy, size_t policy_len,
++__rpc_check_path(struct ubus_context *ctx, const struct blobmsg_policy *policy, size_t policy_len,
+                  int policy_path_idx, int policy_sid_idx, const char *perm,
+                  struct blob_attr *msg, char **path, struct stat *s)
+ {
+@@ -244,7 +244,7 @@ __rpc_check_path(const struct blobmsg_po
+ 		return NULL;
+ 	}
+ 
+-	if (!rpc_file_access(tb[policy_sid_idx], *path, perm))
++	if (!rpc_file_access(ctx, tb[policy_sid_idx], *path, perm))
+ 	{
+ 		errno = EACCES;
+ 		return NULL;
+@@ -256,8 +256,8 @@ __rpc_check_path(const struct blobmsg_po
+ 	return tb;
+ }
+ 
+-#define rpc_check_path(msg, policy_selector, perm, path, s) \
+-	__rpc_check_path(rpc_file_ ## policy_selector ## _policy, \
++#define rpc_check_path(ctx, msg, policy_selector, perm, path, s) \
++	__rpc_check_path(ctx, rpc_file_ ## policy_selector ## _policy, \
+ 		ARRAY_SIZE(rpc_file_ ## policy_selector ## _policy), \
+ 		RPC_F_ ## policy_selector ## _PATH, \
+ 		RPC_F_ ## policy_selector ## _SESSION, \
+@@ -276,7 +276,7 @@ rpc_file_read(struct ubus_context *ctx,
+ 	struct stat s;
+ 	char *wbuf;
+ 
+-	tb = rpc_check_path(msg, RB, "read", &path, &s);
++	tb = rpc_check_path(ctx, msg, RB, "read", &path, &s);
+ 
+ 	if (tb == NULL)
+ 		return rpc_errno_status();
+@@ -357,7 +357,7 @@ rpc_file_write(struct ubus_context *ctx,
+ 	void *data = NULL;
+ 	ssize_t data_len = 0;
+ 
+-	tb = rpc_check_path(msg, RW, "write", &path, NULL);
++	tb = rpc_check_path(ctx, msg, RW, "write", &path, NULL);
+ 
+ 	if (tb == NULL)
+ 		return rpc_errno_status();
+@@ -417,7 +417,7 @@ rpc_file_md5(struct ubus_context *ctx, s
+ 	uint8_t md5[16];
+ 	char *wbuf;
+ 
+-	if (!rpc_check_path(msg, R, "read", &path, &s))
++	if (!rpc_check_path(ctx, msg, R, "read", &path, &s))
+ 		return rpc_errno_status();
+ 
+ 	if (!S_ISREG(s.st_mode))
+@@ -475,7 +475,7 @@ rpc_file_list(struct ubus_context *ctx,
+ 	struct dirent *e;
+ 	char *path, *entrypath;
+ 
+-	if (!rpc_check_path(msg, R, "list", &path, NULL))
++	if (!rpc_check_path(ctx, msg, R, "list", &path, NULL))
+ 		return rpc_errno_status();
+ 
+ 	if ((fd = opendir(path)) == NULL)
+@@ -520,7 +520,7 @@ rpc_file_stat(struct ubus_context *ctx,
+ 	char *path;
+ 	struct stat s;
+ 
+-	if (!rpc_check_path(msg, R, "list", &path, &s))
++	if (!rpc_check_path(ctx, msg, R, "list", &path, &s))
+ 		return rpc_errno_status();
+ 
+ 	blob_buf_init(&buf, 0);
+@@ -588,7 +588,7 @@ rpc_file_remove(struct ubus_context *ctx
+ 	struct stat s;
+ 	char *path = NULL;
+ 
+-	if (!rpc_check_path(msg, R, "write", &path, NULL))
++	if (!rpc_check_path(ctx, msg, R, "write", &path, NULL))
+ 		return rpc_errno_status();
+ 
+ 	if (lstat(path, &s))
+@@ -762,7 +762,7 @@ static int rpc_file_exec_run(const char
+ 	executable = rpc_canonicalize_path(cmd);
+ 	if (!executable)
+ 		return UBUS_STATUS_UNKNOWN_ERROR;
+-	if (!rpc_file_access(sid, executable, "exec")) {
++	if (!rpc_file_access(ctx, sid, executable, "exec")) {
+ 		if (!arg || strlen(executable) >= sizeof(cmdstr))
+ 			return UBUS_STATUS_PERMISSION_DENIED;
+ 		uint8_t arglen = 0;
+@@ -777,7 +777,7 @@ static int rpc_file_exec_run(const char
+ 			p += sprintf(p, " %s", blobmsg_get_string(cur));
+ 			arglen++;
+ 		}
+-		if (!rpc_file_access(sid, cmdstr, "exec"))
++		if (!rpc_file_access(ctx, sid, cmdstr, "exec"))
+ 			return UBUS_STATUS_PERMISSION_DENIED;
+ 	}
+ 	if (pipe(opipe) < 0)

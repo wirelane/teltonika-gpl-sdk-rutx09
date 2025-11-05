@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uci-default
 PKG_VERSION:=2024-08-05
-PKG_RELEASE:=9
+PKG_RELEASE:=10
 
 PKG_LICENSE:=BSD-3-Clause
 PKG_LICENSE_FILES:=LICENSE
@@ -27,6 +27,7 @@ endef
 define Package/uci-default/install
 	$(call install_migrations,files,$(1))
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	find $(1) -type f -exec chmod 644 {} +
 endef
 
 $(eval $(call BuildPackage,uci-default))

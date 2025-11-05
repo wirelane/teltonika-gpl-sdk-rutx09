@@ -58,6 +58,15 @@ typedef struct {
  * 
  * @param ubus UBUS context
  * @param modem_id modemid
+ * @param tmo UBUS timeout (in milliseconds)
+ * @return lgsmu_conn_state 
+ */
+lgsmu_conn_state lgsmu_get_connstate_tmo(struct ubus_context *ubus, const char *modem_id, int tmo);
+/**
+ * @brief Returns mobile connection state my modem_id
+ * 
+ * @param ubus UBUS context
+ * @param modem_id modemid
  * @return lgsmu_conn_state 
  */
 lgsmu_conn_state lgsmu_get_connstate(struct ubus_context *ubus, const char *modem_id);
@@ -70,6 +79,17 @@ lgsmu_conn_state lgsmu_get_connstate(struct ubus_context *ubus, const char *mode
  */
 const char *lgsmu_conn_state_str(lgsmu_conn_state state);
 
+/**
+ * @brief get mobile interface by modem ID
+ * 
+ * @param ubus_ctx UBUS context 
+ * @param dst pointer to the destination structure where the interface data is to be copied
+ * @param modem_id modem ID
+ * @param tmo UBUS timeout (in milliseconds)
+ * @return size_t number of interfaces found
+ */
+size_t lgsmu_get_interfaces_by_modem_tmo(struct ubus_context *ubus_ctx, lgsmu_iface_arr_t *dst,
+					 const char *modem_id, int tmo);
 /**
  * @brief get mobile interface by modem ID
  * 

@@ -26,6 +26,7 @@ declare -A device_properties=(
     [poe_chip]="POE_CHIP,option,;,y,array,ucidef_set_poe_chip"
     [serial_capabilities]="SERIAL_CAPABILITIES,option,;,y,array,ucidef_add_serial_capabilities"
     [dot1x_server_capabilities]="DOT1X_SERVER_CAPABILITIES,option,;,,single,ucidef_add_dot1x_server_capabilities"
+    [eol]="EOL,option,;,,single,ucidef_add_eol"
 )
 
 # get list of included devices

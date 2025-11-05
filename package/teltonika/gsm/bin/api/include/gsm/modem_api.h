@@ -172,6 +172,8 @@ enum net_mode_id {
 	NET_MODE_WCDMA_NR5G, /*!< 3G WCDMA and 5G NR mode */
 	NET_MODE_4G_5G, /*!< 4G and 5G mode */
 	NET_MODE_LTE_NR5G, /*!< 4G LTE and 5G NR mode */
+	NET_MODE_2G_3G_4G, /*!< 2G, 3G and 4G mode */
+	NET_MODE_3G_4G_5G, /*!< 3G, 4G and 5G mode */
 
 	__NET_MODE_MAX,
 };

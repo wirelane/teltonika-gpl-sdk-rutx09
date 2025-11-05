@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubox
-PKG_RELEASE:=11
+PKG_RELEASE:=12
 
 PKG_SOURCE_DATE:=2020-10-25
 CMAKE_INSTALL:=1
@@ -63,11 +63,12 @@ define Package/ubox/install
 endef
 
 define Package/logd/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/ $(1)/etc/uci-defaults/7.17/ $(1)/usr/share/acl.d/
+	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/ $(1)/etc/uci-defaults/7.17/ $(1)/etc/uci-defaults/7.19/ $(1)/usr/share/acl.d/
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{logd,logread} $(1)/sbin/
 	$(INSTALL_BIN) ./files/log.init $(1)/etc/init.d/log
 	$(INSTALL_BIN) ./files/defaults/7.17/99_migrate_log_permissions $(1)/etc/uci-defaults/7.17/99_migrate_log_permissions
+	$(INSTALL_BIN) ./files/defaults/7.19/99_migrate_option_name $(1)/etc/uci-defaults/7.19/99_migrate_option_name
 	$(INSTALL_DATA) ./files/logd.json $(1)/usr/share/acl.d/logd.json
 
 	$(if $(CONFIG_USE_OPENRC),\

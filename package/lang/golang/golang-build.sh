@@ -111,7 +111,7 @@ build() {
 
 	log "Finding targets"
 	# shellcheck disable=SC2086
-	targets="$(go list $modargs $GO_BUILD_PKG)"
+	targets="$(go list -buildvcs=false $modargs $GO_BUILD_PKG)"
 	for pattern in $GO_EXCLUDES; do
 		targets="$(printf '%s\n' "$targets" | grep -v "$pattern")"
 	done

@@ -60,7 +60,7 @@ PS: This was compiled-tested only due to lack of hardware.
  
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -1660,7 +1660,6 @@ void usbnet_disconnect (struct usb_inter
+@@ -1663,7 +1663,6 @@ void usbnet_disconnect (struct usb_inter
  	usb_free_urb(dev->interrupt);
  	kfree(dev->padding_pkt);
  
@@ -68,7 +68,7 @@ PS: This was compiled-tested only due to lack of hardware.
  	free_netdev(net);
  }
  EXPORT_SYMBOL_GPL(usbnet_disconnect);
-@@ -1737,10 +1736,6 @@ usbnet_probe (struct usb_interface *udev
+@@ -1740,10 +1739,6 @@ usbnet_probe (struct usb_interface *udev
  	dev->rx_speed = SPEED_UNSET;
  	dev->tx_speed = SPEED_UNSET;
  
@@ -79,7 +79,7 @@ PS: This was compiled-tested only due to lack of hardware.
  	dev->msg_enable = netif_msg_init (msg_level, NETIF_MSG_DRV
  				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
  	init_waitqueue_head(&dev->wait);
-@@ -1765,6 +1760,7 @@ usbnet_probe (struct usb_interface *udev
+@@ -1768,6 +1763,7 @@ usbnet_probe (struct usb_interface *udev
  	dev->hard_mtu = net->mtu + net->hard_header_len;
  	net->min_mtu = 0;
  	net->max_mtu = ETH_MAX_MTU;
@@ -87,7 +87,7 @@ PS: This was compiled-tested only due to lack of hardware.
  
  	net->netdev_ops = &usbnet_netdev_ops;
  	net->watchdog_timeo = TX_TIMEOUT_JIFFIES;
-@@ -1887,8 +1883,6 @@ out1:
+@@ -1890,8 +1886,6 @@ out1:
  	usbnet_mark_going_away(dev);
  	cancel_work_sync(&dev->kevent);
  	del_timer_sync(&dev->delay);

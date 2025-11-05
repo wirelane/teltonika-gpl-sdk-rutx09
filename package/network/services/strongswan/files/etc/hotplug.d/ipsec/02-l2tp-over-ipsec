@@ -6,17 +6,14 @@ ifname="$(uci -q get ipsec.$section.bind_to)"
 [ -z "$ifname" ] || [ "$ifname" = "-" ] && exit 0
 
 check_cl="$(uci -q get network.$ifname.proto)"
-type="$(uci -q get xl2tpd.$ifname.type)"
-[ "$check_cl" = "l2tp" ] || [ "$type" = "server" ] || exit 0
+[ "$check_cl" = "l2tp" ] || exit 0
 
 echo "Setting up L2TP $ifname over IPsec"
 
-if [ "$type" = "server" ]; then
-	[ "$(/etc/init.d/xl2tpd status)" = "running" ] || /etc/init.d/xl2tpd restart
-else
-	if [ "$PLUTO_VERB" = "up-host" ]; then
-        	ifup "$ifname"
-	elif [ "$PLUTO_VERB" = "down-host" ]; then
-        	ifdown "$ifname"
-	fi
+if [ "$PLUTO_VERB" = "up-host" ]; then
+	logger -t "ipsec" "Interface '$ifname' bringing up L2TP over IPsec connection"
+    ifup "$ifname"
+elif [ "$PLUTO_VERB" = "down-host" ]; then
+	logger -t "ipsec" "Interface '$ifname' bringing down L2TP over IPsec connection"
+    ifdown "$ifname"
 fi

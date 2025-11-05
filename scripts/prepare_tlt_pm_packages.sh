@@ -292,7 +292,7 @@ process_package() {
 
 	case "$p" in
 	hs_theme* | vuci-*) source_dir="vuci_dep" ;;
-	iptables-*) source_dir="kmod_dep" ;;
+	iptables-* | kmod-*) source_dir="kmod_dep" ;;
 	*) source_dir="base_dep" ;;
 	esac
 

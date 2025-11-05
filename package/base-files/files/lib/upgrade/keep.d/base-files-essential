@@ -9,6 +9,3 @@
 /etc/sysctl.conf
 /etc/rc.local
 /etc/firewall.user
-/usr/local/usr/lib/mdcollectd/mdcollectd.db_new.gz
-/etc/vuci-uploads/
-/usr/local/share/ip_block/attempts.db

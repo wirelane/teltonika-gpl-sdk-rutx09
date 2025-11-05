@@ -151,6 +151,8 @@ print_lists_map() {
 	for _opt in "$@"; do
 		eval "_values=\$$_opt"
 		for _value in $_values; do
+			[ "$_opt" = "connect" ] && _value="$(printf '%s' "$_value" | tr -d '[]')"
+			# stunnel wants ipv6 addresses without brackets, but webui and api wants with
 			echo "$_opt = $_value" >> "$CONF_FILE"
 		done
 	done

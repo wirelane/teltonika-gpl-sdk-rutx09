@@ -7,7 +7,7 @@ from os import path
 from sys import exit
 
 
-def parse_args() -> object:
+def parse_args():
     parser = ArgumentParser(description="Print information about target architectures and profiles")
 
     parser.add_argument(
@@ -58,69 +58,90 @@ except FileNotFoundError as e:
     exit(e.errno)
 except Exception as e:
     print(f"Error reading the file: {e}")
-    exit(e.errno)
+    exit(getattr(e, "errno", 1))
 
-arch_pattern = re.compile(r"Target-Arch: (\S+)")
-cpu_pattern = re.compile(r"CPU-Type: (\S+)")
-profile_pattern = re.compile(r"Target-Profile:\s+DEVICE_teltonika_(\S+)")
 
+class Value:
+    def __init__(self, pattern, default=None):
+        self.pattern = pattern
+        self.value = default
+
+
+default_libc = "musl"
+profiles = []
 unique_combinations = {}
 
-current_arch = None
-current_cpu = None
+arch = Value(re.compile(r"Target-Arch: (\S+)"))
+cpu = Value(re.compile(r"CPU-Type: (\S+)"))
+libc_pattern = re.compile(r"Target-Profile-Libc: (\S+)")
+profile_pattern = re.compile(r"Target-Profile:\s+DEVICE_teltonika_(\S+)")
 
-for line in content.splitlines():
-    arch_match = arch_pattern.search(line)
-    cpu_match = cpu_pattern.search(line)
+lines = content.splitlines()
+for i, line in enumerate(lines):
+    for v in [arch, cpu]:
+        match = v.pattern.search(line)
+        if match:
+            v.value = match.group(1)
+            break
+
     profile_match = profile_pattern.search(line)
+    if profile_match and arch.value and cpu.value:
+        profile_name = profile_match.group(1)
 
-    if arch_match:
-        current_arch = arch_match.group(1)
+        profile_libc = default_libc
+        for l in lines[i + 1 :]:
+            if l.startswith("Target-Profile:"):
+                break
+            match = libc_pattern.search(l)
+            if match:
+                profile_libc = match.group(1)
+                break
 
-    if cpu_match:
-        current_cpu = cpu_match.group(1)
+        profiles.append({"name": profile_name, "arch": arch.value, "cpu": cpu.value, "libc": profile_libc})
 
-    if profile_match and current_arch and current_cpu:
-        profile = profile_match.group(1)
-        target_name = re.sub(r"x{2,}$", "", profile, flags=re.MULTILINE)
-        if (args.exclude and current_arch in args.exclude) or (args.all < 2 and len(profile) > 6):  # skip 'trb1411' and alike, as well as excluded targets
-            profile_match = None
-            continue
+for profile in profiles:
+    target_name = re.sub(r"x{2,}$", "", profile["name"], flags=re.MULTILINE)
 
-        key = (current_arch, current_cpu)
-        if key not in unique_combinations or not unique_combinations[key]:
-            unique_combinations[key] = list()
+    if (args.exclude and profile["arch"] in args.exclude) or (args.all < 2 and len(profile["name"]) > 6):
+        continue
 
-        unique_combinations[key].append(target_name)
+    key = (profile["arch"], profile["cpu"])
+    if key not in unique_combinations:
+        unique_combinations[key] = {}
+    if profile["libc"] not in unique_combinations[key]:
+        unique_combinations[key][profile["libc"]] = []
 
+    unique_combinations[key][profile["libc"]].append(target_name)
 
 if args.format == "ci":
     indent = "\n" + " " * 6
     env_var_prefix = "DOCKER_BUILD_ARG_"
 
-    def print_line(arch: str, cpu: str, profile: str) -> None:
+    def print_line(arch: str, cpu: str, libc: tuple, profile: str) -> None:  # pyright: ignore[reportRedeclaration]
         print(
-            f"{indent}- {env_var_prefix}ARCH: {arch}{indent}  {env_var_prefix}CPU_TYPE: {cpu}{indent}  {env_var_prefix}SELECT_TARGET: [ {profile} ]"
+            f"{indent}- {env_var_prefix}ARCH: {arch}{indent}  {env_var_prefix}CPU_TYPE: {cpu}{indent}  {env_var_prefix}LIBC: {libc}{indent}  {env_var_prefix}SELECT_TARGET: [ {profile} ]"
         )
 
 elif args.format == "table":
 
-    def print_line(arch: str, cpu: str, profile: str) -> None:
-        print(f"{arch: <15}{cpu: <30}{profile}")
+    def print_line(arch: str, cpu: str, libc: str, profile: str) -> None:
+        print(f"{arch: <15}{cpu: <30}{libc: <10}{profile}")
 
     if not args.target:
-        print_line("Arch", "CPU type", "Targets" if args.all else "First target")
+        print_line("Arch", "CPU type", "Libc", "Targets" if args.all else "First target")
 
-for (arch, cpu), profiles in unique_combinations.items():
-    profiles = list(dict.fromkeys(profiles))  # keep only unique items
+for (arch, cpu), targets in unique_combinations.items():
+    for libc, target_list in targets.items():
+        target_list = list(dict.fromkeys(target_list))
 
-    if args.target:
-        if args.target not in profiles:
-            continue
-        profiles = [args.target]
+        if args.target:
+            if args.target not in target_list:
+                continue
+            target_list = [args.target]
 
-    print_line(
-        arch,
-        cpu,
-        ", ".join(profiles) if args.all else profiles[0],
-    )
+        print_line(
+            arch,
+            cpu,
+            libc,
+            ", ".join(target_list) if args.all else target_list[0],
+        )

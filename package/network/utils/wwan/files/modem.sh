@@ -404,12 +404,12 @@ get_sim_position() {
 	# Collect sim_cfg from all sim slots
 	local full_sim_cfg=""
 	for i in $(seq 4); do
-		sim_cfg=$(mnf_info -C${i} 2>/dev/null)
+		sim_cfg=$(mnf_info -C ${i} 2>/dev/null)
 		[ -n "$sim_cfg" ] && full_sim_cfg="${full_sim_cfg:+${full_sim_cfg}_}${sim_cfg}"
 	done
 
 	# Sort by modem order and sim position if not dual modem
-	[ -n "$(mnf_info -C4 2>/dev/null)" ] &&
+	[ -n "$(mnf_info -C 4 2>/dev/null)" ] &&
 		sorted_sim_configs="$(echo $full_sim_cfg | tr '_' '\n')" ||
 		sorted_sim_configs=$(echo $full_sim_cfg | tr '_' '\n' | awk '{print substr($0,3,1)substr($0,2,1),$0}' | sort | cut -d ' ' -f2)
 

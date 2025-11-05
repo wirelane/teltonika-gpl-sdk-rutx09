@@ -93,7 +93,7 @@ Ideally, we could just add FLAG_MULTI_PACKET flag to qmi_wwan, but since the sub
  	/* all data was already cloned from skb inside the driver */
  	if (dev->driver_info->flags & FLAG_MULTI_PACKET)
  		return -EALREADY;
-@@ -1438,7 +1444,7 @@ netdev_tx_t usbnet_start_xmit (struct sk
+@@ -1441,7 +1447,7 @@ netdev_tx_t usbnet_start_xmit (struct sk
  	}
  	urb->transfer_buffer_length = length;
  

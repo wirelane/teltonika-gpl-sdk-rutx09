@@ -61,46 +61,6 @@ get_netmask_gateway() {
 	done
 }
 
-parse_ipv4_information() {
-	local pdp="$1"
-	local modem_id="$2"
-	local parsed_ip primary_dns secondary_dns mdm_ubus_obj errno
-
-	mdm_ubus_obj="$(find_mdm_ubus_obj "$modem_id")"
-
-        json_load "$(ubus call "$mdm_ubus_obj" get_pdp_addr "{\"index\":${pdp}}")"
-        json_get_var parsed_ip addr
-
-        [ -z "$parsed_ip" ]  && {
-                echo "Can't parse IP address!"
-                return 1
-        }
-
-        json_load "$(ubus call "$mdm_ubus_obj" get_dns_addr "{\"cid\":${pdp}}")"
-        json_get_var primary_dns pri_dns
-        json_get_var secondary_dns sec_dns
-        json_get_var errno errno
-
-        [ -n "$errno" ] && {
-                echo "Can't get primary and secondary DNS!"
-                return 1
-        }
-
-	get_netmask_gateway "$parsed_ip"
-
-	json_init
-	json_add_object "ipv4"
-	json_add_string ip "$parsed_ip"
-	json_add_string dns1 "$primary_dns"
-	json_add_string dns2 "$secondary_dns"
-	json_add_string gateway "$gateway"
-	json_add_string subnet "$netmask"
-	json_close_object
-
-	parameters4="$(json_dump)"
-	return 0
-}
-
 failure_notify() {
 	local pdptype="$1"
 	case "$pdptype" in
@@ -119,6 +79,22 @@ failure_notify() {
 	esac
 }
 
+check_pdp_ip() {
+	local pdp_ip="$1"
+
+	case "$pdp_ip" in
+		"0.0.0.0" | "0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0" | \
+		"0:0:0:0:0:0:0:0" | "::" | \
+		"::0000:0000:0000:0000:0000:0000:0000" | "0000:0000:0000:0000:0000:0000:0000:0000" | \
+		"0.0.0.0,0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0")
+			echo "1"
+			;;
+		*)
+			echo "0"
+			;;
+	esac
+}
+
 proto_ncm_setup() {
 	local interface="$1"
 	local devicename="$2"
@@ -127,6 +103,7 @@ proto_ncm_setup() {
 	local timeout=2 retries=0
 	local active_sim="1"
 	local retry_before_reinit
+	local retry_delay=10
 
 	json_get_vars mtu method device modem pdptype sim dhcp dhcpv6 delay ip4table ip6table passthrough_mode leasetime mac delegate $PROTO_DEFAULT_OPTIONS
 
@@ -222,6 +199,23 @@ proto_ncm_setup() {
 		ip link set mtu "$mtu" "$ifname"
 	}
 
+	json_load "$(ubus call "$mdm_ubus_obj" get_pdp_addr "{\"index\":${pdp}}")"
+
+	json_get_var addr addr
+	json_get_var addr_v6 addr_v6
+
+	[ -z "$addr" ] && [ -z "$addr_v6" ] && {
+		sleep "$retry_delay"
+		handle_retry "$retry_before_reinit" "$interface"
+		return 1
+	}
+
+	[ "$(check_pdp_ip "$addr")" -eq 1 ] && [ "$(check_pdp_ip "$addr_v6")" -eq 1 ] && {
+		sleep "$retry_delay"
+		handle_retry "$retry_before_reinit" "$interface"
+		return 1
+	}
+
 	# Disable GRO, CDC NCM does not provide RX csum offloading.
 	ethtool -K $ifname gro off
 
@@ -253,7 +247,9 @@ proto_ncm_setup() {
 	[ "$method" != "bridge" ] && [ "$method" != "passthrough" ] && \
 	[ "$pdptype" = "ip" -o "$pdptype" = "ipv4v6" ] && {
 		if [ "$dhcp" = 0 ]; then
-			setup_static_v4 "$ifname"
+			parse_ipv4_information "$pdp" "$modem" && {
+				setup_static_v4 "$ifname"
+			}
 
 		else
 			setup_dhcp_v4 "$ifname"

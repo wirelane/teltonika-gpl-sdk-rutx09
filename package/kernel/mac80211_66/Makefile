@@ -110,7 +110,7 @@ endef
 define KernelPackage/cfg80211_66/config
   if PACKAGE_kmod-cfg80211_66
 
-	config PACKAGE_CFG80211_TESTMODE_66
+	config PACKAGE_CFG80211_TESTMODE
 		bool "Enable testmode command support"
 		default n
 		help

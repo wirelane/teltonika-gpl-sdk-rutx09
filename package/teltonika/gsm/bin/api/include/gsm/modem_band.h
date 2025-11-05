@@ -104,6 +104,7 @@ enum modem_lte_band_id {
 	MB_LTE_B73 = (1ULL << 36), //!< LTE B73
 	/* */
 	MB_LTE_B85 = (1ULL << 37), //!< LTE B85
+	MB_LTE_B87 = (1ULL << 38), //!< LTE B87
 
 	__MB_LTE_MAX,
 	__MB_LTE_ALIGN = ULLONG_MAX,
@@ -155,7 +156,7 @@ enum modem_lte_nb_band_id {
 	MB_LTE_NB41 = (1ULL << 28), //!< LTE B41
 	MB_LTE_NB42 = (1ULL << 29), //!< LTE B42
 	MB_LTE_NB43 = (1ULL << 30), //!< LTE B43
-	MB_LTE_NB46 = (1ULL << 31), //!< LTE B46
+	MB_LTE_NB46 = (1ULL << 31), //!< LTE B43
 	/* */
 	MB_LTE_NB48 = (1ULL << 32), //!< LTE B48
 	/* */
@@ -166,6 +167,7 @@ enum modem_lte_nb_band_id {
 	MB_LTE_NB73 = (1ULL << 36), //!< LTE B73
 	/* */
 	MB_LTE_NB85 = (1ULL << 37), //!< LTE B85
+	MB_LTE_NB87 = (1ULL << 38), //!< LTE B87
 
 	__MB_LTE_NB_MAX,
 	__MB_LTE_NB_ALIGN = ULLONG_MAX,

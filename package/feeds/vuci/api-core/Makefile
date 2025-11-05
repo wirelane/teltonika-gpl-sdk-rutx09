@@ -21,7 +21,7 @@ define Package/api-core
 		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
 		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto +lua_extra_validators \
 		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci \
-		+rpcd-mod-rc
+		+rpcd-mod-rc +session
 endef
 
 define Package/api-core/config
@@ -34,8 +34,6 @@ endef
 
 define Package/api-core/conffiles
 /etc/config/vuci
-/etc/vuci-uploads
-/etc/certificates
 endef
 
 
@@ -71,16 +69,17 @@ define install_closed_gpl
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/services \
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/status \
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/system \
-		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/network
+		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/network \
+		$(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d 
 
 	$(CP) $(GPL_FILES_DIR)/etc/config/vuci $(PKG_GPL_BUILD_DIR)/files/etc/config
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
-	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server.init $(PKG_GPL_BUILD_DIR)/files/etc/init.d
+	$(CP) $(GPL_FILES_DIR)/etc/init.d/event_server $(PKG_GPL_BUILD_DIR)/files/etc/init.d
 	$(CP) $(GPL_FILES_DIR)/etc/permtab.d/vuci $(PKG_GPL_BUILD_DIR)/files/etc/permtab.d
 	$(CP) $(GPL_FILES_DIR)/usr/share/acl.d/api_acl.json $(PKG_GPL_BUILD_DIR)/files/usr/share/acl.d
 	$(CP) $(GPL_FILES_DIR)/usr/share/acl.d/api_modem_lib_acl.json $(PKG_GPL_BUILD_DIR)/files/usr/share/acl.d
-	$(CP) $(GPL_FILES_DIR)/sbin/event_server.lua $(PKG_GPL_BUILD_DIR)/files/sbin
-	$(CP) $(GPL_FILES_DIR)/sbin/api.lua $(PKG_GPL_BUILD_DIR)/files/sbin
+	$(CP) $(GPL_FILES_DIR)/sbin/event_server $(PKG_GPL_BUILD_DIR)/files/sbin
+	$(CP) $(GPL_FILES_DIR)/sbin/api $(PKG_GPL_BUILD_DIR)/files/sbin
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/api/core/* $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/core
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/api/services/*.lua $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/services
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/api/network/*.lua $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/network
@@ -88,10 +87,12 @@ define install_closed_gpl
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/vuci/*.lua $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/vuci
 	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/vuci/network/* $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/vuci/network
 	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/subscribe.lua $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
-	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/sentry.lua $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
-	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/luci.lua $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
-	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/index.lua $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
+	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/sentry $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
+	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/luci $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
+	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/index $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
 	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/api_dispatcher.lua $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
+	$(CP) $(GPL_FILES_DIR)/lib/upgrade/keep.d/legacy $(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d
+	$(CP) $(GPL_FILES_DIR)/lib/upgrade/keep.d/vuci.sysupgrade $(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d
 
 	$(CP) $(PKG_BUILD_DIR)/vuci.so $(1)
 endef
@@ -119,25 +120,28 @@ define Package/api-core/install
 				$(1)/usr/lib/lua/ubus/network \
 				$(1)/usr/lib/lua/ubus/services \
 				$(1)/etc/vuci-uploads ; \
+				$(1)/lib/upgrade/keep.d ; \
 	$(INSTALL_CONF) -D "$$$$files_dir"/etc/config/vuci $(1)/etc/config/vuci ; \
 	$(INSTALL_DATA) -D "$$$$files_dir"/etc/permtab.d/vuci $(1)/etc/permtab.d/vuci ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/bin/trigger_vuci_routes_reload $(1)/bin/trigger_vuci_routes_reload ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server.init $(1)/etc/init.d/event_server ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/event_server.lua $(1)/sbin/event_server ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/api.lua $(1)/sbin/api ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/etc/init.d/event_server $(1)/etc/init.d/event_server ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/event_server $(1)/sbin/event_server ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/sbin/api $(1)/sbin/api ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/vuci/*.lua $(1)/usr/lib/lua/vuci ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/vuci/network/* $(1)/usr/lib/lua/vuci/network ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/subscribe.lua $(1)/www/cgi-bin/subscribe.lua ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/sentry.lua $(1)/www/cgi-bin/sentry ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/luci.lua $(1)/www/cgi-bin/luci ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/index.lua $(1)/www/cgi-bin/index ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/sentry $(1)/www/cgi-bin/sentry ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/luci $(1)/www/cgi-bin/luci ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/index $(1)/www/cgi-bin/index ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/www/cgi-bin/api_dispatcher.lua $(1)/www/cgi-bin/api_dispatcher.lua ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/*.lua $(1)/usr/lib/lua/api ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/core/* $(1)/usr/lib/lua/api/core ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/services/* $(1)/usr/lib/lua/api/services ; \
 	$(INSTALL_DATA) -D "$$$$files_dir"/usr/share/acl.d/api_acl.json $(1)/usr/share/acl.d/api_acl.json ; \
 	$(INSTALL_DATA) -D "$$$$files_dir"/usr/share/acl.d/api_modem_lib_acl.json $(1)/usr/share/acl.d/api_modem_lib_acl.json ; \
-	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/network/* $(1)/usr/lib/lua/api/network
+	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/network/* $(1)/usr/lib/lua/api/network ; \
+	$(INSTALL_DATA) -D "$$$$files_dir"/lib/upgrade/keep.d/legacy $(1)/lib/upgrade/keep.d/legacy ; \
+	$(INSTALL_DATA) -D "$$$$files_dir"/lib/upgrade/keep.d/vuci.sysupgrade $(1)/lib/upgrade/keep.d/vuci
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/vuci.so $(1)/usr/lib/lua
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/

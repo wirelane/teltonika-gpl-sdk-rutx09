@@ -1,5 +1,3 @@
-Index: net/netfilter/nf_conntrack_standalone.c
-===================================================================
 --- a/net/netfilter/nf_conntrack_standalone.c
 +++ b/net/netfilter/nf_conntrack_standalone.c
 @@ -522,18 +522,18 @@ static int nf_conntrack_standalone_init_
@@ -26,8 +24,6 @@ Index: net/netfilter/nf_conntrack_standalone.c
  
  	pde = proc_create_net("nf_conntrack", 0444, net->proc_net_stat,
  			&ct_cpu_seq_ops, sizeof(struct seq_net_private));
-Index: net/netfilter/x_tables.c
-===================================================================
 --- a/net/netfilter/x_tables.c
 +++ b/net/netfilter/x_tables.c
 @@ -1817,6 +1817,7 @@ int xt_proto_init(struct net *net, u_int

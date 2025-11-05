@@ -1,7 +1,7 @@
-Index: openvpn-2.6.9/src/openvpn/ssl_openssl.c
+Index: openvpn-2.6.14/src/openvpn/ssl_openssl.c
 ===================================================================
---- openvpn-2.6.9.orig/src/openvpn/ssl_openssl.c
-+++ openvpn-2.6.9/src/openvpn/ssl_openssl.c
+--- openvpn-2.6.14.orig/src/openvpn/ssl_openssl.c
++++ openvpn-2.6.14/src/openvpn/ssl_openssl.c
 @@ -986,7 +986,11 @@ tls_ctx_load_cert_file(struct tls_root_c
  
      if (in == NULL)
@@ -48,10 +48,10 @@ Index: openvpn-2.6.9/src/openvpn/ssl_openssl.c
  
      if (cert)
      {
-Index: openvpn-2.6.9/src/openvpn/xkey_provider.c
+Index: openvpn-2.6.14/src/openvpn/xkey_provider.c
 ===================================================================
---- openvpn-2.6.9.orig/src/openvpn/xkey_provider.c
-+++ openvpn-2.6.9/src/openvpn/xkey_provider.c
+--- openvpn-2.6.14.orig/src/openvpn/xkey_provider.c
++++ openvpn-2.6.14/src/openvpn/xkey_provider.c
 @@ -41,6 +41,10 @@
  #include <openssl/store.h>
  #include <openssl/evp.h>
@@ -63,11 +63,11 @@ Index: openvpn-2.6.9/src/openvpn/xkey_provider.c
  
  /* A descriptive name */
  static const char *provname = "OpenVPN External Key Provider";
-Index: openvpn-2.6.9/src/openvpn/crypto_openssl.c
+Index: openvpn-2.6.14/src/openvpn/crypto_openssl.c
 ===================================================================
---- openvpn-2.6.9.orig/src/openvpn/crypto_openssl.c
-+++ openvpn-2.6.9/src/openvpn/crypto_openssl.c
-@@ -891,8 +891,17 @@ cipher_ctx_mode_cbc(const cipher_ctx_t *
+--- openvpn-2.6.14.orig/src/openvpn/crypto_openssl.c
++++ openvpn-2.6.14/src/openvpn/crypto_openssl.c
+@@ -915,8 +915,17 @@ cipher_ctx_mode_cbc(const cipher_ctx_t *
      {
          return false;
      }
@@ -86,7 +86,7 @@ Index: openvpn-2.6.9/src/openvpn/crypto_openssl.c
      int mode = EVP_CIPHER_CTX_mode(ctx);
  
      return mode == EVP_CIPH_CBC_MODE
-@@ -910,12 +919,21 @@ cipher_ctx_mode_ofb_cfb(const cipher_ctx
+@@ -934,12 +943,21 @@ cipher_ctx_mode_ofb_cfb(const cipher_ctx
      {
          return false;
      }
@@ -110,7 +110,7 @@ Index: openvpn-2.6.9/src/openvpn/crypto_openssl.c
  }
  
  bool
-@@ -923,7 +941,17 @@ cipher_ctx_mode_aead(const cipher_ctx_t
+@@ -947,7 +965,17 @@ cipher_ctx_mode_aead(const cipher_ctx_t
  {
      if (ctx)
      {

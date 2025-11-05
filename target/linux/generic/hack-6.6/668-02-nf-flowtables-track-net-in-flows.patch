@@ -137,7 +137,7 @@ unclear, at least with xtables FLOWOFFLOAD.
  		goto err_route_free;
 --- a/net/netfilter/nf_tables_api.c
 +++ b/net/netfilter/nf_tables_api.c
-@@ -8665,7 +8665,6 @@ static int nf_tables_newflowtable(struct
+@@ -8645,7 +8645,6 @@ static int nf_tables_newflowtable(struct
  		}
  	}
  

@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sim_switch
-PKG_VERSION:=2025-09-01
+PKG_VERSION:=2025-10-17
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.18
+PKG_SOURCE_VERSION:=7.19
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -34,7 +34,7 @@ endef
 define Package/sim_switch/install
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/usr/bin $(1)/usr/share/acl.d/ $(1)/etc/permtab.d
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/sim_switch.init $(1)/etc/init.d/sim_switch
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/sim_switch.init $(1)/etc/init.d/sim_switch
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/sim_switch.conf $(1)/etc/config/sim_switch
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sim_switch $(1)/usr/bin/sim_switch
 

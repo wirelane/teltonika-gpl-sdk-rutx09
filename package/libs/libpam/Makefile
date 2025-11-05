@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libpam
-PKG_VERSION:=1.6.0
-PKG_RELEASE:=5
+PKG_VERSION:=1.7.1
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.6.0
+PKG_SOURCE_VERSION:=1.7.1
 PKG_SOURCE:=Linux-PAM-$(PKG_SOURCE_VERSION).tar.xz
 PKG_SOURCE_URL:=https://github.com/linux-pam/linux-pam/releases/download/v$(PKG_SOURCE_VERSION)
 
-PKG_HASH:=fff4a34e5bbee77e2e8f1992f27631e2329bcbf8a0563ddeb5c3389b4e3169ad
+PKG_HASH:=21dbcec6e01dd578f14789eac9024a18941e6f2702a05cf91b28c232eeb26ab0
 
 PKG_MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>
 PKG_LICENSE:=BSD-3-Clause
@@ -25,9 +25,10 @@ PKG_CPE_ID:=cpe:/a:linux-pam:linux-pam
 PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
-PKG_BUILD_DEPENDS := libgpg-error libgcrypt
+PKG_BUILD_DEPENDS := libgpg-error libgcrypt meson/host
 
 include $(INCLUDE_DIR)/package.mk
+include ../../devel/meson/meson.mk
 
 define Package/libpam/Default
 	SECTION:=libs
@@ -83,31 +84,24 @@ define Package/libpam-mod-extra
   TITLE:=Extra PAM modules
 endef
 
-CONFIGURE_ARGS += \
-	--enable-pamlocking \
-	--enable-shared \
-	--enable-static \
-	--disable-audit \
-	--disable-db \
-	--disable-debug \
-	--disable-doc \
-	--disable-examples \
-	--disable-econf \
-	--disable-lckpwdf \
-	--disable-nis \
-	--disable-prelude \
-	--disable-regenerate-docu \
-	--disable-rpath \
-	--disable-selinux \
-	--disable-Werror \
-	--with-gnu-ld \
-	--without-mailspool \
-	--without-xauth \
-	--enable-vendordir=/var/run/pamd \
-	--libdir=/lib \
+MESON_ARGS += \
+	-Dpamlocking=true \
+	-Daudit=disabled \
+	-Ddocs=disabled \
+	-Deconf=disabled \
+	-Dlckpwdf=false \
+	-Dnis=disabled \
+	-Dselinux=disabled \
+	-Dmailspool=disabled \
+	-Ddb=db \
+	-Dxauth=disabled \
+	-Dexamples=false \
+	-Di18n=disabled \
+	-Dvendordir=/var/run/pamd \
+	-Dlibdir=/lib \
 	$(if $(filter m,$(CONFIG_PACKAGE_libpam)), \
-		--enable-securedir=/usr/local/lib/security \
-		--sbindir=/usr/local/usr/sbin \
+		-Dsecuredir=/usr/local/lib/security \
+		-Dsbindir=/usr/local/usr/sbin \
 	)
 
 define Build/InstallDev

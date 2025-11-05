@@ -163,7 +163,7 @@ function validateRegex(object, value, regex) {
 
 function validateChangelog(changelog, caseIdOptions) {
   const changeValidators = {
-    'CVE Patches': /^CVE-\d*-\d*$/,
+    'CVE Patches': /^CVE-\d*-\d* - ((10)|(\d\.[1-9])|(\d)) \((NONE|LOW|MEDIUM|HIGH|CRITICAL)\)$/,
     Updates: /^[^ ]*$/,
     default: (object, key) => [...validateRegex(object, key, /^[a-z].*[^ .]$/), ...validateChange(object, key)],
   }

@@ -60,6 +60,7 @@ GLIBC_CONFIGURE:= \
 		--with-headers=$(TOOLCHAIN_DIR)/include \
 		--disable-profile \
 		--disable-werror \
+		--disable-mathvec \
 		--without-gd \
 		--without-cvs \
 		--enable-add-ons \

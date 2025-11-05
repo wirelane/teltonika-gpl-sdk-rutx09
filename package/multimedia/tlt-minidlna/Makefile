@@ -65,7 +65,7 @@ define Package/tlt-minidlna/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/minidlnad $(1)/usr/bin/minidlna
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/minidlna.init $(1)/etc/init.d/minidlna
+	$(INSTALL_BIN_USR) ./files/minidlna.init $(1)/etc/init.d/minidlna
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/minidlna.config $(1)/etc/config/minidlna
 	$(INSTALL_DIR) $(1)/etc/sysctl.d

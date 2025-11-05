@@ -25,14 +25,14 @@ check_state() {
 		*)
 			conn_state=0
 			if [ "$drop_timer" = "0" ]; then
-				logger -t "qmux_track" "Connection lost."
+				logger -t "qmux_track" "Connection lost. status: $serv_status"
 			fi
 			;;
 	esac
 }
 
 handle_uqmi_ps_state() {
-	serv_status=$(uqmi -s -d $device -t 3000 --set-client-id wds,"$cid" --get-serving-system)
+	serv_status=$(call_qmi_command_silent "uqmi -s -d $device -t 3000 --set-client-id wds,$cid --get-serving-system")
 	check_state "$serv_status"
 	# If any of them are zero consider connection temporarily lost
 	if [ "$conn_state" != 1 ]; then
@@ -48,17 +48,19 @@ handle_at_ps_state() {
 	# If any of them are zero consider connection temporarily lost
 	if [ "$reg_status" != "attached" ]; then
 		drop_timer=$((drop_timer + 1));
-		logger -t "qmux_track" "Module deattached. Connection lost."
+		logger -t "qmux_track" "Module deattached. Connection lost. status: $reg_status"
 	else
 		drop_timer=0
 	fi
 }
 
 while true; do
+	qmi_call_retry_count=5
+
 	for cid in $@; do
-		connstat=$(uqmi -s -d $device -t 3000 --set-client-id wds,"$cid" --get-data-status | awk -F '"' '{print $2}')
+		connstat=$(call_qmi_command_silent "uqmi -s -d $device -t 3000 --set-client-id wds,$cid --get-data-status" | awk -F '"' '{print $2}')
 		if [ "$connstat" != "connected" ]; then
-			echo "Mobile connection lost!"
+			echo "Mobile connection lost! status: $connstat"
 			exit 1
 		fi
 

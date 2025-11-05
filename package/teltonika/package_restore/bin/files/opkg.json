@@ -16,5 +16,8 @@
 				"reboot"
 			]
 		}
-	}
+	},
+	"send": [
+		"vuci.notify"
+	]
 }

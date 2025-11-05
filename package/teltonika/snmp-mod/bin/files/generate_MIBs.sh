@@ -29,6 +29,10 @@ is_trb5() {
 	mnf_info -n | grep "TRB5" > /dev/null 2>&1
 }
 
+is_cap7() {
+	mnf_info -n | grep "CAP7" > /dev/null 2>&1
+}
+
 get_device_name() {
 	local name
 
@@ -99,7 +103,7 @@ is_true "wifi" && wireless=1
 ! is_switch && if_vlan=1
 ( jsonfilter -q -i $board_json_file -e "$.switch" 1>/dev/null || is_switch || is_true "dsa") && port_vlan=1
 [ $if_vlan ] || [ $port_vlan ] && vlan_gen=1
-( ! is_switch ) && ( ! is_trb5 ) && sqm=1
+( ! is_switch ) && ( ! is_trb5 ) && ( ! is_cap7 ) && sqm=1
 (is_installed "port_eventsd") || ( is_switch ) && port=1
 ( ! is_switch ) && ( ! is_trb5 ) && mwan3=1
 universal_gateway=1

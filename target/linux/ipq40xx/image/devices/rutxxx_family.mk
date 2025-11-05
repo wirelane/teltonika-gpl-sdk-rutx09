@@ -25,7 +25,7 @@ define Device/teltonika_rutx_common
 	TECHNICAL/Physical_Interfaces/IO := $(HW_INTERFACE_IO_4PIN_IN_OUT)
 	TECHNICAL/Physical_Interfaces/Power := $(HW_INTERFACE_POWER_4PIN)
 	TECHNICAL/Physical_Interfaces/USB := 1 $(HW_INTERFACE_USB)
-	TECHNICAL/Physical_Interfaces/Reset := $(HW_INTERFACE_RESET)
+	TECHNICAL/Physical_Interfaces/Reset := $(HW_INTERFACE_RESET_BTN)
 	TECHNICAL/Physical_Specification/Casing_Material := $(HW_PHYSICAL_HOUSING_AL)
 	TECHNICAL/Physical_Specification/Mounting_Options := $(HW_PHYSICAL_MOUNTING_KIT)
 	TECHNICAL/Operating_Environment/Operating_Temperature := $(HW_OPERATING_TEMP)
@@ -50,7 +50,6 @@ define Device/template_rutx_common
 
 	DEVICE_INTERFACE_CONF := \
 		lan default_ip 192.168.1.1
-
 endef
 
 define Device/TEMPLATE_teltonika_rutx08
@@ -60,7 +59,7 @@ define Device/TEMPLATE_teltonika_rutx08
 	DEVICE_SWITCH_CONF := "switch0" \
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := usb ethernet ios nat_offloading \
-		multi_tag port_link gigabit_port xfrm-offload tpm reset_button usb-port
+		multi_tag port_link gigabit_port xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Wireless/Wireless_Mode :=
 	HARDWARE/Wireless/Wi\-Fi_Users :=
@@ -79,7 +78,7 @@ define Device/TEMPLATE_teltonika_rutx09
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := dual_sim usb gps mobile ethernet ios \
 		nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm reset_button usb-port
+		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -102,7 +101,7 @@ define Device/TEMPLATE_teltonika_rutx10
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := bluetooth usb wifi dual_band_ssid ethernet \
 		ios nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm reset_button usb-port
+		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Bluetooth/Bluetooth_4.0 := $(HW_BT_LE)
 	TECHNICAL/Power/Power_Consumption := 9 W Max
@@ -123,7 +122,7 @@ define Device/TEMPLATE_teltonika_rutx11
 		"0u@eth0" "2:lan:1" "3:lan:2" "4:lan:3" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := dual_sim usb gps mobile wifi dual_band_ssid bluetooth \
 		ethernet ios nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm reset_button usb-port
+		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -150,7 +149,7 @@ define Device/TEMPLATE_teltonika_rutx12
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := usb gps mobile wifi dual_band_ssid bluetooth ethernet \
 		ios dual_modem nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm reset_button usb-port
+		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 2 x 4G LTE Cat 6 up to 300 DL/50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -178,7 +177,7 @@ define Device/TEMPLATE_teltonika_rutx14
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := usb gps dual_sim mobile wifi dual_band_ssid bluetooth \
 		ethernet ios at_sim nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm reset_button usb-port
+		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 12 up to 600 DL/150 UL Mbps; 3G to to 42 DL/ 11.2 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 12
@@ -204,7 +203,7 @@ define Device/TEMPLATE_teltonika_rutx50
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan"
 	DEVICE_FEATURES := dual_sim usb gps mobile wifi dual_band_ssid ethernet ios \
 		at_sim nat_offloading multi_tag port_link gigabit_port xfrm-offload \
-		tpm reset_button usb-port
+		tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 5G Sub-6Ghz SA/NSA 2.1/3.3Gbps DL (4x4 MIMO), 900/600 Mbps UL (2x2); 4G LTE Cat 20 up to 2.0 Gbps DL/ 200M Mbps UL; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/3GPP_Release := Release 15/16
@@ -231,7 +230,7 @@ define Device/TEMPLATE_teltonika_rutxr1
 		"0u@eth0" "1:lan" "2:lan" "3:lan" "4:lan" "0u@eth1" "5:wan\#s"
 	DEVICE_FEATURES := dual_sim usb mobile wifi dual_band_ssid ethernet sfp_port \
 		sfp_switch console nat_offloading multi_tag port_link gigabit_port \
-		xfrm-offload tpm reset_button usb-port
+		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	DEVICE_USB_JACK_PATH := /usb1/1-1/1-1.2/
 	DEVICE_INITIAL_FIRMWARE_SUPPORT := 2.3.1

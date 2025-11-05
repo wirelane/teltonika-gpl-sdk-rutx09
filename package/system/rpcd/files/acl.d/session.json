@@ -1,0 +1,12 @@
+{
+	"user": "session",
+	"access": {
+		"pam": {
+			"methods": [ "auth" ]
+		}
+	},
+	"subscribe": ["gsm.modem*"],
+	"send": ["session.created", "session.destroyed"],
+	"listen": [ "sim.changed", "lpac.updates", "ubus.object.add" ],
+	"publish": [ "session" ]
+}

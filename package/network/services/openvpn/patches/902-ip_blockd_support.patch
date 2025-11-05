@@ -1,5 +1,7 @@
---- a/src/openvpn/ssl_verify.c
-+++ b/src/openvpn/ssl_verify.c
+Index: openvpn-2.6.14/src/openvpn/ssl_verify.c
+===================================================================
+--- openvpn-2.6.14.orig/src/openvpn/ssl_verify.c
++++ openvpn-2.6.14/src/openvpn/ssl_verify.c
 @@ -46,6 +46,7 @@
  #include "auth_token.h"
  #include "push.h"
@@ -8,7 +10,7 @@
  
  /** Maximum length of common name */
  #define TLS_USERNAME_LEN 64
-@@ -1758,6 +1759,18 @@ verify_user_pass(struct user_pass *up, s
+@@ -1760,6 +1761,18 @@ verify_user_pass(struct user_pass *up, s
              generate_auth_token(up, multi);
          }
  
@@ -27,7 +29,7 @@
          msg(D_HANDSHAKE, "TLS: Username/Password authentication %s for username '%s' %s",
              (ks->authenticated == KS_AUTH_DEFERRED) ? "deferred" : "succeeded",
              up->username,
-@@ -1765,6 +1778,15 @@ verify_user_pass(struct user_pass *up, s
+@@ -1767,6 +1780,15 @@ verify_user_pass(struct user_pass *up, s
      }
      else
      {
@@ -43,8 +45,10 @@
          ks->authenticated = KS_AUTH_FALSE;
          msg(D_TLS_ERRORS, "TLS Auth Error: Auth Username/Password verification failed for peer");
      }
---- a/src/openvpn/Makefile.am
-+++ b/src/openvpn/Makefile.am
+Index: openvpn-2.6.14/src/openvpn/Makefile.am
+===================================================================
+--- openvpn-2.6.14.orig/src/openvpn/Makefile.am
++++ openvpn-2.6.14/src/openvpn/Makefile.am
 @@ -11,6 +11,8 @@
  
  include $(top_srcdir)/build/ltrc.inc
@@ -74,9 +78,11 @@
  if WIN32
  openvpn_SOURCES += openvpn_win32_resources.rc block_dns.c block_dns.h ring_buffer.h
  openvpn_LDADD += -lgdi32 -lws2_32 -lwininet -lcrypt32 -liphlpapi -lwinmm -lfwpuclnt -lrpcrt4 -lncrypt -lsetupapi -lbcrypt
---- a/src/openvpn/init.c
-+++ b/src/openvpn/init.c
-@@ -3272,6 +3272,7 @@ do_init_crypto_tls(struct context *c, co
+Index: openvpn-2.6.14/src/openvpn/init.c
+===================================================================
+--- openvpn-2.6.14.orig/src/openvpn/init.c
++++ openvpn-2.6.14/src/openvpn/init.c
+@@ -3268,6 +3268,7 @@ do_init_crypto_tls(struct context *c, co
      to.replay_window = options->replay_window;
      to.replay_time = options->replay_time;
      to.tcp_mode = link_socket_proto_connection_oriented(options->ce.proto);
@@ -84,9 +90,11 @@
      to.config_ciphername = c->options.ciphername;
      to.config_ncp_ciphers = c->options.ncp_ciphers;
      to.transition_window = options->transition_window;
---- a/src/openvpn/ssl_common.h
-+++ b/src/openvpn/ssl_common.h
-@@ -301,6 +301,8 @@ struct tls_options
+Index: openvpn-2.6.14/src/openvpn/ssl_common.h
+===================================================================
+--- openvpn-2.6.14.orig/src/openvpn/ssl_common.h
++++ openvpn-2.6.14/src/openvpn/ssl_common.h
+@@ -304,6 +304,8 @@ struct tls_options
      /* true if we are a TLS server, client otherwise */
      bool server;
  
@@ -95,8 +103,10 @@
      /* if true, don't xmit until first packet from peer is received */
      bool xmit_hold;
  
+Index: openvpn-2.6.14/src/openvpn/ip_block.c
+===================================================================
 --- /dev/null
-+++ b/src/openvpn/ip_block.c
++++ openvpn-2.6.14/src/openvpn/ip_block.c
 @@ -0,0 +1,164 @@
 +#include "ip_block.h"
 +
@@ -263,8 +273,10 @@
 +	return ret;
 +}
 \ No newline at end of file
+Index: openvpn-2.6.14/src/openvpn/ip_block.h
+===================================================================
 --- /dev/null
-+++ b/src/openvpn/ip_block.h
++++ openvpn-2.6.14/src/openvpn/ip_block.h
 @@ -0,0 +1,6 @@
 +#ifndef __IP_BLOCK_H
 +#define __IP_BLOCK_H

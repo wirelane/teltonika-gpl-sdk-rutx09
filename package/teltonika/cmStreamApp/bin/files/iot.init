@@ -9,14 +9,17 @@ NAME="cmStreamApp"
 CONF="iot"
 CONF_PATH="/etc/config/$CONF"
 BIN="/bin/$NAME"
-RUN=0
+RUN_CUMULOCITY=0
+RUN_COT=0
 
 check_if_enabled() {
-
-	[ "$RUN" == "1" ] && return 0
-
 	local section="$1"
-	config_get RUN "$section" enabled
+
+	if [ "$section" == "cumulocity" ]; then
+		config_get RUN_CUMULOCITY "$section" enabled
+	else
+		config_get RUN_COT "$section" enabled
+	fi
 }
 
 start_service() {
@@ -24,19 +27,31 @@ start_service() {
 	config_load "$CONF"
 	config_foreach check_if_enabled
 
-	[ "$RUN" == "1" ] || return 0
+	[ "$RUN_CUMULOCITY" == "1" ] || [ "$RUN_COT" == "1" ] || return 0
 
 	if [ ! -x "$BIN" ]; then
 		BIN="/usr/local$BIN"
 	fi
 
-	procd_open_instance
-	procd_set_param respawn
-	procd_set_param command "$BIN"
-	procd_set_param file "$CONF_PATH"
-	procd_set_param user iot
-	procd_close_instance
+	# Run Cumulocity instance
+	[ "$RUN_CUMULOCITY" == "1" ] && {
+		procd_open_instance cumulocity
+		procd_set_param respawn 3600 30 5
+		procd_set_param command "$BIN" -t cumulocity
+		procd_set_param file "$CONF_PATH"
+		procd_set_param user iot
+		procd_close_instance
+	}
 
+	# Run Cloud of Things instance
+	[ "$RUN_COT" == "1" ] && {
+		procd_open_instance cloudofthings
+		procd_set_param respawn 3600 30 5
+		procd_set_param command "$BIN" -t cloudofthings
+		procd_set_param file "$CONF_PATH"
+		procd_set_param user iot
+		procd_close_instance
+	}
 }
 
 service_triggers() {

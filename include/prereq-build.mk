@@ -60,7 +60,7 @@ $(eval $(call TestHostCommand,expat, \
 		gcc -include expat.h -x c -o $(TMP_DIR)/a.out - -lexpat))
 
 $(eval $(call TestHostCommand,lz4, \
-	Please install lz4. (Missing liblz4.so or lz4.h), \
+	Please install liblz4-dev. (Missing liblz4.so or lz4.h), \
 	echo 'int main(int argc, char **argv) { LZ4_compressBound(32); return 0; }' | \
 		gcc -include lz4.h -x c -o $(TMP_DIR)/a.out - -llz4))
 
@@ -223,3 +223,6 @@ $(eval $(call SetupHostCommand,cmake,Please install 'cmake', \
 
 $(eval $(call SetupHostCommand,fakeroot,Please install fakeroot >= 1.28, \
 	fakeroot --version | grep -E "fakeroot version 1\.(2[8-9]|[3-9][0-9+])"))
+
+$(eval $(call SetupHostCommand,lz4,Please install 'lz4', \
+	lz4 --version 2>&1 ))

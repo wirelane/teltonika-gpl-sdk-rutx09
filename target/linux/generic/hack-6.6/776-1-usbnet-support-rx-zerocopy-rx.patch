@@ -29,7 +29,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  		usbnet_defer_kevent (dev, EVENT_RX_MEMORY);
 --- a/include/linux/skbuff.h
 +++ b/include/linux/skbuff.h
-@@ -3106,6 +3106,8 @@ static inline int pskb_trim(struct sk_bu
+@@ -3129,6 +3129,8 @@ static inline int pskb_trim(struct sk_bu
  extern struct sk_buff *__netdev_alloc_skb_ip_align(struct net_device *dev,
  		unsigned int length, gfp_t gfp);
  
@@ -38,7 +38,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  
  /**
   *	pskb_trim_unique - remove end from a paged unique (not cloned) buffer
-@@ -3239,6 +3241,9 @@ static inline void *netdev_alloc_frag_al
+@@ -3262,6 +3264,9 @@ static inline void *netdev_alloc_frag_al
  struct sk_buff *__netdev_alloc_skb(struct net_device *dev, unsigned int length,
  				   gfp_t gfp_mask);
  
@@ -50,7 +50,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
   *	@dev: network device to receive on
 --- a/include/linux/usb/usbnet.h
 +++ b/include/linux/usb/usbnet.h
-@@ -129,6 +129,7 @@ struct driver_info {
+@@ -130,6 +130,7 @@ struct driver_info {
  #define FLAG_MULTI_PACKET	0x2000
  #define FLAG_RX_ASSEMBLE	0x4000	/* rx packets may span >1 frames */
  #define FLAG_NOARP		0x8000	/* device can't do ARP */
@@ -58,7 +58,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  
  	/* init device ... can sleep, or cause probe() failure */
  	int	(*bind)(struct usbnet *, struct usb_interface *);
-@@ -297,4 +298,58 @@ extern void usbnet_status_stop(struct us
+@@ -298,4 +299,58 @@ extern void usbnet_status_stop(struct us
  
  extern void usbnet_update_max_qlen(struct usbnet *dev);
  

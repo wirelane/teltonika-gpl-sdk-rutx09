@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-lib-json
 
-PKG_VERSION:=2025-01-06
+PKG_VERSION:=2025-10-14
 
 
 PKG_LICENSE:=Apache-2.0

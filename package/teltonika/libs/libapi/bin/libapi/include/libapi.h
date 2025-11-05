@@ -85,6 +85,20 @@ const char *lapi_method_str(enum lapi_method method);
  * @param method API method to call
  * @param data request data to send to endpoint
  * @param resp pointer to blob_buf to store response
+ * @param tmo ubus timeout (in milliseconds)
+ * @return lapi_stat LAPI_SUCCESS if call was successful, LAPI_ERROR otherwise
+ */
+lapi_stat lapi_call_tmo(struct ubus_context *ubus, const char *endpoint,
+			enum lapi_method method, struct blob_attr *data, struct blob_buf *resp, int tmo);
+
+/**
+ * @brief call API endpoint
+ * 
+ * @param ubus pointer to ubus context
+ * @param endpoint API endpoint
+ * @param method API method to call
+ * @param data request data to send to endpoint
+ * @param resp pointer to blob_buf to store response
  * @return lapi_stat LAPI_SUCCESS if call was successful, LAPI_ERROR otherwise
  */
 lapi_stat lapi_call(struct ubus_context *ubus, const char *endpoint,

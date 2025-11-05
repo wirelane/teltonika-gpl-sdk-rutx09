@@ -1,5 +1,6 @@
 {
 	"user": "iot",
+	"publish": [ "iot.*" ],
 	"access": {
 		"gsm": {
 			"methods": [
@@ -11,7 +12,7 @@
 				"info",
 				"get_service_provider",
 				"get_signal_query",
-				"get_net_reg_stat",
+				"get_net_reg_stat_all",
 				"get_network_info",
 				"get_iccid"
 			]
@@ -29,7 +30,8 @@
 		"system": {
 			"methods": [
 				"sysupgrade",
-				"backup"
+				"backup",
+				"validate_firmware_image"
 			]
 		},
 		"log": {
@@ -40,6 +42,11 @@
 		"file": {
 			"methods": [
 				"exec"
+			]
+		},
+		"wan_info": {
+			"methods": [
+				"get"
 			]
 		}
 	}

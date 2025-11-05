@@ -322,7 +322,6 @@ config USE_LLVM_BUILD
 	bool
 
 config USE_GLIBC
-	default y if x86_64
 	bool
 
 config USE_MUSL

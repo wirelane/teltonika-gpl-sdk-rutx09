@@ -726,7 +726,7 @@ hostapd_set_bss_options() {
 				set_default auth_port 1812
 				json_for_each_item append_auth_server auth_server
 				append bss_conf "macaddr_acl=2" "$N"
-				append bss_conf "wpa_psk_radius=2" "$N"
+				append bss_conf "wpa_psk_radius=3" "$N"
 				append bss_conf "radius_require_message_authenticator=0" "$N"
 			elif [ ${#key} -eq 64 ]; then
 				append bss_conf "wpa_psk=$key" "$N"
@@ -1704,6 +1704,7 @@ wpa_supplicant_add_network() {
 			local db_dir=$(dirname "${db_fname}")
 			[ -d "$db_dir" ] || {
 				/bin/mkdir "$db_dir"
+				/bin/chown network:network "$db_dir"
 			}
 			db_fname=":$db_fname"
 		}

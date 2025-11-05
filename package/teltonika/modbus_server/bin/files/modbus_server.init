@@ -20,7 +20,7 @@ rename_custom_regfile() {
 	REGFILE=$(uci -q get modbus_server.$SECTION.regfile)
 
 	if [ "$REGFILE_ON" == "1" ]; then
-		fix_permissions 666 "$REGFILE" "modbus_server:modbus_server"
+		fix_permissions 660 "$REGFILE" "modbus_server:modbus_server"
 		# Check legacy reg format
 		OLD_REGFILE="$(grep '# REGISTER_BLOCK_FILE$' /etc/sysupgrade.conf 2>/dev/null | head -n1 | sed 's/ #.*//')"
 		if [ -n "$OLD_REGFILE" ] && [ "$OLD_REGFILE" != "$REGFILE" ]

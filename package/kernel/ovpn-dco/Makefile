@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ovpn-dco
 PKG_VERSION:=0.2.20241216
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/OpenVPN/ovpn-dco/tar.gz/v$(PKG_VERSION)?
@@ -29,11 +29,30 @@ define KernelPackage/ovpn-dco-v2
   DEPENDS:=+kmod-crypto-aead +kmod-udptunnel4 +IPV6:kmod-udptunnel6
   FILES:=$(PKG_BUILD_DIR)/drivers/net/ovpn-dco/ovpn-dco-v2.ko
   AUTOLOAD:=$(call AutoLoad,30,ovpn-dco-v2)
+  ifeq (m, $(CONFIG_PACKAGE_kmod-ovpn-dco-v2))
+    PKG_TLT_NAME:=OpenVPN DCO support
+    PKG_ROUTER:=$(TLT_PLATFORM_NAME)
+  endif
 endef
 
 define KernelPackage/ovpn-dco-v2/description
   This module enhances the performance of the OpenVPN userspace software
   by offloading the data channel processing to kernelspace.
+endef
+
+define Package/kmod-ovpn-dco-v2/postinst
+	#!/bin/sh
+	[ -z "$${IPKG_INSTROOT}" ] || exit 0
+	/etc/init.d/openvpn restart >/dev/null 2>&1
+	exit 0
+endef
+
+define Package/kmod-ovpn-dco-v2/postrm
+	#!/bin/sh
+	[ -z "$${IPKG_INSTROOT}" ] || exit 0
+	rmmod ovpn_dco_v2 >/dev/null 2>&1
+	/etc/init.d/openvpn restart >/dev/null 2>&1
+	exit 0
 endef
 
 NOSTDINC_FLAGS += \

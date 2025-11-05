@@ -51,8 +51,11 @@ if( opendir SD, "$Bin/../staging_dir" )
 
 	closedir SD;
 
+	my $in_docker = $ENV{INSIDE_DOCKER} && $ENV{INSIDE_DOCKER} eq '1';
+	my $base_path = $in_docker ? "$ENV{EXT_STAGING_DIR}/target" : "$Bin/../staging_dir/toolchain-${arch}_*_${libc}*";
+
 	# Find gdb
-	my ($gdb) = glob("$Bin/../staging_dir/toolchain-${arch}_*_${libc}*/bin/*-gdb");
+	my ($gdb) = glob("$base_path/bin/*-gdb");
 	if( defined($gdb) && -x $gdb )
 	{
 		my ( $fh, $fp ) = tempfile();

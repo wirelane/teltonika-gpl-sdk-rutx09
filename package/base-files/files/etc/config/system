@@ -1,7 +1,7 @@
 config system 'system'
 	option timezone 'UTC'
 	option ttylogin '0'
-	option size '128'
+	option log_size_limit '128'
 	option urandom_seed '0'
 
 config timeserver 'ntp'

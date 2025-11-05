@@ -155,6 +155,7 @@ sub parse_target_metadata($) {
 			push @{$target->{profiles}}, $profile;
 		};
 		/^Target-Profile-Name:\s*(.+)\s*$/ and $profile->{name} = $1;
+		/^Target-Profile-Libc:\s*(.+)\s*$/ and $profile->{libc} = $1;
 		/^Target-Profile-hasImageMetadata:\s*(\d+)\s*$/ and $profile->{has_image_metadata} = $1;
 		/^Target-Profile-InitialSupportVersion:\s*(\S+)\s*$/ and $profile->{initial_support_version} = $1;
 		/^Target-Profile-DefaultLogPartition:\s*(\S+)\s*$/ and $profile->{mtd_log_partition} = $1;
@@ -181,6 +182,7 @@ sub parse_target_metadata($) {
 		/^Target-Profile-PoeChip:\s*(.*)\s*$/ and $profile->{poe_chip} = $1;
 		/^Target-Profile-SerialCapabilities:\s*(.*)\s*$/ and $profile->{serial_capabilities} = $1;
 		/^Target-Profile-Dot1xServerCapabilities:\s*(.*)\s*$/ and $profile->{dot1x_server_capabilities} = $1;
+		/^Target-Profile-EOL:\s*(.*)\s*$/ and $profile->{eol} = $1;
 		/^Target-Profile-Priority:\s*(\d+)\s*$/ and do {
 			$profile->{priority} = $1;
 			$target->{sort} = 1;

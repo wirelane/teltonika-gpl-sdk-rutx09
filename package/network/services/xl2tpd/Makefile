@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd
 PKG_VERSION:=1.3.16
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -105,6 +105,8 @@ define Package/xl2tpd/install
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/xl2tpd.permtab $(1)/etc/permtab.d/xl2tpd
 
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.19
+	$(CP) ./files/defaults/7.19/99_fix_l2tp_traffic_rule $(1)/etc/uci-defaults/7.19/99_fix_l2tp_traffic_rule
 endef
 
 $(eval $(call BuildPackage,xl2tpd))

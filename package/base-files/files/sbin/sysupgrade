@@ -203,6 +203,11 @@ case "$IMAGE" in
 		exit 1
 		;;
 	/tmp/*)	;;
+	/log/fw/*)
+		v "Image in /log/fw, moving..."
+		mv -f "$IMAGE" /tmp/sysupgrade.img
+		IMAGE=/tmp/sysupgrade.img
+		;;
 	*)
 		v "Image not in /tmp, copying..."
 		cp -f "$IMAGE" /tmp/sysupgrade.img

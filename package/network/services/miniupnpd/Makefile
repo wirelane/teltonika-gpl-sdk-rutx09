@@ -78,7 +78,7 @@ define Package/miniupnpd/install
 
 	$(INSTALL_DATA) ./files/miniupnpd.permtab $(1)/etc/permtab.d/miniupnpd
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/miniupnpd $(1)/usr/sbin/miniupnpd
-	$(INSTALL_BIN) ./files/miniupnpd.init $(1)/etc/init.d/miniupnpd
+	$(INSTALL_BIN_USR) ./files/miniupnpd.init $(1)/etc/init.d/miniupnpd
 	$(INSTALL_CONF_USR) ./files/upnpd.config $(1)/etc/config/upnpd
 	$(INSTALL_DATA) ./files/miniupnpd.hotplug $(1)/etc/hotplug.d/iface/50-miniupnpd
 	$(INSTALL_DATA) ./files/migrations/99_upnpd_fix_port_range $(1)/etc/uci-defaults/7.4/

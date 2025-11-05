@@ -729,6 +729,18 @@ typedef enum {
 } lgsm_pplmn_list_attrs_attrs_t;
 
 typedef enum {
+	LGSM_MBN_SETTINGS_OVERRIDE_MBN_SETTINGS_OVERRIDE,
+	LGSM_MBN_SETTINGS_OVERRIDE_MAX,
+} lgsm_mbn_settings_override_attrs_t;
+
+typedef enum {
+	LGSM_MBN_SETTINGS_OVERRIDE_TABLE_SERVICE_MODE_LIST,
+	LGSM_MBN_SETTINGS_OVERRIDE_TABLE_BAND_LIST,
+	LGSM_MBN_SETTINGS_OVERRIDE_TABLE_NR5G_SA_DISABLED,
+	LGSM_MBN_SETTINGS_OVERRIDE_TABLE_MAX,
+} lgsm_mbn_settings_override_table_attrs_t;
+
+typedef enum {
 	LGSM_RI_SIGNAL_TYPE_VALUE,
 	LGSM_RI_SIGNAL_TYPE_MAX,
 } lgsm_ri_signal_type_attrs_t;
@@ -951,6 +963,7 @@ typedef enum {
 	LGSM_UBUS_SET_PCO,
 	LGSM_UBUS_GET_CIREG_URC,
 	LGSM_UBUS_SET_CIREG_URC,
+	LGSM_UBUS_GET_MBN_SPECIFIC_CONFIG,
 	LGSM_UBUS_SET_SIM_SLEEP_MODE,
 	LGSM_UBUS_GET_SIM_SLEEP_MODE,
 	LGSM_UBUS_SET_RI_SIGNAL_TYPE,
@@ -1178,7 +1191,7 @@ typedef struct {
 		enum modem_5g_band_id nr5g; //SA bands
 		enum modem_nsa5g_band_id nsa5g; //NSA bands
 	} band;
-	uint32_t opernum;
+	char opernum[8];
 } lgsm_net_info_t;
 
 typedef struct {
@@ -1335,7 +1348,7 @@ typedef struct {
 typedef struct {
 	char oper_name[128];
 	char short_name[64];
-	uint32_t oper_num;
+	char oper_num[16];
 	enum net_reg_act_id act;
 	enum op_slc_stat_id stat;
 } lgsm_oper_t;
@@ -1521,6 +1534,19 @@ typedef struct {
 } lgsm_pplmn_list_attrs_t;
 
 typedef struct {
+	enum modem_5g_band_id sa5g_band;
+	enum modem_nsa5g_band_id nsa5g_band;
+	enum modem_lte_band_id lte_band;
+	enum modem_wcdma_band_id wcdma_band;
+	enum modem_gsm_band_id gsm_band;
+
+	enum net_mode_id net_mode[8]; //8 is the max possible net modes
+	int net_mode_count;
+
+	bool nr5g_sa_disabled; // If true, 5G SA is disabled for this MBN
+} lgsm_mbn_settings_override_config_t;
+
+typedef struct {
 	char type[32];
 	uint32_t pulse_duration;
 	uint32_t pulse_count;
@@ -1619,6 +1645,7 @@ typedef enum {
 	LGSM_LABEL_SET_RPLMN_STATE_T,
 	LGSM_LABEL_HPLMN_SEARCH_TIMER,
 	LGSM_LABEL_PPLMN_LIST,
+	LGSM_LABEL_MBN_SETTINGS_OVERRIDE_CONFIG_T,
 	LGSM_LABEL_RI_BEHAVIOR_T,
 	LGSM_LABEL_SLEEP_MODE_T,
 	LGSM_LABEL_ERROR,
@@ -1705,6 +1732,7 @@ typedef union {
 	lgsm_shutdown_gpio_t gpio;
 	lgsm_hplmn_search_timer_t hplmn_search_timer;
 	lgsm_pplmn_list_attrs_t pplmn_list;
+	lgsm_mbn_settings_override_config_t mbn_settings_override_config;
 	lgsm_ri_behavior_t ri_behavior;
 	lgsm_sleep_mode_t sleep_mode;
 } lgsm_resp_data;
@@ -4147,10 +4175,17 @@ void handle_get_pplmn_list(struct blob_attr *info, lgsm_structed_info_t *parsed)
 void handle_get_sim_sleep_mode(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
- * Parse RI signal type method response
+ * Parse MBN specific configuration method response
  * @param[ptr]   info      Blob from gsmd.
  * @param[ptr]   parsed    Parsed union readable information.
  */
+void handle_get_mbn_specific_config_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+*Parse RI signal type method response *@param[ptr] info Blob from gsmd.
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+*/
 void handle_get_ri_signal_type(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /**
@@ -4213,6 +4248,15 @@ lgsm_err_t lgsm_get_modems_info(struct ubus_context *ctx, lgsm_arr_t *gsm_arr_t)
  * @param[ptr] ctx 	       Ubus context
  * @param[ptr] gsm_t       libgsm modem info table
  * @param[in]  modem_num   Modem number
+ * @param[in]  tmo         Ubus timeout (in milliseconds).
+ * @return     lgsm_err_t. Return function status code
+ */
+lgsm_err_t lgsm_get_modem_info_tmo(struct ubus_context *ctx, lgsm_t *gsm_t, uint32_t modem_num, int tmo);
+/*
+ * Get specific modem information
+ * @param[ptr] ctx 	       Ubus context
+ * @param[ptr] gsm_t       libgsm modem info table
+ * @param[in]  modem_num   Modem number
  * @return     lgsm_err_t. Return function status code
  */
 lgsm_err_t lgsm_get_modem_info(struct ubus_context *ctx, lgsm_t *gsm_t, uint32_t modem_num);
@@ -4255,10 +4299,11 @@ lgsm_err_t lgsm_subscribe_name(struct ubus_context *ctx, struct ubus_subscriber 
  * @param[in]   method_n method table method id.
  * @param[in]   obj      Modems ubus object id.
  * @param[ptr]  info     Blob where the response will be put.
+ * @param[in]   tmo      Ubus timeout in milliseconds.
  * @return lgsm_err_t. Return function status code.
  */
 lgsm_err_t lgsm_handle_get(struct ubus_context *ctx, lgsm_method_t method_n, uint32_t obj,
-			   struct blob_attr **info);
+			   struct blob_attr **info, int tmo);
 
 /*
  * Set given method information
@@ -4266,10 +4311,11 @@ lgsm_err_t lgsm_handle_get(struct ubus_context *ctx, lgsm_method_t method_n, uin
  * @param[in]   method_n method table method id.
  * @param[in]   obj      Modems ubus object id.
  * @param[ptr]  info     Blob which will be sent to modem.
+ * @param[in]   tmo      Ubus timeout in milliseconds.
  * @return lgsm_err_t. Return function status code.
  */
 lgsm_err_t lgsm_handle_set(struct ubus_context *ctx, lgsm_method_t method_n, uint32_t obj,
-			   struct blob_attr **info);
+			   struct blob_attr **info, int tmo);
 /*
  * Handle given GSMD ubus methods
  * @param[ptr]  ctx        Ubus context.
@@ -4280,6 +4326,18 @@ lgsm_err_t lgsm_handle_set(struct ubus_context *ctx, lgsm_method_t method_n, uin
  */
 lgsm_err_t lgsm_handle_methods(struct ubus_context *ctx, lgsm_method_t method_n, uint32_t modem_num,
 			       struct blob_attr **info, ...);
+/*
+ * Handle given GSMD ubus methods
+ * @param[ptr]  ctx        Ubus context.
+ * @param[in]   method_n   method table method id.
+ * @param[in]   modem_num  modem number.
+ * @param[ptr]  data       Structurized response from the modem.
+ * @param[in]   tmo        Ubus timeout (in milliseconds).
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_handle_methods_structed_tmo(struct ubus_context *ctx, lgsm_method_t method_n, uint32_t modem_num,
+					    lgsm_structed_info_t *data, int tmo);
+
 /*
  * Handle given GSMD ubus methods
  * @param[ptr]  ctx        Ubus context.
@@ -4398,7 +4456,8 @@ lgsm_err_t lgsm_set_ri_behavior(struct ubus_context *ctx, const char *type, uint
  * @param[in]   modem_num  Modem number.
  * @return lgsm_err_t. Return function status code.
  */
-lgsm_err_t lgsm_set_sleep_mode(struct ubus_context *ctx, bool enable, bool save, func_t *resp, uint32_t modem_num);
+lgsm_err_t lgsm_set_sleep_mode(struct ubus_context *ctx, bool enable, bool save, func_t *resp,
+			       uint32_t modem_num);
 
 #ifdef __cplusplus
 }

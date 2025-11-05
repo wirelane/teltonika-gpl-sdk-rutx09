@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libparam
-PKG_VERSION:=2025-08-25
+PKG_VERSION:=2025-10-16
 
-PKG_SOURCE_VERSION:=1.14
+PKG_SOURCE_VERSION:=1.16
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -19,7 +19,7 @@ define Package/libparam
 	CATEGORY:=Libraries
 	TITLE:=A library for decoding and replacing params in string.
 	DEPENDS:= +libubox +libtlt_uci +libubus +IO_SUPPORT:iomand \
-		+MOBILE_SUPPORT:libgsm +librms +librut_fota +libmnfinfo \
+		+MOBILE_SUPPORT:libgsm +librms +libmnfinfo \
 		+GPS_SUPPORT:libgps +libapi
 endef
 

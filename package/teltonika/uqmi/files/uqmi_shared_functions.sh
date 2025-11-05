@@ -31,15 +31,6 @@ first_uqmi_call()
 	done
 }
 
-call_uqmi_command() {
-	command="$1"
-	skip_reset="$2"
-	logger -t "netifd" "$command"
-	ret=$($command)
-	[ -n "$ret" ] && echo "$ret"
-	qmi_error_handle "$ret" "$error_cnt" "$modem" "$skip_reset" || return 1
-}
-
 verify_data_connection() {
     #refractor this
 	local pdptype_in="$1"
@@ -91,6 +82,7 @@ clear_connection_values() {
 	interface="$1"
 	device="$2"
 	conn_proto="$3"
+	qmi_call_retry_count=1
 
 	cids_to_clear=$(ls "/var/run/${conn_proto}/${interface}.cid_"*) 2>/dev/null
 	# iterate through all cids and clear them
@@ -107,10 +99,10 @@ clear_connection_values() {
 		fi
 
 		logger -t "qmux" "Stopping network on device: ${device} cid: $cid"
-		call_uqmi_command "uqmi -s -d ${device} -t 3000 --set-client-id wds,$cid \
+		call_qmi_command "uqmi -s -d ${device} -t 3000 --set-client-id wds,$cid \
 --stop-network 0xFFFFFFFF --autoconnect"
 		logger -t "qmux" "Freeing cid: ${cid}"
-		call_uqmi_command "uqmi -s -d ${device} -t 3000 --set-client-id wds,$cid \
+		call_qmi_command "uqmi -s -d ${device} -t 3000 --set-client-id wds,$cid \
 --release-client-id wds"
 
 		rm -f "$cid_file"
@@ -133,12 +125,7 @@ uqmi_modify_data_format() {
 --dl-datagram-max-size $dl_max_size --ul-max-datagrams $ul_max_datagrams --ul-datagram-max-size $ul_max_size --dl-min-padding 0"
 	fi
 
-	logger "$command"
-	ret=$(eval $command)
-	if [ "$red_cap" = "true" ] && [ "$ret" = "" ]; then
-		 return 0
-	fi
-	qmi_error_handle "$ret" "$error_cnt" "$modem" || return 1
+	call_qmi_command "$command" "true" || [ "$red_cap" = "true" ]
 }
 
 wait_for_clear_connection_values()
@@ -200,13 +187,14 @@ wait_for_serving_system_via_at_commands() {
 
 wait_for_serving_system() {
 	local registration_timeout=0
-	local serving_system="$(uqmi -s -d "$device" $options --get-serving-system)"
-	qmi_error_handle "$serving_system" "$error_cnt" "$modem" || return 1
+	local serving_system=""
 	while [ "$(echo "$serving_system" | grep registration | \
 		awk -F '\"' '{print $4}')" != "registered" ] && \
 		[ "$( echo "$serving_system" | grep PS | awk -F ' ' '{print $2}' | \
 		awk -F ',' '{print $1}')" != "attached" ]
 	do
+		serving_system=$(call_qmi_command "uqmi -s -d $device $options --get-serving-system") || return 1
+
 		[ -e "$device" ] || return 1
 		if [ "$registration_timeout" -lt "$timeout" ]; then
 			let "registration_timeout += 5"
@@ -217,8 +205,6 @@ wait_for_serving_system() {
 			handle_retry "$retry_before_reinit" "$interface"
 			return 1
 		fi
-		serving_system="$(uqmi -s -d "$device" $options --get-serving-system)"
-		qmi_error_handle "$serving_system" "$error_cnt" "$modem" || return 1
 	done
 	return 0
 }
@@ -260,4 +246,56 @@ wait_for_shutdown_complete()
 		sleep 2
 		shutdown_timeout=$((shutdown_timeout-1))
 	done
+}
+
+uqmi_start_network() {
+	local _iptype=$1
+	local _is_ipv4
+	_is_ipv4=$([ "$_iptype" -eq 4 ] && echo 1 || echo 0)
+	state=0
+
+	cid=$(call_qmi_command "uqmi -d $device $options --get-client-id wds") || return 1
+
+
+	if ! check_digits "$cid"; then
+		echo "Unable to obtain client IPV$_iptype ID"
+	fi
+	touch "/var/run/qmux/$interface.cid_$cid"
+
+	#~ Bind context to port
+	# Dont call this on connm proto
+	[ -n "$ifid" ] && call_qmi_command "uqmi -d $device $options --wds-bind-mux-data-port --mux-id ${ifid} --ep-iface-number ${ep_iface} --set-client-id wds,${cid}"
+
+	#~ Set ip type on CID
+	call_qmi_command "uqmi -d $device $options --set-ip-family ipv$_iptype --set-client-id wds,$cid" || return 1
+
+	#~ Start PS call
+	"${red_cap:-false}" && [ "$_is_ipv4" -eq 1 ] || ip_family_arg="--ip-family ipv$_iptype"
+	pdh=$(call_qmi_command "uqmi -d $device $options --set-client-id wds,$cid \
+--start-network --profile $pdp $ip_family_arg" "true")
+
+	#~ Check if we haven't received a specific error that
+	# requires waiting for an action from mobifd, and don't need to retry
+	# on this case we need to relase client id
+	if [ $? -eq 2 ]; then
+		return 1
+	fi
+
+	if ! check_digits "$pdh"; then
+		# pdh is a numeric value on success
+		echo "Unable to connect IPv$_iptype"
+		return 0
+	fi
+
+	# Check data connection state
+	connstat="$(call_qmi_command "uqmi -d $device $options --set-client-id wds,"$cid" --get-data-status" | awk -F '"' '{print $2}')"
+	if [ "$connstat" = "connected" ]; then
+		state=1
+	else
+		echo "No IPV_$iptype data link!"
+	fi
+	parameters="$(call_qmi_command "uqmi -d $device $options --set-client-id wds,"$cid" --get-current-settings")"
+	get_dynamic_mtu "$parameters" "$state" "$interface"
+
+	return 0
 }

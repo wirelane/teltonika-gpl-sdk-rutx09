@@ -43,6 +43,8 @@ a_modem_id="" # Modem ID from arguments
 status="$UPDATE_SUCCESS"
 json_file_updates="/tmp/dfota_updates.json"
 json_file_status="/tmp/dfota_status.json"
+ca_path=$(uci -q get dfota.config.rootca)
+[ -n "$ca_path" ] && ca_path="--cacert $ca_path"
 LAST_ERROR=""
 LAST_ERROR_CODE=""
 UPDATE_FAILED="0"
@@ -446,7 +448,7 @@ do_update() {
 	local ret
 
 	# Sets size for modem to expect
-	[ "$MODE" == "link" ] && firmware_size=$(curl -sI "$MODE_PATH" | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
+	[ "$MODE" == "link" ] && firmware_size=$(curl -sI "$MODE_PATH" ${ca_path} | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
 	[ "$MODE" == "file" ] && firmware_size=$(du -b "$MODE_PATH" | awk '{print $1}')
 	[ -n "$MODE" ] && [ -z "$firmware_size" ] && {
 		print_error "Failed to get firmware_size from $MODE_PATH"
@@ -492,7 +494,7 @@ do_update() {
 
 		if [ "$modem_model" = "RG500U" ]; then
 			dfota_path="/tmp/modem_fw"
-			curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$dfota_path"
+			curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$dfota_path" ${ca_path}
 			ret="$?"
 
 			[ "$ret" = "0" ] || {
@@ -516,7 +518,7 @@ do_update() {
 		if [ "$modem_model" = "RG500U" ]; then
 			cat "$dfota_path" >"$cmd_port"
 		else
-			curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$cmd_port"
+			curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$cmd_port" ${ca_path}
 		fi
 	fi
 
@@ -592,7 +594,7 @@ do_update_EG915Q() {
 	local ret
 
 	# Sets size for modem to expect
-	[ "$MODE" == "link" ] && firmware_size=$(curl -sI "$MODE_PATH" | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
+	[ "$MODE" == "link" ] && firmware_size=$(curl -sI "$MODE_PATH" ${ca_path} | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
 	[ "$MODE" == "file" ] && firmware_size=$(du -b "$MODE_PATH" | awk '{print $1}')
 	[ -n "$MODE" ] && [ -z "$firmware_size" ] && {
 		print_error "Failed to get firmware_size from $MODE_PATH"
@@ -636,7 +638,7 @@ do_update_EG915Q() {
 	if [ "$MODE" = "file" ]; then
 		cat "$MODE_PATH" >"$cmd_port"
 	else
-		curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$cmd_port"
+		curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$cmd_port" ${ca_path}
 	fi
 
 	return 0
@@ -650,7 +652,7 @@ do_update_telit_le() {
 	local ret
 
 	# Sets size for modem to expect
-	[ "$MODE" == "link" ] && firmware_size=$(curl -sI "$MODE_PATH" | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
+	[ "$MODE" == "link" ] && firmware_size=$(curl -sI "$MODE_PATH" ${ca_path} | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
 	[ "$MODE" == "file" ] && firmware_size=$(du -b "$MODE_PATH" | awk '{print $1}')
 	[ -n "$MODE" ] && [ -z "$firmware_size" ] && {
 		print_error "Failed to get firmware_size from $MODE_PATH"
@@ -687,7 +689,7 @@ do_update_telit_le() {
 		echo "upload file: $MODE_PATH"
 		cat "$MODE_PATH" >"$cmd_port"
 	else
-		curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$cmd_port"
+		curl -s --ssl-reqd --connect-timeout 30 --max-time 900 -L "$download_link" -o "$cmd_port" ${ca_path}
 	fi
 
 	# exit from uplaod mode
@@ -746,7 +748,7 @@ do_update_mobile_only() {
 
 	[ -n "$MODE" ] && {
 		# Get modem firmware size
-		firmware_size=$(curl -sI "$download_link" | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
+		firmware_size=$(curl -sI "$download_link" ${ca_path} | awk -e '$0 ~ /^Content-Length: ([0-9]+)/ { print $2 }')
 	}
 
 	[ -z "$firmware_size" ] && {
@@ -843,6 +845,7 @@ track_update_status() {
 
 	log_fw_update "$modem_usb_id" "$ret"
 
+	ubus call rut_fota reset_info # Reset rut_fota cache
 	print_output "Update finished! Firmware version - \"$ret\""
 	json_update_modem_status "$modem_id" "finished"
 	notify_webui "upgrade" "$modem_json"

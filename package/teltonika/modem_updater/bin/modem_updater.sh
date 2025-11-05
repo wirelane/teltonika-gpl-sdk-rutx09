@@ -483,7 +483,7 @@ setDevice() {
         exec_ubus_call "$MODEM_N" "get_firmware"
         MODEM=$(parse_from_ubus_rsp "firmware")
         case $MODEM in
-        EC200*)
+        EC200*|EG912N*|EG950A*)
             DEVICE="QuectelASR"
             ;;
         RG500U*)
@@ -594,6 +594,10 @@ get_fw_list() {
         get_compatible_fw_list "TRB5/fwlist.txt"
     elif [ "$PRODUCT_NAME" = "CAP7" ]; then
         get_compatible_fw_list "CAP7/fwlist.txt"
+    elif [[ $MODEM =~ "EG912N" ]]; then
+        get_compatible_fw_list "EG912N/fwlist.txt"
+    elif [[ $MODEM =~ "EG950A" ]]; then
+        get_compatible_fw_list "EG950A/fwlist.txt"
     elif [ "$DEVICE" = "QuectelASR" ]; then
         get_compatible_fw_list "EC200/fwlist.txt"
     elif [ "$DEVICE" = "MeiglinkASR" ]; then
@@ -617,7 +621,7 @@ check_blocked_quectel() {
     local to="${2##*_}"
 
     local R1="R[0-9]{2}A[23][0-9]"
-    local R2="[0-9]{2}.[23][0-9]{2}.[0-9]{2}.[23][0-9]{2}$"
+    local R2="([0-9]|[A-Z])[0-9]\.[23][0-9]{2}\.([0-9]|[A-Z])[0-9]\.[23][0-9]{2}$"
 
     # Downgrade from embargo FW
     ([[ "$from" =~ $R1 ]] || [[ "$from" =~ $R2 ]]) &&
@@ -729,7 +733,8 @@ common_validation() {
         MODEM_FW=$(parse_from_ubus_rsp "firmware")
         UNDERSCORE_MODEM_FW=$(echo "${MODEM_FW%.00.000}" | tr '.-' '_')
         UNDERSCORE_VERSION=$(echo "$VERSION" | tr '.-' '_')
-        if [[ "$UNDERSCORE_VERSION" =~ "$UNDERSCORE_MODEM_FW" ]]; then
+        [ "$DEVICE" = "Telit" ] && UNDERSCORE_MODEM_FW="${UNDERSCORE_MODEM_FW}$"
+        if [[ $UNDERSCORE_VERSION =~ $UNDERSCORE_MODEM_FW ]]; then
             echo "[ERROR] Specified firmware is already installed. Exiting.."
             graceful_exit
         fi
@@ -1103,7 +1108,13 @@ ASR_prep() {
             echo "[INFO] Overwriting $UPDATE_BIN"
         fi
 
-        if [ "$DEVICE" = "QuectelASR" ]; then
+        if [[ $MODEM =~ "EG912N" ]]; then
+            curl -Ss --ssl-reqd https://$HOSTNAME/EG912N/"$VERSION" \
+                --output "$UPDATE_BIN" --connect-timeout 300
+        elif [[ $MODEM =~ "EG950A" ]]; then
+            curl -Ss --ssl-reqd https://$HOSTNAME/EG950A/"$VERSION" \
+                --output "$UPDATE_BIN" --connect-timeout 300
+        elif [ "$DEVICE" = "QuectelASR" ]; then
             curl -Ss --ssl-reqd https://$HOSTNAME/EC200/"$VERSION" \
                 --output "$UPDATE_BIN" --connect-timeout 300
         elif [ "$DEVICE" = "MeiglinkASR" ]; then

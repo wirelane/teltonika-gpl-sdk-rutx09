@@ -1,26 +1,141 @@
-# 2025-10-24 00.07.18.3
+# 2025-11-04 00.07.19
 
-### Fix
+### New
 
-* Backup: fixed issues uploading older backup files (ID: 29068)
-
-### Updates
-
-* ubus: updated version to  2025-10-19 (ID: 29046)
-
-# 2025-10-08 00.07.18.1
+* Mobile: added "web.unomobile.it" APN for "1Mobile" operator to APN database (ID: 27873)
+* Multi WAN: added service to the Package Manager for TRB500 (ID: 28193)
 
 ### Improvements
 
-* Logging: reduced logging spam when opening the WebUI for TAP400 (ID: 28629)
+* Cloud of Things: changed communication from HTTP to MQTT (ID: 24596)
+* Cumulocity: changed communication from HTTP to MQTT (ID: 24596)
+* Custom Scripts: added page loading spinner (ID: 28126)
+* Data to Server: added new parameters (Custom name and pin value) in I/O input plugin (ID: 28361)
+* DHCP server: added message to Events Log when there are no available DHCP addresses (ID: 16962)
+* EoIP: added IPv6 support (ID: 27860)
+* Event juggler: added `io_reset` option (ID: 28396)
+* Event juggler: added support to monitor relay pin state for RUT901, RUT906, RUT956, RUT976, RUT986, RUTM55, TRB141, RUT971 (ID: 27495)
+* Events reporting: moved Events reporting service to Package manager (ID: 23605)
+* Firewall: added shortcuts from firewall rules in status page to firewall configurations that created them (ID: 25445)
+* Firewall: added status to DMZ page (ID: 22197)
+* Firewall: added status to NAT page (ID: 22197)
+* Firewall: added status to Port Forwards page (ID: 22197)
+* Firewall: added status to Traffic Rule page (ID: 22197)
+* Firewall: updated status page to have chain and rule tables for better searchability (ID: 25445)
+* GRE: added IPv6 support (ID: 27850)
+* HTTPS DNS Proxy: disabled field requirements when service is disabled (ID: 27872)
+* I/O Juggler: moved I/O Juggler service to Package manager (ID: 23605)
+* Impulse Counter: increased status loading speed (ID: 28050)
+* MBus Client: added a warning to secondary scans to show when a high number of collisions have occurred (ID: 24397)
+* Mobile: added more information about SIM state changes in logs (ID: 27952)
+* Mobile: added support for eSIM to Mobile Usage page for ATRM50, OTD500, RUT241, RUT901, RUT906, RUT951, RUT956, RUT976, RUTC50, RUTM30, RUTM52, RUTM54, RUTM55, RUTM56, RUTX09, RUTX11, RUTX12, RUTX50 (ID: 25398)
+* Mobile: added switch to disable local DHCPv4 leases when operating in bridge mode (ID: 27869)
+* Mobile: enabled automatic MBN selection and added compatibility with non-default MBNs for RUT981, RUT281 (ID: 27782)
+* Mobile: enabled automatic MBN selection and added compatibility with non-default MBNs for RUTM54 (ID: 24417)
+* Mobile: improved error handling during mobile data connection bringup (ID: 28372)
+* Mobile: improved mobile operator parsing for connection establishment (ID: 19220)
+* Mobile: updated default SIM selection in Mobile General page (ID: 27798)
+* Modbus Client: added new option "Inter-device delay" to serial device configuration (ID: 27391)
+* MQTT Modbus Gateway: added validation to discard responses with invalid ID or function code (ID: 25392)
+* NAT64: added status to NAT64 page (ID: 22197)
+* Network: improved DHCP client and server related fields (ID: 25050)
+* NTRIP: added IPv6 support (ID: 27877)
+* OpenVPN: improved page load speed by removing duplicate data request (ID: 23316)
+* OpenVPN: moved OpenVPN DCO kernel module to package manager (ID: 27871)
+* RutOS: replaced musl libc with glibc for RUTC family (ID: 26806)
+* SNMP: added SET support for universal gateway tag value table (ID: 26294)
+* Speed Test: added support for custom server url (ID: 27555)
+* Stunnel: added support for using IPv6 addresses in the connect IPs field (ID: 27853)
+* Update Firmware: improved FOTA communication and caching logic (ID: 24666)
+* VLAN: improved VLAN configuration save and apply speed in some cases (ID: 20658)
+* WebUI: improved usability on small screens (ID: 24456)
+* Wireguard: added wireguard watchdog support (ID: 28115)
 
 ### Fix
 
-* IPsec: fixed issue where IPsec connections failed during WAN failover (ID: 28711)
-* OpenVPN: fixed status issue after firmware upgrade (ID: 28706)
-* Update Firmware: fixed keep-settings for devices with eMMC storage for CAP700, RUTC family (ID: 28653)
+* Access Control: fixed displaying certificates in "HTTPS" edit modal after page refresh (ID: 27830)
+* Administration: fixed incorrect creation date of user's default configuration (ID: 28363)
+* API Core: fixed API error on 'DELETE' request with bad payload structure (ID: 27272)
+* Auto Reboot: fixed multiple modems' support in Ping Reboot service for RUTX12, RUTM52, RUTM56 (ID: 27761)
+* Data to Server: fixed unsupported 'isolated input' pin available for selection in 'impulse counter pin' dropdown for TRB141 (ID: 27562)
+* DHCP server: fixed DHCPv6 server reload when changing VLAN (ID: 27518)
+* DLMS: fixed "Entries" not being clamped for "Profile generic" COSEM type (ID: 28435)
+* DLMS: fixed access error when reading an empty sort object attribute on a generic profile object (ID: 27419)
+* DMVPN: fixed custom changes in IPsec, GRE and NHRP pages being reverted when saving DMVPN instance (ID: 28348)
+* DNP3 Client: fixed always shown warning notification by displaying status hints for affected requests (ID: 27797)
+* DNP3 Client: fixed dnp3 test function printing analog values in wrong format (ID: 27641)
+* DNS: fixed "Static addresses" and "Custom redirect" field required validation (ID: 28134)
+* Dynamic DNS: fixed "Check interval" and "Force interval" validation issues (ID: 28133)
+* Dynamic routes: fixed services other than EIGRP restarting on network change (ID: 28067)
+* Email to SMS: fixed process hang during email handling (ID: 28928)
+* Events Log: fixed segmentation fault that occurred when reading logs using logread (ID: 28232)
+* Events Log: fixed sorting reset functionality of table columns and "Event group" column issues (ID: 27578)
+* Firewall: added IPsec and OpenConnect configurations as possible networks (ID: 27543)
+* Firewall: fixed NAT extra custom rules not applying after FW upgrade (ID: 28038)
+* HTTPS DNS Proxy: fixed DNS requests failing after obtaining new IP (ID: 27689)
+* Impulse Counter: fixed deleting impulse counter data records (ID: 28319)
+* Impulse Counter: fixed duplicate values in 'GPIO pin' dropdown (ID: 27562)
+* IPsec: fixed an issue where connections could be re-initiated even while being active (ID: 27725)
+* IPsec: fixed authentication issue when using multiple instances with the PSK authentication method (ID: 27833)
+* IPsec: fixed incorrect uptime display when using multiple responder instances (ID: 28619)
+* IPsec: fixed wrong active client information when using certificates (ID: 28617)
+* IPsec: fixed Xauth connections not establishing when identifiers are set (ID: 28560)
+* L2TP: fixed L2TP over IPsec connection issue (ID: 28949)
+* L2TPv3: fixed parameter validation for IPv6 addresses in configuration (ID: 27855)
+* MBus Client: fixed always shown warning notification by displaying status hints for affected parameters (ID: 27797)
+* Mobile: fixed configuration files after ESIM deletion for ATRM50, OTD500, RUT241, RUT901, RUT906, RUT951, RUT956, RUT976, RUTC50, RUTM30, RUTM52, RUTM54, RUTM55, RUTM56, RUTX09, RUTX11, RUTX12, RUTX50 (ID: 22569)
+* Mobile: fixed eSIM profile display for profiles without provider value for ATRM50, OTD500, RUT241, RUT901, RUT906, RUT951, RUT956, RUT976, RUTC50, RUTM30, RUTM52, RUTM54, RUTM55, RUTM56, RUTX09, RUTX11, RUTX12, RUTX50 (ID: 28235)
+* Mobile: fixed informational messages when SIM configuration is not found (ID: 19907)
+* Mobile: fixed IPv4 mobile interfaces containing IPv6 addresses for TRB256 (ID: 27223)
+* Mobile: fixed IPv4/IPv6 type mobile reconnection loop if one type has unsuccessful connection (ID: 27291)
+* Mobile: fixed missing modem firmware version after modem firmware update (ID: 28649)
+* Mobile: fixed segmentation fault during GNSS switching for TRB256 (ID: 29132)
+* Mobile: fixed SIM switch "on data connection fail" rule not working with some IPv4 configurations for TRB256 (ID: 28946)
+* Mobile: fixed updating modem firmware when custom root CA is configured (ID: 27440)
+* Modbus Client: fixed always shown warning notification by displaying status hints for affected requests (ID: 27797)
+* Modbus Client: fixed email and MQTT alarm actions running longer than intended (ID: 22849)
+* Modbus Client: fixed test request endpoints failing if 'broadcast' option is not provided (ID: 28425)
+* MQTT Broker: fixed TLSv1.1 configuration (ID: 27892)
+* Multi WAN: fixed Multi WAN interface creation (ID: 27400)
+* OpenConnect: fixed 'Get server fingerprint' feature on IPv6 servers (ID: 27849)
+* OpenConnect: fixed displaying IPv6 address under Tunnel IP address (ID: 27849)
+* OpenVPN: fixed configuration parsing issues related to security options (ID: 28752)
+* OpenVPN: fixed issues with parsed fields being displayed after config deletion (ID: 28262)
+* OpenVPN: fixed parsing uploaded custom OpenVPN configuration (ID: 24566)
+* Ports Settings: fixed ports re-enabling themselves after changing certain settings (ID: 19179)
+* Setup Wizard: fixed redirect of "RMS" step (ID: 28220)
+* SMS Forwarding: fixed certificate verification disabling (ID: 28070)
+* System Users: fixed multiple network pages working improperly with non-root users for Router family (ID: 28412)
+* Update Firmware: fixed possible race condition in UBI attachment during firmware upgrade for RUTM family (ID: 28045)
+* WebUI: fixed "visible columns" button to be clickable for users without "write" permissions (ID: 27616)
+* WebUI: fixed active state of filters on tables (ID: 28022)
+* WebUI: fixed length validation for custom input values in select lists (ID: 28006)
+* WebUI: removed bell notifications from modals (ID: 27811)
+* Wireguard: fixed creation of routes to endpoint host when default route is not set (ID: 27619)
+* Wireless: fixed "Allow legacy 802.11b rates" option not working properly (ID: 28239)
+* Wireless: fixed an error preventing mesh interface deletion for TAP family (ID: 28441)
+* Wireless: fixed excessive Wi-Fi service log file creation due to service restarts (ID: 28144)
+* Wireless: fixed incorrect "assoclist" empty object type in interface status endpoints (ID: 25955)
+* Wireless: fixed invalid mesh interface encryption data reporting (ID: 27034)
+* Wireless: fixed missing background scan data in learn mode (ID: 28519)
+* Wireless: fixed occasionally incorrect MAC address assignment for RUTC family (ID: 29218)
 
-# 2025-09-30 00.07.18
+### CVE Patches
+
+* CVE-2025-4373 - 4.8 (MEDIUM) (ID: 28152)
+* CVE-2025-6020 - 7.8 (HIGH) (ID: 28205)
+* CVE-2025-6052 - 7.5 (HIGH) (ID: 28307)
+
+### Updates
+
+* cURL: updated version to  8.16.0 (ID: 28070)
+* Kernel: updated version to  5.4.299 for TRB140, TRB141, TRB142, TRB143, TRB145 (ID: 7140)
+* Kernel: updated version to  5.15.193 for RUTC family, TRB2M family, RUT14X family, OTD140, OTD144, RUT2M family, RUT9M family, RUT30X family, RUT36X family, TAP100, TAP400, DAP family, RUTE family (ID: 7140)
+* Kernel: updated version to  6.6.108 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200 (ID: 7140)
+* OpenVPN: updated version to  2.6.14 (ID: 26745)
+* PAM: updated version to  1.7.1 (ID: 28205)
+
+# 2025-09-29 00.07.18
 
 ### New
 
@@ -132,6 +247,76 @@
 
 * Dnsmasq: updated version to  2.90 (ID: 26963)
 * Iperf3: updated version to  3.19.1 (ID: 27763)
+
+# 2025-09-26 00.07.17.5
+
+### Improvements
+
+* Mobile: added ability to download eSIM profiles via Setup Wizard (ID: 28272)
+
+### Fix
+
+* Ledman: fixed possible undefined LED behavior for RUTM family (ID: 28492)
+* Mobile: fixed possible hang when downloading eSIM profile (ID: 28383)
+* Network: fixed assigning interface to incorrect firewall zone when changing its settings (ID: 28479)
+
+# 2025-09-10 00.07.06.20
+
+### Fix
+
+* Data limit: fixed interface data limit not being reset when interface is down (ID: 28119)
+
+# 2025-09-10 00.07.17.4
+
+### Fix
+
+* Profiles: fixed keep-settings execution for older profiles (ID: 28189)
+
+# 2025-09-11 00.07.14.4
+
+### Fix
+
+* Profiles: fixed keep-settings execution for older profiles (ID: 28279)
+
+# 2025-09-11 00.07.16.6
+
+### Fix
+
+* Profiles: fixed keep-settings execution for older profiles (ID: 28274)
+
+# 2025-09-04 00.07.17.3
+
+### Fix
+
+* Bluetooth: fixed Bluetooth sensor values not updating on some devices for RUTX10, RUTX11, RUTX12 (ID: 28188)
+* Web Filter: fixed host blocking with hotspot interfaces (ID: 27937)
+
+### Updates
+
+* Tailscale: updated version to  1.86.2 (ID: 27987)
+
+# 2025-08-27 00.07.17.2
+
+### Fix
+
+* Backup: fixed keep-settings execution for older backups (ID: 28071)
+* DNS: fixed saving of DNS server IPs (ID: 27764)
+* Mobile: fixed SIM switch rule triggering unexpectedly due to NTP time adjustments (ID: 27907)
+* Network: fixed random network interface MAC address bug for TRB501 (ID: 28026)
+* Tailscale: fixed dns resolution errors caused by enabling MagicDNS (ID: 27762)
+* Tailscale: fixed package installation for TRB5 family (ID: 27762)
+* TR-069: fixed connection initialization for CAP700 (ID: 27809)
+* WebUI: fixed missing "Port Mirroring" page for RUTX family, RUT301, RUT2M family (ID: 27760)
+
+### Updates
+
+* iwinfo: updated version to  2025-02-06 (ID: 27511)
+
+# 2025-08-07 00.07.17.1
+
+### Fix
+
+* Multi WAN: fixed failover startup after reboot (ID: 27817)
 
 # 2025-08-07 00.07.17
 

@@ -13,7 +13,7 @@ validate_log_section() {
 	uci_load_validate system system "$1" "$2" \
 		'log_file:string' \
 		'log_compress:bool:1' \
-		'size:uinteger' \
+		'log_size_limit:uinteger' \
 		'log_ip:string' \
 		'log_remote:bool:1' \
 		'log_port:port:514' \
@@ -26,13 +26,13 @@ validate_log_section() {
 
 validate_log_daemon() {
 	uci_load_validate system system "$1" "$2" \
-		'size:uinteger:0' \
+		'log_size_limit:uinteger:0' \
 	    'log_size:uinteger:0' \
 		'log_buffer_size:uinteger:0'
 }
 
 start_service_daemon() {
-	local effective_size="${size}"
+	local effective_size="${log_size_limit}"
 
 	[ -z "$effective_size" ] || [ "$effective_size" -eq 0 ] &&
         effective_size="$log_buffer_size"
@@ -89,7 +89,7 @@ start_service_local() {
 	procd_set_param user logd
 	procd_set_param command "$PROG" -f -i -p "$pid_file"
 
-	local effective_size="${size}"
+	local effective_size="${log_size_limit}"
 	[ -z "$effective_size" ] || [ "$effective_size" -eq 0 ] &&
         effective_size="${log_size}"
 

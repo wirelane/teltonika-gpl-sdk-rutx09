@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iptables
 PKG_VERSION:=1.8.7
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 PKG_SOURCE_VERSION:=1.8.7
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -228,6 +228,13 @@ iptables extensions for extra NAT targets.
  Targets:
   - MIRROR
   - NETMAP
+endef
+
+define Package/iptables-mod-nat-extra/postinst
+  #!/bin/sh
+  [ -z "$${IPKG_INSTROOT}" ] || exit 0
+  /etc/init.d/firewall restart >/dev/null 2>&1
+  exit 0
 endef
 
 define Package/iptables-mod-ulog

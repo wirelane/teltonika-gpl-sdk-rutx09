@@ -7,7 +7,7 @@
 . /lib/functions/openvpn.sh
 
 START=90
-STOP=11
+STOP=10
 
 USE_PROCD=1
 PROG=/usr/sbin/openvpn

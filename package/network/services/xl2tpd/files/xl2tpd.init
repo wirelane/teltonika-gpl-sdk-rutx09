@@ -18,28 +18,6 @@ service_triggers()
 	procd_add_reload_trigger "xl2tpd" "network"
 }
 
-check_bind()
-{
-	local section="$1"
-	local tunnel="$2"
-	local remote="${section%%_*}"
-	local bind status
-
-	config_get bind $section bind_to
-	[ "$bind" = "$tunnel" ] || return 1
-
-	if [ "$PLUTO_VERB" = "up-host" ]; then
-		return 1
-	elif [ "$PLUTO_VERB" = "down-host" ]; then
-		BIND_STOP="yes"
-	else
-		status=$(swanctl --list-sas 2>/dev/null)
-		if ! echo "$status" | grep "${section}: " | grep -q 'INSTALLED'; then
-			BIND_STOP="yes"
-		fi
-	fi
-}
-
 add_pppd_opts() {
 	[ -n "$1" ] && echo "$1" >> $OPTIONS
 }
@@ -54,9 +32,6 @@ setup_config() {
 	[ "$enabled" -eq 0 ] && return 1
 	[ "$type" = "server" ] || return 1
 
-	config_load ipsec
-	config_foreach check_bind connection "$section"
-	
 	config_load xl2tpd
 	config_get localip "$section" localip
 	config_get remoteipstart "$section" start

@@ -6,11 +6,11 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mdcollect
-PKG_VERSION:=2025-08-25
+PKG_VERSION:=2025-10-27
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 
-PKG_SOURCE_VERSION:=7.18
+PKG_SOURCE_VERSION:=7.19
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -45,12 +45,14 @@ endef
 
 define Package/mdcollectd/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ \
-		$(1)/usr/bin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d/
+		$(1)/usr/bin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d/ \
+		$(1)/lib/upgrade/keep.d/
 	$(INSTALL_CONF_USR) ./files/mdcollectd.config $(1)/etc/config/mdcollectd
 	$(INSTALL_BIN) ./files/mdcollectd.init $(1)/etc/init.d/mdcollectd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mdcollectd $(1)/usr/bin/mdcollectd
 	$(INSTALL_DATA) ./files/mdcollectd_acl.json $(1)/usr/share/acl.d/mdcollectd_acl.json
 	$(INSTALL_DATA) ./files/mdcollect.permtab $(1)/etc/permtab.d/mdcollect
+	$(INSTALL_DATA) ./files/mdcollect.sysupgrade $(1)/lib/upgrade/keep.d/mdcollectd
 endef
 
 define Package/libmdcollect/install

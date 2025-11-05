@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=4b8ac10cb77c3d4dbf7ccefbe697dc0578da374c
@@ -573,7 +573,7 @@ define Package/hostapd-common/install
 	$(INSTALL_DATA) ./files/wpad.json $(1)/etc/capabilities
 	$(INSTALL_BIN) ./files/wdev.uc $(1)/usr/share/hostap
 	$(INSTALL_BIN) ./files/common.uc $(1)/usr/share/hostap
-	$(INSTALL_BIN) ./files/defaults/99_chown_wifi_certs $(1)/etc/uci-defaults/7.15/99_chown_wifi_certs
+	$(INSTALL_DATA) ./files/defaults/99_chown_wifi_certs $(1)/etc/uci-defaults/7.15/99_chown_wifi_certs
 endef
 
 define Package/hostapd/install

@@ -1,8 +1,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=modem_control
-PKG_VERSION:=2025-09-11
-PKG_SOURCE_VERSION:=7.18
+PKG_VERSION:=2025-10-27
+PKG_SOURCE_VERSION:=7.19
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

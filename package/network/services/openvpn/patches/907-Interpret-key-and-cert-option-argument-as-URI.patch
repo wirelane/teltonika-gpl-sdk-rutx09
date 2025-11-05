@@ -75,11 +75,11 @@ Signed-off-by: Gert Doering <gert@greenie.muc.de>
  src/openvpn/ssl_openssl.c           | 245 ++++++++++++++++++++++++++--
  4 files changed, 280 insertions(+), 27 deletions(-)
 
-diff --git a/doc/man-sections/tls-options.rst b/doc/man-sections/tls-options.rst
-index de74c0d6..cdb85716 100644
---- a/doc/man-sections/tls-options.rst
-+++ b/doc/man-sections/tls-options.rst
-@@ -85,10 +85,17 @@ certificates and keys: https://github.com/OpenVPN/easy-rsa
+Index: openvpn-2.6.14/doc/man-sections/tls-options.rst
+===================================================================
+--- openvpn-2.6.14.orig/doc/man-sections/tls-options.rst
++++ openvpn-2.6.14/doc/man-sections/tls-options.rst
+@@ -85,10 +85,17 @@ certificates and keys: https://github.co
    OpenVPN will log the usual warning in the logs if the relevant CRL is
    missing, but the connection will be allowed.
  
@@ -101,7 +101,7 @@ index de74c0d6..cdb85716 100644
    and private key file. In addition, each certificate should have been
    signed by the key of a certificate authority whose public key resides in
    the ``--ca`` certificate authority file. You can easily make your own
-@@ -203,10 +210,11 @@ certificates and keys: https://github.com/OpenVPN/easy-rsa
+@@ -203,10 +210,11 @@ certificates and keys: https://github.co
    The ``--hand-window`` parameter also controls the amount of time that
    the OpenVPN client repeats the pull request until it times out.
  
@@ -117,11 +117,11 @@ index de74c0d6..cdb85716 100644
  
  --pkcs12 file
    Specify a PKCS #12 file containing local private key, local certificate,
-diff --git a/src/openvpn/options.c b/src/openvpn/options.c
-index d2ef8956..36105cea 100644
---- a/src/openvpn/options.c
-+++ b/src/openvpn/options.c
-@@ -567,10 +567,10 @@ static const char usage_message[] =
+Index: openvpn-2.6.14/src/openvpn/options.c
+===================================================================
+--- openvpn-2.6.14.orig/src/openvpn/options.c
++++ openvpn-2.6.14/src/openvpn/options.c
+@@ -575,10 +575,10 @@ static const char usage_message[] =
      "--dh file       : File containing Diffie Hellman parameters\n"
      "                  in .pem format (for --tls-server only).\n"
      "                  Use \"openssl dhparam -out dh1024.pem 1024\" to generate.\n"
@@ -135,7 +135,7 @@ index d2ef8956..36105cea 100644
      "--tls-version-min <version> ['or-highest'] : sets the minimum TLS version we\n"
      "    will accept from the peer.  If version is unrecognized and 'or-highest'\n"
      "    is specified, require max TLS version supported by SSL implementation.\n"
-@@ -3851,6 +3851,7 @@ options_postprocess_mutate(struct options *o, struct env_set *es)
+@@ -3855,6 +3855,7 @@ options_postprocess_mutate(struct option
  #define CHKACC_FILEXSTWR (1<<2)  /** If file exists, is it writable? */
  #define CHKACC_ACPTSTDIN (1<<3)  /** If filename is stdin, it's allowed and "exists" */
  #define CHKACC_PRIVATE (1<<4)    /** Warn if this (private) file is group/others accessible */
@@ -143,7 +143,7 @@ index d2ef8956..36105cea 100644
  
  static bool
  check_file_access(const int type, const char *file, const int mode, const char *opt)
-@@ -3871,6 +3872,21 @@ check_file_access(const int type, const char *file, const int mode, const char *
+@@ -3875,6 +3876,21 @@ check_file_access(const int type, const
          return false;
      }
  
@@ -165,7 +165,7 @@ index d2ef8956..36105cea 100644
      /* Is the directory path leading to the given file accessible? */
      if (type & CHKACC_DIRPATH)
      {
-@@ -4069,7 +4085,7 @@ options_postprocess_filechecks(struct options *options)
+@@ -4073,7 +4089,7 @@ options_postprocess_filechecks(struct op
      errs |= check_file_access_chroot(options->chroot_dir, CHKACC_FILE,
                                       options->ca_path, R_OK, "--capath");
  
@@ -174,7 +174,7 @@ index d2ef8956..36105cea 100644
                                       options->cert_file, R_OK, "--cert");
  
      errs |= check_file_access_inline(options->extra_certs_file, CHKACC_FILE,
-@@ -4079,7 +4095,7 @@ options_postprocess_filechecks(struct options *options)
+@@ -4083,7 +4099,7 @@ options_postprocess_filechecks(struct op
      if (!(options->management_flags & MF_EXTERNAL_KEY))
      {
          errs |= check_file_access_inline(options->priv_key_file_inline,
@@ -183,11 +183,11 @@ index d2ef8956..36105cea 100644
                                           options->priv_key_file, R_OK, "--key");
      }
  
-diff --git a/src/openvpn/ssl_openssl.c b/src/openvpn/ssl_openssl.c
-index e8a30a31..05555a38 100644
---- a/src/openvpn/ssl_openssl.c
-+++ b/src/openvpn/ssl_openssl.c
-@@ -65,6 +65,12 @@
+Index: openvpn-2.6.14/src/openvpn/ssl_openssl.c
+===================================================================
+--- openvpn-2.6.14.orig/src/openvpn/ssl_openssl.c
++++ openvpn-2.6.14/src/openvpn/ssl_openssl.c
+@@ -64,6 +64,12 @@
  #include <openssl/ec.h>
  #endif
  
@@ -200,7 +200,7 @@ index e8a30a31..05555a38 100644
  #if defined(_MSC_VER) && !defined(_M_ARM64)
  #include <openssl/applink.c>
  #endif
-@@ -768,6 +774,111 @@ tls_ctx_load_ecdh_params(struct tls_root_ctx *ctx, const char *curve_name)
+@@ -788,6 +794,111 @@ tls_ctx_load_ecdh_params(struct tls_root
  #endif /* OPENSSL_NO_EC */
  }
  
@@ -312,7 +312,7 @@ index e8a30a31..05555a38 100644
  int
  tls_ctx_load_pkcs12(struct tls_root_ctx *ctx, const char *pkcs12_file,
                      bool pkcs12_file_inline, bool load_ca_file)
-@@ -945,9 +1056,103 @@ tls_ctx_add_extra_certs(struct tls_root_ctx *ctx, BIO *bio, bool optional)
+@@ -965,9 +1076,103 @@ tls_ctx_add_extra_certs(struct tls_root_
      }
  }
  
@@ -419,7 +419,7 @@ index e8a30a31..05555a38 100644
  {
      BIO *in = NULL;
      X509 *x = NULL;
-@@ -961,7 +1166,7 @@ tls_ctx_load_cert_file(struct tls_root_ctx *ctx, const char *cert_file,
+@@ -981,7 +1186,7 @@ tls_ctx_load_cert_file(struct tls_root_c
      }
      else
      {
@@ -428,7 +428,7 @@ index e8a30a31..05555a38 100644
      }
  
      if (in == NULL)
-@@ -1007,6 +1212,20 @@ end:
+@@ -1035,6 +1240,20 @@ end:
      X509_free(x);
  }
  
@@ -449,7 +449,7 @@ index e8a30a31..05555a38 100644
  int
  tls_ctx_load_priv_file(struct tls_root_ctx *ctx, const char *priv_key_file,
                         bool priv_key_file_inline)
-@@ -1023,21 +1242,19 @@ tls_ctx_load_priv_file(struct tls_root_ctx *ctx, const char *priv_key_file,
+@@ -1051,21 +1270,19 @@ tls_ctx_load_priv_file(struct tls_root_c
      if (priv_key_file_inline)
      {
          in = BIO_new_mem_buf((char *) priv_key_file, -1);

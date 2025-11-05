@@ -98,6 +98,10 @@ proto_connm_setup() {
 	service_name="wds"
 	options="--timeout 30000"
 
+	# QMI call retry count(used by call_qmi_command)
+	qmi_call_retry_count=2
+	red_cap=0
+
 #~ Connectivity part----------------------------------------------------
 
 	pdptype="$(echo "$pdptype" | awk '{print tolower($0)}')"
@@ -106,7 +110,7 @@ proto_connm_setup() {
 	first_uqmi_call "uqmi -d $device --timeout 10000 --set-autoconnect disabled" || return 1
 
 	# Disable no roaming flag
-	call_uqmi_command "uqmi -d $device $options --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
+	call_qmi_command "uqmi -d $device $options --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"
 
 	retry_before_reinit="$(cat /tmp/conn_retry_$interface)" 2>/dev/null
 	[ -z "$retry_before_reinit" ] && retry_before_reinit="0"
@@ -114,87 +118,19 @@ proto_connm_setup() {
 	wait_for_serving_system || return 1
 
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv4v6" ] && {
-
-		cid_4=$(call_uqmi_command "uqmi -d $device $options --get-client-id wds")
-		[ $? -ne 0 ] && return 1
-
-		check_digits $cid_4
-		if [ $? -ne 0 ]; then
-			echo "Unable to obtain client IPV4 ID"
-		fi
-		touch "/var/run/qmux/$interface.cid_$cid_4"
-		echo "cid4: $cid_4"
-
-		#~ Set ipv4 on CID
-		call_uqmi_command "uqmi -d $device $options --set-ip-family ipv4 \
---set-client-id wds,$cid_4"
-		[ $? -ne 0 ] && return 1
-
-		#~ Start PS call
-		pdh_4=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_4 \
---start-network --profile $pdp --ip-family ipv4" "true")
-
-		echo "pdh4: $pdh_4"
-
-		check_digits $pdh_4
-		if [ $? -ne 0 ]; then
-		# pdh_4 is a numeric value on success
-			echo "Unable to connect IPv4"
-		else
-			# Check data connection state
-			connstat="$(uqmi -d $device $options --set-client-id wds,"$cid_4" \
-					--get-data-status | awk -F '"' '{print $2}')"
-			if [ "$connstat" = "connected" ]; then
-				ipv4=1
-			else
-				echo "No IPV4 data link!"
-			fi
-			parameters4="$(uqmi -d $device $options --set-client-id wds,"$cid_4" \
---get-current-settings)"
-			get_dynamic_mtu "$parameters4" "$ipv4" "$interface"
-		fi
+		uqmi_start_network 4 || return 1
+		cid_4="$cid"
+		pdh_4="$pdh"
+		ipv4="$state"
+		parameters4="$parameters"
 	}
 
 	[ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] && {
-
-		cid_6=$(call_uqmi_command "uqmi -d $device $options --get-client-id wds")
-		[ $? -ne 0 ] && return 1
-
-		check_digits $cid_6
-		if [ $? -ne 0 ]; then
-			echo "Unable to obtain client IPV6 ID"
-		fi
-		touch "/var/run/qmux/$interface.cid_$cid_6"
-		echo "cid6: $cid_6"
-
-		#~ Set ipv6 on CID
-		ret=$(call_uqmi_command "uqmi -d $device $options --set-ip-family ipv6 \
---set-client-id wds,$cid_6")
-		[ $? -ne 0 ] && return 1
-
-		#~ Start PS call
-		pdh_6=$(call_uqmi_command "uqmi -d $device $options --set-client-id wds,$cid_6 \
---start-network --profile $pdp --ip-family ipv6" "true")
-
-		echo "pdh6: $pdh_6"
-
-		# pdh_6 is a numeric value on success
-		check_digits $pdh_6
-		if [ $? -ne 0 ]; then
-			echo "Unable to connect IPv6"
-		else
-			# Check data connection state
-			connstat="$(uqmi -d $device $options --set-client-id wds,"$cid_6" \
-					--get-data-status | awk -F '"' '{print $2}')"
-			if [ "$connstat" = "connected" ]; then
-				ipv6=1
-			else
-				echo "No IPV6 data link!"
-			fi
-			parameters6="$(uqmi -d $device $options --set-client-id wds,"$cid_6" \
---get-current-settings)"
-			get_dynamic_mtu "$parameters6" "$ipv6" "$interface"
-		fi
+		uqmi_start_network 6 || return 1
+		cid_6="$cid"
+		pdh_6="$pdh"
+		ipv6="$state"
+		parameters6="$parameters"
 	}
 
 	fail_timeout=$((delay+10))

@@ -26,6 +26,7 @@ PKG_CPE_ID:=cpe:/a:libusb:libusb
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
+include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/package.mk
 
 define Package/libusb-1.0
@@ -47,6 +48,10 @@ CONFIGURE_ARGS += \
 	--disable-udev \
 	--disable-log
 
+HOST_CONFIGURE_ARGS += \
+	--disable-udev \
+	--disable-log
+	
 define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/include/libusb-1.0
 	$(CP) $(PKG_INSTALL_DIR)/usr/include/libusb-1.0/libusb.h $(1)/usr/include/libusb-1.0/
@@ -61,4 +66,5 @@ define Package/libusb-1.0/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libusb-1.0.so.* $(1)/usr/lib/
 endef
 
+$(eval $(call HostBuild))
 $(eval $(call BuildPackage,libusb-1.0))

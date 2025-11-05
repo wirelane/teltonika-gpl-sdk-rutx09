@@ -1,4 +1,4 @@
-Teltonika-Networks_RUTX_v1.45
+Teltonika-Networks_RUTOS_v1.0
 
 10,100,GET,/identity/externalIds/SerialNumber/%%,,application/json,%%,STRING,
 
@@ -23,6 +23,8 @@ Teltonika-Networks_RUTX_v1.45
 10,110,PUT,/inventory/managedObjects/%%,application/json,,%%,UNSIGNED STRING STRING,"{""c8y_Availability"":{""lastMessage"": ""%%"", ""status"": ""%%""}}"
 
 10,111,PUT,/inventory/managedObjects/%%,application/json,,%%,UNSIGNED NUMBER,"{""c8y_RequiredAvailability"":{""responseInterval"": %%}}"
+
+10,112,POST,/identity/globalIds/%%/externalIds,application/json,,%%,STRING STRING,"{""externalId"":""%%"",""type"":""c8y_Serial""}"
 
 11,500,$.managedObject,,$.id
 11,501,,$.c8y_IsDevice,$.id

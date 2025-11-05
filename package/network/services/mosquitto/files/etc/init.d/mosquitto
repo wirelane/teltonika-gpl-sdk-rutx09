@@ -175,6 +175,9 @@ fill_mosquitto_config() {
 			if [ "$tls_version" != "all" ]; then
 				echo "tls_version $tls_version" >>$CONFIG
 			fi
+			if [ "$tls_version" == "tlsv1.1" ]; then
+				echo "ciphers DEFAULT:@SECLEVEL=0" >>$CONFIG
+			fi
 			echo "require_certificate $require_certificate" >> $CONFIG
 		elif [ "$tls_type" == "psk" ]; then
 			echo "$identity:$psk" >$PSK_FILE

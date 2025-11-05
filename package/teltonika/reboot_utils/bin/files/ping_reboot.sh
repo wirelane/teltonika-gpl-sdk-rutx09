@@ -10,6 +10,7 @@ FILE="${WDIR}/wget_check_file"
 PINGCMD="/bin/ping"
 PINGCMDV6="/bin/ping6"
 DFOTA_LOCK="/var/lock/modem_dfota.lock"
+DUAL_MODEM=0
 
 log() {
 	/usr/bin/logger -t ping_reboot.sh "$@"
@@ -149,6 +150,7 @@ restart_port() {
 get_l3_device() {
 	local interface=$1
 	local suffix=$2
+	local sim="$3"
 
 	local status=$(ubus call network.interface status "{ \"interface\" : \"${interface}${suffix}\" }" 2>/dev/null)
 	[ -z "$status" ] && return
@@ -163,21 +165,68 @@ get_l3_device() {
 	ACTIVE_INTERFACE="$interface"
 
 	json_get_var l3_device "l3_device"
-	IF_OPTION="-I ${l3_device}"
+
+	if [ "$sim" = "2" ]; then
+		for if in $IF_OPTION2; do
+			[ "$if" = "$l3_device" ] && return
+		done
+		IF_OPTION2="${IF_OPTION2} ${l3_device}"
+	else
+		for if in $IF_OPTION1; do
+			[ "$if" = "$l3_device" ] && return
+		done
+		IF_OPTION1="${IF_OPTION1} ${l3_device}"
+	fi
+}
+
+get_dual_modem_sim_slot()
+{
+	local modem_id="$1"
+
+	json_select ..
+	json_get_keys modems modems
+	json_select modems
+	for modem in $modems; do
+		json_select "$modem"
+		json_get_vars id builtin primary >/dev/null 2>&1
+		[ "$id" != "$modem_id" ] && {
+			json_select ..
+			continue
+		}
+
+		if [ "$builtin" -eq 1 ] && { [ -z "$primary" ] || [ "$primary" -eq 0 ]; }; then
+			echo "2"
+			return
+		else
+			echo "1"
+			return
+		fi
+	done
 }
 
 get_active_mobile_interface() {
 	local section_name="$1"
 
 	config_get modem "$section_name" "modem"
+	config_get sim "$section_name" sim
 
-	[ -z "$modem" ] || [ "$modem" != "$MODEM" ] && return
+	[ -z "$modem" ] && return
+
+	json_load_file "/etc/board.json"
+	json_select hwinfo
+	json_get_var dual_modem dual_modem >/dev/null 2>&1
+	[  -n "$dual_modem" ] && [ "$dual_modem" -eq 1 ] && {
+		DUAL_MODEM=1
+		sim=$(get_dual_modem_sim_slot "$modem")
+	}
 
 	# Check IPv6, IPv4 and legacy interface names for an l3_device
 	#FIXME: what if IPV4 type selected but IPV6 interface is available?
-	[ -z "$IF_OPTION" ] && get_l3_device "$section_name" "_6"
-	[ -z "$IF_OPTION" ] && get_l3_device "$section_name" "_4"
-	[ -z "$IF_OPTION" ] && get_l3_device "$section_name"
+	get_l3_device "$section_name" "_6" "$sim"
+	get_l3_device "$section_name" "_4" "$sim"
+	if [ \( -z "$IF_OPTION1" -a "$sim" = "1" \) ] || [ \( -z "$IF_OPTION2" -a "$sim" = "2" \) ]; then
+		get_l3_device "$section_name" "$sim"
+	fi
 }
 
 get_modem() {
@@ -407,6 +456,35 @@ adjust_len() {
 	echo "$len"
 }
 
+exec_ping() {
+	ping_cmd="$1"
+	host="$2"
+	sim="$3"
+	local if_option="$IF_OPTION1"
+
+	[ -z "$sim" ] && {
+		$ping_cmd -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$host" >/dev/null 2>&1
+		return $?
+	}
+
+	[ "$sim" = "2" ] && {
+		if [ -n "$IF_OPTION2" ]; then
+			if_option="$IF_OPTION2"
+		else
+			return 1
+		fi
+	}
+
+	for if in $if_option; do
+		if $ping_cmd -I "$if" -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$host" \
+		   >/dev/null 2>&1; then
+			return 0
+		fi
+	done
+
+	return 1
+}
+
 perform_double_ping() {
 	local ping_cmd="$PINGCMD"
 	local ipv4_ping=0
@@ -414,7 +492,7 @@ perform_double_ping() {
 
 	for i in $(cat /proc/net/arp | grep -w "$1" | awk '{print $1}'); do
 		if [ -n "$i" ] && [ "$i" != "IP" ]; then
-			if $ping_cmd $IF_OPTION -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$i" >/dev/null 2>&1; then
+			if exec_ping "$ping_cmd" "$i"; then
 				ipv4_ping=1
 			fi
 		fi
@@ -423,7 +501,7 @@ perform_double_ping() {
 	ping_cmd="$PINGCMDV6"
 	for j in $(ip -6 neigh | grep -w "$1" | awk '{print $5}'); do
 		if [ -n "$j" ]; then
-			if $ping_cmd $IF_OPTION -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$j" >/dev/null 2>&1; then
+			if exec_ping "$ping_cmd" "$j"; then
 				ipv6_ping=1
 			fi
 		fi
@@ -434,6 +512,29 @@ perform_double_ping() {
 	else
 		return 0
 	fi
+}
+
+perform_multiple_pings_ping() {
+	local hosts="$1"
+	local ping_cmd="$2"
+	local sim="$3"
+	local passed_var="$4"
+	local failed_var="$5"
+
+	for host in $hosts; do
+		if exec_ping "$ping_cmd" "$host" "$sim"; then
+			eval "$passed_var=\$(( $passed_var + 1 ))"
+			log "Ping ${host} successful."
+		elif [ "$ACTION_WHEN" = "any" ]; then
+			check_tries "-p" "Host ${host} unreachable" \
+				"${TIME} min. until next ping retry"
+			eval "$failed_var=\$(( $failed_var + 1 ))"
+			return;
+		else
+			eval "$failed_var=\$(( $failed_var + 1 ))"
+			log "Ping ${host} failed."
+		fi
+	done
 }
 
 perform_multiple_pings() {
@@ -461,18 +562,24 @@ perform_multiple_pings() {
 	len1=$(adjust_len "$host1" "$len1")
 	len2=$(adjust_len "$host2" "$len2")
 
-	for element in $HOST; do
-		if $ping_cmd $IF_OPTION -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$element" >/dev/null 2>&1; then
-			passed_pings=$((passed_pings + 1))
-			log "Ping ${element} successful."
-		elif [ "$ACTION_WHEN" = "any" ]; then
-			check_tries "-p" "Host ${element} unreachable" "${TIME} min. until next ping retry"
-			return;
+	[ "$len" -gt 0 ] && perform_multiple_pings_ping "$host" "$ping_cmd" "" passed_pings failed_pings
+
+	if [ "$DUAL_MODEM" -eq 1 ]; then
+		# Handle SIMs running simultaneously in dual modem devices
+		[ "$len1" -gt 0 ] && perform_multiple_pings_ping "$host1" "$ping_cmd" "1" passed_pings failed_pings
+		[ "$len2" -gt 0 ] && perform_multiple_pings_ping "$host2" "$ping_cmd" "2" passed_pings failed_pings
+	else
+		# Handle single SIM running in single modem devices
+		json_load "$(ubus call gsm.modem0 get_sim_slot)"
+		json_get_var index index
+		if [ "$index" -eq 1 ]; then
+			perform_multiple_pings_ping "$host1" "$ping_cmd" "$index" passed_pings failed_pings
 		else
-			failed_pings=$((failed_pings + 1))
-			log "Ping ${element} failed."
+			perform_multiple_pings_ping "$host2" "$ping_cmd" "$index" passed_pings failed_pings
 		fi
-	done
+	fi
+
+	[ "$ACTION_WHEN" = "any" ] && [ "$failed_pings" -ne 0 ] && return;
 
 	if
 	( [ "$len" -gt "0" ] && [ "$passed_pings" -ge "$len" ] ) || 
@@ -500,7 +607,7 @@ perform_ping() {
 
 	[ "$IP_TYPE" = "ipv6" ] && ping_cmd="$PINGCMDV6"
 
-	if $ping_cmd $IF_OPTION -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$HOST" >/dev/null 2>&1; then
+	if exec_ping "$ping_cmd" "$HOST"; then
 		set_fail_counter 0
 		log "Ping successful."
 	else
@@ -726,9 +833,10 @@ MODEM_NUM=$(get_modem_num "$MODEM")
 }
 
 if [ "$PING_PORT_TYPE" = "ping_port" ]; then
-	IF_OPTION=""
+	IF_OPTION1=""
+	IF_OPTION2=""
 elif [ "$IF_TYPE" = "2" ] || [ -z "$HOST" ]; then
-	[ -z "$IF_OPTION" ] && {
+	[ -z "$IF_OPTION1" ] && [ -z "$IF_OPTION2" ] && {
 		check_tries "-p" "No mobile data connection active" "${TIME} min. until next ping retry"
 		exit
 	}
@@ -742,7 +850,8 @@ elif [ "$IF_TYPE" = "2" ] || [ -z "$HOST" ]; then
 		config_get IP_TYPE "$SECTION" ip_type1 "ipv4"
 	fi
 else
-	IF_OPTION=""
+	IF_OPTION1=""
+	IF_OPTION2=""
 fi
 
 case "$TYPE" in

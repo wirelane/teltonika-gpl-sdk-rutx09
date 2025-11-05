@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=argp-standalone
 PKG_VERSION:=1.3
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=http://www.lysator.liu.se/~nisse/misc/
@@ -34,15 +34,16 @@ define Package/argp-standalone/description
 endef
 
 MAKE_FLAGS += \
-	CFLAGS="$(TARGET_CFLAGS) $(FPIC)"
+	CFLAGS="$(TARGET_CFLAGS) $(FPIC) -std=gnu89"
 
-HOST_CFLAGS += -fPIC
+HOST_MAKE_FLAGS += \
+	CFLAGS="$(HOST_CFLAGS) -fPIC -std=gnu89"
 
 define Host/Install
 	$(INSTALL_DIR) $(STAGING_DIR_HOST)/include
 	$(CP)   $(HOST_BUILD_DIR)/argp.h \
 	$(STAGING_DIR_HOST)/include/
-	$(INSTALL_DIR) $(1)/lib
+	$(INSTALL_DIR) $(STAGING_DIR_HOST)/lib
 	$(CP)   $(HOST_BUILD_DIR)/libargp.a \
 		$(STAGING_DIR_HOST)/lib/
 endef

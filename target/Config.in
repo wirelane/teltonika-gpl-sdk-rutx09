@@ -125,6 +125,7 @@ config USES_BOOT_PART
 
 config USB_SUPPORT_EXTERNAL
 	bool
+	imply SERIAL_SUPPORT
 
 config HAS_SINGLE_ETH_PORT
 	bool
@@ -213,9 +214,11 @@ config PORT_LINK
 
 config HAS_RS232
 	bool
+	imply SERIAL_SUPPORT
 
 config HAS_RS485
 	bool
+	imply SERIAL_SUPPORT
 
 config HIGH_STORAGE
 	bool

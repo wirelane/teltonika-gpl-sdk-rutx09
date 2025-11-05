@@ -87,7 +87,7 @@ hk_generate_as_needed()
 		fi
 
 		chown dropbear:dropbear "${tfile}"
-		chmod 0660 "${tfile}"
+		chmod 0640 "${tfile}"
 
 		kcount=$((kcount+1))
 	done

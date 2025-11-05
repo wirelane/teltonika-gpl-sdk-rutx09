@@ -216,7 +216,11 @@ check_interface() {
 
 add_interface_trigger() {
 	local section="$1"
-	procd_add_interface_trigger "interface.*.up" "$section" /etc/init.d/frr reload
+	case "$daemons_enabled" in
+		*eigrp*)
+			procd_add_interface_trigger "interface.*.up" "$section" /etc/init.d/frr reload eigrpd
+			;;
+	esac
 }
 
 add_permissions() {
@@ -986,8 +990,12 @@ start_service()
 
 reload_service()
 {
-	stop
-	start
+	if [ -z "$1" ]; then
+		stop
+		start
+	else
+		procd_send_signal frr "$1" TERM
+	fi
 }
 
 service_triggers()

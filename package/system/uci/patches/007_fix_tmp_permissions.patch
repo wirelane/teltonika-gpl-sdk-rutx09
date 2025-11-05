@@ -34,7 +34,7 @@
  			goto error;
  
 +		if (create) {
-+			fchown(fd, user, group);
++			fchown(fd, getuid() ? (uid_t)-1 : user, group);
 +			fchmod(fd, mode);
 +		}
 +

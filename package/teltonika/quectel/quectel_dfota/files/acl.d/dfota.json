@@ -21,7 +21,7 @@
                         ]
                 },
                 "rut_fota": {
-                        "methods": [ "get_info", "set_info", "set_modems" ]
+                        "methods": [ "get_info", "set_info", "set_modems", "reset_info" ]
                 },
                 "network.interface": {
                         "methods": [ "dump" ]

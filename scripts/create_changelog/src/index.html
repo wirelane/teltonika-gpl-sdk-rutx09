@@ -230,8 +230,8 @@
           }
           const validations = {
             'CVE Patches': {
-              title: 'CVE Identifier e.g CVE-2024-0193',
-              pattern: '^CVE-\\d*-\\d*$',
+              title: 'CVE Identifier with score e.g CVE-2024-0193 - 3.5 (LOW)',
+              pattern: /^CVE-\d*-\d* - ((10)|(\d\.[1-9])|(\d)) \((NONE|LOW|MEDIUM|HIGH|CRITICAL)\)$/.source,
             },
             Updates: {
               title: 'New version number. Validation only does not allow spaces.',

@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gsm
 
-PKG_SOURCE_VERSION:=7.18.0.4
+PKG_SOURCE_VERSION:=7.19.0.2
 PKG_LICENSE:=Teltonika-closed
 
 PKG_CONFIG_DEPENDS += \
@@ -107,7 +107,7 @@ define Package/gsmd/install
 	$(if $(CONFIG_BASEBAND_SUPPORT),, \
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/82_modem_power $(1)/lib/preinit/82_modem_power)
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsmd.init $(1)/etc/init.d/gsmd
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/gsmd.init $(1)/etc/init.d/gsmd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsmd.hotplug $(1)/usr/share/usb/05_gsmd.sh
 	$(LN) /usr/share/usb/05_gsmd.sh $(1)/etc/hotplug.d/usb/05_gsmd.sh
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/gsm_event.hotplug $(1)/usr/share/iface/89-gsm-event

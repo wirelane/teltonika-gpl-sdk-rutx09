@@ -17,8 +17,6 @@ local TIME_OF_SLEEP = 10
 local MAX_RETRIES = 3
 local PKG_REBOOT = false
 local PKG_NET_RESTART = false
-local ERROR_SENT = false
-local DEBUG = false
 
 local qt = util.shellquote
 
@@ -70,11 +68,11 @@ end
 
 
 local function file_cleanup(file)
-	print("Cleaning up file " .. file)
+	util.perror("Cleaning up file " .. file)
 	local f = io.open(file, "w")
 
 	if not f then
-		print("Failed to open file " .. file)
+		util.perror("Failed to open file " .. file)
 		return
 	end
 
@@ -84,7 +82,7 @@ end
 
 local function __DBG(fmt, ...)
 	local msg = fmt:format(...)
-	print("> " .. msg)
+	util.perror("> " .. msg)
 end
 
 local function DBG(fmt, ...)
@@ -115,7 +113,7 @@ for file in fs.glob(BACKUP_PACKAGES .. "*.ipk") do
 end
 
 if #backup_pkgs > 0 then
-	print("Intsalling backup packages")
+	util.perror("Installing backup packages")
 	opkg_install(backup_pkgs)
 	util.exec("rm -rf %s 2> /dev/null" % BACKUP_PACKAGES)
 	opkg._trigger_pkg_event()
@@ -125,7 +123,7 @@ end
 --------------- MAIN PACKAGE INSTALL -----------------------
 local pkg_text = util.trim(fs.readfile(PACKAGE_FILE) or "")
 if #pkg_text == 0 then
-	print("Nothing to install")
+	util.perror("Nothing to install")
 	os.exit(0)
 end
 
@@ -149,33 +147,49 @@ for _, line in ipairs(util.split(pkg_text)) do
 	end
 end
 if #app_names == 0 and #third_party_pkg_names == 0 then
-	print("No packages to install")
+	util.perror("No packages to install")
 	os.exit(0)
 end
 
 while true do
-	opkg_update()
-	ERROR_SENT = true
-	if fs.access(TLT_PACKAGES) then
-		local tlt_packages_stat = fs.stat(TLT_PACKAGES)
-		local size = tlt_packages_stat and tlt_packages_stat.size or 0
-		if size > 0 then break end
+	if o_utils.opkg_server_reachable() then
+		opkg_update()
+		if fs.access(TLT_PACKAGES) then
+			local tlt_packages_stat = fs.stat(TLT_PACKAGES)
+			local size = tlt_packages_stat and tlt_packages_stat.size or 0
+			if size > 0 then break end
+		end
 	end
 	nixio.nanosleep(TIME_OF_SLEEP)
 end
 
+do
+	local retries = 0
+	local pkg_list = {}
+	while true do
+		-- sometimes pkg list file doesn't appear instantly after opkg update - need to try a few times
+		pkg_list = o_utils.get_pkg_list_by_app_name()
+		retries = retries + 1
+		if next(pkg_list) or retries >= 10 then
+			break
+		end
+		nixio.nanosleep(3)
+	end
+end
+
 local packages = {}
 for _, app_name in ipairs(app_names) do
+	util.perror("Validating package: " .. app_name)
 	local pkg = OpkgPkg.get_available_pkg(app_name)
 	if pkg then
 		if pkg:is_installed() then
-			print("Package " .. pkg.app_name .. " is already installed")
+			util.perror("Package " .. pkg.app_name .. " is already installed")
 			pkg:_remove_pkg_from_pkg_restore()
 		else
 			table.insert(packages, pkg)
 		end
 	else
-		print("Package " .. app_name .. " not found in opkg")
+		util.perror("Package " .. app_name .. " not found in opkg")
 		add_to_failed_packages(app_name)
 		trigger_pkg_event_msg({app_name = app_name}, opkg.PKG_TYPES.PENDING_ERRORED)
 	end
@@ -201,7 +215,7 @@ for i = 1, MAX_RETRIES do -- retry pkg install 3 times in case pkg install fails
 				end
 				return --continue
 			end
-			print("Installing package %s", pkg.app_name)
+			util.perror("Installing package %s" % pkg.app_name)
 			ok, err_code = pkg:_install_package_online()
 			if not ok then
 				if i == MAX_RETRIES then
@@ -225,16 +239,16 @@ end
 local uci = require "vuci.uci".cursor()
 local third_party_pkg = uci:get("package_restore" , "package_restore", "3rd_party_pkg") == "1"
 if third_party_pkg then
-	print("3rd party packages installation started\n")
+	util.perror("3rd party packages installation started\n")
 	while true do
-		print("Waiting for opkg update to finish...")
+		util.perror("Waiting for opkg update to finish...")
 		opkg_update({"--force_feeds", THIRD_PARTY_FEEDS})
 		if fs.access("/var/opkg-lists/openwrt_packages") then break end
 		nixio.nanosleep(TIME_OF_SLEEP)
 	end
 
 	for _, pkg_name in ipairs(third_party_pkg_names) do
-		print("Installing package " .. pkg_name)
+		util.perror("Installing package " .. pkg_name)
 		local is_installed = opkg.pkg_installed(pkg_name)
 		if not is_installed then
 			opkg_install(pkg_name, {"--force_feeds", THIRD_PARTY_FEEDS})
@@ -254,4 +268,4 @@ if PKG_REBOOT then
 	util.ubus("rpc-sys", "reboot", { safe = true })
 end
 
-print("Package installation finished")
+util.perror("Package installation finished")

@@ -18,26 +18,18 @@ extern "C" {
  *  doesn't support the field, or a dummy string if the mtdblock space contains
  * garbage
  */
+int read_sysfs(char *buffer, const char *file, int max_read);
 char *lmnfinfo_get_mac(void);
 char *lmnfinfo_get_name(void);
 char *lmnfinfo_get_maceth(void);
 char *lmnfinfo_get_sn(void);
-char *lmnfinfo_get_blver(void);
 char *lmnfinfo_get_hwver(void);
-char *lmnfinfo_get_hwver_lo(void);
-char *lmnfinfo_get_branch(void);
-char *lmnfinfo_get_full_hwver(void);
 char *lmnfinfo_get_batch(void);
-char *lmnfinfo_get_wps(void);
-char *lmnfinfo_get_wifi_pw(void);
-char *lmnfinfo_get_passw(void);
 char *lmnfinfo_get_sim_pin(uint8_t sim_id);
 char *lmnfinfo_get_sim_cfg(uint8_t sim_id);
 char *lmnfinfo_get_profile(uint8_t profile_id);
-char *lmnfinfo_get_profiles(void);
 char *lmnfinfo_get_boot_profile_by_id(uint8_t sim_id);
 char *lmnfinfo_get_boot_profile(void);
-uint32_t lmnfinfo_get_sim_pin_count();
 
 // returns true on success
 bool lmnfinfo_set_sim_pin(uint8_t sim_id, const char *pin);

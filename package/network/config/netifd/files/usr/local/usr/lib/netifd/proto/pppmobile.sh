@@ -234,7 +234,7 @@ proto_pppmobile_setup() {
 		ifname_4="${interface}_4"
 		ifname_6="${interface}_6"
 
-		add_ipv6_dynamic_ifname "$ifname_4"
+		add_ipv4_dynamic_ifname "$ifname_4"
 		wait_data_connection "$ifname_4"
 		if [ "$?" = "0" ]; then
 			update_mobile_ifname "$interface"

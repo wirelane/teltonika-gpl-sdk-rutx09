@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/LICENSE src/LICENSE
 --- upstream/LICENSE	1970-01-01 00:00:00.000000000 +0000
-+++ src/LICENSE	2024-10-25 10:00:04.000000000 +0000
++++ src/LICENSE	2025-08-20 04:32:38.000000000 +0000
 @@ -0,0 +1,202 @@
 +                                 Apache License
 +                           Version 2.0, January 2004
@@ -206,7 +206,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/Makefile src/Makefile
 --- upstream/Makefile	1970-01-01 00:00:00.000000000 +0000
-+++ src/Makefile	2024-10-25 10:00:04.000000000 +0000
++++ src/Makefile	2025-08-20 04:32:38.000000000 +0000
 @@ -0,0 +1,17 @@
 +JSONC_CFLAGS = -std=gnu99 -I$(STAGING_DIR)/usr/include/json-c/
 +JSONC_LDFLAGS = -llua -lm -ljson-c
@@ -227,7 +227,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	rm -f *.o *.so
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/README.md	2024-10-25 10:00:04.000000000 +0000
++++ src/README.md	2025-08-20 04:32:38.000000000 +0000
 @@ -0,0 +1,2 @@
 +LuCI JSON-C Lua bindings, used for encoding and decoding JSON within Lua scripts.
 +
@@ -254,7 +254,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	rm -f *.o *.so
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/jsonc.c src/src/jsonc.c
 --- upstream/src/jsonc.c	2024-03-19 12:49:16.000000000 +0000
-+++ src/src/jsonc.c	2024-10-25 10:00:04.000000000 +0000
++++ src/src/jsonc.c	2025-08-20 04:32:38.000000000 +0000
 @@ -28,10 +28,15 @@
  #define LUCI_JSONC "luci.jsonc"
  #define LUCI_JSONC_PARSER "luci.jsonc.parser"
@@ -308,7 +308,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	return false;
  }
  
-@@ -305,7 +314,7 @@
+@@ -305,32 +314,44 @@
  	switch (lua_type(L, index))
  	{
  	case LUA_TTABLE:
@@ -316,8 +316,60 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		if (visited(seen, lua_topointer(L, index), index))
  			return NULL;
  
- 		max = _lua_test_array(L, index);
-@@ -383,7 +392,7 @@
+-		max = _lua_test_array(L, index);
+-
+-		if (max >= 0)
++		const char *table_type = NULL;
++		if (lua_getmetatable(L, index))
+ 		{
+-			obj = json_object_new_array();
++			lua_getfield(L, -1, "__table_type");
++			if (lua_isstring(L, -1))
++				table_type = lua_tostring(L, -1);
+ 
+-			if (!obj)
+-				return NULL;
++			lua_pop(L, 2);
++		}
+ 
+-			if (!lua_checkstack(L, 1))
+-				return NULL;
++		if (!table_type || strcmp(table_type, "object")) {
++			max = _lua_test_array(L, index);
+ 
+-			for (i = 1; i <= max; i++)
++			if (max >= 0)
+ 			{
+-				lua_rawgeti(L, index, i);
++				obj = json_object_new_array();
+ 
+-				json_object_array_put_idx(obj, i - 1,
+-				                          _lua_to_json_rec(L, -1, seen));
++				if (!obj)
++					return NULL;
+ 
+-				lua_pop(L, 1);
+-			}
++				if (!lua_checkstack(L, 1))
++					return NULL;
++
++				for (i = 1; i <= max; i++)
++				{
++					lua_rawgeti(L, index, i);
+ 
+-			return obj;
++					json_object_array_put_idx(obj, i - 1,
++											_lua_to_json_rec(L, -1, seen));
++
++					lua_pop(L, 1);
++				}
++
++				return obj;
++			}
+ 		}
+ 
+ 		obj = json_object_new_object();
+@@ -383,7 +404,7 @@
  
  static struct json_object * _lua_to_json(lua_State *L, int index)
  {

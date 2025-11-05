@@ -27,7 +27,7 @@ endef
 
 define Package/scep/install
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
-	$(INSTALL_BIN) ./files/defaults/99-migrate_crontab $(1)/etc/uci-defaults/7.15/99-migrate_crontab
+	$(INSTALL_DATA) ./files/defaults/99-migrate_crontab $(1)/etc/uci-defaults/7.15/99-migrate_crontab
 endef
 
 $(eval $(call BuildPackage,scep))

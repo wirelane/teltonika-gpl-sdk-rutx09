@@ -201,7 +201,7 @@ define Package/telnet/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/telnetd.conf $(1)/etc/config/telnetd
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/telnetd $(1)/etc/init.d/telnetd
+	$(INSTALL_BIN_USR) ./files/telnetd $(1)/etc/init.d/telnetd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-telnetd/busybox $(1)/usr/sbin/telnetd
@@ -222,7 +222,7 @@ define Package/untpd/install
 		$(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/untpd.permtab $(1)/etc/permtab.d/untpd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-untpd/busybox $(1)/usr/sbin/untpd
-	$(INSTALL_BIN) ./files/ntpserver.init $(1)/etc/init.d/ntpserver
+	$(INSTALL_BIN_USR) ./files/ntpserver.init $(1)/etc/init.d/ntpserver
 	$(INSTALL_CONF_USR) ./files/ntpserver.conf $(1)/etc/config/ntpserver
 endef
 

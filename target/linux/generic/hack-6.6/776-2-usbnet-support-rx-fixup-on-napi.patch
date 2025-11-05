@@ -128,7 +128,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  	/* start any status interrupt transfer */
  	if (dev->interrupt) {
  		retval = usbnet_status_start(dev, GFP_KERNEL);
-@@ -1671,6 +1757,10 @@ void usbnet_disconnect (struct usb_inter
+@@ -1674,6 +1760,10 @@ void usbnet_disconnect (struct usb_inter
  	if (dev->driver_info->unbind)
  		dev->driver_info->unbind(dev, intf);
  
@@ -139,7 +139,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  	usb_kill_urb(dev->interrupt);
  	usb_free_urb(dev->interrupt);
  	kfree(dev->padding_pkt);
-@@ -1862,6 +1952,13 @@ usbnet_probe (struct usb_interface *udev
+@@ -1865,6 +1955,13 @@ usbnet_probe (struct usb_interface *udev
  		}
  	}
  
@@ -155,7 +155,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  		goto out5;
 --- a/include/linux/usb/usbnet.h
 +++ b/include/linux/usb/usbnet.h
-@@ -81,6 +81,13 @@ struct usbnet {
+@@ -82,6 +82,13 @@ struct usbnet {
   * that must be broken
   */
  #		define EVENT_UNPLUG		31
@@ -169,7 +169,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  };
  
  static inline bool usbnet_going_away(struct usbnet *ubn)
-@@ -130,6 +137,7 @@ struct driver_info {
+@@ -131,6 +138,7 @@ struct driver_info {
  #define FLAG_RX_ASSEMBLE	0x4000	/* rx packets may span >1 frames */
  #define FLAG_NOARP		0x8000	/* device can't do ARP */
  #define FLAG_PAGE_FRAG		0x10000	/* Allocate usb transfer buffers as page fragments */
@@ -177,7 +177,7 @@ operations to be done in a seperate thread, as well as allows for GRO
  
  	/* init device ... can sleep, or cause probe() failure */
  	int	(*bind)(struct usbnet *, struct usb_interface *);
-@@ -352,4 +360,14 @@ static inline struct sk_buff *usbnet_clo
+@@ -353,4 +361,14 @@ static inline struct sk_buff *usbnet_clo
  	return nskb;
  }
  

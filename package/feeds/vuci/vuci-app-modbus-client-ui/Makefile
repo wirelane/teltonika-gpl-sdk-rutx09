@@ -1,6 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Modbus
+APP_DEPENDS:=+vuci-app-universal-gateway-api
 
 ifneq ($(or $(CONFIG_USB_SUPPORT_EXTERNAL),$(CONFIG_SERIAL_SUPPORT)),)
 	APP_DEPENDS+=vuci-app-modbus-serial-ui

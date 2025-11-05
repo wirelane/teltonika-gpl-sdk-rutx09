@@ -41,7 +41,7 @@
   },
   {
     "name": "RUTE",
-    "devices": ["RUT206", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981", "RUT986"]
+    "devices": ["RUT202", "RUT204", "RUT206", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981", "RUT986"]
   },
   {
     "name": "RUT2M",
@@ -53,7 +53,7 @@
   },
   {
     "name": "RUTC",
-    "devices": ["RUTC40", "RUTC41", "RUTC42", "RUTC50", "RUTC51"]
+    "devices": ["RUTC16", "RUTC40", "RUTC41", "RUTC42", "RUTC50", "RUTC51", "RUTC54"]
   },
   {
     "name": "RUT14X",

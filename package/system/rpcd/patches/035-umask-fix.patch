@@ -1,0 +1,12 @@
+Index: rpcd-2021-03-11-ccb75178/plugin.c
+===================================================================
+--- rpcd-2021-03-11-ccb75178.orig/plugin.c
++++ rpcd-2021-03-11-ccb75178/plugin.c
+@@ -849,6 +849,7 @@ static int rpc_plugin_intercept(struct u
+ 		return UBUS_STATUS_UNKNOWN_ERROR;
+ 
+ 	case 0: {
++		umask(022);
+ 		rpc_response_fd = response_pipe[1];
+ 		child_process = true;
+ 		INIT_LIST_HEAD(&ctx->requests);

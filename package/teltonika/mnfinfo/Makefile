@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mnfinfo
 
-PKG_SOURCE_VERSION:=2.27.2
+PKG_SOURCE_VERSION:=2.29
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -18,7 +18,6 @@ define Package/mnfinfo
   SECTION:=net
   CATEGORY:=Network
   TITLE:=Device mnf-info command line interface
-  DEPENDS:=+libmnfinfo
 endef
 
 define Package/libmnfinfo
@@ -43,7 +42,7 @@ endef
 
 define Package/mnfinfo/install
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mnf_info $(1)/sbin/mnf_info
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mnf_info.sh $(1)/sbin/mnf_info
 endef
 
 define Package/libmnfinfo/install
@@ -53,7 +52,7 @@ endef
 
 define Package/rpcd-mod-mnfinfo/install
 	$(INSTALL_DIR) $(1)/usr/lib/rpcd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mnfinfo.so $(1)/usr/lib/rpcd/
+	ln -sf /usr/lib/libmnfinfo.so $(1)/usr/lib/rpcd/mnfinfo.so
 endef
 
 $(eval $(call BuildPackage,mnfinfo))

@@ -92,6 +92,7 @@ typedef struct {
 	const lparam_info *param;
 	const char *param_nm;
 	param_topic_t topic;
+	int tmo;
 } func_args;
 
 typedef struct lparam_info {
@@ -114,6 +115,17 @@ typedef struct lparam_info {
  * @return const lparam_info* pointer to parmater info
  */
 const lparam_info *libparam_get_param_by_name(param_topic_t *topic, const char *name);
+
+ /**
+  * @brief Expand parameters in string
+  * 
+  * @param ubus UBUS context
+  * @param ctx libparam comtext
+  * @param text parameter for evaluation ex.: %tz
+  * @param tmo UBUS timeout (in milliseconds)
+  * @return char* poiner to expanded string
+  */
+char *libparam_str_expand_tmo(struct ubus_context *ubus, param_ctx *ctx, const char *text, int tmo);
 
  /**
   * @brief Expand parameters in string
