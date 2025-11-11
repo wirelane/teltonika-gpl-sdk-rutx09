@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rms-packages
-PKG_VERSION:=2025-10-31
+PKG_VERSION:=2025-11-10
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.23.1
+PKG_SOURCE_VERSION:=3.24.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -31,7 +31,7 @@ define Package/rms_mqtt
 	CATEGORY:=Base system
 	TITLE:=MQTT application for RMS by Teltonika
 	DEPENDS:=+libmosquitto +libmnfinfo +libopenssl +libuci +MOBILE_SUPPORT:libgsm \
-			+libblobmsg-json +libubox +libubus +libpthread +libtlt_uci
+			+libblobmsg-json +libubox +libubus +libpthread +libtlt_uci +libboardjson
 	USERID:=rms=552:rms=552
 	#FATTRS:=/usr/sbin/rms_mqtt::::cap_setuid,cap_setgid=ep
 endef
@@ -39,6 +39,9 @@ endef
 ifeq ($(CONFIG_GATEWAY_DEVICE), y)
 	TARGET_CFLAGS += -DGATEWAY_DEVICE
 endif
+
+TARGET_CFLAGS += $(if $(CONFIG_TPM_SUPPORT),-DTPM_SUPPORT)
+
 
 define Package/rms_mqtt/conffiles
 /etc/config/rms_mqtt

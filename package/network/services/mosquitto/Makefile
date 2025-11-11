@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=mosquitto
 PKG_VERSION:=2.0.21
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_LICENSE:=EPL-2.0
 PKG_LICENSE_FILES:=LICENSE.txt
 PKG_CPE_ID:=cpe:/a:eclipse:mosquitto

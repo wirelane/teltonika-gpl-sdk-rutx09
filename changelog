@@ -1,3 +1,14 @@
+# 2025-11-10 00.07.19.1
+
+### Improvements
+
+* RMS: added TPM support (ID: 29232)
+
+### Fix
+
+* Administration: fixed displaying bootloader version for OTD144 (ID: 29325)
+* WebUI: fixed unresponsive navigation after password change (ID: 29296)
+
 # 2025-11-04 00.07.19
 
 ### New

@@ -101,6 +101,8 @@ boot() {
 
 	handle_idevid_csr_create "$serial_num" "$model_name"
 	handle_ak_csr_gen "$serial_num" "$model_name"
+
+	start "$@"
 }
 
 start_service() {

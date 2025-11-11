@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=tpm_manager
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.2
+PKG_SOURCE_VERSION:=1.3
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
