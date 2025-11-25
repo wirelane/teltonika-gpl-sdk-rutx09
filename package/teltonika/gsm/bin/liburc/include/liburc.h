@@ -69,6 +69,16 @@ typedef enum {
 } urc_clip_t;
 
 typedef enum {
+	CALL_STATE_LINE_ID,
+	CALL_STATE_DIR,
+	CALL_STATE_TYPE,
+	CALL_STATE_CMODE,
+	CALL_STATE_STATUS,
+	CALL_STATE_NUMBER,
+	CALL_STATE_T_MAX,
+} urc_call_state_t;
+
+typedef enum {
 	RING_TYPE_VALUE,
 	RING_MODEM_ID_VALUE,
 	RING_T_MAX,
@@ -178,6 +188,15 @@ struct clip_t {
 	enum cli_valid_id validity;
 	enum call_type_id type;
 	const char *modem_id;
+};
+
+struct call_state_t {
+	int32_t line_id;
+	int32_t call_dir;
+	enum call_type_id ctype_id;
+	enum call_mode_id cmode_id;
+	enum call_status_id cs_id;
+	const char *number;
 };
 
 struct ring_t {

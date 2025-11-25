@@ -24,6 +24,14 @@ define Package/wifi-scripts
   PKGARCH:=all
 endef
 
+define Package/wifi-scripts-lite
+  SECTION:=utils
+  CATEGORY:=Base system
+  DEPENDS:=+netifd
+  TITLE:=Wi-Fi configuration scripts
+  PKGARCH:=all
+endef
+
 define Package/wifi-scripts/description
  A set of scripts that handle setup and configuration of Wi-Fi devices.
 endef
@@ -46,4 +54,10 @@ define Package/wifi-scripts/install
 		$(RM) $(1)/etc/rc.button/rfkill)
 endef
 
+define Package/wifi-scripts-lite/install
+	$(INSTALL_DIR) $(1)/sbin
+	$(CP) ./files/sbin/wifi $(1)/sbin/
+endef
+
 $(eval $(call BuildPackage,wifi-scripts))
+$(eval $(call BuildPackage,wifi-scripts-lite))

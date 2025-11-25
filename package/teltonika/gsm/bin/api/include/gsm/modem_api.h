@@ -72,6 +72,8 @@ typedef enum {
 
 	EVT_GNSS_STATE_CHANGE, /*!< GPS change event */
 
+	EVT_CALL_STATE_CHANGE, /*!< Call state change event */
+
 	__EVT_MAX,
 } evt_type_t;
 
@@ -776,6 +778,22 @@ enum call_state_id {
 	CALL_STATE_WAITING, /*<! Waiting call state value*/
 
 	__CALL_STATE_MAX,
+};
+
+/**
+ * Enumeration of call status values
+ */
+enum call_status_id {
+	CALL_STATUS_UNKNOWN, /*<! Unknown call status value*/
+	CALL_STATUS_ACTIVATING, /*<! Activating call status value*/
+	CALL_STATUS_ORIG, /*<! Original call status value*/
+	CALL_STATUS_CONNECT, /*<! Connect call status value*/
+	CALL_STATUS_INCOMING, /*<! Incoming call status value*/
+	CALL_STATUS_WAITING, /*<! Waiting call status value*/
+	CALL_STATUS_END, /*<! Ended call status value*/
+	CALL_STATUS_ALERTING, /*<! Alerting call status value*/
+
+	__CALL_STATUS_MAX,
 };
 
 /**
@@ -2105,6 +2123,13 @@ enum call_mode_id call_mode_id_enum(const char *arg);
  * @return const char *. String of call mode value.
  */
 const char *call_mode_id_str(enum call_mode_id value);
+
+/**
+ * Convert call status id value enum to string.
+ * @param[in]   value      Call mode value enumeration value.
+ * @return const char *. String of call mode value.
+ */
+const char *call_status_id_str(enum call_status_id value);
 
 /**
  * Convert call type value string to call type value enum.

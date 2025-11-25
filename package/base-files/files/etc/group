@@ -155,4 +155,5 @@ i2c:x:903:admin,ioman,mobutils,poeman
 serial:x:904:dnp3_client,dnp3_outstation,mbus_client,mobutils
 wireguard:x:646:
 rclocal:x:647:uhttpd
+callman:x:650:uhttpd
 nogroup:x:65534:

@@ -376,6 +376,14 @@ config EMAIL_TO_SMS_SUPPORT
 	imply PACKAGE_vuci-app-email-to-sms-ui
 	imply PACKAGE_email_to_sms
 
+config PHONE_SUPPORT
+	bool
+	maintainer "Apps/Apps1"
+	label "Mobile Utilities"
+	depends on MOBILE_SUPPORT && CONSUMER_AP
+	default y
+	imply PACKAGE_vuci-app-phone-settings-ui
+
 #
 # Wi-Fi
 #

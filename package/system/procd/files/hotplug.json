@@ -57,6 +57,10 @@
 						[ "makedev", "/dev/%DEVNAME%", "0660", "i2c" ]
 					],
 					[ "if",
+						[ "eq", "DEVNAME", "slic_dev" ],
+						[ "makedev", "/dev/%DEVNAME%", "0660", "callman" ]
+					],
+					[ "if",
 						[ "has", "DEVNAME" ],
 						[ "makedev", "/dev/%DEVNAME%", "0600" ]
 					]
