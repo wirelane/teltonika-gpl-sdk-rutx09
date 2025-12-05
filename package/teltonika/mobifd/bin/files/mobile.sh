@@ -223,6 +223,10 @@ qmi_error_handle() {
 
 	echo "$error" | grep -qi "Call Failed" && {
 		[ "$skip_reset" != "true" ] && {
+			echo "$error" | grep -qi "call already present" && {
+				logger -t "mobile.sh" "Call already present! Flushing clients!"
+				uqmi -s -d "$device" --sync
+			}
 			logger -t "mobile.sh" "Device not responding, resetting mobile network"
 			sleep 10
 			gsm_soft_reset "$modem_id"
