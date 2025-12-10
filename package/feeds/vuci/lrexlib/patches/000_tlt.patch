@@ -863,7 +863,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	* make_bcc.mak: File added.
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/Makefile src/Makefile
 --- upstream/Makefile	2021-12-28 20:05:16.000000000 +0000
-+++ src/Makefile	2025-12-02 12:31:12.952669116 +0000
++++ src/Makefile	2025-12-07 21:17:01.480978971 +0000
 @@ -1,54 +1,26 @@
 -# Makefile for lrexlib
 +WFLAGS=-Wall -Wextra -Wno-unused-parameter
@@ -2842,7 +2842,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -} -- close wrapper table
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/algo.h src/src/algo.h
 --- upstream/src/algo.h	2021-12-28 20:05:16.000000000 +0000
-+++ src/src/algo.h	2025-12-02 12:31:12.952669116 +0000
++++ src/src/algo.h	2025-12-07 21:17:01.480978971 +0000
 @@ -1,6 +1,7 @@
  /* algo.h */
  /* See Copyright Notice in the file LICENSE */
@@ -4825,7 +4825,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/pcre2/lpcre2.c src/src/pcre2/lpcre2.c
 --- upstream/src/pcre2/lpcre2.c	2021-12-28 20:05:16.000000000 +0000
-+++ src/src/pcre2/lpcre2.c	2025-12-02 12:31:12.952669116 +0000
++++ src/src/pcre2/lpcre2.c	2025-12-07 21:17:01.480978971 +0000
 @@ -1,502 +1,502 @@
 -/* lpcre2.c - Lua binding of PCRE2 library */
 -/* See Copyright Notice in the file LICENSE */

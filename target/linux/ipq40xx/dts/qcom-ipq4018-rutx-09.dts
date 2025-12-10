@@ -68,7 +68,7 @@
 			led_wan_eth@1 {
 				tlt-mnf,hwver = <1300 9999>;
 				label = "wan_eth_3";
-				gpios = <&shift_io 21 GPIO_ACTIVE_HIGH>;
+				gpios = <&shift_io 12 GPIO_ACTIVE_HIGH>;
 			};
 
 			led_wan_eth {

@@ -1,3 +1,15 @@
+# 2025-12-05 00.07.19.5
+
+### Fix
+
+* RutOS: fixed WAN ethernet LED for RUTX09 (ID: 31294)
+
+# 2025-12-03 00.07.19.4
+
+### Fix
+
+* Mobile: fixed operator selection under specific conditions (ID: 31185)
+
 # 2025-11-25 00.07.19.3
 
 ### Fix
@@ -6214,7 +6226,7 @@
     * WebUI: added DLNA media server to package manager (ID: 990)
     * WebUI: added time synchronization using operator station (ID: 617)
     * WebUI: added a way to easily switch LAN port to WAN and vice versa for TRB2 fammily devices (ID: 850)
-    * WebUI: added I/O juggler analog aurrent loop actions and conditions for TRB141 device (ID: 1002)  
+    * WebUI: added I/O juggler analog aurrent loop actions and conditions for TRB141 device (ID: 1002)
     * WebUI: added SQM QoS pages for RUTX family devices (ID: 1106)
     * WebUI: added connected client number to overview ans side widget(ID: 1313)
     * WebUI: added "Flush connections on" option to failover interface configuration (ID: 1463)
@@ -6292,7 +6304,7 @@
     * modbus_serial_master: fixed data string and added no brackets option to serial test (ID: 1609)
     * sms utils : fixed SMS not sending when 'Send status SMS to other number' option is not set (ID: 1749)
     * ath79: use more stable, builtin ar82xx switch driver (ID: 1520)
-    * Serial: Symlinking tty devices in one place (ID: 385) 
+    * Serial: Symlinking tty devices in one place (ID: 385)
     * I/O: fixed geting analog current loop value for TRB141 (ID: 1002)
     * GSM: fixed crashing issue when getting sim slot in use (ID: 1348)
     * SMS Utilities: fixed sms storage not working on devices with multiple modems (ID: 1501)
@@ -6412,18 +6424,18 @@
     * WebUI: Overview page: Wifi widget: fixed number of connected wifi clients display (ID: 1875)
     * WebUI: Removed /log folder from troubleshoot directories(ID: 1879)
     * WebUI: Fixed Lua errors in profile scheduler and firewall->zones(ID: 1881)
-    
-    
+
+
 
 # 2020-07-31 00.02.04.3
   * New:
     * Backup: added backup archive MD5 & SHA256 checksum calculation to help user identify altered backup archives (ID: 1613)
     * Package Manager: added packages signature check to verify if package comes from Teltonika (ID: 1624)
-  * Improvements:    
+  * Improvements:
     * Operctl: updated APN database (ID: 1618)
   * Fix:
     * Lua : fixed CVE-2019-17367 (ID: 1604)
-    * MultiUsers: fixed hiding of configuration pages that users of a specific group don't have read access to (ID: 1620) 
+    * MultiUsers: fixed hiding of configuration pages that users of a specific group don't have read access to (ID: 1620)
 
 # 2020-07-07 00.02.04.2
   * Fix:
@@ -6513,7 +6525,7 @@
     * GSM: fix libgsm connection state function
     * Ledman: backport fixes for RUTX8/10/12 devices
     * Bluetooth: generate config in RUTX12 devices
-    * system: fixed config generate script 
+    * system: fixed config generate script
 
 # 2020-06-02 00.02.03.2
   * Fix:
@@ -6672,8 +6684,8 @@
     * WebUI: add events reporting via Email (ID: 176)
     * WebUI: add STunnel (ID: 112)
     * WebUI: add Multi-User support
-    * WebUI: add "Mobile" page 
-    * WebUI: add operators control 
+    * WebUI: add "Mobile" page
+    * WebUI: add operators control
     * Bluetooth: add passive device scanning (ID: 315)
     * HotSpot 2.0: add HotSpot 2.0 support (ID: 314)
     * Modbus: add MQTT gateway (ID: 456)
