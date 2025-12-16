@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dnp3
-PKG_VERSION:=2025-10-27
+PKG_VERSION:=2025-12-01
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.19
+PKG_SOURCE_VERSION:=7.20
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 
@@ -94,6 +94,11 @@ define Package/dnp3/postinst
 	ds_find_plugin dnp3 && /etc/init.d/data_sender restart
 
 	exit 0
+endef
+
+define Package/dnp3/postrm
+	#!/bin/sh
+	/etc/init.d/rpcd reload
 endef
 
 $(eval $(call BuildPackage,dnp3))

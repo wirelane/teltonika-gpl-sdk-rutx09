@@ -261,6 +261,14 @@
 			default = "";
 			sec;
 		};
+		
+		mob_vidpid_1 {
+			reg = <&config 0x80 0x4>;
+			min-res-len = <0xa>;
+			type = "vidpid";
+			default = "";
+			log;
+		};
 
 		sim_count {
 			default =  "2";

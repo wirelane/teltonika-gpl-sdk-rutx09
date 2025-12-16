@@ -26,6 +26,11 @@
             "methods": [
                 "dump"
             ]
-        }
+        },
+        "wan_info": {
+            "methods": [
+                "get"
+	    ]
+	}
     }
 }

@@ -155,7 +155,8 @@ module.exports = {
       { type: 'hw', name: '128mb_ram', value: false },
       { type: 'hw', name: 'has_tpm' },
       { type: 'hw', name: 'is_gateway', value: false },
-      { type: 'hw', name: 'is_gateway' }
+      { type: 'hw', name: 'is_gateway' },
+      { type: 'hw', name: 'xfrm-offload', value: false }
     ]
   },
   /** @return {Record<string, string>} */

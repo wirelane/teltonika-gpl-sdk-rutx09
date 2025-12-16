@@ -10,7 +10,9 @@ usign=$(which usign 2>/dev/null) || usign=${STAGING_DIR_HOST:-$PWD/staging_dir/h
 key="${BUILD_KEY:-$PWD/key-build}"
 
 while read -r file; do
-	"$usign" -S -m "$file" -s "$key" -x "${file%.*}.sig"
+	dir="$(dirname "$file")"
+	base="$(basename "$file")"
+	"$usign" -S -m "$file" -s "$key" -x "$dir/${base%.*}.sig"
 done <"$1"
 
 exit 0

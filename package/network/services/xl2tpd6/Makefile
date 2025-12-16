@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd6
 PKG_VERSION:=1.3.17
-PKG_RELEASE:=3
+PKG_RELEASE:=6
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=HEAD
@@ -27,7 +27,6 @@ define Package/xl2tpd6
   URL:=https://github.com/ulysse31/xl2tpd6
   DEPENDS:=+libpthread +kmod-l2tp +kmod-l2tp-eth +kmod-l2tp-ip
   USERID:=xl2tpd:xl2tpd
-  FATTRS:=/usr/sbin/xl2tpd6-control:xl2tpd::y:
   ifeq (m, $(CONFIG_PACKAGE_xl2tpd6))
     PKG_TLT_NAME:=L2TPV6 support
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)

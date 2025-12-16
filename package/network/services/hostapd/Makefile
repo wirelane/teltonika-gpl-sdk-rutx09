@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=hostapd
-PKG_RELEASE:=2
+PKG_RELEASE:=5
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=4b8ac10cb77c3d4dbf7ccefbe697dc0578da374c
@@ -368,6 +368,7 @@ define Package/hostapd-common
   CATEGORY:=Network
   SUBMENU:=WirelessAPD
   DEPENDS:=+libopenssl +ucode
+  FATTRS:=/usr/sbin/wpad::::cap_net_bind_service,cap_net_raw,cap_net_admin+ep
 endef
 
 define Package/hostapd-utils
@@ -450,6 +451,10 @@ TARGET_CPPFLAGS := \
 	-D_GNU_SOURCE \
 	$(if $(CONFIG_DSA_SUPPORT),,-DCONFIG_NO_LINUX_PACKET_SOCKET_WAR) \
 	$(if $(CONFIG_WPA_MSG_MIN_PRIORITY),-DCONFIG_MSG_MIN_PRIORITY=$(CONFIG_WPA_MSG_MIN_PRIORITY))
+
+ifeq ($(CONFIG_PACKAGE_hostapd-common),m)
+TARGET_CPPFLAGS += -DALT_UCODE_PATH
+endif
 
 TARGET_LDFLAGS += -lubox -lubus -llog -lblobmsg_json -lucode
 
@@ -572,6 +577,9 @@ define Package/hostapd-common/install
 	$(INSTALL_DATA) ./files/wpad_acl.json $(1)/usr/share/acl.d
 	$(INSTALL_DATA) ./files/wpad.json $(1)/etc/capabilities
 	$(INSTALL_BIN) ./files/wdev.uc $(1)/usr/share/hostap
+	if [ "$(CONFIG_PACKAGE_hostapd-common)" = "m" ] ; then \
+		$(SED) "s#/usr/share/hostap/common.uc#/usr/local/usr/share/hostap/common.uc#g" $(1)/usr/share/hostap/wdev.uc ; \
+	fi
 	$(INSTALL_BIN) ./files/common.uc $(1)/usr/share/hostap
 	$(INSTALL_DATA) ./files/defaults/99_chown_wifi_certs $(1)/etc/uci-defaults/7.15/99_chown_wifi_certs
 endef

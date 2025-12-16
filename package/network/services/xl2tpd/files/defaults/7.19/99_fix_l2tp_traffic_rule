@@ -3,8 +3,8 @@
 . /lib/functions.sh
 ID=
 get_id() {
+	[ -n "$ID" ] && return
 	ID="$1"
-	return
 }
 config_load "xl2tpd"
 config_foreach "get_id" "service"
@@ -13,6 +13,7 @@ config_foreach "get_id" "service"
 BINDING=0
 check_bind() {
 	local section="$1"
+	local bind_to
 	config_get bind_to "$section" bind_to
 	if [ "$bind_to" = "$ID" ]; then
 		BINDING=1

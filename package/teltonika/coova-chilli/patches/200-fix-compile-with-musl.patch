@@ -1,5 +1,7 @@
---- a/src/system.h
-+++ b/src/system.h
+Index: coova-chilli-2025-07-21/src/system.h
+===================================================================
+--- coova-chilli-2025-07-21.orig/src/system.h
++++ coova-chilli-2025-07-21/src/system.h
 @@ -112,6 +112,11 @@
  #include <signal.h>
  #endif
@@ -28,9 +30,11 @@
  #elif defined (__FreeBSD__)  || defined (__APPLE__) || defined (__OpenBSD__) || defined (__NetBSD__)
  #include <net/if.h>
  #include <net/bpf.h>
---- a/src/redir.c
-+++ b/src/redir.c
-@@ -3843,11 +3843,13 @@ int redir_main(struct redir_t *redir,
+Index: coova-chilli-2025-07-21/src/redir.c
+===================================================================
+--- coova-chilli-2025-07-21.orig/src/redir.c
++++ coova-chilli-2025-07-21/src/redir.c
+@@ -4340,11 +4340,13 @@ int redir_main(struct redir_t *redir,
    }
  
  #define redir_memcopy(msgtype)                                          \
@@ -39,13 +43,13 @@
    redir_chartohex(challenge, hexchal, REDIR_MD5LEN);                    \
    msg.mtype = msgtype;                                                  \
    memcpy(conn.s_state.redir.uamchal, challenge, REDIR_MD5LEN);          \
--  if (_options.debug) syslog(LOG_DEBUG, "%s(%d): ---->>> resetting challenge: %s", __FUNCTION__, __LINE__, hexchal)
-+  if (_options.debug) syslog(LOG_DEBUG, "%s(%d): ---->>> resetting challenge: %s", __FUNCTION__, __LINE__, hexchal);						    \
+-  if (_options.debug) chilli_log(LOG_DEBUG, "%s(%d): ---->>> resetting challenge: %s", __FUNCTION__, __LINE__, hexchal)
++  if (_options.debug) chilli_log(LOG_DEBUG, "%s(%d): ---->>> resetting challenge: %s", __FUNCTION__, __LINE__, hexchal);						    \
 +  } while (0)
  
  #ifdef USING_IPC_UNIX
  #define redir_msg_send(msgopt)                                          \
-@@ -4657,7 +4659,7 @@ int redir_main(struct redir_t *redir,
+@@ -5165,7 +5167,7 @@ int redir_main(struct redir_t *redir,
  
          if (!hasnexturl) {
            if (_options.challengetimeout)

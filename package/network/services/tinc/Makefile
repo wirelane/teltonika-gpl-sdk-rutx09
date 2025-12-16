@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tinc
 PKG_VERSION:=1.0.36
-PKG_RELEASE:=8
+PKG_RELEASE:=9
 
 PKG_HASH:=40f73bb3facc480effe0e771442a706ff0488edea7a5f2505d4ccb2aa8163108
 
@@ -59,14 +59,14 @@ define Package/tinc/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/tincd $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/init.d/
-	$(INSTALL_BIN) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
+	$(INSTALL_BIN_USR) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) files/$(PKG_NAME).config $(1)/etc/config/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/etc/tinc
 	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
 	$(INSTALL_DATA) files/tinc.upgrade $(1)/lib/upgrade/keep.d/tinc
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.10
-	$(CP) ./files/defaults/99_tinc_rename_sections $(1)/etc/uci-defaults/7.10/99_tinc_rename_sections
+	$(INSTALL_DATA) ./files/defaults/99_tinc_rename_sections $(1)/etc/uci-defaults/7.10/99_tinc_rename_sections
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/tinc.permtab $(1)/etc/permtab.d/tinc
 endef

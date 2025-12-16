@@ -169,6 +169,12 @@ config PACKAGE_EVENT_JUGGLER_ACTION_CONNECTION
 	help
 		Compile with connection control support
 
+config PACKAGE_EVENT_JUGGLER_ACTION_LED
+	bool "LED control support"
+	default y
+	help
+		Compile with LED control support
+
 endmenu
 
 menu "Conditions"

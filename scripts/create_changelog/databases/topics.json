@@ -1,6 +1,16 @@
 [
   {
     "category": "Services",
+    "name": "I/O Status",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "ios"
+      }
+    ]
+  },
+  {
+    "category": "Services",
     "name": "Cloud of Things",
     "depends": [
       {
@@ -207,7 +217,7 @@
     "depends": [
       {
         "type": "hw",
-        "name": "usb"
+        "name": "has_usb_or_sd"
       }
     ]
   },
@@ -704,10 +714,6 @@
       {
         "type": "hw",
         "name": "wifi"
-      },
-      {
-        "type": "family",
-        "name": "Router"
       }
     ]
   },
@@ -1006,6 +1012,16 @@
       {
         "type": "family",
         "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "CAN Bus Gateway",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "stm_can"
       }
     ]
   },
@@ -1351,13 +1367,7 @@
   },
   {
     "name": "Realtime Traffic",
-    "category": "Network",
-    "depends": [
-      {
-        "type": "family",
-        "name": "Router"
-      }
-    ]
+    "category": "Network"
   },
   {
     "name": "Topology",
@@ -1447,5 +1457,25 @@
     "category": "System",
     "name": "Custom Scripts",
     "depends": []
+  },
+  {
+    "category": "Services",
+    "name": "IEC 60870-5 Client",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "IEC 60870-5 Server",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
   }
 ]

@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.22.1
+PKG_SOURCE_VERSION:=2.23
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -26,7 +26,6 @@ define Package/rut_fota
 	TITLE:=Firmware Over The Air Utility
 	DEPENDS:=+libuci +libmnfinfo +MOBILE_SUPPORT:libgsm +libubus +libubox +libopenssl +libblobmsg-json +libjson-c +librut_fota +liblog
 	USERID:=rut_fota:rut_fota
-	FATTRS:=/sbin/rut_fota:rut_fota::y:
 endef
 
 define Package/rut_fota/conffiles
@@ -41,8 +40,9 @@ endef
 
 
 define Package/librut_fota/install
-	$(INSTALL_DIR) $(1)/usr/lib/ $(1)/usr/lib/rpcd/shared
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fota.so $(1)/usr/lib/rpcd/shared
+	$(INSTALL_DIR) $(1)/usr/lib/ $(1)/usr/lib/rpcd $(1)/usr/lib/rpcd/shared
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fota.so $(1)/usr/lib/rpcd
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/fota_internal.so $(1)/usr/lib/rpcd/shared
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/librut_fota.so $(1)/usr/lib/
 endef
 

@@ -20,7 +20,7 @@ remove_interfaces() {
     local sim_pos="$2"
     local modem_id="$3"
 
-    [ -z "$modem_id" ] || [ -z "$sim_pos" ] && return
+	[ -z "$modem_id" ] || [ -z "$sim_pos" ] && return
 
     local sim_cfg="$(uci -q get network."${interface}".sim)"
     local modem_cfg="$(uci -q get network."${interface}".modem)"

@@ -93,7 +93,7 @@ sub target_config_features(@) {
 		/^xfrm-offload$/ and $ret .= "\tselect XFRM_OFFLOAD\n";
 		/^tlt-failsafe-boot$/ and $ret .= "\tselect TLT_FAILSAFE_BOOT\n";
 		/^modem-reset-quirk$/ and $ret .= "\tselect MODEM_RESET_QUIRK\n";
-		/^portlink$/ and $ret .= "\tselect PORT_LINK\n";
+		/^port_link$/ and $ret .= "\tselect PORT_LINK\n";
 		/^rs232$/ and $ret .= "\tselect HAS_RS232\n";
 		/^rs485$/ and $ret .= "\tselect HAS_RS485\n";
 		/^hi-storage$/ and $ret .= "\tselect HIGH_STORAGE\n";
@@ -106,7 +106,8 @@ sub target_config_features(@) {
 		/^can-stm$/ and $ret .= "\tselect CAN_BUS_STM\n";
 		/^consumer_access_point$/ and $ret .= "\tselect CONSUMER_AP\n";
 		/^hid_buttons$/ and $ret .= "\tselect HID_BUTTON_SUPPORT\n";
-
+		/^iec60870_client$/ and $ret .= "\tselect IEC60870_CLIENT_SUPPORT\n";
+		/^iec60870_server$/ and $ret .= "\tselect IEC60870_SERVER_SUPPORT\n";
 	}
 	return $ret;
 }

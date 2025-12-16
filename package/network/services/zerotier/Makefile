@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=zerotier
 PKG_VERSION:=1.14.0
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
@@ -28,7 +28,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/zerotier
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libpthread +libstdcpp +kmod-tun +ip +libminiupnpc +libnatpmp +libatomic +kmod-sched-flower +kmod-sched-act-police +tc-tiny
+  DEPENDS:=+libpthread +libstdcpp +kmod-tun +ip +libminiupnpc +libnatpmp +libatomic +kmod-sched-flower +kmod-sched-act-police +tc-tiny +ucode +libucode
   TITLE:=Create flat virtual Ethernet networks of almost unlimited size
   URL:=https://www.zerotier.com
   SUBMENU:=VPN
@@ -93,6 +93,10 @@ endif
 	$(CP) ./files/defaults/99_zerotier_bridge_device_name $(1)/etc/uci-defaults/7.18/99_zerotier_bridge_device_name
 	$(INSTALL_DATA) files/zerotier.permtab $(1)/etc/permtab.d/zerotier
 	$(INSTALL_BIN) files/hotplugs/97-zerotier $(1)/usr/share/zerotier
+	if [ "$(CONFIG_PACKAGE_ucode)" = "m" ] ; then \
+		$(INSTALL_DIR) $(1)/etc/uci-defaults/7.20 ; \
+		$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.20/99_zerotier_device_name ; \
+	fi
 endef
 
 define Package/zerotier/prerm

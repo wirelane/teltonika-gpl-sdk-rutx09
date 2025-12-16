@@ -8,15 +8,15 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ethtool
-PKG_VERSION:=5.10
+PKG_VERSION:=6.10
 PKG_RELEASE:=2
 
-PKG_SOURCE_VERSION:=5.10
+PKG_SOURCE_VERSION:=6.10
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.xz
 PKG_SOURCE_URL:=@KERNEL/software/network/ethtool
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
-PKG_HASH:=817d5396a9307b4c637b435d4c558b8f5f964a1464a035ca3c0180f4cc93cfcf
+PKG_HASH:=cc613fe8a2bcddee17a1e6e0d763c0f3ea33c7e930658d2d7f601aa65e426a1f
 
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=COPYING
@@ -26,7 +26,7 @@ PKG_FIXUP:=autoreconf
 PKG_INSTALL:=1
 PKG_BUILD_PARALLEL:=1
 
-PKG_CONFIG_DEPENDS:=CONFIG_ETHTOOL_PRETTY_DUMP
+PKG_CONFIG_DEPENDS:=CONFIG_ETHTOOL_NETLINK CONFIG_ETHTOOL_PRETTY_DUMP
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -34,6 +34,7 @@ define Package/ethtool
   SECTION:=net
   CATEGORY:=Network
   VARIANT:=full
+  DEPENDS:=+libmnl
   CONFLICTS:=ethtool-tiny
   TITLE:=Display or change ethernet card settings
   URL:=http://www.kernel.org/pub/software/network/ethtool/
@@ -58,6 +59,11 @@ define Package/ethtool-tiny/description
 endef
 
 define Package/ethtool/config
+	config ETHTOOL_NETLINK
+		depends on PACKAGE_ethtool
+		bool "Enable netlink interface"
+		default y
+
 	config ETHTOOL_PRETTY_DUMP
 		depends on PACKAGE_ethtool
 		bool "Enable pretty printing"
@@ -65,13 +71,22 @@ define Package/ethtool/config
 endef
 
 define Package/ethtool-tiny/config
+	config ETHTOOL_NETLINK
+		depends on PACKAGE_ethtool-tiny
+		bool "Enable netlink interface"
+		default n
+
 	config ETHTOOL_PRETTY_DUMP
-		depends on PACKAGE_ethtool
+		depends on PACKAGE_ethtool-tiny
 		bool "Enable pretty printing"
 		default n
 endef
 
+ifeq ($(CONFIG_ETHTOOL_NETLINK),y)
+CONFIGURE_ARGS += --enable-netlink
+else
 CONFIGURE_ARGS += --disable-netlink
+endif
 
 ifeq ($(CONFIG_ETHTOOL_PRETTY_DUMP),y)
 CONFIGURE_ARGS += --enable-pretty-dump

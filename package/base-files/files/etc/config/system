@@ -1,7 +1,6 @@
 config system 'system'
 	option timezone 'UTC'
 	option ttylogin '0'
-	option log_size_limit '128'
 	option urandom_seed '0'
 
 config timeserver 'ntp'
@@ -15,8 +14,6 @@ config timeserver 'ntp'
 
 config debug 'debug'
 	option sms_utils_debug_level '4'
-
-config remote_logger 'default'
 
 config banner 'banner'
 	option enabled '0'

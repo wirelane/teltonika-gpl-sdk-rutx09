@@ -9,6 +9,9 @@
 		},
 		"ip_block": {
 			"methods": ["show", "unblock", "push"]
+		},
+		"hotplug.openvpn": {
+			"methods": ["call"]
 		}
 	}
 }

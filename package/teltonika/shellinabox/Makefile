@@ -35,7 +35,7 @@ define Package/shellinabox
   TITLE:=SSH over HTTP
   DEPENDS:=+zlib +libopenssl +libubus
   USERID:=shellinabox:shellinabox
-  FATTRS:=/usr/sbin/shellinaboxd:shellinabox::y:cap_net_bind_service=ep
+  FATTRS:=/usr/sbin/shellinaboxd::::cap_net_bind_service=ep
 endef
 
 define Package/shellinabox/description

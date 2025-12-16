@@ -155,7 +155,14 @@ call_mobifd_reject_33_handler() {
 	}
 
 	modem_num="${gsm_name: -1}"
-	ubus call "mobifd.modem$modem_num" reject_cause_33 "{\"interface\":\"$interface\"}"
+	ret=$(ubus call "mobifd.modem$modem_num" reject_cause_33 "{\"interface\":\"$interface\"}")
+
+	result=$(jsonfilter -q -s "$ret" -e '@.handled')
+	[ "$result" = "true" ] && {
+		return 0
+	}
+
+	return 1
 }
 
 qmi_error_handle() {
@@ -181,23 +188,29 @@ qmi_error_handle() {
 
 	echo "$error" | grep -qi "call throttled" && {
 		logger -t "mobile.sh" "QMI call error, Connection attempt throttled by network"
-		ifdown "$interface"
-		call_mobifd_reject_33_handler "$modem_id" "$interface"
-		return 2
+		call_mobifd_reject_33_handler "$modem_id" "$interface" && {
+			ifdown "$interface"
+			return 2
+		}
+		return 1
 	}
 
 	echo "$error" | grep -qi "Service option not subscribed" && {
 		logger -t "mobile.sh" "QMI call error, reason type 3GPP: \"Service option not subscribed\""
-		ifdown "$interface"
-		call_mobifd_reject_33_handler "$modem_id" "$interface"
-		return 2
+		# error is handled by mobifd (and mobifd will execute ifdown)
+		call_mobifd_reject_33_handler "$modem_id" "$interface" && {
+			ifdown "$interface"
+			return 2
+		}
+		#otherwise return a generic error
+		return 1
 	}
 
 	echo "$error" | grep -qi "Client IDs exhausted" && {
-			logger -t "mobile.sh" "ClientIdsExhausted! resetting counter..."
-			proto_notify_error "$interface" NO_CID
-			uqmi -s -d "$device" --sync
-			return 1
+		logger -t "mobile.sh" "ClientIdsExhausted! resetting counter..."
+		proto_notify_error "$interface" NO_CID
+		uqmi -s -d "$device" --sync
+		return 1
 	}
 
 	echo "$error" | grep -qi "Failed to connect to service" && {
@@ -266,10 +279,11 @@ call_qmi_command_silent() {
 	local try=0
 
 	while [ $try -lt $qmi_call_retry_count ]; do
-		#log command
-		ret=$($command)
+		if ret=$($command); then
+			[ -n "$ret" ] && echo "$ret"
+			return 0
+		fi
 
-		# no error
 		handle_retryable_error "$ret" && {
 			break
 		}
@@ -287,16 +301,15 @@ call_qmi_command() {
 	local try=0
 
 	while [ $try -lt $qmi_call_retry_count ]; do
-		#log command
 		logger -t "netifd" "$command"
-		ret=$($command)
+		if ret=$($command); then
+			[ -n "$ret" ] && {
+				logger -t "netifd" ""\"$ret"\""
+				echo "$ret"
+			}
+			return 0
+		fi
 
-		#log output
-		[ -n "$ret" ] && {
-			logger -t "netifd" ""\"$ret"\""
-		}
-
-		# no error
 		handle_retryable_error "$ret" && {
 			break
 		}
@@ -314,11 +327,12 @@ call_qmi_command_no_output() {
 	local try=0
 
 	while [ $try -lt $qmi_call_retry_count ]; do
-		#log command
 		logger -t "netifd" "$command"
-		ret=$($command)
+		if ret=$($command); then
+			[ -n "$ret" ] && echo "$ret"
+			return 0
+		fi
 
-		# no error
 		handle_retryable_error "$ret" && {
 			break
 		}
@@ -538,6 +552,7 @@ setup_dhcp_v6() {
 	proto_add_dynamic_defaults
 	# RFC 7278: Extend an IPv6 /64 Prefix to LAN
 	[ "$delegate" -eq 0 ] || json_add_string extendprefix 1
+	[ -n "$reqprefix" ] && json_add_string reqprefix "$reqprefix"
 	ubus call network add_dynamic "$(json_dump)"
 }
 

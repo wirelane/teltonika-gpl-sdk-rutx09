@@ -972,6 +972,8 @@ typedef enum {
 	LGSM_UBUS_GET_RI_BEHAVIOR,
 	LGSM_UBUS_SET_SLEEP_MODE,
 	LGSM_UBUS_GET_SLEEP_MODE,
+	LGSM_UBUS_SET_AUTOAPN_MODE,
+	LGSM_UBUS_GET_AUTOAPN_MODE,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -4202,6 +4204,13 @@ void handle_get_ri_behavior(struct blob_attr *info, lgsm_structed_info_t *parsed
  */
 void handle_get_sleep_mode(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
+/**
+ * Parse autoapn mode method response
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+ */
+void handle_get_autoapn_mode_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
 /*********************
 *  STRUCT HANDLERS  *
 *********************/
@@ -4335,8 +4344,8 @@ lgsm_err_t lgsm_handle_methods(struct ubus_context *ctx, lgsm_method_t method_n,
  * @param[in]   tmo        Ubus timeout (in milliseconds).
  * @return lgsm_err_t. Return function status code.
  */
-lgsm_err_t lgsm_handle_methods_structed_tmo(struct ubus_context *ctx, lgsm_method_t method_n, uint32_t modem_num,
-					    lgsm_structed_info_t *data, int tmo);
+lgsm_err_t lgsm_handle_methods_structed_tmo(struct ubus_context *ctx, lgsm_method_t method_n,
+					    uint32_t modem_num, lgsm_structed_info_t *data, int tmo);
 
 /*
  * Handle given GSMD ubus methods
@@ -4458,6 +4467,16 @@ lgsm_err_t lgsm_set_ri_behavior(struct ubus_context *ctx, const char *type, uint
  */
 lgsm_err_t lgsm_set_sleep_mode(struct ubus_context *ctx, bool enable, bool save, func_t *resp,
 			       uint32_t modem_num);
+
+/*
+ * Set autoapn mode
+ * @param[ptr]  ctx        Ubus context.
+ * @param[in]   enable     Enable or disable autoapn mode.
+ * @param[in]   resp       Status code for modem setting configuration.
+ * @param[in]   modem_num  Modem number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_autoapn_mode(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
 
 #ifdef __cplusplus
 }

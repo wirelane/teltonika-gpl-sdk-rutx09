@@ -49,6 +49,7 @@
 	/delete-node/ simpin2;
 	/delete-node/ simpin3;
 	/delete-node/ simpin4;
+	/delete-node/ mob_vidpid_1;
 
 	sim_count {
 		default =  "0";

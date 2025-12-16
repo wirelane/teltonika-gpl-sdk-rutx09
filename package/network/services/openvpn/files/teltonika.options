@@ -41,4 +41,6 @@ auth_user_pass_verify
 learn_address
 askpass
 auth_nocache
+user
+group
 '

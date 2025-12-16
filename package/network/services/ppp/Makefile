@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ppp
-PKG_RELEASE:=9
+PKG_RELEASE:=13
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=cd5b0f0543cad042df126cf8ad1a238e5d13dd17
@@ -38,7 +38,7 @@ define Package/ppp/Default
   CATEGORY:=Network
   URL:=https://ppp.samba.org/
   USERID:=pppd:pppd
-  FATTRS:=/usr/sbin/pppd:root:pppd:y:
+  FATTRS:=/usr/sbin/pppd::::cap_net_admin,cap_net_raw=ep
 endef
 
 define Package/ppp
@@ -228,7 +228,6 @@ define Package/ppp/install
 	$(INSTALL_CONF) ./files/etc/ppp/chap-secrets $(1)/etc/ppp/
 	$(INSTALL_DATA) ./files/etc/ppp/filter $(1)/etc/ppp/
 	$(INSTALL_DATA) ./files/etc/ppp/options $(1)/etc/ppp/
-	$(LN) /tmp/resolv.conf.ppp $(1)/etc/ppp/resolv.conf
 	$(INSTALL_DIR) $(1)/lib/netifd $(1)/usr/local/usr/lib/netifd/proto
 	$(INSTALL_BIN) ./files/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/
 	$(LN) /usr/local/usr/lib/netifd/proto/ppp.sh $(1)/usr/local/usr/lib/netifd/proto/pppoe.sh
@@ -245,6 +244,8 @@ define Package/ppp/install
 	$(INSTALL_DATA) ./files/etc/ppp/options.sstp $(1)/etc/ppp/
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/ppp.permtab $(1)/etc/permtab.d/ppp
+	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
+	$(INSTALL_BIN) ./files/ip $(1)/usr/libexec/rpcd/ip
 endef
 Package/ppp-multilink/install=$(Package/ppp/install)
 

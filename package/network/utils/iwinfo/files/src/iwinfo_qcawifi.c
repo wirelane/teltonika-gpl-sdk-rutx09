@@ -558,7 +558,8 @@ static int qcawifi_get_txpwrlist(const char *ifname, char *buf, int *len)
 	return nl80211_ops.txpwrlist(qcawifi_name_to_iface(ifname), buf, len);
 }
 
-static int qcawifi_get_scanlist(const char *ifname, char *buf, int *len)
+static int qcawifi_get_scan(const char *ifname, char *buf, int *len,
+							int (*scan_func)(const char *, char *, int *))
 {
 	int ret = -1;
 	char *res;
@@ -574,7 +575,7 @@ static int qcawifi_get_scanlist(const char *ifname, char *buf, int *len)
 			while ((e = readdir(proc)) != NULL) {
 				if (!!qcawifi_isvap(e->d_name, ifname)) {
 					if (iwinfo_ifup(e->d_name)) {
-						ret = nl80211_ops.scanlist(e->d_name, buf, len);
+						ret = scan_func(e->d_name, buf, len);
 						break;
 					}
 				}
@@ -586,16 +587,26 @@ static int qcawifi_get_scanlist(const char *ifname, char *buf, int *len)
 		/* Still nothing found, try to create a vap */
 		if (ret == -1) {
 			if ((res = nl80211_ifadd(ifname)) != NULL) {
-				ret = nl80211_ops.scanlist(res, buf, len);
+				ret = scan_func(res, buf, len);
 
 				nl80211_ifdel(res);
 			}
 		}
 	} else if (!!qcawifi_isvap(ifname, NULL)) { /* Got athX device? */
-		ret = nl80211_ops.scanlist(ifname, buf, len);
+		ret = scan_func(ifname, buf, len);
 	}
 
 	return ret;
+}
+
+static int qcawifi_get_scanlist(const char *ifname, char *buf, int *len)
+{
+	return qcawifi_get_scan(ifname, buf, len, nl80211_ops.scanlist);
+}
+
+static int qcawifi_get_scan_results(const char *ifname, char *buf, int *len)
+{
+	return qcawifi_get_scan(ifname, buf, len, nl80211_ops.scan_results);
 }
 
 static int qcawifi_get_freqlist(const char *ifname, char *buf, int *len)
@@ -761,5 +772,6 @@ const struct iwinfo_ops qcawifi_ops = {
 	.scanlist         = qcawifi_get_scanlist,
 	.freqlist         = qcawifi_get_freqlist,
 	.countrylist      = qcawifi_get_countrylist,
+	.scan_results     = qcawifi_get_scan_results,
 	.close            = qcawifi_close
 };

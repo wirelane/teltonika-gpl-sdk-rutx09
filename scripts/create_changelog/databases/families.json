@@ -17,7 +17,7 @@
   },
   {
     "name": "OTD",
-    "devices": ["OTD140", "OTD144", "OTD500", "OTD501"]
+    "devices": ["OTD140", "OTD144", "OTD500", "OTD501", "OTD164"]
   },
   {
     "name": "RUTM",
@@ -41,7 +41,7 @@
   },
   {
     "name": "RUTE",
-    "devices": ["RUT202", "RUT204", "RUT206", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981", "RUT986"]
+    "devices": ["RUT202", "RUT204", "RUT206", "RUT261", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981", "RUT986"]
   },
   {
     "name": "RUT2M",
@@ -66,6 +66,10 @@
   {
     "name": "RUT36X",
     "devices": ["RUT361"]
+  },
+  {
+    "name": "RUTP",
+    "devices": ["RUTP50", "RUTP52", "RUTP54"]
   },
   {
     "name": "TRB1",

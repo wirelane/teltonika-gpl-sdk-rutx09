@@ -1,5 +1,7 @@
---- a/log/syslog.c
-+++ b/log/syslog.c
+Index: ubox-2020-10-25-9ef88681/log/syslog.c
+===================================================================
+--- ubox-2020-10-25-9ef88681.orig/log/syslog.c
++++ ubox-2020-10-25-9ef88681/log/syslog.c
 @@ -111,11 +111,31 @@ CODE severity_names[] = {
  static struct log_head*
  log_next(struct log_head *h, int size)

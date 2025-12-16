@@ -26,7 +26,7 @@ define Package/$(PKG_NAME)/install
 	elif [ $(TLT_PLATFORM_RUT9) ] || [ $(TLT_PLATFORM_RUT9M) ] || [ $(TLT_PLATFORM_RUTE) ]; then \
 		$(call SelectPinoutIcon,$(1),io_10pin.svg) \
 	elif [ $(TLT_PLATFORM_TSW2) ]; then \
-		$(call SelectPinoutIcon,$(1),io_2pin.svg) \
+		$(call SelectPinoutIcon,$(1),relay_2pin.svg) \
 		$(call SelectPinoutIcon,$(1),power_5pin.svg) \
 	fi;
 endef

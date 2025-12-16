@@ -2,7 +2,10 @@
 . /lib/functions.sh
 
 IFNAME_HASH="pptp-$(printf '%s' "${PEERNAME}" | md5sum | cut -c1-8)"
-ip link del "${IFNAME_HASH}"
+local status
+status=$(ubus call ip ip '{"params":["link", "del", "'"${IFNAME_HASH}"'"]}' | jsonfilter -e '@.code')
+if [ "$status" -ne 0 ]; then
+    logger -t "pptpd" "failed ubus call, status: $status"
+fi
 
 exit 0
-

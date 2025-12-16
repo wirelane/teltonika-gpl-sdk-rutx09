@@ -6,14 +6,15 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libtlt-logger
-PKG_VERSION:=2025-07-02
+PKG_VERSION:=2025-11-24
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.15
+PKG_SOURCE_VERSION:=7.20.1
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
-PKG_LICENSE:=Teltonika-closed
+PKG_LICENSE:=BSD-3-Clause
+PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -28,7 +29,6 @@ define Build/InstallDev
 	$(CP) $(PKG_BUILD_DIR)/libtlt_logger.so $(STAGING_DIR)/usr/lib/
 	$(CP) $(PKG_BUILD_DIR)/src/tlt_logger.h $(STAGING_DIR)/usr/include/
 endef
-
 
 define Package/libtlt-logger/install
 	$(INSTALL_DIR) $(1)/usr/lib

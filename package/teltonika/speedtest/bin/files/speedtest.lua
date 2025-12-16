@@ -1,5 +1,6 @@
 #!/usr/bin/lua
 local nixio = require("nixio")
+local test_iface = nil
 if nixio.getuid() == 0 and nixio.getgid() == 0 then
 	local user = nixio.getpw("speedtest")
 	if user then
@@ -181,12 +182,16 @@ function writeData(downloadSpeed, currentDownloaded, uploadSpeed, currentUpload)
 end
 
 local function fetchServerList(search)
-	local url = "https://www.speedtest.net/api/js/servers?engine=js&limit=100&https_functional=true"
+	local url = "speedtest.net/api/js/servers?engine=js&limit=100&https_functional=true"
 	if search then
 		url = url .. "&search=" .. socket_url.escape(search)
 	end
 	local body
-	body = libspeedtest.getbody(url)
+	body = libspeedtest.getbody("https://www."..url)
+
+	if body == nil or body == "" then
+		body = libspeedtest.getbody("https://ipv6."..url)
+	end
 
 	if body == nil or body == "" then
 		ERROR = "Could not get the server list."
@@ -208,12 +213,67 @@ local function fetchServerList(search)
 	return body
 end
 
+local function check_internet_connection(host, port, timeout)
+	local nixio = require("nixio")
+	local socket = require("socket")
+	local r, w = nixio.pipe()
+
+	timeout = timeout or 1
+
+	local sleep_pid = nixio.fork()
+	if sleep_pid == 0 then
+		nixio.exec("/bin/sleep", tostring(timeout))
+	end
+
+	local dns_pid = nixio.fork()
+	if dns_pid == 0 then
+		r:close()
+		local ip = socket.dns.toip(host)
+		if ip then
+			w:write(ip)
+		end
+		w:close()
+		os.exit()
+	end
+	w:close()
+
+	while true do
+		local finished_pid  = nixio.waitpid()
+		if finished_pid == sleep_pid then
+			nixio.kill(dns_pid, 9)
+			break
+		end
+
+		if finished_pid == dns_pid then
+			break
+		end
+	end
+
+	local ip = r:read(1024)
+	r:close()
+
+	if not ip or ip == "" then
+		return false
+	end
+
+	local con = socket.tcp()
+	con:settimeout(timeout)
+
+	local result = con:connect(ip, tonumber(port))
+	if not result then
+		return false
+	end
+	con:close()
+	return true
+end
+
 local function getConfig()
 	-- check that internet exists before trying to resolve speedtest
 	local body = ""
-	local ping = util.file_exec("/bin/ping", { "1.1.1.1", "-c1"})
-	if ping.code == 0 then
+	if check_internet_connection("www.speedtest.net", 443, 5) then
 		body = libspeedtest.getbody("https://www.speedtest.net/speedtest-config.php") or ""
+	elseif check_internet_connection("ipv6.speedtest.net", 443, 5) then
+		body = libspeedtest.getbody("https://ipv6.speedtest.net/speedtest-config.php") or ""
 	end
 
 	local client_line = body.match(body, '<client.-/>') or ""
@@ -253,7 +313,7 @@ local function flagCheck(num,flag)
 	local tmp = 0;
 
 	if flag == "--help" or flag == "-h" then
-		print("usage: speedtest [options]\nAvailable options are:\n--help	  shows usage of file\n-s		  set silent mode\n-u [url]	set server\n-t [time]   set test time\n-g		  get server list\n-i		  get client info")
+		print("usage: speedtest [options]\nAvailable options are:\n--help      shows usage of file\n-s          set silent mode\n-w [iface]  set test network interface\n-u [url]    set server\n-t [time]   set test time\n-g          get server list\n-i          get client info")
 		exit()
 	elseif flag == "-s" then
 		SILENT = true;
@@ -289,6 +349,9 @@ local function flagCheck(num,flag)
 		config = getConfig()
 		print(string.format('{"ip": "%s", "isp": "%s"}', config.ip or "", config.isp or ""))
 		exit()
+	elseif flag == "-w" then
+		test_iface = arg[num + 1]
+		tmp = 1
 	else
 		print("The is no such option as "..flag)
 	end
@@ -379,7 +442,7 @@ if not SILENT then
 end
 
 STATE = "TESTING_DOWNLOAD"
-isError, res = libspeedtest.testspeed(SERVER..":8080/download?size=92233720368547758", TIME, false, 4)
+isError, res = libspeedtest.testspeed(SERVER..":8080/download?size=92233720368547758", TIME, false, 4, test_iface)
 -- some servers like speedtest.bite.lt will not work unless a size is specified
 if isError then
 	ERROR = res
@@ -392,7 +455,7 @@ writeToJSON(DSPEED, DBYTES, USPEED, UBYTES)
 socket.sleep(3.75)
 
 STATE = "TESTING_UPLOAD"
-isError, res = libspeedtest.testspeed(SERVER..":8080/speedtest/upload.php", TIME, true, 4)
+isError, res = libspeedtest.testspeed(SERVER..":8080/speedtest/upload.php", TIME, true, 4, test_iface)
 if isError then
 	ERROR = res
 	writeData()

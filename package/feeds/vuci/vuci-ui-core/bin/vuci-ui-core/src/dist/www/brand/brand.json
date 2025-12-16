@@ -17,6 +17,6 @@
   "mqttWikiURL": "https://wiki.teltonika-networks.com/view/Monitoring_via_MQTT#How_MQTT_works",
   "modemUpdateWikiURL": "https://wiki.teltonika-networks.com/view/AT%26T_3G_Network_shutdown_information",
   "mobileRSSIWikiURL": "https://wiki.teltonika-networks.com/view/RSSI",
-  "privacyPolicyURL": "https://teltonika-networks.com/privacy-policy/",
+  "privacyPolicyURL": "https://teltonika-iot-group.com/policies-certificates/privacy-policy",
   "sentryDSN": "https://069badc955f8757279eb08bb2ed16b5d@o1317009.ingest.sentry.io/4505872765943808"
 }

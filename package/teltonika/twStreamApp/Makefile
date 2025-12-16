@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=twStreamApp
-PKG_VERSION:=2025-10-16
+PKG_VERSION:=2025-12-02
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.11
+PKG_SOURCE_VERSION:=1.12
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -24,7 +24,7 @@ define Package/twStreamApp
   SECTION:=net
   CATEGORY:=Network
   TITLE:=ThingWorx Stream application.
-  DEPENDS:=+libtwCSdk +MOBILE_SUPPORT:libgsm +libtlt_uci +libuci +libopenssl +libubus
+  DEPENDS:=+libtwCSdk +MOBILE_SUPPORT:libgsm +libtlt_uci +libuci +libopenssl +libubus +libubox
   USERID:=tws=517:tws=517
 endef
 

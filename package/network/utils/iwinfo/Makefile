@@ -7,7 +7,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libiwinfo
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 
 
 PKG_SOURCE_DATE:=2025-02-06

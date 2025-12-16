@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ucode
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v0.0.20230606
@@ -27,7 +27,7 @@ include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/host-build.mk
 include $(INCLUDE_DIR)/cmake.mk
 
-CMAKE_OPTIONS += -DSOVERSION=$(PKG_ABI_VERSION)
+CMAKE_OPTIONS += -DSOVERSION=$(PKG_ABI_VERSION) -DEXTRA_LIB_SEARCH_PATH="/usr/local/usr/lib/ucode/*.so"
 CMAKE_HOST_OPTIONS += \
 	-DSOVERSION=$(PKG_ABI_VERSION) \
 	-DFS_SUPPORT=ON \

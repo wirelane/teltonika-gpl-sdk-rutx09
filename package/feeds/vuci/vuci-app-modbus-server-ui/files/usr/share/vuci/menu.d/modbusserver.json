@@ -20,7 +20,12 @@
     "index": 2,
     "view": "services/ModbusServerDataSource",
     "acls": ["services/modbus/modbus_server/data_source"],
-    "files": ["/etc/config/modbus_server"]
+    "files": ["/etc/config/modbus_server"],
+    "depends": {
+      "board": {
+        "notAllOf": ["is_switch"]
+      }
+    }
   },
   "services/modbus/modbus_serial_server": {
     "title": "Modbus Serial Server",
@@ -41,6 +46,11 @@
     "title": "Data Sources",
     "index": 2,
     "view": "services/ModbusSerialServerDataSource",
-    "acls": [ "services/modbus/modbus_serial_server/data_source" ]
+    "acls": [ "services/modbus/modbus_serial_server/data_source" ],
+    "depends": {
+      "board": {
+        "notAllOf": ["is_switch"]
+      }
+    }
   }
 }

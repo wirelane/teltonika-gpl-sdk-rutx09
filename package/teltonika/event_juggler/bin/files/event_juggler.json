@@ -103,9 +103,9 @@
 				"set_topo_ev"
 			]
 		},
-		"uci" : {
+		"service" : {
 			"methods": [
-				"reload_config"
+				"event"
 			]
 		},
 		"rpc-sys": {

@@ -349,20 +349,20 @@ check_manufacturer() {
 
 check_modem_status() {
 	#Check if modem is available and respond to requests
-	#If fait for WAN is set, wait for modem too
+	#If wait for WAN is set, wait for modem too
 	local modem_id="$1"
 	local ret
 	ret=$(get_firmware "$modem_id")
 	old_fw="$ret"
 	if [ "$WAIT_FOR_WAN" = 1 ]; then
 		for i in $(seq 18); do
-			[ "$ret" != "" ] && [ "$ret" != "Command failed: Not found" ] && return 0
+			[ "$ret" != "" ] && [[ ! "$ret" =~ "Command failed: Not found" ]] && return 0
 			sleep 10
 		done
 		print_error "modem $modem_id not ready." "$EC_NOT_READY"
 		return 1
 	else
-		if [ "$ret" = "" ] || [ "$ret" = "Command failed: Not found" ]; then
+		if [ "$ret" = "" ] || [[ "$ret" =~ "Command failed: Not found" ]]; then
 			print_error "modem $modem_id not ready." "$EC_NOT_READY"
 			return 1
 		fi
@@ -410,7 +410,7 @@ check_update() {
 
 	print_output "Searching for updates..."
 
-	rut_fota -i > /dev/null 2>&1 || {
+	ubus call rut_fota fw_info > /dev/null 2>&1 || {
 		print_error "Connection error to FOTA server!" "$EC_CONN_ERROR"
 	}
 	modem_usb_id=$(get_from_info "$modem_id" "usb_id")
@@ -486,7 +486,7 @@ do_update() {
 	json_update_modem_status "$modem_id" "downloading"
 	notify_webui "start" "{\"modem_id\": \"$(get_from_info "$m_id" "usb_id")\"}"
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server "$(get_from_info "$m_id" "usb_id")"
+	[ -z "$MODE" ] && ubus call rut_fota notify_server "{\"modem_id\": \"$(get_from_info "$m_id" "usb_id")\"}"
 	if [ "$MODE" != "file" ]; then
 		if [ "$MODE" = "link" ]; then
 			download_link="$MODE_PATH"
@@ -620,7 +620,7 @@ do_update_EG915Q() {
 	json_update_modem_status "$modem_id" "downloading"
 	notify_webui "start"
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server "$(get_from_info "$modem_id" "usb_id")"
+	[ -z "$MODE" ] && ubus call rut_fota notify_server "{\"modem_id\": \"$(get_from_info "$modem_id" "usb_id")\"}"
 	if [ "$MODE" != "file" ]; then
 		if [ "$MODE" = "link" ]; then
 			download_link="$MODE_PATH"
@@ -670,7 +670,7 @@ do_update_telit_le() {
 	json_update_modem_status "$modem_id" "downloading"
 	notify_webui "start"
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server "$(get_from_info "$modem_id" "usb_id")"
+	[ -z "$MODE" ] && ubus call rut_fota notify_server "{\"modem_id\": \"$(get_from_info "$modem_id" "usb_id")\"}"
 	if [ "$MODE" != "file" ]; then
 		if [ "$MODE" = "link" ]; then
 			download_link="$MODE_PATH"
@@ -779,7 +779,7 @@ do_update_mobile_only() {
 	notify_webui "start" "{\"modem_id\": \"$modem_usb_id\"}"
 
 	# Add notification to rut_fota about start of downloading
-	[ -z "$MODE" ] && rut_fota --notify_server "$modem_usb_id"
+	[ -z "$MODE" ] && ubus call rut_fota notify_server "{\"modem_id\": \"$modem_usb_id\"}"
 
 	ret=$(ubus call "$modem_id" dfota_upgrade "{\"path\":\"$download_link\"}")
 	ret=$(get_value_from_json "$ret" "status")
@@ -835,7 +835,7 @@ track_update_status() {
 		cnt=$((cnt+1))
 		ret=$(get_firmware "$modem_id") > /dev/null 2>&1
 
-		[ -z "$ret" ] || [ "$ret" = "Command failed: Not found" ] || break
+		[ -z "$ret" ] || [[ "$ret" =~ "Command failed: Not found" ]] || break
 		debug "Update status result: $ret"
 		if [ $((cnt % 5)) -eq 0 ]; then
 			print_output "Update is in progress..."
@@ -884,7 +884,7 @@ track_update_status_EG915Q() {
 		cnt=$((cnt+1))
 		ret=$(get_firmware "$modem_id") > /dev/null 2>&1
 
-		[ -z "$ret" ] || [ "$ret" = "Command failed: Not found" ] || break
+		[ -z "$ret" ] || [[ "$ret" =~ "Command failed: Not found" ]] || break
 		debug "Update status result: $ret"
 		if [ $((cnt % 5)) -eq 0 ]; then
 			print_output "Update is in progress..."
@@ -1021,7 +1021,7 @@ update_loop(){
 	local updates=0
 	for m_id in $modem_ids; do
 		[ -n "$UPDATE_MODEM" ] && [ "$m_id" != "$UPDATE_MODEM" ] && continue
-		print_output "Preparing for $m_id update!"
+		print_output "Doing basic checks for $m_id..."
 		modem_found="true"
 
 		check_modem_status "$m_id" || {
@@ -1033,6 +1033,8 @@ update_loop(){
 			json_update_modem_error "$m_id" "$LAST_ERROR" "$LAST_ERROR_CODE"
 			continue
 		}
+
+		print_output "Basic checks: OK!"
 
 		check_update "$m_id" || {
 			json_update_modem_error "$m_id" "$LAST_ERROR" "$LAST_ERROR_CODE"

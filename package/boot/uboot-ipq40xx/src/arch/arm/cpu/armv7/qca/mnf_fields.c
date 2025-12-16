@@ -84,6 +84,7 @@ mnf_field_t mnf_fields[] = {
 	{ '3', "sim3",      "SIM 3 PIN",        0x10020,   4, clear          },
 	{ '4', "sim4",      "SIM 4 PIN",        0x10030,   4, clear          },
 	{ 'c', "mob_cfg",   "Mob config",          0x76,   4, clear          },
+	{ 'I', "mob_vidpid","Mob VIDs PIDs",	   0x80,   8, clear          , MNF_FIELD_BINARY },
 	{ '\0' }
 };
 

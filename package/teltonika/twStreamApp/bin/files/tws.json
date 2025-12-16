@@ -11,6 +11,11 @@
                 "get_service_provider",
                 "get_signal_query"
             ]
-        }
+        },
+        "wan_info": {
+            "methods": [
+                "get"
+            ]
+	}
     }
 }

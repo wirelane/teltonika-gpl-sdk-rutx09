@@ -75,10 +75,12 @@ function import_key() {
 
 
 	tpm2_import -C $TPM_MANAGER_PRIMARY_KEY_HANDLE -G "$key_algo" -i "$key_path" -r "$working_dir/key.priv" -u "$working_dir/key.pub" > /dev/null 2>&1 || {
+		rm -r "$working_dir"
 		echo "failed to import key."
 		return $CODE_IMPORT_FAILED
 	}
 	tpm2_load -C $TPM_MANAGER_PRIMARY_KEY_HANDLE -u "$working_dir/key.pub" -r "$working_dir/key.priv" -c "$working_dir/imported.ctx" > /dev/null 2>&1 || {
+		rm -r "$working_dir"
 		echo "failed to load key."
 		return $CODE_IMPORT_FAILED
 	}

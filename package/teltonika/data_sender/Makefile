@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.22
+PKG_SOURCE_VERSION:=1.23
 
 PKG_FIXUP:=autoreconf
 
@@ -55,6 +55,7 @@ endef
 $(eval $(call RegisterPlugin,bluetooth,+libsqlite3,Input plugin for bluetooth data gathering))
 $(eval $(call RegisterPlugin,modbus,+libsqlite3,Input plugin for modbus data gathering))
 $(eval $(call RegisterPlugin,modbus-alarm,+libsqlite3,Input plugin for modbus alarm gathering))
+$(eval $(call RegisterPlugin,iec60870,+libsqlite3 +lib60870,Input plugin for IEC 60870-5 data gathering))
 $(eval $(call RegisterPlugin,dnp3,+libsqlite3,Input plugin for DNP3 data gathering))
 $(eval $(call RegisterPlugin,opcua,+libsqlite3,Input plugin for OPC UA data gathering))
 $(eval $(call RegisterPlugin,impulse_counter,+libsqlite3,Input plugin for impulse counter data gathering))
@@ -104,7 +105,7 @@ CONFIGURE_ARGS += \
 define Package/data-sender/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin \
 			$(1)/lib/troubleshoot $(1)/lib/data_sender $(1)/usr/share/acl.d
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18/ $(1)/etc/uci-defaults/7.20
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender.init $(1)/etc/init.d/data_sender
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/datasender $(1)/usr/sbin/
@@ -113,6 +114,7 @@ define Package/data-sender/install
 	$(CP) $(PKG_BUILD_DIR)/files/libdata_sender.sh $(1)/lib/data_sender/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/acl.d/data_sender.json $(1)/usr/share/acl.d/
 	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.18/01-data_sender_move_dnp3_db $(1)/etc/uci-defaults/7.18/
+	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.20/01-data_sender_enable_inputs $(1)/etc/uci-defaults/7.20/
 endef
 
 define BuildPlugin
@@ -166,6 +168,7 @@ endef
 $(eval $(call BuildPlugin,bluetooth,input_bluetooth))
 $(eval $(call BuildPlugin,modbus,input_modbus))
 $(eval $(call BuildPlugin,modbus-alarm,input_modbus_alarm))
+$(eval $(call BuildPlugin,iec60870,input_iec60870))
 $(eval $(call BuildPlugin,dnp3,input_dnp3))
 $(eval $(call BuildPlugin,opcua,input_opcua))
 $(eval $(call BuildPlugin,impulse_counter,input_impulse_counter))

@@ -37,8 +37,8 @@ define Device/teltonika_rutx
 	PAGESIZE := 2048
 	FILESYSTEMS := squashfs
 	DEVICE_FEATURES := usb-port gps modbus ios wifi bluetooth dualsim \
-			port-mirror mobile dot1x-client portlink \
-			sw-offload xfrm-offload tpm reset_button
+			port-mirror mobile dot1x-client port_link \
+			sw-offload xfrm-offload tpm reset_button ncm
 
 	GPL_PREFIX := GPL
 	# Default common packages for RUTX series
@@ -78,7 +78,7 @@ define Device/teltonika_rutx
 		TEMPLATE_teltonika_rutxr1
 
 	DEVICE_MODEM_VENDORS := Quectel Meiglink
-	DEVICE_MODEM_LIST := EG06 EG060K EG12 RG501Q RG520N SLM828
+	DEVICE_MODEM_LIST := EG06 EG060K EG060W EG12 RG501Q RG520N SLM828
 
 endef
 TARGET_DEVICES += teltonika_rutx

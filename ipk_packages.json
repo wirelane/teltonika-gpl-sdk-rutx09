@@ -65,7 +65,7 @@
 		"name": "dlna"
 	},
 	"vuci-app-zerotier-ui": {
-		"base_dep": "zerotier tc-tiny",
+		"base_dep": "zerotier tc-tiny ucode libucode20220812",
 		"vuci_dep": "vuci-app-zerotier-api",
 		"packages_dep": "libminiupnpc libnatpmp1",
 		"kmod_dep": "libstdcpp6 kmod-sched-core kmod-sched-flower kmod-sched-act-police",
@@ -664,8 +664,22 @@
 	"uhttpd-mod-ubus": {
 		"name": "json_rpc_support"
 	},
+	"vuci-app-iec60870-server-ui": {
+		"base_dep": "iec60870_server lib60870",
+		"vuci_dep": "vuci-app-iec60870-server-api",
+		"name": "iec60870_server"
+	},
 	"kmod-ovpn-dco-v2": {
 		"kmod_dep": "kmod-crypto-aead kmod-udptunnel4 kmod-udptunnel6",
 		"name": "openvpn_dco_support"
+	},
+	"vuci-app-iec60870-client-ui": {
+		"base_dep": "iec60870_client lib60870 data-sender-mod-iec60870",
+		"vuci_dep": "vuci-app-iec60870-client-api vuci-app-data-sender-api-mod-iec60870",
+		"name": "iec60870_client"
+	},
+	"kmod-fs-cifs": {
+		"kmod_dep": "kmod-fs-smbfs-common kmod-crypto-md4 kmod-crypto-md5 kmod-crypto-sha256 kmod-crypto-sha512 kmod-crypto-cmac kmod-crypto-hmac kmod-crypto-arc4 kmod-crypto-aead kmod-crypto-ccm kmod-crypto-ecb kmod-crypto-des kmod-oid-registry kmod-dnsresolver kmod-asn1-decoder kmod-fs-netfs kmod-nls-ucs2-utils",
+		"name": "fs_cifs_support"
 	}
 }

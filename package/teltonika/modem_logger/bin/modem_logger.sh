@@ -45,6 +45,7 @@ FORCE_AT_TTY=""
 FORCE_COREDUMP_LOG=""
 
 FILTER_PATH=""
+ADDITIONAL_FLAGS=""
 
 DIAG=""
 MODEM_ID=""
@@ -232,7 +233,7 @@ find_modem_log_port()
 
 set_logger(){
     # TRB5 and TRB1 uses only diag_mdlog for logging
-    [[ "$PLATFORM" =~ "TRB[51]" ]] && [ -e "/usr/bin/diag_mdlog" ] && {
+    ([[ "$PLATFORM" =~ "TRB[51]" ]] || [[ "$PLATFORM" =~ "CAP7" ]]) && [ -e "/usr/bin/diag_mdlog" ] && {
         LOGGER_PATH="/usr/bin/diag_mdlog"
         ADD_QUECTEL_AT="true"
         return
@@ -343,12 +344,20 @@ start_logger(){
             echo "[INFO]: Setting chmod 757 to \"$LOG_DIR\"."
             chmod 757 "$LOG_DIR"
             echo "[INFO]: Revert \"/dev/diag\" permissions when logging is finished with \"modem_logger -x\""
-            [[ "$PLATFORM" =~ "TRB[51]" ]] && [ -z "$FILTER_PATH" ] && [ -e "$DEFAULT_FILTER_FILE_PATH" ] && {
+            ([[ "$PLATFORM" =~ "TRB[51]" ]] || [[ "$PLATFORM" =~ "CAP7" ]]) && [ -z "$FILTER_PATH" ] && [ -e "$DEFAULT_FILTER_FILE_PATH" ] && {
                 # Sets default.cfg filter file to use if it exists and not already set
                 FILTER_PATH="$DEFAULT_FILTER_FILE_PATH"
             }
-            echo "[LOGGER_START]: $LOGGER_PATH" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR"
-            "$LOGGER_PATH" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR" &>/dev/null &
+
+            [ "$PLATFORM" = "TRB501" ] || [[ "$PLATFORM" =~ "CAP7" ]] && {
+                ADDITIONAL_FLAGS="-q 2"
+            }
+
+            [ "$PLATFORM" = "TRB16" ] && {
+                ADDITIONAL_FLAGS="-q 2 -u"
+            }
+            echo "[LOGGER_START]: $LOGGER_PATH" "$ADDITIONAL_FLAGS" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR"
+            "$LOGGER_PATH" "$ADDITIONAL_FLAGS" ${FILTER_PATH:+-f "$FILTER_PATH"} -o "$LOG_DIR" &>/dev/null &
         ;;
         */qc_trace_collector)
             local modems="$(ubus list gsm.modem* | tr "\n" " ")"

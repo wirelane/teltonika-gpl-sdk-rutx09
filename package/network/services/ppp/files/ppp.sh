@@ -294,6 +294,7 @@ proto_pptp_init_config() {
 	proto_config_add_boolean "disabled"
 	proto_config_add_string "mppe"
 	proto_config_add_array "mppe_encryption"
+	proto_config_add_array "pptp_options"
 	available=1
 	no_device=1
 	lasterror=1
@@ -307,9 +308,7 @@ append_pptp_options() {
 
 proto_pptp_setup() {
 	local config="$1"
-	local ifname="pptp-$config"
-	mkdir -p /var/etc/pptp
-	local options="/var/etc/pptp/options.${ifname}"
+	local options="/var/run/pptpd/options.${config}"
 	: > "$options"
 
 	local ip serv_addr server interface s mwan_enabled status num gw metric device proto defaultroute encryptions opts mppe

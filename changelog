@@ -1,39 +1,126 @@
-# 2025-12-05 00.07.19.5
+# 2025-12-10 00.07.20
 
-### Fix
+### New
 
-* RutOS: fixed WAN ethernet LED for RUTX09 (ID: 31294)
-
-# 2025-12-03 00.07.19.4
-
-### Fix
-
-* Mobile: fixed operator selection under specific conditions (ID: 31185)
-
-# 2025-11-25 00.07.19.3
-
-### Fix
-
-* Mobile: fixed an issue where modem could not switch to automatic operator selection mode (ID: 31192)
-
-# 2025-11-18 00.07.19.2
-
-### Fix
-
-* Update Firmware: fixed firmware download cancellation (ID: 29456)
-
-# 2025-11-10 00.07.19.1
+* Boot: added new mnf_info fields for modem VID and PID on bootloader and in sysfs for RUTP family, TRB2M family, TAP family, RUTX family, RUTM family, RUTC family, OTD140, OTD500, RUT2M family, RUT9M family, RUT30X family (ID: 21433)
+* CAN Bus Gateway: added CAN bus gateway support (ID: 29017)
+* Channel Analysis: added Channel Analysis page for TAP family (ID: 28875)
+* Data to Server: added IEC 60870-5 Client as an input (ID: 27668)
+* IEC 60870-5 Client: added IEC 60870-5-104 Client (ID: 27668)
+* IEC 60870-5 Server: added IEC101 and IEC104 support (ID: 27660)
+* Mobile: added "mobileinternet.tele2.lt" APN for "Tele2" operator to APN database (ID: 29088)
+* Package Manager: added CIFS/SMBFS filesystem support (ID: 28995)
+* Wireless: added support for a global installation type option for radio devices (ID: 31240)
 
 ### Improvements
 
-* RMS: added TPM support (ID: 29232)
+* 802.1X Client: updated 802.1x validation so that 802.1x client can no longer be enabled on a port that is disabled (ID: 28757)
+* 802.1X Server: updated 802.1x validation so that 802.1x server can no longer be enabled on a port that is disabled (ID: 28757)
+* AWS IoT Core: updated orange error status to be red (ID: 28647)
+* Azure IoT Hub: updated status columns to use text badges instead of circle icons (ID: 28647)
+* Certificates: changed SCEP enrollment to try AES first and fall back to 3DES (ID: 26391)
+* Data to Server: added certificates to global certificate manager (ID: 27321)
+* Data to Server: increased the limit for Modbus data filtering entries (ID: 28309)
+* Data to Server: updated input sections to be toggleable (ID: 26271)
+* DHCP server: improved "DHCPv6-Mode" field's option names and hints (ID: 24023)
+* Event juggler: added certificates to global certificate manager (ID: 27321)
+* I/O Juggler: added certificates to global certificate manager (ID: 27321)
+* I/O Status: moved all custom I/O configuration from table to the edit (ID: 26140)
+* I/O Status: updated all I/O pinout and Power pinout icons (ID: 26140)
+* Kernel: enabled application crash logging for RUTX family, TRB5 family, TRB1 family (ID: 24663)
+* Kernel: enabled core-dump support in the kernel (ID: 21560)
+* L2TP: improved adding custom options to the configuration
+ (ID: 29051)
+* L2TP: improved the instance creation process (ID: 25349)
+* Mobile: added "Switch to next SIM" button in 'Status -> Mobile' page (ID: 28682)
+* Mobile: added creation of mobile network interface on eSIM profile installation if one does not exist for ATRM50, OTD500, RUT241, RUT951, RUT956, RUT976, RUTC50, RUTM30, RUTM52, RUTM54, RUTM55, RUTM56, RUTX09, RUTX11, RUTX12, RUTX50 (ID: 28526)
+* Mobile: added filter support for modem driver analysis output (ID: 28844)
+* Mobile: improved DFOTA log message when checking for updates (ID: 26186)
+* Mobile: improved log message when no primary SIM is set (ID: 21595)
+* Mobile: improved mobile connection bring up behavior when the "Service option not subscribed" error is received (ID: 29642)
+* Mobile: improved mobile data connection establishment time (ID: 29072)
+* MQTT Broker Bridge: added certificates to global certificate manager (ID: 27321)
+* MQTT Broker: added certificates to global certificate manager (ID: 27321)
+* MQTT Modbus Gateway: increased serial connection robustness (ID: 28285)
+* MQTT Publisher: added certificates to global certificate manager (ID: 27321)
+* Multi WAN: added IPv4 and IPv6 WAN interface coexistence warning (ID: 28397)
+* Network: fixed "Force link" field to respect default value when changing interface protocol for Router family (ID: 29069)
+* Network: improved "Force link" field hint for Router family (ID: 29069)
+* Network: improved interface creation and deletion speed in some situations (ID: 28990)
+* Power Control: updated Power Control table to use square color icons instead of circles (ID: 26140)
+* PPTP: improved the instance creation process (ID: 25341)
+* RutOS: updated login banner to include internal API usage (ID: 28695)
+* SD & USB Tools: added additional mounting behavior options (ID: 26024)
+* SMPP: added certificates to global certificate manager (ID: 27321)
+* SNMP: added additional info to Trap message (ID: 28678)
+* SSHFS: added directory as prefix to "Mount point" field (ID: 24886)
+* SSHFS: updated setting fields to be shown when service is disabled (ID: 24886)
+* System Status: improved WAN LED working with non-standard names for Router family (ID: 19836)
 
 ### Fix
 
-* Administration: fixed displaying bootloader version for OTD144 (ID: 29325)
-* WebUI: fixed unresponsive navigation after password change (ID: 29296)
+* 802.1X Client: fixed client not sending any eapol packets for RUT301 (ID: 29192)
+* 802.1X Client: fixed incorrectly displaying port link state (ID: 28556)
+* 802.1X Client: fixed NO_DEVICE error for TRB2M family (ID: 28961)
+* 802.1X Server: fixed server not responding to any eapol packets for RUT301 (ID: 29192)
+* 802.1X Server: fixed sporadic log error while installing 802.1x package for OTD140, OTD144, RUT14X family, RUT2M family, RUT30X family, RUT9M family (ID: 28556)
+* Azure IoT Hub: fixed custom Lua handlers' execution for RUTC family (ID: 29432)
+* Azure IoT Hub: fixed empty status hint (ID: 28647)
+* Certificates: fixed importing DER keys to TPM (ID: 28750)
+* DNP3 Client: fixed display issues with long request names (ID: 28489)
+* DNP3 Outstation: fixed broken links to "DNP3 Serial Outstation" page (ID: 29690)
+* DNP3 Outstation: fixed display issues with long request names (ID: 28489)
+* Dynamic DNS: fixed bind-nsupdate method not working on multi-level subdomains (ID: 28864)
+* Event juggler: fixed HTTP action request type (ID: 29064)
+* Firewall: removed low contrast zone colors (ID: 28518)
+* Hotspot: fixed session data delete when deleting user (ID: 28857)
+* IPsec: fixed unstable connections with software flow offloading enabled (ID: 28594)
+* L2TP: fixed log display in WebUI (ID: 28609)
+* MBus Client: fixed duplicate query parameters validation in database entries endpoint (ID: 28398)
+* Mobile: fixed eSIM profile migration, causing a network interface and eSIM profile mismatch for RUTX12, RUTM56, RUTM52 (ID: 29517)
+* Mobile: fixed failure to create network interface configuration section for a new eSIM profile for ATRM50, OTD500, RUT241, RUT951, RUT956, RUT976, RUTC50, RUTM30, RUTM52, RUTM54, RUTM55, RUTM56, RUTX09, RUTX11, RUTX12, RUTX50 (ID: 29422)
+* Mobile: fixed SMS Limit excessive logging (ID: 31208)
+* Modbus Client: fixed display issues with long request names (ID: 28489)
+* Modbus Client: fixed duplicate query parameters validation in database entries endpoint (ID: 28398)
+* Modbus Server: fixed display issues with long request names (ID: 28489)
+* MQTT Broker: fixed 'Allow persistence' option (ID: 28224)
+* Network: fixed PPPoE client options not being removed after switching to other protocol for Router family (ID: 27973)
+* Network: fixed routing table rules not matching interface metric order (ID: 29005)
+* OPC UA Client: fixed API error when 'server_node' option had an incorrect type in group values test endpoint (ID: 28428)
+* OPC UA Client: fixed duplicate query parameters validation in database entries endpoint (ID: 28398)
+* OpenVPN: fixed handling of 'user' and 'group' parameters (ID: 29419)
+* OpenVPN: fixed status in Static Key Authentication mode (ID: 28628)
+* Realtime Traffic: fixed plot background rendering when switching between plots (ID: 28853)
+* Realtime Traffic: fixed plot popover position on Firefox 143 and later (ID: 28853)
+* Realtime Traffic: fixed traffic history not showing up in some cases (ID: 27037)
+* RMS: fixed connection status jumping between "Connecting" and "Connected" states (ID: 28440)
+* RutOS: fixed rare UCI deadlock causing system hangs (ID: 29131)
+* RutOS: fixed respecting time zone in CLI for RUTC family (ID: 28658)
+* SD & USB Tools: fixed API error when 'fs' option was not provided for safe_remove, format endpoints (ID: 28286)
+* SMS Utilities: fixed script action execution when arguments are provided (ID: 29415)
+* SNMP: fixed generating mwan3 MIB for TRB500 (ID: 28874)
+* Speed Test: fixed selecting WAN interface when using servers with IPv6 support (ID: 28736)
+* System Users: fixed redundant /etc/group member creation (ID: 29060)
+* WebUI: fixed target area that triggers hint text (ID: 28525)
+* Wireless: fixed authentication timeout during fast transition (ID: 27841)
+* Wireless: fixed latency spikes after wireless roam for TAP200, RUTM family, ATRM50 (ID: 27841)
+* Wireless: fixed retrieving empty cached wireless scan results (ID: 29228)
+* Zerotier: fixed Zerotier not showing up in OSPF interfaces list for RUT301 (ID: 29245)
 
-# 2025-11-04 00.07.19
+### CVE Patches
+
+* CVE-2024-55549 - 7.8 (HIGH) for TRB5 family (ID: 26872)
+* CVE-2025-11731 - 3.1 (LOW) for TRB5 family (ID: 28934)
+* CVE-2025-46394 - 3.3 (LOW) (ID: 28739)
+
+### Updates
+
+* ethtool: updated version to  6.10 (ID: 19118)
+* Kernel: updated version to  5.4.301 for TRB140, TRB141, TRB142, TRB143, TRB145 (ID: 7140)
+* Kernel: updated version to  5.15.196 for RUTC family, TRB2M family, RUT14X family, OTD140, OTD144, RUT2M family, RUT9M family, RUT30X family, RUT36X family, TAP100, TAP400, DAP family, RUTE family, RUTP family (ID: 7140)
+* Kernel: updated version to  6.6.115 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200, OTD164 (ID: 7140)
+
+# 2025-10-30 00.07.19
 
 ### New
 
@@ -169,6 +256,40 @@
 * Kernel: updated version to  6.6.108 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200 (ID: 7140)
 * OpenVPN: updated version to  2.6.14 (ID: 26745)
 * PAM: updated version to  1.7.1 (ID: 28205)
+
+# 2025-10-24 00.07.18.3
+
+### Fix
+
+* Backup: fixed issues uploading older backup files (ID: 29068)
+
+### Updates
+
+* ubus: updated version to  2025-10-19 (ID: 29046)
+
+# 2025-10-08 00.07.18.2
+
+### Improvements
+
+* Logging: reduced logging spam when opening the WebUI for TAP400 (ID: 28629)
+
+### Fix
+
+* IPsec: fixed issue where IPsec connections failed during WAN failover (ID: 28711)
+* OpenVPN: fixed status issue after firmware upgrade (ID: 28706)
+* Update Firmware: fixed keep-settings for devices with eMMC storage for CAP700, RUTC family (ID: 28653)
+
+# 2025-10-14 00.07.17.6
+
+### Fix
+
+* RutOS: fixed incorrect LED indications for DAP family, RUT14X family (ID: 19118)
+
+# 2025-10-09 00.07.18.1
+
+### Fix
+
+* Mobile: fixed operator selection under specific conditions (ID: 28796)
 
 # 2025-09-29 00.07.18
 
@@ -6226,7 +6347,7 @@
     * WebUI: added DLNA media server to package manager (ID: 990)
     * WebUI: added time synchronization using operator station (ID: 617)
     * WebUI: added a way to easily switch LAN port to WAN and vice versa for TRB2 fammily devices (ID: 850)
-    * WebUI: added I/O juggler analog aurrent loop actions and conditions for TRB141 device (ID: 1002)
+    * WebUI: added I/O juggler analog aurrent loop actions and conditions for TRB141 device (ID: 1002)  
     * WebUI: added SQM QoS pages for RUTX family devices (ID: 1106)
     * WebUI: added connected client number to overview ans side widget(ID: 1313)
     * WebUI: added "Flush connections on" option to failover interface configuration (ID: 1463)
@@ -6304,7 +6425,7 @@
     * modbus_serial_master: fixed data string and added no brackets option to serial test (ID: 1609)
     * sms utils : fixed SMS not sending when 'Send status SMS to other number' option is not set (ID: 1749)
     * ath79: use more stable, builtin ar82xx switch driver (ID: 1520)
-    * Serial: Symlinking tty devices in one place (ID: 385)
+    * Serial: Symlinking tty devices in one place (ID: 385) 
     * I/O: fixed geting analog current loop value for TRB141 (ID: 1002)
     * GSM: fixed crashing issue when getting sim slot in use (ID: 1348)
     * SMS Utilities: fixed sms storage not working on devices with multiple modems (ID: 1501)
@@ -6424,18 +6545,18 @@
     * WebUI: Overview page: Wifi widget: fixed number of connected wifi clients display (ID: 1875)
     * WebUI: Removed /log folder from troubleshoot directories(ID: 1879)
     * WebUI: Fixed Lua errors in profile scheduler and firewall->zones(ID: 1881)
-
-
+    
+    
 
 # 2020-07-31 00.02.04.3
   * New:
     * Backup: added backup archive MD5 & SHA256 checksum calculation to help user identify altered backup archives (ID: 1613)
     * Package Manager: added packages signature check to verify if package comes from Teltonika (ID: 1624)
-  * Improvements:
+  * Improvements:    
     * Operctl: updated APN database (ID: 1618)
   * Fix:
     * Lua : fixed CVE-2019-17367 (ID: 1604)
-    * MultiUsers: fixed hiding of configuration pages that users of a specific group don't have read access to (ID: 1620)
+    * MultiUsers: fixed hiding of configuration pages that users of a specific group don't have read access to (ID: 1620) 
 
 # 2020-07-07 00.02.04.2
   * Fix:
@@ -6525,7 +6646,7 @@
     * GSM: fix libgsm connection state function
     * Ledman: backport fixes for RUTX8/10/12 devices
     * Bluetooth: generate config in RUTX12 devices
-    * system: fixed config generate script
+    * system: fixed config generate script 
 
 # 2020-06-02 00.02.03.2
   * Fix:
@@ -6684,8 +6805,8 @@
     * WebUI: add events reporting via Email (ID: 176)
     * WebUI: add STunnel (ID: 112)
     * WebUI: add Multi-User support
-    * WebUI: add "Mobile" page
-    * WebUI: add operators control
+    * WebUI: add "Mobile" page 
+    * WebUI: add operators control 
     * Bluetooth: add passive device scanning (ID: 315)
     * HotSpot 2.0: add HotSpot 2.0 support (ID: 314)
     * Modbus: add MQTT gateway (ID: 456)

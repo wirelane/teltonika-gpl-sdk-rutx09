@@ -75,6 +75,7 @@ DATA_TO_SERVER_MODULES := \
 	Mobile_Usage:mdcollect:ds_inputs:ds_input_mdcollect \
 	Modbus_Alarm:modbus-alarm:ds_inputs:ds_input_modbus_alarm \
 	Modbus:modbus:ds_inputs:ds_input_modbus \
+	IEC_60870_5:iec60870:ds_inputs:ds_input_iec60870 \
 	DNP3:dnp3:ds_inputs:ds_input_dnp3 \
 	OPCUA:opcua:ds_inputs:ds_input_opcua \
 	Impulse_Counter:impulse_counter:ds_inputs:ds_input_impulse_counter \

@@ -399,7 +399,7 @@ $(eval $(call KernelPackage,crypto-hw-padlock))
 
 define KernelPackage/crypto-hw-safexcel
   TITLE:= MVEBU SafeXcel Crypto Engine module
-  DEPENDS:=@(TARGET_mvebu_cortexa53||TARGET_mvebu_cortexa72||TARGET_mediatek_mt7981) +eip197-mini-firmware \
+  DEPENDS:=@(TARGET_mvebu_cortexa53||TARGET_mvebu_cortexa72||TARGET_mediatek_mt7981||TARGET_mediatek_mt7986a) +eip197-mini-firmware \
 	+kmod-crypto-authenc +kmod-crypto-des +kmod-crypto-md5 +kmod-crypto-hmac \
 	+kmod-crypto-sha1 +kmod-crypto-sha256 +kmod-crypto-sha512
   KCONFIG:= \

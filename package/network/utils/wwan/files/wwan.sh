@@ -60,6 +60,7 @@ proto_wwan_init_config() {
 	proto_config_add_string passthrough_mode
 	proto_config_add_string leasetime
 	proto_config_add_string mac
+	proto_config_add_string reqprefix
 	proto_config_add_int mtu
 
 	proto_config_add_defaults

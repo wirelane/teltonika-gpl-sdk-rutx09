@@ -214,6 +214,17 @@ tag_manager_t *tag_manager_init(void);
 void tag_manager_cleanup(tag_manager_t *tm);
 
 /**
+ * @brief Unregister a tag from the tag manager. You must free the tag separately if needed
+ * - it is only removed from the manager's internal tag list.
+ *
+ * @param tm Pointer to the tag manager
+ * @param tag Pointer to the tag to unregister
+ * @return tag_error_t TAG_SUCCESS on success, error code on failure
+ *         - TAG_ERROR_NOT_FOUND: Tag was not found in the tag manager
+ */
+tag_error_t tag_unregister(tag_manager_t *tm, tag_t *tag);
+
+/**
  * @brief Register a tag with the tag manager
  *
  * @param tm Pointer to the tag manager

@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tailscale
 PKG_VERSION:=1.86.2
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 
 PKG_HASH:=9b7fe9f915744ca1448efeb88d7333b7a86df375a4623941d2e41880c51c0aec
 
@@ -71,11 +71,11 @@ define Package/tailscale/install
 	ln -s tailscale.combined $(1)/usr/sbin/tailscale
 	ln -s tailscale.combined $(1)/usr/sbin/tailscaled
 	$(INSTALL_DIR) $(1)/etc/init.d/
-	$(INSTALL_BIN) ./files/tailscale.init $(1)/etc/init.d/tailscale
+	$(INSTALL_BIN_USR) ./files/tailscale.init $(1)/etc/init.d/tailscale
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_CONF_USR) ./files/tailscale.conf $(1)/etc/config/tailscale
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.6
-	$(CP) ./files/defaults/99_tailscale_fw_rules $(1)/etc/uci-defaults/7.6/99_tailscale_fw_rules
+	$(INSTALL_DATA) ./files/defaults/99_tailscale_fw_rules $(1)/etc/uci-defaults/7.6/99_tailscale_fw_rules
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/tailscale.permtab $(1)/etc/permtab.d/tailscale
 endef

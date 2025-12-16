@@ -31,6 +31,7 @@ proto_qmi_init_config() {
 	proto_config_add_string passthrough_mode
 	proto_config_add_string leasetime
 	proto_config_add_string mac
+	proto_config_add_string reqprefix
 	proto_config_add_int mtu
 
 	proto_config_add_defaults
@@ -48,10 +49,10 @@ proto_qmi_setup() {
 	local $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 ip4table ip6table parameters4 parameters6 delegate
 	local pdh_4 pdh_6 cid cid_4 cid_6
 	local retry_before_reinit
-	local error_cnt
+	local error_cnt reqprefix
 
 	json_get_vars device modem pdptype sim delay method mtu dhcp ip4table ip6table dhcpv6 \
-	leasetime mac delegate $PROTO_DEFAULT_OPTIONS
+	leasetime mac delegate reqprefix $PROTO_DEFAULT_OPTIONS
 
 	mkdir -p "/var/run/qmux/"
 
@@ -114,7 +115,7 @@ proto_qmi_setup() {
 #~ Connectivity part----------------------------------------------------
 	net_device="$ifname"
 
-	first_uqmi_call "uqmi -d $device --timeout 10000 --set-autoconnect disabled" || return 1
+	first_uqmi_call "uqmi -d $device --timeout 3000 --set-autoconnect disabled" || return 1
 
 	echo "Using net device: $net_device"
 

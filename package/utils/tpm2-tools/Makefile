@@ -2,6 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tpm2-tools
 PKG_VERSION:=5.7
+PKG_RELEASE:=4
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=5.7

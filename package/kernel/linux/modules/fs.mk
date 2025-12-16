@@ -91,8 +91,10 @@ define KernelPackage/fs-smbfs-common
   KCONFIG:=\
 	CONFIG_SMBFS
   FILES:= \
-	$(LINUX_DIR)/fs/smbfs_common/cifs_arc4.ko \
-	$(LINUX_DIR)/fs/smbfs_common/cifs_md4.ko
+	$(wildcard $(LINUX_DIR)/fs/smbfs_common/cifs_arc4.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smbfs_common/cifs_md4.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smb/common/cifs_arc4.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smb/common/cifs_md4.ko)
 endef
 
 define KernelPackage/fs-smbfs-common/description
@@ -110,9 +112,12 @@ define KernelPackage/fs-cifs
 	CONFIG_CIFS_DFS_UPCALL=n \
 	CONFIG_CIFS_UPCALL=n
   FILES:=\
-	$(LINUX_DIR)/fs/cifs/cifs.ko \
-	$(LINUX_DIR)/fs/smbfs_common/cifs_arc4.ko \
-	$(LINUX_DIR)/fs/smbfs_common/cifs_md4.ko
+	$(wildcard $(LINUX_DIR)/fs/cifs/cifs.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smbfs_common/cifs_arc4.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smbfs_common/cifs_md4.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smb/client/cifs.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smb/common/cifs_arc4.ko) \
+	$(wildcard $(LINUX_DIR)/fs/smb/common/cifs_md4.ko)
   AUTOLOAD:=$(call AutoLoad,30,cifs)
   $(call AddDepends/nls)
   DEPENDS+= \
@@ -129,7 +134,12 @@ define KernelPackage/fs-cifs
     +kmod-crypto-ecb \
     +kmod-crypto-des \
     +kmod-oid-registry \
-    +kmod-dnsresolver
+    +kmod-dnsresolver \
+    +kmod-asn1-decoder
+  ifeq (m, $(CONFIG_PACKAGE_kmod-fs-cifs))
+    PKG_TLT_NAME:=CIFS/SMBFS filesystem support
+    PKG_ROUTER:=$(TLT_PLATFORM_NAME)
+  endif
 endef
 
 define KernelPackage/fs-cifs/description

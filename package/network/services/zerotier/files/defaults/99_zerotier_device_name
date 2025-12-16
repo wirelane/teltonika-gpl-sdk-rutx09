@@ -37,7 +37,7 @@ add_device_name() {
 	local device_name
 	config_get "network_id" "$section" "network_id"
 	config_get "device_name" "$section" "device_name"
-	[ -n "$device_name" ] || [ -z "$network_id" ] && return 0
+	[ -n "$device_name" ] && [ "$device_name" != "nil" ] || [ -z "$network_id" ] && return 0
 	device_name="$(get_ifname "${network_id}")"
 	uci_set "zerotier" "$section" "device_name" "$device_name"
 }

@@ -2,7 +2,7 @@
 	"user": "avl",
 	"publish": [ "avl" ],
 	"subscribe": [ "gpsd", "ioman.*" ],
-	"listen": [ "mwan3" ],
+	"listen": [ "mwan3", "ubus.object.add" ],
 	"access": {
 		"network.interface": {
 			"methods": [

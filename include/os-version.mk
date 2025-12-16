@@ -18,6 +18,8 @@ else
 TLT_VERSION_FILE:=$(shell $(TOPDIR)/scripts/get_tlt_version.sh --file)
 endif
 
+
+export API_DOCS_URL="https://developers.teltonika-networks.com"
 export TLT_VERSION
 export TLT_VERSION_FILE
 

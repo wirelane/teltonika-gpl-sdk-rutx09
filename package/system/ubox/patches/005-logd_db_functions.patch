@@ -1,5 +1,7 @@
---- a/log/logd.c
-+++ b/log/logd.c
+Index: ubox-2020-10-25-9ef88681/log/logd.c
+===================================================================
+--- ubox-2020-10-25-9ef88681.orig/log/logd.c
++++ ubox-2020-10-25-9ef88681/log/logd.c
 @@ -25,8 +25,15 @@
  #include <libubox/list.h>
  #include <libubox/ustream.h>
@@ -61,18 +63,18 @@
  
 +static void db_fill_msg(struct blob_buf *b, const char *tbl, sqlite3_stmt *res)
 +{
-+        blobmsg_add_string(b, "id", (const char *) sqlite3_column_text(res, 0));
++	blobmsg_add_string(b, "id", (const char *) sqlite3_column_text(res, 0));
 +
-+        if (!strcmp(tbl, "SMS_TABLE")) {
-+                blobmsg_add_string(b, "sim", (const char *) sqlite3_column_text(res, 1));
-+                blobmsg_add_string(b, "send", (const char *) sqlite3_column_text(res, 2));
-+                blobmsg_add_string(b, "time", (const char *) sqlite3_column_text(res, 3));
-+        } else {
-+                blobmsg_add_string(b, "time", (const char *) sqlite3_column_text(res, 1));
-+                blobmsg_add_string(b, "source", (const char *) sqlite3_column_text(res, 2));
-+                blobmsg_add_string(b, "priority", (const char *) sqlite3_column_text(res, 3));
-+                blobmsg_add_string(b, "text", (const char *) sqlite3_column_text(res, 4));
-+        }
++	if (!strcmp(tbl, "SMS_TABLE")) {
++		blobmsg_add_string(b, "sim", (const char *) sqlite3_column_text(res, 1));
++		blobmsg_add_string(b, "send", (const char *) sqlite3_column_text(res, 2));
++		blobmsg_add_string(b, "time", (const char *) sqlite3_column_text(res, 3));
++	} else {
++		blobmsg_add_string(b, "time", (const char *) sqlite3_column_text(res, 1));
++		blobmsg_add_string(b, "source", (const char *) sqlite3_column_text(res, 2));
++		blobmsg_add_string(b, "priority", (const char *) sqlite3_column_text(res, 3));
++		blobmsg_add_string(b, "text", (const char *) sqlite3_column_text(res, 4));
++	}
 +}
 +
 +static int parse_query(char *query, char *tbl, struct ubus_context *ctx, struct ubus_request_data *req)

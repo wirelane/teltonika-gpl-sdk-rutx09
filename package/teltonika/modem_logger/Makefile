@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=modem_logger
 
-PKG_SOURCE_VERSION:=7.19
+PKG_SOURCE_VERSION:=7.20
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -77,9 +77,12 @@ define Package/$(PKG_NAME)-offline/install
 	$(if $(CONFIG_BASEBAND_SUPPORT), \
 		$(INSTALL_DIR) $(1)/etc; \
 		$(CP) $(PKG_BUILD_DIR)/src/qlog/conf/default.cfg $(1)/etc/modem_logger_default.cfg)
-	$(if $(TLT_PLATFORM_RUTM)$(TLT_PLATFORM_RUTE), \
+	$(if $(TLT_PLATFORM_RUTM)$(TLT_PLATFORM_RUTE)$(TLT_PLATFORM_RUTP), \
 		$(INSTALL_DIR) $(1)/etc; \
 		$(CP) $(PKG_BUILD_DIR)/src/qlog/conf/unisoc_ps_dsp_important_log.conf $(1)/etc/unisoc_ps_dsp_important_log.conf; \
+		$(CP) $(PKG_BUILD_DIR)/src/qc_trace_collector/filter/QXDM_Mask_default_telit.dmc $(1)/etc/QXDM_Mask_default_telit.dmc)
+	$(if $(TLT_PLATFORM_RUTC), \
+		$(INSTALL_DIR) $(1)/etc; \
 		$(CP) $(PKG_BUILD_DIR)/src/qc_trace_collector/filter/QXDM_Mask_default_telit.dmc $(1)/etc/QXDM_Mask_default_telit.dmc)
 endef
 
@@ -106,7 +109,7 @@ define Package/qc_trace_collector/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/qc_trace_collector/qc-trace-collector/linux/qc_trace_collector $(1)/usr/bin/qc_trace_collector
 
-	$(if $(TLT_PLATFORM_RUTM)$(TLT_PLATFORM_RUTE), \
+	$(if $(TLT_PLATFORM_RUTM)$(TLT_PLATFORM_RUTE)$(TLT_PLATFORM_RUTP)$(TLT_PLATFORM_RUTC), \
 		$(INSTALL_DIR) $(1)/etc; \
 		$(CP) $(PKG_BUILD_DIR)/src/qc_trace_collector/filter/QXDM_Mask_default_telit.dmc $(1)/etc/QXDM_Mask_default_telit.dmc)
 endef

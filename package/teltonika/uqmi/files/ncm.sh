@@ -29,6 +29,7 @@ proto_ncm_init_config() {
 	proto_config_add_string passthrough_mode
 	proto_config_add_string leasetime
 	proto_config_add_string mac
+	proto_config_add_string reqprefix
 	proto_config_add_int mtu
 
 	proto_config_add_defaults
@@ -99,13 +100,13 @@ proto_ncm_setup() {
 	local interface="$1"
 	local devicename="$2"
 	local mtu method device pdp modem pdptype sim dhcp dhcpv6 $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 delay passthrough_mode leasetime mac
-	local ip4table ip6table mdm_ubus_obj pin_state pdp_ctx_state pdp_ctx delegate
+	local ip4table ip6table mdm_ubus_obj pin_state pdp_ctx_state pdp_ctx delegate reqprefix
 	local timeout=2 retries=0
 	local active_sim="1"
 	local retry_before_reinit
 	local retry_delay=10
 
-	json_get_vars mtu method device modem pdptype sim dhcp dhcpv6 delay ip4table ip6table passthrough_mode leasetime mac delegate $PROTO_DEFAULT_OPTIONS
+	json_get_vars mtu method device modem pdptype sim dhcp dhcpv6 delay ip4table ip6table passthrough_mode leasetime mac delegate reqprefix $PROTO_DEFAULT_OPTIONS
 
 	local mdm_ubus_obj="$(find_mdm_ubus_obj "$modem")"
 	[ -z "$mdm_ubus_obj" ] && echo "gsm.modem object not found. Downing $interface interface" && ifdown $interface
@@ -125,6 +126,8 @@ proto_ncm_setup() {
 	# verify active esim profile index by return value(non zero means that the check failed)
 	verify_active_esim "$esim_profile_index" "$interface" || { reload_mobifd "$modem" "$interface"; return; }
 	deny_roaming=$(get_deny_roaming "$active_sim" "$modem" "$esim_profile_index")
+	host_slaac=$(jsonfilter -s "$(ubus call $mdm_ubus_obj info)" -e '@.host_slaac')
+
 #~ ---------------------------------------------------------------------
 
 	if [ "$deny_roaming" = "1" ]; then
@@ -158,10 +161,7 @@ proto_ncm_setup() {
 	[ "$pdptype" = "ip" -o "$pdptype" = "ipv6" -o "$pdptype" = "ipv4v6" ] || pdptype="ip"
 
 	#DOTO: this must be fixed if there will be a multi apn option
-	qiact_list_full=$(ubus call "$mdm_ubus_obj" get_attached_pdp_ctx_list 2>&1)
-
-	if [ "$qiact_list_full" != "Command failed: Operation not supported" ]; then
-
+	if ubus call "$mdm_ubus_obj" get_attached_pdp_ctx_list >/dev/null 2>&1; then
 		qiact_list=$(echo "$qiact_list_full" | grep "activated")
 
 		if [ "$qiact_list" = "" ]; then
@@ -183,6 +183,30 @@ proto_ncm_setup() {
 		json_load "$(ubus call "$mdm_ubus_obj" set_pdp_call "{\"mode\":\"call_once\",\"cid\":${pdp},\"urc_en\":true}")"
 		json_get_var pdp_act status
 
+		# check if addr is not link local
+		# if host_slaac true, global address won't be returned from get_pdp_addr
+		if { [ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ]; } && [ "$host_slaac" != "true" ]; then
+			local retry_count=0
+			while [ $retry_count -lt 5 ]; do
+				addr_v6="$(ubus call "$mdm_ubus_obj" get_pdp_addr "{\"index\":${pdp}}" | jsonfilter -e '@.addr_v6')"
+				case "$addr_v6" in
+					FE80* | fe80*) ;;
+					*) break ;;
+				esac
+				retry_count=$((retry_count + 1))
+				echo "Link local IPv6 address detected, retrying to get global address... (attempt $retry_count)"
+				sleep 2
+			done
+			[ $retry_count -eq 5 ] && {
+				echo "Failed to obtain global IPv6 address"
+				handle_retry "$retry_before_reinit" "$interface"
+				failure_notify "$pdptype"
+				ifdown "$interface"
+				return 1
+			}
+		fi
+
+
 		[ "${pdp_act::2}" != "OK" ] && {
 			echo "Data call failed! Error: ${pdp_act}"
 			handle_retry "$retry_before_reinit" "$interface"
@@ -191,6 +215,28 @@ proto_ncm_setup() {
 			return 1
 		}
 	fi
+
+	[ "$host_slaac" = "true" ] && {
+		# Wait until data call fully activated before proceeding
+		local retry_count
+		for retry_count in $(seq 5); do
+			json_load "$(ubus call "$mdm_ubus_obj" get_pdp_call "{\"cid\":${pdp}}")"
+			json_get_var state_id state_id
+
+			[ "$state_id" = "2" ] && break
+
+			echo "Data call not active yet... retrying (attempt $retry_count)"
+			sleep 2
+		done
+
+		if [ "$state_id" != "2" ]; then
+			echo "Data call failed after ${retry_count} attempts!"
+			handle_retry "$retry_before_reinit" "$interface"
+			failure_notify "$pdptype"
+			ifdown "$interface"
+			return 1
+		fi
+	}
 
 	mtu="${mtu:-1500}"
 

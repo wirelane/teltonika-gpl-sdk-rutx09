@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=eoip
 PKG_VERSION:=1.0
-PKG_RELEASE:=7
+PKG_RELEASE:=8
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/Nat-Lab/eoip.git
@@ -39,7 +39,7 @@ define Package/eoip/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/eoip.config $(1)/etc/config/eoip
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/eoip.init $(1)/etc/init.d/eoip
+	$(INSTALL_BIN_USR) ./files/eoip.init $(1)/etc/init.d/eoip
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/eoip.permtab $(1)/etc/permtab.d/eoip
 endef

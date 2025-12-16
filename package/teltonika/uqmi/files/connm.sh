@@ -31,6 +31,7 @@ proto_connm_init_config() {
 	proto_config_add_string passthrough_mode
 	proto_config_add_string leasetime
 	proto_config_add_string mac
+	proto_config_add_string reqprefix
 	proto_config_add_int mtu
 
 	proto_config_add_defaults
@@ -48,10 +49,10 @@ proto_connm_setup() {
 	local $PROTO_DEFAULT_OPTIONS IFACE4 IFACE6 ip4table ip6table parameters4 parameters6
 	local pdh_4 pdh_6 cid cid_4 cid_6
 	local retry_before_reinit
-	local error_cnt
+	local error_cnt reqprefix
 
 	json_get_vars device modem pdptype sim delay method mtu dhcp dhcpv6 ip4table ip6table \
-	leasetime mac delegate $PROTO_DEFAULT_OPTIONS
+	leasetime mac delegate reqprefix $PROTO_DEFAULT_OPTIONS
 
 	mkdir -p "/var/run/qmux/"
 
@@ -107,7 +108,7 @@ proto_connm_setup() {
 	pdptype="$(echo "$pdptype" | awk '{print tolower($0)}')"
 	[ "$pdptype" = "ip" ] || [ "$pdptype" = "ipv6" ] || [ "$pdptype" = "ipv4v6" ] || pdptype="ip"
 
-	first_uqmi_call "uqmi -d $device --timeout 10000 --set-autoconnect disabled" || return 1
+	first_uqmi_call "uqmi -d $device --timeout 3000 --set-autoconnect disabled" || return 1
 
 	# Disable no roaming flag
 	call_qmi_command "uqmi -d $device $options --modify-profile 3gpp,${pdp} --profile-name ${pdp} --roaming-disallowed-flag no"

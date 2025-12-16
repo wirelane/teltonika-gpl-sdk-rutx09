@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libparam
-PKG_VERSION:=2025-10-16
+PKG_VERSION:=2025-12-01
 
-PKG_SOURCE_VERSION:=1.16
+PKG_SOURCE_VERSION:=1.17
 
 PKG_LICENSE:=Teltonika-closed
 

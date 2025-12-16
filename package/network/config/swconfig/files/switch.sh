@@ -46,13 +46,15 @@ get_dhcp_sections() {
 	[ ! -f "/etc/config/dhcp" ] && echo "" && return 0
 
 	config_cb() {
-
+		local iface=$(uci_get dhcp "$2" interface)
+		skip=$(uci_get network $iface disabled "0")
+		[ "$skip" = "1" ] && return 1
 		[ "$1" != "dhcp" ] && return 1
 
 		dhcp_state="${dhcp_state:-}$1.$2 ${new_l}"
 
 		option_cb() {
-
+			[ "$skip" = "1" ] && return 1
 			[ "$1" = "interface" ] && __LAN_TARGET="${__LAN_TARGET:-}$2 "
 
 			dhcp_state="${dhcp_state}$1=$2 ${new_l}"
@@ -76,7 +78,7 @@ get_lan_sections() {
 	[ ! -f "/etc/config/network" ] && echo "" && return 0
 
 	lan_cb() {
-
+		[ "$(config_get "$1" "disabled")" = "1" ] && return 1
 		[[ "$__LAN_TARGET" =~ "$1\b" ]] || return 1
 
 		config_get proto "$1" "proto"

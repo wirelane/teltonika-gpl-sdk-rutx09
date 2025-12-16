@@ -3,6 +3,8 @@
 
 append DRIVERS "mac80211"
 
+CFG=/etc/board.json
+
 lookup_phy() {
 	[ -n "$phy" ] && {
 		[ -d /sys/class/ieee80211/$phy ] && return
@@ -163,6 +165,14 @@ check_antenna_gain() {
 	}
 }
 
+check_country3() {
+	config_get country3 "$1" country3
+	[ -z "$country3" ] && {
+		uci set wireless."$1".country3="0x4f"
+		uci commit wireless
+	}
+}
+
 convert_qcawifi_dev_opts() {
 	config_get old_qcawifi_hwmode "$1" hwmode
 	[ -n "$old_qcawifi_hwmode" ] && {
@@ -279,7 +289,7 @@ parse_ralink_config() {
 }
 
 add_custom_wifi_iface() {
-	[ -e "/etc/board.json" ] || return
+	[ -e "$CFG" ] || return
 	. /usr/share/libubox/jshn.sh
 
 	local wireless
@@ -331,6 +341,10 @@ is_mt7615() {
 	return 1
 }
 
+is_otd() {
+	[ "$(jsonfilter -i $CFG -q -l1 -e @.hwinfo.networks_external)" = "true" ]
+}
+
 detect_mac80211() {
 	devidx=0
 	old_qca_devidx=0
@@ -345,6 +359,7 @@ detect_mac80211() {
 	local cust_mac
 	local ant_gain
 	local chanlist
+	local country3
 
 	config_load wireless
 	while :; do
@@ -378,6 +393,9 @@ detect_mac80211() {
 			is_mt7615 "$dev" && {
 				config_foreach check_antenna_gain wifi-device
 			}
+			is_otd && {
+				config_foreach check_country3 wifi-device
+			}
 			wifi_id="$((wifi_id + 1))"
 			continue
 		}
@@ -405,6 +423,10 @@ detect_mac80211() {
 				dev_id="set wireless.radio${devidx}.macaddr=$(cat /sys/class/ieee80211/${dev}/macaddress)"
 			fi
 		fi
+
+		is_otd && {
+			country3="set wireless.radio${devidx}.country3='0x4f'"
+		}
 
 		local model=$(/sbin/mnf_info --name 2>/dev/null)
 		local router_mac=$(/sbin/mnf_info --mac 2>/dev/null)
@@ -472,6 +494,7 @@ EOF
 			set wireless.radio${devidx}.country=US
 			${ant_gain}
 			${chanlist}
+			${country3}
 			#set wireless.radio${devidx}.disabled=1
 			set wireless.radio${devidx}.ifname_prefix=wlan${devidx}
 

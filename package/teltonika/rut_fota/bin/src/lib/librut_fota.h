@@ -1,3 +1,4 @@
+#pragma once
 #include <libubus.h>
 
 typedef enum {
@@ -11,14 +12,23 @@ struct lrut_fota_process_st {
 	char *process;
 };
 
+#ifdef MOBILE_SUPPORT
+struct lrut_fota_info_modem_st {
+	char *id;
+	char *modem;
+	int modem_size;
+	char *modem_version;
+};
+#endif
+
 struct lrut_fota_info_st {
 	char *fw;
 	int fw_size;
 	char *fw_stable;
 	int fw_stable_size;
 #ifdef MOBILE_SUPPORT
-	char *modem;
-	int modem_size;
+	struct lrut_fota_info_modem_st *modems;
+	int modems_count;
 #endif
 	char *conn_state;
 	uint64_t timestamp;

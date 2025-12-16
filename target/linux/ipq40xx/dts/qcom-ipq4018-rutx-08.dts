@@ -41,7 +41,7 @@
 &mnfinfo {
 	/delete-node/ simpin1;
 	/delete-node/ simpin2;
-
+	/delete-node/ mob_vidpid_1;
 	sim_count {
 		default =  "0";
 	};

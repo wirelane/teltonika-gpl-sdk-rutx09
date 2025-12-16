@@ -1,7 +1,6 @@
 #!/bin/sh /etc/rc.common
 # Copyright (C) 2013 OpenWrt.org
 
-# start after and stop before networking
 START=05
 STOP=89
 PIDCOUNT=0
@@ -10,7 +9,7 @@ USE_PROCD=1
 PROG=/sbin/logread
 
 validate_log_section() {
-	uci_load_validate system system "$1" "$2" \
+	uci_load_validate log global "$1" "$2" \
 		'log_file:string' \
 		'log_compress:bool:1' \
 		'log_size_limit:uinteger' \
@@ -25,7 +24,7 @@ validate_log_section() {
 }
 
 validate_log_daemon() {
-	uci_load_validate system system "$1" "$2" \
+	uci_load_validate log global "$1" "$2" \
 		'log_size_limit:uinteger:0' \
 	    'log_size:uinteger:0' \
 		'log_buffer_size:uinteger:0'
@@ -43,6 +42,34 @@ start_service_daemon() {
 	procd_set_param user logd
 	procd_append_param command -S "${effective_size}"
 	procd_set_param respawn
+	procd_set_param reload_signal 1
+	procd_close_instance
+}
+
+start_service_local() {
+	PIDCOUNT=$((PIDCOUNT + 1))
+	local pid_file="/var/run/logread.${PIDCOUNT}.pid"
+
+	[ -n "$log_file" ] && {
+		local log_dir
+		log_dir=$(dirname "$log_file")
+		[ -d "$log_dir" ] || mkdir -p "$log_dir"
+		chown logd:logd "$log_dir"
+		chmod 770 "$log_dir"
+	}
+
+	procd_open_instance
+	procd_set_param user logd
+	procd_set_param command "$PROG" -f -i -p "$pid_file"
+
+	local effective_size="$log_size_limit"
+	[ -z "$effective_size" ] || [ "$effective_size" -eq 0 ] && effective_size="$log_size"
+
+	[ -n "$effective_size" ] && procd_append_param command -S "$effective_size"
+	[ -n "$log_file" ] && procd_append_param command -F "$log_file"
+	[ "$log_compress" -eq 1 ] && [ -n "$log_file" ] && procd_append_param command -c "$log_compress"
+
+	procd_set_param respawn 3600 5 0
 	procd_close_instance
 }
 
@@ -68,53 +95,21 @@ start_service_remote() {
 	procd_close_instance
 }
 
-start_service_local() {
-	PIDCOUNT="$((PIDCOUNT + 1))"
-	local pid_file="/var/run/logread.${PIDCOUNT}.pid"
-	local log_dir
-
-	[ "$2" = 0 ] || {
-		echo "Validation failed for local logging"
-		return 1
-	}
-	[ -n "${log_file}" ] && {
-		# Create log directory if it does not exist
-		log_dir=$(dirname "${log_file}")
-		[ -d "${log_dir}" ] || mkdir -p "${log_dir}"
-		chown logd:logd "${log_dir}"
-		chmod 770 "$log_dir"
-	}
-
-	procd_open_instance
-	procd_set_param user logd
-	procd_set_param command "$PROG" -f -i -p "$pid_file"
-
-	local effective_size="${log_size_limit}"
-	[ -z "$effective_size" ] || [ "$effective_size" -eq 0 ] &&
-        effective_size="${log_size}"
-
-	[ -n "${effective_size}" ] && procd_append_param command -S "$effective_size"
-	[ -n "${log_file}" ] && procd_append_param command -F "$log_file"
-	[[ "${log_compress}" -eq "1" && -n "${log_file}" ]] && procd_append_param command -c "$log_compress"
-	procd_set_param respawn 3600 5 0
-	procd_close_instance
-
-	if [ -n "$pid_file" ]; then
-		echo "PID file created: $pid_file"
-	else
-		echo "Failed to create PID file: $pid_file"
-	fi
-}
-
 service_triggers() {
-	procd_add_reload_trigger "system"
+	procd_add_reload_trigger log
+	config_load log
 	procd_add_validation validate_log_section
 }
 
 start_service() {
-	config_load system
-	config_foreach validate_log_daemon system start_service_daemon
-	config_foreach validate_log_section system start_service_local
+	config_load log
+	config_foreach validate_log_daemon global start_service_daemon
+	config_foreach validate_log_section global start_service_local
 	config_foreach validate_log_section remote_logger start_service_remote
 	[ ! -e /dev/log ] && ln -s /var/run/logd/log /dev/log
+}
+
+reload_service() {
+	kill -HUP $(pidof logd) 2>/dev/null
+	start
 }

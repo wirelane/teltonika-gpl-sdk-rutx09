@@ -11,18 +11,17 @@ first_uqmi_call()
 	local max_try="6"
 	local timeout="2"
 	local ret
-	logger -t "netifd" "$cmd"
 
 	while true; do
+		logger -t "netifd" "$cmd"
 		ret=$($cmd)
-		if [ "$ret" = "" ] || [ "$ret" = "\"Failed to connect to service\"" ] || \
-                [ "$ret" = "\"Request canceled\"" ] || [ "$ret" = "\"Unknown error\"" ] ; then
-
+		case "$ret" in
+		"" | '"Failed to connect to service"' | '"Request canceled"' | '"Unknown error"' | '"Request timed out"' )
 			count=$((count+1))
 			sleep $timeout
-		else
-			break
-		fi
+			;;
+		*) break ;;
+		esac
 		if [ "$count" = "$max_try" ]; then
 			gsm_hard_reset "$modem"
 			kill_uqmi_processes "$device"
@@ -165,48 +164,48 @@ background_clear_conn_values()
 wait_for_serving_system_via_at_commands() {
 	local reg_status=""
 	local registration_timeout=0
-	while [ "$reg_status" != "attached" ]; do
+	local max_registration_timeout=6
+	while [ "$registration_timeout" -lt "$max_registration_timeout" ]; do
 		gsm_call=$(ubus call $gsm_modem get_ps_att_state)
 		reg_status=$(jsonfilter -s "$gsm_call" -e '@.state')
 
 		[ -z "$reg_status" ] && echo "Can't get PS registration state" && return 1
 		[ "$reg_status" = "attached" ] && return 0
 
-		if [ "$registration_timeout" -lt "$timeout" ]; then
-			let "registration_timeout += 5"
-			sleep 5
-		else
-			echo "Network registration failed"
-			proto_notify_error "$interface" NO_NETWORK
-			handle_retry "$retry_before_reinit" "$interface"
-			return 1
-		fi
+		let "registration_timeout += 1"
+		sleep 5
 	done
-	return 0
+
+	echo "Network registration failed"
+	proto_notify_error "$interface" NO_NETWORK
+	handle_retry "$retry_before_reinit" "$interface"
+	return 1
 }
 
 wait_for_serving_system() {
 	local registration_timeout=0
 	local serving_system=""
-	while [ "$(echo "$serving_system" | grep registration | \
-		awk -F '\"' '{print $4}')" != "registered" ] && \
-		[ "$( echo "$serving_system" | grep PS | awk -F ' ' '{print $2}' | \
-		awk -F ',' '{print $1}')" != "attached" ]
-	do
+	local max_registration_timeout=6
+	while [ "$registration_timeout" -lt "$max_registration_timeout" ]; do
 		serving_system=$(call_qmi_command "uqmi -s -d $device $options --get-serving-system") || return 1
 
 		[ -e "$device" ] || return 1
-		if [ "$registration_timeout" -lt "$timeout" ]; then
-			let "registration_timeout += 5"
-			sleep 5
-		else
-			echo "Network registration failed"
-			proto_notify_error "$interface" NO_NETWORK
-			handle_retry "$retry_before_reinit" "$interface"
-			return 1
+		if [ "$(echo "$serving_system" | grep registration | \
+			awk -F '\"' '{print $4}')" = "registered" ] || \
+			[ "$( echo "$serving_system" | grep PS | awk -F ' ' '{print $2}' | \
+			awk -F ',' '{print $1}')" = "attached" ]; then
+			echo "$serving_system"
+			return 0
 		fi
+
+		let "registration_timeout += 1"
+		sleep 5
 	done
-	return 0
+
+	echo "Network registration failed"
+	proto_notify_error "$interface" NO_NETWORK
+	handle_retry "$retry_before_reinit" "$interface"
+	return 1
 }
 
 get_dynamic_mtu() {

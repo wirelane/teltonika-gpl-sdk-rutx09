@@ -477,8 +477,11 @@ group_add_next() {
 }
 
 group_add_user() {
-	local grp delim=","
+	local u_gid g_gid grp delim=","
+	u_gid="$(grep "^${2}:" ${IPKG_INSTROOT}/etc/passwd | cut -d: -f4)"
 	grp=$(grep -s "^${1}:" ${IPKG_INSTROOT}/etc/group)
+	g_gid="$(echo "$grp" | cut -d: -f3)"
+	[ "$u_gid" = "$g_gid" ] && return
 	echo "$grp" | cut -d: -f4 | grep -q $2 && return
 	echo "$grp" | grep -q ":$" && delim=""
 	[ -n "$IPKG_INSTROOT" ] || lock /var/lock/passwd

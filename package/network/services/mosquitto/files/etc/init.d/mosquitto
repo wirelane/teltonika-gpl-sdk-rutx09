@@ -188,6 +188,7 @@ fill_mosquitto_config() {
 
 	if [ "$persistence" == "1" ]; then
 		echo "persistence true" >>$CONFIG
+		echo "persistence_location /etc/mosquitto" >>$CONFIG
 	fi
 
 	if [ -n "$password_file" ]; then

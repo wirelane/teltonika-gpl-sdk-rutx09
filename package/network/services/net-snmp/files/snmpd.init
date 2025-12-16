@@ -76,11 +76,11 @@ snmpd_agent_add() {
 snmpd_system_add() {
 	local cfg="$1"
 	config_get syslocation "$cfg" sysLocation
-	[ -n "$syslocation" ] && echo "sysLocation $syslocation" >> $CONFIGFILE
+	[ -n "$syslocation" ] && echo "psysLocation $syslocation" >> $CONFIGFILE
 	config_get syscontact "$cfg" sysContact
-	[ -n "$syscontact" ] && echo "sysContact $syscontact" >> $CONFIGFILE
+	[ -n "$syscontact" ] && echo "psysContact $syscontact" >> $CONFIGFILE
 	config_get sysname "$cfg" sysName
-	[ -n "$sysname" ] && echo "sysName $sysname" >> $CONFIGFILE
+	[ -n "$sysname" ] && echo "psysName $sysname" >> $CONFIGFILE
 	config_get sysservice "$cfg" sysService
 	[ -n "$sysservice" ] && echo "sysService $sysservice" >> $CONFIGFILE
 	config_get sysdescr "$cfg" sysDescr

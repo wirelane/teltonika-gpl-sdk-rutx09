@@ -272,6 +272,31 @@ systemlog_hook() {
 	fi
 }
 
+servicelogs_hook() {
+	local services_dir="/var/run/logd/services"
+	local log_dir="${PACK_DIR}/service_logs"
+
+	[ -d "$services_dir" ] || return
+	mkdir -p "$log_dir"
+
+	for base in $(ls "$services_dir" | sed -E 's/\.log(\.([0-9]+))?$//' | sort -u); do
+		local outfile="$log_dir/$base.log"
+		: > "$outfile"
+
+		local rotated_logs=$(ls "$services_dir/$base.log".* 2>/dev/null | sort -t. -k3,3n)
+		local newest_log="$services_dir/$base.log"
+
+		for f in $rotated_logs; do
+			[ -f "$f" ] || continue
+			cat "$f" >> "$outfile"
+		done
+
+		if [ -f "$newest_log" ]; then
+			cat "$newest_log" >> "$outfile"
+		fi
+	done
+}
+
 cloud_solutions_hook() {
 	local log_file="${PACK_DIR}cloud_solutions.log"
 
@@ -422,6 +447,7 @@ troubleshoot_hook_init switch_hook
 troubleshoot_hook_init wifi_hook
 troubleshoot_hook_init services_hook "$1"
 troubleshoot_hook_init systemlog_hook
+troubleshoot_hook_init servicelogs_hook
 troubleshoot_hook_init cloud_solutions_hook
 troubleshoot_hook_init package_manager_hook
 troubleshoot_hook_init serial_hook

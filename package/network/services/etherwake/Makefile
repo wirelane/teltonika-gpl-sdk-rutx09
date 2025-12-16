@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 RCOMPR:=:
 PKG_NAME:=etherwake
 PKG_VERSION:=1.09
-PKG_RELEASE:=7
+PKG_RELEASE:=10
 
 PKG_SOURCE_URL:=http://ftp.debian.org/debian/pool/main/e/etherwake
 PKG_HASH:=54241c7689579dc86e29e6afbc6d60e69f97135091a1395c8a10f6d5a2daec1d
@@ -28,7 +28,8 @@ define Package/etherwake
   TITLE:=WoL client for magic packets via ethernet frames
   URL:=http://ftp.debian.org/debian/pool/main/e/etherwake
   MAINTAINER:=Peter Wagner <tripolar@gmx.at>
-  FATTRS:=/usr/bin/etherwake:etherwake::y:cap_net_raw=ep
+  FATTRS:=/usr/bin/etherwake:etherwake:::cap_net_raw=ep
+  DEPENDS:=+libcap
   USERID:=etherwake:etherwake
 endef
 
@@ -41,7 +42,7 @@ define Package/etherwake/description
 endef
 
 define Build/Compile
-	$(TARGET_CC) $(TARGET_CFLAGS) -D__UCLIBC__ $(TARGET_LDFLAGS) $(PKG_BUILD_DIR)/ether-wake.c -o $(PKG_BUILD_DIR)/etherwake
+	$(TARGET_CC) $(TARGET_CFLAGS) -D__UCLIBC__ $(TARGET_LDFLAGS) $(PKG_BUILD_DIR)/ether-wake.c -lcap -o $(PKG_BUILD_DIR)/etherwake
 endef
 
 define Package/etherwake/install

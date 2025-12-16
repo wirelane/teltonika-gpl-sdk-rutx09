@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=package_restore
-PKG_VERSION:=2025-10-15
+PKG_VERSION:=2025-12-01
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=3.16.1

@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=openvpn
 
 PKG_VERSION:=2.6.14
-PKG_RELEASE:=17
+PKG_RELEASE:=21
 
 PKG_HASH:=9eb6a6618352f9e7b771a9d38ae1631b5edfeed6d40233e243e602ddf2195e7a
 
@@ -41,7 +41,7 @@ define Package/openvpn/Default
   SUBMENU:=VPN
   MENU:=1
   DEPENDS:=+kmod-tun +libcap +OPENVPN_$(1)_ENABLE_LZO:liblzo +OPENVPN_$(1)_ENABLE_LZ4:liblz4 +OPENVPN_$(1)_ENABLE_IPROUTE2:ip \
-	+OPENVPN_$(1)_ENABLE_DCO:libnl-genl $(3) +libubus +libubox
+	+OPENVPN_$(1)_ENABLE_DCO:libnl-genl $(3) +libubus +libubox +libtlt-logger
   VARIANT:=$(1)
   PROVIDES:=openvpn openvpn-crypto
   FATTRS:=/usr/sbin/openvpn::::cap_net_admin,cap_net_bind_service+ep
@@ -102,13 +102,14 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(1)/etc/hotplug.d/openvpn \
 		$(1)/etc/permtab.d \
 		$(1)/usr/share/acl.d \
-		$(1)/etc/uci-defaults/7.18
+		$(1)/etc/uci-defaults/7.18 \
+		$(1)/etc/uci-defaults/7.20
 
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/sbin/openvpn \
 		$(1)/usr/sbin/
 
-	$(INSTALL_BIN) \
+	$(INSTALL_BIN_USR) \
 		files/openvpn.init \
 		$(1)/etc/init.d/openvpn
 
@@ -120,11 +121,7 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		files/lib/functions/openvpn.sh \
 		$(1)/lib/functions/openvpn.sh
 
-	$(INSTALL_DATA) \
-		files/etc/hotplug.d/openvpn/01-user \
-		$(1)/etc/hotplug.d/openvpn/01-user
-
-	$(INSTALL_DATA) \
+	$(INSTALL_CONF_USR) \
 		files/etc/hotplug.d/openvpn/02-status \
 		$(1)/etc/hotplug.d/openvpn/02-status
 
@@ -143,19 +140,19 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 	$(INSTALL_CONF_USR) files/openvpn.config \
 		$(1)/etc/config/openvpn
 
-	$(INSTALL_BIN) \
+	$(INSTALL_BIN_USR) \
 		files/auth-pam-fixed.sh \
 		$(1)/etc/openvpn/
 
-	$(INSTALL_DATA) \
+	$(INSTALL_CONF_USR) \
 		files/nord_template.ovpn \
 		$(1)/etc/openvpn/
 
-	$(INSTALL_DATA) \
+	$(INSTALL_CONF_USR) \
 		files/express_template.ovpn \
 		$(1)/etc/openvpn/
 
-	$(INSTALL_BIN) \
+	$(INSTALL_BIN_USR) \
 		files/route.sh \
 		$(1)/etc/openvpn/
 
@@ -172,13 +169,13 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		files/openvpn_acl.json \
 		$(1)/usr/share/acl.d/openvpn_acl.json
 
-	$(INSTALL_BIN) \
-		files/ping.sh \
-		$(1)/etc/openvpn/
-
-	$(CP) \
+	$(INSTALL_DATA) \
 		files/uci-defaults/7.18/99_openvpn_fix_status_path \
 		$(1)/etc/uci-defaults/7.18/99_openvpn_fix_status_path
+
+	$(INSTALL_DATA) \
+		files/uci-defaults/7.20/99_openvpn_fix_user_group \
+		$(1)/etc/uci-defaults/7.20/99_openvpn_fix_user_group
 
 endef
 

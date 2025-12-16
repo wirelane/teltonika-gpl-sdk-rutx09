@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.7
+PKG_SOURCE_VERSION:=1.8
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf
@@ -24,6 +24,7 @@ define Package/event-juggler
 	USER_GROUPS:=juggler:gsm profiler rms network wireless
 	DEPENDS:=+libubox +libubus +libuci +libtlt-logger +libblobmsg-json +libparam \
 			+libcfg +libcurl +liblua +libmosquitto +libtlt_smtp +libtlt_uci +libapi \
+			+libsqlite3 \
 			+PACKAGE_EVENT_JUGGLER_EVENT_GSM:liburc \
 			+PACKAGE_EVENT_JUGGLER_ACTION_MODEM:libmctl \
 			+PACKAGE_EVENT_JUGGLER_EVENT_IO:iomand \
@@ -67,6 +68,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_SMTP),--enable-action_smtp) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_MQTT),--enable-action_mqtt) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_CONNECTION),--enable-action_connection) \
+	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_ACTION_LED),--enable-action_led) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_IO),--enable-cond_io) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_GPS),--enable-cond_gps) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_LUA),--enable-cond_lua) \

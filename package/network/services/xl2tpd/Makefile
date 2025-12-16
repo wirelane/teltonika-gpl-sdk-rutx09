@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd
 PKG_VERSION:=1.3.16
-PKG_RELEASE:=14
+PKG_RELEASE:=20
 PKG_MAINTAINER:=Yousong Zhou <yszhou4tech@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -33,7 +33,6 @@ define Package/xl2tpd
   SUBMENU:=VPN
   DEPENDS:=+ppp-mod-pppol2tp +resolveip +kmod-l2tp-eth +kmod-l2tp-ip
   USERID:=xl2tpd:xl2tpd
-  FATTRS:=/usr/sbin/xl2tpd-control:xl2tpd::y:
 endef
 
 define Package/xl2tpd/description
@@ -65,7 +64,6 @@ endif
 define Package/xl2tpd/conffiles
 /etc/xl2tpd/xl2tpd.conf
 /etc/xl2tpd/xl2tp-secrets
-/etc/ppp/options.xl2tpd
 /etc/config/xl2tpd
 endef
 
@@ -78,15 +76,13 @@ define Package/xl2tpd/install
 	$(INSTALL_CONF_USR) /dev/null $(1)/etc/config/xl2tpd
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/xl2tpd.init $(1)/etc/init.d/xl2tpd
+	$(INSTALL_BIN_USR) ./files/xl2tpd.init $(1)/etc/init.d/xl2tpd
 
 	$(INSTALL_DIR) $(1)/etc/xl2tpd
 	$(INSTALL_DATA) ./files/xl2tpd.conf $(1)/etc/xl2tpd/
 	$(INSTALL_CONF) ./files/xl2tp-secrets $(1)/etc/xl2tpd/
 
 	$(INSTALL_DIR) $(1)/etc/ppp
-	$(INSTALL_DATA) ./files/options.xl2tpd $(1)/etc/ppp/
-	$(INSTALL_DATA) ./files/options.l2tp $(1)/etc/ppp/
 	$(INSTALL_BIN) ./files/xl2tpd-up $(1)/etc/ppp/
 	$(INSTALL_BIN) ./files/xl2tpd-down $(1)/etc/ppp/
 
@@ -97,16 +93,22 @@ define Package/xl2tpd/install
 	$(INSTALL_BIN) ./files/l2tp-down $(1)/lib/netifd/
 
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_BIN) ./files/00-l2tp_slow_retry.hotplug $(1)/etc/hotplug.d/iface/00-l2tp_slow_retry
+	$(INSTALL_CONF_USR) ./files/00-l2tp_slow_retry.hotplug $(1)/etc/hotplug.d/iface/00-l2tp_slow_retry
 
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
-	$(CP) ./files/defaults/99_l2tp_device_name $(1)/etc/uci-defaults/7.15/99_l2tp_device_name
+	$(INSTALL_DATA) ./files/defaults/99_l2tp_device_name $(1)/etc/uci-defaults/7.15/99_l2tp_device_name
 
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/xl2tpd.permtab $(1)/etc/permtab.d/xl2tpd
 
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.20
+	$(INSTALL_DATA) ./files/defaults/7.20/99_l2tp_fix_description $(1)/etc/uci-defaults/7.20/99_l2tp_fix_description
+
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.19
-	$(CP) ./files/defaults/7.19/99_fix_l2tp_traffic_rule $(1)/etc/uci-defaults/7.19/99_fix_l2tp_traffic_rule
+	$(INSTALL_DATA) ./files/defaults/7.19/99_fix_l2tp_traffic_rule $(1)/etc/uci-defaults/7.19/99_fix_l2tp_traffic_rule
+
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DATA) ./files/xl2tpd_acl.json $(1)/usr/share/acl.d/xl2tpd_acl.json
 endef
 
 $(eval $(call BuildPackage,xl2tpd))

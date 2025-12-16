@@ -37,13 +37,11 @@ append_options() {
 }
 
 setup_config() {
-	local enabled localip remoteip type idle dns1 dns2
+	local enabled localip remoteip idle dns1 dns2
 
 	config_get enabled "$1" enabled 0
-	config_get type "$1" type
-
 	[ "$enabled" -eq 0 ] && return 1
-	[ "$type" = "server" ] || return 1
+
 	config_get idle "$1" idle
 	config_get dns1 "$1" dns1
 	config_get dns2 "$1" dns2

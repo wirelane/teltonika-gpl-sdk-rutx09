@@ -1,6 +1,6 @@
 --- a/ethtool.c
 +++ b/ethtool.c
-@@ -168,11 +168,6 @@ static int get_int(char *str, int base)
+@@ -188,11 +188,6 @@ static int get_int(char *str, int base)
  	return get_int_range(str, base, INT_MIN, INT_MAX);
  }
  
@@ -12,7 +12,7 @@
  static void get_mac_addr(char *src, unsigned char *dest)
  {
  	int count;
-@@ -347,32 +342,6 @@ static void flag_to_cmdline_info(const c
+@@ -367,56 +362,6 @@ static void flag_to_cmdline_info(const c
  	cli->seen_val = mask;
  }
  
@@ -28,6 +28,18 @@
 -		flow_type = AH_ESP_V4_FLOW;
 -	else if (!strcmp(str, "sctp4"))
 -		flow_type = SCTP_V4_FLOW;
+-	else if (!strcmp(str, "gtpc4"))
+-		flow_type = GTPC_V4_FLOW;
+-	else if (!strcmp(str, "gtpc4t"))
+-		flow_type = GTPC_TEID_V4_FLOW;
+-	else if (!strcmp(str, "gtpu4"))
+-		flow_type = GTPU_V4_FLOW;
+-	else if (!strcmp(str, "gtpu4e"))
+-		flow_type = GTPU_EH_V4_FLOW;
+-	else if (!strcmp(str, "gtpu4u"))
+-		flow_type = GTPU_UL_V4_FLOW;
+-	else if (!strcmp(str, "gtpu4d"))
+-		flow_type = GTPU_DL_V4_FLOW;
 -	else if (!strcmp(str, "tcp6"))
 -		flow_type = TCP_V6_FLOW;
 -	else if (!strcmp(str, "udp6"))
@@ -38,6 +50,18 @@
 -		flow_type = SCTP_V6_FLOW;
 -	else if (!strcmp(str, "ether"))
 -		flow_type = ETHER_FLOW;
+-	else if (!strcmp(str, "gtpc6"))
+-		flow_type = GTPC_V6_FLOW;
+-	else if (!strcmp(str, "gtpc6t"))
+-		flow_type = GTPC_TEID_V6_FLOW;
+-	else if (!strcmp(str, "gtpu6"))
+-		flow_type = GTPU_V6_FLOW;
+-	else if (!strcmp(str, "gtpu6e"))
+-		flow_type = GTPU_EH_V6_FLOW;
+-	else if (!strcmp(str, "gtpu6u"))
+-		flow_type = GTPU_UL_V6_FLOW;
+-	else if (!strcmp(str, "gtpu6d"))
+-		flow_type = GTPU_DL_V6_FLOW;
 -
 -	return flow_type;
 -}
@@ -45,7 +69,7 @@
  static int do_version(struct cmd_context *ctx __maybe_unused)
  {
  	fprintf(stdout,
-@@ -886,33 +855,6 @@ dump_link_usettings(const struct ethtool
+@@ -960,33 +905,6 @@ dump_link_usettings(const struct ethtool
  	return 0;
  }
  
@@ -79,7 +103,7 @@
  static int parse_wolopts(char *optstr, u32 *data)
  {
  	*data = 0;
-@@ -953,182 +895,6 @@ static int parse_wolopts(char *optstr, u
+@@ -1027,192 +945,6 @@ static int parse_wolopts(char *optstr, u
  	return 0;
  }
  
@@ -108,6 +132,9 @@
 -			break;
 -		case 'n':
 -			*data |= RXH_L4_B_2_3;
+-			break;
+-		case 'e':
+-			*data |= RXH_GTP_TEID;
 -			break;
 -		case 'r':
 -			*data |= RXH_DISCARD;
@@ -141,6 +168,8 @@
 -			strcat(buf, "L4 bytes 0 & 1 [TCP/UDP src port]\n");
 -		if (opts & RXH_L4_B_2_3)
 -			strcat(buf, "L4 bytes 2 & 3 [TCP/UDP dst port]\n");
+-		if (opts & RXH_GTP_TEID)
+-			strcat(buf, "GTP TEID\n");
 -	} else {
 -		sprintf(buf, "None");
 -	}
@@ -216,12 +245,12 @@
 -	return 0;
 -}
 -
+-#ifdef ETHTOOL_ENABLE_PRETTY_DUMP
 -static const struct {
 -	const char *name;
 -	int (*func)(struct ethtool_drvinfo *info, struct ethtool_regs *regs);
 -
 -} driver_list[] = {
--#ifdef ETHTOOL_ENABLE_PRETTY_DUMP
 -	{ "8139cp", realtek_dump_regs },
 -	{ "8139too", realtek_dump_regs },
 -	{ "r8169", realtek_dump_regs },
@@ -256,27 +285,33 @@
 -	{ "fec", fec_dump_regs },
 -	{ "igc", igc_dump_regs },
 -	{ "bnxt_en", bnxt_dump_regs },
--#endif
+-	{ "cpsw-switch", cpsw_dump_regs },
+-	{ "lan743x", lan743x_dump_regs },
+-	{ "fsl_enetc", fsl_enetc_dump_regs },
+-	{ "fsl_enetc_vf", fsl_enetc_dump_regs },
+-	{ "hns3", hns3_dump_regs },
 -};
+-#endif
 -
  void dump_hex(FILE *file, const u8 *data, int len, int offset)
  {
  	int i;
-@@ -1143,129 +909,6 @@ void dump_hex(FILE *file, const u8 *data
+@@ -1227,132 +959,6 @@ void dump_hex(FILE *file, const u8 *data
  	fprintf(file, "\n");
  }
  
 -static int dump_regs(int gregs_dump_raw, int gregs_dump_hex,
 -		     struct ethtool_drvinfo *info, struct ethtool_regs *regs)
 -{
--	unsigned int i;
--
 -	if (gregs_dump_raw) {
 -		fwrite(regs->data, regs->len, 1, stdout);
 -		goto nested;
 -	}
 -
--	if (!gregs_dump_hex)
+-#ifdef ETHTOOL_ENABLE_PRETTY_DUMP
+-	if (!gregs_dump_hex) {
+-		unsigned int i;
+-
 -		for (i = 0; i < ARRAY_SIZE(driver_list); i++)
 -			if (!strncmp(driver_list[i].name, info->driver,
 -				     ETHTOOL_BUSINFO_LEN)) {
@@ -288,6 +323,8 @@
 -				 */
 -				break;
 -			}
+-	}
+-#endif
 -
 -	dump_hex(stdout, regs->data, regs->len, 0);
 -
@@ -392,7 +429,7 @@
  static int dump_ring(const struct ethtool_ringparam *ering)
  {
  	fprintf(stdout,
-@@ -1294,117 +937,6 @@ static int dump_ring(const struct ethtoo
+@@ -1381,117 +987,6 @@ static int dump_ring(const struct ethtoo
  	return 0;
  }
  
@@ -510,7 +547,7 @@
  struct feature_state {
  	u32 off_flags;
  	struct ethtool_gfeatures features;
-@@ -1508,104 +1040,6 @@ static void dump_features(const struct f
+@@ -1595,140 +1090,6 @@ static void dump_features(const struct f
  					 state, ref_state, j);
  }
  
@@ -526,6 +563,24 @@
 -	case SCTP_V4_FLOW:
 -		fprintf(stdout, "SCTP over IPV4 flows");
 -		break;
+-	case GTPC_V4_FLOW:
+-		fprintf(stdout, "GTP-C over IPV4 flows");
+-		break;
+-	case GTPC_TEID_V4_FLOW:
+-		fprintf(stdout, "GTP-C (include TEID) over IPV4 flows");
+-		break;
+-	case GTPU_V4_FLOW:
+-		fprintf(stdout, "GTP-U over IPV4 flows");
+-		break;
+-	case GTPU_EH_V4_FLOW:
+-		fprintf(stdout, "GTP-U and Extension Header over IPV4 flows");
+-		break;
+-	case GTPU_UL_V4_FLOW:
+-		fprintf(stdout, "GTP-U PSC Uplink over IPV4 flows");
+-		break;
+-	case GTPU_DL_V4_FLOW:
+-		fprintf(stdout, "GTP-U PSC Downlink over IPV4 flows");
+-		break;
 -	case AH_ESP_V4_FLOW:
 -	case AH_V4_FLOW:
 -	case ESP_V4_FLOW:
@@ -539,6 +594,24 @@
 -		break;
 -	case SCTP_V6_FLOW:
 -		fprintf(stdout, "SCTP over IPV6 flows");
+-		break;
+-	case GTPC_V6_FLOW:
+-		fprintf(stdout, "GTP-C over IPV6 flows");
+-		break;
+-	case GTPC_TEID_V6_FLOW:
+-		fprintf(stdout, "GTP-C (include TEID) over IPV6 flows");
+-		break;
+-	case GTPU_V6_FLOW:
+-		fprintf(stdout, "GTP-U over IPV6 flows");
+-		break;
+-	case GTPU_EH_V6_FLOW:
+-		fprintf(stdout, "GTP-U and Extension Header over IPV6 flows");
+-		break;
+-	case GTPU_UL_V6_FLOW:
+-		fprintf(stdout, "GTP-U PSC Uplink over IPV6 flows");
+-		break;
+-	case GTPU_DL_V6_FLOW:
+-		fprintf(stdout, "GTP-U PSC Downlink over IPV6 flows");
 -		break;
 -	case AH_ESP_V6_FLOW:
 -	case AH_V6_FLOW:
@@ -615,7 +688,7 @@
  #define N_SOTS 7
  
  static char *so_timestamping_labels[N_SOTS] = {
-@@ -1812,56 +1246,6 @@ static struct feature_defs *get_feature_
+@@ -1935,56 +1296,6 @@ static struct feature_defs *get_feature_
  	return defs;
  }
  
@@ -672,7 +745,7 @@
  static void do_generic_set1(struct cmdline_info *info, int *changed_out)
  {
  	int wanted, *v1, *v2;
-@@ -1891,62 +1275,6 @@ static void do_generic_set(struct cmdlin
+@@ -2014,62 +1325,6 @@ static void do_generic_set(struct cmdlin
  		do_generic_set1(&info[i], changed_out);
  }
  
@@ -735,7 +808,7 @@
  static int do_sring(struct cmd_context *ctx)
  {
  	struct ethtool_ringparam ering;
-@@ -2034,318 +1362,6 @@ static int do_gring(struct cmd_context *
+@@ -2157,318 +1412,6 @@ static int do_gring(struct cmd_context *
  	return 0;
  }
  
@@ -824,7 +897,7 @@
 -		if (err)
 -			return err;
 -	} else {
--		perror("Cannot get device channel parameters\n");
+-		perror("Cannot get device channel parameters");
 -		return 1;
 -	}
 -	return 0;
@@ -1054,7 +1127,7 @@
  static struct feature_state *
  get_features(struct cmd_context *ctx, const struct feature_defs *defs)
  {
-@@ -3297,100 +2313,6 @@ static int do_sset(struct cmd_context *c
+@@ -3422,100 +2365,6 @@ static int do_sset(struct cmd_context *c
  	return 0;
  }
  
@@ -1155,7 +1228,7 @@
  static int do_nway_rst(struct cmd_context *ctx)
  {
  	struct ethtool_value edata;
-@@ -3407,229 +2329,6 @@ static int do_nway_rst(struct cmd_contex
+@@ -3532,233 +2381,6 @@ static int do_nway_rst(struct cmd_contex
  	return err;
  }
  
@@ -1271,11 +1344,15 @@
 -		return 74;
 -	}
 -
--	if (seeprom_value_seen)
+-	if (seeprom_value_seen && !seeprom_length_seen)
 -		seeprom_length = 1;
--
--	if (!seeprom_length_seen)
+-	else if (!seeprom_length_seen)
 -		seeprom_length = drvinfo.eedump_len;
+-
+-	if (seeprom_value_seen && (seeprom_length != 1)) {
+-		fprintf(stderr, "value requires length 1\n");
+-		return 1;
+-	}
 -
 -	if (drvinfo.eedump_len < seeprom_offset + seeprom_length) {
 -		fprintf(stderr, "offset & length out of bounds\n");
@@ -1385,7 +1462,7 @@
  static void dump_link_caps_simplified(const u32 *mask)
  {
  	unsigned int i;
-@@ -3739,28 +2438,6 @@ static int get_link_stats(struct cmd_con
+@@ -3868,28 +2490,6 @@ static int get_link_stats(struct cmd_con
  	return 0;
  }
  
@@ -1414,7 +1491,7 @@
  static int do_gstats(struct cmd_context *ctx, int cmd, int stringset,
  		    const char *name)
  {
-@@ -3830,674 +2507,6 @@ static int do_gphystats(struct cmd_conte
+@@ -3959,665 +2559,6 @@ static int do_gphystats(struct cmd_conte
  	return do_gstats(ctx, ETHTOOL_GPHYSTATS, ETH_SS_PHY_STATS, "PHY");
  }
  
@@ -1558,27 +1635,6 @@
 -	return err ? 1 : 0;
 -}
 -
--static void print_indir_table(struct cmd_context *ctx,
--			      struct ethtool_rxnfc *ring_count,
--			      u32 indir_size, u32 *indir)
--{
--	u32 i;
--
--	printf("RX flow hash indirection table for %s with %llu RX ring(s):\n",
--	       ctx->devname, ring_count->data);
--
--	if (!indir_size)
--		printf("Operation not supported\n");
--
--	for (i = 0; i < indir_size; i++) {
--		if (i % 8 == 0)
--			printf("%5u: ", i);
--		printf(" %5u", indir[i]);
--		if (i % 8 == 7 || i == indir_size - 1)
--			fputc('\n', stdout);
--	}
--}
--
 -static int do_grxfhindir(struct cmd_context *ctx,
 -			 struct ethtool_rxnfc *ring_count)
 -{
@@ -1610,7 +1666,8 @@
 -		return 1;
 -	}
 -
--	print_indir_table(ctx, ring_count, indir->size, indir->ring_index);
+-	print_indir_table(ctx, ring_count->data, indir->size,
+-			  indir->ring_index);
 -
 -	free(indir);
 -	return 0;
@@ -1625,7 +1682,7 @@
 -	u32 rss_context = 0;
 -	u32 i, indir_bytes;
 -	unsigned int arg_num = 0;
--	char *hkey;
+-	u8 *hkey;
 -	int err;
 -
 -	while (arg_num < ctx->argc) {
@@ -1675,21 +1732,13 @@
 -		return 1;
 -	}
 -
--	print_indir_table(ctx, &ring_count, rss->indir_size, rss->rss_config);
+-	print_indir_table(ctx, ring_count.data, rss->indir_size,
+-			  rss->rss_config);
 -
 -	indir_bytes = rss->indir_size * sizeof(rss->rss_config[0]);
--	hkey = ((char *)rss->rss_config + indir_bytes);
+-	hkey = ((u8 *)rss->rss_config + indir_bytes);
 -
--	printf("RSS hash key:\n");
--	if (!rss->key_size)
--		printf("Operation not supported\n");
--
--	for (i = 0; i < rss->key_size; i++) {
--		if (i == (rss->key_size - 1))
--			printf("%02x\n", (u8) hkey[i]);
--		else
--			printf("%02x:", (u8) hkey[i]);
--	}
+-	print_rss_hkey(hkey, rss->key_size);
 -
 -	printf("RSS hash function:\n");
 -	if (!rss->hfunc) {
@@ -1708,6 +1757,10 @@
 -		printf("    %s: %s\n",
 -		       (const char *)hfuncs->data + i * ETH_GSTRING_LEN,
 -		       (rss->hfunc & (1 << i)) ? "on" : "off");
+-
+-	printf("RSS input transformation:\n");
+-	printf("    symmetric-xor: %s\n",
+-	       (rss->input_xfrm & RXH_XFRM_SYM_XOR) ? "on" : "off");
 -
 -out:
 -	free(hfuncs);
@@ -1826,6 +1879,7 @@
 -	u32 arg_num = 0, indir_bytes = 0;
 -	u32 req_hfunc = 0;
 -	u32 entry_size = sizeof(rss_head.rss_config[0]);
+-	u32 req_input_xfrm = 0xff;
 -	u32 num_weights = 0;
 -	u32 rss_context = 0;
 -	int delete = 0;
@@ -1869,8 +1923,21 @@
 -			if (!req_hfunc_name)
 -				exit_bad_args();
 -			++arg_num;
+-		} else if (!strcmp(ctx->argp[arg_num], "xfrm")) {
+-			++arg_num;
+-			if (!ctx->argp[arg_num])
+-				exit_bad_args();
+-			if (!strcmp(ctx->argp[arg_num], "symmetric-xor"))
+-				req_input_xfrm = RXH_XFRM_SYM_XOR;
+-			else if (!strcmp(ctx->argp[arg_num], "none"))
+-				req_input_xfrm = 0;
+-			else
+-				exit_bad_args();
+-			++arg_num;
 -		} else if (!strcmp(ctx->argp[arg_num], "context")) {
 -			++arg_num;
+-			if (!ctx->argp[arg_num])
+-				exit_bad_args();
 -			if(!strcmp(ctx->argp[arg_num], "new"))
 -				rss_context = ETH_RXFH_CONTEXT_ALLOC;
 -			else
@@ -2013,6 +2080,7 @@
 -	rss->cmd = ETHTOOL_SRSSH;
 -	rss->rss_context = rss_context;
 -	rss->hfunc = req_hfunc;
+-	rss->input_xfrm = req_input_xfrm;
 -	if (delete) {
 -		rss->indir_size = rss->key_size = 0;
 -	} else {
@@ -2089,7 +2157,7 @@
  static int do_permaddr(struct cmd_context *ctx)
  {
  	unsigned int i;
-@@ -4528,364 +2537,6 @@ static int do_permaddr(struct cmd_contex
+@@ -4648,364 +2589,6 @@ static int do_permaddr(struct cmd_contex
  	return err;
  }
  
@@ -2282,7 +2350,7 @@
 -
 -	err = send_ioctl(ctx, &edata);
 -	if (err < 0) {
--		perror("Can not get dump level\n");
+-		perror("Can not get dump level");
 -		return 1;
 -	}
 -	if (dump_flag != ETHTOOL_GET_DUMP_DATA) {
@@ -2292,14 +2360,14 @@
 -	}
 -	data = calloc(1, offsetof(struct ethtool_dump, data) + edata.len);
 -	if (!data) {
--		perror("Can not allocate enough memory\n");
+-		perror("Can not allocate enough memory");
 -		return 1;
 -	}
 -	data->cmd = ETHTOOL_GET_DUMP_DATA;
 -	data->len = edata.len;
 -	err = send_ioctl(ctx, data);
 -	if (err < 0) {
--		perror("Can not get dump data\n");
+-		perror("Can not get dump data");
 -		err = 1;
 -		goto free;
 -	}
@@ -2323,7 +2391,7 @@
 -	dump.flag = dump_flag;
 -	err = send_ioctl(ctx, &dump);
 -	if (err < 0) {
--		perror("Can not set dump level\n");
+-		perror("Can not set dump level");
 -		return 1;
 -	}
 -	return 0;
@@ -2454,7 +2522,7 @@
  static int do_tsinfo(struct cmd_context *ctx)
  {
  	struct ethtool_ts_info info;
-@@ -4903,207 +2554,6 @@ static int do_tsinfo(struct cmd_context
+@@ -5023,207 +2606,6 @@ static int do_tsinfo(struct cmd_context
  	return 0;
  }
  
@@ -2556,16 +2624,16 @@
 -			switch (modinfo.type) {
 -#ifdef ETHTOOL_ENABLE_PRETTY_DUMP
 -			case ETH_MODULE_SFF_8079:
--				sff8079_show_all(eeprom->data);
+-				sff8079_show_all_ioctl(eeprom->data);
 -				break;
 -			case ETH_MODULE_SFF_8472:
--				sff8079_show_all(eeprom->data);
+-				sff8079_show_all_ioctl(eeprom->data);
 -				sff8472_show_all(eeprom->data);
 -				break;
 -			case ETH_MODULE_SFF_8436:
 -			case ETH_MODULE_SFF_8636:
--				sff8636_show_all(eeprom->data,
--						 modinfo.eeprom_len);
+-				sff8636_show_all_ioctl(eeprom->data,
+-						       modinfo.eeprom_len);
 -				break;
 -#endif
 -			default:
@@ -2662,7 +2730,7 @@
  /* copy of net/ethtool/common.c */
  char
  tunable_strings[__ETHTOOL_TUNABLE_COUNT][ETH_GSTRING_LEN] = {
-@@ -5133,232 +2583,6 @@ struct ethtool_tunable_info {
+@@ -5254,239 +2636,6 @@ struct ethtool_tunable_info {
  	int seen;
  };
  
@@ -2681,6 +2749,11 @@
 -	  .t_type_id	= ETHTOOL_TUNABLE_U16,
 -	  .size		= sizeof(u16),
 -	  .type		= CMDL_U16,
+-	},
+-	{ .t_id         = ETHTOOL_TX_COPYBREAK_BUF_SIZE,
+-	  .t_type_id    = ETHTOOL_TUNABLE_U32,
+-	  .size         = sizeof(u32),
+-	  .type         = CMDL_U32,
 -	},
 -};
 -#define TUNABLES_INFO_SIZE	ARRAY_SIZE(tunables_info)
@@ -2725,6 +2798,7 @@
 -		ret = send_ioctl(ctx, tuna);
 -		if (ret) {
 -			perror(tunable_strings[tuna->id]);
+-			free(tuna);
 -			return ret;
 -		}
 -		free(tuna);
@@ -2802,6 +2876,7 @@
 -			ret = send_ioctl(ctx, tuna);
 -			if (ret) {
 -				fprintf(stderr, "%s: Cannot get tunable\n", ts);
+-				free(tuna);
 -				return ret;
 -			}
 -			print_tunable(tuna);
@@ -2895,7 +2970,7 @@
  static __u32 parse_reset(char *val, __u32 bitset, char *arg, __u32 *data)
  {
  	__u32 bitval = 0;
-@@ -5450,266 +2674,6 @@ static int do_reset(struct cmd_context *
+@@ -5578,266 +2727,6 @@ static int do_reset(struct cmd_context *
  	return 0;
  }
  
@@ -3109,7 +3184,7 @@
 -	}
 -
 -	fprintf(stdout, "FEC parameters for %s:\n", ctx->devname);
--	fprintf(stdout, "Configured FEC encodings:");
+-	fprintf(stdout, "Supported/Configured FEC encodings:");
 -	dump_fec(feccmd.fec);
 -	fprintf(stdout, "\n");
 -
@@ -3162,14 +3237,16 @@
  #ifndef TEST_ETHTOOL
  int send_ioctl(struct cmd_context *ctx, void *cmd)
  {
-@@ -5749,55 +2713,6 @@ static const struct option args[] = {
- 			  "		[ master-slave master-preferred|slave-preferred|master-force|slave-force ]\n"
+@@ -5888,63 +2777,6 @@ static const struct option args[] = {
+ 			  "		[ master-slave preferred-master|preferred-slave|forced-master|forced-slave ]\n"
  	},
  	{
 -		.opts	= "-a|--show-pause",
+-		.json	= true,
 -		.func	= do_gpause,
 -		.nlfunc	= nl_gpause,
--		.help	= "Show pause options"
+-		.help	= "Show pause options",
+-		.xhelp	= "		[ --src aggregate | emac | pmac ]\n"
 -	},
 -	{
 -		.opts	= "-A|--pause",
@@ -3182,6 +3259,7 @@
 -	},
 -	{
 -		.opts	= "-c|--show-coalesce",
+-		.json	= true,
 -		.func	= do_gcoalesce,
 -		.nlfunc	= nl_gcoalesce,
 -		.help	= "Show coalesce options"
@@ -3213,12 +3291,17 @@
 -			  "		[tx-usecs-high N]\n"
 -			  "		[tx-frames-high N]\n"
 -			  "		[sample-interval N]\n"
+-			  "		[cqe-mode-rx on|off]\n"
+-			  "		[cqe-mode-tx on|off]\n"
+-			  "		[tx-aggr-max-bytes N]\n"
+-			  "		[tx-aggr-max-frames N]\n"
+-			  "		[tx-aggr-time-usecs N]\n"
 -	},
 -	{
  		.opts	= "-g|--show-ring",
+ 		.json	= true,
  		.func	= do_gring,
- 		.nlfunc	= nl_gring,
-@@ -5827,52 +2742,11 @@ static const struct option args[] = {
+@@ -5982,52 +2814,11 @@ static const struct option args[] = {
  		.xhelp	= "		FEATURE on|off ...\n"
  	},
  	{
@@ -3259,19 +3342,19 @@
 -		.opts	= "-p|--identify",
 -		.func	= do_phys_id,
 -		.help	= "Show visible port identification (e.g. blinking)",
--		.xhelp	= "               [ TIME-IN-SECONDS ]\n"
+-		.xhelp	= "		[ TIME-IN-SECONDS ]\n"
 -	},
 -	{
 -		.opts	= "-t|--test",
 -		.func	= do_test,
 -		.help	= "Execute adapter self test",
--		.xhelp	= "               [ online | offline | external_lb ]\n"
+-		.xhelp	= "		[ online | offline | external_lb ]\n"
 -	},
 -	{
  		.opts	= "-S|--statistics",
+ 		.json	= true,
  		.func	= do_gnicstats,
- 		.help	= "Show adapter statistics"
-@@ -5892,174 +2766,18 @@ static const struct option args[] = {
+@@ -6052,186 +2843,18 @@ static const struct option args[] = {
  		.help	= "Show phy statistics"
  	},
  	{
@@ -3279,7 +3362,8 @@
 -		.func	= do_grxclass,
 -		.help	= "Show Rx network flow classification options or rules",
 -		.xhelp	= "		[ rx-flow-hash tcp4|udp4|ah4|esp4|sctp4|"
--			  "tcp6|udp6|ah6|esp6|sctp6 [context %d] |\n"
+-			  "gtpc4|gtpc4t|gtpu4|gtpu4e|gtpu4u|gtpu4d|tcp6|udp6|ah6|esp6|sctp6|"
+-			  "gtpc6|gtpc6t|gtpu6|gtpu6e|gtpu6u|gtpu6d [context %d] |\n"
 -			  "		  rule %d ]\n"
 -	},
 -	{
@@ -3287,7 +3371,8 @@
 -		.func	= do_srxclass,
 -		.help	= "Configure Rx network flow classification options or rules",
 -		.xhelp	= "		rx-flow-hash tcp4|udp4|ah4|esp4|sctp4|"
--			  "tcp6|udp6|ah6|esp6|sctp6 m|v|t|s|d|f|n|r... [context %d] |\n"
+-			  "gtpc4|gtpc4t|gtpu4|gtpu4e|gtpu4u|gtpu4d|tcp6|udp6|ah6|esp6|sctp6"
+-			  "|gtpc6|gtpc6t|gtpu6|gtpu6e|gtpu6u|gtpu6d m|v|t|s|d|f|n|r|e... [context %d] |\n"
 -			  "		flow-type ether|ip4|tcp4|udp4|sctp4|ah4|esp4|"
 -			  "ip6|tcp6|udp6|ah6|esp6|sctp6\n"
 -			  "			[ src %x:%x:%x:%x:%x:%x [m %x:%x:%x:%x:%x:%x] ]\n"
@@ -3307,7 +3392,7 @@
 -			  "			[ dst-mac %x:%x:%x:%x:%x:%x [m %x:%x:%x:%x:%x:%x] ]\n"
 -			  "			[ action %d ] | [ vf %d queue %d ]\n"
 -			  "			[ context %d ]\n"
--			  "			[ loc %d]] |\n"
+-			  "			[ loc %d ] |\n"
 -			  "		delete %d\n"
 -	},
 -	{
@@ -3318,7 +3403,9 @@
  	},
  	{
 -		.opts	= "-x|--show-rxfh-indir|--show-rxfh",
+-		.json	= true,
 -		.func	= do_grxfh,
+-		.nlfunc	= nl_grss,
 -		.help	= "Show Rx flow hash indirection table and/or RSS hash key",
 -		.xhelp	= "		[ context %d ]\n"
 -	},
@@ -3330,13 +3417,14 @@
 -			  "		[ equal N | weight W0 W1 ... | default ]\n"
 -			  "		[ hkey %x:%x:%x:%x:%x:.... ]\n"
 -			  "		[ hfunc FUNC ]\n"
+-			  "		[ xfrm symmetric-xor|none ]\n"
 -			  "		[ delete ]\n"
 -	},
 -	{
 -		.opts	= "-f|--flash",
 -		.func	= do_flash,
 -		.help	= "Flash firmware image from the specified file to a region on the device",
--		.xhelp	= "               FILENAME [ REGION-NUMBER-TO-FLASH ]\n"
+-		.xhelp	= "		FILENAME [ REGION-NUMBER-TO-FLASH ]\n"
 -	},
 -	{
  		.opts	= "-P|--show-permaddr",
@@ -3367,10 +3455,10 @@
 -		.func	= do_schannels,
 -		.nlfunc	= nl_schannels,
 -		.help	= "Set Channels",
--		.xhelp	= "               [ rx N ]\n"
--			  "               [ tx N ]\n"
--			  "               [ other N ]\n"
--			  "               [ combined N ]\n"
+-		.xhelp	= "		[ rx N ]\n"
+-			  "		[ tx N ]\n"
+-			  "		[ other N ]\n"
+-			  "		[ combined N ]\n"
 -	},
 -	{
 -		.opts	= "--show-priv-flags",
@@ -3388,14 +3476,19 @@
 -	{
 -		.opts	= "-m|--dump-module-eeprom|--module-info",
 -		.func	= do_getmodule,
+-		.nlfunc = nl_getmodule,
 -		.help	= "Query/Decode Module EEPROM information and optical diagnostics if available",
 -		.xhelp	= "		[ raw on|off ]\n"
 -			  "		[ hex on|off ]\n"
 -			  "		[ offset N ]\n"
 -			  "		[ length N ]\n"
+-			  "		[ page N ]\n"
+-			  "		[ bank N ]\n"
+-			  "		[ i2c N ]\n"
 -	},
 -	{
 -		.opts	= "--show-eee",
+-		.json	= true,
 -		.func	= do_geee,
 -		.nlfunc	= nl_geee,
 -		.help	= "Show EEE settings",
@@ -3432,48 +3525,55 @@
 -		.help	= "Get tunable",
 -		.xhelp	= "		[ rx-copybreak ]\n"
 -			  "		[ tx-copybreak ]\n"
--			  "		[ pfc-precention-tout ]\n"
+-			  "		[ tx-buf-size ]\n"
+-			  "		[ pfc-prevention-tout ]\n"
 -	},
 -	{
 -		.opts	= "--set-tunable",
 -		.func	= do_stunable,
 -		.help	= "Set tunable",
--		.xhelp	= "		[ rx-copybreak N]\n"
--			  "		[ tx-copybreak N]\n"
--			  "		[ pfc-precention-tout N]\n"
+-		.xhelp	= "		[ rx-copybreak N ]\n"
+-			  "		[ tx-copybreak N ]\n"
+-			  "		[ tx-buf-size N ]\n"
+-			  "		[ pfc-prevention-tout N ]\n"
 -	},
 -	{
  		.opts	= "--reset",
  		.func	= do_reset,
  		.help	= "Reset components",
-@@ -6086,43 +2804,6 @@ static const struct option args[] = {
+@@ -6258,48 +2881,6 @@ static const struct option args[] = {
  			  "		[ all ]\n"
  	},
  	{
 -		.opts	= "--show-fec",
+-		.json	= true,
 -		.func	= do_gfec,
+-		.nlfunc	= nl_gfec,
 -		.help	= "Show FEC settings",
 -	},
 -	{
 -		.opts	= "--set-fec",
 -		.func	= do_sfec,
+-		.nlfunc	= nl_sfec,
 -		.help	= "Set FEC settings",
--		.xhelp	= "		[ encoding auto|off|rs|baser|llrs [...]]\n"
+-		.xhelp	= "		[ encoding auto|off|rs|baser|llrs [...] ]\n"
 -	},
 -	{
 -		.opts	= "-Q|--per-queue",
 -		.func	= do_perqueue,
 -		.help	= "Apply per-queue command. ",
 -		.xhelp	= "The supported sub commands include --show-coalesce, --coalesce"
--			  "             [queue_mask %x] SUB_COMMAND\n",
+-			  "		[queue_mask %x] SUB_COMMAND\n",
 -	},
 -	{
 -		.opts	= "--cable-test",
+-		.json	= true,
 -		.nlfunc	= nl_cable_test,
 -		.help	= "Perform a cable test",
 -	},
 -	{
 -		.opts	= "--cable-test-tdr",
+-		.json	= true,
 -		.nlfunc	= nl_cable_test_tdr,
 -		.help	= "Print cable test time domain reflectrometery data",
 -		.xhelp	= "		[ first N ]\n"
@@ -3487,10 +3587,10 @@
 -		.help	= "Show NIC tunnel offload information",
 -	},
 -	{
- 		.opts	= "-h|--help",
- 		.no_dev	= true,
- 		.func	= show_usage,
-@@ -6190,175 +2871,6 @@ static int find_option(char *arg)
+ 		.opts	= "--show-module",
+ 		.json	= true,
+ 		.nlfunc	= nl_gmodule,
+@@ -6426,175 +3007,6 @@ static int find_option(char *arg)
  
  #define MAX(x, y) (x > y ? x : y)
  
@@ -3668,12 +3768,12 @@
  	if (no_dev) {
 --- a/Makefile.am
 +++ b/Makefile.am
-@@ -7,7 +7,7 @@ EXTRA_DIST = LICENSE ethtool.8 ethtool.s
- 
- sbin_PROGRAMS = ethtool
- ethtool_SOURCES = ethtool.c uapi/linux/ethtool.h internal.h \
--		  uapi/linux/net_tstamp.h rxclass.c common.c common.h \
-+		  uapi/linux/net_tstamp.h common.c common.h \
- 		  json_writer.c json_writer.h json_print.c json_print.h
+@@ -12,7 +12,7 @@ ethtool_SOURCES = ethtool.c uapi/linux/c
+ 		  uapi/linux/libc-compat.h uapi/linux/net_tstamp.h uapi/linux/neighbour.h \
+ 		  uapi/linux/posix_types.h uapi/linux/rtnetlink.h uapi/linux/socket.h \
+ 		  uapi/linux/stddef.h uapi/linux/types.h \
+-		  rxclass.c common.c common.h \
++		  common.c common.h \
+ 		  json_writer.c json_writer.h json_print.c json_print.h \
+ 		  list.h
  if ETHTOOL_ENABLE_PRETTY_DUMP
- ethtool_SOURCES += \

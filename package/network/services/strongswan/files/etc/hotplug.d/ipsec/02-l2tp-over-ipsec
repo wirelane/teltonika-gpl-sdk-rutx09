@@ -10,10 +10,14 @@ check_cl="$(uci -q get network.$ifname.proto)"
 
 echo "Setting up L2TP $ifname over IPsec"
 
-if [ "$PLUTO_VERB" = "up-host" ]; then
-	logger -t "ipsec" "Interface '$ifname' bringing up L2TP over IPsec connection"
-    ifup "$ifname"
-elif [ "$PLUTO_VERB" = "down-host" ]; then
-	logger -t "ipsec" "Interface '$ifname' bringing down L2TP over IPsec connection"
-    ifdown "$ifname"
-fi
+case "$PLUTO_VERB" in
+	up-host | down-host)
+		action="${PLUTO_VERB%-host}"
+		;;
+	*)
+		exit 0
+		;;
+esac
+
+logger -t "ipsec" "Interface '$ifname' bringing $action L2TP over IPsec connection"
+"if$action" "$ifname"

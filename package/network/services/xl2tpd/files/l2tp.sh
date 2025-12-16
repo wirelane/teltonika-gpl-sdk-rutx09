@@ -36,8 +36,10 @@ check_bind() {
 	fi
 }
 
-proto_l2tp_add_opts() {
-	[ -n "$1" ] && echo "$1" >> "$3"
+append_pppd_options() {
+	local opt="$1"
+	local optfile="$3"
+	[ -n "$opt" ] && echo "$opt" | sed -e 's/^[ \t]*//' >> "$optfile"
 }
 
 proto_l2tp_setup() {
@@ -53,7 +55,6 @@ proto_l2tp_setup() {
 	fi
 
 	local optfile="/var/run/xl2tpd/options.${interface}"
-	local static_opt="/etc/ppp/options.l2tp"
 	local active_wan="/tmp/run/mwan3/active_wan"
 	local ip serv_addr server host defaultroute IP6 default_int
 
@@ -155,8 +156,8 @@ proto_l2tp_setup() {
 	config_get auth_mschap2 "$interface" auth_mschap2 "1"
 	[ "$auth_mschap2" = "0" ] && allow_mschap2="refuse-mschap-v2"
 
-	cat "$static_opt" > "$optfile"
-	cat <<EOF >>"$optfile"
+	echo -e "# MAIN PARAMETERS" > "$optfile"
+	cat <<EOF | grep -v '^$' >> "$optfile"
 ipparam "$interface"
 ifname "l2tp-$interface"
 $keepalive
@@ -167,7 +168,16 @@ $allow_chap
 $allow_mschap2
 EOF
 
-	json_for_each_item proto_l2tp_add_opts pppd_options "$optfile"
+	{
+		echo -e "\n# ADDITIONAL PARAMETERS"
+		echo "ip-up-script /lib/netifd/l2tp-up"
+		echo "ipv6-up-script /lib/netifd/l2tp-up"
+		echo "ip-down-script /lib/netifd/l2tp-down"
+		echo "ipv6-down-script /lib/netifd/l2tp-down"
+	} >> "$optfile"
+	echo -e "\n# CUSTOM PARAMETERS" >> "$optfile"
+	json_for_each_item append_pppd_options pppd_options "$optfile"
+	chown xl2tpd:xl2tpd "$optfile"
 
 	xl2tpd${IP6:+6}-control${IP6:+ -c /var/run/xl2tpd/l2tp6-control} add-lac l2tp-${interface} pppoptfile=${optfile} lns=${server} || {
 		echo "xl2tpd${IP6:+6}-control: Add l2tp-$interface failed" >&2

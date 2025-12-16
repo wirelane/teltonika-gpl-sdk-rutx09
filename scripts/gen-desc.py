@@ -307,6 +307,15 @@ class Profile:
 
             new_detail = []
             new_tooltip = []
+            new_packages = []
+
+            for p in f.packages:
+                if not 'expr' in p or not p['expr']:
+                    new_packages.append(p)
+                    continue
+                expr = self.parse_expr(p['expr'])
+                if self.evaluate_expr(expr):
+                    new_packages.append(p)
 
             for d in f.detail:
                 new_item = {'key': d['key'], 'value': d['value']}
@@ -329,11 +338,13 @@ class Profile:
                 if self.evaluate_expr(expr):
                     append_or_insert_arr(new_tooltip, new_item)
 
-            f.detail = new_detail
-            f.tooltip = new_tooltip
-            f.external = (self.conf[f.name] == 'm')
+            new_f = f.copy()
+            new_f.detail = new_detail
+            new_f.tooltip = new_tooltip
+            new_f.external = (self.conf[f.name] == 'm')
+            new_f.packages = new_packages
 
-            self.features.append(f)
+            self.features.append(new_f)
 
     def fetch_packages(self):
         for key, value in self.conf.items():
@@ -485,6 +496,17 @@ class Feature:
         self.detail = []
         self.tooltip = []
 
+    def copy(self):
+        new_feature = Feature(self.name)
+        new_feature.title = self.title
+        new_feature.maintainer = self.maintainer
+        new_feature.label = self.label
+        new_feature.external = self.external
+        new_feature.packages = self.packages.copy()
+        new_feature.detail = self.detail.copy()
+        new_feature.tooltip = self.tooltip.copy()
+        return new_feature
+
     def parse_extra(self, line, expr):
         l = line.strip()
 
@@ -543,10 +565,14 @@ class Feature:
                 detail_expr_parse = False
                 info = l.split(' ', 2)
 
+                expr_str = ''
+                if len(info) == 3 and info[2].startswith('if '):
+                    expr_str = info[2].strip()
+
                 if 'PACKAGE_' in info[1]:
-                    self.packages.append(info[1][8:].strip())
+                    self.packages.append({ 'name': info[1][8:].strip(), 'expr': expr_str })
                 else:
-                    self.packages.append(info[1].strip())
+                    self.packages.append({ 'name': info[1].strip(), 'expr': expr_str })
             elif is_match('^\tdefault ', l):
                 tooltip_parse = False
                 detail_parse = False
@@ -708,7 +734,7 @@ def dump_features(data, descriptions_only=False, dump_list=False):
             }
 
             for i in f.packages:
-                pkg = find_pkg_by_name(i)
+                pkg = find_pkg_by_name(i['name'])
 
                 if pkg is None:
                     continue

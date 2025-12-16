@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=busybox
 PKG_VERSION:=1.34.1
-PKG_RELEASE:=$(AUTORELEASE).15
+PKG_RELEASE:=$(AUTORELEASE).17
 PKG_FLAGS:=essential
 
 PKG_SOURCE_VERSION:=1.34.1
@@ -45,7 +45,7 @@ define Package/busybox/Default
   MAINTAINER:=Felix Fietkau <nbd@nbd.name>
   TITLE:=Core utilities for embedded Linux
   URL:=http://busybox.net/
-  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
+  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:libtlt-logger +BUSYBOX_CONFIG_PASSWD:libtlt-logger +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
 ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_FEATURE_SUID),)
   FATTRS:=/bin/busybox:root::y:
 endif
@@ -60,7 +60,7 @@ define Package/telnet
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=Telnet server
-  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:liblog +BUSYBOX_CONFIG_PASSWD:liblog +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
+  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:libtlt-logger +BUSYBOX_CONFIG_PASSWD:libtlt-logger +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
   USERID:=telnetd:telnetd
   FATTRS:=/usr/sbin/telnetd::::cap_net_bind_service=ep
 endef

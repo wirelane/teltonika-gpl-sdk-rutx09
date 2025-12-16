@@ -51,7 +51,7 @@ struct cfgx_section_list {
 
 /// @brief Allocate new empty configuration context. Use `cfgx_context_append_section_blobmsg` to append sections.
 /// @return Configuration context
- cfgx_context_t *cfgx_context_init_blobmsg(void);
+cfgx_context_t *cfgx_context_init_blobmsg(void);
 
 /// @brief Allocate new configuration context from uci context.
 /// @param config Configuration name
@@ -119,7 +119,12 @@ struct cfgx_section_list cfgx_section_list_free(struct cfgx_section_list list);
 /// @param[out] result_list On success, result will be stored here
 /// @retval  0, success
 /// @retval -1, failure
-int cfgx_section_get_string_list(cfgx_context_t *ctx, struct cfgx_section *section, const char *name, struct cfgx_string_list *result_list);
+int cfgx_section_get_string_list(
+	cfgx_context_t *ctx,
+	struct cfgx_section *section,
+	const char *name,
+	struct cfgx_string_list *result_list
+);
 
 /// @brief Free allocated memory by list of strings
 /// @param list List of strings
@@ -144,9 +149,32 @@ char *cfgx_section_get_string(cfgx_context_t *ctx, struct cfgx_section *section,
 /// @param min Minimum value (inclusive)
 /// @param max Maximum value (inclusive)
 /// @return Parsed valued or default if an error occured
-int64_t cfgx_section_get_i64(cfgx_context_t *ctx, struct cfgx_section *section, const char *name, int64_t min, int64_t max, int64_t def);
+int64_t cfgx_section_get_i64(
+	cfgx_context_t *ctx,
+	struct cfgx_section *section,
+	const char *name,
+	int64_t min,
+	int64_t max,
+	int64_t def
+);
+
+/// @brief Get floating point value of option by name from section and check if it is within a certain range.
+/// @param ctx Configuration context
+/// @param section Section
+/// @param name Option name
+/// @param def Default value
+/// @param min Minimum value (inclusive)
+/// @param max Maximum value (inclusive)
+/// @return Parsed valued or default if an error occured
+double cfgx_section_get_f64(
+	cfgx_context_t *ctx,
+	struct cfgx_section *section,
+	const char *name,
+	double min,
+	double max,
+	double def
+);
 
 #ifdef __cplusplus
 }
 #endif
-

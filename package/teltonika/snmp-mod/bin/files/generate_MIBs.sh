@@ -105,7 +105,7 @@ is_true "wifi" && wireless=1
 [ $if_vlan ] || [ $port_vlan ] && vlan_gen=1
 ( ! is_switch ) && ( ! is_trb5 ) && ( ! is_cap7 ) && sqm=1
 (is_installed "port_eventsd") || ( is_switch ) && port=1
-( ! is_switch ) && ( ! is_trb5 ) && mwan3=1
+( ! is_switch ) && mwan3=1
 universal_gateway=1
 
 # Unset 'traps' if neither 'mobile' nor 'ios' or 'hotspot' are supported

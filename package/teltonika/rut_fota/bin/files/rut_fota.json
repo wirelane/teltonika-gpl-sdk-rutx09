@@ -4,6 +4,9 @@
     "rut_fota": {
       "methods": ["*"]
     },
+    "rut_fota.internal": {
+      "methods": ["*"]
+    },
     "log": {
       "methods": ["write_ext"]
     },

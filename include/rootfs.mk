@@ -66,8 +66,15 @@ endif
 
 define generate_banner
 	(\
-		max_line_len="$$(echo $(TLT_VERSION) | wc -c)"; \
-		max_line_len="$$((max_line_len + 18))"; \
+		version_len="$$(echo $(TLT_VERSION) | wc -c)"; \
+		version_len="$$((version_len + 18))"; \
+		docs_line="Docs: $(API_DOCS_URL)"; \
+		docs_len="$$(echo $$docs_line | wc -c)"; \
+		max_line_len="$$version_len"; \
+		if [ $$docs_len -gt $$max_line_len ]; then \
+			max_line_len="$$docs_len"; \
+		fi; \
+		max_line_len="$$((max_line_len + 8))"; \
 		label="$$(echo "Teltonika $(TLT_PLATFORM_NAME) series $$(date +'%Y')")"; \
 		label_len="$$(echo $$label | wc -c)"; \
 		pad="$$(((max_line_len - label_len) / 2))"; \
@@ -82,6 +89,15 @@ define generate_banner
 		printf "%3sFirmware:%3s$(TLT_VERSION)\n" >> $(1)/etc/banner; \
 		printf "%3sBuild:%6s$$(git rev-parse --short HEAD)\n" >> $(1)/etc/banner; \
 		printf "%3sBuild date:%1s$$(date +'%Y-%m-%d %H:%M:%S' -d @$$(cat $(1)/etc/firmware-date))\n" >> $(1)/etc/banner; \
+		printf "%$${max_line_len}s\n" |tr " " "-" >> $(1)/etc/banner; \
+		api_title="~ INTERNAL API USAGE ~"; \
+		api_len="$$(echo $$api_title | wc -c)"; \
+		api_pad="$$(((max_line_len - api_len) / 2))"; \
+		printf "%$${api_pad}s%s\n\n" "" "$$api_title" >> $(1)/etc/banner; \
+		printf "%3s/sbin/api GET /system/device/status\n" >> $(1)/etc/banner; \
+		printf "%3s/sbin/api POST /interfaces/config {...}\n\n" >> $(1)/etc/banner; \
+		docs_pad="$$(((max_line_len - docs_len) / 2))"; \
+		printf "%$${docs_pad}s%s\n" "" "$$docs_line" >> $(1)/etc/banner; \
 		printf "%$${max_line_len}s\n" |tr " " "-" >> $(1)/etc/banner; \
 	)
 endef

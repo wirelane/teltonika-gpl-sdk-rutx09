@@ -2,7 +2,7 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
 ===================================================================
 --- ubox-2020-10-25-9ef88681.orig/log/logread.c
 +++ ubox-2020-10-25-9ef88681/log/logread.c
-@@ -632,7 +632,6 @@ int main(int argc, char **argv)
+@@ -535,7 +535,6 @@ int main(int argc, char **argv)
  
  		ret = ubus_lookup_id(ctx, "log", &id);
  		if (ret) {
@@ -10,7 +10,7 @@ Index: ubox-2020-10-25-9ef88681/log/logread.c
  			sleep(1);
  			continue;
  		}
-@@ -646,6 +645,8 @@ int main(int argc, char **argv)
+@@ -549,6 +548,8 @@ int main(int argc, char **argv)
  		uloop_run();
  
  	} while (logd_conn_tries--);

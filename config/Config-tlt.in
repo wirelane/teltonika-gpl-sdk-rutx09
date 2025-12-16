@@ -175,6 +175,7 @@ config MOBILE_SUPPORT
 	imply BUSYBOX_CONFIG_FEATURE_NETIFD
 	detail
 		Band Management: Provides mobile band locking for different network types
+		Network Type Management: Offers the ability to lock different network types
 		Block/Allow List: Offers operator block/allow listing by country or individual operators
 		Operator Selection Modes: Module connection modes including auto, manual, and manual-auto
 		APN: Implemented automatic APN selection with the option for manual APN configuration
@@ -187,12 +188,14 @@ config MOBILE_SUPPORT
 		Status: cell ID, ARFCN, UARFCN, EARFCN, MCC, and MNC
 		Deny Data on Roaming: Offers mobile data prohibition when module registers on a roaming network
 		Low Signal Reconnect: Ensures mobile data reconnection in case of poor signal
+		Modem Debug: Enable access to modem debug with AT commands
 		Bridge Mode: Direct connection (bridge) between mobile ISP and device on LAN
 		Passthrough Mode: Router assigns it's mobile WAN IP address to another device on LAN
 	detail if FRAMED_ROUTING
 		Framed Routing: Supports an IP network behind a 5G UE
 	tooltip value
 		Band Management: Availability varies by order code
+		Network Type Management: Availability varies by order code
 		Block/Allow List: Availability varies by order code
 		Operator Selection Modes: Availability varies by order code
 		Multiple PDN: Availability varies by order code
@@ -261,13 +264,13 @@ config APP_MODEM_CONTROL
 #
 
 config SIM_PIN_MANAGEMENT
-	bool "SIM PIN Code Management"
+	bool "SIM PIN/PUK Code Management"
 	label "SIM Management"
 	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	default y
 	detail
-		Enables setting, changing, or disabling the SIM card's PIN
+		Enables setting, changing, or disabling the SIM card's PIN/PUK codes
 
 config SIM_IDLE_PROTECTION_SUPPORT
 	tristate "SIM Idle Protection"
@@ -325,7 +328,7 @@ config MOBILE_UTILS_SUPPORT
 	detail
 		SMS Utilities: Rules that perform certain actions when they are activated by SMS messages
 		SMS Forwarding: To HTTP, SMS and Email
-		Email Forwarding: To SMS
+		Email to SMS: Connects to your email account and checks its inbox at the specified frequency. If it finds any new received emails with a specific subject (phone number in email subject), it sends the body of the email as an SMS message(s) to the recipient specified in the email subject field.
 		Auto Reply: Automatic replying to SMS messages that the device receives
 		Messages: Sending and reading of SMS messages
 		Call Utilities: Rules that perform certain actions when they are activated by a call
@@ -398,19 +401,16 @@ config WIFI_SUPPORT
 	imply PACKAGE_wpad-openssl if !USES_VENDOR_WIFI_DRIVER
 	imply PACKAGE_vuci-app-wireless-ui
 	imply PACKAGE_multiple_ap if !AP_DEVICE && !USES_VENDOR_WIFI_DRIVER
-	detail if !AP_DEVICE
-		Wi-Fi Modes: Access Point (AP), Client (STA), Mesh (802.11s), Multi AP
-		Wi-Fi Access Point: Fast roaming (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, WMM
-		Wi-Fi Encryptions: WPA-PSK, WPA2-PSK, WPA3-SAE, WPA-EAP, OWE, WPA2-EAP, WPA3-EAP
-		Wi-Fi Ciphers: CCMP, TKIP
-		Wi-Fi EAP Methods: TLS, TTLS, PEAP, FAST
-		Wi-Fi Features: WDS, MAC filter, Fast roaming, credentials QR code generator, PKCS#12 format support
-	detail if AP_DEVICE
-		Wi-Fi Modes: Access Point (AP), Mesh (802.11s)
-		Wi-Fi Access Point: Fast roaming (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, WMM
-		Wi-Fi Encryptions: WPA-PSK, WPA2-PSK, WPA3-SAE, WPA-EAP, OWE, WPA2-EAP, WPA3-EAP
-		Wi-Fi Ciphers: CCMP, TKIP
-		Wi-Fi Features: WDS, MAC filter, Fast roaming, credentials QR code generator
+	detail
+		Modes: Access Point (AP), Mesh (802.11s)
+		Access Point: Fast transition (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, WMM
+		Encryptions: WPA-PSK, WPA2-PSK, WPA3-SAE, WPA-EAP, WPA2-EAP, WPA3-EAP, OWE
+		Ciphers: CCMP, TKIP
+		Features: WDS, MAC filter, credentials QR code generator
+	detail if ADVANCED_NETWORK
+		Modes: \, Client (STA), Multi AP
+		EAP Methods: TLS (with PKCS#12 format support), TTLS, PEAP, FAST
+		Features: \, Fast roaming
 
 config MT7628_HOTSPOT20
 	bool
@@ -456,6 +456,15 @@ config CORE_NETWORK_PACKAGES
 	imply PACKAGE_vuci-app-network-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-network-tap-ui if AP_DEVICE
 	imply PACKAGE_vuci-app-network-devices-api
+	detail
+		Network Protocols: IPv4, IPv6, ARP, IPsec, PPP
+		Transport Protocols: TCP, UDP, ICMP, GRE, ESP, RIP, OSPF, BGP, IPsec
+		VLAN: Tagged
+		Interfaces: Static IP, DHCP client, DHCPv6 client, IPv6 SLAAC
+	detail if ADVANCED_NETWORK
+		Network Protocols: \, IP NAT
+		VLAN: \, untagged
+		Interfaces: \, PPPoE client, IPv6 prefix management, WAN, LAN
 
 config ADVANCED_NETWORK
 	bool "Network"
@@ -475,15 +484,13 @@ config ADVANCED_NETWORK
 	imply PACKAGE_vuci-app-network-devices-ui if DSA_SUPPORT
 	detail
 		Status: LAN networks, DHCP leases, Firewall rules and policies, IPv4/IPv6 routes, ARP table, IPv6 neighours
-		Interfaces: Static IP, DHCP client, DHCPv6 client, PPPoE client, IPv6 prefix management, IPv6 SLAAC, WAN, LAN
-		VLAN: Tagged, untagged
 		Routing: Static routing, policy based routing, routing rules
 		DHCPv4: Status, server mode, relay mode, custom DHCP options, static leases
 		DHCPv6: Status, server mode, statless mode, statefull mode, relay mode, hybrid mode, Router advertisement service, NDP proxy, static leases
 		DNS: Caching DNS server, DNS forwardings, rebind protection, static DNS entries
+		Bridging: Multiple bridges, STP, IGMP snooping (Multicast)
+	detail if PORT_LINK
 		Ports Control: View, enable, disable, auto-configuration control, transmission speed control
-		Network Protocols: IPv4, IPv6, PPP, ARP, IPsec, IP NAT
-		Transport Protocols: TCP, UDP, ICMP, GRE, ESP, RIP, OSPF, BGP, IPsec
 	detail if FRR_SUPPORT || FRR5_SUPPORT
 		Routing: \, dynamic routing
 
@@ -698,7 +705,7 @@ config CONNCHECKER_SUPPORT
 		Internet status track and log changes about availability of public Internet
 
 config IGMPPROXY_SUPPORT
-	tristate "Multicast"
+	tristate "IGMP proxy"
 	maintainer "Network"
 	label "Network Utilities"
 	depends on PKG_SUPPORT
@@ -706,7 +713,7 @@ config IGMPPROXY_SUPPORT
 	default m
 	imply PACKAGE_vuci-app-igmp-proxy-ui
 	detail
-		IGMP proxy forward multicast traffic using IGMP signalling
+		IGMP proxy (Multicast routing) forwards multicast traffic using IGMP signalling
 
 config QOS_SUPPORT
 	tristate "Network Traffic Control"
@@ -1114,6 +1121,19 @@ config RMS_SUPPORT
 	detail
 		Teltonika Remote Management System https\://teltonika-networks.com/products/rms
 
+
+config IEC60870_CLIENT_SUPPORT
+	tristate "IEC 60870-5 Client"
+	label "Industrial Protocols"
+	maintainer "Apps/Apps2"
+	depends on PKG_SUPPORT
+	default m
+	imply PACKAGE_vuci-app-iec60870-client-ui
+	detail
+		Client mode for IEC104
+	detail if SERIAL_SUPPORT
+		\, IEC101
+
 #
 # Industrial protocols
 #
@@ -1214,6 +1234,29 @@ config DLMS_SUPPORT
 	detail
 		connection types
 
+config CANBUS_SUPPORT
+	bool "CANBUS"
+	label "Industrial Protocols"
+	maintainer "Apps/Apps2"
+	depends on CAN_BUS_STM
+	default y
+	imply PACKAGE_can_gw
+	imply PACKAGE_vuci-app-canbus-gateway-ui
+	detail
+		CAN to IP gateway
+
+config IEC60870_SERVER_SUPPORT
+	tristate "IEC 60870-5 Server"
+	label "Industrial Protocols"
+	maintainer "Apps/Apps2"
+	depends on PKG_SUPPORT
+	default m
+	imply PACKAGE_vuci-app-iec60870-server-ui
+	detail
+		Server mode for IEC104
+	detail if SERIAL_SUPPORT
+		\, IEC101
+
 #
 # Monitoring & Management
 #
@@ -1306,28 +1349,29 @@ config EVENT_JUGGLER_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_SMS if MOBILE_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_CALL if MOBILE_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_OUT if IO_SUPPORT
+	select PACKAGE_EVENT_JUGGLER_ACTION_LED if LED_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_WIFI if WIFI_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_ACTION_MODEM if MOBILE_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_CONDITION_IO if IO_SUPPORT
 	select PACKAGE_EVENT_JUGGLER_CONDITION_GPS if GPS_SUPPORT
 	detail
-		Event Juggler Events: Device boot, time, Hotspot connections, astronomical time, device logs
+		Event Juggler: Device boot, time, Hotspot connections, astronomical time, device logs events
 	detail if GPS_SUPPORT
-		Event Juggler Events: \, GPS
+		Event Juggler: \, GPS events
 	detail if MOBILE_SUPPORT
-		Event Juggler Events: \, GSM, mobile data limit
+		Event Juggler: \, GSM, mobile data limit events
 	detail if IO_SUPPORT || POWER_CONTROL_SUPPORT
-		Event Juggler Events: \, input/output changes
+		Event Juggler: \, Input/output events
 	detail
-		Event Juggler Actions: Connection management, MQTT message, Email, HTTP request, Lua and other script execution, RMS management, profile change, device reboot
+		Event Juggler: Connection management, MQTT message, Email, HTTP request, Lua and other script execution, RMS management, profile change, device reboot actions
 	detail if MOBILE_SUPPORT
-		Event Juggler Actions: \, SMS, call, modem restart
+		Event Juggler: \, SMS, call, modem restart actions
 	detail if DUAL_SIM_SUPPORT
-		Event Juggler Actions: \, SIM switch
+		Event Juggler: \, SIM switch actions
 	detail if IO_SUPPORT
-		Event Juggler Actions: \, output management
+		Event Juggler: \, Output management actions
 	detail if WIFI_SUPPORT
-		Event Juggler Actions: \, Wi-Fi management
+		Event Juggler: \, Wi-Fi management actions
 
 config DATA_SENDER_SUPPORT
 	tristate "Data to Server"
@@ -1602,6 +1646,8 @@ config IO_SCHEDULER
 	default m if SMALL_FLASH && PKG_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-io-scheduler-ui
+	detail
+		Scheduler: Can be used to configure a timetable of when an I/O pin state should change, based on days of the week or month and hours of the day. 
 
 config IO_JUGGLER
 	tristate
@@ -1757,12 +1803,14 @@ config ENCHANCED_SECURITY_SUPPORT
 
 config REALTIME_GRAPH_SUPPORT
 	bool "Realtime Data"
-	label "System"
+	label "Monitoring & Management"
 	maintainer "Network"
 	default y
 	imply PACKAGE_vuci-app-realtime-ui
 	detail
-		CPU utilisation, data usage and history, active network connections
+		CPU utilisation, data usage and history
+	detail if FIREWALL_SUPPORT
+		\, active network connections
 	detail if WIFI_SUPPORT
 		\, real time wireless signal
 	detail if MOBILE_SUPPORT
@@ -1938,7 +1986,7 @@ config FRR_VTYSH_SUPPORT
 
 config TCP_DUMP_SUPPORT
 	tristate "Tcpdump"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
@@ -2138,6 +2186,16 @@ config FREERADIUS_SUPPORT
 	detail
 		One of the top open source RADIUS servers, can be used as an Authentication Server in 802.1X and therefore for WPA/WPA2/WPA3 Enterprise setup
 
+config KMOD_FS_CIFS
+	tristate "CIFS Client Support"
+	maintainer "Embedded"
+	label "Utilities"
+	depends on PKG_SUPPORT
+	default m
+	imply PACKAGE_kmod-fs-cifs
+	detail
+		Enables mounting remote CIFS/SMB network shares as a client, allowing access to files on Windows servers or Samba shares
+
 #
 # Other
 #
@@ -2175,6 +2233,13 @@ config JAVA_SUPPORT
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_jamvm
+
+config SENTRY_BACKEND_SUPPORT
+	bool
+	maintainer "SysApp"
+	depends on !PROD_IMAGE && !GPL_BUILD
+	default y
+	imply PACKAGE_sentry_backend
 
 #
 # Core

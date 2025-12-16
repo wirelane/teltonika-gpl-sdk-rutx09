@@ -32,31 +32,6 @@ typedef enum {
 	LGPS_FIX_CURR_MODE_UNKNOWN,
 } lgps_fix_curr_mode_t;
 
-typedef enum {
-	GPS_LONGITUDE,
-	GPS_LATITUDE,
-	GPS_ALTITUDE,
-	GPS_ANGLE,
-	GPS_SPEED,
-	GPS_ACCURACY,
-	GPS_SATELLITES,
-	GPS_TIMESTAMP,
-	GPS_FIX_QUALITY,
-	GPS_FIX_CURR_MODE,
-	GPS_FIX_SET_MODE,
-	GPS_PDOP,
-	GPS_HDOP,
-	GPS_VDOP,
-	GPS_TMG_TRUE,
-	GPS_TMG_MAGNETIC,
-	GPS_SPEED_VTG_KNOTS,
-	GPS_SPEED_VTG_KMH,
-	GPS_STATUS,
-	GPS_UTC_TIMESTAMP,
-	GPS_CONSTELLATION,
-	GPS_T_MAX,
-} lgps_pos_t;
-
 typedef struct {
 	double longitude;
 	double latitude;
@@ -81,21 +56,42 @@ typedef struct {
 	char constellation[2]; // Example: GP, GA, BD, GL
 } lgps_t;
 
-extern const struct blobmsg_policy g_gps_position_policy[];
+typedef struct lgps_subscriber lgps_subscriber_t;
 
-lgps_err_t lgps_get_tmo(struct ubus_context *, lgps_t *, int);
-lgps_err_t lgps_get(struct ubus_context *, lgps_t *);
-lgps_err_t lgps_subscribe(struct ubus_context *ctx, struct ubus_subscriber *gps_sub, ubus_handler_t cb,
-			  ubus_remove_handler_t rm_cb);
+typedef void (*lgps_position_handler_t)(
+	struct ubus_context *ctx,
+	lgps_subscriber_t *subscriber,
+	lgps_t *position // Position can be NULL. If it is NULL, infer that GPS is not available  
+);
 
-const char *lgps_strerror(lgps_err_t);
+typedef struct lgps_subscriber {
+	bool initialized;
+
+	bool subscribed;
+	struct ubus_subscriber ubus_sub;
+	struct ubus_event_handler object_add_handler;
+
+	lgps_position_handler_t position_handler;
+	// TODO: Maybe add a user `void*`?
+} lgps_subscriber_t;
+
+lgps_err_t lgps_get_tmo(struct ubus_context *ctx, lgps_t *gps, int timeout);
+lgps_err_t lgps_get(struct ubus_context *ctx, lgps_t *gps);
+
+lgps_err_t lgps_subscribe(
+	struct ubus_context *ctx,
+	lgps_subscriber_t *subscriber,
+	lgps_position_handler_t position_handler
+);
+void lgps_unsubscribe(struct ubus_context *ctx, lgps_subscriber_t *subscriber);
+
+const char *lgps_strerror(lgps_err_t err);
 const char *lgps_fix_quality_to_str(lgps_fix_quality_t fix_quality);
 lgps_fix_quality_t lgps_fix_quality_from_str(char fix_quality);
 const char *lgps_fix_curr_mode_to_str(lgps_fix_curr_mode_t fix_mode);
 lgps_fix_curr_mode_t lgps_fix_curr_mode_from_str(char fix_mode);
 const char *lgps_fix_set_mode_to_str(lgps_fix_set_mode_t fix_mode);
 lgps_fix_set_mode_t lgps_fix_set_mode_from_str(char fix_mode);
-lgps_err_t lgps_parse_blobmsg(struct blob_attr *msg, lgps_t *position);
 
 #ifdef __cplusplus
 }

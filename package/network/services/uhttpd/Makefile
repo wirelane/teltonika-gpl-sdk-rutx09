@@ -41,7 +41,7 @@ endef
 
 define Package/uhttpd
   $(Package/uhttpd/default)
-  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua +libcap
+  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua +libcap +libtlt-logger
   FATTRS:=/usr/sbin/uhttpd::::cap_net_bind_service,cap_net_admin,cap_net_raw=ep;/usr/lib/uhttpd_ubus.so:uhttpd:::;/usr/lib/uhttpd_lua.so:uhttpd:::
 endef
 
@@ -126,6 +126,7 @@ define Package/uhttpd/install
 	$(INSTALL_DATA) ./files/uhttpd.permtab $(1)/etc/permtab.d/uhttpd
 	$(VERSION_SED_SCRIPT) $(1)/etc/config/uhttpd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uhttpd $(1)/usr/sbin/uhttpd
+	$(INSTALL_BIN) ./files/generate_uhttpd_certificates $(1)/usr/sbin/generate_uhttpd_certificates
 	$(if $(or $(CONFIG_TEST_IMAGE),$(CONFIG_x86_64)),,\
 		$(OPTION_HTTPS_SED_SCRIPT) $(1)/etc/config/uhttpd)
 	$(if $(CONFIG_USE_OPENRC), \

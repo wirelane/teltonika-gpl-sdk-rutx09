@@ -19,7 +19,12 @@
     "title": "Connections",
     "index": 60,
     "view": "status/ConnectionsRealtime",
-    "acls": ["status/realtime/connections"]
+    "acls": ["status/realtime/connections"],
+    "depends": {
+      "board": {
+        "notAllOf": ["is_ap"]
+      }
+    }
   },
   "status/realtime/wireless": {
     "title": "Wireless",

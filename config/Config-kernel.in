@@ -497,7 +497,7 @@ config KERNEL_COREDUMP
 config KERNEL_ELF_CORE
 	bool "Enable process core dump support"
 	select KERNEL_COREDUMP
-	default y if !SMALL_FLASH
+	default y
 
 config KERNEL_PROVE_LOCKING
 	bool "Enable kernel lock checking"

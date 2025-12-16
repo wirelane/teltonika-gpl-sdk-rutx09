@@ -1410,3 +1410,33 @@ define KernelPackage/wireguard/description
 endef
 
 $(eval $(call KernelPackage,wireguard))
+
+define KernelPackage/phy-airoha-en8811h
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Airoha EN8811H 2.5G Ethernet PHY
+  DEPENDS:=+kmod-libphy +airoha-en8811h-firmware 
+  KCONFIG:=CONFIG_AIR_EN8811H_PHY
+  FILES:= \
+   $(LINUX_DIR)/drivers/net/phy/air_en8811h.ko
+  AUTOLOAD:=$(call AutoLoad,18,air_en8811h,1)
+endef
+
+define KernelPackage/phy-airoha-en8811h/description
+  Kernel modules for Airoha EN8811H 2.5G Ethernet PHY
+endef
+
+$(eval $(call KernelPackage,phy-airoha-en8811h))
+
+define KernelPackage/mt7531-mdio
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Kernel support MT7531 switch connected via MDIO
+  KCONFIG:= \
+    CONFIG_NET_DSA_MT7530 \
+    CONFIG_NET_DSA_MT7530_MDIO
+  FILES:= \
+    $(LINUX_DIR)/drivers/net/dsa/mt7530.ko \
+    $(LINUX_DIR)/drivers/net/dsa/mt7530-mdio.ko
+  AUTOLOAD:=$(call AutoLoad,19,mt7530 mt7530-mdio,1)
+endef
+
+$(eval $(call KernelPackage,mt7531-mdio))

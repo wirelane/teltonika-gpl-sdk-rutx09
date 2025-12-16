@@ -66,7 +66,8 @@ static struct kobject *g_kobj;
 	ACT(blver, "test-0", true, false, ##__VA_ARGS__)                                                     \
 	ACT(mob_cfg, "6666", false, true, ##__VA_ARGS__)                                                     \
 	ACT(pass, "TESTHASH", false, true, ##__VA_ARGS__)                                                    \
-	ACT(simpin1, "1111", false, true, ##__VA_ARGS__)
+	ACT(simpin1, "1111", false, true, ##__VA_ARGS__)													 \
+	ACT(mob_vidpid_1, "0A0B0C0D", false, true, ##__VA_ARGS__)
 #else
 #define LIST_MNF_FIELDS(ACT, ...)                                                                            \
 	ACT(mac, "001E42350232", true, false, ##__VA_ARGS__)                                                 \
@@ -205,7 +206,11 @@ module_exit(mnfinfo_remove);
 	ACT(wpass, ##__VA_ARGS__)                                                                            \
 	ACT(pass, ##__VA_ARGS__)                                                                             \
 	ACT(blver, ##__VA_ARGS__)                                                                            \
-	ACT(mob_cfg, ##__VA_ARGS__)
+	ACT(mob_cfg, ##__VA_ARGS__)																			 \
+	ACT(mob_vidpid_1, ##__VA_ARGS__)																	 \
+	ACT(mob_vidpid_2, ##__VA_ARGS__)																	 \
+	ACT(mob_vidpid_3, ##__VA_ARGS__)																	 \
+	ACT(mob_vidpid_4, ##__VA_ARGS__)
 
 struct mnfinfo_entry {
 	bool is_set;
@@ -676,6 +681,22 @@ static int fix_digit_type(struct mnfinfo_entry *e, size_t len, const char *def)
 	return 0;
 }
 
+static int fix_vidpid_type(struct mnfinfo_entry *e, size_t len, const char *def)
+{
+	u8 buf[4];
+	if (!e->data) {
+		if (!def) {
+			snprintf(e->data, e->dt_len, "0000:0000");
+			return 1;
+		} else
+			snprintf(e->data, e->dt_len, "%s", def);
+		return 0;
+	}
+	memcpy(buf, e->data, sizeof(buf));
+	snprintf(e->data, e->dt_len, "%02x%02x:%02x%02x", buf[0], buf[1], buf[2], buf[3]);
+	return 0;
+}
+
 static int fix_types(struct mnfinfo_entry *e, size_t len, const char *type, const char *def, bool strip,
 		     bool rs_alligned, bool keep_sim_presence)
 {
@@ -701,6 +722,8 @@ static int fix_types(struct mnfinfo_entry *e, size_t len, const char *type, cons
 		rc = fix_alnum_type(e, len, def);
 	} else if (!strcmp(type, "digit")) {
 		rc = fix_digit_type(e, len, def);
+	} else if (!strcmp(type, "vidpid")){
+		rc = fix_vidpid_type(e, len, def);
 	}
 
 	if (!rc && strip) {

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netifd
-PKG_RELEASE:=29
+PKG_RELEASE:=32
 
 PKG_SOURCE_DATE:=2024-01-04
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
@@ -26,7 +26,7 @@ include $(INCLUDE_DIR)/cmake.mk
 define Package/netifd
   SECTION:=base
   CATEGORY:=Base system
-  DEPENDS:=+libuci +libnl-tiny +libubus +ubus +ubusd +jshn +libubox
+  DEPENDS:=+libuci +libnl-tiny +libubus +ubus +ubusd +jshn +libubox +rpcd
   TITLE:=OpenWrt Network Interface Configuration Daemon
 endef
 
@@ -44,12 +44,13 @@ CMAKE_OPTIONS += \
 	-DDEBUG=1
 
 define Package/netifd/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/lib/config.d
+	$(INSTALL_DIR) $(1)/sbin $(1)/lib/config.d $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/netifd $(1)/sbin/
 	$(CP) ./files/* $(1)/
 	$(LN) /usr/local/lib/netifd/proto $(1)/lib/netifd/
 	$(INSTALL_DIR) $(1)/etc/udhcpc.user.d/
 	$(CP) $(PKG_BUILD_DIR)/scripts/* $(1)/lib/netifd/
+	$(INSTALL_BIN) ./files/usr/libexec/rpcd/wan_info $(1)/usr/libexec/rpcd/
 
 	$(CP) $(1)/lib/network/300-setup-network $(1)/lib/config.d
 

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubox
-PKG_RELEASE:=12
+PKG_RELEASE:=13
 
 PKG_SOURCE_DATE:=2020-10-25
 CMAKE_INSTALL:=1
@@ -63,13 +63,19 @@ define Package/ubox/install
 endef
 
 define Package/logd/install
-	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/ $(1)/etc/uci-defaults/7.17/ $(1)/etc/uci-defaults/7.19/ $(1)/usr/share/acl.d/
+	$(INSTALL_DIR) $(1)/sbin $(1)/etc/init.d/ $(1)/etc/uci-defaults/7.17/ $(1)/etc/uci-defaults/7.19/ $(1)/etc/uci-defaults/7.20/ $(1)/usr/share/acl.d/ $(1)/etc/config $(1)/etc/permtab.d
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{logd,logread} $(1)/sbin/
 	$(INSTALL_BIN) ./files/log.init $(1)/etc/init.d/log
 	$(INSTALL_BIN) ./files/defaults/7.17/99_migrate_log_permissions $(1)/etc/uci-defaults/7.17/99_migrate_log_permissions
 	$(INSTALL_BIN) ./files/defaults/7.19/99_migrate_option_name $(1)/etc/uci-defaults/7.19/99_migrate_option_name
+	$(INSTALL_BIN) ./files/defaults/7.20/99_migrate_to_log_config $(1)/etc/uci-defaults/7.20/99_migrate_to_log_config
 	$(INSTALL_DATA) ./files/logd.json $(1)/usr/share/acl.d/logd.json
+	$(INSTALL_DATA) ./files/log.config $(1)/etc/config/log
+	$(INSTALL_DATA) ./files/log.permtab $(1)/etc/permtab.d/log
+
+	$(INSTALL_DIR) $(1)/lib/config.d
+	$(INSTALL_DATA) ./files/150-generate-log-services $(1)/lib/config.d/
 
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) sysinit logd ./files/logd.openrc $(1); \

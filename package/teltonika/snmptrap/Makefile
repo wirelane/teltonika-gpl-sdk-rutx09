@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=snmptrap
-PKG_VERSION:=2024-06-19
+PKG_VERSION:=2025-12-02
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.7
+PKG_SOURCE_VERSION:=1.8
 PKG_MAINTAINER:=Darius Joksas <darius.joksas@teltonika.lt>
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
@@ -25,9 +25,10 @@ define Package/snmptrap
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Teltonika SNMP trap sender
-	DEPENDS:=+libuci +libtlt-logger +libubox +libubus +libnetsnmp \
+	DEPENDS:=+libuci +libtlt-logger +libubox +libubus +libnetsnmp +libmnfinfo \
 		+SNMPTRAP_GSM:libgsm +SNMPTRAP_GSM:liburc +SNMPTRAP_IO:iomand
 	USERID:=snmptrap=500:snmptrap=500
+	USER_GROUPS:=snmptrap:snmpd
 endef
 
 define Package/snmptrap/config

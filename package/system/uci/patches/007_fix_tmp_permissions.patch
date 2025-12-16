@@ -1,5 +1,7 @@
---- a/util.c
-+++ b/util.c
+Index: uci-2021-10-22-f84f49f0-18/util.c
+===================================================================
+--- uci-2021-10-22-f84f49f0-18.orig/util.c
++++ uci-2021-10-22-f84f49f0-18/util.c
 @@ -189,9 +189,15 @@ __private FILE *uci_open_stream(struct u
  	int fd, ret;
  	int flags = (write ? O_RDWR : O_RDONLY);
@@ -9,7 +11,7 @@
  	char *name = NULL;
  	char *filename2 = NULL;
  
-+	if (create && stat(filename, &statbuf1) == 0) {
++	if (create && stat(filename, &statbuf) == 0) {
 +		create = false;
 +	}
 +
@@ -20,29 +22,31 @@
  		if ((asprintf(&filename2, "%s/%s", ctx->confdir, name) < 0) || !filename2) {
  			UCI_THROW(ctx, UCI_ERR_MEM);
  		} else {
--			if (stat(filename2, &statbuf1) == 0)
-+			if (stat(filename2, &statbuf1) == 0) {
- 				mode = statbuf1.st_mode;
-+				user = statbuf1.st_uid;
-+				group = statbuf1.st_gid;
+-			if (stat(filename2, &statbuf) == 0)
++			if (stat(filename2, &statbuf) == 0) {
+ 				mode = statbuf.st_mode;
++				user = statbuf.st_uid;
++				group = statbuf.st_gid;
 +			}
  
  			free(filename2);
  		}
-@@ -219,6 +228,11 @@ __private FILE *uci_open_stream(struct u
- 		if (fd < 0)
- 			goto error;
+@@ -218,6 +227,11 @@ __private FILE *uci_open_stream(struct u
+ 	if (fd < 0)
+ 		goto error;
  
-+		if (create) {
-+			fchown(fd, getuid() ? (uid_t)-1 : user, group);
-+			fchmod(fd, mode);
-+		}
++	if (create) {
++		fchown(fd, getuid() ? (uid_t)-1 : user, group);
++		fchmod(fd, mode);
++	}
 +
- 		ret = flock(fd, (write ? LOCK_EX : LOCK_SH));
- 		if ((ret < 0) && (errno != ENOSYS))
- 			goto error_close;
---- a/uci.h
-+++ b/uci.h
+ 	ret = flock(fd, (write ? LOCK_EX : LOCK_SH));
+ 	if ((ret < 0) && (errno != ENOSYS))
+ 		goto error_close;
+Index: uci-2021-10-22-f84f49f0-18/uci.h
+===================================================================
+--- uci-2021-10-22-f84f49f0-18.orig/uci.h
++++ uci-2021-10-22-f84f49f0-18/uci.h
 @@ -38,8 +38,8 @@ extern "C" {
  
  #define UCI_CONFDIR "/etc/config"

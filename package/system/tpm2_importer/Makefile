@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tpm2_importer
-PKG_VERSION:=2025-09-26
+PKG_VERSION:=2025-10-23
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 
