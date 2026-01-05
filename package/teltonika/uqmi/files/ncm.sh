@@ -341,6 +341,8 @@ proto_ncm_teardown() {
 	json_get_vars pdp modem
 	local braddr_f="/var/run/${interface}_braddr"
 
+	ifname="$(ls /sys/bus/usb/devices/$modem/*/net/ | tail -1)"
+
 	mdm_ubus_obj="$(find_mdm_ubus_obj "$modem")"
 
 	echo "Stopping network ${interface}"
@@ -360,8 +362,8 @@ proto_ncm_teardown() {
 
 	#Deactivate context
 	ubus -t 3 call "$mdm_ubus_obj" set_pdp_ctx_state "{\"cid\":${pdp},\"state\":\"deactivated\",\"timeout\":0}"
-	kill -9 $(cat /var/run/ncm_conn.pid 2>/dev/null) &>/dev/null
-	rm -f /var/run/ncm_conn.pid &>/dev/null
+	kill -9 $(cat /var/run/ncm_conn_$ifname.pid 2>/dev/null) &>/dev/null
+	rm -f /var/run/ncm_conn_$ifname.pid &>/dev/null
 
 	[ "$method" = "bridge" ] || [ "$method" = "passthrough" ] && {
 		ip rule del pref 5042

@@ -7,8 +7,8 @@ pdp="$2"
 modem="$3"
 
 init() {
-	[ -f /var/run/ncm_conn.pid ] && exit 0
-	echo "$$" > /var/run/ncm_conn.pid
+	[ -f /var/run/ncm_conn_$ifname.pid ] && exit 0
+	echo "$$" > /var/run/ncm_conn_$ifname.pid
 }
 
 check_connection() {

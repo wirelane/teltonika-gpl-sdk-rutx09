@@ -145,7 +145,7 @@ proto_wwan_setup() {
 	[ -z "$ctl_device" ] && for net in $(ls /sys/class/net/ | grep -e wwan -e usb); do
 		[ -z "$ctl_device" ] || continue
 		[ -n "$modem" ] && {
-			[ $(readlink "/sys/class/net/$net" | grep "$modem") ] || continue
+			[ $(readlink "/sys/class/net/$net" | grep -F "$modem") ] || continue
 		}
 		driver=$(grep DRIVER /sys/class/net/$net/device/uevent | cut -d= -f2)
 		case "$driver" in

@@ -1,12 +1,12 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/README.md	2025-04-02 11:27:54.000000000 +0000
++++ src/README.md	2025-12-12 09:57:27.000000000 +0000
 @@ -0,0 +1,2 @@
 +# ddns-scripts
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.config src/files/ddns.config
 --- upstream/files/ddns.config	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.config	2025-04-02 11:27:54.000000000 +0000
++++ src/files/ddns.config	2025-12-12 09:57:27.000000000 +0000
 @@ -1,15 +1,15 @@
  #
 -# Please read https://openwrt.org/docs/guide-user/base-system/ddns
@@ -45,7 +45,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.defaults src/files/ddns.defaults
 --- upstream/files/ddns.defaults	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.defaults	2025-04-02 11:27:54.000000000 +0000
++++ src/files/ddns.defaults	2025-12-12 09:57:27.000000000 +0000
 @@ -1,39 +1,39 @@
  #!/bin/sh
  
@@ -223,7 +223,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.hotplug src/files/ddns.hotplug
 --- upstream/files/ddns.hotplug	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.hotplug	2025-04-02 11:27:54.000000000 +0000
++++ src/files/ddns.hotplug	2025-12-12 09:57:27.000000000 +0000
 @@ -1,11 +1,21 @@
 -#!/bin/sh
 +#!/bin/sh /etc/rc.common
@@ -258,7 +258,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +fi
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.init src/files/ddns.init
 --- upstream/files/ddns.init	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.init	2025-04-02 11:27:54.000000000 +0000
++++ src/files/ddns.init	2025-12-12 09:57:27.000000000 +0000
 @@ -1,27 +1,52 @@
  #!/bin/sh /etc/rc.common
 +
@@ -328,12 +328,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.permtab src/files/ddns.permtab
 --- upstream/files/ddns.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ddns.permtab	2025-04-02 11:27:54.000000000 +0000
++++ src/files/ddns.permtab	2025-12-12 09:57:27.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/ddns	ddns:ddns	660	-
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns_acl.json src/files/ddns_acl.json
 --- upstream/files/ddns_acl.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ddns_acl.json	2025-04-02 11:27:54.000000000 +0000
++++ src/files/ddns_acl.json	2025-12-12 09:57:27.000000000 +0000
 @@ -0,0 +1,15 @@
 +{
 +	"user": "ddns",
@@ -352,7 +352,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_functions.sh src/files/dynamic_dns_functions.sh
 --- upstream/files/dynamic_dns_functions.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_functions.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/dynamic_dns_functions.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -21,10 +21,12 @@
  . /lib/functions/network.sh
  
@@ -422,46 +422,72 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		fi
  	done
  }
-@@ -234,18 +244,18 @@
+@@ -224,7 +234,7 @@
+ #	value +10 will exit the scripts
+ # $2..n	text to report
+ write_log() {
+-	local __LEVEL __EXIT __CMD __MSG __MSE
++	local __LEVEL __EXIT __CMD __MSG __MSE __ORIG_MESSAGE
+ 	local __TIME=$(date +%H%M%S)
+ 	[ $1 -ge 10 ] && {
+ 		__LEVEL=$(($1-10))
+@@ -234,25 +244,28 @@
  		__EXIT=0
  	}
  	shift	# remove loglevel
 -	[ $__EXIT -eq 0 ] && __MSG="$*" || __MSG="$* - TERMINATE"
 +	[ $__EXIT -eq 0 ] && __MSG="$*" || __MSG="$* - terminate"
++	__ORIG_MESSAGE="$__MSG"
++	set -- "-p"
  	case $__LEVEL in		# create log message and command depending on loglevel
- 		0)	__CMD="logger -p user.emerg -t ddns-scripts[$$] $SECTION_ID: $__MSG"
+-		0)	__CMD="logger -p user.emerg -t ddns-scripts[$$] $SECTION_ID: $__MSG"
 -			__MSG=" $__TIME EMERG : $__MSG" ;;
-+			__MSG=" $__TIME emerg : $__MSG" ;;
- 		1)	__CMD="logger -p user.alert -t ddns-scripts[$$] $SECTION_ID: $__MSG"
+-		1)	__CMD="logger -p user.alert -t ddns-scripts[$$] $SECTION_ID: $__MSG"
 -			__MSG=" $__TIME ALERT : $__MSG" ;;
-+			__MSG=" $__TIME alert : $__MSG" ;;
- 		2)	__CMD="logger -p user.crit -t ddns-scripts[$$] $SECTION_ID: $__MSG"
+-		2)	__CMD="logger -p user.crit -t ddns-scripts[$$] $SECTION_ID: $__MSG"
 -			__MSG=" $__TIME  CRIT : $__MSG" ;;
-+			__MSG=" $__TIME  crit : $__MSG" ;;
- 		3)	__CMD="logger -p user.err -t ddns-scripts[$$] $SECTION_ID: $__MSG"
+-		3)	__CMD="logger -p user.err -t ddns-scripts[$$] $SECTION_ID: $__MSG"
 -			__MSG=" $__TIME ERROR : $__MSG" ;;
-+			__MSG=" $__TIME error : $__MSG" ;;
- 		4)	__CMD="logger -p user.warn -t ddns-scripts[$$] $SECTION_ID: $__MSG"
+-		4)	__CMD="logger -p user.warn -t ddns-scripts[$$] $SECTION_ID: $__MSG"
 -			__MSG=" $__TIME  WARN : $__MSG" ;;
+-		5)	__CMD="logger -p user.notice -t ddns-scripts[$$] $SECTION_ID: $__MSG"
++		0)	set -- "$@" "user.emerg"
++			__MSG=" $__TIME emerg : $__MSG" ;;
++		1)	set -- "$@" "user.alert"
++			__MSG=" $__TIME alert : $__MSG" ;;
++		2)  set -- "$@" "user.crit"
++			__MSG=" $__TIME  crit : $__MSG" ;;
++		3)	set -- "$@" "user.err"
++			__MSG=" $__TIME error : $__MSG" ;;
++		4)	set -- "$@" "user.warn"
 +			__MSG=" $__TIME  warn : $__MSG" ;;
- 		5)	__CMD="logger -p user.notice -t ddns-scripts[$$] $SECTION_ID: $__MSG"
++		5)  set -- "$@" "user.notice"
  			__MSG=" $__TIME  note : $__MSG" ;;
- 		6)	__CMD="logger -p user.info -t ddns-scripts[$$] $SECTION_ID: $__MSG"
-@@ -275,11 +285,11 @@
+-		6)	__CMD="logger -p user.info -t ddns-scripts[$$] $SECTION_ID: $__MSG"
++		6)	set -- "$@" "user.info"
+ 			__MSG=" $__TIME  info : $__MSG" ;;
+ 		7)	__MSG=" $__TIME       : $__MSG";;
+ 		*) 	return;;
+ 	esac
++	set -- "$@" "-t" "ddns-scripts[$$]" "$SECTION_ID: $__ORIG_MESSAGE"
+ 
+ 	# verbose echo
+ 	[ $VERBOSE -gt 0 -o $__EXIT -gt 0 ] && echo -e "$__MSG"
+@@ -275,11 +288,11 @@
  	[ $__LEVEL -eq 7 ] && return	# no syslog for debug messages
  	__CMD=$(echo -e "$__CMD" | tr -d '\n' | tr '\t' '     ')        # remove \n \t chars
  	[ $__EXIT  -eq 1 ] && {
 -		$__CMD		# force syslog before exit
-+		eval "$__CMD"	# force syslog before exit
++		logger "$@"	# force syslog before exit
  		exit 1
  	}
  	[ $use_syslog -eq 0 ] && return
 -	[ $((use_syslog + __LEVEL)) -le 7 ] && $__CMD
-+	[ $((use_syslog + __LEVEL)) -le 7 ] && eval "$__CMD"
++	[ $((use_syslog + __LEVEL)) -le 7 ] && logger "$@"
  
  	return
  }
-@@ -294,32 +304,12 @@
+@@ -294,32 +307,12 @@
  urlencode() {
  	# $1	Name of Variable to store encoded string to
  	# $2	string to encode
@@ -497,7 +523,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	eval "$1=\"$__ENC\""	# transfer back to variable
  	return 0
-@@ -338,25 +328,25 @@
+@@ -338,25 +331,25 @@
  	[ $use_ipv6 -ne 0 ] && __FILE="/etc/ddns/services_ipv6"	# IPv6
  
  	# workaround with variables; pipe create subshell with no give back of variable content
@@ -530,7 +556,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	eval "$1=\"\""	# no service match clear variables
  	eval "$2=\"\""
-@@ -474,6 +464,27 @@
+@@ -474,6 +467,27 @@
  	return $status
  }
  
@@ -558,16 +584,315 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  # verify given host and port is connectable
  # $1	Host/IP to verify
  # $2	Port to verify
-@@ -726,8 +737,6 @@
+@@ -482,7 +496,7 @@
+ 	local __PORT=$2
+ 	local __NC=$(which nc)
+ 	local __NCEXT=$($(which nc) --help 2>&1 | grep "\-w" 2>/dev/null)	# busybox nc compiled with extensions
+-	local __IP __IPV4 __IPV6 __RUNPROG __PROG __ERR
++	local __IP __IPV4 __IPV6 __PROG __ERR
+ 	# return codes
+ 	# 1	system specific error
+ 	# 2	nslookup/host error
+@@ -498,31 +512,71 @@
+ 	[ -z "$__IPV4" -a -z "$__IPV6" ] && {
+ 		if [ -n "$BIND_HOST" ]; then	# use BIND host if installed
+ 			__PROG="BIND host"
+-			__RUNPROG="$BIND_HOST $__HOST >$DATFILE 2>$ERRFILE"
++			write_log 7 "#> $BIND_HOST $__HOST >$DATFILE 2>$ERRFILE"
++			"$BIND_HOST" "$__HOST" >"$DATFILE" 2>"$ERRFILE"
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
+ 		elif [ -n "$KNOT_HOST" ]; then	# use Knot host if installed
+ 			__PROG="Knot host"
+-			__RUNPROG="$KNOT_HOST $__HOST >$DATFILE 2>$ERRFILE"
++			write_log 7 "#> $KNOT_HOST $__HOST >$DATFILE 2>$ERRFILE"
++			"$KNOT_HOST" "$__HOST" >"$DATFILE" 2>"$ERRFILE"
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
+ 		elif [ -n "$DRILL" ]; then	# use drill if installed
+ 			__PROG="drill"
+-			__RUNPROG="$DRILL -V0 $__HOST A >$DATFILE 2>$ERRFILE"			# IPv4
+-			__RUNPROG="$__RUNPROG; $DRILL -V0 $__HOST AAAA >>$DATFILE 2>>$ERRFILE"	# IPv6
++			write_log 7 "#> $DRILL -V0 $__HOST A >$DATFILE 2>$ERRFILE"
++			"$DRILL" -V0 "$__HOST" A >"$DATFILE" 2>"$ERRFILE"
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
++			write_log 7 "#> $DRILL -V0 $__HOST AAAA >>$DATFILE 2>>$ERRFILE)"
++			"$DRILL" -V0 "$__HOST" AAAA >>"$DATFILE" 2>>"$ERRFILE"
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
+ 		elif [ -n "$HOSTIP" ]; then	# use hostip if installed
+ 			__PROG="hostip"
+-			__RUNPROG="$HOSTIP $__HOST >$DATFILE 2>$ERRFILE"			# IPv4
+-			__RUNPROG="$__RUNPROG; $HOSTIP -6 $__HOST >>$DATFILE 2>>$ERRFILE"	# IPv6
++			write_log 7 "#> $HOSTIP $__HOST > $DATFILE 2>$ERRFILE"
++			"$HOSTIP" "$__HOST" >"$DATFILE" 2>"$ERRFILE"		# IPv4
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
++			"$HOSTIP" "-6" "$__HOST" >>"$DATFILE" 2>>"$ERRFILE"	# IPv6
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
+ 		else	# use BusyBox nslookup
+ 			__PROG="BusyBox nslookup"
+-			__RUNPROG="$NSLOOKUP $__HOST >$DATFILE 2>$ERRFILE"
++			write_log 7 "#> $NSLOOKUP $__HOST >$DATFILE 2>$ERRFILE"
++			"$NSLOOKUP" "$__HOST" >"$DATFILE" 2>"$ERRFILE"
++			__ERR=$?
++			[ $__ERR -gt 0 ] && {
++				write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
++				write_log 7 "$(cat $ERRFILE)"
++				return 2
++			}
+ 		fi
+-		write_log 7 "#> $__RUNPROG"
+-		eval $__RUNPROG
+-		__ERR=$?
+-		# command error
+-		[ $__ERR -gt 0 ] && {
+-			write_log 3 "DNS Resolver Error - $__PROG Error '$__ERR'"
+-			write_log 7 "$(cat $ERRFILE)"
+-			return 2
+-		}
++
+ 		# extract IP address
+ 		if [ -n "$BIND_HOST" -o -n "$KNOT_HOST" ]; then	# use BIND host or Knot host if installed
+ 			__IPV4=$(cat $DATFILE | awk -F "address " '/has address/ {print $2; exit}' )
+@@ -566,18 +620,16 @@
+ 	[ $force_ipversion -ne 0 -a $use_ipv6 -ne 0 -o -z "$__IPV4" ] && __IP=$__IPV6 || __IP=$__IPV4
+ 
+ 	if [ -n "$__NCEXT" ]; then	# BusyBox nc compiled with extensions (timeout support)
+-		__RUNPROG="$__NC -w 1 $__IP $__PORT </dev/null >$DATFILE 2>$ERRFILE"
+-		write_log 7 "#> $__RUNPROG"
+-		eval $__RUNPROG
++		write_log 7 "#> $__NC -w 1 $__IP $__PORT </dev/null >$DATFILE 2>$ERRFILE"
++		"$__NC" "-w" "1" "$__IP" "$__PORT" </dev/null >"$DATFILE" 2>"$ERRFILE"
+ 		__ERR=$?
+ 		[ $__ERR -eq 0 ] && return 0
+ 		write_log 3 "Connect error - BusyBox nc (netcat) Error '$__ERR'"
+ 		write_log 7 "$(cat $ERRFILE)"
+ 		return 3
+ 	else		# nc compiled without extensions (no timeout support)
+-		__RUNPROG="timeout 2 -- $__NC $__IP $__PORT </dev/null >$DATFILE 2>$ERRFILE"
+-		write_log 7 "#> $__RUNPROG"
+-		eval $__RUNPROG
++		write_log 7 "#> timeout 2 $__NC $__IP $__PORT </dev/null >$DATFILE 2>$ERRFILE"
++		timeout 2 "$__NC" "$__IP" "$__PORT" </dev/null >"$DATFILE" 2>"$ERRFILE"
+ 		__ERR=$?
+ 		[ $__ERR -eq 0 ] && return 0
+ 		write_log 3 "Connect error - BusyBox nc (netcat) timeout Error '$__ERR'"
+@@ -685,50 +737,52 @@
+ 	local __ERR=0
+ 	local __CNT=0	# error counter
+ 	local __PROG  __RUNPROG
++	local STDERR_PATH="/dev/null"
+ 
+ 	[ $# -ne 1 ] && write_log 12 "Error in 'do_transfer()' - wrong number of parameters"
+ 
+ 	# lets prefer GNU Wget because it does all for us - IPv4/IPv6/HTTPS/PROXY/force IP version
+ 	if [ -n "$WGET_SSL" -a $USE_CURL -eq 0 ]; then 			# except global option use_curl is set to "1"
+-		__PROG="$WGET_SSL -nv -t 1 -O $DATFILE -o $ERRFILE"	# non_verbose no_retry outfile errfile
++		set -- "-nv" "-t" "1" "-O" "$DATFILE" "-o" "$ERRFILE" # non_verbose no_retry outfile errfile
+ 		# force network/ip to use for communication
+ 		if [ -n "$bind_network" ]; then
+ 			local __BINDIP
+ 			# set correct program to detect IP
+ 			[ $use_ipv6 -eq 0 ] && __RUNPROG="network_get_ipaddr" || __RUNPROG="network_get_ipaddr6"
+-			eval "$__RUNPROG __BINDIP $bind_network" || \
++			"$__RUNPROG" "__BINDIP" "$bind_network" || \
+ 				write_log 13 "Can not detect local IP using '$__RUNPROG $bind_network' - Error: '$?'"
+ 			write_log 7 "Force communication via IP '$__BINDIP'"
+-			__PROG="$__PROG --bind-address=$__BINDIP"
++			set -- "$@" "--bind-address=$__BINDIP"
+ 		fi
+ 		# force ip version to use
+ 		if [ $force_ipversion -eq 1 ]; then
+-			[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -4" || __PROG="$__PROG -6"	# force IPv4/IPv6
++			[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6"	# force IPv4/IPv6
+ 		fi
+ 		# set certificate parameters
+ 		if [ $use_https -eq 1 ]; then
+ 			if [ "$cacert" = "IGNORE" ]; then	# idea from Ticket #15327 to ignore server cert
+-				__PROG="$__PROG --no-check-certificate"
++				set -- "$@" "--no-check-certificate"
+ 			elif [ -f "$cacert" ]; then
+-				__PROG="$__PROG --ca-certificate=${cacert}"
++				set -- "$@" "--ca-certificate=${cacert}"
+ 			elif [ -d "$cacert" ]; then
+-				__PROG="$__PROG --ca-directory=${cacert}"
++				set -- "$@" "--ca-directory=${cacert}"
+ 			elif [ -n "$cacert" ]; then		# it's not a file and not a directory but given
+ 				write_log 14 "No valid certificate(s) found at '$cacert' for HTTPS communication"
+ 			fi
+ 		fi
+ 		# disable proxy if no set (there might be .wgetrc or .curlrc or wrong environment set)
+-		[ -z "$proxy" ] && __PROG="$__PROG --no-proxy"
++		[ -z "$proxy" ] && set -- "$@" "--no-proxy"
++		set -- "$@" "$__URL"
+ 
+-		__RUNPROG="$__PROG '$__URL'"	# build final command
+-		__PROG="GNU Wget"		# reuse for error logging
++		__RUNPROG="$WGET_SSL"
++		__PROG="GNU Wget"		# used for error logging
+ 
  	# 2nd choice is cURL IPv4/IPv6/HTTPS
  	# libcurl might be compiled without Proxy or HTTPS Support
  	elif [ -n "$CURL" ]; then
 -		# CURL_SSL not empty then SSL support available
 -		CURL_SSL=$($(which curl) -V 2>/dev/null | grep "Protocols:" | grep -F "https")
- 		__PROG="$CURL -RsS -o $DATFILE --stderr $ERRFILE"
+-		__PROG="$CURL -RsS -o $DATFILE --stderr $ERRFILE"
++		__PROG="cURL"
++		__RUNPROG="$CURL"
++		set -- "-RsS" "-o" "$DATFILE" "--stderr" "$ERRFILE"
  		# check HTTPS support
  		[ -z "$CURL_SSL" -a $use_https -eq 1 ] && \
-@@ -902,16 +911,41 @@
+ 			write_log 13 "cURL: libcurl compiled without https support"
+@@ -738,20 +792,20 @@
+ 			network_get_physdev __DEVICE $bind_network || \
+ 				write_log 13 "Can not detect local device using 'network_get_physdev $bind_network' - Error: '$?'"
+ 			write_log 7 "Force communication via device '$__DEVICE'"
+-			__PROG="$__PROG --interface $__DEVICE"
++			set -- "$@" "--interface" "$__DEVICE"
+ 		fi
+ 		# force ip version to use
+ 		if [ $force_ipversion -eq 1 ]; then
+-			[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -4" || __PROG="$__PROG -6"	# force IPv4/IPv6
++			[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6" # force IPv4/IPv6
+ 		fi
+ 		# set certificate parameters
+ 		if [ $use_https -eq 1 ]; then
+ 			if [ "$cacert" = "IGNORE" ]; then	# idea from Ticket #15327 to ignore server cert
+-				__PROG="$__PROG --insecure"	# but not empty better to use "IGNORE"
++				set -- "$@" "--insecure" # but not empty better to use "IGNORE"
+ 			elif [ -f "$cacert" ]; then
+-				__PROG="$__PROG --cacert $cacert"
++				set -- "$@" "--cacert" "$cacert"
+ 			elif [ -d "$cacert" ]; then
+-				__PROG="$__PROG --capath $cacert"
++				set -- "$@" "--capath" "$cacert"
+ 			elif [ -n "$cacert" ]; then		# it's not a file and not a directory but given
+ 				write_log 14 "No valid certificate(s) found at '$cacert' for HTTPS communication"
+ 			fi
+@@ -759,48 +813,48 @@
+ 		# disable proxy if no set (there might be .wgetrc or .curlrc or wrong environment set)
+ 		# or check if libcurl compiled with proxy support
+ 		if [ -z "$proxy" ]; then
+-			__PROG="$__PROG --noproxy '*'"
++			set -- "$@" "--noproxy" "*"
+ 		elif [ -z "$CURL_PROXY" ]; then
+ 			# if libcurl has no proxy support and proxy should be used then force ERROR
+ 			write_log 13 "cURL: libcurl compiled without Proxy support"
+ 		fi
+-
+-		__RUNPROG="$__PROG '$__URL'"	# build final command
+-		__PROG="cURL"			# reuse for error logging
+-
++		set -- "$@" "$__URL"
+ 	# uclient-fetch possibly with ssl support if /lib/libustream-ssl.so installed
+ 	elif [ -n "$UCLIENT_FETCH" ]; then
+ 		# UCLIENT_FETCH_SSL not empty then SSL support available
+ 		UCLIENT_FETCH_SSL=$(find /lib /usr/lib -name libustream-ssl.so* 2>/dev/null)
+-		__PROG="$UCLIENT_FETCH -q -O $DATFILE"
++		__PROG="uclient-fetch"
++		__RUNPROG="$UCLIENT_FETCH"
++		set -- "-q" "-O" "$DATFILE"
+ 		# force network/ip not supported
+ 		[ -n "$__BINDIP" ] && \
+ 			write_log 14 "uclient-fetch: FORCE binding to specific address not supported"
+ 		# force ip version to use
+ 		if [ $force_ipversion -eq 1 ]; then
+-			[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -4" || __PROG="$__PROG -6"       # force IPv4/IPv6
++			[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6"       # force IPv4/IPv6
+ 		fi
+ 		# https possibly not supported
+ 		[ $use_https -eq 1 -a -z "$UCLIENT_FETCH_SSL" ] && \
+ 			write_log 14 "uclient-fetch: no HTTPS support! Additional install one of ustream-ssl packages"
+ 		# proxy support
+-		[ -z "$proxy" ] && __PROG="$__PROG -Y off" || __PROG="$__PROG -Y on"
++		[ -z "$proxy" ] && set -- "$@" "-Y" "off" || set -- "$@" "-Y" "on"
+ 		# https & certificates
+ 		if [ $use_https -eq 1 ]; then
+ 			if [ "$cacert" = "IGNORE" ]; then
+-				__PROG="$__PROG --no-check-certificate"
++				set -- "$@" "--no-check-certificate"
+ 			elif [ -f "$cacert" ]; then
+-				__PROG="$__PROG --ca-certificate=$cacert"
++				set -- "$@" "--ca-certificate=$cacert"
+ 			elif [ -n "$cacert" ]; then		# it's not a file; nothing else supported
+ 				write_log 14 "No valid certificate file '$cacert' for HTTPS communication"
+ 			fi
+ 		fi
+-		__RUNPROG="$__PROG '$__URL' 2>$ERRFILE"		# build final command
+-		__PROG="uclient-fetch"				# reuse for error logging
+-
++		STDERR_PATH="$ERRFILE"
++		set -- "$@" "$__URL"
+ 	# Busybox Wget or any other wget in search $PATH (did not support neither IPv6 nor HTTPS)
+ 	elif [ -n "$WGET" ]; then
+-		__PROG="$WGET -q -O $DATFILE"
++		__PROG="Busybox Wget"
++		__RUNPROG="$WGET"
++		set -- "-q" "-O" "$DATFILE"
+ 		# force network/ip not supported
+ 		[ -n "$__BINDIP" ] && \
+ 			write_log 14 "BusyBox Wget: FORCE binding to specific address not supported"
+@@ -811,18 +865,16 @@
+ 		[ $use_https -eq 1 ] && \
+ 			write_log 14 "BusyBox Wget: no HTTPS support"
+ 		# disable proxy if no set (there might be .wgetrc or .curlrc or wrong environment set)
+-		[ -z "$proxy" ] && __PROG="$__PROG -Y off"
+-
+-		__RUNPROG="$__PROG '$__URL' 2>$ERRFILE"		# build final command
+-		__PROG="Busybox Wget"				# reuse for error logging
+-
++		[ -z "$proxy" ] && set -- "$@" "-Y" "off"
++		STDERR_PATH="$ERRFILE"
++		set -- "$@" "$__URL"
+ 	else
+ 		write_log 13 "Neither 'Wget' nor 'cURL' nor 'uclient-fetch' installed or executable"
+ 	fi
+ 
+ 	while : ; do
+-		write_log 7 "#> $__RUNPROG"
+-		eval $__RUNPROG			# DO transfer
++		write_log 7 "#> $__RUNPROG $@"
++		"$__RUNPROG" "$@" 2> "$STDERR_PATH" # DO transfer
+ 		__ERR=$?			# save error code
+ 		[ $__ERR -eq 0 ] && return 0	# no error leave
+ 		[ -n "$LUCI_HELPER" ] && return 1	# no retry if called by LuCI helper script
+@@ -894,7 +946,7 @@
+ }
+ 
+ get_local_ip () {
+-	# $1	Name of Variable to store local IP (LOCAL_IP)
++	local var_name="$1" # $1	Name of Variable to store local IP (LOCAL_IP)
+ 	local __CNT=0	# error counter
+ 	local __RUNPROG __DATA __URL __ERR
+ 
+@@ -902,16 +954,42 @@
  	write_log 7 "Detect local IP on '$ip_source'"
  
  	while : ; do
@@ -592,7 +917,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +			write_log 7 "ifconfig_name=$ifconfig_name; ifconfig_ip=$ifconfig_ip"
 +
-+			if ! eval "$__RUNPROG __DATA $ip_network"; then
++			set -- "__DATA" "$ip_network"
++			if ! "$__RUNPROG" "$@"; then
 +				if [ -n "$ifconfig_ip" ]; then
 +					__DATA="$ifconfig_ip"
 +					write_log 7 "Used ifconfig IP $ifconfig_ip instead"
@@ -614,16 +940,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			if [ -n "$(which ip)" ]; then		# ip program installed
  				write_log 7 "#> ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE"
  				ip -o addr show dev $ip_interface scope global >$DATFILE 2>$ERRFILE
-@@ -989,7 +1023,7 @@
+@@ -989,9 +1067,9 @@
  			fi
  			[ $use_ipv6 -eq 0 ] && __DATA="$__DATA4" || __DATA="$__DATA6"
  			[ -n "$__DATA" ] && write_log 7 "Local IP '$__DATA' detected on interface '$ip_interface'"
 -		elif [ -n "$ip_script" ]; then
 +		elif [ -n "$ip_script" -a "$ip_source" = "script" ]; then
  			write_log 7 "#> $ip_script >$DATFILE 2>$ERRFILE"
- 			eval $ip_script >$DATFILE 2>$ERRFILE
+-			eval $ip_script >$DATFILE 2>$ERRFILE
++			"$ip_script" >$DATFILE 2>$ERRFILE
  			__ERR=$?
-@@ -1000,7 +1034,7 @@
+ 			if [ $__ERR -eq 0 ]; then
+ 				__DATA=$(cat $DATFILE)
+@@ -1000,7 +1078,7 @@
  				write_log 3 "$ip_script Error: '$__ERR'"
  				write_log 7 "$(cat $ERRFILE)"		# report error
  			fi
@@ -632,7 +961,26 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			do_transfer "$ip_url"
  			# use correct regular expression
  			[ $use_ipv6 -eq 0 ] \
-@@ -1050,7 +1084,7 @@
+@@ -1012,7 +1090,7 @@
+ 		fi
+ 		# valid data found return here
+ 		[ -n "$__DATA" ] && {
+-			eval "$1=\"$__DATA\""
++			eval "$var_name=\"$__DATA\""
+ 			return 0
+ 		}
+ 
+@@ -1042,15 +1120,15 @@
+ }
+ 
+ get_registered_ip() {
+-	# $1	Name of Variable to store public IP (REGISTERED_IP)
+-	# $2	(optional) if set, do not retry on error
++	local var_name="$1" # Name of Variable to store public IP (REGISTERED_IP)
++	local do_not_retry="$2" # (optional) if set, do not retry on error
+ 	local __CNT=0	# error counter
+ 	local __ERR=255
+ 	local __REGEX  __PROG  __RUNPROG  __DATA  __IP
  	# return codes
  	# 1	no IP detected
  
@@ -641,16 +989,124 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	[ $is_glue -eq 1 -a -z "$BIND_HOST" ] && write_log 14 "Lookup of glue records is only supported using BIND host"
  	write_log 7 "Detect registered/public IP"
  
-@@ -1152,14 +1186,20 @@
+@@ -1058,43 +1136,48 @@
+ 	[ $use_ipv6 -eq 0 ] && __REGEX="$IPV4_REGEX" || __REGEX="$IPV6_REGEX"
+ 
+ 	if [ -n "$BIND_HOST" ]; then
+-		__PROG="$BIND_HOST"
+-		[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -t A"  || __PROG="$__PROG -t AAAA"
++		__PROG="BIND host"
++		__RUNPROG="$BIND_HOST"
++		set --
++		[ $use_ipv6 -eq 0 ] && set -- "$@" "-t" "A" || set -- "$@" "-t" "AAAA"
+ 		if [ $force_ipversion -eq 1 ]; then			# force IP version
+-			[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -4"  || __PROG="$__PROG -6"
++			[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6"
+ 		fi
+-		[ $force_dnstcp -eq 1 ] && __PROG="$__PROG -T"	# force TCP
+-		[ $is_glue -eq 1 ] && __PROG="$__PROG -v" # use verbose output to get additional section
+-
+-		__RUNPROG="$__PROG $lookup_host $dns_server >$DATFILE 2>$ERRFILE"
+-		__PROG="BIND host"
++		[ $force_dnstcp -eq 1 ] && set -- "$@" "-T" # force TCP
++		[ $is_glue -eq 1 ] && set -- "$@" "-v" # use verbose output to get additional section
++		set -- "$@" "$lookup_host"
++		[ -n "$dns_server" ] && set -- "$@" "$dns_server"
+ 	elif [ -n "$KNOT_HOST" ]; then
+-		__PROG="$KNOT_HOST"
+-		[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -t A"  || __PROG="$__PROG -t AAAA"
++		__PROG="Knot host"
++		__RUNPROG="$KNOT_HOST"
++		set --
++		[ $use_ipv6 -eq 0 ] && set -- "$@" "-t" "A" || set -- "$@" "-t" "AAAA"
+ 		if [ $force_ipversion -eq 1 ]; then			# force IP version
+-			[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -4"  || __PROG="$__PROG -6"
++			[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6"
+ 		fi
+-		[ $force_dnstcp -eq 1 ] && __PROG="$__PROG -T"	# force TCP
++		[ $force_dnstcp -eq 1 ] && set -- "$@" "-T" # force TCP
+ 
+-		__RUNPROG="$__PROG $lookup_host $dns_server >$DATFILE 2>$ERRFILE"
+-		__PROG="Knot host"
++		set -- "$@" "$lookup_host"
++		[ -n "$dns_server" ] && set -- "$@" "$dns_server"
+ 	elif [ -n "$DRILL" ]; then
+-		__PROG="$DRILL -V0"			# drill options name @server type
++		__PROG="drill"
++		__RUNPROG="$DRILL"			# drill options name @server type
++		set -- "-V0"
+ 		if [ $force_ipversion -eq 1 ]; then			# force IP version
+-			[ $use_ipv6 -eq 0 ] && __PROG="$__PROG -4"  || __PROG="$__PROG -6"
++			[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6"
+ 		fi
+-		[ $force_dnstcp -eq 1 ] && __PROG="$__PROG -t" || __PROG="$__PROG -u"	# force TCP
+-		__PROG="$__PROG $lookup_host"
+-		[ -n "$dns_server" ] && __PROG="$__PROG @$dns_server"
+-		[ $use_ipv6 -eq 0 ] && __PROG="$__PROG A"  || __PROG="$__PROG AAAA"
+-
+-		__RUNPROG="$__PROG >$DATFILE 2>$ERRFILE"
+-		__PROG="drill"
++		[ $force_dnstcp -eq 1 ] && set -- "$@" "-t" || set -- "$@" "-u"	# force TCP
++		set -- "$@" "$lookup_host"
++		[ -n "$dns_server" ] && set -- "$@" "@$dns_server"
++		[ $use_ipv6 -eq 0 ] && set -- "$@" "A" || set -- "$@" "AAAA"
+ 	elif [ -n "$HOSTIP" ]; then	# hostip package installed
+-		__PROG="$HOSTIP"
++		__RUNPROG="$HOSTIP"
++		__PROG="hostip"
+ 		[ $force_dnstcp -ne 0 ] && \
+ 			write_log 14 "hostip - no support for 'DNS over TCP'"
+ 
++		set --
++
+ 		# is IP given as dns_server ?
+ 		__IP=$(echo $dns_server | grep -m 1 -o "$IPV4_REGEX")
+ 		[ -z "$__IP" ] && __IP=$(echo $dns_server | grep -m 1 -o "$IPV6_REGEX")
+@@ -1110,10 +1193,9 @@
+ 			__IP="$__IP \`"
+ 		}
+ 
+-		[ $use_ipv6 -eq 1 ] && __PROG="$__PROG -6"
+-		[ -n "$dns_server" ] && __PROG="$__PROG -r $__IP"
+-		__RUNPROG="$__PROG $lookup_host >$DATFILE 2>$ERRFILE"
+-		__PROG="hostip"
++		[ $use_ipv6 -eq 1 ] && set -- "$@" "-6"
++		[ -n "$dns_server" ] && set -- "$@" "-r" "$__IP"
++		set -- "$@" "$lookup_host"
+ 	elif [ -n "$NSLOOKUP" ]; then	# last use BusyBox nslookup
+ 		NSLOOKUP_MUSL=$($(which nslookup) localhost 2>&1 | grep -F "(null)")	# not empty busybox compiled with musl
+ 		[ $force_dnstcp -ne 0 ] && \
+@@ -1123,7 +1205,9 @@
+ 		[ $force_ipversion -ne 0 ] && \
+ 			write_log 5 "Busybox nslookup - no support to 'force IP Version' (ignored)"
+ 
+-		__RUNPROG="$NSLOOKUP $lookup_host $dns_server >$DATFILE 2>$ERRFILE"
++		__RUNPROG="$NSLOOKUP"
++		set -- "$lookup_host"
++		[ -n "$dns_server" ] && set -- "$@" "$dns_server"
+ 		__PROG="BusyBox nslookup"
+ 	else	# there must be an error
+ 		write_log 12 "Error in 'get_registered_ip()' - no supported Name Server lookup software accessible"
+@@ -1131,7 +1215,7 @@
+ 
+ 	while : ; do
+ 		write_log 7 "#> $__RUNPROG"
+-		eval $__RUNPROG
++		"$__RUNPROG" "$@" > "$DATFILE" 2> "$ERRFILE"
+ 		__ERR=$?
+ 		if [ $__ERR -ne 0 ]; then
+ 			write_log 3 "$__PROG error: '$__ERR'"
+@@ -1152,17 +1236,23 @@
  			fi
  			[ -n "$__DATA" ] && {
  				write_log 7 "Registered IP '$__DATA' detected"
 -				[ -z "$IPFILE" ] || echo "$__DATA" > $IPFILE
+-				eval "$1=\"$__DATA\""	# valid data found
 +				[ -z "$IPFILE" ] || {
 +					rm -f $IPFILE
 +					echo "$__DATA" > $IPFILE
 +				}
- 				eval "$1=\"$__DATA\""	# valid data found
++				eval "$var_name=\"$__DATA\""	# valid data found
  				return 0		# leave here
  			}
 -			write_log 4 "NO valid IP found"
@@ -664,8 +1120,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		}
  
  		[ -n "$LUCI_HELPER" ] && return $__ERR	# no retry if called by LuCI helper script
- 		[ -n "$2" ] && return $__ERR		# $2 is given -> no retry
-@@ -1204,17 +1244,17 @@
+-		[ -n "$2" ] && return $__ERR		# $2 is given -> no retry
++		[ -n "$do_not_retry" ] && return $__ERR		# $2 is given -> no retry
+ 		[ $VERBOSE -gt 1 ] && {
+ 			# VERBOSE > 1 then NO retry
+ 			write_log 4 "Get registered/public IP for '$lookup_host' failed - Verbose Mode: $VERBOSE - NO retry on error"
+@@ -1204,17 +1294,17 @@
  
  	case $1 in
  		 0)	if [ $__ERR -eq 0 ]; then
@@ -690,7 +1150,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		 *)	write_log 13 "Unhandled signal '$1' in 'trap_handler()'";;
  	esac
  
-@@ -1320,6 +1360,11 @@
+@@ -1320,6 +1410,11 @@
  	# $2	name of variable to store expanded IPv6
  	[ $# -ne 2 ] && write_log 12 "Error calling 'expand_ipv6()' - wrong number of parameters"
  
@@ -704,7 +1164,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_lucihelper.sh src/files/dynamic_dns_lucihelper.sh
 --- upstream/files/dynamic_dns_lucihelper.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_lucihelper.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/dynamic_dns_lucihelper.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -10,7 +10,8 @@
  # variables in big chars beginning with "__" are local defined inside functions only
  # set -vx  	#script debugger
@@ -735,7 +1195,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			export HTTP_PROXY="http://$proxy"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_updater.sh src/files/dynamic_dns_updater.sh
 --- upstream/files/dynamic_dns_updater.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_updater.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/dynamic_dns_updater.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -193,7 +193,7 @@
  [ "$ip_source" = "network" -a -z "$ip_network" -a $use_ipv6 -eq 1 ] && ip_network="wan6" # IPv6: default wan6
  [ "$ip_source" = "web" -a -z "$ip_url" -a $use_ipv6 -eq 0 ] && ip_url="http://checkip.dyndns.com"
@@ -795,6 +1255,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  [ -n "$update_url" ] && {
  	# only check if update_url is given, update_scripts have to check themselves
  	[ -z "$domain" ] && $(echo "$update_url" | grep "\[DOMAIN\]" >/dev/null 2>&1) && \
+@@ -263,9 +272,9 @@
+ 
+ # verify ip_source 'script' if script is configured and executable
+ if [ "$ip_source" = "script" ]; then
+-	set -- $ip_script	#handling script with parameters, we need a trick
+-	[ -z "$1" ] && write_log 14 "No script defined to detect local IP!"
+-	[ -x "$1" ] || write_log 14 "Script to detect local IP not executable!"
++	# set -- $ip_script	#handling script with parameters, we need a trick
++	[ -z "$ip_script" ] && write_log 14 "No script defined to detect local IP!"
++	[ -x "$ip_script" ] || write_log 14 "Script to detect local IP not executable!"
+ fi
+ 
+ # compute update interval in seconds
 @@ -319,6 +328,54 @@
  	}
  }
@@ -889,7 +1362,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	REGISTERED_IP=""		# clear variable
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services src/files/services
 --- upstream/files/services	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services	2025-04-02 11:27:54.000000000 +0000
++++ src/files/services	2025-12-12 09:57:27.000000000 +0000
 @@ -43,13 +43,15 @@
  
  "able.or.kr"		"http://able.or.kr/ddns/src/update.php?hostname=[DOMAIN]&myip=[IP]&ddnsuser=[USERNAME]&pwd=[PASSWORD]"
@@ -927,7 +1400,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services_ipv6 src/files/services_ipv6
 --- upstream/files/services_ipv6	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services_ipv6	2025-04-02 11:27:54.000000000 +0000
++++ src/files/services_ipv6	2025-12-12 09:57:27.000000000 +0000
 @@ -38,10 +38,10 @@
  #.no-ip.com / noip.com	!!! Please install additional package "ddns-scripts_no-ip_com"
  #.route53-v1		!!! Please install additional package "ddns-scripts_route53-v1"
@@ -945,7 +1418,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_cloudflare_com_v4.sh src/files/update_cloudflare_com_v4.sh
 --- upstream/files/update_cloudflare_com_v4.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_cloudflare_com_v4.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/update_cloudflare_com_v4.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -15,7 +15,7 @@
  # option password  - cloudflare api key, you can get it from cloudflare.com/my-account/
  # option domain    - "hostname@yourdomain.TLD"	# syntax changed to remove split_FQDN() function and tld_names.dat.gz
@@ -955,15 +1428,85 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #
  # variable __IP already defined with the ip-address to use for update
  #
-@@ -29,6 +29,7 @@
+@@ -27,8 +27,9 @@
+ [ $use_https -eq 0 ] && use_https=1	# force HTTPS
+ 
  # used variables
- local __HOST __DOMAIN __TYPE __URLBASE __PRGBASE __RUNPROG __DATA __IPV6 __ZONEID __RECID __PROXIED
+-local __HOST __DOMAIN __TYPE __URLBASE __PRGBASE __RUNPROG __DATA __IPV6 __ZONEID __RECID __PROXIED
++local __HOST __DOMAIN __TYPE __URLBASE __DATA __IPV6 __ZONEID __RECID __PROXIED
  local __URLBASE="https://api.cloudflare.com/client/v4"
 +local __TTL=120
  
  # split __HOST __DOMAIN from $domain
  # given data:
-@@ -84,7 +85,7 @@
+@@ -54,11 +55,64 @@
+ # all needed variables are set global here
+ # so we can use them directly
+ cloudflare_transfer() {
++	local __REQUEST="$1"
++	local __URL="$2"
++	local __DATA="$3" # (optional)
++
+ 	local __CNT=0
+ 	local __ERR
++	# set up argument list
++	set -- "-RsS" "-o" "$DATFILE" "--stderr" "$ERRFILE"
++	# force network/interface-device to use for communication
++	if [ -n "$bind_network" ]; then
++		local __DEVICE
++		network_get_physdev __DEVICE $bind_network || \
++			write_log 13 "Can not detect local device using 'network_get_physdev $bind_network' - Error: '$?'"
++		write_log 7 "Force communication via device '$__DEVICE'"
++		set -- "$@" "--interface" "$__DEVICE"
++	fi
++	# force ip version to use
++	if [ $force_ipversion -eq 1 ]; then
++		[ $use_ipv6 -eq 0 ] && set -- "$@" "-4" || set -- "$@" "-6" # force IPv4/IPv6
++	fi
++
++	# set certificate parameters
++	if [ "$cacert" = "IGNORE" ]; then	# idea from Ticket #15327 to ignore server cert
++		set -- "$@" "--insecure" # but not empty better to use "IGNORE"
++	elif [ -f "$cacert" ]; then
++		set -- "$@" "--cacert" "$cacert"
++	elif [ -d "$cacert" ]; then
++		set -- "$@" "--capath" "$cacert"
++	elif [ -n "$cacert" ]; then		# it's not a file and not a directory but given
++		write_log 14 "No valid certificate(s) found at '$cacert' for HTTPS communication"
++	fi
++	# disable proxy if not set (there might be .wgetrc or .curlrc or wrong environment set)
++	# or check if libcurl compiled with proxy support
++	if [ -z "$proxy" ]; then
++		set -- "$@" "--noproxy" "*"
++	elif [ -z "$CURL_PROXY" ]; then
++		# if libcurl has no proxy support and proxy should be used then force ERROR
++		write_log 13 "cURL: libcurl compiled without Proxy support"
++	fi
++
++	# set headers
++	if [ "$username" = "Bearer" ]; then
++	  write_log 7 "Found Username 'Bearer' using Password as Bearer Authorization Token"
++	  set -- "$@" "--header" "Authorization: Bearer $password"
++	else
++	  set -- "$@" "--header" "X-Auth-Email: $username"
++	  set -- "$@" "--header" "X-Auth-Key: $password"
++	fi
++	set -- "$@" "--header" "Content-Type: application/json"
++
++	set -- "$@" "--request" "$__REQUEST"
++	[ -n "$__DATA" ] && set -- "--data" "@$__DATA"
++	set -- "$@" "$__URL"
++
++
+ 	while : ; do
+-		write_log 7 "#> $__RUNPROG"
+-		eval "$__RUNPROG"
++		write_log 7 "#> $CURL $@"
++		$CURL "$@"
+ 		__ERR=$?			# save communication error
+ 		[ $__ERR -eq 0 ] && break	# no error break while
+ 
+@@ -84,73 +138,33 @@
  	done
  
  	# check for error
@@ -972,34 +1515,63 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		write_log 4 "CloudFlare reported an error:"
  		write_log 7 "$(cat $DATFILE)"		# report error
  		return 1	# HTTP-Fehler
-@@ -124,16 +125,20 @@
- 	write_log 13 "cURL: libcurl compiled without Proxy support"
- fi
- # set headers
+ 	}
+ }
+ 
+-# Build base command to use
+-__PRGBASE="$CURL -RsS -o $DATFILE --stderr $ERRFILE"
+-# force network/interface-device to use for communication
+-if [ -n "$bind_network" ]; then
+-	local __DEVICE
+-	network_get_physdev __DEVICE $bind_network || \
+-		write_log 13 "Can not detect local device using 'network_get_physdev $bind_network' - Error: '$?'"
+-	write_log 7 "Force communication via device '$__DEVICE'"
+-	__PRGBASE="$__PRGBASE --interface $__DEVICE"
+-fi
+-# force ip version to use
+-if [ $force_ipversion -eq 1 ]; then
+-	[ $use_ipv6 -eq 0 ] && __PRGBASE="$__PRGBASE -4" || __PRGBASE="$__PRGBASE -6"	# force IPv4/IPv6
+-fi
+-# set certificate parameters
+-if [ "$cacert" = "IGNORE" ]; then	# idea from Ticket #15327 to ignore server cert
+-	__PRGBASE="$__PRGBASE --insecure"	# but not empty better to use "IGNORE"
+-elif [ -f "$cacert" ]; then
+-	__PRGBASE="$__PRGBASE --cacert $cacert"
+-elif [ -d "$cacert" ]; then
+-	__PRGBASE="$__PRGBASE --capath $cacert"
+-elif [ -n "$cacert" ]; then		# it's not a file and not a directory but given
+-	write_log 14 "No valid certificate(s) found at '$cacert' for HTTPS communication"
+-fi
+-# disable proxy if not set (there might be .wgetrc or .curlrc or wrong environment set)
+-# or check if libcurl compiled with proxy support
+-if [ -z "$proxy" ]; then
+-	__PRGBASE="$__PRGBASE --noproxy '*'"
+-elif [ -z "$CURL_PROXY" ]; then
+-	# if libcurl has no proxy support and proxy should be used then force ERROR
+-	write_log 13 "cURL: libcurl compiled without Proxy support"
+-fi
+-# set headers
 -__PRGBASE="$__PRGBASE --header 'X-Auth-Email: $username' "
 -__PRGBASE="$__PRGBASE --header 'X-Auth-Key: $password' "
-+if [ "$username" = "Bearer" ]; then
-+  write_log 7 "Found Username 'Bearer' using Password as Bearer Authorization Token"
-+  __PRGBASE="$__PRGBASE --header 'Authorization: Bearer $password' "
-+else
-+  __PRGBASE="$__PRGBASE --header 'X-Auth-Email: $username' "
-+  __PRGBASE="$__PRGBASE --header 'X-Auth-Key: $password' "
-+fi
- __PRGBASE="$__PRGBASE --header 'Content-Type: application/json' "
+-__PRGBASE="$__PRGBASE --header 'Content-Type: application/json' "
 -# __PRGBASE="$__PRGBASE --header 'Accept: application/json' "
- 
+-
  # read zone id for registered domain.TLD
- __RUNPROG="$__PRGBASE --request GET '$__URLBASE/zones?name=$__DOMAIN'"
- cloudflare_transfer || return 1
+-__RUNPROG="$__PRGBASE --request GET '$__URLBASE/zones?name=$__DOMAIN'"
+-cloudflare_transfer || return 1
++cloudflare_transfer "GET" "$__URLBASE/zones?name=$__DOMAIN" || return 1
  # extract zone id
 -__ZONEID=$(grep -o '"id":"[^"]*' $DATFILE | grep -o '[^"]*$' | head -1)
 +__ZONEID=$(grep -o '"id":\s*"[^"]*' $DATFILE | grep -o '[^"]*$' | head -1)
  [ -z "$__ZONEID" ] && {
  	write_log 4 "Could not detect 'zone id' for domain.tld: '$__DOMAIN'"
  	return 127
-@@ -143,14 +148,14 @@
- __RUNPROG="$__PRGBASE --request GET '$__URLBASE/zones/$__ZONEID/dns_records?name=$__HOST&type=$__TYPE'"
- cloudflare_transfer || return 1
+ }
+ 
+ # read record id for A or AAAA record of host.domain.TLD
+-__RUNPROG="$__PRGBASE --request GET '$__URLBASE/zones/$__ZONEID/dns_records?name=$__HOST&type=$__TYPE'"
+-cloudflare_transfer || return 1
++cloudflare_transfer "GET" "$__URLBASE/zones/$__ZONEID/dns_records?name=$__HOST&type=$__TYPE" || return 1
  # extract record id
 -__RECID=$(grep -o '"id":"[^"]*' $DATFILE | grep -o '[^"]*$' | head -1)
 +__RECID=$(grep -o '"id":\s*"[^"]*' $DATFILE | grep -o '[^"]*$' | head -1)
@@ -1014,7 +1586,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  # check data
  [ $use_ipv6 -eq 0 ] \
-@@ -178,11 +183,11 @@
+@@ -178,16 +192,14 @@
  # update is needed
  # let's build data to send
  # set proxied parameter
@@ -1028,14 +1600,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  EOF
  
  # let's complete transfer command
-@@ -190,4 +195,3 @@
- cloudflare_transfer || return 1
+-__RUNPROG="$__PRGBASE --request PUT --data @$DATFILE '$__URLBASE/zones/$__ZONEID/dns_records/$__RECID'"
+-cloudflare_transfer || return 1
++cloudflare_transfer "PUT" "$__URLBASE/zones/$__ZONEID/dns_records/$__RECID" "$DATFILE" || return 1
  
  return 0
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_no-ip_com.sh src/files/update_no-ip_com.sh
 --- upstream/files/update_no-ip_com.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_no-ip_com.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/update_no-ip_com.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -9,31 +9,33 @@
  # provider did not reactivate records, if no IP change was recognized
  # so we send a dummy (localhost) and a seconds later we send the correct IP addr
@@ -1088,7 +1661,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_nsupdate.sh src/files/update_nsupdate.sh
 --- upstream/files/update_nsupdate.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_nsupdate.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/update_nsupdate.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -19,8 +19,9 @@
  local __RRTYPE __PW __TCP
  local __PROG=$(which nsupdate)			# BIND nsupdate ?
@@ -1110,7 +1683,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  return 0
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_route53_v1.sh src/files/update_route53_v1.sh
 --- upstream/files/update_route53_v1.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_route53_v1.sh	2025-04-02 11:27:54.000000000 +0000
++++ src/files/update_route53_v1.sh	2025-12-12 09:57:27.000000000 +0000
 @@ -1,46 +1,44 @@
  #!/bin/sh
 -#.Distributed under the terms of the GNU General Public License (GPL) version 2.0

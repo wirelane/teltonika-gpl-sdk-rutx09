@@ -1,3 +1,9 @@
+# 2025-12-18 00.07.20.1
+
+### Fix
+
+* Boot: fixed WAN ethernet led behaviour during boot on devices with specific hardware version for RUTX09 (ID: 31475)
+
 # 2025-12-10 00.07.20
 
 ### New
