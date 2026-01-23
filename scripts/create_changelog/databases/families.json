@@ -41,7 +41,7 @@
   },
   {
     "name": "RUTE",
-    "devices": ["RUT202", "RUT204", "RUT206", "RUT261", "RUT271", "RUT276", "RUT281", "RUT971", "RUT976", "RUT981", "RUT986"]
+    "devices": ["RUT202", "RUT204", "RUT206", "RUT261", "RUT271", "RUT276", "RUT281", "RUT286", "RUT971", "RUT976", "RUT981", "RUT986"]
   },
   {
     "name": "RUT2M",

@@ -6,6 +6,11 @@ STOP=01
 USE_PROCD=1
 FUNC_NAME="/usr/sbin/rms_mqtt"
 
+set_optfile_permissions() {
+	chmod 660 "$1"
+	chown rms:rms "$1"
+}
+
 start_service() {
 	local enabled
 	local debug
@@ -19,16 +24,31 @@ start_service() {
 	local uci_changes="0"
 	local opts="rms_id demo_rms_id local_rms_id"
 	for opt_name in $opts; do
+		local opt_file="/log/$opt_name"
 		local opt_val_cfg
 		config_get opt_val_cfg "rms_mqtt" $opt_name ""
-		local opt_val_file=$(cat "/log/$opt_name" 2>/dev/null)
+		local opt_val_file=$(cat "$opt_file" 2>/dev/null)
+
+		[ ! -f "$opt_file" ] && {
+			logger -p daemon.alert -t rms_mqtt "$opt_file doesn't exist, creating"
+			touch "$opt_file"
+			set_optfile_permissions "$opt_file"
+		} || {
+			local out="$(find "$opt_file" -user rms -group rms -perm -660 2>/dev/null)"
+
+			[ "$out" != "$opt_file" ] && {
+				logger -p daemon.alert -t rms_mqtt "$opt_file has wrong permissions, correcting"
+				set_optfile_permissions "$opt_file"
+			}
+
+		}
 
 		[ -z "$opt_val_cfg" ] && [ -n "$opt_val_file" ] && {
 			uci -q set "rms_mqtt.rms_mqtt.$opt_name=$opt_val_file"
 			uci_changes="1"
 		}
 		[ -n "$opt_val_cfg" ] && [ -z "$opt_val_file" ] && {
-			echo -n "$opt_val_cfg" > "/log/$opt_name"
+			echo -n "$opt_val_cfg" > "$opt_file"
 		}
 		[ -n "$opt_val_file" ] && [ -n "$opt_val_cfg" ] && [ "$opt_val_file" != "$opt_val_cfg" ] && {
 			uci -q set "rms_mqtt.rms_mqtt.$opt_name=$opt_val_file"

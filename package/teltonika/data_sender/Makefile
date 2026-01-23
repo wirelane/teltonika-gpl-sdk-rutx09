@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.23
+PKG_SOURCE_VERSION:=1.23.1
 
 PKG_FIXUP:=autoreconf
 
