@@ -1,8 +1,6 @@
-Index: netifd-2022-01-12-5ca5e0b4/system-linux.c
-===================================================================
---- netifd-2022-01-12-5ca5e0b4.orig/system-linux.c
-+++ netifd-2022-01-12-5ca5e0b4/system-linux.c
-@@ -956,6 +956,9 @@ retry:
+--- a/system-linux.c
++++ b/system-linux.c
+@@ -1009,6 +1009,9 @@ int system_bridge_addif(struct device *b
  	    dev->settings.isolate)
  		system_bridge_set_isolated(dev, "1");
  

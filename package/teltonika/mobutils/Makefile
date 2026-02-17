@@ -113,14 +113,14 @@ endef
 define Package/mobutils-call_utilities/install
 	$(INSTALL_DIR) $(1)/sbin/ $(1)/etc/config/ $(1)/etc/init.d/
 	$(LN) /usr/sbin/mobutils $(1)/sbin/call_utils
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/call_utils/files/call_utils.init $(1)/etc/init.d/call_utils
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/call_utils/files/call_utils.init $(1)/etc/init.d/call_utils
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/call_utils/files/call_utils.conf $(1)/etc/config/call_utils
 endef
 
 define Package/mobutils-sms_utilities/install
 	$(INSTALL_DIR) $(1)/usr/sbin/ $(1)/etc/init.d/ $(1)/etc/config/ \
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.init $(1)/etc/init.d/sms_utils
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/sms_utils/files/sms_utils.init $(1)/etc/init.d/sms_utils
 	$(LN) /usr/sbin/mobutils $(1)/usr/sbin/sms_utils
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/etc $(1)/usr/share/sms_utils/
 

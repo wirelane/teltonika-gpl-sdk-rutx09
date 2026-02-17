@@ -162,6 +162,11 @@ define Build/InstallGPL
 	fi; \
 	$(if $(CONFIG_GPL_INCLUDE_WEB_SOURCES), \
 		$(Build/InstallGPL/Default); \
+		find "$(PKG_GPL_BUILD_DIR)" -type f -name '*.gpl.*' | while read gpl; do \
+			base="$${gpl%.gpl.*}.$${gpl##*.}"; \
+			rm -f "$$base"; \
+			mv "$$gpl" "$$base"; \
+		done; \
 		mkdir -p $(GPL_BUILD_DIR)/package/feeds/vuci/applications; \
 		cd  $(GPL_BUILD_DIR)/package/feeds/vuci/applications && ln -s ../$(PKG_NAME) $(PKG_NAME); , \
 		$(INSTALL_DIR) $(PKG_GPL_BUILD_DIR)/files; \

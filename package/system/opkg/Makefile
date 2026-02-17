@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=opkg
-PKG_RELEASE:=2
+PKG_RELEASE:=4
 PKG_FLAGS:=essential
 
 PKG_SOURCE_VERSION:=1bf042dd06751b693a8544d2317e5b969d666b69

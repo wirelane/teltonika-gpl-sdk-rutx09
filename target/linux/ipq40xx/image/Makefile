@@ -47,7 +47,7 @@ define Device/teltonika_rutx
 	DEVICE_PACKAGES := sysupgrade-helper uboot-ipq40xx kmod-cypress-serial
 
 	# Wi-Fi related:
-	DEVICE_PACKAGES += ipq-wifi-teltonika_rutx ipq-wifi-firmware-teltonika_rutx
+	DEVICE_PACKAGES += ipq-wifi-teltonika_rutx
 
 	# USB related:
 	DEVICE_PACKAGES += kmod-usb-uhci

@@ -132,6 +132,8 @@ down_mobile_interfaces() {
 wait_data_connection() {
 	local ifname_="$1"
 	local i
+	local retry="$(cat /tmp/conn_retry_$ifname_ 2>/dev/null)"
+	[ -z "$retry" ] && retry="0"
 
 	## need to wait while interface appear
 	local max_wait=10
@@ -142,17 +144,25 @@ wait_data_connection() {
 			sleep 1
 		else
 			ubus -t 1 call gpsd modman '{"wwan":true}' 2>/dev/null
+			rm -f /tmp/conn_retry_"$ifname_"
 		 	return 0
 		fi
 		if [ $i -eq $max_wait ]; then
 			echo "Can't find l3 device for $ifname_ interface"
 			ubus call network.interface remove "{\"interface\":\"$ifname_\"}" 2>/dev/null
 			ubus -t 1 call gpsd modman '{"wwan":false}' 2>/dev/null
+			[ "$retry" -ge 3 ] && {
+				rm -f /tmp/conn_retry_"$ifname_"
+				gsm_hard_reset "$modem"
+				return 1
+			}
+			retry="$((retry + 1))"
+			echo "$retry" > /tmp/conn_retry_"$ifname_"
 			return 1
 		fi
 	done
 
-    	return 1
+	return 1
 }
 
 proto_pppmobile_setup() {

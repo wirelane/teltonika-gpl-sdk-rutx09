@@ -6,8 +6,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -* text=auto
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitignore src/.gitignore
 --- upstream/.gitignore	2024-01-23 14:13:59.000000000 +0000
-+++ src/.gitignore	2025-10-20 07:34:48.000000000 +0000
-@@ -1,253 +1 @@
++++ src/.gitignore	2026-01-23 11:55:51.000000000 +0000
+@@ -1,253 +1,3 @@
 -#################
 -## Eclipse
 -#################
@@ -261,10 +261,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -*.raw
 -*.vsidx
 -*.lock
++dlms_client
++dlms_client.so
 +.vscode/
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-10-20 07:34:48.000000000 +0000
++++ src/.gitlab-ci.yml	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -289,7 +291,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitmodules src/.gitmodules
 --- upstream/.gitmodules	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitmodules	2025-10-20 07:34:48.000000000 +0000
++++ src/.gitmodules	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,3 @@
 +[submodule "test/support"]
 +	path = test/support
@@ -217888,353 +217890,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#endif
 -
 -#endif /* STM32L4xx_HAL_CONF_H */
-diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/LICENSE src/LICENSE
---- upstream/LICENSE	2024-01-23 14:13:59.000000000 +0000
-+++ src/LICENSE	1970-01-01 00:00:00.000000000 +0000
-@@ -1,339 +0,0 @@
--GNU GENERAL PUBLIC LICENSE
--                       Version 2, June 1991
--
-- Copyright (C) 1989, 1991 Free Software Foundation, Inc.,
-- 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-- Everyone is permitted to copy and distribute verbatim copies
-- of this license document, but changing it is not allowed.
--
--                            Preamble
--
--  The licenses for most software are designed to take away your
--freedom to share and change it.  By contrast, the GNU General Public
--License is intended to guarantee your freedom to share and change free
--software--to make sure the software is free for all its users.  This
--General Public License applies to most of the Free Software
--Foundation's software and to any other program whose authors commit to
--using it.  (Some other Free Software Foundation software is covered by
--the GNU Lesser General Public License instead.)  You can apply it to
--your programs, too.
--
--  When we speak of free software, we are referring to freedom, not
--price.  Our General Public Licenses are designed to make sure that you
--have the freedom to distribute copies of free software (and charge for
--this service if you wish), that you receive source code or can get it
--if you want it, that you can change the software or use pieces of it
--in new free programs; and that you know you can do these things.
--
--  To protect your rights, we need to make restrictions that forbid
--anyone to deny you these rights or to ask you to surrender the rights.
--These restrictions translate to certain responsibilities for you if you
--distribute copies of the software, or if you modify it.
--
--  For example, if you distribute copies of such a program, whether
--gratis or for a fee, you must give the recipients all the rights that
--you have.  You must make sure that they, too, receive or can get the
--source code.  And you must show them these terms so they know their
--rights.
--
--  We protect your rights with two steps: (1) copyright the software, and
--(2) offer you this license which gives you legal permission to copy,
--distribute and/or modify the software.
--
--  Also, for each author's protection and ours, we want to make certain
--that everyone understands that there is no warranty for this free
--software.  If the software is modified by someone else and passed on, we
--want its recipients to know that what they have is not the original, so
--that any problems introduced by others will not reflect on the original
--authors' reputations.
--
--  Finally, any free program is threatened constantly by software
--patents.  We wish to avoid the danger that redistributors of a free
--program will individually obtain patent licenses, in effect making the
--program proprietary.  To prevent this, we have made it clear that any
--patent must be licensed for everyone's free use or not licensed at all.
--
--  The precise terms and conditions for copying, distribution and
--modification follow.
--
--                    GNU GENERAL PUBLIC LICENSE
--   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
--
--  0. This License applies to any program or other work which contains
--a notice placed by the copyright holder saying it may be distributed
--under the terms of this General Public License.  The "Program", below,
--refers to any such program or work, and a "work based on the Program"
--means either the Program or any derivative work under copyright law:
--that is to say, a work containing the Program or a portion of it,
--either verbatim or with modifications and/or translated into another
--language.  (Hereinafter, translation is included without limitation in
--the term "modification".)  Each licensee is addressed as "you".
--
--Activities other than copying, distribution and modification are not
--covered by this License; they are outside its scope.  The act of
--running the Program is not restricted, and the output from the Program
--is covered only if its contents constitute a work based on the
--Program (independent of having been made by running the Program).
--Whether that is true depends on what the Program does.
--
--  1. You may copy and distribute verbatim copies of the Program's
--source code as you receive it, in any medium, provided that you
--conspicuously and appropriately publish on each copy an appropriate
--copyright notice and disclaimer of warranty; keep intact all the
--notices that refer to this License and to the absence of any warranty;
--and give any other recipients of the Program a copy of this License
--along with the Program.
--
--You may charge a fee for the physical act of transferring a copy, and
--you may at your option offer warranty protection in exchange for a fee.
--
--  2. You may modify your copy or copies of the Program or any portion
--of it, thus forming a work based on the Program, and copy and
--distribute such modifications or work under the terms of Section 1
--above, provided that you also meet all of these conditions:
--
--    a) You must cause the modified files to carry prominent notices
--    stating that you changed the files and the date of any change.
--
--    b) You must cause any work that you distribute or publish, that in
--    whole or in part contains or is derived from the Program or any
--    part thereof, to be licensed as a whole at no charge to all third
--    parties under the terms of this License.
--
--    c) If the modified program normally reads commands interactively
--    when run, you must cause it, when started running for such
--    interactive use in the most ordinary way, to print or display an
--    announcement including an appropriate copyright notice and a
--    notice that there is no warranty (or else, saying that you provide
--    a warranty) and that users may redistribute the program under
--    these conditions, and telling the user how to view a copy of this
--    License.  (Exception: if the Program itself is interactive but
--    does not normally print such an announcement, your work based on
--    the Program is not required to print an announcement.)
--
--These requirements apply to the modified work as a whole.  If
--identifiable sections of that work are not derived from the Program,
--and can be reasonably considered independent and separate works in
--themselves, then this License, and its terms, do not apply to those
--sections when you distribute them as separate works.  But when you
--distribute the same sections as part of a whole which is a work based
--on the Program, the distribution of the whole must be on the terms of
--this License, whose permissions for other licensees extend to the
--entire whole, and thus to each and every part regardless of who wrote it.
--
--Thus, it is not the intent of this section to claim rights or contest
--your rights to work written entirely by you; rather, the intent is to
--exercise the right to control the distribution of derivative or
--collective works based on the Program.
--
--In addition, mere aggregation of another work not based on the Program
--with the Program (or with a work based on the Program) on a volume of
--a storage or distribution medium does not bring the other work under
--the scope of this License.
--
--  3. You may copy and distribute the Program (or a work based on it,
--under Section 2) in object code or executable form under the terms of
--Sections 1 and 2 above provided that you also do one of the following:
--
--    a) Accompany it with the complete corresponding machine-readable
--    source code, which must be distributed under the terms of Sections
--    1 and 2 above on a medium customarily used for software interchange; or,
--
--    b) Accompany it with a written offer, valid for at least three
--    years, to give any third party, for a charge no more than your
--    cost of physically performing source distribution, a complete
--    machine-readable copy of the corresponding source code, to be
--    distributed under the terms of Sections 1 and 2 above on a medium
--    customarily used for software interchange; or,
--
--    c) Accompany it with the information you received as to the offer
--    to distribute corresponding source code.  (This alternative is
--    allowed only for noncommercial distribution and only if you
--    received the program in object code or executable form with such
--    an offer, in accord with Subsection b above.)
--
--The source code for a work means the preferred form of the work for
--making modifications to it.  For an executable work, complete source
--code means all the source code for all modules it contains, plus any
--associated interface definition files, plus the scripts used to
--control compilation and installation of the executable.  However, as a
--special exception, the source code distributed need not include
--anything that is normally distributed (in either source or binary
--form) with the major components (compiler, kernel, and so on) of the
--operating system on which the executable runs, unless that component
--itself accompanies the executable.
--
--If distribution of executable or object code is made by offering
--access to copy from a designated place, then offering equivalent
--access to copy the source code from the same place counts as
--distribution of the source code, even though third parties are not
--compelled to copy the source along with the object code.
--
--  4. You may not copy, modify, sublicense, or distribute the Program
--except as expressly provided under this License.  Any attempt
--otherwise to copy, modify, sublicense or distribute the Program is
--void, and will automatically terminate your rights under this License.
--However, parties who have received copies, or rights, from you under
--this License will not have their licenses terminated so long as such
--parties remain in full compliance.
--
--  5. You are not required to accept this License, since you have not
--signed it.  However, nothing else grants you permission to modify or
--distribute the Program or its derivative works.  These actions are
--prohibited by law if you do not accept this License.  Therefore, by
--modifying or distributing the Program (or any work based on the
--Program), you indicate your acceptance of this License to do so, and
--all its terms and conditions for copying, distributing or modifying
--the Program or works based on it.
--
--  6. Each time you redistribute the Program (or any work based on the
--Program), the recipient automatically receives a license from the
--original licensor to copy, distribute or modify the Program subject to
--these terms and conditions.  You may not impose any further
--restrictions on the recipients' exercise of the rights granted herein.
--You are not responsible for enforcing compliance by third parties to
--this License.
--
--  7. If, as a consequence of a court judgment or allegation of patent
--infringement or for any other reason (not limited to patent issues),
--conditions are imposed on you (whether by court order, agreement or
--otherwise) that contradict the conditions of this License, they do not
--excuse you from the conditions of this License.  If you cannot
--distribute so as to satisfy simultaneously your obligations under this
--License and any other pertinent obligations, then as a consequence you
--may not distribute the Program at all.  For example, if a patent
--license would not permit royalty-free redistribution of the Program by
--all those who receive copies directly or indirectly through you, then
--the only way you could satisfy both it and this License would be to
--refrain entirely from distribution of the Program.
--
--If any portion of this section is held invalid or unenforceable under
--any particular circumstance, the balance of the section is intended to
--apply and the section as a whole is intended to apply in other
--circumstances.
--
--It is not the purpose of this section to induce you to infringe any
--patents or other property right claims or to contest validity of any
--such claims; this section has the sole purpose of protecting the
--integrity of the free software distribution system, which is
--implemented by public license practices.  Many people have made
--generous contributions to the wide range of software distributed
--through that system in reliance on consistent application of that
--system; it is up to the author/donor to decide if he or she is willing
--to distribute software through any other system and a licensee cannot
--impose that choice.
--
--This section is intended to make thoroughly clear what is believed to
--be a consequence of the rest of this License.
--
--  8. If the distribution and/or use of the Program is restricted in
--certain countries either by patents or by copyrighted interfaces, the
--original copyright holder who places the Program under this License
--may add an explicit geographical distribution limitation excluding
--those countries, so that distribution is permitted only in or among
--countries not thus excluded.  In such case, this License incorporates
--the limitation as if written in the body of this License.
--
--  9. The Free Software Foundation may publish revised and/or new versions
--of the General Public License from time to time.  Such new versions will
--be similar in spirit to the present version, but may differ in detail to
--address new problems or concerns.
--
--Each version is given a distinguishing version number.  If the Program
--specifies a version number of this License which applies to it and "any
--later version", you have the option of following the terms and conditions
--either of that version or of any later version published by the Free
--Software Foundation.  If the Program does not specify a version number of
--this License, you may choose any version ever published by the Free Software
--Foundation.
--
--  10. If you wish to incorporate parts of the Program into other free
--programs whose distribution conditions are different, write to the author
--to ask for permission.  For software which is copyrighted by the Free
--Software Foundation, write to the Free Software Foundation; we sometimes
--make exceptions for this.  Our decision will be guided by the two goals
--of preserving the free status of all derivatives of our free software and
--of promoting the sharing and reuse of software generally.
--
--                            NO WARRANTY
--
--  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
--FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
--OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
--PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
--OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
--MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
--TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
--PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
--REPAIR OR CORRECTION.
--
--  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
--WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
--REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
--INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
--OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
--TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
--YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
--PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
--POSSIBILITY OF SUCH DAMAGES.
--
--                     END OF TERMS AND CONDITIONS
--
--            How to Apply These Terms to Your New Programs
--
--  If you develop a new program, and you want it to be of the greatest
--possible use to the public, the best way to achieve this is to make it
--free software which everyone can redistribute and change under these terms.
--
--  To do so, attach the following notices to the program.  It is safest
--to attach them to the start of each source file to most effectively
--convey the exclusion of warranty; and each file should have at least
--the "copyright" line and a pointer to where the full notice is found.
--
--    <one line to give the program's name and a brief idea of what it does.>
--    Copyright (C) <year>  <name of author>
--
--    This program is free software; you can redistribute it and/or modify
--    it under the terms of the GNU General Public License as published by
--    the Free Software Foundation; either version 2 of the License, or
--    (at your option) any later version.
--
--    This program is distributed in the hope that it will be useful,
--    but WITHOUT ANY WARRANTY; without even the implied warranty of
--    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--    GNU General Public License for more details.
--
--    You should have received a copy of the GNU General Public License along
--    with this program; if not, write to the Free Software Foundation, Inc.,
--    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
--
--Also add information on how to contact you by electronic and paper mail.
--
--If the program is interactive, make it output a short notice like this
--when it starts in an interactive mode:
--
--    Gnomovision version 69, Copyright (C) year name of author
--    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
--    This is free software, and you are welcome to redistribute it
--    under certain conditions; type `show c' for details.
--
--The hypothetical commands `show w' and `show c' should show the appropriate
--parts of the General Public License.  Of course, the commands you use may
--be called something other than `show w' and `show c'; they could even be
--mouse-clicks or menu items--whatever suits your program.
--
--You should also get your employer (if you work as a programmer) or your
--school, if any, to sign a "copyright disclaimer" for the program, if
--necessary.  Here is a sample; alter the names:
--
--  Yoyodyne, Inc., hereby disclaims all copyright interest in the program
--  `Gnomovision' (which makes passes at compilers) written by James Hacker.
--
--  <signature of Ty Coon>, 1 April 1989
--  Ty Coon, President of Vice
--
--This General Public License does not permit incorporating your program into
--proprietary programs.  If your program is a subroutine library, you may
--consider it more useful to permit linking proprietary applications with the
--library.  If this is what you want to do, use the GNU Lesser General
--Public License instead of this License.
-\ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/Makefile src/Makefile
 --- upstream/Makefile	1970-01-01 00:00:00.000000000 +0000
-+++ src/Makefile	2025-10-20 07:34:48.000000000 +0000
++++ src/Makefile	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,28 @@
 +SOURCES_COMMON = $(wildcard src/*.c)
 +DEPENDS_COMMON = $(wildcard include/*.h)
@@ -218245,9 +217903,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +TARGET_APP = dlms_client
 +TARGET_RPC = dlms_client.so
 +
-+LDFLAGS += -lubus -lubox -lsqlite3 -ltlt_logger -lcfgx -lsqlite3 -ltlt_uci
-+LDFLAGS += -luci -lblobmsg_json -ltlt_termios -lgurux_dlms_c 
-+LDFLAGS_APP = -lpthread 
++LDLIBS += -lubus -lubox -lsqlite3 -ltlt_logger -lcfgx -lsqlite3 -ltlt_uci
++LDLIBS += -luci -lblobmsg_json -ltlt_termios -lgurux_dlms_c -lticket_mutex -latomic
++LDLIBS_APP = -lpthread 
 +
 +CFLAGS += -D_GNU_SOURCE -DCONFIG_MACHINE_$(TLT_PLATFORM_NAME) -Iinclude
 +CFLAGS += -Wall -Wextra -Werror -pedantic -fno-common -ffunction-sections -fdata-sections -Wundef
@@ -218255,13 +217913,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +all: $(TARGET_APP) $(TARGET_RPC)
 +
 +$(TARGET_APP): $(SOURCES_COMMON) $(SOURCES_APP) $(DEPENDS_COMMON)
-+	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $(LDFLAGS_APP) $(SOURCES_COMMON) $(SOURCES_APP)
++	$(CC) $(CFLAGS) -o $@ $(LDFLAGS) $(SOURCES_COMMON) $(SOURCES_APP) $(LDLIBS) $(LDLIBS_APP)
 +
 +$(TARGET_RPC): $(SOURCES_COMMON) $(SOURCES_RPC) $(DEPENDS_COMMON)
-+	$(CC) $(CFLAGS) -fPIC -o $@ $(LDFLAGS) -shared $(SOURCES_COMMON) $(SOURCES_RPC)
++	$(CC) -o $@ -fPIC $(CFLAGS) -shared $(LDFLAGS) $(SOURCES_COMMON) $(SOURCES_RPC) $(LDLIBS)
 +
 +clean:
-+	rm $(TARGET_APP) $(TARGET_RPC)
++	rm -f $(TARGET_APP) $(TARGET_RPC)
 +
 +.PHONY: all, clean
 diff --recursive --unified --new-file --no-dereference --exclude .gitver "upstream/National Instruments/CVI/client/GuruxDLMSClientExample.c" "src/National Instruments/CVI/client/GuruxDLMSClientExample.c"
@@ -225903,7 +225561,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -Before start you need to copy dlms folder under development to source and build foders.
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	2024-01-23 14:13:59.000000000 +0000
-+++ src/README.md	2025-10-20 07:34:48.000000000 +0000
++++ src/README.md	2026-01-23 11:55:51.000000000 +0000
 @@ -1,223 +1,378 @@
 -See An [Gurux](http://www.gurux.org/ "Gurux") for an overview.
 +# DLMS Client
@@ -313902,7 +313560,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#endif //!defined(DLMS_IGNORE_STRING_CONVERTER) && defined(DLMS_IGNORE_MALLOC)
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dlms_client.conf src/files/dlms_client.conf
 --- upstream/files/dlms_client.conf	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/dlms_client.conf	2025-10-20 07:34:48.000000000 +0000
++++ src/files/dlms_client.conf	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,4 @@
 +config main 'main'
 +	option rpc_debug_level '7'
@@ -313910,7 +313568,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	option debug '0'
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dlms_client.init src/files/dlms_client.init
 --- upstream/files/dlms_client.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/dlms_client.init	2025-10-20 07:34:48.000000000 +0000
++++ src/files/dlms_client.init	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,35 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -313949,7 +313607,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dlms_client.json src/files/dlms_client.json
 --- upstream/files/dlms_client.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/dlms_client.json	2025-10-20 07:34:48.000000000 +0000
++++ src/files/dlms_client.json	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,4 @@
 +{
 +	"user": "dlms_client",
@@ -313957,13 +313615,42 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dlms_client.permtab src/files/dlms_client.permtab
 --- upstream/files/dlms_client.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/dlms_client.permtab	2025-10-20 07:34:48.000000000 +0000
++++ src/files/dlms_client.permtab	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/dlms_client dlms_client:dlms_client 660
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/migrations/7.21/01-migrate_obis_option src/files/migrations/7.21/01-migrate_obis_option
+--- upstream/files/migrations/7.21/01-migrate_obis_option	1970-01-01 00:00:00.000000000 +0000
++++ src/files/migrations/7.21/01-migrate_obis_option	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,25 @@
++#!/bin/sh
++
++. /lib/functions.sh
++
++CONFIG=dlms_client
++
++migrate_cosem_obis_option() {
++	local section="$1"
++	local obis
++
++	config_get "obis" "$section" obis
++	if echo "$obis" | grep -qE '^\d+\.\d+\.\d+\.\d+\.\d+\.\d+$'; then
++		uci_set "$CONFIG" "$section" "logical_name" "$obis"
++	elif echo "$obis" | grep -qE '^\d+$'; then
++		uci_set "$CONFIG" "$section" "short_name" "$obis"
++	fi
++	uci_set "$CONFIG" "$section" "obis" ""
++}
++
++config_load "$CONFIG" || exit 0
++config_foreach migrate_cosem_obis_option cosem
++
++uci_commit "dlms_client"
++
++exit 0
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/app.h src/include/app.h
 --- upstream/include/app.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/include/app.h	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,10 @@
++++ src/include/app.h	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,14 @@
 +#pragma once
 +
 +#include "common.h"
@@ -313971,13 +313658,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +extern service *g_service;
 +extern database g_db;
 +
++// main.c
++//////////////////////////////////////////////////////////////////////////////////////////
++bool app_is_shutdown_requested(void);
++
 +// ubus.c
 +//////////////////////////////////////////////////////////////////////////////////////////
 +int service_ubus_object_init(void);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/common.h src/include/common.h
 --- upstream/include/common.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/include/common.h	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,360 @@
++++ src/include/common.h	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,375 @@
 +#pragma once
 +
 +#include <tlt_logger.h>
@@ -313986,6 +313677,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#include <libubus.h>
 +#include <cfgx.h>
 +#include <sqlite3.h>
++#include <libticket_mutex.h>
 +
 +//!< DLMS headers
 +#include <converters.h>
@@ -314021,6 +313713,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#define MAX_COSEM_OBJECTS_COUNT	      20 // each group
 +#define MAX_COSEM_GROUPS_COUNT	      10
 +
++#define ASSERT(condition) if (!(condition)) PANIC("Assertion failed: %s", #condition)
++
 +#define MAX_COSEM_ATTRIBUTES 14
 +
 +#define ERROR_LEN 512
@@ -314030,14 +313724,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +#define UBUS_OBJ_NAME "dlms_client"
 +
++// `shared_memory_block` is intentionally an opaque struct.
++// Use `shared_*` functions to access variables from it.
++typedef struct shared_memory_block shared_memory_block;
++
 +typedef struct {
-+	pthread_mutex_t mutex;
++	int shm_fd;
++	shared_memory_block *shm;
++} shared_memory_ctx;
++
++typedef struct {
++	struct ticket_mutex mutex;
 +	uint32_t ref_count;
 +
 +	bool is_tcp;
 +	union {
 +		// Ignore the fact the `struct sockaddr_in6` type is being used,
-+		// An IPv4 address can still be stored here. This is data is only being used
++		// An IPv4 address can still be stored here. This is data type is only being used
 +		// because it is a larger.
 +		// Please use `tcp.sin6_family` to check whether this is IPv4 or IPv6
 +		struct sockaddr_in6 tcp;
@@ -314073,6 +313776,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	// It has been observed that MeterControl ST310 needs this delay
 +	int disconnect_delay_ms;
 +
++	// Reference `shared` must outlive the connection.
++	// The connection does not own the reference to `shared`.
++	shared_memory_ctx *shared;
++
 +	// Initialized by `com_init()`
 +	gxByteBuffer data;
 +	connection_lock *lock;
@@ -314090,11 +313797,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	dlmsSettings settings;
 +} physical_device;
 +
++typedef uint8_t logical_name_t[6];
++
 +typedef struct {
 +	bool use_logical_name;
 +	union {
 +		uint16_t short_name;
-+		uint8_t logical_name[6];
++		logical_name_t logical_name;
 +	};
 +} obis_code;
 +
@@ -314108,9 +313817,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	/// @note Can be NULL
 +	char *name;
 +	uint32_t entries;
-+
 +	DLMS_OBJECT_TYPE type;
-+	obis_code obis;
++
++	bool has_short_name;
++	uint16_t short_name;
++
++	bool has_logical_name;
++	logical_name_t logical_name;
 +	
 +	physical_device **devices;
 +	size_t device_count;
@@ -314173,15 +313886,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	char error[ERROR_LEN];
 +} association_view_info;
 +
-+// `shared_memory_block` is intentionally an opaque struct.
-+// Use `shared_*` functions to access variables from it.
-+typedef struct shared_memory_block shared_memory_block;
-+
-+typedef struct {
-+	int shm_fd;
-+	shared_memory_block *shm;
-+} shared_memory_ctx;
-+
 +typedef struct {
 +	gxObject *object;
 +	bool use_ln_ref;
@@ -314196,7 +313900,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +// config.c
 +//////////////////////////////////////////////////////////////////////////////////////////
 +
-+service *cfg_get_service_uci(void);
++service *cfg_get_service_uci(shared_memory_ctx *shared);
 +int cfg_read_rpc_main(void);
 +void cfg_free_service(service *m);
 +
@@ -314204,7 +313908,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +/// @param section_id UCI physical device ID
 +/// @retval non-NULL Success
 +/// @retval     NULL Failure
-+physical_device *cfg_read_physical_device_by_id(const char *section_id);
++physical_device *cfg_read_physical_device_by_id(const char *section_id, shared_memory_ctx *shared);
 +
 +/// @brief Initialize a physical device by using a configuration from a blobmsg message. Useful for UBus.
 +/// @note On success, the physical device and the connection that it is using must be freed individually.
@@ -314212,13 +313916,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +/// @param msg Blobmsg message
 +/// @retval non-NULL Success
 +/// @retval     NULL Failure
-+physical_device *cfg_get_physical_device_blobmsg(struct blob_attr *msg);
++physical_device *cfg_get_physical_device_blobmsg(struct blob_attr *msg, shared_memory_ctx *shared);
 +
 +/// @brief Read a cosem group configuration from blobmsg message. Useful for UBus.
 +/// @param msg Blobmsg message
 +/// @retval non-NULL Success
 +/// @retval     NULL Failure
-+service *cfg_get_cosem_group_blobmsg(struct blob_attr *msg);
++service *cfg_get_cosem_group_blobmsg(struct blob_attr *msg, shared_memory_ctx *shared);
 +
 +/// @brief Free connection memory
 +/// @param c Connection
@@ -314284,9 +313988,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +int utl_validate_key(const char *key, size_t len);
 +int utl_get_server_address_from_serial_number(int logical_server_address, long sn);
 +__attribute__((unused)) void utl_debug_service(service *m);
-+int utl_is_logical_name(const char *name);
 +bool utl_attributes_contain(attribute_index_list *list, int attribute);
 +int utl_attributes_index_of(attribute_index_list *list, int attribute);
++void utl_attributes_append(attribute_index_list *list, int attribute);
++void utl_attributes_append_many(attribute_index_list *list, attribute_index_list *appended_list);
 +void utl_parse_attributes(char *attributes, cosem_object *co);
 +void utl_sort_array(int *array, int count);
 +time_t utl_time_monotonic_s(void);
@@ -314295,20 +314000,20 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +void utl_assert_mutex_lock(pthread_mutex_t *mutex);
 +void utl_assert_mutex_unlock(pthread_mutex_t *mutex);
 +
++size_t utl_sockaddr_size(struct sockaddr *addr);
++bool utl_sockaddr_eql(struct sockaddr *addr1, struct sockaddr *addr2);
++
 +// communication.c
 +//////////////////////////////////////////////////////////////////////////////////////////
 +
-+int  com_subsystem_init();
-+void com_subsystem_deinit();
-+
-+int  com_init(connection *conn);
++int com_init(connection *conn, shared_memory_ctx *shared);
 +
 +// This will function will not close connections.
 +// `com_close_connection` needs to be called separately before this function so
 +// that connections are cleanly disconnected
 +void com_deinit(connection *conn);
 +
-+int  com_open_connection(physical_device *dev);
++int com_open_connection(physical_device *dev);
 +void com_close_connection(physical_device *dev, bool keep_socket_open);
 +
 +bool com_is_persistent(connection *c);
@@ -314326,8 +314031,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +void shared_clear_all();
 +
-+int  shared_device_lock(shared_memory_ctx *shared, int device_id);
-+int  shared_device_unlock(shared_memory_ctx *shared, int device_id);
++connection_lock *shared_connection_lock_acquire_tcp(shared_memory_ctx *shared, struct sockaddr *addr);
++connection_lock *shared_connection_lock_acquire_serial(shared_memory_ctx *shared, const char *device);
++void shared_connection_lock_release(shared_memory_ctx *shared, connection_lock *lock);
 +
 +enum scan_status shared_av_get_status(shared_memory_ctx *shared, int device_id);
 +int  shared_av_set_status(shared_memory_ctx *shared, int device_id, enum scan_status status);
@@ -314340,7 +314046,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +int  shared_av_copy_all(shared_memory_ctx *shared, association_view_info *av_infos, size_t *count, size_t capacity);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpc.h src/include/rpc.h
 --- upstream/include/rpc.h	1970-01-01 00:00:00.000000000 +0000
-+++ src/include/rpc.h	2025-10-20 07:34:48.000000000 +0000
++++ src/include/rpc.h	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,22 @@
 +#pragma once
 +
@@ -315720,21 +315426,31 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/app/main.c src/src/app/main.c
 --- upstream/src/app/main.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/app/main.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,160 @@
++++ src/src/app/main.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,210 @@
 +#include "app.h"
 +
 +#include "common.h"
 +#include <signal.h>
++#include <stdatomic.h>
 +
-+service *g_service = NULL;
-+database g_db = { 0 };
++service *g_service	   = NULL;
++database g_db		   = { 0 };
 +shared_memory_ctx g_shared = { 0 };
++
++static pthread_t g_group_threads[MAX_COSEM_GROUPS_COUNT] = { 0 };
++static size_t g_group_thread_count			 = 0;
++static atomic_bool g_shutdown_requested			 = false;
++
++bool app_is_shutdown_requested(void)
++{
++	return atomic_load(&g_shutdown_requested);
++}
 +
 +static void signal_handler(int signum);
 +static void set_signal_actions(void);
-+static void close_all_connections(void);
-+_Noreturn static void *group_thread_routine_cb(void *p);
++static void shutdown_group_threads(void);
++static void *group_thread_routine_cb(void *p);
 +static int initialize_cosem_groups();
 +
 +int main(int argc, char **argv)
@@ -315747,15 +315463,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto err;
 +	}
 +
-+	if (com_subsystem_init()) {
-+		log(L_EMERG, "Failed to initialize communication subsystem");
++	if (shared_init(&g_shared)) {
++		log(L_EMERG, "Failed to initialize shared service state");
 +		goto err;
 +	}
 +
-+	g_service = cfg_get_service_uci();
++	g_service = cfg_get_service_uci(&g_shared);
 +	if (!g_service) {
 +		log(L_EMERG, "Failed to read configuration");
-+		goto err_deinit_com;
++		goto err_deinit_shared;
 +	}
 +
 +	if (service_ubus_object_init()) {
@@ -315765,14 +315481,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	// utl_debug_service(g_service);
 +
-+	if (shared_init(&g_shared)) {
-+		log(L_EMERG, "Failed to initialize shared service state");
-+		goto err_free_service;
-+	}
-+
 +	if (db_init(&g_db)) {
 +		log(L_EMERG, "Failed to create database");
-+		goto err_deinit_shared;
++		goto err_free_service;
 +	}
 +
 +	if (initialize_cosem_groups()) {
@@ -315786,12 +315497,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	rc = 0;
 +err_deinit_db:
 +	db_deinit(&g_db);
-+err_deinit_shared:
-+	shared_deinit(&g_shared);
 +err_free_service:
 +	cfg_free_service(g_service);
-+err_deinit_com:
-+	com_subsystem_deinit();
++err_deinit_shared:
++	shared_deinit(&g_shared);
 +err:
 +	return rc;
 +}
@@ -315800,18 +315509,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +{
 +	service *s = g_service;
 +
-+	static pthread_t threads[MAX_COSEM_GROUPS_COUNT] = { 0 };
-+	for (size_t i = 0; i < s->cosem_group_count; i++) {
-+		if (pthread_create(&threads[i], NULL, group_thread_routine_cb, s->cosem_groups[i])) {
-+			log(L_ERROR, "Failed to initialize COSEM group thread: %s",
-+			    UTL_SAFE_STR(s->cosem_groups[i]->name));
-+			return 1;
-+		}
++	if (s->cosem_group_count == 0) {
++		return 0;
 +	}
 +
++	g_group_thread_count = s->cosem_group_count;
++
 +	for (size_t i = 0; i < s->cosem_group_count; i++) {
-+		if (pthread_detach(threads[i])) {
-+			log(L_ERROR, "Failed to wait for COSEM group thread: %s",
++		if (pthread_create(&g_group_threads[i], NULL, group_thread_routine_cb, s->cosem_groups[i])) {
++			log(L_ERROR, "Failed to initialize COSEM group thread: %s",
 +			    UTL_SAFE_STR(s->cosem_groups[i]->name));
 +			return 1;
 +		}
@@ -315820,59 +315526,109 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return 0;
 +}
 +
-+_Noreturn static void *group_thread_routine_cb(void *p)
++static void thread_cleanup_handler(void *arg)
++{
++	cosem_group *group = (cosem_group *)arg;
++	log(L_DEBUG, "Cleanup handler called for group '%s'", UTL_SAFE_STR(group->name));
++
++	for (size_t i = 0; i < group->cosem_object_count; i++) {
++		cosem_object *obj = group->cosem_objects[i];
++		for (size_t j = 0; j < obj->device_count; j++) {
++			physical_device *dev = obj->devices[j];
++			if (dev && dev->connection) {
++				com_close_connection(dev, false);
++			}
++		}
++	}
++}
++
++static void *group_thread_routine_cb(void *p)
 +{
 +	cosem_group *group = (cosem_group *)p;
 +	time_t t0	   = time(NULL);
-+	time_t tn   = 0;
++	time_t tn	   = 0;
 +
-+	while (1) {
++	pthread_cleanup_push(thread_cleanup_handler, group);
++
++	while (!atomic_load(&g_shutdown_requested)) {
 +		int rc	   = 0;
 +		char *data = cg_read_cosem_group(group, &rc, &g_shared);
 +		if (rc || !data) {
 +			const char *safe_group_name = UTL_SAFE_STR(group->name);
-+			const char *safe_data = UTL_SAFE_STR(data);
-+			ERROR("('%d', '%s') Not writing to the database: %s", group->id, safe_group_name, safe_data);
++			const char *safe_data	    = UTL_SAFE_STR(data);
++			ERROR("('%d', '%s') Not writing to the database: %s", group->id, safe_group_name,
++			      safe_data);
 +			goto end;
 +		}
 +
 +		database_cosem_group database_entry = {
 +			.result = data,
-+			.name = group->name,
-+			.id = group->id
++			.name	= group->name,
++			.id	= group->id,
 +		};
 +		db_write_cosem_group(&g_db, &database_entry);
-+	end:
++end:
 +		free(data);
 +		data = NULL;
++
++		if (atomic_load(&g_shutdown_requested)) {
++			break;
++		}
++
 +		utl_smart_sleep(&t0, &tn, group->interval);
 +	}
++
++	pthread_cleanup_pop(0);
++
++	log(L_INFO, "Thread for group '%s' exiting gracefully", UTL_SAFE_STR(group->name));
++	return NULL;
 +}
 +
-+static void close_all_connections(void)
++static void shutdown_group_threads(void)
 +{
-+	if (!g_service) {
++	if (g_group_thread_count == 0) {
 +		return;
 +	}
 +
-+	for (size_t i = 0; i < g_service->physical_dev_count; i++) {
-+		physical_device *device = g_service->physical_devices[i];
-+		if (!device->connection) {
-+			continue;
-+		}
++	log(L_INFO, "Signaling %zu group threads to shutdown", g_group_thread_count);
++	atomic_store(&g_shutdown_requested, true);
 +
-+		com_close_connection(device, false);
++	for (size_t i = 0; i < g_group_thread_count; i++) {
++		if (g_group_threads[i] != 0) {
++			log(L_DEBUG, "Canceling group thread %zu", i);
++			pthread_cancel(g_group_threads[i]);
++		}
 +	}
++
++	for (size_t i = 0; i < g_group_thread_count; i++) {
++		if (g_group_threads[i] != 0) {
++			log(L_DEBUG, "Waiting for group thread %zu to exit", i);
++			int ret = pthread_join(g_group_threads[i], NULL);
++			if (ret) {
++				log(L_ERROR, "Failed to join group thread %zu: %d", i, ret);
++			} else {
++				log(L_DEBUG, "Group thread %zu exited", i);
++			}
++			g_group_threads[i] = 0;
++		}
++	}
++
++	g_group_thread_count = 0;
++	log(L_INFO, "All group threads have been shut down");
 +}
 +
 +static void signal_handler(int signum)
 +{
-+	log(L_INFO, "Signal received: %d\n", signum);
++	(void)signum;
 +
++	signal(SIGINT, SIG_IGN);
++	signal(SIGTERM, SIG_IGN);
++	signal(SIGQUIT, SIG_IGN);
++
++	shutdown_group_threads();
 +	db_deinit(&g_db);
-+	shared_deinit(&g_shared);
-+	close_all_connections();
 +	cfg_free_service(g_service);
++	shared_deinit(&g_shared);
 +	exit(0);
 +}
 +
@@ -315884,7 +315640,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/app/ubus.c src/src/app/ubus.c
 --- upstream/src/app/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/app/ubus.c	2025-10-20 07:34:48.000000000 +0000
++++ src/src/app/ubus.c	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,74 @@
 +#include "app.h"
 +
@@ -315962,7 +315718,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/attribute_converter.c src/src/attribute_converter.c
 --- upstream/src/attribute_converter.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/attribute_converter.c	2025-10-20 07:34:48.000000000 +0000
++++ src/src/attribute_converter.c	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,2253 @@
 +#include "common.h"
 +
@@ -318219,9 +317975,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/communication.c src/src/communication.c
 --- upstream/src/communication.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/communication.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,1373 @@
++++ src/src/communication.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,1209 @@
 +#include "common.h"
++#include "app.h"
 +
 +/*
 +	Original: https://github.com/Gurux/GuruxDLMS.c/blob/master/GuruxDLMSClientExample/src/communication.c
@@ -318241,6 +317998,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#define IO_TIMEOUT	    3 // timeout in seconds for reading/writing
 +#define RETRY_COUNT	    3
 +#define MODE_E_INIT_MESSAGE "/?!\r\n"
++
++// Thread-local storage for tracking if THIS thread holds the connection mutex.
++// This prevents double-unlock issues and ensures proper cleanup on thread exit.
++static __thread bool tls_connection_mutex_locked = false;
 +
 +typedef enum {
 +	POLL_SUCCESS,
@@ -318277,73 +318038,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +static uint8_t com_is_IPv6_address(const char *host);
 +static int com_init_tcp(connection *conn);
 +static int com_init_serial(connection *conn);
-+
-+// ---------- Connection locks --------- //
-+static void com_lock(connection *c);
-+static void com_unlock(connection *c);
-+static bool com_sockaddr_eql(struct sockaddr *addr1, struct sockaddr *addr2);
-+static size_t com_sockaddr_size(struct sockaddr *addr);
-+static connection_lock *com_connection_lock_acquire_unused();
-+static connection_lock *com_connection_lock_acquire_tcp(struct sockaddr *addr);
-+static connection_lock *com_connection_lock_acquire_serial(const char *device);
-+static void com_connection_lock_release(connection_lock *lock);
-+
-+bool g_connections_initialized = false;
-+pthread_mutex_t g_connections_mutex = PTHREAD_MUTEX_INITIALIZER;
-+connection_lock g_connections_locks[MAX_CONNECTIONS_COUNT] = { 0 };
-+
-+int com_subsystem_init()
-+{
-+	if (g_connections_initialized) {
-+		return 0;
-+	}
-+
-+	int rc = -1;
-+
-+	pthread_mutexattr_t attr = { 0 };
-+	if (pthread_mutexattr_init(&attr)) {
-+		ERROR("Failed to initialize pthread_mutexattr_t");
-+		goto end;
-+	}
-+
-+	if (pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK)) {
-+		ERROR("Failed to update type of pthread_mutexattr_t");
-+		goto end;
-+	}
-+
-+	for (size_t i = 0; i < ARRAY_SIZE(g_connections_locks); i++) {
-+		connection_lock *lock = &g_connections_locks[i];
-+
-+		if (pthread_mutex_init(&lock->mutex, &attr)) {
-+			ERROR("Failed to init pthread_mutex_t");
-+			goto end;
-+		}
-+	}
-+
-+	g_connections_initialized = true;
-+	rc = 0;
-+end:
-+	pthread_mutexattr_destroy(&attr);
-+	return rc;
-+}
-+
-+void com_subsystem_deinit()
-+{
-+	if (!g_connections_initialized) {
-+		return;
-+	}
-+
-+	for (size_t i = 0; i < ARRAY_SIZE(g_connections_locks); i++) {
-+		connection_lock *lock = &g_connections_locks[i];
-+
-+		if (pthread_mutex_destroy(&lock->mutex)) {
-+			ERROR("Failed to destroy pthread_mutex_t");
-+			continue;
-+		}
-+	}
-+
-+	g_connections_initialized = false;
-+}
 +
 +bool com_is_persistent(connection *c)
 +{
@@ -318402,6 +318096,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +static int read_data(connection *c)
 +{
++	if (app_is_shutdown_requested()) {
++		return DLMS_ERROR_CODE_RECEIVE_FAILED;
++	}
++
 +	uint32_t min_read_amount = 256;
 +
 +	uint32_t max_read_amount = c->data.capacity - c->data.size;
@@ -318545,6 +318243,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	int retries = 0;
 +	while (true) {
++		if (app_is_shutdown_requested()) {
++			log(L_DEBUG, "Shutdown requested, aborting communication");
++			ret = DLMS_ERROR_CODE_RECEIVE_FAILED;
++			break;
++		}
++
 +		if (retry_sending_request) {
 +			retry_sending_request = false;
 +			retries++;
@@ -318848,8 +318552,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +int com_open_connection(physical_device *dev)
 +{
 +	int err = DLMS_ERROR_CODE_UNKNOWN;
-+	com_lock(dev->connection);
++	if (ticket_mutex_lock(&dev->connection->lock->mutex)) {
++		log(L_ERROR, "Failed to lock ticket mutex");
++		goto err;
++	}
 +	dev->connection->locked = true;
++	tls_connection_mutex_locked = true;
 +
 +	err = com_open_socket(dev->connection);
 +	if (err != DLMS_ERROR_CODE_OK) {
@@ -318925,8 +318633,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		com_close_socket(dev->connection);
 +	}
 +
-+	if (dev->connection->locked) {
-+		com_unlock(dev->connection);
++	if (dev->connection->locked && tls_connection_mutex_locked) {
++		dev->connection->locked	    = false;
++		tls_connection_mutex_locked = false;
++		if (ticket_mutex_unlock(&dev->connection->lock->mutex)) {
++			ERROR("Failed to unlock connection mutex");
++		}
++	} else if (dev->connection->locked && !tls_connection_mutex_locked) {
++		log(L_WARNING, "Connection marked as locked but this thread doesn't hold the mutex");
 +		dev->connection->locked = false;
 +	}
 +}
@@ -319303,7 +319017,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	//Connect to the meter.
 +	struct sockaddr *addr = (struct sockaddr *)&c->tcp_address;
-+	if (connect(c->socket, addr, com_sockaddr_size(addr)) == -1) {
++	if (connect(c->socket, addr, utl_sockaddr_size(addr)) == -1) {
 +		if (errno == EINPROGRESS && com_check_if_connected_to_server(c->socket)) {
 +			log(L_ERROR, "Failed to connect to server: %s", strerror(errno));
 +			goto err;
@@ -319367,9 +319081,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +// ------------------------------- Connection init/deinit ------------------------------- //
 +
-+int com_init(connection *conn)
++int com_init(connection *conn, shared_memory_ctx *shared)
 +{
 +	bb_init(&conn->data);
++	conn->shared = shared;
 +
 +	if (bb_capacity(&conn->data, 500)) {
 +		ERROR("Failed to allocate byte buffer for connection");
@@ -319399,8 +319114,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	com_close_socket(conn);
 +	bb_clear(&conn->data);
 +
-+	com_connection_lock_release(conn->lock);
++	if (conn->shared != NULL) {
++		shared_connection_lock_release(conn->shared, conn->lock);
++	}
 +	conn->lock = NULL;
++	conn->shared = NULL;
 +}
 +
 +static uint8_t com_is_IPv6_address(const char *host)
@@ -319443,7 +319161,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	}
 +
 +	struct sockaddr *addr = (struct sockaddr *)&conn->tcp_address;
-+	conn->lock = com_connection_lock_acquire_tcp(addr);
++	conn->lock = shared_connection_lock_acquire_tcp(conn->shared, addr);
 +	if (!conn->lock) {
 +		log(L_ERROR, "Failed to acquire connection lock");
 +		goto err;
@@ -319458,7 +319176,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +{
 +	struct libtlt_termios_settings *s = &conn->parameters.serial;
 +
-+	conn->lock = com_connection_lock_acquire_serial(s->device);
++	conn->lock = shared_connection_lock_acquire_serial(conn->shared, s->device);
 +	if (!conn->lock) {
 +		log(L_DEBUG, "Failed to acquire serial lock");
 +		goto err;
@@ -319468,136 +319186,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +err:
 +	return -1;
 +}
-+
-+// ------------------------------- Connections locks ------------------------------- //
-+
-+static size_t com_sockaddr_size(struct sockaddr *addr)
-+{
-+	if (addr->sa_family == AF_INET) {
-+		return sizeof(struct sockaddr_in);
-+	} else if (addr->sa_family == AF_INET6) {
-+		return sizeof(struct sockaddr_in6);
-+	} else {
-+		return 0;
-+	}
-+}
-+
-+static bool com_sockaddr_eql(struct sockaddr *addr1, struct sockaddr *addr2)
-+{
-+	if (addr1->sa_family != addr2->sa_family) {
-+		return false;
-+	}
-+
-+	size_t addr_len = com_sockaddr_size(addr1);
-+	assert(addr_len > 0); // This should never be reached
-+
-+	return memcmp(addr1, addr2, addr_len) == 0;
-+}
-+
-+// BE CAREFUL! This function doesn't lock `g_connections_mutex`.
-+// It is expected that it will be locked by the caller
-+static connection_lock *com_connection_lock_acquire_unused()
-+{
-+	for (size_t i = 0; i < ARRAY_SIZE(g_connections_locks); i++) {
-+		connection_lock *lock = &g_connections_locks[i];
-+		if (lock->ref_count == 0) {
-+			lock->ref_count += 1;
-+			return lock;
-+		}
-+	}
-+
-+	log(L_WARNING, "Failed to find unused connection lock, all locks are in use");
-+	return NULL;
-+}
-+
-+static connection_lock *com_connection_lock_acquire_tcp(struct sockaddr *addr)
-+{
-+	connection_lock *result = NULL;
-+
-+	utl_assert_mutex_lock(&g_connections_mutex);
-+	for (size_t i = 0; i < ARRAY_SIZE(g_connections_locks); i++) {
-+		connection_lock *lock = &g_connections_locks[i];
-+		if (lock->ref_count > 0 && lock->is_tcp && com_sockaddr_eql((struct sockaddr *)&lock->tcp, addr)) {
-+			lock->ref_count += 1;
-+			result = lock;
-+			break;
-+		}
-+	}
-+	utl_assert_mutex_unlock(&g_connections_mutex);
-+
-+	if (result == NULL) {
-+		utl_assert_mutex_lock(&g_connections_mutex);
-+		result = com_connection_lock_acquire_unused();
-+		if (result != NULL) {
-+			result->is_tcp = true;
-+			if (addr->sa_family == AF_INET) {
-+				memcpy(&result->tcp, addr, sizeof(struct sockaddr_in));
-+			} else if (addr->sa_family == AF_INET6) {
-+				memcpy(&result->tcp, addr, sizeof(struct sockaddr_in6));
-+			} else {
-+				assert(false); // This should never be reached
-+			}
-+		}
-+		utl_assert_mutex_unlock(&g_connections_mutex);
-+	}
-+
-+
-+	return result;
-+}
-+
-+static connection_lock *com_connection_lock_acquire_serial(const char *device)
-+{
-+	connection_lock *result = NULL;
-+
-+	utl_assert_mutex_lock(&g_connections_mutex);
-+	for (size_t i = 0; i < ARRAY_SIZE(g_connections_locks); i++) {
-+		connection_lock *lock = &g_connections_locks[i];
-+		if (lock->ref_count > 0 && !lock->is_tcp && !strncmp(lock->serial, device, sizeof(lock->serial))) {
-+			lock->ref_count += 1;
-+			result = lock;
-+			break;
-+		}
-+	}
-+	utl_assert_mutex_unlock(&g_connections_mutex);
-+
-+	if (result == NULL) {
-+		utl_assert_mutex_lock(&g_connections_mutex);
-+		result = com_connection_lock_acquire_unused();
-+		if (result != NULL) {
-+			result->is_tcp = false;
-+			strlcpy(result->serial, device, sizeof(result->serial));
-+		}
-+		utl_assert_mutex_unlock(&g_connections_mutex);
-+	}
-+
-+	return result;
-+}
-+
-+static void com_lock(connection *c)
-+{
-+	utl_assert_mutex_lock(&c->lock->mutex);
-+}
-+
-+static void com_unlock(connection *c)
-+{
-+	utl_assert_mutex_unlock(&c->lock->mutex);
-+}
-+
-+static void com_connection_lock_release(connection_lock *lock)
-+{
-+	if (lock == NULL) {
-+		return;
-+	}
-+
-+	utl_assert_mutex_lock(&g_connections_mutex);
-+	assert(lock->ref_count > 0);
-+	lock->ref_count -= 1;
-+	utl_assert_mutex_unlock(&g_connections_mutex);
-+}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.c src/src/config.c
 --- upstream/src/config.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/config.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,1943 @@
++++ src/src/config.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,1965 @@
 +#include "common.h"
 +#include "cfgx.h"
 +
@@ -319660,12 +319252,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	int id; // nosemgrep
 +	char *name; // nosemgrep
 +	int enabled; // nosemgrep
-+	char *obis; // nosemgrep
 +	int cosem_id; // nosemgrep
 +	int entries; // nosemgrep
 +	struct cfgx_string_list physical_devices; // nosemgrep
 +	int cosem_group; // nosemgrep
 +	char *attributes; // nosemgrep
++
++	bool has_logical_name; // nosemgrep
++	logical_name_t logical_name; // nosemgrep
++
++	bool has_short_name; // nosemgrep
++	uint16_t short_name; // nosemgrep
 +} cosem_object_cfg;
 +
 +typedef struct {
@@ -319681,7 +319278,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +} dlms_cfg;
 +
 +static dlms_cfg *cfg_read_dlms_cfg(cfgx_context_t *ctx);
-+static service *cfg_read_service(dlms_cfg *cfg);
++static service *cfg_read_service(dlms_cfg *cfg, shared_memory_ctx *shared);
 +
 +static connection_params_cfg *cfg_read_connection(cfgx_context_t *ctx, struct cfgx_section *section);
 +static physical_device_cfg *cfg_read_physical_device(cfgx_context_t *ctx, struct cfgx_section *section);
@@ -319693,8 +319290,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +static cosem_object_cfg **cfg_read_cosem_objects(cfgx_context_t *ctx, size_t *result_count);
 +static cosem_group_cfg **cfg_read_cosem_groups(cfgx_context_t *ctx, size_t *result_count);
 +
-+static connection **cfg_get_connections(dlms_cfg *cfg, size_t *connection_count);
-+static connection *cfg_get_connection(connection_params_cfg *cfg);
++static connection **cfg_get_connections(dlms_cfg *cfg, size_t *connection_count, shared_memory_ctx *shared);
++static connection *cfg_get_connection(connection_params_cfg *cfg, shared_memory_ctx *shared);
 +static physical_device **cfg_get_physical_devices(dlms_cfg *cfg, connection **connections, size_t connection_count, size_t *physical_dev_count);
 +static physical_device *cfg_get_physical_device(physical_device_cfg *cfg);
 +static cosem_object **cfg_get_cosem_objects(dlms_cfg *cfg, physical_device **physical_devices, size_t physical_dev_count, size_t *cosem_object_count);
@@ -319730,7 +319327,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +/// @return Configuration section
 +static struct cfgx_section *cfg_append_physical_device_blobmsg(cfgx_context_t *ctx, struct blob_buf *buf, struct blob_attr *msg, int connection_id);
 +
-+service *cfg_get_service_uci(void)
++service *cfg_get_service_uci(shared_memory_ctx *shared)
 +{
 +	dlms_cfg *cfg  = NULL;
 +	service *s      = NULL;
@@ -319751,7 +319348,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	SEPARATOR;
 +	log(L_INFO, "Configuration read successfully, transfering data to main struct");
 +
-+	s = cfg_read_service(cfg);
++	s = cfg_read_service(cfg, shared);
 +	if (!s) {
 +		log(L_ERROR, "Failed to initiate main struct");
 +		goto end;
@@ -320035,7 +319632,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return result;
 +}
 +
-+physical_device *cfg_get_physical_device_blobmsg(struct blob_attr *msg)
++physical_device *cfg_get_physical_device_blobmsg(struct blob_attr *msg, shared_memory_ctx *shared)
 +{
 +	enum {
 +		DEVICE,
@@ -320094,7 +319691,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			goto end;
 +		}
 +
-+		connection = cfg_get_connection(connection_cfg);
++		connection = cfg_get_connection(connection_cfg, shared);
 +		if (!connection) {
 +			ERROR("Failed to initialize connection");
 +			goto end;
@@ -320162,7 +319759,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return result;
 +}
 +
-+service *cfg_get_cosem_group_blobmsg(struct blob_attr *msg)
++service *cfg_get_cosem_group_blobmsg(struct blob_attr *msg, shared_memory_ctx *shared)
 +{
 +	enum {
 +		OBJECTS,
@@ -320298,7 +319895,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	SEPARATOR;
 +	log(L_INFO, "Configuration read successfully, transfering data to main struct");
 +
-+	s = cfg_read_service(cfg);
++	s = cfg_read_service(cfg, shared);
 +	if (!s) {
 +		log(L_ERROR, "Failed to initiate main struct");
 +		goto end;
@@ -320322,7 +319919,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return result;
 +}
 +
-+physical_device *cfg_read_physical_device_by_id(const char *section_id)
++physical_device *cfg_read_physical_device_by_id(const char *section_id, shared_memory_ctx *shared)
 +{
 +	physical_device_cfg *dev_cfg = NULL;
 +	physical_device *dev = NULL;
@@ -320374,7 +319971,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto end;
 +	}
 +
-+	con = cfg_get_connection(con_cfg);
++	con = cfg_get_connection(con_cfg, shared);
 +	if (!con) {
 +		log(L_ERROR, "Failed to get connection");
 +		goto end;
@@ -320892,14 +320489,36 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto err;
 +	}
 +
-+	cosem->obis = cfgx_section_get_string(ctx, section, "obis");
-+	if (!cosem->obis) {
-+		log(L_ERROR, "Option 'OBIS' can not be empty");
++	char *logical_name = cfgx_section_get_string(ctx, section, "logical_name");
++	if (logical_name != NULL) {
++		int parse_error = hlp_setLogicalName(cosem->logical_name, logical_name);
++		free(logical_name);
++
++		if (parse_error != DLMS_ERROR_CODE_OK) {
++			log(L_ERROR, "Failed to parse option 'logical_name'");
++			goto err;
++		}
++		cosem->has_logical_name = true;
++	}
++
++	int64_t short_name = cfgx_section_get_i64(ctx, section, "short_name", 0, UINT16_MAX, -1);
++	if (short_name != -1) {
++		cosem->short_name = short_name;
++		cosem->has_short_name = true;
++	}
++
++	if (!cosem->has_short_name && !cosem->has_logical_name) {
++		log(L_ERROR, "Option 'logical_name' or 'short_name' must be defined");
 +		goto err;
 +	}
 +
 +	cosem->cosem_id = cfgx_section_get_i64(ctx, section, "cosem_id", 0, 72, -1);
 +	if (cosem->cosem_id == -1) {
++		log(L_ERROR, "Option 'cosem_id' is not supported");
++		goto err;
++	}
++
++	if (cosem_getObjectSize(cosem->cosem_id) == 0) {
 +		log(L_ERROR, "Option 'cosem_id' is not supported");
 +		goto err;
 +	}
@@ -320978,7 +320597,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return NULL;
 +}
 +
-+static service *cfg_read_service(dlms_cfg *cfg)
++static service *cfg_read_service(dlms_cfg *cfg, shared_memory_ctx *shared)
 +{
 +	service *s		  = NULL;
 +	size_t connection_count	  = 0;
@@ -320992,7 +320611,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return NULL;
 +	}
 +
-+	connection **connections = cfg_get_connections(cfg, &connection_count);
++	connection **connections = cfg_get_connections(cfg, &connection_count, shared);
 +	if (!connections) {
 +		log(L_ERROR, "Failed to transfer connections from dlms_cfg to main");
 +		return NULL;
@@ -321025,7 +320644,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return s;
 +}
 +
-+static connection **cfg_get_connections(dlms_cfg *cfg, size_t *connection_count)
++static connection **cfg_get_connections(dlms_cfg *cfg, size_t *connection_count, shared_memory_ctx *shared)
 +{
 +	connection **connections = calloc(cfg->connection_cfg_count, sizeof(connection *));
 +	if (!connections) {
@@ -321034,7 +320653,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	}
 +
 +	for (size_t i = 0; i < cfg->connection_cfg_count; i++) {
-+		connection *conn = cfg_get_connection(cfg->connections[i]);
++		connection *conn = cfg_get_connection(cfg->connections[i], shared);
 +		if (conn) {
 +			connections[(*connection_count)++] = conn;
 +		}
@@ -321048,7 +320667,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return connections;
 +}
 +
-+static connection *cfg_get_connection(connection_params_cfg *cfg)
++static connection *cfg_get_connection(connection_params_cfg *cfg, shared_memory_ctx *shared)
 +{
 +	connection *conn = calloc(1, sizeof(connection));
 +	if (!conn) {
@@ -321056,7 +320675,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return NULL;
 +	}
 +
-+	conn->type    = cfg->type;
++	conn->type    = (int)cfg->type;
 +	conn->id      = cfg->id;
 +	conn->name    = strdup(UTL_SAFE_STR(cfg->name));
 +	if (!conn->name) {
@@ -321085,7 +320704,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	conn->inter_request_delay_ms = cfg->inter_request_delay_ms;
 +	conn->disconnect_delay_ms = cfg->disconnect_delay_ms;
 +
-+	if (com_init(conn)) {
++	if (com_init(conn, shared)) {
 +		ERROR("Failed to allocate byte buffer for connection");
 +		goto err;
 +	}
@@ -321264,20 +320883,16 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto err;
 +	}
 +
-+	if (utl_is_logical_name(cfg->obis)) {
-+		obj->obis.use_logical_name = true;
-+		if (hlp_setLogicalName(obj->obis.logical_name, cfg->obis) != DLMS_ERROR_CODE_OK) {
-+			ERROR("Failed to parse logical name: '%s'", cfg->obis);
-+			goto err;
-+		}
-+	} else {
-+		obj->obis.use_logical_name = false;
-+		errno = 0;
-+		obj->obis.short_name = strtol(cfg->obis, NULL, 10);
-+		if (errno != 0) {
-+			ERROR("Failed to parse short name: '%s'", cfg->obis);
-+			goto err;
-+		}
++	if (cfg->has_logical_name) {
++		obj->has_logical_name = true;
++
++		ASSERT(sizeof(obj->logical_name) == sizeof(cfg->logical_name));
++		memcpy(obj->logical_name, cfg->logical_name, sizeof(obj->logical_name));
++	}
++
++	if (cfg->has_short_name) {
++		obj->has_short_name = true;
++		obj->short_name = cfg->short_name;
 +	}
 +
 +	utl_parse_attributes(cfg->attributes, obj);
@@ -321445,7 +321060,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	free(o->name);
 +	free(o->attributes);
 +	cfgx_string_list_free(o->physical_devices);
-+	free(o->obis);
 +	free(o);
 +}
 +
@@ -321543,8 +321157,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cosem_group.c src/src/cosem_group.c
 --- upstream/src/cosem_group.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/cosem_group.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,474 @@
++++ src/src/cosem_group.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,500 @@
 +#include "common.h"
 +#include <sys/param.h>
 +
@@ -321557,7 +321171,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +static void cg_shutdown_connection(physical_device *dev);
 +
 +typedef struct {
-+	gxObject *object;
++	gxObjectStorage object_storage;
 +	uint32_t profile_entries;
 +	attribute_index_list attributes;
 +
@@ -321624,7 +321238,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +) {
 +	for (size_t i = 0; i < device_request->object_count; i++) {
 +		cg_object_request *object_request = &device_request->objects[i];
-+		gxObject *object = object_request->object;
++		gxObject *object = (gxObject*)object_request->object_storage;
 +
 +		if (object->objectType != type) {
 +			continue;
@@ -321665,35 +321279,21 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	object_request = &device_request->objects[device_request->object_count++];
 +	*object_request = (cg_object_request){ 0 };
 +
-+	if (cosem_createObject(type, &object_request->object)) {
-+		log(L_ERROR, "Failed to initialize cosem object with type: %d", type);
++	gxObject *object = (gxObject*)object_request->object_storage;
++	logical_name_t logical_name_stub = { 0 };
++	if (cosem_init2(object, type, logical_name_stub)) {
++		ERROR("Failed to initialize logical cosem object\n");
 +		return NULL;
 +	}
++
 +	if (obis.use_logical_name) {
-+		if (cosem_init2(object_request->object, type, obis.logical_name)) {
-+			ERROR("Failed to initialize logical cosem object\n");
-+			return NULL;
-+		}
++		ASSERT(sizeof(object->logicalName) == sizeof(obis.logical_name));
++		memcpy(object->logicalName, obis.logical_name, sizeof(object->logicalName));
 +	} else {
-+		object_request->object->shortName = obis.short_name;
++		object->shortName = obis.short_name;
 +	}
 +
 +	return object_request;
-+}
-+
-+static void cg_add_attribute_request(cg_object_request *request, int attribute)
-+{
-+	if (!utl_attributes_contain(&request->attributes, attribute)) {
-+		assert(request->attributes.count < ARRAY_SIZE(request->attributes.items));
-+		request->attributes.items[request->attributes.count++] = attribute;
-+	}
-+}
-+
-+static void cg_add_attribute_requests(cg_object_request *request, attribute_index_list *attributes)
-+{
-+	for (size_t i = 0; i < attributes->count; i++) {
-+		cg_add_attribute_request(request, attributes->items[i]);
-+	}
 +}
 +
 +static void cg_free_device_requests(cg_device_request_list *device_requests)
@@ -321708,8 +321308,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +		for (size_t j = 0; j < device_request->object_count; j++) {
 +			cg_object_request *object_request = &device_request->objects[j];
-+			obj_clear(object_request->object);
-+			free(object_request->object);
++			gxObject *object = (gxObject*)object_request->object_storage;
++			obj_clear(object);
 +		}
 +
 +		free(device_request->objects);
@@ -321733,10 +321333,29 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				continue;
 +			}
 +
++			obis_code obis = { 0 };
++			if (dev->settings.useLogicalNameReferencing) {
++				if (!cosem_object->has_logical_name) {
++					// Error will be reported in `cg_format_cosem_value`
++					continue;
++				}
++
++				obis.use_logical_name = true;
++				memcpy(obis.logical_name, cosem_object->logical_name, sizeof(obis.logical_name));
++			} else {
++				if (!cosem_object->has_short_name) {
++					// Error will be reported in `cg_format_cosem_value`
++					continue;
++				}
++
++				obis.use_logical_name = false;
++				obis.short_name = cosem_object->short_name;
++			}
++
 +			cg_object_request *object_request = cg_get_or_add_object_request(
 +				device_request,
 +				cosem_object->type,
-+				cosem_object->obis
++				obis
 +			);
 +			if (object_request == NULL) {
 +				ERROR("Failed to get or add an object request");
@@ -321749,12 +321368,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				cosem_object->type == DLMS_OBJECT_TYPE_PROFILE_GENERIC &&
 +				utl_attributes_contain(&cosem_object->attributes, BUFFER_ATTRIBUTE_INDEX)
 +			) {
-+				cg_add_attribute_request(object_request, CAPTURE_OBJECTS_ATTRIBUTE_INDEX);
-+				cg_add_attribute_request(object_request, ENTRIES_IN_USE_ATTRIBUTE_INDEX);
++				utl_attributes_append(&object_request->attributes, CAPTURE_OBJECTS_ATTRIBUTE_INDEX);
++				utl_attributes_append(&object_request->attributes, ENTRIES_IN_USE_ATTRIBUTE_INDEX);
 +				object_request->profile_entries = MAX(object_request->profile_entries, cosem_object->entries);
 +			}
 +
-+			cg_add_attribute_requests(object_request, &cosem_object->attributes);
++			utl_attributes_append_many(&object_request->attributes, &cosem_object->attributes);
 +		}
 +	}
 +}
@@ -321762,7 +321381,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +static int cg_read_object(cg_object_request *request, physical_device *dev)
 +{
 +	int err = DLMS_ERROR_CODE_UNKNOWN;
-+	gxObject *object = request->object;
++	gxObject *object = (gxObject*)request->object_storage;
 +	bool read_profile_generic_data = false;
 +
 +	gxByteBuffer attributes = { 0 };
@@ -321907,10 +321526,29 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			goto loop_end;
 +		}
 +
++		obis_code obis = { 0 };
++		if (dev->settings.useLogicalNameReferencing) {
++			if (!cosem_object->has_logical_name) {
++				utl_add_error_message(&data, dev->name, -1, "Missing logical name");
++				continue;
++			}
++
++			obis.use_logical_name = true;
++			memcpy(obis.logical_name, cosem_object->logical_name, sizeof(obis.logical_name));
++		} else {
++			if (!cosem_object->has_short_name) {
++				utl_add_error_message(&data, dev->name, -1, "Missing short name");
++				continue;
++			}
++
++			obis.use_logical_name = false;
++			obis.short_name = cosem_object->short_name;
++		}
++
 +		cg_object_request *object_request = cg_get_object_request(
 +			device_request,
 +			cosem_object->type,
-+			cosem_object->obis
++			obis
 +		);
 +		if (!object_request) {
 +			continue;
@@ -321922,10 +321560,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			goto loop_end;
 +		}
 +
++		gxObject *object = (gxObject*)object_request->object_storage;
++
 +		attr_ctx ctx = { 0 };
 +		attr_init(
 +			&ctx,
-+			object_request->object,
++			object,
 +			dev->settings.useLogicalNameReferencing,
 +			cosem_object->entries
 +		);
@@ -322021,7 +321661,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/db.c src/src/db.c
 --- upstream/src/db.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/db.c	2025-10-20 07:34:48.000000000 +0000
++++ src/src/db.c	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,441 @@
 +#include "common.h"
 +
@@ -322466,8 +322106,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/rpc/rpc.c src/src/rpc/rpc.c
 --- upstream/src/rpc/rpc.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/rpc/rpc.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,23 @@
++++ src/src/rpc/rpc.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,18 @@
 +#include "rpc.h"
 +
 +#include <rpcd/plugin.h>
@@ -322484,16 +322124,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +{
 +	dlms_log_set_enabled(false);
 +
-+	if (com_subsystem_init()) {
-+		ERROR("Failed to initialize communication subsystem");
-+		return NULL;
-+	}
-+
 +	return rpc_ubus_initiate();
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/rpc/ubus.c src/src/rpc/ubus.c
 --- upstream/src/rpc/ubus.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/rpc/ubus.c	2025-10-20 07:34:48.000000000 +0000
++++ src/src/rpc/ubus.c	2026-01-23 11:55:51.000000000 +0000
 @@ -0,0 +1,167 @@
 +#include "common.h"
 +#include "rpc.h"
@@ -322589,7 +322224,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto end;
 +	}
 +
-+	device = cfg_get_physical_device_blobmsg(msg);
++	device = cfg_get_physical_device_blobmsg(msg, &shared);
 +	if (!device) {
 +		add_result(result, "Failed to parse arguments");
 +		goto end;
@@ -322639,7 +322274,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto end;
 +	}
 +
-+	service = cfg_get_cosem_group_blobmsg(msg);
++	service = cfg_get_cosem_group_blobmsg(msg, &shared);
 +	if (!service) {
 +		result = "Failed to parse COSEM group parameters.";
 +		goto end;
@@ -322664,8 +322299,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/rpc/ubus_scan.c src/src/rpc/ubus_scan.c
 --- upstream/src/rpc/ubus_scan.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/rpc/ubus_scan.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,374 @@
++++ src/src/rpc/ubus_scan.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,367 @@
 +#include "rpc.h"
 +
 +static void scan_process(shared_memory_ctx *shared, physical_device *device);
@@ -322759,17 +322394,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	DEBUG("Physical device id: %d", device_id);
 +
-+	char device_id_str[256] = { 0 };
-+	snprintf(device_id_str, sizeof(device_id_str), "%d", device_id);
-+	device = cfg_read_physical_device_by_id(device_id_str);
-+	if (!device) {
-+		ERROR("Failed to read device settings");
-+		error_msg = "Physical device not found";
++	if (shared_init(&shared)) {
++		error_msg = "Failed to open shared service state";
 +		goto end;
 +	}
 +
-+	if (shared_init(&shared)) {
-+		error_msg = "Failed to open shared service state";
++	char device_id_str[256] = { 0 };
++	snprintf(device_id_str, sizeof(device_id_str), "%d", device_id);
++	device = cfg_read_physical_device_by_id(device_id_str, &shared);
++	if (!device) {
++		ERROR("Failed to read device settings");
++		error_msg = "Physical device not found";
 +		goto end;
 +	}
 +
@@ -322884,11 +322519,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		goto end;
 +	}
 +
-+	if (shared_device_lock(shared, device_id)) {
-+		ERROR("Failed to lock physical device mutex");
-+		goto end;
-+	}
-+
 +	dlmsSettings *s = &dev->settings;
 +
 +	for (int pos = 0; pos != m->size; ++pos) {
@@ -322899,7 +322529,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		ret = com_send_and_read_dlms_packet(dev, m->data[pos], reply);
 +		if (ret != DLMS_ERROR_CODE_OK) {
 +			ERROR("Failed to send_and_read_dlms_packet: %s", hlp_getErrorMessage(ret));
-+			goto end_unlock;
++			goto end;
 +		}
 +
 +		while (reply_isMoreData(reply)) {
@@ -322910,13 +322540,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			ret = cl_receiverReady(s, reply->moreData, &rr);
 +			if (ret != DLMS_ERROR_CODE_OK) {
 +				ERROR("Failed to cl_receiverReady: %s", hlp_getErrorMessage(ret));
-+				goto end_unlock;
++				goto end;
 +			}
 +
 +			ret = com_send_and_read_dlms_packet(dev, &rr, reply);
 +			if (ret != DLMS_ERROR_CODE_OK) {
 +				ERROR("[while] Failed to send_and_read_dlms_packet: %s", hlp_getErrorMessage(ret));
-+				goto end_unlock;
++				goto end;
 +			}
 +
 +			shared_av_bump_progress(shared, device_id);
@@ -322925,8 +322555,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	}
 +
 +	ret = 0;
-+end_unlock:
-+	shared_device_unlock(shared, device_id);
 +end:
 +	bb_clear(&rr);
 +	return ret;
@@ -323042,9 +322670,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/shared_memory.c src/src/shared_memory.c
 --- upstream/src/shared_memory.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/shared_memory.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,573 @@
++++ src/src/shared_memory.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,515 @@
 +#include "common.h"
++
++#include <sys/mman.h>
++#include <fcntl.h>
++#include <sys/file.h>
 +
 +// When adding new public function to `shared_` namespace, make sure to use `utl_assert_mutex_lock` in
 +// every function. Private/internal can omit the mutex lock if all places that call that function already
@@ -323055,7 +322687,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	int id;
 +
 +	// Will be locked while that device is being used
-+	pthread_mutex_t mutex;
++	struct ticket_mutex mutex;
 +} shared_physical_device_mutex;
 +
 +typedef struct {
@@ -323065,30 +322697,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	association_view_info info;
 +} shared_association_view;
 +
-+// If you are adding mutexes ANYWHERE inside this struct, check `shared_device_mutex_fix_consistency` to see
-+// if you need additional logic for recovering from a crash.
 +typedef struct shared_memory_block {
 +	bool initialized;
 +
-+	// Will be locked whenever anything in `device_mutexes` or `scanning_devices` is being modified/read
++	// Will be locked whenever anything in `association_views` or `connections_locks` is being modified/read
 +	pthread_mutex_t global_mutex;
-+
-+	shared_physical_device_mutex device_mutexes[MAX_PHYSICAL_DEVICES_COUNT];
 +
 +	// When directly accessing entry from `association_views`, the function `shared_av_check_errors` must
 +	// be called on the gotten association view.
 +	shared_association_view association_views[MAX_PHYSICAL_DEVICES_COUNT];
 +	size_t association_views_len;
-+} shared_memory_block;
 +
-+#include <sys/mman.h>
-+#include <fcntl.h>
-+#include <sys/file.h>
++	connection_lock connections_locks[MAX_CONNECTIONS_COUNT];
++} shared_memory_block;
 +
 +#define SHM_NAME "/dlms_shared_state"
 +
 +static int shared_shm_init(shared_memory_block *shm);
-+static shared_physical_device_mutex *shared_device_mutex_get(shared_memory_ctx *shared, int device_id);
 +static void shared_av_set_error(shared_association_view *av, const char *error);
 +
 +int shared_init(shared_memory_ctx *shared)
@@ -323157,41 +322782,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	memset(shm, 0, sizeof(*shm));
 +	int rc = -1;
 +
-+	pthread_mutexattr_t mutexattr = { 0 };
-+	if (pthread_mutexattr_init(&mutexattr)) {
-+		ERROR("Failed to initialize pthread_mutexattr_t");
-+		goto end;
-+	}
++	for (size_t i = 0; i < ARRAY_SIZE(shm->connections_locks); i++) {
++		connection_lock *lock = &shm->connections_locks[i];
++		memset(lock, 0, sizeof(*lock));
 +
-+	if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED)) {
-+		ERROR("Failed to update process shared of pthread_mutexattr_t");
-+		goto end_destroy_mutexattr;
-+	}
-+
-+	if (pthread_mutexattr_setrobust(&mutexattr, PTHREAD_MUTEX_ROBUST)) {
-+		ERROR("Failed to set robust on pthread_mutexattr_t");
-+		goto end_destroy_mutexattr;
-+	}
-+
-+	if (pthread_mutex_init(&shm->global_mutex, &mutexattr)) {
-+		ERROR("Failed to update process shared of pthread_rwlockattr_t");
-+		goto end_destroy_mutexattr;
-+	}
-+
-+	for (size_t i = 0; i < ARRAY_SIZE(shm->device_mutexes); i++) {
-+		shared_physical_device_mutex *shared_device_mutex = &shm->device_mutexes[i];
-+
-+		if (pthread_mutex_init(&shared_device_mutex->mutex, &mutexattr)) {
-+			ERROR("Failed to initialize physical device mutex");
-+			goto end_destroy_mutexattr;
++		struct ticket_mutex_options options = {
++			.process_shared = true,
++			.robust = true
++		};
++		if (ticket_mutex_init(&lock->mutex, options)) {
++			ERROR("Failed to initialize connection mutex");
++			goto end;
 +		}
 +	}
 +
 +	shm->initialized = true;
 +
 +	rc = 0;
-+end_destroy_mutexattr:
-+	pthread_mutexattr_destroy(&mutexattr);
 +end:
 +	return rc;
 +}
@@ -323201,79 +322808,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	shm_unlink(SHM_NAME);
 +}
 +
-+static void shared_device_mutex_fix_consistency(shared_physical_device_mutex *shared_device_mutex)
-+{
-+	WARN("Detected that a process crashed while device mutex was locked! Recovering.");
-+
-+	// At the moment nothing needs to be done to recover from a crashed process.
-+	//
-+	// Usually if you were writing something to shared memory while mutex is locked, then you would
-+	// need to do something. To recover from partial writes.
-+	//
-+	// Imagine having a `memcpy` in a locked section, if the process crashes in the middle of that `memcpy`
-+	// it is not guarenteed that all of the bytes have been finished being copied into shared memory.
-+	// In such a situation you would probably want to clear that buffer where `memcpy` was writing to,
-+	// just be sure you aren't in some "half-complete" state.
-+
-+	pthread_mutex_consistent(&shared_device_mutex->mutex);
-+}
-+
-+static shared_physical_device_mutex *shared_device_mutex_get(shared_memory_ctx *shared, int device_id)
-+{
-+	for (size_t i = 0; i < ARRAY_SIZE(shared->shm->device_mutexes); i++) {
-+		shared_physical_device_mutex *shared_device_mutex = &shared->shm->device_mutexes[i];
-+
-+		if (shared_device_mutex->id == device_id) {
-+			return shared_device_mutex;
-+		}
-+	}
-+	
-+	return NULL;
-+}
-+
-+static shared_physical_device_mutex *shared_device_mutex_get_or_create(shared_memory_ctx *shared, int device_id)
-+{
-+	// Check if mutex for this device has already been allocated, ...
-+	shared_physical_device_mutex *shared_device_mutex = shared_device_mutex_get(shared, device_id);
-+	if (shared_device_mutex) {
-+		return shared_device_mutex;
-+	}
-+	
-+	// ..., if a device mutex hasn't been allocated find a device mutex which isin't in use, ...
-+	for (size_t i = 0; i < ARRAY_SIZE(shared->shm->device_mutexes); i++) {
-+		shared_physical_device_mutex *shared_device_mutex = &shared->shm->device_mutexes[i];
-+
-+		if (shared_device_mutex->id != 0) {
-+			int lock_err = pthread_mutex_trylock(&shared_device_mutex->mutex);
-+			if (lock_err == EOWNERDEAD) {
-+				shared_device_mutex_fix_consistency(shared_device_mutex);
-+				lock_err = 0;
-+			} else if (lock_err) {
-+				continue;
-+			}
-+
-+			// This `pthread_mutex_unlock` will never fail.
-+			// Mutex is locked and mutex handle is valid.
-+			pthread_mutex_unlock(&shared_device_mutex->mutex);
-+
-+			shared_device_mutex->id = device_id;
-+			return shared_device_mutex;
-+		}
-+	}
-+
-+	// ..., the final thing to try is to find a device mutex slot which hasn't been allocated to any device.
-+	for (size_t i = 0; i < ARRAY_SIZE(shared->shm->device_mutexes); i++) {
-+		shared_physical_device_mutex *shared_device_mutex = &shared->shm->device_mutexes[i];
-+
-+		if (shared_device_mutex->id == 0) {
-+			shared_device_mutex->id = device_id;
-+			return shared_device_mutex;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
 +void shared_deinit(shared_memory_ctx *shared)
 +{
 +	munmap(shared->shm, sizeof(shared_memory_block));
@@ -323281,63 +322815,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	close(shared->shm_fd);
 +	shared->shm_fd = -1;
-+}
-+
-+int shared_device_lock(shared_memory_ctx *shared, int device_id)
-+{
-+	int rc = -1;
-+
-+	utl_assert_mutex_lock(&shared->shm->global_mutex);
-+
-+	shared_physical_device_mutex *shared_device_mutex = shared_device_mutex_get_or_create(shared, device_id);
-+	if (!shared_device_mutex) {
-+		ERROR("Mutex for physical device '%d' not found", device_id);
-+		goto end;
-+	}
-+
-+	rc = pthread_mutex_lock(&shared_device_mutex->mutex);
-+	if (rc == EOWNERDEAD) {
-+		shared_device_mutex_fix_consistency(shared_device_mutex);
-+		rc = 0;
-+
-+	} else if (rc) {
-+		ERROR("Failed to lock mutex for device '%d'", device_id);
-+		goto end;
-+	}
-+
-+	rc = 0;
-+end:
-+	utl_assert_mutex_unlock(&shared->shm->global_mutex);
-+	return rc;
-+}
-+
-+int shared_device_unlock(shared_memory_ctx *shared, int device_id)
-+{
-+	int rc = -1;
-+
-+	// Intentionally don't call `utl_assert_mutex_lock` in this function.
-+	// Because it could cause a deadlock.
-+	//
-+	// The deadlock can occur by a process waiting for a lock in `shared_physical_device_lock`, but
-+	// the process which owns the locked won't be able to unlock it. Because it wold become stuck on 
-+	// `utl_assert_mutex_lock`
-+
-+	shared_physical_device_mutex *shared_device_mutex = shared_device_mutex_get(shared, device_id);
-+	if (!shared_device_mutex) {
-+		ERROR("Mutex for physical device '%d' not found", device_id);
-+		goto end;
-+	}
-+
-+	if (pthread_mutex_unlock(&shared_device_mutex->mutex)) {
-+		ERROR("Failed to unlock mutex for device '%d'", device_id);
-+		goto end;
-+	}
-+
-+	// Quick solution for device contention, related issue #24532
-+	usleep(5000); // 5ms
-+
-+end:
-+	return rc;
 +}
 +
 +static void shared_av_init(shared_association_view *av, int device_id)
@@ -323617,13 +323094,116 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	utl_assert_mutex_unlock(&shared->shm->global_mutex);
 +	return rc;
 +}
++
++// ------------------------------- Connections locks ------------------------------- //
++
++// BE CAREFUL! This function doesn't lock `shared->shm->global_mutex`.
++// It is expected that it will be locked by the caller
++static connection_lock *shared_connection_lock_acquire_unused(shared_memory_ctx *shared)
++{
++	for (size_t i = 0; i < ARRAY_SIZE(shared->shm->connections_locks); i++) {
++		connection_lock *lock = &shared->shm->connections_locks[i];
++		if (lock->ref_count == 0) {
++			lock->ref_count += 1;
++			return lock;
++		}
++	}
++
++	log(L_WARNING, "Failed to find unused connection lock, all locks are in use");
++	return NULL;
++}
++
++connection_lock *shared_connection_lock_acquire_tcp(shared_memory_ctx *shared, struct sockaddr *addr)
++{
++	connection_lock *result = NULL;
++
++	utl_assert_mutex_lock(&shared->shm->global_mutex);
++	for (size_t i = 0; i < ARRAY_SIZE(shared->shm->connections_locks); i++) {
++		connection_lock *lock = &shared->shm->connections_locks[i];
++		if (lock->ref_count > 0 && lock->is_tcp && utl_sockaddr_eql((struct sockaddr *)&lock->tcp, addr)) {
++			lock->ref_count += 1;
++			result = lock;
++			break;
++		}
++	}
++	utl_assert_mutex_unlock(&shared->shm->global_mutex);
++
++	if (result == NULL) {
++		utl_assert_mutex_lock(&shared->shm->global_mutex);
++		result = shared_connection_lock_acquire_unused(shared);
++		if (result != NULL) {
++			result->is_tcp = true;
++			if (addr->sa_family == AF_INET) {
++				memcpy(&result->tcp, addr, sizeof(struct sockaddr_in));
++			} else if (addr->sa_family == AF_INET6) {
++				memcpy(&result->tcp, addr, sizeof(struct sockaddr_in6));
++			} else {
++				assert(false); // This should never be reached
++			}
++		}
++		utl_assert_mutex_unlock(&shared->shm->global_mutex);
++	}
++
++
++	return result;
++}
++
++connection_lock *shared_connection_lock_acquire_serial(shared_memory_ctx *shared, const char *device)
++{
++	connection_lock *result = NULL;
++
++	utl_assert_mutex_lock(&shared->shm->global_mutex);
++	for (size_t i = 0; i < ARRAY_SIZE(shared->shm->connections_locks); i++) {
++		connection_lock *lock = &shared->shm->connections_locks[i];
++		if (lock->ref_count > 0 && !lock->is_tcp && !strncmp(lock->serial, device, sizeof(lock->serial))) {
++			lock->ref_count += 1;
++			result = lock;
++			break;
++		}
++	}
++	utl_assert_mutex_unlock(&shared->shm->global_mutex);
++
++	if (result == NULL) {
++		utl_assert_mutex_lock(&shared->shm->global_mutex);
++		result = shared_connection_lock_acquire_unused(shared);
++		if (result != NULL) {
++			result->is_tcp = false;
++			strlcpy(result->serial, device, sizeof(result->serial));
++		}
++		utl_assert_mutex_unlock(&shared->shm->global_mutex);
++	}
++
++	return result;
++}
++
++void shared_connection_lock_release(shared_memory_ctx *shared, connection_lock *lock)
++{
++	if (lock == NULL) {
++		return;
++	}
++
++	utl_assert_mutex_lock(&shared->shm->global_mutex);
++	assert(lock->ref_count > 0);
++	lock->ref_count -= 1;
++	utl_assert_mutex_unlock(&shared->shm->global_mutex);
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/utils.c src/src/utils.c
 --- upstream/src/utils.c	1970-01-01 00:00:00.000000000 +0000
-+++ src/src/utils.c	2025-10-20 07:34:48.000000000 +0000
-@@ -0,0 +1,361 @@
++++ src/src/utils.c	2026-01-23 11:55:51.000000000 +0000
+@@ -0,0 +1,395 @@
 +#include "common.h"
 +
 +#define SERIAL_NUMBER_TO_ADDRESS(sn) (int)(sn % 10000 + 1000)
++
++/**
++ * Weak default implementation - always returns false.
++ * The daemon's main.c provides a strong override with the actual atomic check.
++ * This is because RPC calls use the same read functions as the main program.
++ */
++__attribute__((weak)) bool app_is_shutdown_requested(void)
++{
++	return false;
++}
 +
 +void utl_debug_cosem_object(cosem_object *o);
 +static int compare_cb(const void *a, const void *b);
@@ -323807,26 +323387,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	printf("\t\n");
 +}
 +
-+
-+int utl_is_logical_name(const char *name)
-+{
-+	return (strlen(name) > 6);
-+}
-+
 +int utl_attribute_count_by_type(DLMS_OBJECT_TYPE object_type)
 +{
-+	int result = -1;
-+	gxObject *obj = NULL;
-+
-+	if (cosem_createObject(object_type, &obj)) {
-+		log(L_EMERG, "Failed to create cosem object of type %d", object_type);
-+		goto end;
-+	}
-+
-+	result = obj_attributeCount(obj);
-+end:
-+	free(obj);
-+	return result;
++	unsigned char object_version = obj_getVersion(object_type);
++	return obj_attributeCount2(object_type, object_version);
 +}
 +
 +void utl_parse_attributes(char *attributes, cosem_object *co)
@@ -323839,7 +323403,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	// By default all attributes are selected
 +	if (!attributes) {
-+		assert((unsigned int)max_attribute_index <= ARRAY_SIZE(co->attributes.items));
++		ASSERT((unsigned int)max_attribute_index <= ARRAY_SIZE(co->attributes.items));
 +		for (size_t i = 0; i < (size_t)max_attribute_index; i++) {
 +			co->attributes.items[i] = i + 1;
 +		}
@@ -323870,6 +323434,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	}
 +
 +	utl_sort_array(co->attributes.items, co->attributes.count);
++}
++
++void utl_attributes_append(attribute_index_list *list, int attribute)
++{
++	if (utl_attributes_contain(list, attribute)) {
++		return;
++	}
++
++	ASSERT(list->count < ARRAY_SIZE(list->items));
++	list->items[list->count++] = attribute;
++}
++
++void utl_attributes_append_many(attribute_index_list *list, attribute_index_list *appended_list)
++{
++	for (size_t i = 0; i < appended_list->count; i++) {
++		utl_attributes_append(list, appended_list->items[i]);
++	}
 +}
 +
 +int utl_attributes_index_of(attribute_index_list *list, int attribute)
@@ -323974,11 +323555,34 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +void utl_assert_mutex_lock(pthread_mutex_t *mutex)
 +{
 +	int err = pthread_mutex_lock(mutex);
-+	assert(err == 0);
++	ASSERT(err == 0);
 +}
 +
 +void utl_assert_mutex_unlock(pthread_mutex_t *mutex)
 +{
 +	int err = pthread_mutex_unlock(mutex);
-+	assert(err == 0);
++	ASSERT(err == 0);
++}
++
++size_t utl_sockaddr_size(struct sockaddr *addr)
++{
++	if (addr->sa_family == AF_INET) {
++		return sizeof(struct sockaddr_in);
++	} else if (addr->sa_family == AF_INET6) {
++		return sizeof(struct sockaddr_in6);
++	} else {
++		return 0;
++	}
++}
++
++bool utl_sockaddr_eql(struct sockaddr *addr1, struct sockaddr *addr2)
++{
++	if (addr1->sa_family != addr2->sa_family) {
++		return false;
++	}
++
++	size_t addr_len = utl_sockaddr_size(addr1);
++	assert(addr_len > 0); // This should never be reached
++
++	return memcmp(addr1, addr2, addr_len) == 0;
 +}

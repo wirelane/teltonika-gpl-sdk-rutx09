@@ -1,16 +1,14 @@
 --- a/system-linux.c
 +++ b/system-linux.c
-@@ -3886,7 +3886,8 @@
+@@ -4059,6 +4059,7 @@ static int system_add_gre_tunnel(const c
  	uint8_t tos = 0;
  	int ret = 0, ttl = 0;
  	unsigned encap_limit = 0;
--
 +	char *tmp = NULL;
-+	
+ 
  	nlm = nlmsg_alloc_simple(RTM_NEWLINK, NLM_F_REQUEST | NLM_F_REPLACE | NLM_F_CREATE);
  	if (!nlm)
- 		return -1;
-@@ -3942,13 +3943,18 @@
+@@ -4115,13 +4116,18 @@ static int system_add_gre_tunnel(const c
  			blobmsg_data(cur), blobmsg_len(cur));
  
  		if ((cur = tb_data[GRE_DATA_IKEY])) {
@@ -27,14 +25,13 @@
 +				okey = strtoul(tmp, NULL, 0);
  				oflags |= GRE_KEY;
 +			}
-+				
++
  		}
  
  		if ((cur = tb_data[GRE_DATA_ICSUM])) {
-
 --- a/system.c
 +++ b/system.c
-@@ -56,8 +56,8 @@
+@@ -56,8 +56,8 @@ const struct uci_blob_param_list vxlan_d
  };
  
  static const struct blobmsg_policy gre_data_attrs[__GRE_DATA_ATTR_MAX] = {

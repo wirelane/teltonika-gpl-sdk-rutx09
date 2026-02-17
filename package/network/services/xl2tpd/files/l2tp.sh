@@ -31,7 +31,7 @@ check_bind() {
 
 	[ "$bind_to" = "$2" ] || continue
 	if ! swanctl --list-sas --child ${1} 2>/dev/null | grep -q "INSTALLED"; then
-		logger -t "l2tp" "Interface '$bind_to' cannot start, it's bound to unestablished IPsec connection ${1}"
+		logger -p daemon.notice -t "xl2tpd" "Interface '$bind_to' cannot start, it's bound to unestablished IPsec connection ${1}"
 		BIND_STOP=1
 	fi
 }
@@ -50,7 +50,7 @@ proto_l2tp_setup() {
 	local sleep_time="$(($fail_count * 30))"
 	[ "$sleep_time" -gt "180" ] && sleep_time="180"
 	if [ "$sleep_time" -gt "0" ]; then
-		logger -t "l2tp" "Interface '$interface' is waiting $sleep_time seconds for the next connection retry"
+		logger -p daemon.notice -t "xl2tpd" "Interface '$interface' is waiting $sleep_time seconds for the next connection retry"
 		sleep "$sleep_time"
 	fi
 
@@ -67,7 +67,7 @@ proto_l2tp_setup() {
 	if echo "$server" | grep -Eq '^\[[0-9a-fA-F:]+\]:[0-9]{1,5}$' || \
 	echo "$server" | grep -Eq '^[0-9A-Fa-f]{1,4}:' || \
 	[ "$server" = "::1" ]; then
-		[ "$L2TPV6_SUPPORT" != 1 ] && logger -t "l2tp" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host" && exit 1
+		[ "$L2TPV6_SUPPORT" != 1 ] && logger -p daemon.notice -t "xl2tpd" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host" && exit 1
 		IP6=1
 		if echo "$server" | grep -Eq '^\[[0-9a-fA-F:]+\]:[0-9]{1,5}$'; then
 			host="$(echo "$server" | sed -n 's/^\[\(.*\)\]:[0-9]\+$/\1/p')"
@@ -104,7 +104,7 @@ proto_l2tp_setup() {
 	done
 	if [ "$IP6" = 1 ]; then
 		if [ "$L2TPV6_SUPPORT" != 1 ]; then
-			logger -t "l2tp" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host"
+			logger -p daemon.notice -t "xl2tpd" "Interface '$interface': missing l2tpv6_support package for connection to IPv6 host"
 			IP6=
 		else
 			[ -e "/etc/xl2tpd/xl2tpd6.conf" ] || ln -s /etc/xl2tpd/xl2tpd.conf /etc/xl2tpd/xl2tpd6.conf

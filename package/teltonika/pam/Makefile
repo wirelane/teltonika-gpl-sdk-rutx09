@@ -3,10 +3,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=pam
-PKG_VERSION:=2024-09-30
-PKG_RELEASE:=2
+PKG_VERSION:=2026-02-11
+PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.1
+PKG_SOURCE_VERSION:=1.2
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -36,7 +36,7 @@ endef
 define Package/pam/install
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/usr/sbin $(1)/etc/config $(1)/usr/share/acl.d
 	$(INSTALL_CONF_USR) ./files/pam.config $(1)/etc/config/pam
-	$(INSTALL_BIN) ./files/pam.init $(1)/etc/init.d/pam
+	$(INSTALL_BIN_USR) ./files/pam.init $(1)/etc/init.d/pam
 	$(INSTALL_DATA) ./files/pam.json $(1)/usr/share/acl.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pam $(1)/usr/sbin/pamd
 

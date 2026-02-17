@@ -32,5 +32,11 @@
         "anyOf": ["snmptrap"]
       }
     }
+  },
+  "services/snmp/data_source": {
+    "title": "SNMP Data sources",
+    "acls": [ "services/snmp/data_source" ],
+    "view": "services/SnmpDataSource",
+    "index": 5
   }
 }

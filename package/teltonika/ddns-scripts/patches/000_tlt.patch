@@ -1,12 +1,12 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/README.md src/README.md
 --- upstream/README.md	1970-01-01 00:00:00.000000000 +0000
-+++ src/README.md	2025-12-12 09:57:27.000000000 +0000
++++ src/README.md	2026-02-02 12:16:23.000000000 +0000
 @@ -0,0 +1,2 @@
 +# ddns-scripts
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.config src/files/ddns.config
 --- upstream/files/ddns.config	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.config	2025-12-12 09:57:27.000000000 +0000
++++ src/files/ddns.config	2026-02-02 12:16:23.000000000 +0000
 @@ -1,15 +1,15 @@
  #
 -# Please read https://openwrt.org/docs/guide-user/base-system/ddns
@@ -45,8 +45,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.defaults src/files/ddns.defaults
 --- upstream/files/ddns.defaults	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.defaults	2025-12-12 09:57:27.000000000 +0000
-@@ -1,39 +1,39 @@
++++ src/files/ddns.defaults	2026-02-02 12:16:23.000000000 +0000
+@@ -1,39 +1,41 @@
  #!/bin/sh
  
 +. /lib/functions.sh
@@ -59,6 +59,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +g_pslerr="0"
  g_cfgfile="ddns"
  
++CONFIG_PATH="${UCI_CONFIG_DIR:-"/etc/config"}"
++
  # modify timer settings from interval and unit to dhms format
  timer2dhms() {
  # $1	Number and
@@ -99,7 +101,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	uc_cfg=""
  	uc_name=""
  	uc_var=""
-@@ -44,16 +44,16 @@
+@@ -44,16 +46,16 @@
  		uc_name="$2"
  
  		# Type = ddns	Name = global
@@ -122,7 +124,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  					# leave all other options currently unchanged
  					*)	;;
  				esac
-@@ -70,25 +70,25 @@
+@@ -70,25 +72,25 @@
  					service_name|upd_provider)
  						case "$uc_val" in
  							freedns\.afraid\.org|afraid\.org)
@@ -158,7 +160,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  							*)
  								# all others leave unchanged
  								;;
-@@ -98,13 +98,13 @@
+@@ -98,13 +100,13 @@
  						;;
  					domain|upd_object)
  						# verify if lookup_host is set
@@ -176,20 +178,20 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  							unset uco_provider
  						fi
  						# rename option domain to option upd_object
-@@ -162,35 +162,35 @@
+@@ -162,35 +164,35 @@
  	}
  
  	# read config file
 -	uc_data=$($uc_uci -S -n export "$g_cfgfile")
-+	uc_data=$(uci -q -S -n export "$g_cfgfile")
++	uc_data=$(uci -c $CONFIG_PATH -q -S -n export "$g_cfgfile")
  	uc_ret="$?"
  	# Error then create config file
 -	[ $uc_ret -ne 0 ] && {
 -		touch /etc/config/$uc_cfgfile
 -		chmod 644 /etc/config/$uc_cfgfile
 +	[ "$uc_ret" -ne 0 ] && {
-+		touch "/etc/config/${uc_cfgfile}"
-+		chmod 644 "/etc/config/${uc_cfgfile}"
++		touch "$CONFIG_PATH/${uc_cfgfile}"
++		chmod 644 "$CONFIG_PATH/${uc_cfgfile}"
  	}
  	# No error and uc_data then execute (eval)
  	# this will call functions defined above
@@ -198,7 +200,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	# add config ddns "global" (ignore error if exists)
 -	$uc_uci set ddns.global="$g_cfgfile"
-+	uci -q set "ddns.global=${g_cfgfile}"
++	uci_add "ddns" "$g_cfgfile" "global"
  
  	# write changes to config file
 -	$uc_uci commit "$g_cfgfile"
@@ -223,7 +225,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.hotplug src/files/ddns.hotplug
 --- upstream/files/ddns.hotplug	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.hotplug	2025-12-12 09:57:27.000000000 +0000
++++ src/files/ddns.hotplug	2026-02-02 12:16:23.000000000 +0000
 @@ -1,11 +1,21 @@
 -#!/bin/sh
 +#!/bin/sh /etc/rc.common
@@ -258,7 +260,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +fi
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.init src/files/ddns.init
 --- upstream/files/ddns.init	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/ddns.init	2025-12-12 09:57:27.000000000 +0000
++++ src/files/ddns.init	2026-02-02 12:16:23.000000000 +0000
 @@ -1,27 +1,52 @@
  #!/bin/sh /etc/rc.common
 +
@@ -328,12 +330,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns.permtab src/files/ddns.permtab
 --- upstream/files/ddns.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ddns.permtab	2025-12-12 09:57:27.000000000 +0000
++++ src/files/ddns.permtab	2026-02-02 12:16:23.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/ddns	ddns:ddns	660	-
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/ddns_acl.json src/files/ddns_acl.json
 --- upstream/files/ddns_acl.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/ddns_acl.json	2025-12-12 09:57:27.000000000 +0000
++++ src/files/ddns_acl.json	2026-02-02 12:16:23.000000000 +0000
 @@ -0,0 +1,15 @@
 +{
 +	"user": "ddns",
@@ -352,7 +354,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_functions.sh src/files/dynamic_dns_functions.sh
 --- upstream/files/dynamic_dns_functions.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_functions.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/dynamic_dns_functions.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -21,10 +21,12 @@
  . /lib/functions/network.sh
  
@@ -469,7 +471,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		7)	__MSG=" $__TIME       : $__MSG";;
  		*) 	return;;
  	esac
-+	set -- "$@" "-t" "ddns-scripts[$$]" "$SECTION_ID: $__ORIG_MESSAGE"
++	set -- "$@" "-t" "ddns" "$SECTION_ID[$$]: $__ORIG_MESSAGE"
  
  	# verbose echo
  	[ $VERBOSE -gt 0 -o $__EXIT -gt 0 ] && echo -e "$__MSG"
@@ -1164,7 +1166,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_lucihelper.sh src/files/dynamic_dns_lucihelper.sh
 --- upstream/files/dynamic_dns_lucihelper.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_lucihelper.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/dynamic_dns_lucihelper.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -10,7 +10,8 @@
  # variables in big chars beginning with "__" are local defined inside functions only
  # set -vx  	#script debugger
@@ -1195,7 +1197,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			export HTTP_PROXY="http://$proxy"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/dynamic_dns_updater.sh src/files/dynamic_dns_updater.sh
 --- upstream/files/dynamic_dns_updater.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/dynamic_dns_updater.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/dynamic_dns_updater.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -193,7 +193,7 @@
  [ "$ip_source" = "network" -a -z "$ip_network" -a $use_ipv6 -eq 1 ] && ip_network="wan6" # IPv6: default wan6
  [ "$ip_source" = "web" -a -z "$ip_url" -a $use_ipv6 -eq 0 ] && ip_url="http://checkip.dyndns.com"
@@ -1362,7 +1364,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	REGISTERED_IP=""		# clear variable
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services src/files/services
 --- upstream/files/services	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services	2025-12-12 09:57:27.000000000 +0000
++++ src/files/services	2026-02-02 12:16:23.000000000 +0000
 @@ -43,13 +43,15 @@
  
  "able.or.kr"		"http://able.or.kr/ddns/src/update.php?hostname=[DOMAIN]&myip=[IP]&ddnsuser=[USERNAME]&pwd=[PASSWORD]"
@@ -1400,7 +1402,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/services_ipv6 src/files/services_ipv6
 --- upstream/files/services_ipv6	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/services_ipv6	2025-12-12 09:57:27.000000000 +0000
++++ src/files/services_ipv6	2026-02-02 12:16:23.000000000 +0000
 @@ -38,10 +38,10 @@
  #.no-ip.com / noip.com	!!! Please install additional package "ddns-scripts_no-ip_com"
  #.route53-v1		!!! Please install additional package "ddns-scripts_route53-v1"
@@ -1418,7 +1420,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_cloudflare_com_v4.sh src/files/update_cloudflare_com_v4.sh
 --- upstream/files/update_cloudflare_com_v4.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_cloudflare_com_v4.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/update_cloudflare_com_v4.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -15,7 +15,7 @@
  # option password  - cloudflare api key, you can get it from cloudflare.com/my-account/
  # option domain    - "hostname@yourdomain.TLD"	# syntax changed to remove split_FQDN() function and tld_names.dat.gz
@@ -1494,7 +1496,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	set -- "$@" "--header" "Content-Type: application/json"
 +
 +	set -- "$@" "--request" "$__REQUEST"
-+	[ -n "$__DATA" ] && set -- "--data" "@$__DATA"
++	[ -n "$__DATA" ] && set -- "$@" "--data" "@$__DATA"
 +	set -- "$@" "$__URL"
 +
 +
@@ -1608,7 +1610,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_no-ip_com.sh src/files/update_no-ip_com.sh
 --- upstream/files/update_no-ip_com.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_no-ip_com.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/update_no-ip_com.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -9,31 +9,33 @@
  # provider did not reactivate records, if no IP change was recognized
  # so we send a dummy (localhost) and a seconds later we send the correct IP addr
@@ -1661,7 +1663,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_nsupdate.sh src/files/update_nsupdate.sh
 --- upstream/files/update_nsupdate.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_nsupdate.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/update_nsupdate.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -19,8 +19,9 @@
  local __RRTYPE __PW __TCP
  local __PROG=$(which nsupdate)			# BIND nsupdate ?
@@ -1683,7 +1685,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  return 0
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/update_route53_v1.sh src/files/update_route53_v1.sh
 --- upstream/files/update_route53_v1.sh	2022-10-27 12:48:35.000000000 +0000
-+++ src/files/update_route53_v1.sh	2025-12-12 09:57:27.000000000 +0000
++++ src/files/update_route53_v1.sh	2026-02-02 12:16:23.000000000 +0000
 @@ -1,46 +1,44 @@
  #!/bin/sh
 -#.Distributed under the terms of the GNU General Public License (GPL) version 2.0

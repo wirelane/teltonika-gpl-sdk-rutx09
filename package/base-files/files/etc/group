@@ -6,13 +6,13 @@ mail:x:8:
 dialout:x:20:admin,bac_router,blesemd,chilli,dfota,dlms_client,dnp3_outstation,eoip,gps,gsm,mbus_client,modbus_client,modbus_server,modbusgwd,modem_control,mqtt_modbus_gateway,ntrip,openconnect,openvpn,socat,sodog,tinc,zerotier,dnp3_client,can_gw,iec60870_server
 audio:x:29:
 www-data:x:33:
-shadow:x:42:mobutils,pamd,session,uhttpd
+shadow:x:42:mobutils,pamd,session,uhttpd,sitemanc
 ftp:x:55:
 ubus:x:81:dlms_client,dnp3_client,dnp3_outstation,logd,mbus_client,modbus_client,modbus_server,modbusgwd,mqtt_modbus_gateway,opcua_server,rpcd,sodog,uhttpd,can_gw,iec60870_client
 lock:x:98:admin,dfota,dot1x_server,mctl,opkg,preboot,uhttpd
 log:x:99:dnp3_outstation,gsm,logd,mobutils,modbus_server,mqtt_modbus_gateway,rpcd,rut_fota,sms_limit,uhttpd,juggler
 users:x:100:gsm,rut_fota,sim_switch,sshfs,uhttpd,dot1x_client
-network:x:101:chilli,dot1x_client,dot1x_server,easycwmp,gsm,hostblock,ip_blockd,ipsec,iwinfo,juggler,ledman,mdcollectd,mobutils,modbus_client,modbus_server,multiple_ap,opcua_server,preboot,sim_idle_protection,sim_switch,snmpd,uci,uhttpd,wireguard,gps,xl2tpd,pptpd
+network:x:101:chilli,dot1x_client,dot1x_server,easycwmp,gsm,hostblock,ip_blockd,ipsec,iwinfo,juggler,ledman,mdcollectd,mobutils,modbus_client,modbus_server,multiple_ap,opcua_server,preboot,sim_idle_protection,sim_switch,snmpd,uci,uhttpd,wireguard,gps,xl2tpd,pptpd,avl,siteman
 snmptrap:x:500:mobutils,uci,uhttpd
 opcua_client:x:501:ds,mobutils,uci,uhttpd
 sim_switch:x:502:gsm,mobutils,uci,uhttpd
@@ -27,7 +27,7 @@ gkeepalive:x:510:
 chilli:x:511:easycwmp,mobutils,snmpd,uci,uhttpd
 mqtt_pub:x:512:mobutils,uci,uhttpd
 mobutils:x:513:uci,uhttpd
-logd:x:514:uhttpd,rpcd,session,chilli,openvpn,uci
+logd:x:514:uhttpd,rpcd,session,chilli,openvpn,uci,ip_blockd,xl2tpd,port_eventsd,wifi_scanner,gkeepalive,nlbwmon,networkmap
 mqtt_modbus_gateway:x:515:mobutils,uci,uhttpd
 juggler:x:516:mobutils,uci,uhttpd
 tws:x:517:mobutils,uci,uhttpd
@@ -87,7 +87,7 @@ sim_idle_protection:x:574:gsm,mobutils,uci,uhttpd
 uhttpd:x:575:ip_blockd,mobutils,uci,session
 gps:x:576:itxpt,mobutils,uci,uhttpd
 modbus_client:x:577:uci,uhttpd
-tss:x:578:ipsec,openconnect,openvpn,uhttpd
+tss:x:578:ipsec,openconnect,openvpn,uhttpd,mosquitto,ds,juggler,aws,azure,mqtt_pub
 rut_fota:x:579:mobutils,uci,uhttpd
 openvpn:x:580:mobutils,uci,uhttpd
 ip_blockd:x:581:mobutils,uci,uhttpd
@@ -97,7 +97,7 @@ ntrip:x:584:mobutils,uci,uhttpd
 p910nd:x:585:mobutils,uci,uhttpd
 dlms_client:x:586:mobutils,uci,uhttpd
 xl2tpd:x:587:mobutils,uci,uhttpd
-certificates:x:588:chilli,ds,ipsec,juggler,mosquitto,mqtt_pub,network,openconnect,openvpn,smppd,sodog,sstpc,tinc,uci,uhttpd,can_gw
+certificates:x:588:chilli,ds,ipsec,juggler,mosquitto,mqtt_pub,network,openconnect,openvpn,smppd,sodog,sstpc,tinc,uci,easycwmp,uhttpd,can_gw
 modbusgwd:x:589:mobutils,uci,uhttpd
 pppd:x:590:pptpd,sstpc,xl2tpd
 password_policy:x:591:uci,uhttpd
@@ -149,7 +149,7 @@ tltserial:x:643:
 socat:x:644:uci
 itxpt:x:645:uci,uhttpd
 led:x:900:admin,ledman,mobutils
-gpio:x:901:admin,bac_router,dlms_client,dnp3_outstation,gps,icounter,ioman,mctl,mobutils,modbus_client,modbus_server,modbusgwd,modem_control,mqtt_modbus_gateway,ntrip,poeman,sodog,dnp3_client,can_gw,iec60870_server,iec60870_client
+gpio:x:901:admin,bac_router,dlms_client,dnp3_outstation,gps,icounter,ioman,mctl,mobutils,modbus_client,modbus_server,modbusgwd,modem_control,mqtt_modbus_gateway,ntrip,poeman,sodog,dnp3_client,can_gw,iec60870_server,iec60870_client,avl
 mnf_sec:x:902:admin,gsm,iot,network,rpcd
 i2c:x:903:admin,ioman,mobutils,poeman
 serial:x:904:dnp3_client,dnp3_outstation,mbus_client,mobutils
@@ -160,4 +160,6 @@ sentry_backend:x:649:
 callman:x:650:uhttpd
 iec60870_client:x:651:uci,uhttpd
 iec60870_server:x:652:uci,uhttpd
+siteman:x:654:uci,uhttpd
+sitemanc:x:655:uci,uhttpd
 nogroup:x:65534:

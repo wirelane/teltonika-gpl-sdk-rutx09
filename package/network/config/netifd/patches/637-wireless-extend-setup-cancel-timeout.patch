@@ -1,10 +1,8 @@
-Index: netifd-2024-01-04-c18cc79d/wireless.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/wireless.c
-+++ netifd-2024-01-04-c18cc79d/wireless.c
+--- a/wireless.c
++++ b/wireless.c
 @@ -481,7 +481,7 @@ wireless_device_setup_cancel(struct wire
  	wireless_handler_stop(wdev);
- 	D(WIRELESS, "Cancel wireless device '%s' setup\n", wdev->name);
+ 	D(WIRELESS, "Cancel wireless device '%s' setup", wdev->name);
  	wdev->cancel = true;
 -	uloop_timeout_set(&wdev->timeout, 10 * 1000);
 +	uloop_timeout_set(&wdev->timeout, 20 * 1000);

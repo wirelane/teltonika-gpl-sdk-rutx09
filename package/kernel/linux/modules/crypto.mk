@@ -190,6 +190,12 @@ define KernelPackage/crypto-des/sdxnightjar
   FILES:=$(LINUX_DIR)/crypto/des_generic.ko
 endef
 
+
+define KernelPackage/crypto-des/intel_mips
+  FILES:=$(LINUX_DIR)/crypto/des_generic.ko
+endef
+
+
 $(eval $(call KernelPackage,crypto-des))
 
 
@@ -962,6 +968,11 @@ define KernelPackage/crypto-sha256/x86/64
   FILES+=$(LINUX_DIR)/arch/x86/crypto/sha256-ssse3.ko
   AUTOLOAD+=$(call AutoLoad,09,sha256-ssse3)
 endef
+
+define KernelPackage/crypto-sha256/intel_mips
+  FILES:=$(LINUX_DIR)/crypto/sha256_generic.ko
+endef
+
 
 $(eval $(call KernelPackage,crypto-sha256))
 

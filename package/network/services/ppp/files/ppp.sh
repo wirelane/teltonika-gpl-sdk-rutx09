@@ -397,6 +397,7 @@ proto_sstp_init_config() {
 	proto_config_add_string "password"
 	proto_config_add_boolean "defaultroute"
 	proto_config_add_array "sstp_options"
+	proto_config_add_boolean "ipv6"
 	available=1
 	no_device=1
 }
@@ -405,9 +406,9 @@ proto_sstp_setup() {
 	local config="$1"
 	local ifname="sstp-$config"
 	local options="/var/run/sstpc/options.${ifname}"
-	local server ip serv_addr ca username password defaultroute default_dev gw metric up opts
+	local server ip serv_addr ca username password defaultroute gw metric up opts ipv6 add_gw
 
-	json_get_vars server ca username password defaultroute
+	json_get_vars server ca username password defaultroute ipv6
 	json_get_values opts sstp_options
 	
 	for opt in $opts; do
@@ -420,23 +421,24 @@ proto_sstp_setup() {
 		options=
 	fi
 
-	server_and_port=$server
+	[ "$ipv6" != 1 ] && ipv6=""
+	server_and_port="$server"
+	server_ipv6="$(echo "$server" | cut -d '[' -f2 | cut -d']' -f1)" # sstp server is url format, so we check for [ipv6]
+	server="$(echo "$server" | sed 's#.*://##')" # remove url protocol
 	server="${server%%:*}" # split server and port
 
 	[ -n "$server" ] && {
 		for ip in $(resolveip -t 5 "$server"); do
-			#ADDS STATIC ROUTE TO SERVER VIA ONE GATEWAY
-			default_dev="$(ip --json route show default | jsonfilter -e '@.*.dev' | head -n1)"
-			[ -n "$default_dev" ] && {
-				gw="$(ip --json route show default | jsonfilter -e '@[@.dev="'"$default_dev"'"].gateway' | head -n1)"
-				metric="$(ip --json route show default | jsonfilter -e '@[@.dev="'"$default_dev"'"].metric' | head -n1)"
-				[ -z "$metric" ] && metric="0"
-				[ -n "$gw" ] && ip route add "$ip" via "$gw" dev "$default_dev" metric "$metric" || \
-								ip route add "$ip" dev "$default_dev" metric "$metric"
-			}
 			serv_addr=1
+			[ "$defaultroute" -ne 1 ] && continue
+			#ADDS STATIC ROUTE TO SERVER VIA ONE GATEWAY
+			eval "$(ip --json route show default | jsonfilter -e 'gw=@[0].gateway' -e 'dev=@[0].dev' -e 'metric=@[0].metric')"
+			[ -n "$gw" ] && add_gw=" via $gw" || add_gw=
+			ip route add "$ip"${add_gw} dev "$dev" metric ${metric:=0} && logger -p daemon.notice -t "sstp" "added route to $ip through $dev"
 		done
 	}
+	[ -n "$server_ipv6" ] && [ -n "$(resolveip -6 -t 5 "$server_ipv6")" ] && serv_addr=1
+
 	[ -n "$serv_addr" ] || {
 		echo "Could not resolve server address"
 		sleep 5
@@ -470,6 +472,7 @@ proto_sstp_setup() {
 	$server_and_port \
 	ipparam "$config" \
 	ifname "$ifname" \
+	${ipv6:++ipv6} \
 	nodetach \
 	usepeerdns \
 	${defaultroute:+replacedefaultroute defaultroute} \
@@ -481,15 +484,20 @@ proto_sstp_setup() {
 }
 
 proto_sstp_teardown() {
-	local server
-	local options="/var/run/sstpc/options.sstp-${1}"
+	local server disabled
 	json_get_vars server
+	server="${server#*://}" # remove url protocol
 	server="${server%%:*}" # split server and port
+	disabled="$(uci -q get network.$1.disabled)"
 
-	for ip in $(resolveip -t 5 "$server"); do
-		#DELETES STATIC ROUTE TO SERVER VIA ONE GATEWAY
-		route del $ip
-	done
+	if [ "$disabled" = 1 ]; then
+		for ip in $(resolveip -t 5 "$server"); do
+			#DELETES STATIC ROUTE TO SERVER VIA ONE GATEWAY
+			ip route del $ip && logger -p daemon.notice -t "sstp" "removed route to $ip"
+		done
+	fi
+
+	local options="/var/run/sstpc/options.sstp-${1}"
 	[ -e "$options" ] && rm "$options"
 	ppp_generic_teardown "$@"
 }

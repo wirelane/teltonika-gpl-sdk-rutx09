@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=opcua_server
-PKG_VERSION:=2025-12-01
+PKG_VERSION:=2026-02-07
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
-PKG_SOURCE_VERSION:=7.20
+PKG_SOURCE_VERSION:=7.21
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -13,7 +13,7 @@ define Package/opcua_server
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=OPC UA server
-	DEPENDS:=+open62541 +libmnfinfo +libuci +libtlt_uci +libubus +libboardjson +GPS_SUPPORT:libgps +MOBILE_SUPPORT:libgsm +IO_SUPPORT:iomand
+	DEPENDS:=+open62541 +libmnfinfo +libuci +libtlt_uci +libubus +libboardjson +GPS_SUPPORT:libgps +MOBILE_SUPPORT:libgsm +IO_SUPPORT:iomand +libtag
 	FATTRS:=/usr/bin/opcua_server::::cap_net_bind_service=ep
 	USERID:=opcua_server=506:opcua_server=506
 endef

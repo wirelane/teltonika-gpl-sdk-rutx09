@@ -31,7 +31,7 @@ define Package/io_scheduler/install
 			$(1)/etc/permtab.d
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/scheduler $(1)/usr/bin/scheduler
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ioman_scheduler.init \
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/ioman_scheduler.init \
 			$(1)/etc/init.d/ioman_scheduler
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/io_scheduler.conf \
 			$(1)/etc/config/io_scheduler

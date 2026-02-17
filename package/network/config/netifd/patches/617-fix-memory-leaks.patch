@@ -1,8 +1,6 @@
-Index: netifd-2024-01-04-c18cc79d/system-linux.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/system-linux.c
-+++ netifd-2024-01-04-c18cc79d/system-linux.c
-@@ -2573,8 +2573,10 @@ int system_bridge_vlan_check(struct devi
+--- a/system-linux.c
++++ b/system-linux.c
+@@ -2704,8 +2704,10 @@ int system_bridge_vlan_check(struct devi
  	struct nl_msg *msg;
  	int i;
  

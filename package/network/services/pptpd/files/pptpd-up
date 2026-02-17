@@ -22,7 +22,7 @@ ubus_call_ip() {
 	if [ "$status" -eq 0 ]; then
 		return 0
 	fi
-	logger -t "pptpd" "failed ubus call, status: $status"
+	logger -p daemon.notice -t "pptpd" "failed ubus call, status: $status"
 	return 1
 }
 

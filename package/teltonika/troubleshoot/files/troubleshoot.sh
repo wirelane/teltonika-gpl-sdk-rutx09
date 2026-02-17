@@ -82,7 +82,8 @@ secure_config() {
 	local option value
 	local lines="$(uci -c "$ROOT_DIR/etc/config" show |
 		grep -iE "(\.)(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey)(.*)=" |
-		grep -iE "((([A-Za-z0-9]|\_|\@|\[|\]|\-)*\.){2})(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey)(.*)=")"
+		grep -iE "((([A-Za-z0-9]|\_|\@|\[|\]|\-)*\.){2})(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey)(.*)=" |
+		grep -viE "(multiple_secrets|keyexchange|passthrough)")"
 	# local tmp_file=$(generate_random_str 64)
 
 	local IFS=$'\n'
@@ -414,6 +415,7 @@ generate_package() {
 		which minizip >/dev/null || {
 			echo "Could not create troubleshoot.tar.zip - minizip package is not installed";
 			rm -f "$PACK_FILE"
+			lock -u /var/run/troubleshoot.lock
 			exit 1
 		}
 		minizip -s -p "$1" "${PACK_FILE}.zip" "$PACK_FILE" >/dev/null 2>&1

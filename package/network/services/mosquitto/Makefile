@@ -31,7 +31,7 @@ define Package/mosquitto/default
   TITLE:=mosquitto - an MQTT message broker
   URL:=http://www.mosquitto.org/
   MAINTAINER:=Karl Palsson <karlp@etactica.com>
-  DEPENDS:= +librt +ubus +libubox +libuci
+  DEPENDS:= +librt +ubus +libubox +libuci +TPM_SUPPORT:tpm2_importer
   USERID:=mosquitto=553:mosquitto=553
 endef
 
@@ -166,10 +166,11 @@ endef
 Package/mosquitto-nossl/conffiles = $(Package/mosquitto-ssl/conffiles)
 
 define Package/mosquitto/install/default
-	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/mosquitto $(1)/usr/sbin/mosquitto
 	$(INSTALL_DIR) $(1)/etc/mosquitto
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/mosquitto.conf $(1)/etc/mosquitto/mosquitto.conf
+	$(INSTALL_BIN_USR) ./files/mosquitto.init $(1)/etc/init.d/mosquitto
 	$(CP) ./files/etc/* $(1)/etc/
 endef
 

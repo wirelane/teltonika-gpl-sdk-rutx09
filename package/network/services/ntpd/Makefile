@@ -123,7 +123,7 @@ define Package/ntpd/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) ./files/ntpd.hotplug-helper $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/ntpd.init $(1)/etc/init.d/ntpd
+	$(INSTALL_BIN_USR) ./files/ntpd.init $(1)/etc/init.d/ntpd
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
 	$(INSTALL_BIN) ./files/ntpd.hotplug $(1)/etc/hotplug.d/iface/20-ntpd
 	$(INSTALL_DIR) $(1)/etc/config

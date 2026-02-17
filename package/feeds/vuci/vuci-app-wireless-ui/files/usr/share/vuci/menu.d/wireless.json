@@ -19,5 +19,11 @@
     "index": 20,
     "view": "network/wirelessDevice/WirelessDevice",
     "acls": ["network/wireless/radio"]
+  },
+  "network/wireless/ppsk_profiles": {
+    "title": "PPSK Profiles",
+    "index": 40,
+    "view": "network/ppskProfiles/PPSKProfiles",
+    "acls": ["network/wireless/ppsk_profiles"]
   }
 }

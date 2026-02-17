@@ -21,23 +21,16 @@ typedef struct tag_manager tag_manager_t;
  */
 typedef struct tag tag_t;
 
-/**
- * @brief Multi-value tag array structure
- */
-typedef struct tag_multi_value tag_multi_value_t;
-
 enum {
 	RPC_TAG_GET_VAL_ID,
 	RPC_TAG_GET_VAL_INDEX,
 	RPC_TAG_GET_VAL_COUNT,
-	RPC_TAG_GET_VAL_MAX,
 };
 
 enum {
 	RPC_TAG_SET_VAL_ID,
 	RPC_TAG_SET_VAL_VALUES,
 	RPC_TAG_SET_VAL_INDEX,
-	RPC_TAG_SET_VAL_MAX,
 };
 
 static const struct blobmsg_policy tag_get_policy[] = {
@@ -59,6 +52,14 @@ static const struct blobmsg_policy tag_set_policy[] = {
 #define TAG_PERM_READ	   0x01 /**< Read permission */
 #define TAG_PERM_WRITE	   0x02 /**< Write permission */
 #define TAG_PERM_READWRITE 0x03 /**< Read and write permissions */
+
+/**
+ * @brief Permissions for the tag
+ * 0x01 = Readable
+ * 0x02 = Writable
+ * 0x03 = Read/Write
+ */
+typedef uint8_t tag_perm_t;
 
 /**
  * @brief Error codes returned by library functions
@@ -85,7 +86,6 @@ typedef enum {
 typedef enum {
 	TAG_ENDIAN_LITTLE = 0,
 	TAG_ENDIAN_BIG,
-	TAG_ENDIAN_MAX,
 } tag_endianness_t;
 
 /**
@@ -106,8 +106,9 @@ typedef enum {
 	TAG_TYPE_FLOAT64,
 	TAG_TYPE_STRING,
 	TAG_TYPE_BINARY,
-	TAG_TYPE_MAX,
 } tag_type_t;
+
+#define TAG_TYPE_MAX 14
 
 /**
  * @brief Union to hold tag values of different types
@@ -133,71 +134,119 @@ typedef union {
 } tag_value_t;
 
 /**
+ * @brief List of tag values. All items in the list have the same type.
+ */
+typedef struct {
+	tag_type_t type;
+	tag_value_t *items;
+	size_t len;
+} tag_value_list_t;
+
+/**
+ * @brief Read callback function.
+ * Called by tag_read() if non-NULL.
+ * Should fetch the latest value(s) from the source and update the tag
+ * using tag_set_value_at().
+ * @param tag The tag instance to update.
+ * @param user_data User-provided context.
+ * @return TAG_SUCCESS on success, error code otherwise.
+ */
+typedef tag_error_t (*tag_read_cb)(tag_t *tag, void *user_data);
+
+/**
+ * @brief Multi-value write callback function.
+ * Called by tag_write_multi() if non-NULL.
+ * Should write the provided array of values to the source.
+ * @param tag The tag being written to.
+ * @param values Array of values to write (caller owns memory for strings/binaries within).
+ * @param value_count Number of values in the array.
+ * @param start_index Starting index to write at the source.
+ * @param user_data User-provided context.
+ * @return TAG_SUCCESS on success, error code otherwise.
+ */
+typedef tag_error_t (*tag_write_cb)(tag_t *tag, tag_value_t *values, size_t value_count, size_t start_index, void *user_data);
+
+/**
  * @brief Tag structure definition
  */
 struct tag {
-	char *name; /**< Unique tag name. Server uses this to store different tags with the same ID. */
-	char *id;   /**< Unique tag ID. Clients use this to identify the tag. */
+	// TODO: Rename `avl_id` -> `id` and `id` -> `source_id`.
+	// To signify that `avl_id` is a unique identifier that the user can use.
+	// Because currently `id` can be duplicate between different sources.
+	uint32_t avl_id;
+
+	char *name; /**< Deprecated, will be removed! Unique tag name. Server uses this to store different tags with the same ID. */
+	char *id;   /**< Per source unique ID. Clients use this to identify the tag. */
 	char *config_name; /**< Configuration name */
 	char *pretty_name; /**< Human-readable name */
 	char *source;	   /**< Source service (e.g., "modbus_client") */
 	char *description; /**< Optional description */
-	tag_type_t type;   /**< Data type */
-	tag_value_t value; /**< Single value. This will be removed in future. Every tag will have multi-value array. */
-	tag_value_t *values;
+	tag_value_list_t values;
+	size_t value_size;  /**< Deprecated! Size of the value in bytes (for fixed-size types). */
+
+	tag_perm_t permissions;
+
+	tag_read_cb read_cb;
+	tag_write_cb write_cb;
+
+	void *priv;		  /**< Private data pointer */
+	void (*priv_free)(void *); /**< Private data free function */
+};
+
+typedef struct tag_register_options {
+	char *name; /**< Deprecated, will be removed! Unique tag name. Server uses this to store different tags with the same ID. */
+	char *id;   /**< Per source unique ID. Clients use this to identify the tag. */
+	char *config_name; /**< Configuration name */
+	char *pretty_name; /**< Human-readable name */
+	char *source;	   /**< Source service (e.g., "modbus_client") */
+	char *description; /**< Optional description */
+	tag_type_t type;
 	size_t value_count;
-	size_t value_size;  /**< Size of the value in bytes (for fixed-size types). */
+	size_t value_size;  /**< Deprecated! Size of the value in bytes (for fixed-size types). */
 
-	/**
-	 * @brief Permissions for the tag
-	 * 0x01 = Readable
-	 * 0x02 = Writable
-	 * 0x03 = Read/Write
-	 */
-	uint8_t permissions;
+	tag_perm_t permissions;
 
-	/**
-	 * @brief Read callback function.
-	 * Called by tag_read() if non-NULL.
-	 * Should fetch the latest value(s) from the source and update the tag
-	 * using tag_set_value_at().
-	 * @param tag The tag instance to update.
-	 * @param user_data User-provided context.
-	 * @return TAG_SUCCESS on success, error code otherwise.
-	 */
-	tag_error_t (*read_cb)(tag_t *tag, void *user_data);
-
-	/**
-	 * @brief Multi-value write callback function.
-	 * Called by tag_write_multi() if non-NULL.
-	 * Should write the provided array of values to the source.
-	 * @param tag The tag being written to.
-	 * @param values Array of values to write (caller owns memory for strings/binaries within).
-	 * @param value_count Number of values in the array.
-	 * @param start_index Starting index to write at the source.
-	 * @param user_data User-provided context.
-	 * @return TAG_SUCCESS on success, error code otherwise.
-	 */
-	tag_error_t (*write_cb)(tag_t *tag, tag_value_t *values, size_t value_count, size_t start_index, void *user_data);
+	tag_read_cb read_cb;
+	tag_write_cb write_cb;
 
 	void *priv;		  /**< Private data pointer */
 	size_t priv_size;	  /**< Size of the private data */
 	void (*priv_free)(void *); /**< Private data free function */
-};
+} tag_register_options_t;
+
+typedef struct tag_range {
+	uint32_t index;
+	uint32_t count;
+} tag_range_t;
 
 typedef struct tag_get_request {
 	char *tag_id; /**< Tag ID */
-	size_t index; /**< Starting index of the value to get */
-	size_t count; /**< Number of values to get */
+
+	// If `has_range` is false, then all values from tag will be read.
+	// Otherwise `range.index` and `range.count` will be used to read a slice from the tag.
+	bool has_range;
+	tag_range_t range;
 } tag_get_request_t;
 
 typedef struct tag_set_request {
 	char *tag_id; /**< Tag ID */
-	tag_value_t *values; /**< Array of values to set. It should be parsed after tag is found. */
-	size_t count; /**< Number of values to set */
-	size_t start_index; /**< Starting index to set */
-	struct blob_attr *values_blob; /**< Parsed values blob */
+	size_t index;
+	struct blob_attr *values;
 } tag_set_request_t;
+
+typedef struct tag_read_options {
+	// If `has_range` is true, then `range` will be used when reading
+	//
+	// Will only read a subset of the values from a tag
+	bool has_range;
+	tag_range_t range;
+
+	// If `has_expected_type` is true, then `expected_type` will be used when reading
+	//
+	// Will try to type cast the result into `expected_type`
+	bool has_expected_type;
+	tag_type_t expected_type;
+} tag_read_options_t;
 
 /**
  * @brief Initialize tag manager
@@ -214,8 +263,7 @@ tag_manager_t *tag_manager_init(void);
 void tag_manager_cleanup(tag_manager_t *tm);
 
 /**
- * @brief Unregister a tag from the tag manager. You must free the tag separately if needed
- * - it is only removed from the manager's internal tag list.
+ * @brief Unregister a tag from the tag manager.
  *
  * @param tm Pointer to the tag manager
  * @param tag Pointer to the tag to unregister
@@ -232,12 +280,11 @@ tag_error_t tag_unregister(tag_manager_t *tm, tag_t *tag);
  * @return tag_error_t TAG_SUCCESS on success, error code on failure
  *         - TAG_ERROR_INVALID_PARAMETER: Invalid tag manager or tag
  *         - TAG_ERROR_MEMORY_ALLOCATION: Memory allocation failed
- *         - TAG_ERROR_DUPLICATE: Tag with the same name already exists
  */
-tag_error_t tag_register(tag_manager_t *tm, tag_t *tag);
+tag_error_t tag_register(tag_manager_t *tm, const tag_register_options_t *options);
 
 /**
- * @brief Get a tag by name.
+ * @brief Deprecated! Get a tag by name.
  *
  * Tag name is unique within the tag manager.
  *
@@ -397,23 +444,9 @@ tag_error_t tag_write_to_ubus(tag_t *tag, tag_value_t *values, size_t value_coun
 
 tag_error_t tag_write_range_to_ubus(tag_t *tag, tag_value_t *values, size_t value_count, size_t start_index,
 			       struct ubus_context *ctx);
-/**
- * @brief Read a tag value from ubus (from other services)
- *
- * @deprecated THIS WILL BE REMOVED IN THE FUTURE.
- * Use tag_read_from_ubus() instead.
- *
- * If the received value is not of the same type as the tag, the tag value will not be updated.
- * If the received value has unknown type, the provided tag type will be used to parse the value.
- *
- * @param tag Pointer to the tag
- * @param ctx Pointer to the ubus context
- * @return tag_t* Pointer to the tag with updated value, or NULL if not found or error
- */
-tag_t *tag_read_value_from_ubus(tag_t *tag, struct ubus_context *ctx);
 
 /**
- * @brief Read a tag value by name
+ * @brief Deprecated! Read a tag value by name
  *
  * @param tm Pointer to the tag manager
  * @param tag_name Name of the tag to read
@@ -423,7 +456,7 @@ tag_t *tag_read_value_from_ubus(tag_t *tag, struct ubus_context *ctx);
 tag_t *tag_read_by_name(tag_manager_t *tm, const char *tag_name, void *user_data);
 
 /**
- * @brief Write a tag value by name
+ * @brief Deprecated! Write a tag value by name
  *
  * @param tm Pointer to the tag manager
  * @param tag_name Name of the tag to write
@@ -436,7 +469,7 @@ tag_t *tag_read_by_name(tag_manager_t *tm, const char *tag_name, void *user_data
 tag_t *tag_write_by_name(tag_manager_t *tm, const char *tag_name, tag_value_t *values, size_t count, size_t start_index, void *user_data);
 
 /**
- * @brief Update a tag value by name
+ * @brief Deprecated! Update a tag value by name
  *
  * @param tm Pointer to the tag manager
  * @param tag_name Name of the tag to update
@@ -557,17 +590,6 @@ tag_error_t tag_set_value_at(tag_t *tag, size_t index, tag_value_t value);
  *         - TAG_ERROR_INVALID_PARAMETER: Invalid tag manager or blob buffer
  */
 tag_error_t tag_manager_to_blob(tag_manager_t *tm, struct blob_buf *b);
-
-/**
- * @brief Convert tag value to blob for ubus
- *
- * @param value Pointer to the tag value
- * @param type Tag type
- * @param b Pointer to the blob buffer
- * @return tag_error_t TAG_SUCCESS on success, error code on failure
- *         - TAG_ERROR_INVALID_PARAMETER: Invalid value or blob buffer
- */
-tag_error_t tag_value_to_blob(tag_value_t *value, tag_type_t type, struct blob_buf *b);
 
 /**
  * @brief Convert tag values to blob for ubus
@@ -749,28 +771,12 @@ tag_type_t tag_type_from_string(const char *type_str);
 char *tag_generate_id(const char *name, uint32_t index);
 
 /**
- * @brief Free tag resources
- *
- * @param tag Pointer to the tag to free
- */
-void tag_free(tag_t *tag);
-
-/**
  * @brief Free tag value
  *
  * @param value Pointer to the tag value to free
  * @param type Tag type
  */
-void tag_free_value(tag_value_t *value, tag_type_t type);
-
-/**
- * @brief Free tag multi-value array and its contents.
- *
- * @param values Pointer to the tag multi-value array to free
- * @param count Number of values to free
- * @param type Tag type
- */
-void tag_free_multi_value(tag_value_t *values, size_t count, tag_type_t type);
+void tag_value_free(tag_value_t *value, tag_type_t type);
 
 /**
  * @brief Iterate through all tags
@@ -853,15 +859,6 @@ bool tag_is_readable(const tag_t *tag);
 bool tag_is_writable(const tag_t *tag);
 
 /**
- * @brief Format a tag value to a string
- *
- * @param tag Pointer to the tag
- * @param buf Buffer to store the formatted value
- * @param size Size of the buffer
- */
-void tag_format_value(tag_t *tag, char *buf, size_t size);
-
-/**
  * @brief Format a specific value from a multi-value tag to a string
  *
  * @param tag Pointer to the tag
@@ -871,36 +868,6 @@ void tag_format_value(tag_t *tag, char *buf, size_t size);
  * @return tag_error_t TAG_SUCCESS on success, error code on failure
  */
 tag_error_t tag_format_value_at(tag_t *tag, size_t index, char *buf, size_t size);
-
-/**
- * @brief Convert bytes to a tag value
- *
- * @param new_value Pointer to the tag value
- * @param type Tag type
- * @param endianness Endianness of the bytes
- * @param bytes Bytes to convert
- * @param byte_count Number of bytes to convert
- * @return tag_error_t TAG_SUCCESS on success, error code on failure
- *         - TAG_ERROR_INVALID_PARAMETER: Invalid tag, bytes, new_value or endianness
- *         - TAG_ERROR_TYPE_MISMATCH: Tag type does not match the bytes type
- */
-int tag_bytes_to_value(tag_value_t *new_value, tag_type_t type, tag_endianness_t endianness,
-		       const uint8_t *bytes, size_t byte_count);
-
-/**
- * @brief Convert a tag value to bytes
- *
- * @param value Pointer to the tag value
- * @param type Tag type
- * @param endianness Endianness of the bytes
- * @param bytes Bytes to store the converted value
- * @param byte_count Number of bytes to store
- * @return tag_error_t TAG_SUCCESS on success, error code on failure
- *         - TAG_ERROR_INVALID_PARAMETER: Invalid tag, value or endianness
- *         - TAG_ERROR_TYPE_MISMATCH: Tag type does not match the value type
- */
-int tag_value_to_bytes(const tag_value_t *value, tag_type_t type, tag_endianness_t endianness, uint8_t *bytes,
-		       size_t byte_count);
 
 /**
  * @brief Helper function to add an error message to a blob buffer.
@@ -933,26 +900,11 @@ tag_error_t tag_parse_get_request(tag_get_request_t *req, struct blob_attr *msg)
 tag_error_t tag_parse_set_request(tag_set_request_t *req, struct blob_attr *msg);
 
 /**
- * @brief Parses a ubus message containing values to set for a tag.
- *
- * Extracts the 'values' array or single 'value' and optional 'index' from the blob message.
- * Converts the blob values to tag_value_t based on the tag's type.
- * The caller is responsible for freeing the returned 'parsed_values' within it using tag_set_request_free().
- *
- * @param request The target tag (used to determine expected value type).
- * @param msg The ubus blob message attribute containing the request data.
- * @param type Tag type
- * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
- */
-tag_error_t tag_parse_set_request_values(tag_set_request_t *req, struct blob_attr *msg, tag_type_t type);
-
-/**
  * @brief Free a tag set request
  *
  * @param request The tag set request to free
- * @param type Tag type
  */
-void tag_set_request_free(tag_set_request_t *req, tag_type_t type);
+void tag_set_request_free(tag_set_request_t *req);
 
 /**
  * @brief Free a tag get request
@@ -960,6 +912,197 @@ void tag_set_request_free(tag_set_request_t *req, tag_type_t type);
  * @param request The tag get request to free
  */
 void tag_get_request_free(tag_get_request_t *req);
+
+/**
+ * @brief Parse tag value from blobmsg
+ *
+ * @param value Where result will be saved
+ * @return tag_error_t TAG_SUCCESS on success, error code on failure
+ *         - TAG_ERROR_INVALID_PARAMETER: Invalid `value` or `blobmsg` parameter. Or `blobmsg` is an empty string.
+ *         - TAG_ERROR_TYPE_MISMATCH: `blobmsg` isn't a string
+ */
+tag_error_t tag_value_create_from_blobmsg(tag_value_t *value, tag_type_t type, struct blob_attr *blobmsg);
+
+/**
+ * @brief Parse tag value from string
+ *
+ * @param value Where result will be saved
+ * @return tag_error_t TAG_SUCCESS on success, error code on failure
+ *         - TAG_ERROR_INVALID_PARAMETER: NULL or empty `string`.
+ *         - TAG_ERROR_TYPE_MISMATCH: `string` couldn't parsed with the given `type`
+ */
+tag_error_t tag_value_create_from_string(tag_value_t *value, tag_type_t type, const char *string);
+
+/**
+ * @brief Copy a tag value from `source` to `destination`.
+ *
+ * @param destination Where value will be copied to
+ * @param source From where value will be copied
+ * @param type Type of value
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_value_copy(tag_value_t *destination, const tag_value_t *source, tag_type_t type);
+
+/**
+ * @brief Format a value into a buffer.
+ *
+ * @param value Value to be formatted
+ * @param type Type of value
+ * @param buff Buffer where value will be formatted
+ * @param buff_size Size of buffer
+ */
+void tag_value_to_string(const tag_value_t *value, tag_type_t type, char *buff, size_t buff_size);
+
+/**
+ * @brief Free a list of tags.
+ * Calling this on a zero initialized list is a no-op.
+ * Calling this multiple times on a list is safe. Repeated calls are no-ops.
+ *
+ * @param list Pointer to value list
+ */
+void tag_value_list_free(tag_value_list_t *list);
+
+/**
+ * @brief Convert bytes to a tag value
+ *
+ * @param new_value Pointer to the tag value
+ * @param type Tag type
+ * @param endianness Endianness of the bytes
+ * @param bytes Bytes to convert
+ * @param byte_count Number of bytes to convert
+ * @return tag_error_t TAG_SUCCESS on success, error code on failure
+ *         - TAG_ERROR_INVALID_PARAMETER: Invalid tag, bytes, new_value or endianness
+ *         - TAG_ERROR_TYPE_MISMATCH: Tag type does not match the bytes type
+ */
+int tag_value_create_from_bytes(tag_value_t *new_value, tag_type_t type, tag_endianness_t endianness,
+		       const uint8_t *bytes, size_t byte_count);
+
+/**
+ * @brief Convert a tag value to bytes
+ *
+ * @param value Pointer to the tag value
+ * @param type Tag type
+ * @param endianness Endianness of the bytes
+ * @param bytes Bytes to store the converted value
+ * @param byte_count Number of bytes to store
+ * @return tag_error_t TAG_SUCCESS on success, error code on failure
+ *         - TAG_ERROR_INVALID_PARAMETER: Invalid tag, value or endianness
+ *         - TAG_ERROR_TYPE_MISMATCH: Tag type does not match the value type
+ */
+int tag_value_to_bytes(const tag_value_t *value, tag_type_t type, tag_endianness_t endianness, uint8_t *bytes,
+		       size_t byte_count);
+
+/**
+ * @brief Parses a ubus message containing values to set for a tag.
+ *
+ * Extracts the 'values' array or single 'value' and optional 'index' from the blob message.
+ * The caller is responsible for freeing the individual values within it using tag_set_request_free().
+ *
+ * @param request The target tag (used to determine expected value type).
+ * @param msg The ubus blob message attribute containing the request data.
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_parse_set_request(tag_set_request_t *req, struct blob_attr *msg);
+
+/**
+ * @brief Parses a list of strings into tag values.
+ *
+ * On success `list` must be freed with `tag_value_list_free`
+ *
+ * @param list Where parsed result will be stored
+ * @param type Tag value type
+ * @param blobmsg The blob message
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_value_list_create_from_blobmsg(tag_value_list_t *list, tag_type_t type, struct blob_attr *blobmsg);
+
+/**
+ * @brief Resize the list to a new length
+ *
+ * If the current size is the same as the request one, nothing will be done and it will always succeed.
+ *
+ * When shrinking the value which won't fit will be freed.
+ * When growing the new values will be zero initialized.
+ *
+ * @return tag_error_t TAG_SUCCESS on success, otherwise TAG_ERROR_MEMORY_ALLOCATION on error.
+ */
+tag_error_t tag_value_list_resize(tag_value_list_t *list, size_t len);
+
+/**
+ * @brief Change value in list at a certain index, will free previous value if needed.
+ *
+ * Does not take ownership of `value`, will take a copy of it.
+ *
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_value_list_set(tag_value_list_t *list, size_t index, const tag_value_t *value);
+
+/**
+ * @brief Get value in list at a certain index. Does NOT copy the value.
+ *
+ * Result must NOT be freed using `tag_value_free`.
+ *
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_value_list_get(const tag_value_list_t *list, size_t index, tag_value_t *value);
+
+/**
+ * @brief Change multiple values in list from a certain index, will free previous values if needed.
+ *
+ * Does not take ownership of values inside `values`, will take a copy of it.
+ *
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_value_list_set_many(tag_value_list_t *list, size_t index, const tag_value_t *values, size_t len);
+
+/**
+ * @brief Write all values from list to blob buffer as an array.
+ */
+void tag_value_list_to_blobmsg_array(const tag_value_list_t *list, struct blob_buf *blob_buf, const char *name);
+
+/**
+ * @brief Read a tag value from ubus
+ *
+ * Requires acl `ubus call <tag_source>.rpc get_tag_value`
+ *
+ * @param ubus Ubus context
+ * @param tag_source Tag source
+ * @param tag_id Tag id
+ * @param result Pointer to where read values will be stored.
+ *               Will overwritten any values already in `result` on success. WON'T BE FREED!
+ *               Must call `tag_value_list_free` on success.
+ * @param options Optional parameters, can be left zero initialized to read all values from tag.
+ *
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_ubus_read(
+	struct ubus_context *ubus,
+	const char *tag_source,
+	const char *tag_id,
+	tag_value_list_t *result,
+	tag_read_options_t options
+);
+
+/**
+ * @brief Write a tag value to ubus
+ *
+ * Requires acl `ubus call <tag_source>.rpc set_tag_value`
+ *
+ * @param ubus Ubus context
+ * @param tag_source Tag source
+ * @param tag_id Tag id
+ * @param index Index of first value to write
+ * @param index List of values which will be written
+ *
+ * @return tag_error_t TAG_SUCCESS on success, error code otherwise.
+ */
+tag_error_t tag_ubus_write(
+	struct ubus_context *ubus,
+	const char *tag_source,
+	const char *tag_id,
+	size_t index,
+	const tag_value_list_t *values
+);
 
 #ifdef __cplusplus
 }

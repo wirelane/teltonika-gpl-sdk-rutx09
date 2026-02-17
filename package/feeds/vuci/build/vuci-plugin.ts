@@ -165,7 +165,12 @@ function getAppName(name: string) {
 
 async function groupMenusToViews() {
   const path = (p: string) => new URL(p, import.meta.url).pathname
-  const files = await fg([path('../applications/**/menu.d/*.json'), path('../applications/**/src/views/**/*.vue')])
+  const files = await fg([
+    // ignore menu.d folder thats right at the applications/menu.d as it's used for back-end only during compilation of RUTOS/TSWOS.
+    `!${path('../applications/menu.d')}`,
+    path('../applications/**/menu.d/*.json'),
+    path('../applications/**/src/views/**/*.vue')
+  ])
   return files.reduce<{ menus: string[]; views: string[] }>(
     (sum, curr) => {
       if (curr.endsWith('.vue')) sum.views.push(curr)

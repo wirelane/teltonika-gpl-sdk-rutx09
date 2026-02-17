@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dnp3
-PKG_VERSION:=2025-12-01
+PKG_VERSION:=2026-01-06
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.20
+PKG_SOURCE_VERSION:=7.21
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_LICENSE:=Teltonika-closed
 
@@ -50,8 +50,8 @@ define Package/dnp3/install
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DIR) $(1)/usr/lib/rpcd
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_client $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_outstation $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dnp3_client $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/dnp3_outstation $(1)/usr/sbin/
 
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/dnp3_client.conf $(1)/etc/config/dnp3_client
@@ -71,7 +71,7 @@ define Package/dnp3/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_outstation.permtab $(1)/etc/permtab.d/dnp3_outstation
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dnp3_outstation.json $(1)/usr/share/acl.d/dnp3_outstation.json
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dnp3_client_rpc.so $(1)/usr/lib/rpcd/dnp3_client_rpc.so
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/lib/libdnp3_client_rpc.so $(1)/usr/lib/rpcd/dnp3_client_rpc.so
 endef
 
 define Package/dnp3/prerm

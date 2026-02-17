@@ -52,7 +52,8 @@ tagSource OBJECT-TYPE
         SYNTAX		INTEGER {
                                 mbus(1),
                                 modbus(2),
-                                other(3)
+                                other(3),
+                                dnp3(4)
                         }
         MAX-ACCESS	read-only
         STATUS		current
@@ -92,7 +93,7 @@ tagType OBJECT-TYPE
 			}
         MAX-ACCESS	read-only
         STATUS		current
-        DESCRIPTION	"Data type of the 'tagValue' object."
+        DESCRIPTION	"Data type of the 'tagValue' object. binary(13) values are hex representation of bytes (e.g. AF, A1, 55)"
         ::= { tagEntry 6 }
 
 tagValueSize OBJECT-TYPE

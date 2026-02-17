@@ -960,6 +960,10 @@ configure_interface() {
 	bootstrap_iccid=$(mnf_info -d ${sim_pos} 2>/dev/null)
 	[[ "$bootstrap_iccid" != "N/A" && -n "$bootstrap_iccid" ]] && is_bootstrap_profile="1" || is_bootstrap_profile="0"
 
+	#If the SIM is an eSIM, postfix the interface name
+	sim_type=$(mnf_info -C "$sim_pos" 2>/dev/null | cut -b 3)
+	[[ "$sim_type" == 2 ]] && interface="${interface}e1"
+
 	metric=$((metric + 1))
 
 	uci -q delete network."${interface}"

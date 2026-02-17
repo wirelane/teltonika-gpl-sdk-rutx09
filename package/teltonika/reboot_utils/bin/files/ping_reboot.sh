@@ -3,14 +3,86 @@
 . /lib/functions.sh
 . /lib/config/uci.sh
 . /usr/share/libubox/jshn.sh
+[ -r "/usr/libexec/reboot_utils/ping_reboot_mobile.sh" ] && . /usr/libexec/reboot_utils/ping_reboot_mobile.sh
 
-SECTION=$1
+USAGE="Usage: ping_reboot.sh [-p] [-h] <section_name>
+  -p, --portmap      Only map hosts to ports and exit, only available on PoE devices
+  -h, --help         Show this help message"
+SHOW_HELP=0
+DO_PORTMAP=0
+SECTION=""
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+		-h|--help)
+			SHOW_HELP=1
+			shift
+			;;
+		-p|--portmap)
+			DO_PORTMAP=1
+			shift
+			;;
+		*)
+			if [ -z "$SECTION" ]; then
+				SECTION="$1"
+				shift
+			else
+				echo "Unknown argument: $1"
+				echo "$USAGE"
+				exit 1
+			fi
+			;;
+	esac
+done
+if [ "$SHOW_HELP" -eq 1 ]; then
+	echo "$USAGE"
+	exit 0
+fi
+if [ -z "$SECTION" ]; then
+	echo "Error: <section_name> argument is required."
+	echo "$USAGE"
+	exit 1
+fi
+
 WDIR="/var/run/preboot"
 FILE="${WDIR}/wget_check_file"
 PINGCMD="/bin/ping"
 PINGCMDV6="/bin/ping6"
 DFOTA_LOCK="/var/lock/modem_dfota.lock"
 DUAL_MODEM=0
+HAS_SWCONFIG=0
+FAIL_COUNT_FILE="${WDIR}/fail_counter_${SECTION}"
+KV_SEP=","
+ACTIVE_MOBILE_IFACES="" # e.g. "mob1s1a1 mob2s1a1"
+# contains list of mobile ifnames for each sim (e.g. "qmimux0 qmimux1")
+IF_OPTION1=""
+IF_OPTION2=""
+# Map of mobile device to interface (e.g. "qmimux0,mob1s1a1 qmimux1,mob2s1a1"). Used for quota_limit check
+DEV_IFACE_MAP=""
+# Map of hosts to ports (e.g. "host1,port1 host2,port2"). Used for port ping to know which port to restart when device with IP disappears
+PORT_HOST_MAP=""
+
+kvmap_get() {
+	local map="$1"
+	local key="$2"
+	echo "$map" | tr ' ' '\n' | grep "^$key$KV_SEP" | cut -d$KV_SEP -f2
+}
+kvmap_remove() {
+	local map="$1"
+	local key="$2"
+
+	map=$(echo "$map" | tr ' ' '\n' | grep -v "^$key$KV_SEP" | tr '\n' ' ')
+	echo "$map" | sed 's/^ *//;s/ *$//'
+}
+kvmap_insert() {
+	local map="$1"
+	local key="$2"
+	local value="$3"
+
+	map=$(echo "$map" | tr ' ' '\n' | grep -v "^$key$KV_SEP" | tr '\n' ' ')
+	map="$map$key$KV_SEP$value"
+	echo "$map" | sed 's/^ *//;s/ *$//'
+}
 
 log() {
 	/usr/bin/logger -t ping_reboot.sh "$@"
@@ -18,25 +90,11 @@ log() {
 
 check_suid() {
 	for i in $1; do
-		[ -u "$i" ] || {
+		$i --help > /dev/null 2>&1 || {
 			log "Insufficient permissions to execute '$i' command."
 			return 1
 		}
 	done
-}
-
-get_router_name() {
-	local name=""
-
-	config_load system || {
-		log "Failed to load system config. Insufficient permissions."
-		return 1
-	}
-
-	config_get name system "devicename"
-	[ -z "$name" ] && name=$(mnf_info -n 2>/dev/null)
-
-	echo "${name:0:3}"
 }
 
 get_config() {
@@ -57,230 +115,44 @@ get_config() {
 	config_get MESSAGE "$SECTION" "message" ""
 	config_get MODEM_ID_SMS "$SECTION" "modem_id_sms" ""
 	config_get IP_TYPE "$SECTION" ip_type "ipv4"
+	config_get IP_TYPE1 "$SECTION" ip_type1 "ipv4"
+	config_get IP_TYPE2 "$SECTION" ip_type2 "ipv4"
 	config_get PING_PORT_TYPE "$SECTION" ping_port_type ""
 	config_get PORT "$SECTION" port ""
 	config_get ACTION_WHEN "$SECTION" action_when "all"
-
-	CURRENT_TRY=$(get_fail_counter)
-}
-
-get_modem_num() {
-
-	local modem="$1"
-	local found_modem=""
-
-	local modem_objs=$(ubus list gsm.*)
-
-	for i in $modem_objs
-	do
-		found_modem=$(ubus call "$i" info 2> /dev/null | grep usb_id | sed 's/.* //g')
-		[ "$modem" == "${found_modem:1:-2}" ] && echo "${i//[!0-9]/}" && return 0
-	done
-
-	return 1
 }
 
 get_fail_counter() {
-	local file="${WDIR}/fail_counter_${SECTION}"
+	local key="$1"
 	local val
 
-	[ -r "$file" ] || {
+	[ -r "$FAIL_COUNT_FILE" ] || {
 		echo 0
 
 		return 1
 	}
 	
-	val=$(cat "$file")
-	[ "$val" -eq "$val" ] 2>/dev/null && echo "$val" || echo 0
+	val=$(cat "$FAIL_COUNT_FILE")
+	if [ -n "$key" ]; then
+		local key_fail_count=$(kvmap_get "$val" "$key")
+		[ -n "$key_fail_count" ] && echo "$key_fail_count" || echo 0
+	else
+		[ "$val" -eq "$val" ] 2>/dev/null && echo "$val" || echo 0
+	fi
 }
 
 set_fail_counter() {
+	local key="$2"
+
 	#Validate if the argument is a number
-	[ "$1" -eq "$1" ] 2>/dev/null && echo -n "$1" >"${WDIR}/fail_counter_${SECTION}"
-}
-
-restart_modem() {
-	/bin/ubus -t 20 call mctl reboot "{\"id\":\"$1\"}"
-}
-
-restart_mobile_interface() {
-	local interface="$1"
-
-	[ -n "$interface" ] || {
-		log "No active mobile interface found."
-
-		return
-	}
-
-	ubus -t 10 call network.interface down "{\"interface\": \"${interface}\"}" 2>/dev/null
-	sleep 1
-	ubus -t 10 call network.interface up "{\"interface\": \"${interface}\"}" 2>/dev/null
-}
-
-restart_poe() {
-	/bin/ubus call poeman set "{\"port\":\"$1\",\"enable\":false}"
-	sleep 3
-	/bin/ubus call poeman set "{\"port\":\"$1\",\"enable\":true}"
-}
-
-restart_port() {
-	ubus list poeman 2>&1 >/dev/null || return 0
-	config_load poe || {
-		log "Failed to load poe config. Insufficient permissions."
-
-		return 1
-	}
-
-	if [ -n "$1" ]; then
-		config_get POE_ENABLE "$1" "poe_enable" 0
-		config_get NAME "$1" "name" ""
-		if [ "$POE_ENABLE" = 1 ] && [ -n "$NAME" ]; then
-			restart_poe "$NAME"
-		fi
-	elif [ -n "$PORT" ]; then
-		config_get POE_ENABLE "$PORT" "poe_enable" 0
-		config_get NAME "$PORT" "name" ""
-		if [ "$POE_ENABLE" = 1 ] && [ -n "$NAME" ]; then
-			restart_poe "$NAME"
-		fi
-	fi
-
-}
-
-get_l3_device() {
-	local interface=$1
-	local suffix=$2
-	local sim="$3"
-
-	local status=$(ubus call network.interface status "{ \"interface\" : \"${interface}${suffix}\" }" 2>/dev/null)
-	[ -z "$status" ] && return
-
-	json_init
-	json_load "$status"
-	json_get_var up "up"
-
-	[ "$up" -ne 1 ] && return
-
-	ACTIVE_INTERFACE_SUFFIX="${interface}${suffix}"
-	ACTIVE_INTERFACE="$interface"
-
-	json_get_var l3_device "l3_device"
-
-	if [ "$sim" = "2" ]; then
-		for if in $IF_OPTION2; do
-			[ "$if" = "$l3_device" ] && return
-		done
-		IF_OPTION2="${IF_OPTION2} ${l3_device}"
+	[ "$1" -eq "$1" ] 2>/dev/null || return
+	if [ -n "$key" ]; then
+		local fail_map=$(cat "$FAIL_COUNT_FILE")
+		fail_map=$(kvmap_insert "$fail_map" "$key" "$1")
+		echo "$fail_map" >"$FAIL_COUNT_FILE"
 	else
-		for if in $IF_OPTION1; do
-			[ "$if" = "$l3_device" ] && return
-		done
-		IF_OPTION1="${IF_OPTION1} ${l3_device}"
+		echo -n "$1" >"$FAIL_COUNT_FILE"
 	fi
-}
-
-get_dual_modem_sim_slot()
-{
-	local modem_id="$1"
-
-	json_select ..
-	json_get_keys modems modems
-	json_select modems
-	for modem in $modems; do
-		json_select "$modem"
-		json_get_vars id builtin primary >/dev/null 2>&1
-		[ "$id" != "$modem_id" ] && {
-			json_select ..
-			continue
-		}
-
-		if [ "$builtin" -eq 1 ] && { [ -z "$primary" ] || [ "$primary" -eq 0 ]; }; then
-			echo "2"
-			return
-		else
-			echo "1"
-			return
-		fi
-	done
-}
-
-get_active_mobile_interface() {
-	local section_name="$1"
-
-	config_get modem "$section_name" "modem"
-	config_get sim "$section_name" sim
-
-	[ -z "$modem" ] && return
-
-	json_load_file "/etc/board.json"
-	json_select hwinfo
-	json_get_var dual_modem dual_modem >/dev/null 2>&1
-	[  -n "$dual_modem" ] && [ "$dual_modem" -eq 1 ] && {
-		DUAL_MODEM=1
-		sim=$(get_dual_modem_sim_slot "$modem")
-	}
-
-	# Check IPv6, IPv4 and legacy interface names for an l3_device
-	#FIXME: what if IPV4 type selected but IPV6 interface is available?
-	get_l3_device "$section_name" "_6" "$sim"
-	get_l3_device "$section_name" "_4" "$sim"
-	if [ \( -z "$IF_OPTION1" -a "$sim" = "1" \) ] || [ \( -z "$IF_OPTION2" -a "$sim" = "2" \) ]; then
-		get_l3_device "$section_name" "$sim"
-	fi
-}
-
-get_modem() {
-	local modem modems id builtin primary
-	local primary_modem=""
-	local builtin_modem=""
-	json_init
-	json_load_file "/etc/board.json"
-	json_get_keys modems modems
-	json_select modems
-
-	for modem in $modems; do
-		json_select "$modem"
-		json_get_vars builtin primary id
-
-		[ -z "$id" ] && {
-			json_select ..
-			continue
-		}
-
-		[ "$builtin" ] && builtin_modem=$id
-		[ "$primary" ] && {
-			primary_modem=$id
-			break
-		}
-
-		json_select ..
-	done
-
-	[ -n "$primary_modem" ] && {
-		MODEM=$primary_modem
-		return
-	}
-
-	if [ -n "$builtin_modem" ]; then
-		primary_modem=$builtin_modem
-	else
-		json_load "$(/bin/ubus call gsm.modem0 info)"
-		json_get_vars usb_id
-		primary_modem="$usb_id"
-	fi
-
-	MODEM=$primary_modem
-}
-
-send_sms() {
-	for phone in $PHONE_LIST; do
-		local res=$(ubus call gsm.modem"$MODEM_NUM" send_sms "{\"number\":\"${phone}\", \"text\": \"${MESSAGE}\"}")
-		res=$(echo "$res" | grep -o OK)
-
-		if [ "$res" != "OK" ]; then
-			set_fail_counter "$CURRENT_TRY"
-		fi
-	done
 }
 
 preboot_lock() {
@@ -299,6 +171,8 @@ preboot_lock() {
 }
 
 exec_action() {
+	local port="$2"
+	local host="$3"
 	case "$ACTION" in
 	"1")
 		preboot_lock || {
@@ -354,9 +228,10 @@ exec_action() {
 			\"write_db\": 1,
 		}"
 
-		#FIXME: what if we have multiple mobile interfaces (multi APN mode)?
-		#which one should we restart?	
-		restart_mobile_interface "$ACTIVE_INTERFACE"
+		for iface in $ACTIVE_MOBILE_IFACES; do
+			log "Restarting interface $iface"
+			restart_mobile_interface "$iface"
+		done
 		;;
 	"6")
 		log "Sending message after ${CURRENT_TRY} unsuccessful retries"
@@ -369,14 +244,20 @@ exec_action() {
 		send_sms
 		;;
 	"7")
-		log "Restarting port after ${CURRENT_TRY} unsuccessful retries"
+		if [ -z "$port" ]; then
+			log "No port mapping found for host '$host'. Port restart will not be performed."
+			return 1
+		fi
+		local msg=""
+		[ -n "$host" ] && msg=" for host '$host'"
+		log "Restarting port '$port' after ${CURRENT_TRY} unsuccessful retries$msg"
 		ubus call log write_ext "{
-			\"event\": \"Restarting port after ${CURRENT_TRY} unsuccessful retries\",
+			\"event\": \"Restarting port '$port' after ${CURRENT_TRY} unsuccessful retries$msg\",
 			\"sender\": \"Ping Reboot\",
 			\"table\": 0,
 			\"write_db\": 1,
 		}"
-		restart_port
+		restart_port "$port"
 		;;
 	"3" | *)
 		log "${CURRENT_TRY} unsuccessful ${TYPE} tries"
@@ -384,63 +265,28 @@ exec_action() {
 	esac
 }
 
-is_over_limit() {
-	local over_limit
-
-	if [ "$STOP_ACTION" -eq 1 ]; then
-		json_init
-		json_load "$(ubus call quota_limit.${ACTIVE_INTERFACE} status)"
-		json_get_var over_limit "event_sent"
-	else
-		over_limit=0
-	fi
-
-	[ "$over_limit" -eq 1 ]
-}
-
 check_tries() {
+	local host="$4"
+	local port="$5"
 	if [ -n "$2" ]; then
 		log "$2"
 	fi
 
 	if [ "$CURRENT_TRY" -ge "$RETRIES" ]; then
-		if is_over_limit; then
-			log "Action stopped. Data limit reached."
+		if [ -n "$port" ]; then
+			set_fail_counter 0 "$port"
+		elif [ -n "$host" ]; then
+			set_fail_counter 0 "$host"
+			port=$(kvmap_get "$PORT_HOST_MAP" "$host")
 		else
 			set_fail_counter 0
-			exec_action "$1"
 		fi
+		exec_action "$1" "$port" "$host"
 	else
 		log "$3"
 	fi
 }
 
-get_hex_from_position() {
-	position=$(($1 + 1))
-	local hex_value=""
-	if [ -z "$1" ] || [ "$1" -le 1 ]; then
-		hex_value="0x01"
-	else
-		local decimal_value=$((2 ** (position - 1)))
-		hex_value=$(printf "0x%02x" "$decimal_value")
-	fi
-	echo "$hex_value"
-}
-
-get_position_from_hex() {
-	local value=$1
-	local position=0
-
-	# Remove the "0x" prefix and convert to decimal
-	local decimal_value=$(echo "$value" | sed 's/0x//' | awk '{printf "%d", "0x" $0}')
-
-	while [ $((decimal_value % 2)) -eq 0 ]; do
-		decimal_value=$((decimal_value / 2))
-		position=$((position + 1))
-	done
-
-	return "$position"
-}
 
 # adjusts option length (returns 1 for single options and unmodified length for list options)
 adjust_len() {
@@ -475,43 +321,25 @@ exec_ping() {
 		fi
 	}
 
-	for if in $if_option; do
-		if $ping_cmd -I "$if" -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$host" \
-		   >/dev/null 2>&1; then
+	local all_over_limit=1
+	for dev in $if_option; do
+		local interface=$(kvmap_get "$DEV_IFACE_MAP" "$dev")
+		if $ping_cmd -I "$dev" -W "$TIMEOUT" -s "$PACKET_SIZE" -q -c 1 "$host" >/dev/null 2>&1; then
 			return 0
+		elif is_over_limit "$interface"; then
+			log "Interface $interface is over data limit. Considering ping successful."
+			continue
+		else
+			all_over_limit=0
 		fi
 	done
 
-	return 1
-}
-
-perform_double_ping() {
-	local ping_cmd="$PINGCMD"
-	local ipv4_ping=0
-	local ipv6_ping=0
-
-	for i in $(cat /proc/net/arp | grep -w "$1" | awk '{print $1}'); do
-		if [ -n "$i" ] && [ "$i" != "IP" ]; then
-			if exec_ping "$ping_cmd" "$i"; then
-				ipv4_ping=1
-			fi
-		fi
-	done
-
-	ping_cmd="$PINGCMDV6"
-	for j in $(ip -6 neigh | grep -w "$1" | awk '{print $5}'); do
-		if [ -n "$j" ]; then
-			if exec_ping "$ping_cmd" "$j"; then
-				ipv6_ping=1
-			fi
-		fi
-	done
-
-	if [ "$ipv4_ping" = 1 ] || [ "$ipv6_ping" = 1 ] && [ "$2" -ge "$3" ]; then
-		return 1
-	else
+	if [ "$all_over_limit" -eq 1 ]; then
+		# if all interfaces are over limit, consider ping successful
 		return 0
 	fi
+
+	return 1
 }
 
 perform_multiple_pings_ping() {
@@ -520,6 +348,13 @@ perform_multiple_pings_ping() {
 	local sim="$3"
 	local passed_var="$4"
 	local failed_var="$5"
+
+	if [ "$IF_TYPE" = "2" ]; then
+		[ -z "$IF_OPTION1" ] && [ -z "$IF_OPTION2" ] && {
+			check_tries "-p" "No mobile data connection active" "${TIME} min. until next ping retry"
+			exit
+		}
+	fi
 
 	for host in $hosts; do
 		if exec_ping "$ping_cmd" "$host" "$sim"; then
@@ -541,10 +376,13 @@ perform_multiple_pings() {
 	local passed_pings=0
 	local failed_pings=0
 	local ping_cmd="$PINGCMD"
-
+	local ping_cmd1="$PINGCMD"
+	local ping_cmd2="$PINGCMD"
 	[ "$IP_TYPE" = "ipv6" ] && ping_cmd="$PINGCMDV6"
+	[ "$IP_TYPE1" = "ipv6" ] && ping_cmd1="$PINGCMDV6"
+	[ "$IP_TYPE2" = "ipv6" ] && ping_cmd2="$PINGCMDV6"
 
-	check_suid "$ping_cmd" || return 1
+	check_suid "$ping_cmd $ping_cmd1 $ping_cmd2" || return 1
 
 	config_get len "$SECTION" "host_LENGTH" 0
 	config_get len1 "$SECTION" "host1_LENGTH" 0
@@ -566,202 +404,37 @@ perform_multiple_pings() {
 
 	if [ "$DUAL_MODEM" -eq 1 ]; then
 		# Handle SIMs running simultaneously in dual modem devices
-		[ "$len1" -gt 0 ] && perform_multiple_pings_ping "$host1" "$ping_cmd" "1" passed_pings failed_pings
-		[ "$len2" -gt 0 ] && perform_multiple_pings_ping "$host2" "$ping_cmd" "2" passed_pings failed_pings
-	else
+		[ "$len1" -gt 0 ] && perform_multiple_pings_ping "$host1" "$ping_cmd1" "1" passed_pings failed_pings
+		[ "$len2" -gt 0 ] && perform_multiple_pings_ping "$host2" "$ping_cmd2" "2" passed_pings failed_pings
+	elif [ -n "$MODEM" ]; then
 		# Handle single SIM running in single modem devices
 		json_load "$(ubus call gsm.modem0 get_sim_slot)"
 		json_get_var index index
 		if [ "$index" -eq 1 ]; then
-			perform_multiple_pings_ping "$host1" "$ping_cmd" "$index" passed_pings failed_pings
+			perform_multiple_pings_ping "$host1" "$ping_cmd1" "$index" passed_pings failed_pings
 		else
-			perform_multiple_pings_ping "$host2" "$ping_cmd" "$index" passed_pings failed_pings
+			perform_multiple_pings_ping "$host2" "$ping_cmd2" "$index" passed_pings failed_pings
 		fi
 	fi
 
 	[ "$ACTION_WHEN" = "any" ] && [ "$failed_pings" -ne 0 ] && return;
 
-	if
-	( [ "$len" -gt "0" ] && [ "$passed_pings" -ge "$len" ] ) || 
-	( [ "$len1" -gt "0" ] && [ "$passed_pings" -ge "$len1" ] ) || 
-	( [ "$len2" -gt "0" ] && [ "$passed_pings" -ge "$len2" ] )
+	if { [ "$len" -gt "0" ] && [ "$passed_pings" -ge "$len" ]; } || 
+	{ [ "$len1" -gt "0" ] && [ "$passed_pings" -ge "$len1" ]; } || 
+	{ [ "$len2" -gt "0" ] && [ "$passed_pings" -ge "$len2" ]; }
 	then
 		set_fail_counter 0
 		log "Pings successful."
 		return;
-	elif
-	(
-	( [ "$len" -gt "0" ] && [ "$failed_pings" -ge "$len" ] ) || 
-	( [ "$len1" -gt "0" ] && [ "$failed_pings" -ge "$len1" ] ) || 
-	( [ "$len2" -gt "0" ] && [ "$failed_pings" -ge "$len2" ] )
-	) && [ "$ACTION_WHEN" = "all" ]
+	elif [ "$ACTION_WHEN" = "all" ] && {
+	{ [ "$len" -gt "0" ] && [ "$failed_pings" -ge "$len" ]; } || 
+	{ [ "$len1" -gt "0" ] && [ "$failed_pings" -ge "$len1" ]; } || 
+	{ [ "$len2" -gt "0" ] && [ "$failed_pings" -ge "$len2" ]; } ; }
 	then
 		check_tries "-p" "" "${TIME} min. until next ping retry"
 		return;
 	fi
 	set_fail_counter 0
-}
-
-perform_ping() {
-	local ping_cmd="$PINGCMD"
-
-	[ "$IP_TYPE" = "ipv6" ] && ping_cmd="$PINGCMDV6"
-
-	if exec_ping "$ping_cmd" "$HOST"; then
-		set_fail_counter 0
-		log "Ping successful."
-	else
-		check_tries "-p" "Host ${HOST} unreachable" "${TIME} min. until next ping retry"
-	fi
-}
-
-is_ips_equal_to_number() {
-	local contains=0
-	local number=$2
-
-	if [ "$3" = "TSW" ]; then
-		for i in $(bridge fdb | grep "$1" | grep "self" | awk '{print $1}'); do
-			local ip4=$(cat /proc/net/arp | grep -w "$i" | awk '{print $1}')
-			local ip6=$(ip -6 neigh | grep -w "$i" | awk '{print $1}')
-
-			[ -n "$ip4" ] || [ -n "$ip6" ] && contains=$((contains + 1))
-		done
-	else
-		local port_num=$(echo "$1" | sed 's/port\([0-9]*\).*/\1/')
-		local oldIFS="$IFS"
-		while IFS= read -r line; do
-			set -- $line
-			i=$1
-			j=$2
-			[ -z "$i" ] || [ -z "$j" ] && break
-
-			get_position_from_hex "$j"
-
-			local position=$?
-
-			if [ "$position" = "$port_num" ]; then
-				local ip4=$(cat /proc/net/arp | grep -w "$i" | awk '{print $1}')
-				local ip6=$(ip -6 neigh | grep -w "$i" | awk '{print $1}')
-
-				[ -n "$ip4" ] || [ -n "$ip6" ] && contains=$((contains + 1))
-			fi
-		done <<EOF
-		$(swconfig dev switch0 get dump_arl | awk '{print $2, $4}')
-EOF
-		IFS="$oldIFS"
-	fi
-
-	[ "$contains" -ge "$number" ]
-}
-
-multiple_ports() {
-	local sec="$2"
-	local port=$(echo "$1" | cut -d'=' -f1)
-	local number=$(echo "$1" | cut -d'=' -f2)
-	local decimal_value=$(echo "$port" | sed 's/[^0-9]*//g')
-	local router_name devices_count
-	local passed_pings=0
-
-	if [ -z "$PORT" ]; then
-		PORT=${port}
-	fi
-
-	router_name=$(get_router_name)
-	[ "$?" -ne 0 ] && return
-
-	is_ips_equal_to_number "$port" "$number" "$router_name"
-
-	local equal=$?
-
-	if [ "$equal" -eq 1 ] && [ "$ACTION" -eq "7" ]; then
-		restart_port "$port"
-	else
-		if [ "$router_name" = "TSW" ]; then
-			devices_count=$(bridge fdb | grep "$port" | grep "self" | awk '{print $1}' | wc -l)
-		else
-			local hex=$(get_hex_from_position "$decimal_value")
-			devices_count=$(swconfig dev switch0 get dump_arl | grep -c "$hex")
-		fi
-
-		if [ "$router_name" = "TSW" ]; then
-			for i in $(bridge fdb | grep "$port" | grep "self" | awk '{print $1}'); do
-				perform_double_ping "$i" "$devices_count" "$number"
-				local passed=$?
-				passed_pings=$((passed_pings+passed))
-			done
-		else
-			local oldIFS="$IFS"
-			while IFS= read -r line; do
-				set -- $line
-				i=$1
-				j=$2
-				[ -z "$i" ] && [ -z "$j" ] && break
-
-				get_position_from_hex "$j"
-				local position=$?
-
-				if [ "$position" = "$decimal_value" ]; then
-					perform_double_ping "$i" "$devices_count" "$number"
-					local passed=$?
-					passed_pings=$((passed_pings+passed))
-				fi
-			done <<EOF
-			$(swconfig dev switch0 get dump_arl | awk '{print $2, $4}')
-EOF
-			IFS="$oldIFS"
-		fi
-	fi
-
-	if [ "$passed_pings" -ge "$number" ]; then
-		set_fail_counter 0
-		log "Ping successful."
-	elif [ "$equal" -eq 0 ] && [ "$ACTION" -eq "7" ]; then
-		check_tries "-p" "" "${TIME} min. until next ping retry"
-	fi
-}
-
-perform_port_ping() {
-	check_suid "$PINGCMD $PINGCMDV6" || return 1
-	if [ "$PING_PORT_TYPE" = "ping_ip" ]; then
-		local mac=""
-		if [ "$IP_TYPE" = "ipv6" ]; then
-			mac=$(ip -6 neigh | grep -w "$HOST" | awk '{print $5}')
-		else
-			#Ping before getting MAC address. In other case, ARP table will could be empty in some situations.
-			#Basicaly it is an arp-scan equivalent since we do not have such a command in a TSW devices.
-			$PINGCMD -W 2 -s 56 -q -c 1 "$HOST" >/dev/null 2>&1
-			mac=$(cat /proc/net/arp | grep -w "$HOST" | awk '{print $4}')
-		fi
-		if [ -n "$mac" ] && [ "$mac" != "00:00:00:00:00:00" ]; then
-			local port=""
-			local router_name=$(get_router_name)
-			[ "$?" -ne 0 ] && return
-
-			if [ "$router_name" = "TSW" ]; then
-				port=$(bridge fdb | grep -w "$mac" | grep "self" | awk '{print $3}')
-			else
-				local portmap=$(swconfig dev switch0 get dump_arl | grep -w "$mac" | awk '{print $4}')
-				get_position_from_hex "$portmap"
-				local position=$?
-				port="port${position}"
-			fi
-
-			if [ -n "$port" ]; then
-				uci_set ping_reboot "$SECTION" port "$port"
-				uci_commit ping_reboot
-				config_load ping_reboot
-			fi
-		else
-			log "Was not successful in getting device MAC adress."
-		fi
-
-		perform_ping
-	else
-		config_get len "$SECTION" "port_host_LENGTH" 0
-		if [ -n "$len" ]; then
-			config_list_foreach "$SECTION" port_host multiple_ports "$SECTION"
-		fi
-	fi
 }
 
 perform_wget() {
@@ -803,56 +476,53 @@ perform_wget() {
 
 	set_fail_counter 0
 }
-config_load ping_reboot
-get_config
 
-[ "$ENABLE" -ne 1 ] && return
-[ -d "$WDIR" ] || mkdir -p "$WDIR" 2>/dev/null || {
-	log "Failed to create directory $WDIR"
-	exit 1
-}
+setup() {
+	config_load ping_reboot
+	get_config
 
-CURRENT_TRY=$((CURRENT_TRY + 1))
-set_fail_counter $CURRENT_TRY
-
-[ -z "$MODEM" ] && {
-	get_modem
-	uci_set ping_reboot "$SECTION" modem "$MODEM"
-	uci_commit ping_reboot
-}
-
-MODEM_NUM=$(get_modem_num "$MODEM")
-[ -z "$ACTIVE_INTERFACE" ] && {
-	config_load network || {
-		log "Failed to load network config. Insufficient permissions."
+	[ "$ENABLE" -ne 1 ] && exit 0
+	[ -d "$WDIR" ] || mkdir -p "$WDIR" 2>/dev/null || {
+		log "Failed to create directory $WDIR"
 		exit 1
 	}
 
-	config_foreach get_active_mobile_interface "interface"
+	[ -z "$MODEM" ] && {
+		get_modem
+		[ -n "$MODEM" ] && {
+			uci_set ping_reboot "$SECTION" modem "$MODEM"
+			uci_commit ping_reboot
+		}
+	}
+
+	[ -n "$MODEM" ] && {
+		config_load network || {
+			log "Failed to load network config. Insufficient permissions."
+			exit 1
+		}
+		config_foreach get_active_mobile_interface "interface"
+	}
+
 	config_load ping_reboot
 }
 
-if [ "$PING_PORT_TYPE" = "ping_port" ]; then
-	IF_OPTION1=""
-	IF_OPTION2=""
-elif [ "$IF_TYPE" = "2" ] || [ -z "$HOST" ]; then
-	[ -z "$IF_OPTION1" ] && [ -z "$IF_OPTION2" ] && {
-		check_tries "-p" "No mobile data connection active" "${TIME} min. until next ping retry"
-		exit
-	}
+setup
 
-	#FIXME: what if not default interface name?
-	if echo "$ACTIVE_INTERFACE" | grep "2"; then
-		config_get HOST "$SECTION" "host2"
-		config_get IP_TYPE "$SECTION" ip_type2 "ipv4"
-	else
-		config_get HOST "$SECTION" "host1"
-		config_get IP_TYPE "$SECTION" ip_type1 "ipv4"
-	fi
-else
-	IF_OPTION1=""
-	IF_OPTION2=""
+if [ $DO_PORTMAP -eq 1 ]; then
+	. /usr/libexec/reboot_utils/ping_reboot_port.sh
+
+	swconfig list > /dev/null 2>&1 && HAS_SWCONFIG=1
+	map_hosts_to_ports
+	exit
 fi
+
+case "$TYPE" in
+"ping"|"wget")
+	CURRENT_TRY=$(get_fail_counter)
+	CURRENT_TRY=$((CURRENT_TRY + 1))
+	set_fail_counter $CURRENT_TRY
+	;;
+esac
 
 case "$TYPE" in
 "ping")
@@ -862,6 +532,10 @@ case "$TYPE" in
 	perform_wget
 	;;
 "port")
+	. /usr/libexec/reboot_utils/ping_reboot_port.sh
+
+	# port ping uses different fail counting
+	swconfig list > /dev/null 2>&1 && HAS_SWCONFIG=1
 	perform_port_ping
 	;;
 esac

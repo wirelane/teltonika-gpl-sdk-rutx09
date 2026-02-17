@@ -10,5 +10,6 @@
 		"mobifd": {
 			"methods": [ "reload" ]
 		}
-	}
+	},
+	"send": [ "vuci.notify" ]
 }

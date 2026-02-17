@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rpcd
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2025-12-10
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=main.c
@@ -44,7 +44,7 @@ define Package/rpcd/default
   TITLE:=OpenWrt ubus RPC backend server
   DEPENDS:=+libubus +libubox +libcap +libtlt-logger
   USERID:=rpcd:rpcd
-  FATTRS:=/sbin/rpcd::::cap_setuid,cap_net_admin,cap_setgid,cap_sys_boot,cap_sys_admin=ep
+  FATTRS:=/sbin/rpcd::::cap_setuid,cap_net_admin,cap_setgid,cap_sys_boot,cap_sys_admin,cap_dac_override=p
 endef
 
 define Package/session
@@ -94,21 +94,26 @@ define Package/rpcd/install
 	$(INSTALL_DIR) $(1)/usr/libexec/rpcd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/libexec/* $(1)/usr/libexec/rpcd/
 
-	$(if $(CONFIG_WIFI_SUPPORT),\
-		$(SED) "s@%%WIRELESS_CHANNEL_ANALYSIS_ACL%%@list read '!status/wireless/channel_analysis*'@g" \
-			$(1)/etc/config/rpcd; \
-	,\
+	$(if $(filter y,$(CONFIG_PACKAGE_vuci-app-channel-analysis-ui)), \
+		$(if $(CONFIG_AP_DEVICE), \
+			$(SED) "s@%%WIRELESS_CHANNEL_ANALYSIS_ACL%%@list read '!status/channel_analysis*'@g" \
+				$(1)/etc/config/rpcd; \
+		, \
+			$(SED) "s@%%WIRELESS_CHANNEL_ANALYSIS_ACL%%@list read '!status/wireless/channel_analysis*'@g" \
+				$(1)/etc/config/rpcd; \
+		) \
+	, \
 		$(SED) "/%%WIRELESS_CHANNEL_ANALYSIS_ACL%%/d" $(1)/etc/config/rpcd; \
 	)
 
-	$(if $(filter y,$(CONFIG_PACKAGE_coova-chilli)),\
+	$(if $(filter y,$(CONFIG_PACKAGE_vuci-app-coovachilli-ui)),\
 		$(SED) "s@%%USER_SCRIPTS_HOTSPOT_ACL%%@list read '!services/hotspot/general/userscripts*'@g" \
 			$(1)/etc/config/rpcd; \
 	,\
 		$(SED) "/%%USER_SCRIPTS_HOTSPOT_ACL%%/d" $(1)/etc/config/rpcd; \
 	)
 
-	$(if $(CONFIG_MOBILE_SUPPORT),\
+	$(if $(filter y,$(CONFIG_PACKAGE_vuci-app-mobile-utilities-ui)),\
 		$(SED) "s@%%MOBILE_UTILS_SMS_SEND_ACL%%@list read '!services/mobile_utilities/sms_messages/send*'@g" \
 			$(1)/etc/config/rpcd; \
 	,\

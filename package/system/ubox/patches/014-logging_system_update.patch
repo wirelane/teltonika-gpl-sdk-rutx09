@@ -684,7 +684,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  		log_add(buf, strlen(buf) + 1, SOURCE_SYSLOG);
  	}
  }
-@@ -459,23 +506,159 @@ static void parse_log_line(const char *l
+@@ -459,23 +506,178 @@ static void parse_log_line(const char *l
  	entry->priority = (entry->source * 8) + severity_code;
  }
  
@@ -733,7 +733,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +	}
 +	return -1;
 +}
- 
++
 +static bool check_service_notify_needed(const char *name, uint32_t new_levels,
 +					struct service_log_cfg *old_services, int old_count,
 +					struct service_log_cfg *temp_services)
@@ -754,6 +754,22 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +	return false;
 +}
 +
++static bool is_valid_service_name(const char *name)
++{
++	if (!name || !*name)
++		return false;
++
++	for (const char *p = name; *p; p++) {
++		if (!(isalnum(*p) || *p == '_' || *p == '-'))
++			return false;
++	}
+ 
++	if (strstr(name, ".."))
++		return false;
++
++	return true;
++}
++
 +static void parse_service_config(struct uci_context *ctx, struct uci_section *s, bool reload,
 +				 uint32_t old_global_levels, struct service_log_cfg *old_services,
 +				 int old_service_count, struct service_log_cfg *temp_services)
@@ -762,8 +778,11 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +		return;
 +
 +	const char *name = uci_lookup_option_string(ctx, s, "name");
-+	if (!name)
++
++	if (!is_valid_service_name(name)) {
++		fprintf(stderr, "Invalid service name in log configuration: %s\n", name ? name : "(null)");
 +		return;
++	}
 +
 +	int idx			    = cfg.service_count;
 +	struct service_log_cfg *svc = &cfg.services[idx];
@@ -821,8 +840,10 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  		fprintf(stderr, "Failed to allocate UCI context\n");
 -		return NULL;
 +		return;
-+	}
-+
+ 	}
+ 
+-	if (uci_lookup_ptr(ctx, &ptr, uci_path, true) == UCI_OK && ptr.o && ptr.o->type == UCI_TYPE_STRING) {
+-		log_file = strdup(ptr.o->v.string);
 +	struct uci_package *pkg = NULL;
 +	if (uci_load(ctx, "log", &pkg) != UCI_OK) {
 +		fprintf(stderr, "Failed to load log configuration, using defaults\n");
@@ -830,8 +851,6 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +		return;
  	}
  
--	if (uci_lookup_ptr(ctx, &ptr, uci_path, true) == UCI_OK && ptr.o && ptr.o->type == UCI_TYPE_STRING) {
--		log_file = strdup(ptr.o->v.string);
 +	struct uci_element *e;
 +	uci_foreach_element (&pkg->sections, e) {
 +		struct uci_section *s = uci_to_section(e);
@@ -842,8 +861,8 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +			parse_service_config(ctx, s, reload, old_global_levels, old_services,
 +					     old_service_count, temp_services);
 +		}
- 	}
- 
++	}
++
 +	if (reload)
 +		update_global_level_changes(old_global_levels, old_services, old_service_count);
 +
@@ -853,16 +872,17 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
  }
  
  static int compare_files(const void *a, const void *b) {
-@@ -649,11 +832,187 @@ log_buffer_init(int size)
+@@ -649,11 +851,189 @@ log_buffer_init(int size)
  	return 0;
  }
  
 -void
 -log_init(int _log_size)
 +static int handle_client_msg(int fd)
-+{
+ {
+-	char *log_file = load_log_path();
 +	char buf[256];
-+
+ 
 +	int n = read(fd, buf, sizeof(buf) - 1);
 +	if (n < 0) {
 +		if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -931,8 +951,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +}
 +
 +static void setup_fd_set(fd_set *read_fds, int *max_fd)
- {
--	char *log_file = load_log_path();
++{
 +	FD_ZERO(read_fds);
 +	FD_SET(log_socket_fd, read_fds);
 +	*max_fd = log_socket_fd;
@@ -947,7 +966,7 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +	}
 +	pthread_mutex_unlock(&clients_mtx);
 +}
- 
++
 +static void handle_new_connection(void)
 +{
 +	int new_fd = accept_new_client();
@@ -1039,12 +1058,14 @@ Index: ubox-2020-10-25-9ef88681/log/syslog.c
 +
 +void log_init(int _log_size)
 +{
-+	mkdir(SERVICE_LOG_PATH, 0755);
++	mode_t old_umask = umask(0);
++	mkdir(SERVICE_LOG_PATH, 0775);
++	umask(old_umask);
 +	load_log_config(false);
  	if (_log_size > 0)
  		log_size = _log_size;
  
-@@ -664,16 +1023,24 @@ log_init(int _log_size)
+@@ -664,16 +1044,24 @@ log_init(int _log_size)
  		fprintf(stderr, "Failed to allocate log memory\n");
  		exit(-1);
  	}

@@ -31,7 +31,7 @@ define Package/xl2tpd
   TITLE:=An L2TP (Layer 2 Tunneling Protocol) daemon
   URL:=http://www.xelerance.com/software/xl2tpd/
   SUBMENU:=VPN
-  DEPENDS:=+ppp-mod-pppol2tp +resolveip +kmod-l2tp-eth +kmod-l2tp-ip
+  DEPENDS:=+ppp-mod-pppol2tp +resolveip +kmod-l2tp-eth +kmod-l2tp-ip +libtlt-logger
   USERID:=xl2tpd:xl2tpd
 endef
 

@@ -9,7 +9,7 @@ PKG_NAME:=iec60870_client
 PKG_LICENSE:=Teltonika-closed
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.20
+PKG_SOURCE_VERSION:=7.21
 
 include $(INCLUDE_DIR)/package.mk
 

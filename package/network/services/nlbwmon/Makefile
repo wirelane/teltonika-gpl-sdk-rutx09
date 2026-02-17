@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=nlbwmon
-PKG_VERSION:=2025-10-14
+PKG_VERSION:=2026-01-13
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=COPYING
@@ -28,7 +28,7 @@ TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/libnl-tiny
 define Package/nlbwmon
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libubox +libnl-tiny +zlib +kmod-nf-conntrack-netlink +libsqlite3
+  DEPENDS:=+libubox +libnl-tiny +zlib +kmod-nf-conntrack-netlink +libsqlite3 +libtlt-logger
   TITLE:=OpenWrt Traffic Usage Monitor
   FATTRS:=/usr/sbin/nlbwmon::::cap_net_admin=ep
   USERID:=nlbwmon=546:nlbwmon=546

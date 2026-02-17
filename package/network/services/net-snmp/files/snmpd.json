@@ -91,6 +91,12 @@
 				"get_tag_value"
 			]
 		},
+		"dnp3_client.rpc": {
+			"methods": [
+				"get_tags",
+				"get_tag_value"
+			]
+		},
 		"api" : {
 			"methods": [
 				"get"

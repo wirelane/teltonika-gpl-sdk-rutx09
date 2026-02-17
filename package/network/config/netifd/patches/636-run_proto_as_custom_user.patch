@@ -1,20 +1,16 @@
-Index: netifd-2024-01-04-c18cc79d/netifd.h
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/netifd.h
-+++ netifd-2024-01-04-c18cc79d/netifd.h
-@@ -93,6 +93,7 @@ struct netifd_process {
+--- a/netifd.h
++++ b/netifd.h
+@@ -98,6 +98,7 @@ struct netifd_process {
  	struct ustream_fd log;
  	const char *log_prefix;
  	bool log_overflow;
 +	char username[32];
  };
  
- void netifd_log_message(int priority, const char *format, ...);
-Index: netifd-2024-01-04-c18cc79d/scripts/netifd-proto.sh
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/scripts/netifd-proto.sh
-+++ netifd-2024-01-04-c18cc79d/scripts/netifd-proto.sh
-@@ -346,6 +346,12 @@ proto_export() {
+ void netifd_udebug_printf(const char *format, ...)
+--- a/scripts/netifd-proto.sh
++++ b/scripts/netifd-proto.sh
+@@ -347,6 +347,12 @@ proto_export() {
  	append _EXPORT_VARS "$var"
  }
  
@@ -27,7 +23,7 @@ Index: netifd-2024-01-04-c18cc79d/scripts/netifd-proto.sh
  proto_run_command() {
  	local interface="$1"; shift
  
-@@ -364,6 +370,9 @@ proto_run_command() {
+@@ -365,6 +371,9 @@ proto_run_command() {
  		done
  		json_close_array
  	}
@@ -37,10 +33,8 @@ Index: netifd-2024-01-04-c18cc79d/scripts/netifd-proto.sh
  	_proto_notify "$interface"
  }
  
-Index: netifd-2024-01-04-c18cc79d/proto-shell.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/proto-shell.c
-+++ netifd-2024-01-04-c18cc79d/proto-shell.c
+--- a/proto-shell.c
++++ b/proto-shell.c
 @@ -461,6 +461,7 @@ enum {
  	NOTIFY_ERROR,
  	NOTIFY_COMMAND,
@@ -94,10 +88,8 @@ Index: netifd-2024-01-04-c18cc79d/proto-shell.c
  	netifd_start_process((const char **) argv, (char **) env, &state->proto_task);
  
  	return 0;
-Index: netifd-2024-01-04-c18cc79d/main.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/main.c
-+++ netifd-2024-01-04-c18cc79d/main.c
+--- a/main.c
++++ b/main.c
 @@ -18,6 +18,8 @@
  #include <signal.h>
  #include <stdarg.h>
@@ -107,7 +99,7 @@ Index: netifd-2024-01-04-c18cc79d/main.c
  
  #include "netifd.h"
  #include "ubus.h"
-@@ -171,6 +173,42 @@ netifd_start_process(const char **argv,
+@@ -228,6 +230,42 @@ netifd_start_process(const char **argv,
  		if (pfds[1] > 2)
  			close(pfds[1]);
  

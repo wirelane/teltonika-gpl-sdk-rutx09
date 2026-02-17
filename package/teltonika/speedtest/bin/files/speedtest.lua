@@ -228,9 +228,9 @@ local function check_internet_connection(host, port, timeout)
 	local dns_pid = nixio.fork()
 	if dns_pid == 0 then
 		r:close()
-		local ip = socket.dns.toip(host)
-		if ip then
-			w:write(ip)
+		local addrinfo = socket.dns.getaddrinfo(host)
+		if addrinfo then
+			w:write(jsc.stringify(addrinfo))
 		end
 		w:close()
 		os.exit()
@@ -249,22 +249,23 @@ local function check_internet_connection(host, port, timeout)
 		end
 	end
 
-	local ip = r:read(1024)
+	local addrinfo = jsc.parse(r:read(1024) or "")
 	r:close()
 
-	if not ip or ip == "" then
+	if not addrinfo or type(addrinfo) ~= "table" then
 		return false
 	end
 
-	local con = socket.tcp()
-	con:settimeout(timeout)
-
-	local result = con:connect(ip, tonumber(port))
-	if not result then
-		return false
+	for i, addr in ipairs(addrinfo) do
+		if addr.family == "inet" or addr.family == "inet6" then
+			local con = socket.tcp()
+			con:settimeout(timeout)
+			if con:connect(addr.addr, tonumber(port)) then
+				con:close()
+				return true
+			end
+		end
 	end
-	con:close()
-	return true
 end
 
 local function getConfig()
@@ -272,7 +273,8 @@ local function getConfig()
 	local body = ""
 	if check_internet_connection("www.speedtest.net", 443, 5) then
 		body = libspeedtest.getbody("https://www.speedtest.net/speedtest-config.php") or ""
-	elseif check_internet_connection("ipv6.speedtest.net", 443, 5) then
+	end
+	if body == "" and check_internet_connection("ipv6.speedtest.net", 443, 5) then
 		body = libspeedtest.getbody("https://ipv6.speedtest.net/speedtest-config.php") or ""
 	end
 

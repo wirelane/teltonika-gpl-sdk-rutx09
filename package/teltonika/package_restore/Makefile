@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=package_restore
-PKG_VERSION:=2025-12-01
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=3.16.1
@@ -36,7 +36,7 @@ define Package/package_restore/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/package_restore.lua $(1)/sbin/package_restore.lua
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/package_restore.init $(1)/etc/init.d/package_restore
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/package_restore.init $(1)/etc/init.d/package_restore
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/package_restore.config $(1)/etc/config/package_restore

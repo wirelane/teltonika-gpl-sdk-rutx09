@@ -74,7 +74,8 @@ endef
 define Package/zerotier/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/config \
 	$(1)/etc/mwan3 $(1)/etc/uci-defaults/7.15 \
-	$(1)/etc/uci-defaults/7.18 $(1)/etc/permtab.d \
+	$(1)/etc/uci-defaults/7.18 $(1)/etc/uci-defaults/7.21 \
+	$(1)/etc/permtab.d \
 	$(1)/usr/share/zerotier
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/zerotier-one $(1)/usr/bin/
@@ -91,6 +92,7 @@ endif
 	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.15/99_zerotier_device_name
 	$(CP) ./files/defaults/99_zerotier_device_name $(1)/etc/uci-defaults/7.18/99_zerotier_device_name
 	$(CP) ./files/defaults/99_zerotier_bridge_device_name $(1)/etc/uci-defaults/7.18/99_zerotier_bridge_device_name
+	$(CP) ./files/defaults/99_zerotier_planet_permissions $(1)/etc/uci-defaults/7.21/99_zerotier_planet_permissions
 	$(INSTALL_DATA) files/zerotier.permtab $(1)/etc/permtab.d/zerotier
 	$(INSTALL_BIN) files/hotplugs/97-zerotier $(1)/usr/share/zerotier
 	if [ "$(CONFIG_PACKAGE_ucode)" = "m" ] ; then \

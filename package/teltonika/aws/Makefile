@@ -5,10 +5,10 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=aws
-PKG_VERSION:=2025-10-16
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.5
+PKG_SOURCE_VERSION:=1.6
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -19,7 +19,8 @@ define Package/aws
 	CATEGORY:=Base system
 	DEPENDS:=+libubus +libuci +libaws-iot-device-sdk-embedded-C \
 		 +libmosquitto +libtlt-logger +libubox +libblobmsg-json \
-		 +libatomic +libapi +libopenssl +libcurl +libmnfinfo
+		 +libatomic +libapi +libopenssl +libcurl +libmnfinfo \
+		 +TPM_SUPPORT:libtpm2_importer
 	TITLE:=AWS client
 	USERID:=aws=508:aws=508
 endef
@@ -32,13 +33,15 @@ define Package/aws/conffiles
 /etc/config/aws_jobs
 endef
 
+TARGET_CFLAGS += $(if $(CONFIG_TPM_SUPPORT),-DAWS_TPM_SUPPORT)
+
 
 define Package/aws/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/usr/lib $(1)/etc/init.d $(1)/etc/config $(1)/etc/aws \
 		       $(1)/usr/share/acl.d $(1)/etc/permtab.d
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/aws_jobs/aws_jobs $(1)/usr/sbin/aws_jobs
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/aws_jobs/files/aws.init $(1)/etc/init.d/aws
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/aws_jobs/files/aws.init $(1)/etc/init.d/aws
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/aws_provisioning/aws_provisioning.so \
 		       $(1)/usr/lib/libaws_provisioning.so
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/aws_jobs/files/aws.conf $(1)/etc/config/aws_jobs

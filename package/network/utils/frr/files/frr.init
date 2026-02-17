@@ -107,11 +107,11 @@ daemons_check_enabled() {
 	for daemon in ${daemons_installed/ldp/mpls}
 	do
 		config_load "$daemon"
-		config_get enabled "$daemon" "enabled" "0"
-		config_get debug "$daemon" "debug" "0"
 		if [ "$daemon" = "mpls" ]; then
 			daemon="ldp"
 		fi
+		config_get enabled "$daemon" "enabled" "0"
+		config_get debug "$daemon" "debug" "0"
 		[ "$enabled" = 1 ] && daemons_enabled="$daemons_enabled$daemon "
 		[ "$debug" = 1 ] && debug_enabled="$debug_enabled$daemon "
 	done
@@ -250,14 +250,11 @@ bgp_parse_config() {
 }
 
 bgp_parse_instance() {
-	local section="$1"
-	local enabled
-	local deterministic_med
-	local as
-	local network
-	local redistribute
-	local id
+	local section="$1" enabled deterministic_med as
+	local network redistribute id
 	local ebgp_requires_policy
+	local label_export rd_export rt_import rt_export
+	local export_vpn import_vpn vrf
 
 	config_get enabled "$section" enabled "0"
 	[ "$enabled" = "0" ] && return 1
@@ -269,6 +266,12 @@ bgp_parse_instance() {
 	config_get id                   "$section" id
 	config_get ebgp_requires_policy "$section" ebgp_requires_policy "1"
 	config_get vrf                  "$section" vrf "default"
+	config_get label_export         "$section" label_export "auto"
+	config_get rd_export            "$section" rd_export
+	config_get rt_import            "$section" rt_import
+	config_get rt_export            "$section" rt_export
+	config_get_bool export_vpn      "$section" export_vpn
+	config_get_bool import_vpn      "$section" import_vpn
 
 	xappend      "$CONFIG_FILE_BGP" "router bgp" "$as" "vrf" "$vrf"
 	xappend      "$CONFIG_FILE_BGP" "address-family ipv4 unicast"
@@ -277,29 +280,30 @@ bgp_parse_instance() {
 	xappend_bool "$CONFIG_FILE_BGP" "$deterministic_med" "bgp deterministic-med"
 	xappend_list "$CONFIG_FILE_BGP" "network" "$network"
 	xappend_list "$CONFIG_FILE_BGP" "redistribute" "$redistribute"
+	if [ "$vrf" != "default" ]; then
+		xappend      "$CONFIG_FILE_BGP" "address-family ipv4 unicast"
+		xappend      "$CONFIG_FILE_BGP" "rd vpn export" "$rd_export"
+		if [ "$export_vpn" = "1" ]; then
+			xappend      "$CONFIG_FILE_BGP" "label vpn export" "$label_export"
+		fi
+		xappend      "$CONFIG_FILE_BGP" "rt vpn import" "$rt_import"
+		xappend      "$CONFIG_FILE_BGP" "rt vpn export" "$rt_export"
+		xappend_bool "$CONFIG_FILE_BGP" "$export_vpn" "export vpn"
+		xappend_bool "$CONFIG_FILE_BGP" "$import_vpn" "import vpn"
+	fi
 
 	config_foreach bgp_parse_peer bgp_peer "$section"
-	config_foreach bgp_parse_vrf bgp_vrf
 	config_foreach bgp_parse_access_list bgp_access_list
 }
 
 bgp_parse_peer() {
-	local section="$1"
-	local main_inst="$2"
-	local enabled
-	local instance
-	local as
-	local default_originate
-	local ipaddr
-	local port
-	local ebgp_multihop
-	local description
-	local password
-	local route_reflector_client
-	local weight
-	local timer_keepalive
-	local timer_holdtime
-	local timer_connect
+	local section="$1" main_inst="$2"
+	local enabled instance as
+	local default_originate ipaddr port
+	local ebgp_multihop description
+	local password route_reflector_client
+	local weight allow_vpn
+	local timer_keepalive timer_holdtime timer_connect
 
 	config_get enabled  "$section" enabled "0"
 	config_get instance "$section" instance
@@ -319,6 +323,7 @@ bgp_parse_peer() {
 	config_get timer_keepalive        "$section"      timer_keepalive
 	config_get timer_holdtime         "$section"      timer_holdtime
 	config_get timer_connect          "$section"      timer_connect
+	config_get allow_vpn              "$section"      allow_vpn
 
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "remote-as" "$as"
 	xappend_bool "$CONFIG_FILE_BGP" "$default_originate" "neighbor" "$ipaddr" "default-originate"
@@ -331,6 +336,11 @@ bgp_parse_peer() {
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "timers" "$timer_keepalive" "$timer_holdtime"
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "timers connect" "$timer_connect"
 	xappend_bool "$CONFIG_FILE_BGP" "$route_reflector_client" "neighbor" "$ipaddr" "route-reflector-client"
+	[ "$allow_vpn" ] && {
+		xappend      "$CONFIG_FILE_BGP" "address-family" "ipv4" "vpn"
+		xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "activate"
+		xappend      "$CONFIG_FILE_BGP" "exit-address-family"
+	}
 	config_foreach bgp_parse_peer_group bgp_peer_group "$ipaddr" "$as"
 	config_foreach bgp_parse_route_map_filters bgp_route_map_filters
 }
@@ -392,41 +402,6 @@ bgp_parse_peer_group() {
 	elif [ "$next_hop_self" = "1" ] && [ "$next_hop_self_all" = "0" ]; then
 		xappend "$CONFIG_FILE_BGP" "neighbor" "$section" "next-hop-self"
 	fi
-}
-
-bgp_parse_vrf() {
-	local enabled
-	local as
-	local redistribute
-	local label_export
-	local rd_export
-	local rt_import
-	local rt_export
-	local export_vpn
-	local import_vpn
-
-	config_get enabled  "$section" enabled "0"
-	[ "$enabled" = "0" ] && return 1
-
-	config_get as			"$section" as
-	config_get redistribute "$section" redistribute
-	config_get label_export "$section" label_export
-	config_get rd_export 	"$section" rd_export
-	config_get rt_import 	"$section" rt_import
-	config_get rt_export 	"$section" rt_export
-	config_get export_vpn 	"$section" export_vpn
-	config_get import_vpn 	"$section" import_vpn
-
-	xappend      "$CONFIG_FILE_BGP" "router bgp" "$as" "vrf" "$section"
-	xappend      "$CONFIG_FILE_BGP" "address-family ipv4 unicast"
-	xappend_list "$CONFIG_FILE_BGP" "redistribute" "$redistribute"
-	xappend      "$CONFIG_FILE_BGP" "label vpn export" "$label_export"
-	xappend      "$CONFIG_FILE_BGP" "rd vpn export" "$rd_export"
-	xappend      "$CONFIG_FILE_BGP" "rt vpn import" "$rt_import"
-	xappend      "$CONFIG_FILE_BGP" "rt vpn export" "$rt_export"
-	xappend_bool "$CONFIG_FILE_BGP" "$vpn_export" "export vpn"
-	xappend_bool "$CONFIG_FILE_BGP" "$vpn_import" "import vpn"
-	xappend      "$CONFIG_FILE_BGP" "exit-address-family"
 }
 
 bgp_parse_access_list() {
@@ -894,34 +869,14 @@ nhrp_parse_nhs() {
 #################################################
 
 ldp_parse_config() {
-	local enabled
-	config_load mpls
+	ldp_utils_parse_config() { return 0; }
 
-	config_get enabled "mpls" enabled "0"
-	[ "$enabled" = "0" ] && return 1
+	ldp_get_status() { return 1; }
 
-	enable_vty "$CONFIG_FILE_LDP" "ldp"
-	config_foreach ldp_parse_general ldp_general
+	. /etc/frr/ldp_utils.sh
 
-	echo "" >> "$CONFIG_FILE_LDP"
-	add_permissions "ldp"
-}
-
-ldp_parse_general() {
-	local id
-	local transport_address
-	local interface
-
-	config_get id "$section" id
-	config_get transport_address "$section" transport_address
-	config_get interface "$section" interface
-	check_interface interface "$interface" "ldp"
-
-	xappend      "$CONFIG_FILE_LDP" "mpls ldp"
-	xappend      "$CONFIG_FILE_LDP" "router-id" "$id"
-	xappend      "$CONFIG_FILE_LDP" "address-family ipv4"
-	xappend	     "$CONFIG_FILE_LDP" "discovery transport-address" "$transport_address"
-	xappend_list "$CONFIG_FILE_LDP" "interface" "$interface"
+	ldp_get_status && enable_vty "$CONFIG_FILE_LDP" "ldp"
+	ldp_utils_parse_config
 }
 
 #################################################

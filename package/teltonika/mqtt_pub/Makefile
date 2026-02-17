@@ -2,9 +2,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=mqtt_pub
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2026-02-11
 
-PKG_SOURCE_VERSION:=2.16
+PKG_SOURCE_VERSION:=2.17
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -18,7 +18,8 @@ define Package/mqtt_pub
 	TITLE:=MQTT client for device monitoring
 	DEPENDS:=+libuci +libtlt_uci +libmosquitto-ssl +libubus +libjson-c \
 		+libubox +libblobmsg-json +mosquitto-ssl \
-		+IO_SUPPORT:iomand +MOBILE_SUPPORT:libgsm +libmnfinfo
+		+IO_SUPPORT:iomand +MOBILE_SUPPORT:libgsm +libmnfinfo \
+		+TPM_SUPPORT:libtpm2_importer
 	USERID:=mqtt_pub=512:mqtt_pub=512
 endef
 
@@ -32,6 +33,8 @@ define Package/mqtt_pub/conffiles
 /etc/config/mqtt_pub
 endef
 
+TARGET_CFLAGS += $(if $(CONFIG_TPM_SUPPORT),-DMQTT_PUB_TPM_SUPPORT)
+
 
 define Package/mqtt_pub/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/share/acl.d
@@ -39,7 +42,7 @@ define Package/mqtt_pub/install
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/mqtt_pub.conf $(1)/etc/config/mqtt_pub
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/mqtt_pub.init $(1)/etc/init.d/mqtt_pub
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/mqtt_pub.init $(1)/etc/init.d/mqtt_pub
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mqtt_pub.json $(1)/usr/share/acl.d/mqtt_pub.json
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mqtt_pub $(1)/usr/sbin/mqtt_pub
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/mqtt_pub.permtab $(1)/etc/permtab.d/mqtt_pub

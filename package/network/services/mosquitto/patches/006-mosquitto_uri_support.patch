@@ -485,11 +485,10 @@ Index: mosquitto-2.0.21/src/conf.c
  
  	mosquitto__free(config->clientid_prefixes);
  	mosquitto__free(config->persistence_location);
-@@ -293,6 +313,21 @@ void config__cleanup(struct mosquitto__c
+@@ -292,7 +312,23 @@ void config__cleanup(struct mosquitto__c
+ 			if(!config->listeners[i].ws_context) /* libwebsockets frees its own SSL_CTX */
  #endif
  			{
- 				SSL_CTX_free(config->listeners[i].ssl_ctx);
-+				OSSL_LIB_CTX_free(config->listeners[i].libctx);
 +#ifdef OPENSSL_HAS_PROVIDERS
 +				for (n = 0; n < config->listeners[i].n_providers; n++) {
 +					mosquitto__free(config->listeners[i].providers[n]);
@@ -502,12 +501,15 @@ Index: mosquitto-2.0.21/src/conf.c
 +
 +					OSSL_PROVIDER_unload(config->listeners[i].prov[n]);
 +					config->listeners[i].prov[n] = NULL;
++					config->listeners[i].n_prov = 0;
 +				}
 +#endif //OPENSSL_HAS_PROVIDERS
+ 				SSL_CTX_free(config->listeners[i].ssl_ctx);
++				OSSL_LIB_CTX_free(config->listeners[i].libctx);
  			}
  #endif
  #ifdef WITH_WEBSOCKETS
-@@ -744,6 +779,9 @@ static int config__read_file_core(struct
+@@ -744,6 +780,9 @@ static int config__read_file_core(struct
  	char *kpass_sha = NULL, *kpass_sha_bin = NULL;
  	char *keyform ;
  #endif
@@ -517,7 +519,7 @@ Index: mosquitto-2.0.21/src/conf.c
  
  	*lineno = 0;
  
-@@ -2009,6 +2047,17 @@ static int config__read_file_core(struct
+@@ -2009,6 +2048,17 @@ static int config__read_file_core(struct
  #else
  					log__printf(NULL, MOSQ_LOG_WARNING, "Warning: TLS support not available.");
  #endif
@@ -535,7 +537,7 @@ Index: mosquitto-2.0.21/src/conf.c
  				}else if(!strcmp(token, "tls_engine_kpass_sha1")){
  #ifdef WITH_TLS
  					if(reload) continue; /* Listeners not valid for reloading. */
-@@ -2028,7 +2077,14 @@ static int config__read_file_core(struct
+@@ -2028,7 +2078,14 @@ static int config__read_file_core(struct
  					keyform = NULL;
  					if(conf__parse_string(&token, "tls_keyform", &keyform, saveptr)) return MOSQ_ERR_INVAL;
  					cur_listener->tls_keyform = mosq_k_pem;

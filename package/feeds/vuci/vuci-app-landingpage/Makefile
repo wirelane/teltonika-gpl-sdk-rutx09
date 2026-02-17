@@ -55,6 +55,9 @@ define Package/vuci-app-landingpage/postrm
 exit 0
 endef
 
+MAKE_FLAGS += \
+	BUILD_CC="$(HOSTCC)"
+
 define Build/Compile
 	# clean files leftover from Host/Compile
 	if [ -e $(PKG_BUILD_DIR)/plural_formula.o ] ; then rm $(PKG_BUILD_DIR)/plural_formula.o ; fi

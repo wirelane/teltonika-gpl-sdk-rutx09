@@ -12,6 +12,7 @@ restart() {
 	fw3 restart
 	procd_send_signal ip_blockd "*" SIGUSR1
 	procd_send_signal chilli "*" SIGUSR1
+	ubus call service event '{"type": "firewall.restart", "data": {}}'
 }
 
 start_service() {

@@ -43,7 +43,7 @@ define Package/smpp/install
 		$(1)/usr/share/acl.d $(1)/etc/permtab.d
 
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/smppd $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/smpp.init $(1)/etc/init.d/smpp
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/smpp.init $(1)/etc/init.d/smpp
 	$(CP) $(PKG_BUILD_DIR)/files/smpp.conf $(1)/etc/config/smpp
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/smpp.json $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/smpp.permtab $(1)/etc/permtab.d/

@@ -1,7 +1,8 @@
 const fs = require('fs')
 const execSync = require('child_process').execSync
+const path = require('path')
 
-let isVuciPrepared = false
+let isVuciPrepared = process.env.CI === 'true' && fs.existsSync(path.resolve(__dirname, '../../../feeds/vuci'))
 
 async function prepareVuci() {
   if (isVuciPrepared) return

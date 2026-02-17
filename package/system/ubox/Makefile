@@ -67,9 +67,9 @@ define Package/logd/install
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/{logd,logread} $(1)/sbin/
 	$(INSTALL_BIN) ./files/log.init $(1)/etc/init.d/log
-	$(INSTALL_BIN) ./files/defaults/7.17/99_migrate_log_permissions $(1)/etc/uci-defaults/7.17/99_migrate_log_permissions
-	$(INSTALL_BIN) ./files/defaults/7.19/99_migrate_option_name $(1)/etc/uci-defaults/7.19/99_migrate_option_name
-	$(INSTALL_BIN) ./files/defaults/7.20/99_migrate_to_log_config $(1)/etc/uci-defaults/7.20/99_migrate_to_log_config
+	$(INSTALL_DATA) ./files/defaults/7.17/99_migrate_log_permissions $(1)/etc/uci-defaults/7.17/99_migrate_log_permissions
+	$(INSTALL_DATA) ./files/defaults/7.19/99_migrate_option_name $(1)/etc/uci-defaults/7.19/99_migrate_option_name
+	$(INSTALL_DATA) ./files/defaults/7.20/99_migrate_to_log_config $(1)/etc/uci-defaults/7.20/99_migrate_to_log_config
 	$(INSTALL_DATA) ./files/logd.json $(1)/usr/share/acl.d/logd.json
 	$(INSTALL_DATA) ./files/log.config $(1)/etc/config/log
 	$(INSTALL_DATA) ./files/log.permtab $(1)/etc/permtab.d/log

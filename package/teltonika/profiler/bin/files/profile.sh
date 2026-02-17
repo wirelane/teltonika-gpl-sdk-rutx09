@@ -9,7 +9,8 @@ RM_CONFFILES=/tmp/rm_profile.conffiles
 PROFILE_VERSION_FILE=/etc/profile_version
 EXCEPTIONS="etc/config/rms_connect_timer etc/config/profiles etc/crontabs/root etc/hosts etc/config/luci etc/config/vuci
 	etc/inittab etc/group etc/passwd etc/profile etc/shadow etc/shells etc/sysctl.conf etc/rc.local  etc/config/teltonika
-	etc/default-config etc/dropbear/dropbear_ecdsa_host_key etc/dropbear/dropbear_ed25519_host_key"
+	etc/default-config etc/dropbear/dropbear_ecdsa_host_key etc/dropbear/dropbear_ed25519_host_key
+	usr/local/usr/lib/mdcollectd/mdcollectd.db_new.gz usr/local/share/ip_block/attempts.db etc/config/certificates"
 
 EXTRA_FILES="/etc/firewall.user /etc/profile_version"
 
@@ -404,7 +405,8 @@ change_config() {
 
 	rm -f "$PROFILE_VERSION_FILE"
 	cp -af "$TMP_PATH"/* /
-	sync_permissions_and_ownerships 2> /dev/null
+	# Restore all permissions since tar doesn't preserve directory permissions
+	/sbin/perm -a 2> /dev/null
 
 	rm -rf "$TMP_PATH"
 	uci_set "profiles" "general" "profile" "$new" || {

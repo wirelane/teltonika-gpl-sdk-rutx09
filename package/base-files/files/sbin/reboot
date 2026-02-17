@@ -17,7 +17,7 @@ skip_shutdown=0
 	fi
 }
 
-while getopts "wsipgebcmvojraCd:nfl" opt; do
+while getopts "kwsipgebcmvojraCd:nfl" opt; do
 
 	case $opt in
 		w) TEXT="Request from Web UI"
@@ -29,6 +29,8 @@ while getopts "wsipgebcmvojraCd:nfl" opt; do
 		p) TEXT="Request from ping reboot"
 			;;
 		g) TEXT="Request from wget reboot"
+			;;
+		k) TEXT="Request from wireless reboot"
 			;;
 		e) TEXT="Request from reboot scheduler"
 			;;

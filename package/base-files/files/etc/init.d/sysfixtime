@@ -9,7 +9,19 @@ HWCLOCK=/sbin/hwclock
 
 boot() {
 	hwclock_load
+
+	local ntp_save_enabled="$(uci -q get ntpclient.ntpclient.save)"
 	local maxtime="$(find_max_time)"
+
+	if [ "$ntp_save_enabled" = "1" ]; then
+		local ntp_interval="$(uci -q get ntpclient.ntpclient.interval)"
+		local ntp_saved_time="$(date -r /etc/config/ntpclient +%s)"
+
+		if [ -n "$ntp_interval" ] && [ $(( $ntp_saved_time + $ntp_interval )) -lt $maxtime ]; then
+			maxtime="$ntp_saved_time"
+		fi
+	fi
+
 	local curtime="$(date +%s)"
 	if [ $curtime -lt $maxtime ]; then
 		date -s @$maxtime

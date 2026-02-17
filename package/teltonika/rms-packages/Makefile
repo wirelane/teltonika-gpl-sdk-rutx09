@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rms-packages
-PKG_VERSION:=2025-12-01
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.25.1
+PKG_SOURCE_VERSION:=3.26
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -59,7 +59,7 @@ define Package/rms_mqtt/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rms_mqtt/rms_mqtt $(1)/usr/sbin/rms_mqtt
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rms_mqtt.init $(1)/etc/init.d/rms_mqtt
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/rms_mqtt.init $(1)/etc/init.d/rms_mqtt
 
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/rms_mqtt.conf $(1)/etc/config/rms_mqtt

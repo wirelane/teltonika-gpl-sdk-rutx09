@@ -318,6 +318,12 @@ hostapd_common_add_bss_config() {
 
 	config_add_string wpa_psk_file
 
+	config_add_string psk_group
+
+	config_add_int radius_params_mode
+	config_add_int macaddr_acl
+	config_add_int wpa_psk_radius
+
 	config_add_int multi_ap
 
 	config_add_boolean wps_pushbutton wps_label ext_registrar wps_pbc_in_m1
@@ -435,6 +441,7 @@ hostapd_set_psk() {
 	local ifname="$1"
 
 	rm -f /var/run/hostapd-${ifname}.psk
+
 	case "$auth_type" in
 		psk|psk-sae) ;;
 		*) return ;;
@@ -720,14 +727,18 @@ hostapd_set_bss_options() {
 
 		;;
 		psk|sae|psk-sae)
-			json_get_vars key wpa_psk_file sae_password_file
+			json_get_vars key wpa_psk_file sae_password_file psk_group
 			if [ "$ppsk" -ne 0 ]; then
-				json_get_vars auth_secret auth_port
+				json_get_vars auth_secret auth_port radius_params_mode macaddr_acl wpa_psk_radius
 				set_default auth_port 1812
+				set_default radius_params_mode 0
+				set_default macaddr_acl 0
+				set_default wpa_psk_radius 3
 				json_for_each_item append_auth_server auth_server
-				append bss_conf "macaddr_acl=2" "$N"
-				append bss_conf "wpa_psk_radius=3" "$N"
+				append bss_conf "macaddr_acl=$macaddr_acl" "$N"
+				append bss_conf "wpa_psk_radius=$wpa_psk_radius" "$N"
 				append bss_conf "radius_require_message_authenticator=0" "$N"
+				[ "$wpa_psk_radius" -eq 3 ] && append bss_conf "radius_params_mode=$radius_params_mode" "$N"
 			elif [ ${#key} -eq 64 ]; then
 				append bss_conf "wpa_psk=$key" "$N"
 			elif [ ${#key} -ge 8 ] && [ ${#key} -le 63 ]; then
@@ -736,7 +747,7 @@ hostapd_set_bss_options() {
 				wireless_setup_vif_failed INVALID_WPA_PSK
 				return 1
 			fi
-			[ -z "$wpa_psk_file" ] && set_default wpa_psk_file /var/run/hostapd-$ifname.psk
+			[ -z "$wpa_psk_file" ] && set_default wpa_psk_file /var/run/hostapd-${ifname}.psk
 			[ -n "$wpa_psk_file" ] && [ "$auth_type" = "psk" -o "$auth_type" = "psk-sae" ] && {
 				[ -e "$wpa_psk_file" ] || touch "$wpa_psk_file"
 				append bss_conf "wpa_psk_file=$wpa_psk_file" "$N"
@@ -842,7 +853,7 @@ hostapd_set_bss_options() {
 				json_for_each_item append_auth_server auth_server
 				[ -n "$ownip" ] && append bss_conf "own_ip_addr=$ownip" "$N"
 				[ -n "$radius_client_addr" ] && append bss_conf "radius_client_addr=$radius_client_addr" "$N"
-				append bss_conf "macaddr_acl=2" "$N"
+				[ "$ppsk" -ne 0 ] || append bss_conf "macaddr_acl=2" "$N"
 			}
 		;;
 	esac

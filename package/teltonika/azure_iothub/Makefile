@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=azure_iothub
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.7
+PKG_SOURCE_VERSION:=3.8
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -50,10 +50,10 @@ define Package/azure_iothub/install
 	$(CP) $(PKG_BUILD_DIR)/plugins/*.so $(1)/lib/azure/plugins/
 
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/azure_iothub $(1)/sbin/azure_iothub
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/azure_iothub/azure_iothub $(1)/sbin/azure_iothub
 
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/azure_iothub.init $(1)/etc/init.d/azure_iothub
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/azure_iothub.init $(1)/etc/init.d/azure_iothub
 
 	$(INSTALL_DIR) $(1)/etc/config/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/azure_iothub.conf $(1)/etc/config/azure_iothub

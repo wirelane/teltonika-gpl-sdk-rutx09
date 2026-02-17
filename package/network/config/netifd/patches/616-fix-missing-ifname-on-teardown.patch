@@ -1,8 +1,6 @@
-Index: netifd-2024-01-04-c18cc79d/wireless.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/wireless.c
-+++ netifd-2024-01-04-c18cc79d/wireless.c
-@@ -661,6 +661,9 @@ wireless_device_mark_up(struct wireless_
+--- a/wireless.c
++++ b/wireless.c
+@@ -692,6 +692,9 @@ wireless_device_mark_up(struct wireless_
  	netifd_log_message(L_NOTICE, "Wireless device '%s' is now up\n", wdev->name);
  	wdev->retry = WIRELESS_SETUP_RETRY;
  	wdev->state = IFS_UP;

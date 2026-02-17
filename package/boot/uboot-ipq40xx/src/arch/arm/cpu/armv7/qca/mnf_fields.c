@@ -18,6 +18,17 @@ static int validate_num(mnf_field_t *field, const char *old)
 	return 0;
 }
 
+static int validate_sn(mnf_field_t *field, const char *old)
+{
+	for (int i = 0; i < field->length; i++) {
+		if (!((old[i] >= 'A' && old[i] <= 'Z') ||
+			  (old[i] >= '0' && old[i] <= '9'))) {
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /* Set to mac random mac address with our VID, skip if mac already has our VID */
 static int restore_mac(mnf_field_t *field, const char *old, char *buf)
 {
@@ -56,6 +67,15 @@ static int restore_num(mnf_field_t *field, const char *old, char *buf)
 	return validate_num(field, old);
 }
 
+/* Remove the -6 from lenght when moved to new system for serial number*/
+static int restore_sn(mnf_field_t *field, const char *old, char *buf)
+{
+	memset(buf, '0', field->length-6);
+	buf[field->length-6] = '\0';
+	
+	return validate_sn(field, old);
+}
+
 /* Clear the field with 0xff's, don't overwrite by default */
 static int clear(mnf_field_t *field, const char *old, char *buf)
 {
@@ -69,7 +89,7 @@ mnf_field_t mnf_fields[] = {
 	{ 'm', "mac",       "MAC address",         0x00,   6, restore_mac    , MNF_FIELD_BINARY },
 	{ 'n', "name",      "Model name",          0x10,  12, restore_name   },
 	{ 'w', "wps",       "WPS PIN",             0x20,   8, clear          },
-	{ 's', "sn",        "Serial number",       0x30,  10, restore_num    },
+	{ 's', "sn",        "Serial number",       0x30,  16, restore_sn    },
 	{ 'b', "batch",     "Batch number",        0x40,   4, restore_num    },
 	{ 'H', "hwver",     "HW version (major)",  0x50,   4, restore_num    },
 	{ 'L', "hwver_lo",  "HW version (minor)",  0x54,   4, restore_num    },

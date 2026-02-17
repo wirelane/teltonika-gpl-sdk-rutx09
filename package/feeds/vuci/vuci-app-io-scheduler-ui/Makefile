@@ -13,7 +13,7 @@ include ../app.mk
 
 define Package/vuci-app-io-scheduler-ui/description
 	I/O Scheduler package which can be used to configure a 
-	timetable of when an pin state should change, 
+	timetable of when a pin state should change, 
 	based on days of the week or month and hours of the day. 
 endef
 

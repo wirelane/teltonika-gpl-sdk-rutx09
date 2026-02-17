@@ -1,6 +1,6 @@
 --- a/system-linux.c
 +++ b/system-linux.c
-@@ -3364,10 +3364,14 @@ static void system_vxlan_map_bool_attr(s
+@@ -4363,10 +4363,14 @@ static void system_vxlan_map_bool_attr(s
  		if (invert)
  			val = !val;
  
@@ -15,7 +15,7 @@
  
  	}
  }
-@@ -3517,7 +3521,9 @@ static int system_add_vxlan(const char *
+@@ -4516,7 +4520,9 @@ static int system_add_vxlan(const char *
  	system_vxlan_map_bool_attr(msg, tb_data, IFLA_VXLAN_PROXY , VXLAN_DATA_ATTR_PROXY, false);
  	system_vxlan_map_bool_attr(msg, tb_data, IFLA_VXLAN_L2MISS , VXLAN_DATA_ATTR_L2MISS, false);
  	system_vxlan_map_bool_attr(msg, tb_data, IFLA_VXLAN_L3MISS , VXLAN_DATA_ATTR_L3MISS, false);

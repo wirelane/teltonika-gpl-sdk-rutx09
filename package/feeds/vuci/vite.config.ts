@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { defineConfig, mergeConfig, loadEnv } from 'vite'
+import { defineConfig, mergeConfig, loadEnv, type ProxyOptions } from 'vite'
 import vuci, { type DeviceApp } from './build/vuci-plugin'
 import { compression } from 'vite-plugin-compression2'
 import { sentryVitePlugin } from '@sentry/vite-plugin'
@@ -12,24 +12,16 @@ export default defineConfig(configEnv =>
     baseConfig,
     defineConfig(({ mode, command }) => {
       mode === 'development' && generateTypeDefinitions()
+
       const env = loadEnv(mode, process.cwd(), '')
+
       const plugins = env?.VUCI_PLUGINS?.split(' ')
       const coreApps = env?.VUCI_APPS?.split(' ')
-      const proxy = {
-        '/ubus': {
-          target: env.VITE_PROXY || 'http://192.168.1.1'
-        },
-        '/api': {
-          target: env.VITE_PROXY || 'http://192.168.1.1'
-        },
-        '/cgi-bin/': {
-          target: env.VITE_PROXY || 'http://192.168.1.1'
-        },
-        '/views/': {
-          target: env.VITE_PROXY || 'http://192.168.1.1'
-        },
-        '/i18n/': {
-          target: env.VITE_PROXY || 'http://192.168.1.1'
+
+      const proxy: Record<string, ProxyOptions> = {
+        '^/(api|cgi-bin|views|i18n)': {
+          target: env.VITE_PROXY || 'https://192.168.1.1',
+          secure: false
         }
       }
 

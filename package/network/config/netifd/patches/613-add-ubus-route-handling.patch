@@ -1,7 +1,5 @@
-Index: netifd-2024-01-04-c18cc79d/interface-ip.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/interface-ip.c
-+++ netifd-2024-01-04-c18cc79d/interface-ip.c
+--- a/interface-ip.c
++++ b/interface-ip.c
 @@ -21,7 +21,6 @@
  #include <limits.h>
  #include <arpa/inet.h>
@@ -91,10 +89,8 @@ Index: netifd-2024-01-04-c18cc79d/interface-ip.c
  }
  
  static int
-Index: netifd-2024-01-04-c18cc79d/interface-ip.h
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/interface-ip.h
-+++ netifd-2024-01-04-c18cc79d/interface-ip.h
+--- a/interface-ip.h
++++ b/interface-ip.h
 @@ -16,6 +16,24 @@
  
  #include "interface.h"
@@ -129,11 +125,9 @@ Index: netifd-2024-01-04-c18cc79d/interface-ip.h
  void interface_ip_add_neighbor(struct interface *iface, struct blob_attr *attr, bool v6);
  void interface_ip_update_start(struct interface_ip_settings *ip);
  void interface_ip_update_complete(struct interface_ip_settings *ip);
-Index: netifd-2024-01-04-c18cc79d/ubus.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/ubus.c
-+++ netifd-2024-01-04-c18cc79d/ubus.c
-@@ -31,6 +31,289 @@ static const char *ubus_path;
+--- a/ubus.c
++++ b/ubus.c
+@@ -32,6 +32,289 @@ static struct udebug_ubus udebug;
  /* global object */
  
  static int
@@ -423,7 +417,7 @@ Index: netifd-2024-01-04-c18cc79d/ubus.c
  netifd_handle_restart(struct ubus_context *ctx, struct ubus_object *obj,
  		      struct ubus_request_data *req, const char *method,
  		      struct blob_attr *msg)
-@@ -205,6 +488,9 @@ netifd_netns_updown(struct ubus_context
+@@ -206,6 +489,9 @@ netifd_netns_updown(struct ubus_context
  }
  
  static struct ubus_method main_object_methods[] = {
@@ -433,13 +427,11 @@ Index: netifd-2024-01-04-c18cc79d/ubus.c
  	{ .name = "restart", .handler = netifd_handle_restart },
  	{ .name = "reload", .handler = netifd_handle_reload },
  	UBUS_METHOD("add_host_route", netifd_add_host_route, route_policy),
-Index: netifd-2024-01-04-c18cc79d/ubus.h
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/ubus.h
-+++ netifd-2024-01-04-c18cc79d/ubus.h
-@@ -14,8 +14,9 @@
- #ifndef __NETIFD_UBUS_H
- #define __NETIFD_UBUS_H
+--- a/ubus.h
++++ b/ubus.h
+@@ -17,8 +17,9 @@
+ struct wireless_device;
+ typedef void (*procd_data_cb)(struct blob_attr *data);
  
 -extern struct ubus_context *ubus_ctx;
 +#define NETIFD_BFR 256

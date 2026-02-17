@@ -37,7 +37,7 @@ PS: This was compiled-tested only due to lack of hardware.
  	dev->needs_free_netdev = true;
  }
  
-@@ -258,12 +259,6 @@ static int qmimux_register_device(struct
+@@ -264,12 +265,6 @@ static int qmimux_register_device(struct
  	priv->mux_id = mux_id;
  	priv->real_dev = real_dev;
  
@@ -50,7 +50,7 @@ PS: This was compiled-tested only due to lack of hardware.
  	new_dev->sysfs_groups[0] = &qmi_wwan_sysfs_qmimux_attr_group;
  
  	err = register_netdevice(new_dev);
-@@ -296,7 +291,6 @@ static void qmimux_unregister_device(str
+@@ -302,7 +297,6 @@ static void qmimux_unregister_device(str
  	struct qmimux_priv *priv = netdev_priv(dev);
  	struct net_device *real_dev = priv->real_dev;
  
@@ -60,7 +60,7 @@ PS: This was compiled-tested only due to lack of hardware.
  
 --- a/drivers/net/usb/usbnet.c
 +++ b/drivers/net/usb/usbnet.c
-@@ -1663,7 +1663,6 @@ void usbnet_disconnect (struct usb_inter
+@@ -1665,7 +1665,6 @@ void usbnet_disconnect (struct usb_inter
  	usb_free_urb(dev->interrupt);
  	kfree(dev->padding_pkt);
  
@@ -68,7 +68,7 @@ PS: This was compiled-tested only due to lack of hardware.
  	free_netdev(net);
  }
  EXPORT_SYMBOL_GPL(usbnet_disconnect);
-@@ -1740,10 +1739,6 @@ usbnet_probe (struct usb_interface *udev
+@@ -1742,10 +1741,6 @@ usbnet_probe (struct usb_interface *udev
  	dev->rx_speed = SPEED_UNSET;
  	dev->tx_speed = SPEED_UNSET;
  
@@ -79,7 +79,7 @@ PS: This was compiled-tested only due to lack of hardware.
  	dev->msg_enable = netif_msg_init (msg_level, NETIF_MSG_DRV
  				| NETIF_MSG_PROBE | NETIF_MSG_LINK);
  	init_waitqueue_head(&dev->wait);
-@@ -1768,6 +1763,7 @@ usbnet_probe (struct usb_interface *udev
+@@ -1770,6 +1765,7 @@ usbnet_probe (struct usb_interface *udev
  	dev->hard_mtu = net->mtu + net->hard_header_len;
  	net->min_mtu = 0;
  	net->max_mtu = ETH_MAX_MTU;
@@ -87,7 +87,7 @@ PS: This was compiled-tested only due to lack of hardware.
  
  	net->netdev_ops = &usbnet_netdev_ops;
  	net->watchdog_timeo = TX_TIMEOUT_JIFFIES;
-@@ -1890,8 +1886,6 @@ out1:
+@@ -1892,8 +1888,6 @@ out1:
  	usbnet_mark_going_away(dev);
  	cancel_work_sync(&dev->kevent);
  	del_timer_sync(&dev->delay);

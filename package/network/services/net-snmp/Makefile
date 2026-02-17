@@ -274,7 +274,7 @@ define Package/snmpd/install
 	$(INSTALL_CONF_USR) ./files/snmpd.conf $(1)/etc/config/snmpd
 	$(INSTALL_DATA) ./files/snmpd.json $(1)/usr/share/acl.d/snmpd.json
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/snmpd.init $(1)/etc/init.d/snmpd
+	$(INSTALL_BIN_USR) ./files/snmpd.init $(1)/etc/init.d/snmpd
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/snmpd $(1)/usr/sbin/snmpd
 	$(INSTALL_DIR) $(1)/etc/permtab.d

@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.23
+PKG_SOURCE_VERSION:=2.24
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -51,7 +51,7 @@ FOTA_HOST:=rut.teltonika.lt
 define Package/rut_fota/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/etc/config/ $(1)/sbin/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/rut_fota $(1)/sbin/rut_fota
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/rut_fota.init $(1)/etc/init.d/rut_fota
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/rut_fota.init $(1)/etc/init.d/rut_fota
 
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/rut_fota.config $(1)/etc/config/rut_fota
 	$(SED) "s#%%FOTA_HOST%%#"$(FOTA_HOST)"#g" $(1)/etc/config/rut_fota

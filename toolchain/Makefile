@@ -29,7 +29,7 @@
 curdir:=toolchain
 
 ifeq ($(BUILD_SKIP_TOOLCHAIN),)
-ifneq ($(CONFIG_TARGET_mdm9x07)$(CONFIG_TARGET_sdxprairie)$(CONFIG_TARGET_sdxlemur)$(CONFIG_TARGET_sdxnightjar),)
+ifneq ($(CONFIG_TARGET_mdm9x07)$(CONFIG_TARGET_sdxprairie)$(CONFIG_TARGET_sdxlemur)$(CONFIG_TARGET_sdxnightjar)$(CONFIG_TARGET_qualcommbe),)
   BUILD_ALL_TOOLCHAIN = y
 endif
 

@@ -489,7 +489,7 @@ setDevice() {
         RG500U*)
             DEVICE="QuectelUNISOC"
             ;;
-        EG915Q*)
+        EG915Q*|EG916Q*)
             DEVICE="QuectelEIGENCOMM"
             ;;
         *) ;;

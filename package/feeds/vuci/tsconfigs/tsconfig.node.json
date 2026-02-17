@@ -1,6 +1,6 @@
 {
   "extends": "@tsconfig/node20/tsconfig.json",
-  "include": ["../build/*", "../vite*.config.*", "../vitest.config.*"],
+  "include": ["../build/*", "../vite*.config.*", "../vitest.config.*", "../docs/"],
   "compilerOptions": {
     "composite": true,
     "noEmit": true,

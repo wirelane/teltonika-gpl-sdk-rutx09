@@ -1,7 +1,18 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/CMakeLists.txt src/CMakeLists.txt
 --- upstream/CMakeLists.txt	2024-02-21 20:13:50.000000000 +0000
-+++ src/CMakeLists.txt	2025-07-15 10:14:59.000000000 +0000
-@@ -31,7 +31,7 @@
++++ src/CMakeLists.txt	2026-01-13 14:31:12.000000000 +0000
+@@ -14,7 +14,9 @@
+ add_executable(nlbwmon ${SOURCES})
+ 
+ if(LIBNL_LIBRARY_TINY)
+-  target_link_libraries(nlbwmon nl-tiny)
++  find_library(tlt_logger NAMES tlt_logger)
++  FIND_PATH(logger_include_dir tlt_logger.h)
++  target_link_libraries(nlbwmon nl-tiny ${tlt_logger})
+ else()
+   find_library(LIBNL_LIBRARY NAMES nl-3 nl)
+   find_library(LIBNL_GENL_LIBRARY NAMES nl-genl-3 nl-genl)
+@@ -31,7 +33,7 @@
    add_definitions(-DHAVE_ULOOP_INTERVAL)
  endif()
  
@@ -12,7 +23,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/client.c src/client.c
 --- upstream/client.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/client.c	2025-07-15 10:14:59.000000000 +0000
++++ src/client.c	2026-01-13 14:31:12.000000000 +0000
 @@ -58,16 +58,18 @@
  	PORT     =  2,
  	MAC      =  3,
@@ -189,7 +200,45 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			}
  		}
  
-@@ -659,12 +714,43 @@
+@@ -608,11 +663,14 @@
+ 
+ 	ctrl_socket = usock(USOCK_UNIX, opt.socket, NULL);
+ 
+-	if (!ctrl_socket)
++	if (!ctrl_socket) {
++		ERROR("Failed to connect to control socket: %s", strerror(errno));
+ 		return -errno;
++	}
+ 
+ 	if (send(ctrl_socket, "list", 4, 0) != 4) {
+ 		close(ctrl_socket);
++		ERROR("Failed to send list command: %s", strerror(errno));
+ 		return -errno;
+ 	}
+ 
+@@ -640,16 +698,20 @@
+ 
+ 	ctrl_socket = usock(USOCK_UNIX, opt.socket, NULL);
+ 
+-	if (!ctrl_socket)
++	if (!ctrl_socket) {
++		ERROR("Failed to connect to control socket: %s", strerror(errno));
+ 		return -errno;
++	}
+ 
+ 	if (send(ctrl_socket, "commit", 6, 0) != 6) {
+ 		close(ctrl_socket);
++		ERROR("Failed to send commit command: %s", strerror(errno));
+ 		return -errno;
+ 	}
+ 
+ 	if (recv(ctrl_socket, reply, sizeof(reply)-1, 0) <= 0) {
+ 		close(ctrl_socket);
++		ERROR("Failed to receive commit output: %s", strerror(errno));
+ 		return -ENODATA;
+ 	}
+ 
+@@ -659,12 +721,43 @@
  	return -strtol(reply, NULL, 10);
  }
  
@@ -233,7 +282,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
  
  
-@@ -676,7 +762,7 @@
+@@ -676,7 +769,7 @@
  	unsigned int year, month, day;
  	char c, *p;
  
@@ -242,7 +291,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		switch (optchr) {
  		case 'S':
  			opt.socket = optarg;
-@@ -748,12 +834,16 @@
+@@ -748,12 +841,16 @@
  			break;
  
  		case 't':
@@ -264,7 +313,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			break;
  
  		case 'n':
-@@ -771,21 +861,32 @@
+@@ -771,21 +868,32 @@
  		case 'e':
  			client_opt.escape = optarg ? *optarg : 0;
  			break;
@@ -304,7 +353,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (!cmd) {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/database.c src/database.c
 --- upstream/database.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/database.c	2025-07-15 10:14:59.000000000 +0000
++++ src/database.c	2026-01-13 14:31:12.000000000 +0000
 @@ -25,6 +25,7 @@
  #include <dirent.h>
  #include <unistd.h>
@@ -713,7 +762,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		h->db->timestamp = htobe32(next_ts);
  
  		database_reindex(h);
-@@ -637,9 +623,366 @@
+@@ -637,9 +623,368 @@
  	return 0;
  }
  
@@ -730,7 +779,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	char *errmsg = NULL;
 +	int rc	     = sqlite3_exec(db, sql, 0, 0, &errmsg);
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "SQL error: %s\n", errmsg);
++		ERROR("SQL error: %s", errmsg);
 +		sqlite3_free(errmsg);
 +	}
 +	return rc;
@@ -742,7 +791,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	sqlite3 *db;
 +	int rc = sqlite3_open(db_path, &db);
 +	if (rc) {
-+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
++		ERROR("Can't open database: %s", sqlite3_errmsg(db));
 +		return rc;
 +	}
 +
@@ -766,14 +815,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	free(create_sql);
 +
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "Failed to prepare statement: %s\n", sqlite3_errmsg(db));
++		ERROR("Failed to prepare database statement: %s", sqlite3_errmsg(db));
 +		sqlite3_close(db);
 +		return rc;
 +	}
 +
 +	rc = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "Failed to begin transaction: %s\n", sqlite3_errmsg(db));
++		ERROR("Failed to begin transaction: %s", sqlite3_errmsg(db));
 +		sqlite3_close(db);
 +		return rc;
 +	}
@@ -850,7 +899,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	rc = sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
 +free:
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "SQL statement failed: %s\n", sqlite3_errmsg(db));
++		ERROR("SQL statement failed: %s", sqlite3_errmsg(db));
++		WARN("Rolling back transaction");
 +		sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
 +	}
 +
@@ -864,7 +914,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	sqlite3_stmt *stmt;
 +	int rc = sqlite3_open(db_path, &db);
 +	if (rc) {
-+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
++		CRIT("Can't open database: %s", sqlite3_errmsg(db));
 +		return rc;
 +	}
 +
@@ -874,7 +924,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	rc = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "Failed to begin transaction: %s\n", sqlite3_errmsg(db));
++		ERROR("Failed to begin transaction: %s", sqlite3_errmsg(db));
 +		sqlite3_close(db);
 +		return rc;
 +	}
@@ -964,7 +1014,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	free(select_sql);
 +
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "SQL statement failed: %s\n", sqlite3_errmsg(db));
++		ERROR("SQL statement failed: %s", sqlite3_errmsg(db));
++		WARN("Rolling back transaction");
 +		sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
 +	}
 +
@@ -1014,7 +1065,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	sqlite3_stmt *stmt;
 +	int rc = sqlite3_open(db_path, &db);
 +	if (rc) {
-+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
++		ERROR("Can't open database: %s\n", sqlite3_errmsg(db));
 +		return rc;
 +	}
 +
@@ -1024,7 +1075,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	rc = sqlite3_exec(db, "BEGIN TRANSACTION;", NULL, NULL, NULL);
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "Failed to begin transaction: %s\n", sqlite3_errmsg(db));
++		ERROR("Failed to begin transaction: %s\n", sqlite3_errmsg(db));
 +		sqlite3_close(db);
 +		return rc;
 +	}
@@ -1045,7 +1096,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	rc = sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
 +free:
 +	if (rc != SQLITE_OK) {
-+		fprintf(stderr, "SQL statement failed: %s\n", sqlite3_errmsg(db));
++		ERROR("SQL statement failed: %s\n", sqlite3_errmsg(db));
 +		sqlite3_exec(db, "ROLLBACK;", NULL, NULL, NULL);
 +	}
 +	sqlite3_close(db);
@@ -1064,18 +1115,18 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	err = sqlite_save(gdbh, opt.db.directory);
 +	if (err) {
-+		fprintf(stderr, "Unable to save database: %s\n", sqlite3_errstr(err));
++		ERROR("Unable to save database: %s\n", sqlite3_errstr(err));
 +		goto end;
 +	}
 +
 +	err = concat_old_generations(opt.db.directory, opt.db.generations);
 +	if (err != SQLITE_OK) {
-+		fprintf(stderr, "Unable to concat old generations: %s\n", sqlite3_errstr(err));
++		ERROR("Unable to concat old generations: %s\n", sqlite3_errstr(err));
 +	}
 +
 +	err = delete_excess_entries(opt.db.directory, opt.db.limit);
 +	if (err != SQLITE_OK) {
-+		fprintf(stderr, "Unable to delete excess entries: %s\n", sqlite3_errstr(err));
++		ERROR("Unable to delete excess entries: %s\n", sqlite3_errstr(err));
 +	}
 +
 +end:
@@ -1084,7 +1135,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/database.h src/database.h
 --- upstream/database.h	2024-02-21 20:13:50.000000000 +0000
-+++ src/database.h	2025-07-15 10:14:59.000000000 +0000
++++ src/database.h	2026-01-13 14:31:12.000000000 +0000
 @@ -25,12 +25,15 @@
  #include <netinet/ether.h>
  
@@ -1135,8 +1186,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #endif /* __DATABASE_H__ */
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/nfnetlink.c src/nfnetlink.c
 --- upstream/nfnetlink.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/nfnetlink.c	2025-07-15 10:14:59.000000000 +0000
-@@ -75,13 +75,22 @@
++++ src/nfnetlink.c	2026-01-13 14:31:12.000000000 +0000
+@@ -26,12 +26,14 @@
+ #include <linux/netfilter/nfnetlink_conntrack.h>
+ 
+ #include <libubox/uloop.h>
++#include <inttypes.h>
+ 
+ #include "nfnetlink.h"
+ #include "database.h"
+ #include "protocol.h"
+ #include "subnets.h"
+ #include "neigh.h"
++#include "utils.h"
+ 
+ 
+ static uint32_t n_pending_inserts = 0;
+@@ -75,13 +77,22 @@
  	struct record record;
  };
  
@@ -1163,7 +1229,16 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  static void
-@@ -188,6 +197,7 @@
+@@ -112,7 +123,7 @@
+ 	/* to avoid gobbling up too much memory, tie the maximum allowed number
+ 	 * of pending insertions to the configured database limit */
+ 	if (opt.db.limit > 0 && n_pending_inserts >= opt.db.limit) {
+-		fprintf(stderr, "Too many pending MAC address lookups\n");
++		WARN("Too many pending MAC address lookups\n"),
+ 		database_insert_immediately(r);
+ 		return -ENOSPC;
+ 	}
+@@ -188,12 +199,15 @@
  	static struct nlattr *counters[CTA_COUNTERS_MAX + 1];
  
  	struct record r = { };
@@ -1171,7 +1246,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	struct in6_addr orig_saddr, orig_daddr, reply_saddr, reply_daddr;
  
  	uint64_t orig_pkts, orig_bytes, reply_pkts, reply_bytes;
-@@ -247,6 +257,7 @@
+ 	uint16_t orig_port, reply_port;
+ 	uint8_t orig_proto, reply_proto;
+ 
++	DEBUG("Parsing netlink event\n");
++
+ 	for (hdr = reply; nlmsg_ok(hdr, len); hdr = nlmsg_next(hdr, &len)) {
+ 		gnlh = nlmsg_data(hdr);
+ 		orig_pkts = 0;
+@@ -247,6 +261,7 @@
  			r.out_pkts = orig_pkts;
  			r.out_bytes = orig_bytes;
  			r.src_addr.in6 = orig_saddr;
@@ -1179,7 +1262,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		}
  
  		/* remote -> local */
-@@ -258,9 +269,34 @@
+@@ -258,9 +273,34 @@
  			r.out_pkts = reply_pkts;
  			r.out_bytes = reply_bytes;
  			r.src_addr.in6 = reply_saddr;
@@ -1215,7 +1298,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		else {
  			continue;
  		}
-@@ -272,6 +308,10 @@
+@@ -272,6 +312,22 @@
  
  		r.count = htobe64(allow_insert);
  
@@ -1223,13 +1306,69 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		local_archive_interval.type = HOURLY;
 +		r.timestamp = interval_timestamp(&local_archive_interval, 0);
 +
++		DEBUG("Record: fam=%d src=%s dst=%s proto=%u port=%u in_pkts=%"PRIu64" in_bytes=%"PRIu64
++		      " out_pkts=%"PRIu64" out_bytes=%"PRIu64"\n",
++		      r.family,
++		      format_ipaddr(r.family, &r.src_addr),
++		      format_ipaddr(r.family, &r.dst_addr),
++		      r.proto,
++		      be16toh(r.dst_port),
++		      be64toh(r.in_pkts),
++		      be64toh(r.in_bytes),
++		      be64toh(r.out_pkts),
++		      be64toh(r.out_bytes));
++
  		if (update_mac)
  			update_macaddr(r.family, &r.src_addr.in6);
  
+@@ -293,6 +349,8 @@
+ 	bool is_new;
+ 	int len;
+ 
++	DEBUG("Received netlink event\n");
++
+ 	database_archive(gdbh);
+ 
+ 	while (true) {
+@@ -363,12 +421,12 @@
+ 		fclose(f);
+ 	}
+ 
+-	if (bufsize > max)
+-		fprintf(stderr,
+-		        "The netlink receive buffer size of %d bytes will be capped to %d bytes\n"
++	if (bufsize > max) {
++		WARN("The netlink receive buffer size of %d bytes will be capped to %d bytes\n"
+ 		        "by the kernel. The net.core.rmem_max sysctl limit needs to be raised to\n"
+ 		        "at least %d in order to sucessfully set the desired receive buffer size!\n",
+ 		        bufsize, max, bufsize);
++	}
+ }
+ 
+ 
+@@ -490,14 +548,16 @@
+ 	nl_cb_set(cb, NL_CB_SEQ_CHECK, NL_CB_CUSTOM, handle_seq, NULL);
+ 	nl_cb_err(cb, NL_CB_CUSTOM, handle_error, &err);
+ 
+-	if (nl_send_auto_complete(nl, req) < 0)
++	if (nl_send_auto_complete(nl, req) < 0) {
++		ERROR("Netlink send error: %s\n", strerror(errno));
+ 		goto err;
++	}
+ 
+ 	for (err = 1; err > 0; ) {
+ 		ret = nl_recvmsgs(nl, cb);
+ 
+ 		if (ret < 0) {
+-			fprintf(stderr, "Netlink receive failure: %s\n", nl_geterror(ret));
++			ERROR("Netlink receive error: %s\n", nl_geterror(ret));
+ 			err = (-ret == NLE_NOMEM) ? -ENOBUFS : -EIO;
+ 			break;
+ 		}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/nlbwmon.c src/nlbwmon.c
 --- upstream/nlbwmon.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/nlbwmon.c	2025-07-15 10:14:59.000000000 +0000
-@@ -71,54 +71,31 @@
++++ src/nlbwmon.c	2026-01-13 14:31:12.000000000 +0000
+@@ -71,56 +71,35 @@
  
  	.netlink_buffer_size = 524288,
  
@@ -1278,6 +1417,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	char path[256];
 -	uint32_t timestamp = interval_timestamp(&opt.archive_interval, 0);
++	INFO("Received signal %d, shutting down...", sig);
  
 -	save_persistent(timestamp);
 +	save_persistent();
@@ -1293,8 +1433,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		database_save(gdbh, opt.tempdir, 0, opt.db.compress);
  	}
  
++	closelog();
  	uloop_done();
-@@ -128,10 +105,8 @@
+ 	exit(0);
+ }
+@@ -128,10 +107,8 @@
  static void
  handle_commit(struct uloop_timer_type *tm)
  {
@@ -1306,7 +1449,24 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  static void
-@@ -162,7 +137,7 @@
+@@ -149,20 +126,20 @@
+ 
+ 	/* fatal error during database archiving */
+ 	if (err != 0) {
+-		fprintf(stderr, "Unable to archive database: %s\n",
+-				strerror(-err));
++		CRIT("Unable to archive database: %s\n",
++		     strerror(-err));
+ 		return;
+ 	}
+ 
+ 	err = nfnetlink_dump(false);
+ 
+ 	if (err) {
+-		fprintf(stderr, "Unable to dump conntrack: %s\n",
+-		        strerror(-err));
++		CRIT("Unable to refresh conntrack entries: %s\n",
++		     strerror(-err));
  		return;
  	}
  
@@ -1315,7 +1475,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  static int
-@@ -211,11 +186,10 @@
+@@ -211,11 +188,10 @@
  server_main(int argc, char **argv)
  {
  	struct sigaction sa = { .sa_handler = handle_shutdown };
@@ -1328,7 +1488,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		switch (optchr) {
  		case 'b':
  			opt.netlink_buffer_size = (int)strtol(optarg, &e, 0);
-@@ -293,6 +267,10 @@
+@@ -293,11 +269,15 @@
  		case 'Z':
  			opt.db.compress = true;
  			break;
@@ -1339,7 +1499,20 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		}
  	}
  
-@@ -311,8 +289,6 @@
+ 	if (!opt.archive_interval.type) {
+-		fprintf(stderr, "No interval specified; assuming 1st of month\n");
++		NOTICE("No archive interval specified; defaulting to 'monthly'\n");
+ 		interval_pton("1", &opt.archive_interval);
+ 	}
+ 
+@@ -306,55 +286,48 @@
+ 	err = rmkdir(opt.db.directory);
+ 
+ 	if (err) {
+-		fprintf(stderr, "Unable to create database directory: %s\n",
+-		        strerror(-err));
++		CRIT("Unable to create database directory '%s': %s\n",
++		     opt.db.directory, strerror(-err));
  		return 1;
  	}
  
@@ -1348,7 +1521,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	gdbh = database_init(&opt.archive_interval, opt.db.prealloc, opt.db.limit);
  
  	if (!gdbh) {
-@@ -323,11 +299,6 @@
+-		fprintf(stderr, "Unable to allocate memory database: %s\n",
+-		        strerror(ENOMEM));
++		ERROR("Unable to allocate memory database %s\n",
++		      strerror(ENOMEM));
+ 		return 1;
+ 	}
  
  	err = database_load(gdbh, opt.tempdir, 0);
  
@@ -1358,11 +1536,58 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	}
 -
  	if (err != 0 && err != -ENOENT) {
- 		fprintf(stderr, "Unable to restore database: %s\n",
- 		        strerror(-err));
+-		fprintf(stderr, "Unable to restore database: %s\n",
+-		        strerror(-err));
++		WARN("Unable to load existing database: %s\n",
++		     strerror(-err));
+ 		exit(1);
+ 	}
+ 
+ 	err = init_protocols(opt.protocol_db);
+ 
+ 	if (err) {
+-		fprintf(stderr, "Unable to read protocol list %s: %s\n",
+-		        opt.protocol_db, strerror(-err));
++		ERROR("Unable to read protocol list %s: %s\n",
++		      opt.protocol_db, strerror(-err));
+ 		exit(1);
+ 	}
+ 
+ 	err = nfnetlink_connect(opt.netlink_buffer_size);
+ 
+ 	if (err) {
+-		fprintf(stderr, "Unable to connect nfnetlink: %s\n",
+-		        strerror(-err));
++		CRIT("Unable to setup nfnetlink: %s\n",
++		     strerror(-err));
+ 		exit(1);
+ 	}
+ 
+ 	err = socket_init(opt.socket);
+ 
+ 	if (err) {
+-		fprintf(stderr, "Unable to create control socket: %s\n",
+-		        strerror(-err));
++		CRIT("Unable to initialize control socket: %s\n",
++		     strerror(-err));
+ 		exit(1);
+ 	}
+ 
+@@ -377,6 +350,11 @@
+ int
+ main(int argc, char **argv)
+ {
++	if (logger_init(L_SYSTEM, L_TYPE_SYSLOG, "nlbwmon") < 0) {
++		fprintf(stderr, "Failed to initialize logger\n");
++		return 1;
++	}
++
+ 	const char *name = basename(argv[0]);
+ 
+ 	if (!strcmp(name, "nlbw"))
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/nlbwmon.h src/nlbwmon.h
 --- upstream/nlbwmon.h	2024-02-21 20:13:50.000000000 +0000
-+++ src/nlbwmon.h	2025-07-15 10:14:59.000000000 +0000
++++ src/nlbwmon.h	2026-01-13 14:31:12.000000000 +0000
 @@ -42,6 +42,8 @@
  	const char *tempdir;
  	const char *socket;
@@ -1372,10 +1597,67 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	struct {
  		bool compress;
  		bool prealloc;
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/protocol.c src/protocol.c
+--- upstream/protocol.c	2024-02-21 20:13:50.000000000 +0000
++++ src/protocol.c	2026-01-13 14:31:12.000000000 +0000
+@@ -24,6 +24,7 @@
+ 
+ #include "protocol.h"
+ #include "nlbwmon.h"
++#include "utils.h"
+ 
+ static int
+ avl_cmp_proto(const void *k1, const void *k2, void *ptr)
+@@ -43,10 +44,15 @@
+ 	uint8_t proto;
+ 	FILE *in;
+ 
++	DEBUG("Loading protocol database from '%s'\n", database);
++
+ 	in = fopen(opt.protocol_db, "r");
+ 
+-	if (!in)
++	if (!in) {
++		ERROR("Failed to open protocol database '%s': %s\n",
++		      database, strerror(errno));
+ 		return -errno;
++	}
+ 
+ 	while (fscanf(in, PR_SCANFMT, &proto, &port, buf) == 3)
+ 	{
+@@ -69,6 +75,8 @@
+ 		pr->name = strcpy(p, buf);
+ 		pr->node.key = pr;
+ 
++		DEBUG("Loaded protocol: proto=%u port=%u name='%s' idx=%u\n",
++		      pr->proto, pr->port, pr->name, pr->idx);
+ 		avl_insert(&protocols, &pr->node);
+ 	}
+ 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/socket.c src/socket.c
 --- upstream/socket.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/socket.c	2025-07-15 10:14:59.000000000 +0000
-@@ -66,34 +66,9 @@
++++ src/socket.c	2026-01-13 14:31:12.000000000 +0000
+@@ -31,6 +31,7 @@
+ #include "database.h"
+ #include "timing.h"
+ #include "nlbwmon.h"
++#include "utils.h"
+ 
+ struct command {
+ 	const char *cmd;
+@@ -53,8 +54,10 @@
+ 		if (rv == -1 && errno == EAGAIN)
+ 			continue;
+ 
+-		if (rv <= 0)
++		if (rv <= 0) {
++			ERROR("send() failed: %s", strerror(errno));
+ 			return rv;
++		}
+ 
+ 		len -= rv;
+ 		sent += rv;
+@@ -66,92 +69,81 @@
  static int
  handle_dump(int sock, const char *arg)
  {
@@ -1391,7 +1673,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -		if (arg == e || *e)
 -			return -EINVAL;
 -	}
--
++	int err = 0;
+ 
 -	if (timestamp == 0) {
 -		h = gdbh;
 -	}
@@ -1408,11 +1691,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -		if (err)
 -			goto out;
 -	}
-+	int err = 0;
++	DEBUG("Handling 'dump' command");
  
  	if (send_data(sock, h->db, sizeof(*h->db)) != sizeof(*h->db)) {
  		err = errno;
-@@ -107,46 +82,22 @@
++		ERROR("Failed to send DB header: %s", strerror(err));
+ 		goto out;
+ 	}
+ 
+ 	while ((rec = database_next(h, rec)) != NULL)
+ 		if (send_data(sock, rec, db_recsize) != db_recsize) {
+ 			err = errno;
++			ERROR("Failed to send DB record: %s", strerror(err));
+ 			goto out;
  		}
  
  out:
@@ -1446,6 +1737,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	}
 -
 -	return 0;
++	INFO("Client requested unsupported 'list' command");
 +	return -errno;
  }
  
@@ -1461,16 +1753,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	len = snprintf(buf, sizeof(buf), "%d %s", -err,
  	               err ? strerror(-err) : "ok");
  
-@@ -156,10 +107,36 @@
- 	return 0;
- }
- 
+-	if (send_data(sock, buf, len) != len)
++	if (send_data(sock, buf, len) != len) {
++		ERROR("Failed to send commit response: %s", strerror(errno));
+ 		return -errno;
++	}
++
++	return 0;
++}
++
 +static int
 +handle_generate(int sock, const char *arg)
 +{
 +	int num_records = 100;
 +	char *e;
 +	int entries;
++
++	DEBUG("Handling 'generate' command (arg=%s)", arg ? arg : "NULL");
 +
 +	if (arg) {
 +		num_records = strtoul(arg, &e, 10);
@@ -1481,16 +1780,19 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	entries = generate_random_data(gdbh, num_records);
 +
++	INFO("Generated %d records, total entries now %d", num_records, entries);
++
 +	char buf[128];
 +	int len = snprintf(buf, sizeof(buf), "Generated %d records, total entries: %d", num_records, entries);
 +
-+	if (send_data(sock, buf, len) != len)
++	if (send_data(sock, buf, len) != len) {
++		ERROR("Failed to send generate() output: %s", strerror(errno));
 +		return -errno;
-+
-+	return 0;
-+}
-+
- static struct command commands[] = {
++	}
+ 
+ 	return 0;
+ }
+@@ -160,6 +152,7 @@
  	{ "dump", handle_dump },
  	{ "list", handle_list },
  	{ "commit", handle_commit },
@@ -1498,21 +1800,133 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
  
  
-@@ -233,6 +210,8 @@
+@@ -169,6 +162,8 @@
+ static void
+ handle_client_timeout(struct uloop_timeout *tm)
+ {
++	DEBUG("Client disconnected / timeout");
++
+ 	uloop_timeout_cancel(&sock_tm);
+ 
+ 	uloop_fd_delete(&sock_fd);
+@@ -197,10 +192,12 @@
+ 			if (!strcmp(commands[i].cmd, cmd)) {
+ 				err = commands[i].cb(ufd->fd, arg);
+ 				if (err) {
+-					fprintf(stderr, "Unable to handle '%s' command: %s\n",
+-					        buf, strerror(-err));
++					ERROR("Unable to handle '%s' command: %s",
++					      buf, strerror(-err));
+ 				}
+ 			}
++	} else {
++		WARN("Client closed connection unexpectedly");
+ 	}
+ 
+ 	handle_client_timeout(&sock_tm);
+@@ -213,9 +210,11 @@
+ 
+ 	fd = accept(ufd->fd, NULL, NULL);
+ 
+-	if (fd < 0)
++	if (fd < 0) {
++		ERROR("accept() failed: %s", strerror(errno));
+ 		return;
+-
++	}
++	DEBUG("Client connected (fd=%d)", fd);
+ 	uloop_fd_delete(ufd);
+ 
+ 	ufd->cb = handle_client_request;
+@@ -233,15 +232,25 @@
  {
  	struct stat s;
  
++	INFO("Initializing control socket at '%s'", path);
++
 +	umask(0007);
 +
  	if (!stat(path, &s) && S_ISSOCK(s.st_mode)) {
- 		if (unlink(path))
+-		if (unlink(path))
++		if (unlink(path)) {
++			ERROR("Unable to remove stale socket '%s': %s",
++				path, strerror(errno));
  			return -errno;
++		}
+ 	}
+ 
+ 	ctrl_socket = usock(USOCK_UNIX|USOCK_SERVER, path, NULL);
+ 
+-	if (ctrl_socket < 0)
++	if (ctrl_socket < 0) {
++		CRIT("Failed to create UNIX socket '%s': %s",
++			path, strerror(errno));
+ 		return -errno;
++	}
+ 
+ 	sock_fd.fd = ctrl_socket;
+ 	sock_fd.cb = handle_client_accept;
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/subnets.c src/subnets.c
+--- upstream/subnets.c	2024-02-21 20:13:50.000000000 +0000
++++ src/subnets.c	2026-01-13 14:31:12.000000000 +0000
+@@ -25,6 +25,7 @@
+ #include <libubox/list.h>
+ 
+ #include "subnets.h"
++#include "utils.h"
+ 
+ 
+ static LIST_HEAD(subnets);
+@@ -36,6 +37,8 @@
+ 	unsigned long int n;
+ 	uint8_t i, b;
+ 
++	DEBUG("Parsing subnet '%s'\n", addr);
++
+ 	mask = strchr(addr, '/');
+ 
+ 	if (mask)
+@@ -98,8 +101,10 @@
+ 	struct subnet *net = calloc(1, sizeof(*net));
+ 	int err;
+ 
+-	if (!net)
++	if (!net) {
++		ERROR("Unable to allocate memory for subnet");
+ 		return -ENOMEM;
++	}
+ 
+ 	err = parse_subnet(addr, net);
+ 
+@@ -107,7 +112,7 @@
+ 		free(net);
+ 		return err;
+ 	}
+-
++	DEBUG("Adding subnet '%s'\n", addr);
+ 	list_add_tail(&net->list, &subnets);
+ 	return 0;
+ }
+@@ -118,8 +123,10 @@
+ 	struct subnet *net;
+ 	uint32_t *a, *b, *m;
+ 
+-	if (list_empty(&subnets))
++	if (list_empty(&subnets)) {
++		ERROR("No subnets configured");
+ 		return -ENOENT;
++	}
+ 
+ 	list_for_each_entry(net, &subnets, list) {
+ 		a = addr->s6_addr32;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/timing.c src/timing.c
 --- upstream/timing.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/timing.c	2025-07-15 10:14:59.000000000 +0000
-@@ -24,9 +24,7 @@
++++ src/timing.c	2026-01-13 14:31:12.000000000 +0000
+@@ -23,10 +23,9 @@
+ #include <errno.h>
  
  #include "timing.h"
++#include "utils.h"
  
 -
 -static int
@@ -1521,7 +1935,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	if (!(year % 400))
  		return 1;
-@@ -40,8 +38,7 @@
+@@ -40,8 +39,7 @@
  	return 0;
  }
  
@@ -1531,7 +1945,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	switch (month) {
  	case 1:
-@@ -66,34 +63,27 @@
+@@ -66,34 +64,27 @@
  	return -ERANGE;
  }
  
@@ -1571,7 +1985,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	int date = (int32_t)be32toh(intv->value);
  	int monthdays;
  
-@@ -101,8 +91,7 @@
+@@ -101,8 +92,7 @@
  		if (offset < 0) {
  			tm_inc_dec(loc, false);
  			offset++;
@@ -1581,7 +1995,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			tm_inc_dec(loc, true);
  			offset--;
  		}
-@@ -113,8 +102,7 @@
+@@ -113,8 +103,7 @@
  	if (date > 0) {
  		if (loc->tm_mday < date)
  			tm_inc_dec(loc, false);
@@ -1591,7 +2005,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		if (loc->tm_mday < (date + monthdays))
  			tm_inc_dec(loc, false);
  
-@@ -128,19 +116,35 @@
+@@ -128,19 +117,35 @@
  			date = monthdays;
  	}
  
@@ -1608,10 +2022,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	int date       = monthly_date(loc, intv, offset);
 +
 +	return ((loc->tm_year + 1900) * 10000 + (loc->tm_mon + 1) * 100 + date);
- }
- 
--static int
--interval_timestamp_fixed(const struct interval *intv, int offset)
++}
++
 +int interval_date_monthly(const struct interval *intv, int offset)
 +{
 +	if (intv->type != MONTHLY)
@@ -1620,8 +2032,10 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	time_t now     = time(NULL);
 +	struct tm *loc = localtime(&now);
 +	return monthly_date(loc, intv, offset);
-+}
-+
+ }
+ 
+-static int
+-interval_timestamp_fixed(const struct interval *intv, int offset)
 +static int interval_timestamp_fixed(const struct interval *intv, int offset)
  {
  	time_t now, base;
@@ -1633,7 +2047,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	value = (int32_t)be32toh(intv->value);
  
  	now = time(NULL);
-@@ -148,18 +152,35 @@
+@@ -148,39 +153,63 @@
  	now += offset * (value * 86400);
  
  	base = now - ((now - base) % (value * 86400));
@@ -1676,7 +2090,28 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	time_t base;
  	int value;
  	char *e;
-@@ -178,9 +199,9 @@
+ 
+ 	if (sscanf(spec, "%4u-%2u-%2u/%d", &year, &month, &mday, &value) == 4) {
+-		if (year < 2000 || year > 3000)
++		INFO("Parsed FIXED interval: %04u-%02u-%02u/%d", year, month, mday, value);
++		if (year < 2000 || year > 3000) {
++			WARN("Year %u out of range", year);
+ 			return -ERANGE;
++		}
+ 
+-		if (month == 0 || month > 12)
++		if (month == 0 || month > 12) {
++			WARN("Month %u out of range", month);
+ 			return -ERANGE;
++		}
+ 
+-		if (mday == 0 || mday > days_in_month(year, month))
++		if (mday == 0 || mday > days_in_month(year, month)) {
++			WARN("Day %u out of range for month %u/%u", mday, month, year);
+ 			return -ERANGE;
++		}
+ 
+ 		if (value <= 0)
  			return -ERANGE;
  
  		loc.tm_isdst = -1;
@@ -1689,7 +2124,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  		base = mktime(&loc);
  		base -= base % 86400;
-@@ -204,20 +225,17 @@
+@@ -204,20 +233,17 @@
  	return 0;
  }
  
@@ -1715,7 +2150,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		break;
  
  	case MONTHLY:
-@@ -226,16 +244,17 @@
+@@ -226,16 +252,17 @@
  	}
  }
  
@@ -1739,7 +2174,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	return -EINVAL;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/timing.h src/timing.h
 --- upstream/timing.h	2024-02-21 20:13:50.000000000 +0000
-+++ src/timing.h	2025-07-15 10:14:59.000000000 +0000
++++ src/timing.h	2026-01-13 14:31:12.000000000 +0000
 @@ -25,6 +25,7 @@
  enum interval_type {
  	MONTHLY = 1,
@@ -1758,7 +2193,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/utils.c src/utils.c
 --- upstream/utils.c	2024-02-21 20:13:50.000000000 +0000
-+++ src/utils.c	2025-07-15 10:14:59.000000000 +0000
++++ src/utils.c	2026-01-13 14:31:12.000000000 +0000
 @@ -36,7 +36,22 @@
  	if (strlen(path) + 1 >= sizeof(tmp))
  		return -ENAMETOOLONG;
@@ -1783,3 +2218,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	for (p = tmp + 1; *p; p++) {
  		if (*p == '/') {
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/utils.h src/utils.h
+--- upstream/utils.h	2024-02-21 20:13:50.000000000 +0000
++++ src/utils.h	2026-01-13 14:31:12.000000000 +0000
+@@ -22,6 +22,8 @@
+ #include <netinet/in.h>
+ #include <netinet/ether.h>
+ 
++#include <tlt_logger.h>
++
+ int rmkdir(const char *path);
+ 
+ char * format_macaddr(struct ether_addr *mac);

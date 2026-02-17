@@ -119,7 +119,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  #endif /* __LINUX_USB_USBNET_H */
 --- a/net/core/skbuff.c
 +++ b/net/core/skbuff.c
-@@ -757,6 +757,54 @@ skb_fail:
+@@ -760,6 +760,54 @@ skb_fail:
  }
  EXPORT_SYMBOL(__netdev_alloc_skb);
  
@@ -174,7 +174,7 @@ rx_fixup implentation. Also included is a helper function for doing so.
  /**
   *	__napi_alloc_skb - allocate skbuff for rx in a specific NAPI instance
   *	@napi: napi instance this buffer was allocated for
-@@ -861,6 +909,22 @@ struct sk_buff *__netdev_alloc_skb_ip_al
+@@ -865,6 +913,22 @@ struct sk_buff *__netdev_alloc_skb_ip_al
  }
  EXPORT_SYMBOL(__netdev_alloc_skb_ip_align);
  

@@ -9,10 +9,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=twStreamApp
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.12
+PKG_SOURCE_VERSION:=1.13
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -39,14 +39,14 @@ endef
 
 MAKE_FLAGS += \
 	TW_OS_INCLUDE="twLinux-openssl.h" \
-	INCLUDE_DIR=$(STAGING_DIR)/usr/include/libtwCSdk
+	INCLUDE_DIR=$(STAGING_DIR)/usr/include/thingworx
 
 
 define Package/twStreamApp/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/twStreamApp $(1)/usr/bin/twStreamApp
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/twd.init $(1)/etc/init.d/twd
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/twd.init $(1)/etc/init.d/twd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iottw $(1)/etc/config/iottw
 	$(INSTALL_DIR) $(1)/usr/share/acl.d

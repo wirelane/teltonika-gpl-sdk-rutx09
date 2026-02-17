@@ -561,6 +561,7 @@ config FIREWALL_SUPPORT
 	imply PACKAGE_kmod-nf-nathelper-extra
 	imply PACKAGE_kmod-nf-nathelper
 	imply PACKAGE_kmod-ipt-raw6
+	imply PACKAGE_ip6tables-mod-nat
 	detail
 		Firewall: IPv4, IPv6, connection tracking, statefull firewall, logging, zone based firewall, custom rules, DMZ, firewall statistics, rules list, tables list
 		Port Forward: By port/protocol/IP address, NAT loopback
@@ -645,7 +646,7 @@ config DOT1X_CLIENT_SUPPORT
 	depends on HAS_DOT1X_CLIENT
 	default m if !NAND_SUPPORT && !x86_64 && !(INDUSTRIAL_AP || AP_DEVICE || DSA_SUPPORT || GATEWAY_DEVICE) && !TEST_IMAGE
 	default y
-	imply PACKAGE_vuci-app-port-security-ui if !AP_DEVICE
+	imply PACKAGE_vuci-app-dot1x-client-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-dot1x-client-tap-ui if AP_DEVICE
 	detail
 		MD5, TLS, PWD, Tunneled TLS, PEAP
@@ -657,7 +658,7 @@ config DOT1X_SERVER_SUPPORT
 	depends on !(INDUSTRIAL_AP || AP_DEVICE) && HAS_DOT1X_SERVER
 	default y if HAS_SINGLE_ETH_PORT || DSA_SUPPORT || x86_64 || TEST_IMAGE
 	default m
-	imply PACKAGE_vuci-app-port-security-ui
+	imply PACKAGE_vuci-app-dot1x-server-ui
 	detail
 		Port-based multi-host 802.1X NAC, RADIUS-assigned VLANs, accept VLANs, reject VLANs
 
@@ -832,6 +833,16 @@ config HOTSPOT_THEMES_SUPPORT
 	imply PACKAGE_hs_theme_park
 	imply PACKAGE_hs_theme_ship
 	imply PACKAGE_hs_theme_station
+
+config MPLS_SUPPORT
+	tristate "Kernel support for MPLS"
+	label "Network Utilities"
+	depends on PKG_SUPPORT && FRR_SUPPORT && ADVANCED_NETWORK && !USES_VENDOR_WIFI_DRIVER
+	default m
+	select PACKAGE_vuci-app-mpls-ui
+	detail
+		Multiprotocol Label Switching (MPLS) is a routing technique that uses labels instead
+		of network addresses for routing decisions
 
 #
 # VPN
@@ -1951,6 +1962,17 @@ config REBOOT_UTILS
 	detail if POE_SUPPORT
 		\, power over Ethernet control service restart
 
+config REBOOT_UTILS_WIRELESS
+	tristate "Auto Reboot Wireless"
+	maintainer "Apps/Apps1"
+	label "Utilities"
+	depends on (TARGET_ramips_mt76x8 && WIFI_SUPPORT) || TEST_IMAGE
+	default y if !PKG_SUPPORT || TEST_IMAGE
+	default m
+	imply PACKAGE_vuci-app-wireless-reboot-ui
+	detail
+		Wireless system reboot based on wireless system hang statistics
+
 config HTTPS_DNS_PROXY_SUPPORT
 	tristate "DNS over HTTPS"
 	maintainer "Network"
@@ -2209,8 +2231,8 @@ config FIRMWARE_CUSTOMISATION
 		Operating System: RutOS (OpenWrt based Linux OS)
 		Supported Languages: Busybox shell (ash), Lua 5.1, C, C++
 		Development Tools: SDK archive with a provided build environment
-		SDK Customisation: You can create your own custom-branded firmware and web page application
-		SDK Customisation: by changing colors, logos, and other elements in our firmware to fit your or your clients' needs.
+		SDK Customization: You can create your own custom-branded firmware and web page application
+		SDK Customization: by changing colors, logos, and other elements in our firmware to fit your or your clients' needs
 	detail if PYTHON_SUPPORT
 		Supported Languages: \, Python
 	detail if JAVA_SUPPORT
@@ -2229,7 +2251,7 @@ config JAVA_SUPPORT
 	tristate "JAVA"
 	label "Other"
 	maintainer "Apps/Apps1"
-	depends on PKG_SUPPORT && (USB_SUPPORT_EXTERNAL || !SMALL_FLASH)
+	depends on PKG_SUPPORT && (USB_SUPPORT_EXTERNAL || !SMALL_FLASH) && !aarch64
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_jamvm
@@ -2255,10 +2277,7 @@ config CORE_UI_PACKAGES
 	imply PACKAGE_vuci-app-core-ui
 	imply PACKAGE_vuci-app-administration-ui
 	imply PACKAGE_vuci-app-firmware-ui
-	imply PACKAGE_vuci-app-backup-ui
 	imply PACKAGE_vuci-app-reset-ui
-	imply PACKAGE_vuci-app-logs-ui
-	imply PACKAGE_vuci-app-troubleshoot-ui
 	imply PACKAGE_vuci-app-password-policy-ui
 	imply PACKAGE_vuci-app-change-password-ui if !MULTIUSERS_SUPPORT
 	imply PACKAGE_vuci-app-overview-ui if !AP_DEVICE
@@ -2270,6 +2289,33 @@ config CORE_UI_PACKAGES
 	imply BUSYBOX_CONFIG_PASSWD
 	imply BUSYBOX_CONFIG_CHPASSWD
 	imply BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY
+
+config TROUBLESHOOT_SUPPORT
+	bool
+	label "System"
+	maintainer "SysApp"
+	default y
+	imply PACKAGE_vuci-app-troubleshoot-ui
+	detail
+		Troubleshoot: System diagnostic and troubleshooting tools
+
+config BACKUP_SUPPORT
+	bool
+	label "System"
+	maintainer "SysApp"
+	default y
+	imply PACKAGE_vuci-app-backup-ui
+	detail
+		Backup: Tool for creating and restoring configuration backups
+
+config EVENTSLOG_SUPPORT
+	bool
+	label "System"
+	maintainer "SysApp"
+	default y
+	imply PACKAGE_vuci-app-logs-ui
+	detail
+		Events Log: Centralized log viewer for main system and service events
 
 config POE_SUPPORT
 	bool
@@ -2419,5 +2465,20 @@ config ITXPT_SUPPORT
 		\, GNSS Location
 	detail if MQTT_SUPPORT
 		\, MQTT Broker
+
+config SITE_MANAGER_SUPPORT
+	bool
+	maintainer "Apps/Apps1"
+	default y if !AP_DEVICE && !SMALL_FLASH
+	default n
+	imply PACKAGE_vuci-app-site-manager-ui
+	imply PACKAGE_siteman
+
+config SITE_MANAGER_CLIENT_SUPPORT
+	bool
+	maintainer "Apps/Apps1"
+	default y if AP_DEVICE
+	default n
+	imply PACKAGE_siteman_client
 
 endmenu

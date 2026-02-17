@@ -1,8 +1,6 @@
-Index: netifd-2024-01-04-c18cc79d/system-linux.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/system-linux.c
-+++ netifd-2024-01-04-c18cc79d/system-linux.c
-@@ -77,7 +77,6 @@
+--- a/system-linux.c
++++ b/system-linux.c
+@@ -78,7 +78,6 @@
  #include "device.h"
  #include "system.h"
  #include "utils.h"
@@ -10,7 +8,7 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  
  #if LINUX_VERSION_CODE < KERNEL_VERSION(4,4,300)
  enum ethtool_link_mode_bit_indices {
-@@ -1894,6 +1893,15 @@ failure:
+@@ -2021,6 +2020,15 @@ failure:
  }
  #endif
  
@@ -26,7 +24,7 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  static void ethtool_link_mode_clear_bit(__s8 nwords, int nr, __u32 *mask)
  {
  	if (nr < 0)
-@@ -1905,7 +1913,7 @@ static void ethtool_link_mode_clear_bit(
+@@ -2032,7 +2040,7 @@ static void ethtool_link_mode_clear_bit(
  	mask[nr / 32] &= ~(1U << (nr % 32));
  }
  
@@ -35,7 +33,7 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  {
  	if (nr < 0)
  		return false;
-@@ -2243,53 +2251,126 @@ system_if_get_settings(struct device *de
+@@ -2370,53 +2378,126 @@ system_if_get_settings(struct device *de
  #endif
  }
  
@@ -184,10 +182,8 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  end:
  	return ioctl(sock_ioctl, SIOCETHTOOL, &ifr);
  }
-Index: netifd-2024-01-04-c18cc79d/port_link.h
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/port_link.h
-+++ netifd-2024-01-04-c18cc79d/port_link.h
+--- a/port_link.h
++++ b/port_link.h
 @@ -1,18 +1,25 @@
  #ifndef __NETIFD_PORT_LINK_H
  #define __NETIFD_PORT_LINK_H
@@ -216,10 +212,8 @@ Index: netifd-2024-01-04-c18cc79d/port_link.h
  
  	char *ifname;
  
-Index: netifd-2024-01-04-c18cc79d/port_link.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/port_link.c
-+++ netifd-2024-01-04-c18cc79d/port_link.c
+--- a/port_link.c
++++ b/port_link.c
 @@ -1,9 +1,28 @@
  #include "netifd.h"
 -#include "port_link.h"
@@ -272,26 +266,18 @@ Index: netifd-2024-01-04-c18cc79d/port_link.c
  
  	free(port_old);
  }
-@@ -103,10 +125,12 @@ update_port_state(struct port_entry *por
+@@ -103,7 +125,8 @@ update_port_state(struct port_entry *por
  	}
  
  	if (port_old->autoneg != port_new->autoneg || port_old->duplex != port_new->duplex ||
 -			port_old->speed != port_new->speed || port_old->advert != port_new->advert) {
--		ret = set_dev_link(port_new->ifname, port_new->autoneg, port_new->duplex, port_new->speed, port_new->advert);
-+	    port_old->speed != port_new->speed ||
-+	    memcmp(port_old->advert, port_new->advert, sizeof(port_old->advert))) {
-+		ret = set_dev_link(port_new->ifname, port_new->autoneg, port_new->duplex, port_new->speed,
-+				   port_new->advert);
++			port_old->speed != port_new->speed ||
++			memcmp(port_old->advert, port_new->advert, sizeof(port_old->advert))) {
+ 		ret = set_dev_link(port_new->ifname, port_new->autoneg, port_new->duplex, port_new->speed, port_new->advert);
  	}
--	
-+
- end:
- 	free(port_old);
- 	return ret;
-Index: netifd-2024-01-04-c18cc79d/system.h
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/system.h
-+++ netifd-2024-01-04-c18cc79d/system.h
+ 
+--- a/system.h
++++ b/system.h
 @@ -18,11 +18,11 @@
  #include <sys/time.h>
  #include <sys/socket.h>
@@ -305,7 +291,7 @@ Index: netifd-2024-01-04-c18cc79d/system.h
  
  enum tunnel_param {
  	TUNNEL_ATTR_TYPE,
-@@ -338,6 +338,9 @@ int system_update_ipv6_mtu(struct device
+@@ -347,6 +347,9 @@ int system_update_ipv6_mtu(struct device
  int system_link_netns_move(struct device *dev, const pid_t target_ns, const char *target_ifname);
  int system_netns_open(const pid_t target_ns);
  int system_netns_set(int netns_fd);

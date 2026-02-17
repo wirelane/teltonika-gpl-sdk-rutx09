@@ -239,6 +239,18 @@ check_rest_ports() {
 	return 0
 }
 
+check_gateway_device() {
+	local platform="$1"
+	[ "$platform" != "TRB2M" ] && return
+
+	uci -q batch <<-EOF
+		set network._lan1="port"
+		set network._lan1.enabled="1"
+		set network._lan1.autoneg="on"
+		set network._lan1.port_num="0"
+	EOF
+}
+
 generate_ports_template() {        
 	# Load board.json before calling this func
 
@@ -264,6 +276,8 @@ generate_ports_template() {
 	fi
 
 	check_rest_ports
+
+	check_gateway_device "$platform"
 
 	return 0
 }

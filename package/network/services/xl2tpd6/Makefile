@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=xl2tpd6
 PKG_VERSION:=1.3.17
-PKG_RELEASE:=6
+PKG_RELEASE:=7
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=HEAD
@@ -25,7 +25,7 @@ define Package/xl2tpd6
   SUBMENU:=VPN
   TITLE:=L2TP daemon with IPv6 support
   URL:=https://github.com/ulysse31/xl2tpd6
-  DEPENDS:=+libpthread +kmod-l2tp +kmod-l2tp-eth +kmod-l2tp-ip
+  DEPENDS:=+libpthread +kmod-l2tp +kmod-l2tp-eth +kmod-l2tp-ip +libtlt-logger
   USERID:=xl2tpd:xl2tpd
   ifeq (m, $(CONFIG_PACKAGE_xl2tpd6))
     PKG_TLT_NAME:=L2TPV6 support

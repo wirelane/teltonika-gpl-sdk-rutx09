@@ -13,25 +13,16 @@ PROG=/usr/sbin/pamd
 [ -x "$PROG" ] || PROG="/usr/local$PROG"
 
 radius_pam_conf() {
-	local var="$1" sec="$2"
-	local server secret port timeout additional service
+	local var="$1" sec="$2" external_users="$3"
+	local server secret port timeout additional
 
-	config_get service "$sec" service
 	config_get server "$sec" server
 	config_get secret "$sec" secret
 	config_get port "$sec" port 1812
 	config_get timeout "$sec" timeout 3
 	config_get require_message_auth "$sec" require_message_auth
 
-	[ "$service" == "rpcd" ] && {
-		local external_users="$(uci -q get rpcd.@rpcd[0].pam_all_users)"
-		[ "$external_users" == "1" ] && additional=" privilege_level localifdown"
-	}
-
-	[ "$service" == "sshd" ] && {
-		local external_users="$(uci -q get dropbear.@dropbear[0].pam_privilege_lvl)"
-		[ -n "$external_users" ] && [ "$external_users" -gt 0 ] && additional=" privilege_level localifdown"
-	}
+	[ "$external_users" -eq 1 ] && additional=" privilege_level localifdown"
 
 	[ -z "$server" ] || [ -z "$secret" ] && {
 		logger -t pam "Radius server ip or secret is not configured"
@@ -46,9 +37,10 @@ radius_pam_conf() {
 }
 
 tacplus_pam_conf() {
-	local var="$1" sec="$2"
-	local server key
+	local var="$1" sec="$2" external_users="$3"
+	local server key service additional
 
+	config_get service "$sec" service
 	config_get server "$sec" server
 	config_get key "$sec" secret
 	config_get port "$sec" port
@@ -62,12 +54,25 @@ tacplus_pam_conf() {
 		server="$server:$port"
 	}
 
-	eval "$var=\"server=${server} secret=${key}\""
+	[ "$external_users" -eq 1 ] && {
+		case "$service" in
+			sshd)
+				additional="$additional service=shell"
+				;;
+			*)
+				additional="$additional service=login"
+				;;
+		esac
+	}
+
+	eval "$var=\"server=${server} secret=${key}${additional}\""
 }
 
 start_pam_cb() {
 	local sec="$1"
 	local module type enabled service extra
+	local account=0
+	local external_users=0
 
 	config_get enabled "$sec" enabled
 	[ "$enabled" != "1" ] && return
@@ -78,15 +83,28 @@ start_pam_cb() {
 	config_get module "$sec" module
 	config_get service "$sec" service
 	[ -z "$type" ] || [ -z "$module" ] || [ -z "$service" ] && return
+
+	case "$service" in
+		rpcd)
+			local pam_all_users="$(uci -q get rpcd.@rpcd[0].pam_all_users)"
+			[ "$pam_all_users" == "1" ] && external_users=1
+			;;
+		sshd)
+			local pam_privilege_lvl="$(uci -q get dropbear.@dropbear[0].pam_privilege_lvl)"
+			[ -n "$pam_privilege_lvl" ] && [ "$pam_privilege_lvl" -gt 0 ] && external_users=1
+			;;
+	esac
+
 	[ -f "${PAM_DIR}/${service}" ] || \
 		echo "account required pam_permit.so" > "${PAM_DIR}/${service}"
 
 	case $module in
 		radius_auth)
-			radius_pam_conf extra "$sec"
+			radius_pam_conf extra "$sec" "$external_users"
 			;;
 		tacplus)
-			tacplus_pam_conf extra "$sec"
+			tacplus_pam_conf extra "$sec" "$external_users"
+			[ "$external_users" -eq 1 ] && account=1
 			;;
 		unix)
 			extra="try_first_pass"
@@ -94,6 +112,8 @@ start_pam_cb() {
 	esac
 
 	echo "auth ${type} pam_${module}.so ${extra}" >> "${PAM_DIR}/${service}"
+	[ "$account" -eq 1 ] && \
+		echo "account ${type} pam_${module}.so ${extra}" >> "${PAM_DIR}/${service}"
 	chown pamd:pamd "${PAM_DIR}/${service}"
 }
 

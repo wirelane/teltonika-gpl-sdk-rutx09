@@ -39,6 +39,9 @@
 			"methods": [
 				"reboot"
 			]
+		},
+		"wireless_reboot": {
+			"methods": ["get_stats", "full_reset"]
 		}
 	}
 }

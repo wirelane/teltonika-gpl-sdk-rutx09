@@ -1,8 +1,6 @@
-Index: netifd-2024-01-04-c18cc79d/scripts/netifd-wireless.sh
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/scripts/netifd-wireless.sh	2024-02-21 12:37:04.218351512 +0200
-+++ netifd-2024-01-04-c18cc79d/scripts/netifd-wireless.sh	2024-02-21 12:38:07.153988931 +0200
-@@ -218,6 +218,13 @@
+--- a/scripts/netifd-wireless.sh
++++ b/scripts/netifd-wireless.sh
+@@ -218,6 +218,13 @@ wireless_vif_parse_encryption() {
  		wpa_cipher="CCMP"
  	fi
  
@@ -16,7 +14,7 @@ Index: netifd-2024-01-04-c18cc79d/scripts/netifd-wireless.sh
  	case "$encryption" in
  		*tkip+aes|*tkip+ccmp|*aes+tkip|*ccmp+tkip) wpa_cipher="CCMP TKIP";;
  		*ccmp256) wpa_cipher="CCMP-256";;
-@@ -225,7 +232,6 @@
+@@ -225,7 +232,6 @@ wireless_vif_parse_encryption() {
  		*tkip) wpa_cipher="TKIP";;
  		*gcmp256) wpa_cipher="GCMP-256";;
  		*gcmp) wpa_cipher="GCMP";;
@@ -24,7 +22,7 @@ Index: netifd-2024-01-04-c18cc79d/scripts/netifd-wireless.sh
  	esac
  
  	# 802.11n requires CCMP for WPA
-@@ -257,14 +263,11 @@
+@@ -257,14 +263,11 @@ wireless_vif_parse_encryption() {
  		owe*)
  			auth_type=owe
  		;;

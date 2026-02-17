@@ -12,8 +12,8 @@ if [ ! -x "$APP" ]; then
 fi
 
 check_enabled() {
-	config_get SECTION_ENABLED "$1" enabled "0"
-	[ "$SECTION_ENABLED" = "0" ] && return
+	config_get section_enabled "$1" enabled "0"
+	[ "$section_enabled" = "0" ] && return
 	ANY_SECTION_ENABLED=1
 }
 
@@ -23,9 +23,27 @@ is_any_enabled() {
 	[ "$ANY_SECTION_ENABLED" = 1 ]
 }
 
+check_server() {
+	config_get server_enabled "$1" enabled "0"
+	[ "$server_enabled" = 1 ] || return
+
+	config_get server_type "$1" TYPE
+	if [ "$server_type" = "rtu_server" ] ; then
+		config_get rtu_device_section "$1" rtu_device
+		config_get rtu_device_enabled "$rtu_device_section" enabled "0"
+		[ "$rtu_device_enabled" = 1 ] || return
+	fi
+
+	(is_any_enabled "request_${1}" || is_any_enabled "alarm_${1}") && ANY_SERVER_IS_ACTIVE=1
+}
+
 is_service_enabled() {
 	config_load "$CONFIG"
-	is_any_enabled main && (is_any_enabled tcp_server || is_any_enabled rtu_server)
+	config_get main_enabled "main" enabled "0"
+	[ "$main_enabled" = 1 ] || return
+	config_foreach check_server tcp_server
+	config_foreach check_server rtu_server
+	[ "$ANY_SERVER_IS_ACTIVE" = 1 ]
 }
 
 start_service() {

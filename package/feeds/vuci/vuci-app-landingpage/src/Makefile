@@ -6,7 +6,7 @@ CFLAGS += -fPIC
 	$(CC) $(CPPFLAGS) $(CFLAGS) -DNDEBUG -c -o $@ $<
 
 contrib/lemon: contrib/lemon.c contrib/lempar.c
-	cc -o contrib/lemon $<
+	$(BUILD_CC) -o contrib/lemon $<
 
 plural_formula.c: plural_formula.y contrib/lemon
 	./contrib/lemon -q $<

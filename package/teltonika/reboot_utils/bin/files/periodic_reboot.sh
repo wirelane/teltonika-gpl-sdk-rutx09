@@ -9,22 +9,6 @@ log() {
 	/usr/bin/logger -t periodic_reboot.sh "$@"
 }
 
-get_modem_num() {
-
-	local modem="$1"
-	local found_modem=""
-
-	local modem_objs=$(ubus list gsm.*)
-
-	for i in $modem_objs
-	do
-		found_modem=$(ubus call "$i" info 2> /dev/null | grep usb_id | sed 's/.* //g')
-		[ "$modem" == "${found_modem:1:-2}" ] && echo "${i//[!0-9]/}" && return 0
-	done
-
-	return 1
-}
-
 get_modem() {
 	local modem modems id builtin primary
 	local primary_modem builtin_modem

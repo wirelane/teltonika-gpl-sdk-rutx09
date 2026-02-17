@@ -6,9 +6,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=port_eventsd
-PKG_RELEASE=3
+PKG_RELEASE=6
 
-PKG_SOURCE_VERSION:=1.15
+PKG_SOURCE_VERSION:=1.16
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -17,7 +17,7 @@ define Package/port_eventsd
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Port Events Daemon
-	DEPENDS:=+libubox +libubus +libnl-tiny +liblog +libmnfinfo +libboardjson
+	DEPENDS:=+libubox +libubus +libnl-tiny +libtlt-logger +libmnfinfo +libboardjson
 	USERID:=port_eventsd:port_eventsd
 endef
 

@@ -7,6 +7,16 @@
 				"get_stats"
 			]
 		},
+		"tswconfig.rstp": {
+			"methods": [
+				"get_port_status"
+			]
+		},
+		"api": {
+			"methods": [
+				"get"
+			]
+		},
 		"gpsd": {
 			"methods": [
 				"position"
@@ -39,6 +49,21 @@
 		"network.interface": {
 			"methods": [
 				"dump"
+			]
+		},
+		"mbus_client.rpc": {
+			"methods": [
+				"get_tag_value"
+			]
+		},
+		"dnp3_client.rpc": {
+			"methods": [
+				"get_tag_value"
+			]
+		},
+		"modbus_client.rpc": {
+			"methods": [
+				"get_tag_value"
 			]
 		}
 	}

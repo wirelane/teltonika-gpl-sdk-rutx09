@@ -1,7 +1,5 @@
-Index: netifd-2024-01-04-c18cc79d/vxlan.c
-===================================================================
 --- /dev/null
-+++ netifd-2024-01-04-c18cc79d/vxlan.c
++++ b/vxlan.c
 @@ -0,0 +1,330 @@
 +#include <string.h>
 +#include <stdlib.h>
@@ -333,11 +331,9 @@ Index: netifd-2024-01-04-c18cc79d/vxlan.c
 +{
 +	device_type_add(&vxlan_device_type);
 +}
-Index: netifd-2024-01-04-c18cc79d/system-linux.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/system-linux.c
-+++ netifd-2024-01-04-c18cc79d/system-linux.c
-@@ -4260,41 +4260,13 @@ failure:
+--- a/system-linux.c
++++ b/system-linux.c
+@@ -4429,41 +4429,13 @@ failure:
  }
  #endif
  
@@ -380,7 +376,7 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  	msg = nlmsg_alloc_simple(RTM_NEWLINK, NLM_F_REQUEST | NLM_F_CREATE | NLM_F_EXCL);
  
  	if (!msg)
-@@ -4302,22 +4274,13 @@ static int system_add_vxlan(const char *
+@@ -4471,22 +4443,13 @@ static int system_add_vxlan(const char *
  
  	nlmsg_append(msg, &iim, sizeof(iim), 0);
  
@@ -408,7 +404,7 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  
  	if (!(linkinfo = nla_nest_start(msg, IFLA_LINKINFO))) {
  		ret = -ENOMEM;
-@@ -4331,144 +4294,65 @@ static int system_add_vxlan(const char *
+@@ -4500,144 +4463,65 @@ static int system_add_vxlan(const char *
  		goto failure;
  	}
  
@@ -580,12 +576,12 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  	ret = system_rtnl_call(msg);
 +
  	if (ret)
--		D(SYSTEM, "Error adding vxlan '%s': %d\n", name, ret);
+-		D(SYSTEM, "Error adding vxlan '%s': %d", name, ret);
 +		D(SYSTEM, "Error adding vxlan '%s': %d\n", vxlan->ifname, ret);
  
  	return ret;
  
-@@ -4476,7 +4360,11 @@ failure:
+@@ -4645,7 +4529,11 @@ failure:
  	nlmsg_free(msg);
  	return ret;
  }
@@ -598,7 +594,7 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  
  static int system_add_sit_tunnel(const char *name, const unsigned int link, struct blob_attr **tb)
  {
-@@ -4676,12 +4564,6 @@ int system_add_ip_tunnel(const struct de
+@@ -4845,12 +4733,6 @@ int system_add_ip_tunnel(const struct de
  	} else if (!strcmp(str, "xfrm")) {
  		return system_add_xfrm_tunnel(dev->ifname, "xfrm", link, tb);
  #endif
@@ -611,10 +607,8 @@ Index: netifd-2024-01-04-c18cc79d/system-linux.c
  #endif
  	} else if (!strcmp(str, "ipip")) {
  		return system_add_proto_tunnel(dev->ifname, IPPROTO_IPIP, link, tb);
-Index: netifd-2024-01-04-c18cc79d/system.h
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/system.h
-+++ netifd-2024-01-04-c18cc79d/system.h
+--- a/system.h
++++ b/system.h
 @@ -39,25 +39,6 @@ enum tunnel_param {
  
  extern const struct uci_blob_param_list tunnel_attr_list;
@@ -696,7 +690,7 @@ Index: netifd-2024-01-04-c18cc79d/system.h
  enum vlan_proto {
  	VLAN_PROTO_8021Q = 0x8100,
  	VLAN_PROTO_8021AD = 0x88A8
-@@ -266,6 +286,9 @@ int system_vlan_del(struct device *dev);
+@@ -274,6 +294,9 @@ int system_vlan_del(struct device *dev);
  int system_vlandev_add(struct device *vlandev, struct device *dev, struct vlandev_config *cfg);
  int system_vlandev_del(struct device *vlandev);
  
@@ -706,10 +700,8 @@ Index: netifd-2024-01-04-c18cc79d/system.h
  void system_if_get_settings(struct device *dev, struct device_settings *s);
  void system_if_clear_state(struct device *dev);
  int system_if_up(struct device *dev);
-Index: netifd-2024-01-04-c18cc79d/system.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/system.c
-+++ netifd-2024-01-04-c18cc79d/system.c
+--- a/system.c
++++ b/system.c
 @@ -32,29 +32,6 @@ const struct uci_blob_param_list tunnel_
  	.params = tunnel_attrs,
  };
@@ -740,16 +732,14 @@ Index: netifd-2024-01-04-c18cc79d/system.c
  static const struct blobmsg_policy gre_data_attrs[__GRE_DATA_ATTR_MAX] = {
  	[GRE_DATA_IKEY] = { .name = "ikey", .type = BLOBMSG_TYPE_STRING },
  	[GRE_DATA_OKEY] = { .name = "okey", .type = BLOBMSG_TYPE_STRING },
-Index: netifd-2024-01-04-c18cc79d/CMakeLists.txt
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/CMakeLists.txt
-+++ netifd-2024-01-04-c18cc79d/CMakeLists.txt
-@@ -24,7 +24,7 @@ SET(SOURCES
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -22,7 +22,7 @@ SET(SOURCES
  	main.c utils.c system.c tunnel.c handler.c
  	interface.c interface-ip.c interface-event.c
  	iprule.c proto.c proto-static.c proto-shell.c
 -	config.c device.c bridge.c veth.c vlan.c alias.c
 +	config.c device.c bridge.c veth.c vxlan.c vlan.c alias.c
  	macvlan.c ubus.c vlandev.c wireless.c
- 	extdev.c bonding.c port_link.c)
+ 	extdev.c bonding.c vrf.c port_link.c)
  

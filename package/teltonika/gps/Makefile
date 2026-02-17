@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gps
-PKG_VERSION:=2025-12-01
+PKG_VERSION:=2025-11-27
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.20
+PKG_SOURCE_VERSION:=7.21
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -37,6 +37,7 @@ define Package/ntp_gps
 	TITLE:=Daemon meant for syncing system time with GPS data.
 	DEPENDS:=+libgps +gpsd +libuci
 	USERID:=ntp_gps=634:ntp_gps=634
+	FATTRS:=/usr/sbin/ntp_gps::::cap_sys_time=ep
 endef
 
 define Package/libgps

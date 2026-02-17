@@ -1,5 +1,41 @@
 [
   {
+    "category": "System",
+    "name": "Site manager",
+    "depends": []
+  },
+  {
+    "category": "Network",
+    "name": "MPLS",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "is_access_point",
+        "value": false
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "RIP",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
+    "category": "Services",
+    "name": "OSPF",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
+      }
+    ]
+  },
+  {
     "category": "Services",
     "name": "I/O Status",
     "depends": [
@@ -405,6 +441,20 @@
     "category": "System",
     "name": "Auto Reboot",
     "depends": []
+  },
+  {
+    "category": "System",
+    "name": "Wireless Reboot",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "wifi"
+      },
+      {
+        "type": "hw",
+        "name": "mt76x8"
+      }
+    ]
   },
   {
     "category": "Services",

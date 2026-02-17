@@ -1,6 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for OPC UA server
+APP_DEPENDS:=+vuci-app-universal-gateway-api
 
 ifeq (m, $(CONFIG_PACKAGE_vuci-app-opcua-server-ui))
 	APP_TLT_NAME:=OPC UA Server

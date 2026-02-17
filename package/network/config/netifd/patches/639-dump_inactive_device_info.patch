@@ -1,8 +1,6 @@
-Index: netifd-2024-01-04-c18cc79d/device.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/device.c
-+++ netifd-2024-01-04-c18cc79d/device.c
-@@ -1345,9 +1345,9 @@ device_dump_status(struct blob_buf *b, s
+--- a/device.c
++++ b/device.c
+@@ -1367,9 +1367,9 @@ device_dump_status(struct blob_buf *b, s
  	if (st.flags & DEV_OPT_MACADDR)
  		blobmsg_add_string(b, "macaddr", format_macaddr(st.macaddr));
  

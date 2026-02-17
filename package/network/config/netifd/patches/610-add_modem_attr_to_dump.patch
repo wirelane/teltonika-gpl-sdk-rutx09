@@ -1,6 +1,6 @@
 --- a/interface.c
 +++ b/interface.c
-@@ -38,6 +38,7 @@ enum {
+@@ -40,6 +40,7 @@ enum {
  	IFACE_ATTR_JAIL_DEVICE,
  	IFACE_ATTR_JAIL_IFNAME,
  	IFACE_ATTR_HOST_DEVICE,
@@ -8,7 +8,7 @@
  	IFACE_ATTR_DEFAULTROUTE,
  	IFACE_ATTR_PEERDNS,
  	IFACE_ATTR_DNS,
-@@ -66,6 +67,7 @@ static const struct blobmsg_policy iface
+@@ -71,6 +72,7 @@ static const struct blobmsg_policy iface
  	[IFACE_ATTR_JAIL_DEVICE] = { .name = "jail_device", .type = BLOBMSG_TYPE_STRING },
  	[IFACE_ATTR_JAIL_IFNAME] = { .name = "jail_ifname", .type = BLOBMSG_TYPE_STRING },
  	[IFACE_ATTR_HOST_DEVICE] = { .name = "host_device", .type = BLOBMSG_TYPE_STRING },
@@ -16,16 +16,15 @@
  	[IFACE_ATTR_DEFAULTROUTE] = { .name = "defaultroute", .type = BLOBMSG_TYPE_BOOL },
  	[IFACE_ATTR_PEERDNS] = { .name = "peerdns", .type = BLOBMSG_TYPE_BOOL },
  	[IFACE_ATTR_METRIC] = { .name = "metric", .type = BLOBMSG_TYPE_INT32 },
-@@ -706,6 +708,8 @@ interface_do_free(struct interface *ifac
- 		free(iface->jail_device);
- 	if (iface->host_device)
- 		free(iface->host_device);
-+	if (iface->modem)
-+		free(iface->modem);
- 
+@@ -714,6 +716,7 @@ interface_do_free(struct interface *ifac
+ 	free(iface->jail);
+ 	free(iface->jail_device);
+ 	free(iface->host_device);
++	free(iface->modem);
  	free(iface);
  }
-@@ -935,6 +939,10 @@ interface_alloc(const char *name, struct
+ 
+@@ -948,6 +951,10 @@ interface_alloc(const char *name, struct
  	if ((cur = tb[IFACE_ATTR_HOST_DEVICE]))
  		iface->host_device = strdup(blobmsg_get_string(cur));
  
@@ -36,8 +35,8 @@
  	return iface;
  }
  
-@@ -1329,6 +1337,11 @@ interface_change_config(struct interface
- 
+@@ -1354,6 +1361,11 @@ interface_change_config(struct interface
+ 	free(if_old->host_device);
  	if_old->host_device = if_new->host_device;
  
 +	if (if_old->modem)
@@ -50,7 +49,7 @@
  	if_old->dynamic = if_new->dynamic;
 --- a/interface.h
 +++ b/interface.h
-@@ -111,6 +111,7 @@ struct interface {
+@@ -112,6 +112,7 @@ struct interface {
  	char *jail;
  	char *jail_device;
  	char *host_device;
@@ -60,7 +59,7 @@
  	bool available;
 --- a/ubus.c
 +++ b/ubus.c
-@@ -818,6 +818,9 @@ netifd_dump_status(struct interface *ifa
+@@ -830,6 +830,9 @@ netifd_dump_status(struct interface *ifa
  	if (iface->proto_handler)
  		blobmsg_add_string(&b, "proto", iface->proto_handler->name);
  

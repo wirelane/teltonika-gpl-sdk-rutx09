@@ -29,7 +29,7 @@ Signed-off-by: Benas Bagvilas <benas.bagvilas@teltonika.lt>
  				resched = 0;
  			usb_autopm_put_interface(dev->intf);
  fail_lowmem:
-@@ -2082,7 +2082,7 @@ int usbnet_resume (struct usb_interface
+@@ -2084,7 +2084,7 @@ int usbnet_resume (struct usb_interface
  			if (netif_device_present(dev->net) &&
  				!timer_pending(&dev->delay) &&
  				!test_bit(EVENT_RX_HALT, &dev->flags))

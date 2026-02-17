@@ -123,6 +123,11 @@ define KernelPackage/vxlan/description
  Requires Kernel 3.12 or newer.
 endef
 
+define KernelPackage/vxlan/intel_mips
+  FILES:=$(LINUX_DIR)/drivers/net/vxlan.ko
+endef
+
+
 $(eval $(call KernelPackage,vxlan))
 
 
@@ -1418,7 +1423,7 @@ define KernelPackage/phy-airoha-en8811h
   KCONFIG:=CONFIG_AIR_EN8811H_PHY
   FILES:= \
    $(LINUX_DIR)/drivers/net/phy/air_en8811h.ko
-  AUTOLOAD:=$(call AutoLoad,18,air_en8811h,1)
+  AUTOLOAD:=$(call AutoLoad,1,air_en8811h,1)
 endef
 
 define KernelPackage/phy-airoha-en8811h/description
@@ -1436,7 +1441,20 @@ define KernelPackage/mt7531-mdio
   FILES:= \
     $(LINUX_DIR)/drivers/net/dsa/mt7530.ko \
     $(LINUX_DIR)/drivers/net/dsa/mt7530-mdio.ko
-  AUTOLOAD:=$(call AutoLoad,19,mt7530 mt7530-mdio,1)
+  AUTOLOAD:=$(call AutoLoad,50,mt7530 mt7530-mdio)
 endef
 
 $(eval $(call KernelPackage,mt7531-mdio))
+
+define KernelPackage/qca8k
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Kernel support QCA8xxx switch connected via MDIO
+  KCONFIG:= \
+    CONFIG_NET_DSA_QCA8K \
+    CONFIG_NET_DSA_TAG_QCA=y
+  FILES:= \
+    $(LINUX_DIR)/drivers/net/dsa/qca/qca8k.ko
+  AUTOLOAD:=$(call AutoProbe,qca8k)
+endef
+
+$(eval $(call KernelPackage,qca8k))

@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2026-01-21-135a9278bb8
+PKG_VERSION:=2026-02-13-931a276801c
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -14,7 +14,7 @@ VUCI_APPS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=y $(TOPDIR)/.config | cut -
 VUCI_PLUGINS=$(shell grep ^CONFIG_PACKAGE_vuci-app.*-ui=m $(TOPDIR)/.config | cut -d'=' -f1 | cut -d'_' -f3 | sed ':a;N;$!ba;s/\n/ /g')
 
 PKG_CONFIG_DEPENDS:=CONFIG_VUCI_USE_HOST_NODE CONFIG_VUCI_BUILD_DEV
-MENU_OUTPUT_DIR=$(PKG_BUILD_DIR)/applications/menu.d
+MENU_OUTPUT_DIR=applications/menu.d
 # used for GPL app file path modification
 APP_DIR=$(1)
 APP_DIR_2=$(subst -ui,,$(1))
@@ -46,17 +46,17 @@ endef
 define install_closed_gpl
 	$(INSTALL_DIR) "$(GPL_BUILD_DIR)/package/feeds/vuci"
 	rm -rf ~/.npm/
-	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue \
-		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify_temp.vue
 
-	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerifyGPL.vue \
-		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue
-
-	mv $(CORE_DIR)/ui-core/plugins/brand/index.js \
-		$(CORE_DIR)/ui-core/plugins/brand/index_temp.js
-
-	mv $(CORE_DIR)/ui-core/plugins/brand/index_gpl.js \
-		$(CORE_DIR)/ui-core/plugins/brand/index.js
+	# Override GPL sources: *.gpl.vue -> *.vue, *.gpl.js -> *.js
+	find "$(PKG_BUILD_DIR)" -type f \
+		\( -name '*.gpl.vue' -o -name '*.gpl.js' \) | while read f; do \
+		target="$${f%.gpl.*}.$${f##*.}"; \
+		if [ -f "$$target" ]; then \
+			mv -f "$$f" "$$target"; \
+		else \
+			mv "$$f" "$$target"; \
+		fi; \
+	done
 
 	$(CP) "$(CORE_DIR)/ui-core/plugins/brand/brand.json" \
 		"$(CORE_DIR)/public/brand"
@@ -64,23 +64,13 @@ define install_closed_gpl
 	$(CP) "$(CORE_DIR)/ui-core/plugins/brand/brand.json" \
 		"$(CORE_DIR)/dist/www/brand"
 
+	echo "VITE_GPL_BUILD=1" >> $(PKG_BUILD_DIR)/.env
+
 	$(MAKE) -C $(PKG_BUILD_DIR) DL_DIR="$(TOPDIR)/dl/$(PKG_NAME)"
-
-	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue \
-		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerifyGPL.vue
-
-	mv $(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify_temp.vue \
-		$(PKG_BUILD_DIR)/$(FW_APP_DIR)/src/views/system/FwVerify.vue
 
 	$(INSTALL_DIR) $(1)/vuci-ui-core/src/dist
 
 	$(CP) "$(CORE_DIR)/dist/www" $(1)/vuci-ui-core/src/dist/
-
-	mv $(CORE_DIR)/ui-core/plugins/brand/index.js \
-		$(CORE_DIR)/ui-core/plugins/brand/index_gpl.js
-
-	mv $(CORE_DIR)/ui-core/plugins/brand/index_temp.js \
-		$(CORE_DIR)/ui-core/plugins/brand/index.js
 
 	rm "$(CORE_DIR)/public/brand/brand.json"
 
@@ -124,17 +114,17 @@ define Package/vuci-ui-core/install
 		$(CP) ./modem-icons/$(TLT_PLATFORM_NAME)* $(1)/www/icons/modem-icons/; \
 	fi
 	$(CP) ../menu_static.sh $(PKG_BUILD_DIR)
-	$(if $(CONFIG_GPL_BUILD), \
-		$(RM) -rf $(MENU_OUTPUT_DIR); \
-		mkdir -p $(MENU_OUTPUT_DIR) && \
+	$(if $(and $(CONFIG_GPL_BUILD),$(if $(CONFIG_GPL_INCLUDE_WEB_SOURCES),,1)), \
+		$(RM) -rf $(PKG_BUILD_DIR)/$(MENU_OUTPUT_DIR); \
+		mkdir -p $(PKG_BUILD_DIR)/$(MENU_OUTPUT_DIR) && \
 		$(foreach app_dir,$(VUCI_APPS), \
 			$(eval app_ui_dir=$(notdir $(app_dir))) \
 			$(if $(shell find ../$(app_ui_dir)/src -type f -name '*.vue' -print -quit),, \
-				$(CP) -fpR ../$(app_ui_dir)/files/usr/share/vuci/menu.d/*.json "$(MENU_OUTPUT_DIR)/" 2>/dev/null || true; \
+				$(CP) -fpR ../$(app_ui_dir)/files/usr/share/vuci/menu.d/*.json "$(PKG_BUILD_DIR)/$(MENU_OUTPUT_DIR)/" 2>/dev/null || true; \
 			) \
 		) \
 	)
-	$(PKG_BUILD_DIR)/menu_static.sh $(PKG_BUILD_DIR)/menu.json $(MENU_OUTPUT_DIR)
+	$(PKG_BUILD_DIR)/menu_static.sh $(PKG_BUILD_DIR)/menu.json $(PKG_BUILD_DIR)/$(MENU_OUTPUT_DIR)
 	$(CP) $(PKG_BUILD_DIR)/menu.json $(1)/usr/share/vuci/menu.d/
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 

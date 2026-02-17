@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 PKG_NAME:=frr
 PKG_VERSION:=8.4.2
-PKG_RELEASE:=19
+PKG_RELEASE:=20
 PKG_SOURCE_DATE:=2023-02-17
 
 
@@ -201,9 +201,9 @@ define Package/frr-bfdd/conffiles
 /etc/config/bfd
 endef
 
-# define Package/frr-staticd/conffiles
-# /etc/config/static
-# endef
+define Package/frr-staticd/conffiles
+/etc/config/static
+endef
 
 # define Package/frr-ripngd/conffiles
 # /etc/frr/ripngd.conf
@@ -239,6 +239,10 @@ define BuildDaemon
 	ifeq ($(1),nhrp)
 		FATTRS:=/usr/sbin/nhrpd::::cap_dac_override,cap_net_admin,cap_net_raw+p
 		USERID:=nhrp:frr
+	endif
+	ifeq ($(1),ldpd)
+		FATTRS:=/usr/sbin/ldpd::::cap_net_bind_service,cap_net_admin+p
+		USERID:=ldp:frr
 	endif
 #	if [ "$(1)" == "bfdd" ]; then \
 #	export HAVE_BFDD == 1 ; fi
@@ -288,6 +292,7 @@ CONFIGURE_ARGS+= \
 	--prefix=/usr \
 	--enable-shared \
 	--disable-static \
+	--enable-ldpd \
 	--disable-ospfclient \
 	--disable-doc \
 	--disable-backtrace \

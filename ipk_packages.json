@@ -199,10 +199,15 @@
 		"name": "mqtt_modbus_gateway"
 	},
 	"vuci-app-modbus-client-ui": {
-		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx libtag libmodbus_client",
+		"base_dep": "modbus_client libmodbus data-sender-mod-modbus data-sender-mod-modbus-alarm libtlt_termios1.0 libgpiod libcfgx libtag libmodbus_client libticket_mutex",
 		"vuci_dep": "vuci-app-modbus-client-api vuci-app-modbus-serial-ui vuci-app-modbus-serial-api vuci-app-data-sender-api-mod-modbus vuci-app-data-sender-api-mod-modbus-alarm vuci-app-universal-gateway-api",
-		"kmod_dep": "kmod-tlt-gpio",
+		"kmod_dep": "kmod-tlt-gpio libatomic1",
 		"name": "modbus_client"
+	},
+	"vuci-app-wireless-reboot-ui": {
+		"base_dep": "reboot_utils-wireless reboot_utils",
+		"vuci_dep": "vuci-app-wireless-reboot-api",
+		"name": "wireless_reboot"
 	},
 	"vuci-app-wifi-scanner-ui": {
 		"vuci_dep": "vuci-app-wifi-scanner-api vuci-app-data-sender-api-mod-wifiscan",
@@ -215,14 +220,14 @@
 		"name": "opc_ua_client"
 	},
 	"vuci-app-opcua-server-ui": {
-		"vuci_dep": "vuci-app-opcua-server-api",
-		"base_dep": "opcua_server open62541",
+		"vuci_dep": "vuci-app-opcua-server-api vuci-app-universal-gateway-api",
+		"base_dep": "opcua_server open62541 libtag",
 		"name": "opc_ua_server"
 	},
 	"vuci-app-dlms-ui": {
 		"vuci_dep": "vuci-app-dlms-api vuci-app-data-sender-api-mod-dlms",
-		"base_dep": "dlms_client libdlms libtlt_termios1.0 libgpiod libcfgx data-sender-mod-dlms",
-		"kmod_dep": "kmod-tlt-gpio",
+		"base_dep": "dlms_client libdlms libtlt_termios1.0 libgpiod libcfgx data-sender-mod-dlms libticket_mutex",
+		"kmod_dep": "kmod-tlt-gpio libatomic1",
 		"name": "dlms_client"
 	},
 	"vuci-app-mwan3-ui": {
@@ -541,7 +546,6 @@
 	"vuci-app-vrf-ui": {
 		"kmod_dep": "kmod-vrf",
 		"vuci_dep": "vuci-app-vrf-api",
-		"base_dep": "vrf",
 		"name": "vrf"
 	},
 	"vuci-app-internet-ui": {
@@ -571,10 +575,10 @@
 		"kmod_dep": "iptables-mod-extra kmod-br-netfilter kmod-ipt-extra kmod-ipt-nat6 kmod-ipt-physdev kmod-nf-ipvs kmod-nf-nat6 kmod-veth",
 		"base_dep": "docker ca-certificates libseccomp dockerd containerd runc tini"
 	},
-	"vuci-app-port-security-ui":{
+	"vuci-app-dot1x-server-ui":{
 		"name": "802.1x",
 		"kmod_dep": "kmod-sched-core kmod-sched-act-vlan kmod-dummy kmod-sched-flower",
-		"vuci_dep": "vuci-app-port-security-api",
+		"vuci_dep": "vuci-app-dot1x-client-ui vuci-app-port-security-api",
 		"base_dep": "radius_test dsa-dot1x-server tc-tiny hostapd-common libucode20220812 ucode ucode-mod-fs ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uloop wpad-openssl dot1x-client"
 	},
 	"scep": {
@@ -665,7 +669,7 @@
 		"name": "json_rpc_support"
 	},
 	"vuci-app-iec60870-server-ui": {
-		"base_dep": "iec60870_server lib60870",
+		"base_dep": "iec60870_server lib60870 libtlt_termios1.0 libcfgx libtlt_uci libmnfinfo iomand",
 		"vuci_dep": "vuci-app-iec60870-server-api",
 		"name": "iec60870_server"
 	},
@@ -674,12 +678,19 @@
 		"name": "openvpn_dco_support"
 	},
 	"vuci-app-iec60870-client-ui": {
-		"base_dep": "iec60870_client lib60870 data-sender-mod-iec60870",
+		"base_dep": "iec60870_client lib60870 data-sender-mod-iec60870 libtlt_uci libcfgx",
 		"vuci_dep": "vuci-app-iec60870-client-api vuci-app-data-sender-api-mod-iec60870",
 		"name": "iec60870_client"
 	},
 	"kmod-fs-cifs": {
 		"kmod_dep": "kmod-fs-smbfs-common kmod-crypto-md4 kmod-crypto-md5 kmod-crypto-sha256 kmod-crypto-sha512 kmod-crypto-cmac kmod-crypto-hmac kmod-crypto-arc4 kmod-crypto-aead kmod-crypto-ccm kmod-crypto-ecb kmod-crypto-des kmod-oid-registry kmod-dnsresolver kmod-asn1-decoder kmod-fs-netfs kmod-nls-ucs2-utils",
 		"name": "fs_cifs_support"
+	},
+	"vuci-app-mpls-ui": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-ldpd ldpd-frr libcap libjson-c5 libyang libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread kmod-mpls",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-mpls-api",
+		"name": "mpls"
 	}
 }

@@ -110,11 +110,11 @@ define Package/emailrelay/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) files/$(PKG_NAME).config $(1)/etc/config/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
-	$(INSTALL_BIN) files/$(PKG_NAME).permtab $(1)/etc/permtab.d/$(PKG_NAME)
+	$(INSTALL_BIN_USR) files/$(PKG_NAME).init $(1)/etc/init.d/$(PKG_NAME)
+	$(INSTALL_DATA) files/$(PKG_NAME).permtab $(1)/etc/permtab.d/$(PKG_NAME)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.16/ $(1)/etc/uci-defaults/7.18/
-	$(INSTALL_BIN) files/defaults/99_add_emailrelay_name $(1)/etc/uci-defaults/7.16/99_add_emailrelay_name
-	$(INSTALL_BIN) files/defaults/99_add_emailrelay_name $(1)/etc/uci-defaults/7.18/99_add_emailrelay_name
+	$(INSTALL_DATA) files/defaults/99_add_emailrelay_name $(1)/etc/uci-defaults/7.16/99_add_emailrelay_name
+	$(INSTALL_DATA) files/defaults/99_add_emailrelay_name $(1)/etc/uci-defaults/7.18/99_add_emailrelay_name
 endef
 
 $(eval $(call BuildPackage,emailrelay))

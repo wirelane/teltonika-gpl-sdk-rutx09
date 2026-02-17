@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=cmStreamApp
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.9
+PKG_SOURCE_VERSION:=2.10
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -41,7 +41,7 @@ define Package/cmStreamApp/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/cmStreamApp $(1)/bin/cmStreamApp
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/iot.init $(1)/etc/init.d/iot
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/iot.init $(1)/etc/init.d/iot
 	$(INSTALL_DIR) $(1)/lib/lua/cm
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/srtemplate $(1)/lib/lua/cm/srtemplate.txt
 	$(INSTALL_DIR) $(1)/etc/config

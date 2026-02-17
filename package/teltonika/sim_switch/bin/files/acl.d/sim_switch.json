@@ -3,7 +3,7 @@
         "access": {
                 "gsm.modem*": {
                         "methods": [ "get_sim_slot", "get_esim_profile_id", "get_signal_query",
-                    "get_net_reg_stat_all", "info", "get_pin_state" ]
+                    "get_net_reg_stat_all", "info", "get_pin_state", "get_serving_cell" ]
                 },
                 "mobifd.modem*": {
                         "methods": [ "switch_sim" ]

@@ -24,7 +24,9 @@ struct lrut_fota_info_modem_st {
 struct lrut_fota_info_st {
 	char *fw;
 	int fw_size;
+	char *fw_date;
 	char *fw_stable;
+	char *fw_stable_date;
 	int fw_stable_size;
 #ifdef MOBILE_SUPPORT
 	struct lrut_fota_info_modem_st *modems;
@@ -39,7 +41,7 @@ lrut_fota_t lrut_fota_get_process(struct ubus_context *ubus, struct lrut_fota_pr
 lrut_fota_t lrut_fota_set_process(struct ubus_context *ubus, int percents, char *process);
 lrut_fota_t lrut_fota_get_info(struct ubus_context *ubus, struct lrut_fota_info_st *info);
 lrut_fota_t lrut_fota_set_conn_state(struct ubus_context *ubus, char *conn_state);
-lrut_fota_t lrut_fota_set_fw_info(struct ubus_context *ubus, char *fw_size, char *fw, char *stable_fw_size, char *stable_fw, char *collect);
+lrut_fota_t lrut_fota_set_fw_info(struct ubus_context *ubus, char *fw_size, char *fw, char *fw_date, char *stable_fw_size, char *stable_fw, char *stable_date, char *collect);
 #ifdef MOBILE_SUPPORT
 lrut_fota_t lrut_fota_set_modem_info(struct ubus_context *ubus, char *fw_size, char *fw, char *fw_ver, char *id);
 #endif

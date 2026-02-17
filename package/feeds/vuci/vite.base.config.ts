@@ -21,6 +21,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./vuci-ui-core/src/src', import.meta.url)),
       '@ui-core': fileURLToPath(new URL('./vuci-ui-core/src/ui-core', import.meta.url)),
+      '@components': fileURLToPath(new URL('./vuci-ui-core/src/ui-core/components', import.meta.url)),
       '@root': fileURLToPath(new URL('.', import.meta.url)),
       '@conditional': fileURLToPath(new URL('./vuci-ui-core/src/src/components/package_components/components', import.meta.url))
     }

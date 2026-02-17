@@ -18,5 +18,27 @@
   "modemUpdateWikiURL": "https://wiki.teltonika-networks.com/view/AT%26T_3G_Network_shutdown_information",
   "mobileRSSIWikiURL": "https://wiki.teltonika-networks.com/view/RSSI",
   "privacyPolicyURL": "https://teltonika-iot-group.com/policies-certificates/privacy-policy",
-  "sentryDSN": "https://069badc955f8757279eb08bb2ed16b5d@o1317009.ingest.sentry.io/4505872765943808"
+  "sentryDSN": "https://example@example.com",
+  "subscribeURL": "https://teltonika-networks.com/subscribe",
+  "footer": {
+    "start": ["Teltonika Networks"],
+    "end": [
+      {
+        "text": "Wiki",
+        "url": "https://wiki.teltonika-networks.com/"
+      },
+      {
+        "text": "Community Forum",
+        "url": "https://community.teltonika.lt/"
+      },
+      {
+        "text": "Licenses",
+        "action": "licenses"
+      },
+      {
+        "text": "teltonika-networks.com",
+        "url": "https://teltonika-networks.com/"
+      }
+    ]
+  }
 }

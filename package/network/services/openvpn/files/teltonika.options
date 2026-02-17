@@ -18,6 +18,7 @@ key_direction
 ifconfig_ipv6_pool
 topology
 auth_user_pass
+comp_lzo
 '
 
 OPENVPN_BOOLS='

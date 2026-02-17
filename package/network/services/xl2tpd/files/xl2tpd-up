@@ -24,7 +24,7 @@ ubus_call_ip() {
 	if [ "$status" -eq 0 ]; then
 		return 0
 	fi
-	logger -t "xl2tpd" "failed ubus call, status: $status"
+	logger -p daemon.notice -t "xl2tpd" "failed ubus call, status: $status"
 	return 1
 }
 

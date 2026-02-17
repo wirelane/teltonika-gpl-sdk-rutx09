@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/download.mk
 RCOMPR:=EXCLUDE_PATTERN="chilli_script\|chilli_response" $(RCOMPR)
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2025-11-14
+PKG_VERSION:=2026-02-11
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING
@@ -200,9 +200,9 @@ define Package/coova-chilli/install
 	$(INSTALL_BIN) files/conrestart.sh $(1)/etc/chilli/
 	$(INSTALL_BIN) files/macup.sh $(1)/etc/chilli/
 	$(INSTALL_BIN) files/macdown.sh $(1)/etc/chilli/
-	$(INSTALL_BIN) files/users.db $(1)/etc/chilli/
+	$(INSTALL_CONF_USR) files/users.db $(1)/etc/chilli/
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/net
-	$(INSTALL_DATA) ./files/chilli.hotplug $(1)/etc/hotplug.d/net/99-chilli
+	$(INSTALL_CONF_USR) ./files/chilli.hotplug $(1)/etc/hotplug.d/net/99-chilli
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(if $(filter m,$(CONFIG_PACKAGE_coova-chilli)), \
 		$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/local/usr/sbin/chilli* $(1)/usr/sbin/, \
@@ -217,7 +217,7 @@ define Package/coova-chilli/install
 	)
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/lib/firewall \
 		$(1)/lib/upgrade/keep.d $(1)/lib/troubleshoot $(1)/usr/share/acl.d
-	$(INSTALL_BIN) files/chilli.init $(1)/etc/init.d/chilli
+	$(INSTALL_BIN_USR) files/chilli.init $(1)/etc/init.d/chilli
 	$(INSTALL_CONF_USR) files/chilli.config $(1)/etc/config/chilli
 	$(CP) $(PKG_BUILD_DIR)/conf/profiles/* $(1)/etc/chilli/
 	$(INSTALL_BIN) files/wireless.sh $(1)/etc/chilli/

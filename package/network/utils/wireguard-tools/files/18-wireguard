@@ -76,7 +76,7 @@ for file in /tmp/wireguard/default-status*; do
 		config_get tunlink "$p" tunlink
 		config_get force_tunlink "$p" force_tunlink
 		config_get metric "$iface" metric
-		config_get allowed_ips "$peer_config" allowed_ips
+		config_get allowed_ips "$p" allowed_ips
 		for allowed_ip in $allowed_ips; do
 			case "$allowed_ip" in
 				"0.0.0.0/0"|"::/0"|"::/1"|"8000::/1"|"0.0.0.0/1"|"128.0.0.0/1")
@@ -88,8 +88,8 @@ for file in /tmp/wireguard/default-status*; do
 		$mwan3_up && $default_route_set && continue
 		for host in $endpoint_host; do
 			for proto in 4 6; do
-				local gw
-				local ip_cmd="ip -$proto"
+				gw=""
+				ip_cmd="ip -$proto"
 				if [ "$proto" = 4 ] && [ "${default_ipv4##*via }" != "$default_ipv4" ]; then
 					gw=$(echo "${default_ipv4##*via }" | awk '{print $1}')
 				elif [ "$proto" = 6 ] && [ "${default_ipv6##*via }" != "$default_ipv6" ]; then

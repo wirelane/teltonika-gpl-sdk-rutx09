@@ -189,6 +189,7 @@ define Package/dnsmasq/install
 	$(INSTALL_DATA) ./files/dnsmasq.permtab $(1)/etc/permtab.d/dnsmasq
 	$(INSTALL_DATA) ./files/dnsmasqsec.hotplug $(1)/etc/hotplug.d/ntp/25-dnsmasqsec
 	$(INSTALL_CONF) ./files/dnsmasq_ifup.hotplug $(1)/etc/hotplug.d/iface/25-dnsmasq_ifup
+	$(INSTALL_CONF) ./files/dnsmasq_lan-option43.hotplug $(1)/etc/hotplug.d/iface/25-dnsmasq_lan-option43
 	if [ -e "./files/dnsmasq_hostname.hotplug-$(call device_shortname)" ]; then \
 		$(INSTALL_CONF) ./files/dnsmasq_hostname.hotplug-$(call device_shortname) $(1)/etc/hotplug.d/iface/26-dnsmasq_update_hostname; \
 	fi;

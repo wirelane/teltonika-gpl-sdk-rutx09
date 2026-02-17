@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.23.1
+PKG_SOURCE_VERSION:=1.24
 
 PKG_FIXUP:=autoreconf
 
@@ -23,7 +23,8 @@ endef
 
 define Package/data-sender
   $(call Package/data-sender/Default)
-  DEPENDS:=+libuci +libtlt-logger +libubox +libblobmsg-json +libubus +libjson-c $(DS_DEPS)
+  DEPENDS:=+libuci +libtlt-logger +libubox +libblobmsg-json +libubus +libjson-c \
+  		+TPM_SUPPORT:libtpm2_importer $(DS_DEPS)
   TITLE:=Data sender daemon by Teltonika
   MENU:=1
   USERID:=ds=530:ds=530
@@ -99,14 +100,15 @@ CONFIGURE_ARGS += \
 		--with-max_inputs=$(CONFIG_PACKAGE_DATA_SENDER_INPUTS) \
 		$(if $(CONFIG_PACKAGE_DATA_SENDER_BASE64),--enable-base64) \
 		$(if $(CONFIG_PACKAGE_DATA_SENDER_SCHEDULER),--enable-scheduler) \
-		$(if $(CONFIG_PACKAGE_DATA_SENDER_DEBUG),--enable-debug)
+		$(if $(CONFIG_PACKAGE_DATA_SENDER_DEBUG),--enable-debug) \
+		$(if $(CONFIG_TPM_SUPPORT),--enable-tpm-support)
 
 
 define Package/data-sender/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin \
 			$(1)/lib/troubleshoot $(1)/lib/data_sender $(1)/usr/share/acl.d
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18/ $(1)/etc/uci-defaults/7.20
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender.init $(1)/etc/init.d/data_sender
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/data_sender.init $(1)/etc/init.d/data_sender
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/data_sender.conf $(1)/etc/config/data_sender
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/datasender $(1)/usr/sbin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/data_sender_troubleshoot.sh \

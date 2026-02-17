@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-11-25 07:57:36.000000000 +0000
++++ src/.gitlab-ci.yml	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,11 @@
 +stages:
 +  - check
@@ -15,7 +15,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +    - check
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/CMakeLists.txt src/CMakeLists.txt
 --- upstream/CMakeLists.txt	2021-03-11 00:17:58.000000000 +0000
-+++ src/CMakeLists.txt	2025-11-25 07:57:36.000000000 +0000
++++ src/CMakeLists.txt	2025-12-10 08:55:54.000000000 +0000
 @@ -8,7 +8,10 @@
  
  OPTION(FILE_SUPPORT "File plugin support" ON)
@@ -93,7 +93,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  )
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/exec.c src/exec.c
 --- upstream/exec.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/exec.c	2025-11-25 07:57:36.000000000 +0000
++++ src/exec.c	2025-12-10 08:55:54.000000000 +0000
 @@ -16,6 +16,7 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -161,7 +161,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		dup2(epipe[1], 2);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/file.c src/file.c
 --- upstream/file.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/file.c	2025-11-25 07:57:36.000000000 +0000
++++ src/file.c	2025-12-10 08:55:54.000000000 +0000
 @@ -32,11 +32,13 @@
  #include <libubus.h>
  #include <libubox/blobmsg.h>
@@ -764,7 +764,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	static const struct ubus_method file_methods[] = {
  		UBUS_METHOD("read",    rpc_file_read,   rpc_file_RB_policy),
-@@ -998,16 +866,18 @@
+@@ -998,18 +866,22 @@
  	static struct ubus_object_type file_type =
  		UBUS_OBJECT_TYPE("luci-rpc-file", file_methods);
  
@@ -790,9 +790,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  struct rpc_plugin rpc_plugin = {
+-	.init = rpc_file_api_init
++	.init = rpc_file_api_init,
++	.capabilities = "cap_dac_override=ep",
++	.user = "root"
+ };
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/acl.d/rpcd.json src/files/acl.d/rpcd.json
 --- upstream/files/acl.d/rpcd.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/acl.d/rpcd.json	2025-11-25 07:57:36.000000000 +0000
++++ src/files/acl.d/rpcd.json	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,68 @@
 +{
 +	"user": "rpcd",
@@ -860,11 +865,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				 "serial", "file", "esim.modem*", "sms_limit", "boardjson", "rpc-dfota",
 +				 "modbus_client.rpc", "network.rrdns", "uci", "rc",
 +				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan", "dnp3_client.rpc",
-+				 "speedtest", "networkmap", "ip", "iec60870_client.rpc" ]
++				 "speedtest", "networkmap", "iec60870_client.rpc", "ip" ]
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/acl.d/session.json src/files/acl.d/session.json
 --- upstream/files/acl.d/session.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/acl.d/session.json	2025-11-25 07:57:36.000000000 +0000
++++ src/files/acl.d/session.json	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,12 @@
 +{
 +	"user": "session",
@@ -880,7 +885,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/acl.d/uci.json src/files/acl.d/uci.json
 --- upstream/files/acl.d/uci.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/acl.d/uci.json	2025-11-25 07:57:36.000000000 +0000
++++ src/files/acl.d/uci.json	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,11 @@
 +{
 +	"user": "uci",
@@ -895,7 +900,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/init.d/rpcd.init src/files/init.d/rpcd.init
 --- upstream/files/init.d/rpcd.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/init.d/rpcd.init	2025-11-25 07:57:36.000000000 +0000
++++ src/files/init.d/rpcd.init	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,29 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -928,7 +933,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/init.d/session.init src/files/init.d/session.init
 --- upstream/files/init.d/session.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/init.d/session.init	2025-11-25 07:57:36.000000000 +0000
++++ src/files/init.d/session.init	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,20 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -953,7 +958,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/libexec/lan_info src/files/libexec/lan_info
 --- upstream/files/libexec/lan_info	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/libexec/lan_info	2025-11-25 07:57:36.000000000 +0000
++++ src/files/libexec/lan_info	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,65 @@
 +#!/bin/sh
 +
@@ -1022,7 +1027,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +main "$@"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/libexec/rpc-sys-ext src/files/libexec/rpc-sys-ext
 --- upstream/files/libexec/rpc-sys-ext	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/libexec/rpc-sys-ext	2025-11-25 07:57:36.000000000 +0000
++++ src/files/libexec/rpc-sys-ext	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,63 @@
 +#!/bin/sh
 +
@@ -1089,7 +1094,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +main "$@"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rpcd.config src/files/rpcd.config
 --- upstream/files/rpcd.config	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rpcd.config	2025-11-25 07:57:36.000000000 +0000
++++ src/files/rpcd.config	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,70 @@
 +config rpcd
 +	option socket /var/run/ubus/ubus.sock
@@ -1163,7 +1168,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	list write 'core'
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rpcd.openrc src/files/rpcd.openrc
 --- upstream/files/rpcd.openrc	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rpcd.openrc	2025-11-25 07:57:36.000000000 +0000
++++ src/files/rpcd.openrc	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,12 @@
 +#!/sbin/openrc-run
 +
@@ -1179,12 +1184,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rpcd.permtab src/files/rpcd.permtab
 --- upstream/files/rpcd.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rpcd.permtab	2025-11-25 07:57:36.000000000 +0000
++++ src/files/rpcd.permtab	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/rpcd                        rpcd:rpcd       660       -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/superuser.json src/files/superuser.json
 --- upstream/files/superuser.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/superuser.json	2025-11-25 07:57:36.000000000 +0000
++++ src/files/superuser.json	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,20 @@
 +{
 +	"superuser": {
@@ -1208,7 +1213,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag src/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag
 --- upstream/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag	2025-11-25 07:57:36.000000000 +0000
++++ src/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,23 @@
 +#!/bin/sh
 +. /lib/functions.sh
@@ -1236,7 +1241,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.13/99_rpcd_increase_timeout src/files/uci-defaults/7.13/99_rpcd_increase_timeout
 --- upstream/files/uci-defaults/7.13/99_rpcd_increase_timeout	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.13/99_rpcd_increase_timeout	2025-11-25 07:57:36.000000000 +0000
++++ src/files/uci-defaults/7.13/99_rpcd_increase_timeout	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,10 @@
 +#!/bin/sh
 +
@@ -1250,7 +1255,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +exit 0
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths src/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths
 --- upstream/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths	2025-11-25 07:57:36.000000000 +0000
++++ src/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,29 @@
 +#!/bin/sh
 +
@@ -1283,7 +1288,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +uci_commit "rpcd"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry src/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry
 --- upstream/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry	2025-11-25 07:57:36.000000000 +0000
++++ src/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry	2025-12-10 08:55:54.000000000 +0000
 @@ -0,0 +1,16 @@
 +#!/bin/sh
 +
@@ -1303,7 +1308,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +uci_commit "$CONFIG"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/exec.h src/include/rpcd/exec.h
 --- upstream/include/rpcd/exec.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/exec.h	2025-11-25 07:57:36.000000000 +0000
++++ src/include/rpcd/exec.h	2025-12-10 08:55:54.000000000 +0000
 @@ -25,6 +25,8 @@
  
  #define RPC_EXEC_MAX_SIZE		(4096 * 64)
@@ -1323,7 +1328,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/plugin.h src/include/rpcd/plugin.h
 --- upstream/include/rpcd/plugin.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/plugin.h	2025-11-25 07:57:36.000000000 +0000
++++ src/include/rpcd/plugin.h	2025-12-10 08:55:54.000000000 +0000
 @@ -21,6 +21,17 @@
  
  #define _GNU_SOURCE /* asprintf() */
@@ -1420,7 +1425,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/session.h src/include/rpcd/session.h
 --- upstream/include/rpcd/session.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/session.h	2025-11-25 07:57:36.000000000 +0000
++++ src/include/rpcd/session.h	2025-12-10 08:55:54.000000000 +0000
 @@ -35,8 +35,23 @@
  #define RPC_DEFAULT_SESSION_ID	"00000000000000000000000000000000"
  #define RPC_SESSION_DIRECTORY	"/var/run/rpcd/sessions"
@@ -1492,7 +1497,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/uci.h src/include/rpcd/uci.h
 --- upstream/include/rpcd/uci.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/uci.h	2025-11-25 07:57:36.000000000 +0000
++++ src/include/rpcd/uci.h	2025-12-10 08:55:54.000000000 +0000
 @@ -30,15 +30,14 @@
  #include <libubus.h>
  #include <uci.h>
@@ -1515,7 +1520,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/iwinfo.c src/iwinfo.c
 --- upstream/iwinfo.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/iwinfo.c	2025-11-25 07:57:36.000000000 +0000
++++ src/iwinfo.c	2025-12-10 08:55:54.000000000 +0000
 @@ -17,6 +17,7 @@
   */
  
@@ -2124,7 +2129,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/main.c src/main.c
 --- upstream/main.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/main.c	2025-11-25 07:57:36.000000000 +0000
++++ src/main.c	2025-12-10 08:55:54.000000000 +0000
 @@ -17,6 +17,8 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -2134,7 +2139,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #include <unistd.h>
  #include <stdlib.h>
  
-@@ -24,46 +26,205 @@
+@@ -24,46 +26,225 @@
  #include <libubus.h>
  #include <signal.h>
  #include <sys/stat.h>
@@ -2145,6 +2150,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#include <rpcd/rc.h>
 -#include <rpcd/session.h>
 -#include <rpcd/uci.h>
++#include <sys/capability.h>
  
 -static struct ubus_context *ctx;
 +#define RPC_UCI_DIR_PREFIX	"/var/run/rpcd"
@@ -2222,12 +2228,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	{
 +		for (i = 0; i < gl.gl_pathc; i++)
 +			rpc_uci_purge_dir(gl.gl_pathv[i]);
- 
--	cmd = rpc_exec_lookup(argv[0]);
++
 +		globfree(&gl);
 +	}
 +}
-+
+ 
+-	cmd = rpc_exec_lookup(argv[0]);
 +static void
 +exec_self(void)
 +{
@@ -2356,10 +2362,29 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	ctx->ubus_socket = ubus_socket;
 +	ctx->retries = 0;
 +	reconnect_cb(&ctx->timer);
++}
++
++static void set_initial_capabilities() {
++	cap_t caps = cap_get_proc();
++	if (!caps) {
++		fprintf(stderr, "cap_get_proc failed: %s\n", strerror(errno));
++		return;
++	}
++
++	cap_value_t list[] = { CAP_SETUID, CAP_SETGID };
++	if (cap_set_flag(caps, CAP_EFFECTIVE, sizeof(list)/sizeof(*list), list, CAP_SET) != 0) {
++		fprintf(stderr, "cap_set_flag failed: %s\n", strerror(errno));
++		cap_free(caps);
++		return;
++	}
++	if (cap_set_proc(caps) != 0) {
++		fprintf(stderr, "cap_set_proc failed: %s\n", strerror(errno));
++	}
++	cap_free(caps);
  }
  
  int main(int argc, char **argv)
-@@ -73,6 +234,9 @@
+@@ -73,6 +254,9 @@
  	const char *ubus_socket = NULL;
  	int ch;
  
@@ -2369,7 +2394,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	while ((ch = getopt(argc, argv, "s:t:")) != -1) {
  		switch (ch) {
  		case 's':
-@@ -93,43 +257,29 @@
+@@ -93,43 +277,30 @@
  		return -1;
  	}
  
@@ -2377,6 +2402,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -		mkdir(RPC_UCI_DIR_PREFIX, 0700);
 -
  	umask(0077);
++	set_initial_capabilities();
  
 -	signal(SIGPIPE, SIG_IGN);
 -	signal(SIGHUP,  handle_signal);
@@ -2426,7 +2452,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/plugin.c src/plugin.c
 --- upstream/plugin.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/plugin.c	2025-11-25 07:57:36.000000000 +0000
++++ src/plugin.c	2025-12-10 08:55:54.000000000 +0000
 @@ -17,8 +17,18 @@
   */
  
@@ -3119,7 +3145,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/rc.c src/rc.c
 --- upstream/rc.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/rc.c	2025-11-25 07:57:36.000000000 +0000
++++ src/rc.c	2025-12-10 08:55:54.000000000 +0000
 @@ -6,18 +6,18 @@
   */
  
@@ -3278,7 +3304,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +};
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/session.c src/session.c
 --- upstream/session.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/session.c	2025-11-25 07:57:36.000000000 +0000
++++ src/session.c	2025-12-10 08:55:54.000000000 +0000
 @@ -22,23 +22,39 @@
  #include <libubox/avl-cmp.h>
  #include <libubox/blobmsg.h>
@@ -4767,7 +4793,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/sys.c src/sys.c
 --- upstream/sys.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/sys.c	2025-11-25 07:57:36.000000000 +0000
++++ src/sys.c	2025-12-10 08:55:54.000000000 +0000
 @@ -16,24 +16,28 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -5320,7 +5346,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/uci.c src/uci.c
 --- upstream/uci.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/uci.c	2025-11-25 07:57:36.000000000 +0000
++++ src/uci.c	2025-12-10 08:55:54.000000000 +0000
 @@ -18,18 +18,20 @@
  
  #include <libgen.h>

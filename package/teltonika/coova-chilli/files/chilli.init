@@ -266,8 +266,10 @@ set_chilli() {
 		esac
 		;;
 	dbpath | usersdbpath)
-		touch "$value"
-		chown chilli:chilli "$value"
+		[ -f "$value" ] && {
+			chmod 0660 "$value"
+			chown chilli:chilli "$value"
+		}
 		set_conf "$option" "$value"
 		[ "$option" = "dbpath" ] && eval "chilli_${option}_${CONFIG_SECTION}=$value"
 		;;
@@ -492,9 +494,9 @@ copy_db_file() {
 
 	[ -z "$chilli_dbpath" ] && chilli_dbpath="$DEFAULT_DB_PATH"
 	local chilli_dbpath_flash="${FLASH_DIR}/$(basename "$chilli_dbpath")"
-	[ -f "$chilli_dbpath_flash" ] && cp -a "$chilli_dbpath_flash" "$chilli_dbpath"
+	[ -s "$chilli_dbpath_flash" ] && cp -a "$chilli_dbpath_flash" "$chilli_dbpath"
 
-	echo -e "#!/bin/sh\n\n[ -f "$chilli_dbpath" ] && cp -a "$chilli_dbpath" "$chilli_dbpath_flash" && rm -f "$chilli_dbpath"" > "$stop_script_path"
+	echo -e "#!/bin/sh\n\n[ -s "$chilli_dbpath" ] && cp -a "$chilli_dbpath" "$chilli_dbpath_flash" && rm -f "$chilli_dbpath"" > "$stop_script_path"
 	chown chilli:chilli "$stop_script_path"
 	chmod +x "$stop_script_path"
 }

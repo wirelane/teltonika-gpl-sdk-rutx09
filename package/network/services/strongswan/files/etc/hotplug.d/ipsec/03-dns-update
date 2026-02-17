@@ -20,7 +20,7 @@ connection_up() {
 
 	[ -n "$added" ] && {
 		uci commit dhcp
-		/etc/init.d/dnsmasq reload
+		ubus call rc init '{"action": "reload", "name": "dnsmasq"}'
 		echo "Added additional DNS servers: $PLUTO_DNS4_1 $PLUTO_DNS4_2"
 	}
 }
@@ -39,7 +39,7 @@ connection_down() {
 
 	[ -n "$removed" ] && {
 		uci commit dhcp
-		/etc/init.d/dnsmasq reload
+		ubus call rc init '{"action": "reload", "name": "dnsmasq"}'
 		echo "Removed additional DNS servers: $PLUTO_DNS4_1 $PLUTO_DNS4_2"
 	}
 }

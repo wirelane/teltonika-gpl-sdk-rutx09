@@ -1,6 +1,6 @@
 --- a/ethtool.c
 +++ b/ethtool.c
-@@ -87,6 +87,13 @@ typedef enum {
+@@ -107,6 +107,13 @@ typedef enum {
  	CMDL_MAC,
  } cmdline_type_t;
  
@@ -14,7 +14,7 @@
  struct cmdline_info {
  	const char *name;
  	cmdline_type_t type;
-@@ -3623,6 +3630,115 @@ static int do_test(struct cmd_context *c
+@@ -3811,6 +3818,115 @@ static int do_test(struct cmd_context *c
  	return err;
  }
  
@@ -130,8 +130,8 @@
  static int do_phys_id(struct cmd_context *ctx)
  {
  	int err;
-@@ -5762,6 +5878,15 @@ static const struct option args[] = {
- 		.help	= "Show adapter statistics"
+@@ -6003,6 +6119,15 @@ static const struct option args[] = {
+ 			  "		[ --src aggregate | emac | pmac ]\n"
  	},
  	{
 +		.opts	= "--link-stats",

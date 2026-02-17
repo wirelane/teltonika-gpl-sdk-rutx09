@@ -2,12 +2,13 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=dlms_client
-PKG_VERSION:=2025-12-01
+PKG_VERSION:=2026-01-23
 
 PKG_SOURCE_VERSION:=fa855d2e82db1a7d27c419d09ed7a11fe86b86f0
 PKG_SOURCE=GuruxDLMS.c-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/Gurux/GuruxDLMS.c/tar.gz/$(PKG_SOURCE_VERSION)?
 PKG_HASH:=c28b608cb7b3f03c4f1007c1be4ed514d3b0020b748df39106059373736f8895
+PKG_RELEASE:=1
 
 PKG_LICENSE:=GPL-2.0-only
 PKG_LICENSE_FILES:=LICENSE
@@ -19,7 +20,7 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=DLMS Client for COSEM device monitoring
 	DEPENDS:=+libsqlite3 +libubus +libubox +libuci +libtlt_uci +libtlt_termios +libtlt-logger +libpthread \
-		+libdlms +libcfgx
+		+libdlms +libcfgx +libticket_mutex +libatomic
 endef
 
 define Package/$(PKG_NAME)/description
@@ -31,13 +32,26 @@ define Package/$(PKG_NAME)/conffiles
 endef
 
 define Package/$(PKG_NAME)/install
-	$(INSTALL_DIR) $(1)/etc/config $(1)/etc/init.d $(1)/usr/sbin $(1)/usr/lib/rpcd $(1)/usr/share/acl.d $(1)/etc/permtab.d
+	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/dlms_client.conf $(1)/etc/config/dlms_client
+
+	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/dlms_client.init $(1)/etc/init.d/dlms_client
+
+	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dlms_client $(1)/usr/sbin/dlms_client
+
+	$(INSTALL_DIR) $(1)/usr/lib/rpcd
 	$(CP) $(PKG_BUILD_DIR)/dlms_client.so $(1)/usr/lib/rpcd/dlms_client.so
+
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dlms_client.json $(1)/usr/share/acl.d/dlms_client.json
+
+	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/dlms_client.permtab $(1)/etc/permtab.d/dlms_client
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.21/
+	$(CP) $(PKG_BUILD_DIR)/files/migrations/7.21/01-migrate_obis_option $(1)/etc/uci-defaults/7.21/
 endef
 
 define Build/Test

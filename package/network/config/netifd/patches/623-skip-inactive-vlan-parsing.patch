@@ -1,6 +1,6 @@
 --- a/device.c
 +++ b/device.c
-@@ -1312,7 +1312,7 @@
+@@ -1331,7 +1331,7 @@ device_create(const char *name, struct d
  void
  device_dump_status(struct blob_buf *b, struct device *dev)
  {
@@ -9,9 +9,9 @@
  	void *c, *s;
  
  	if (!dev) {
-@@ -1338,14 +1338,17 @@
- 	blobmsg_add_u8(b, "carrier", !!dev->link_active);
- 	blobmsg_add_u8(b, "auth_status", !!dev->auth_status);
+@@ -1360,14 +1360,17 @@ device_dump_status(struct blob_buf *b, s
+ 	if (dev->tags)
+ 		blobmsg_add_blob(b, dev->tags);
  
 -	system_if_get_settings(dev, &dev->settings);
 -	device_merge_settings(dev, &st);
@@ -31,10 +31,9 @@
  		system_if_dump_info(dev, b);
  
  	if (dev->active) {
-
- --- a/vlandev.c
+--- a/vlandev.c
 +++ b/vlandev.c
-@@ -239,7 +239,11 @@
+@@ -239,7 +239,11 @@ vlandev_dump_info(struct device *dev, st
  
  	mvdev = container_of(dev, struct vlandev_device, dev);
  	blobmsg_add_string(b, "parent", mvdev->parent.dev->ifname);
@@ -47,5 +46,3 @@
  	blobmsg_add_u32(b, "vid", mvdev->config.vid);
  	vlandev_qos_mapping_dump(b, "ingress_qos_mapping", &mvdev->config.ingress_qos_mapping_list);
  	vlandev_qos_mapping_dump(b, "egress_qos_mapping", &mvdev->config.egress_qos_mapping_list);
-
-

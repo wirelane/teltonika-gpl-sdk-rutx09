@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=networkmap
-PKG_VERSION:=2025-11-14
+PKG_VERSION:=2026-01-13
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.2
+PKG_SOURCE_VERSION:=2.4
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -18,7 +18,7 @@ define Package/networkmap
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Networkmap tool
-	DEPENDS:=+libpcap +libpthread +libsqlite3 +libubus +libubox +libcap
+	DEPENDS:=+libpcap +libpthread +libsqlite3 +libubus +libubox +libcap +libtlt-logger
 	FATTRS:=/bin/networkmap::::cap_net_raw=ep;/usr/libexec/rpcd/networkmap:networkmap:networkmap::
 	USERID:=networkmap=526:networkmap=526
 endef

@@ -136,4 +136,5 @@ reload_service() {
 
 service_triggers() {
 	procd_add_reload_trigger 'mwan3'
+	procd_add_raw_trigger "firewall.restart" 3000 /etc/init.d/mwan3 restart
 }

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=email_to_sms
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2.18
@@ -39,7 +39,7 @@ define Package/email_to_sms/install
 		$(INSTALL_DIR) $(1)/etc/config/ $(1)/usr/share/acl.d/ $(1)/etc/permtab.d/
 		$(INSTALL_DIR) $(1)/etc/init.d/
 		$(INSTALL_DIR) $(1)/usr/bin/
-		$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/email_to_sms.init $(1)/etc/init.d/email_to_sms
+		$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/email_to_sms.init $(1)/etc/init.d/email_to_sms
 		$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/email_to_sms.lua $(1)/usr/bin/email_to_sms
 		$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/email_to_sms.conf $(1)/etc/config/email_to_sms
 		$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/email_to_sms.json $(1)/usr/share/acl.d/

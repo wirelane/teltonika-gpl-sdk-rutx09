@@ -1,6 +1,6 @@
 --- a/wireless.c
 +++ b/wireless.c
-@@ -382,6 +382,31 @@
+@@ -447,6 +447,31 @@ static void wireless_vlan_handle_link(st
  	}
  }
  
@@ -32,16 +32,16 @@
  static void
  wireless_device_setup_cancel(struct wireless_device *wdev)
  {
-@@ -711,8 +736,12 @@
+@@ -783,8 +808,12 @@ wdev_update(struct vlist_tree *tree, str
  	struct wireless_device *wd_new = container_of(node_new, struct wireless_device, node);
  
  	if (wd_old && wd_new) {
 +		struct wireless_interface *vif;
 +
- 		D(WIRELESS, "Update wireless device '%s'\n", wd_old->name);
+ 		D(WIRELESS, "Update wireless device '%s'", wd_old->name);
  		wdev_change_config(wd_old, wd_new);
 +		vlist_for_each_element(&wd_old->interfaces, vif, node)
 +			vif_update_if_sta(vif);
  	} else if (wd_old) {
- 		D(WIRELESS, "Delete wireless device '%s'\n", wd_old->name);
+ 		D(WIRELESS, "Delete wireless device '%s'", wd_old->name);
  		wdev_set_config_state(wd_old, IFC_REMOVE);

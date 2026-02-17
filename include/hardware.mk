@@ -119,6 +119,7 @@ HW_WIFI_5:=802.11b/g/n/ac Wave 2 (WiFi 5)
 HW_WIFI_50_USERS:=Up to 50 simultaneous connections
 HW_WIFI_100_USERS:=Up to 100 simultaneous connections
 HW_WIFI_150_USERS:=Up to 150 simultaneous connections
+HW_WIFI_512_USERS:=Up to 512 simultaneous connections
 
 # power coonector
 HW_POWER_CONNECTOR_RJ45:=RJ45 Socket

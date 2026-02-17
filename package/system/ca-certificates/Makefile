@@ -68,7 +68,7 @@ define Package/ca-bundle/install
 	$(if $(CONFIG_CERTIFICATE_SUPPORT),\
 		$(INSTALL_DIR) $(1)/etc/uci-defaults/; \
 		$(INSTALL_DIR) $(1)/etc/certificates/; \
-		$(INSTALL_BIN) ./files/certificates-section $(1)/etc/uci-defaults/;)
+		$(INSTALL_DATA) ./files/certificates-section $(1)/etc/uci-defaults/;)
 
 	cat $(PKG_INSTALL_DIR)/usr/share/ca-certificates/*/*.crt >$(1)/etc/ssl/certs/ca-certificates.crt
 	$(LN) /etc/ssl/certs/ca-certificates.crt $(1)/etc/ssl/cert.pem

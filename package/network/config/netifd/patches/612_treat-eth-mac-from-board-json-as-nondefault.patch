@@ -1,6 +1,6 @@
 --- a/device.c
 +++ b/device.c
-@@ -504,7 +504,7 @@ device_fill_default_settings(struct devi
+@@ -694,7 +694,7 @@ device_fill_default_settings(struct devi
  		ea = config_get_default_macaddr(dev->ifname);
  		if (ea) {
  			memcpy(s->macaddr, ea, 6);
@@ -8,4 +8,4 @@
 +			s->flags |= DEV_OPT_MACADDR;
  		}
  	}
- }
+ 

@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=snmptrap
-PKG_VERSION:=2025-12-02
+PKG_VERSION:=2026-02-11
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.8
+PKG_SOURCE_VERSION:=1.9
 PKG_MAINTAINER:=Darius Joksas <darius.joksas@teltonika.lt>
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
@@ -58,13 +58,13 @@ endif
 
 define Package/snmptrap/install
 	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/sbin $(1)/etc/init.d $(1)/usr/share/acl.d \
-		$(1)/etc/permtab.d/
+		$(1)/etc/permtab.d/ $(1)/etc/uci-defaults/7.21
 	$(INSTALL_BIN) ./files/snmptrap.init $(1)/etc/init.d/snmptrap
 	$(INSTALL_CONF_USR) ./files/snmptrap.conf $(1)/etc/config/snmptrap
 	$(INSTALL_DATA) ./files/snmptrap.json $(1)/usr/share/acl.d/
 	$(INSTALL_DATA) ./files/snmptrap.permtab $(1)/etc/permtab.d/snmptrap
+	$(INSTALL_BIN) ./files/defaults/7.21/99_snmptraps_migrate_hosts $(1)/etc/uci-defaults/7.21
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/snmptraps $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,snmptrap))
-

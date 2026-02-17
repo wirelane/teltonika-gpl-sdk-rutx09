@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=gre
-PKG_RELEASE:=13
+PKG_RELEASE:=14
 PKG_LICENSE:=GPL-2.0-only
 
 PKG_ORIGIN_URL:=https://github.com/openwrt/openwrt/tree/openwrt-21.02/package/network/config/gre
@@ -39,11 +39,12 @@ define Build/Configure
 endef
 
 define Package/gre/install
-	$(INSTALL_DIR) $(1)/usr/local/usr/lib/netifd/proto
+	$(INSTALL_DIR) $(1)/usr/local/usr/lib/netifd/proto $(1)/etc/uci-defaults/7.21
 	$(INSTALL_BIN) ./files/gre.sh $(1)/usr/local/usr/lib/netifd/proto/gre.sh
 	$(LN) /usr/local/usr/lib/netifd/proto/gre.sh $(1)/usr/local/usr/lib/netifd/proto/gretap.sh
 	$(LN) /usr/local/usr/lib/netifd/proto/gre.sh $(1)/usr/local/usr/lib/netifd/proto/grev6.sh
 	$(LN) /usr/local/usr/lib/netifd/proto/gre.sh $(1)/usr/local/usr/lib/netifd/proto/grev6tap.sh
+	$(CP) ./files/defaults/7.21/99-gre_migrate_service $(1)/etc/uci-defaults/7.21/99-gre_migrate_service
 endef
 
 $(eval $(call BuildPackage,gre))

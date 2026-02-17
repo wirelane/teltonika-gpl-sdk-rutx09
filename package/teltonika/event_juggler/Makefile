@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.8
+PKG_SOURCE_VERSION:=1.9
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf
@@ -32,7 +32,8 @@ define Package/event-juggler
 			+PACKAGE_EVENT_JUGGLER_EVENT_GPS:libgps \
 			+PACKAGE_EVENT_JUGGLER_CONDITION_GPS:libgps \
 			+PACKAGE_EVENT_JUGGLER_CONDITION_IO:iomand \
-			+CONFIG_MOBILE_SUPPORT:libgsm
+			+CONFIG_MOBILE_SUPPORT:libgsm \
+			+TPM_SUPPORT:libtpm2_importer
 endef
 
 define Package/event-juggler/config
@@ -73,6 +74,7 @@ CONFIGURE_ARGS += \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_GPS),--enable-cond_gps) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_LUA),--enable-cond_lua) \
 	$(if $(CONFIG_PACKAGE_EVENT_JUGGLER_CONDITION_FILTER),--enable-cond_filter) \
+	$(if $(CONFIG_TPM_SUPPORT),--enable-tpm-support) \
 	--with-jglibdir=/usr/local/usr/lib/event_juggler
 
 
@@ -91,8 +93,8 @@ define Package/event-juggler/install
 		$(1)/etc/uci-defaults/7.13 $(1)/lib/troubleshoot $(1)/usr/share/acl.d/
 
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/event_juggler $(1)/usr/sbin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/event_juggler.init $(1)/etc/init.d/event_juggler
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/event_juggler_migration.sh \
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/event_juggler.init $(1)/etc/init.d/event_juggler
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/event_juggler_migration.sh \
 			$(1)/etc/uci-defaults/7.13/99-event_juggler
 	$(if $(CONFIG_POWER_CONTROL_SUPPORT),\
 			$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/event_juggler_atrm50.conf $(1)/etc/config/event_juggler;,\

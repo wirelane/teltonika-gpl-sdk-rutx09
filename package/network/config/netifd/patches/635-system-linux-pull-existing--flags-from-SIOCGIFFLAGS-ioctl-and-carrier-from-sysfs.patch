@@ -4,11 +4,9 @@ flag exceeds that size, only use it for pulling IFF_UP. Use sysfs carrier
 file for pulling IFF_LOWER_UP. This should solve the initial issue, that
 commit 86da5cb tried to solve
 ---
-Index: netifd/system-linux.c
-===================================================================
---- netifd/system-linux.c
-+++ netifd/system-linux.c
-@@ -706,14 +706,27 @@
+--- a/system-linux.c
++++ b/system-linux.c
+@@ -717,14 +717,27 @@ system_device_ifreq(struct ifreq *ifr, c
  	return ioctl(sock_ioctl, cmd, ifr);
  }
  
@@ -37,7 +35,7 @@ Index: netifd/system-linux.c
  
  	if (dev->type == &simple_device_type) {
  		if (dev->external)
-@@ -721,14 +734,17 @@
+@@ -732,14 +745,17 @@ system_device_update_state(struct device
  
  		device_set_present(dev, ifindex > 0);
  	}
@@ -57,7 +55,7 @@ Index: netifd/system-linux.c
  	struct nlattr *nla[__IFLA_MAX];
  	struct device *dev;
  
-@@ -743,7 +759,7 @@
+@@ -754,7 +770,7 @@ static int cb_rtnl_event(struct nl_msg *
  	if (!dev)
  		return 0;
  
@@ -66,7 +64,7 @@ Index: netifd/system-linux.c
  	return 0;
  }
  
-@@ -2515,13 +2531,12 @@
+@@ -2635,13 +2651,12 @@ struct if_check_data {
  static int cb_if_check_valid(struct nl_msg *msg, void *arg)
  {
  	struct nlmsghdr *nh = nlmsg_hdr(msg);
@@ -81,4 +79,3 @@ Index: netifd/system-linux.c
  	return NL_OK;
  }
  
-

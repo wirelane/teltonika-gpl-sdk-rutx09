@@ -33,7 +33,7 @@ start_service() {
 }
 
 service_triggers() {
-	procd_add_reload_trigger "sim_switch" "simcard"
+	procd_add_reload_trigger "sim_switch" "simcard" "operctl"
 }
 
 reload_service() {

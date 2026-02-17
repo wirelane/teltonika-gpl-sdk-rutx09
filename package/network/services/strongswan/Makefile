@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=strongswan
 PKG_VERSION:=5.9.14
-PKG_RELEASE:=31
+PKG_RELEASE:=33
 
 PKG_SOURCE_VERSION:=5.9.14
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -544,8 +544,9 @@ define Package/strongswan/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/ipsec.config $(1)/etc/config/ipsec
 	$(INSTALL_DATA) files/ipsec.permtab $(1)/etc/permtab.d/ipsec
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.17 $(1)/etc/uci-defaults/7.21
 	$(INSTALL_BIN) files/defaults/99_ipsec_add_new_path $(1)/etc/uci-defaults/7.17/99_ipsec_add_new_path
+	$(INSTALL_BIN) files/defaults/7.21/99_migrate_passthrough $(1)/etc/uci-defaults/7.21/99_migrate_passthrough
 endef
 
 define Package/strongswan-default/install

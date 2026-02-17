@@ -293,6 +293,10 @@ proto_wireguard_setup() {
 			for proto in 4 6; do
 				ip_cmd="ip -$proto"
 				default="$($ip_cmd route show default)"
+				if [ -z "$default" ]; then
+					logger -t wireguard "No default route available for IPv$proto, skipping endpoint route setup"
+					continue
+				fi
 				if [ -n "$default" ]; then
 					defaults="$(echo "$default" | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
 					echo "$default" | awk -v cmd="$ip_cmd" '{print cmd, "route add", $0}' >> "$DEFAULT_STATUS"
@@ -306,7 +310,12 @@ proto_wireguard_setup() {
 				for dev in ${defaults}; do
 					metric="$($ip_cmd route show default dev "$dev" | awk -F"metric " '{print $2}' | sed 's/\s.*$//')"
 					gw="$($ip_cmd route show default dev "$dev" | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
-					for ip in $(resolveip -"$proto" "$peer"); do
+					resolved_ips="$(resolveip -t 5 -"$proto" "$peer" 2>/dev/null)"
+					if [ -z "$resolved_ips" ]; then
+						logger -t wireguard "Failed to resolve endpoint $peer for IPv$proto, will be retried by hotplug"
+						continue
+					fi
+					for ip in $resolved_ips; do
 						if [ -n "$tunlink" ] && [ "$tunlink" != "any" ]; then
 							network_get_device tunlink_dev $tunlink
 							[ "$tunlink_dev" = "wwan0" ] && { network_get_device tunlink_dev "${tunlink}"_4 || network_get_device tunlink_dev "${tunlink}"_6; }
@@ -331,13 +340,15 @@ proto_wireguard_setup() {
 						fi
 						if [ "$in_subnet" = 1 ]; then
 							logger -t wireguard "Adding link-scope route to $ip via $dev"
-							if $ip_cmd route add "$ip" dev "$dev" scope link metric "$metric" 2>/dev/null; then
+							if $ip_cmd route add "$ip" dev "$dev" scope link metric "$metric"; then
 								echo "$ip_cmd route del $ip dev $dev scope link metric $metric" >> "$DEFAULT_STATUS"
+								logger -t wireguard "Route to $ip added via $dev"
 							fi
 						else
 							logger -t wireguard "Adding route to $ip via $gw"
 							if $ip_cmd route add "$ip" ${gw:+via "$gw"} dev "$dev" metric "$metric"; then
 								echo "$ip_cmd route del $ip ${gw:+via "$gw"} dev $dev metric $metric" >> "$DEFAULT_STATUS"
+								logger -t wireguard "Route to $ip added via ${gw:-$dev}"
 							fi
 						fi
 					done

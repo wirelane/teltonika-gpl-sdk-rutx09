@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=bfdd-frr
 PKG_VERSION:=2024-10-10
-PKG_RELEASE:=2
+PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ip_blockd
-PKG_VERSION:=2025-10-14
+PKG_VERSION:=2025-12-08
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.20
+PKG_SOURCE_VERSION:=1.22
 
 PKG_FIXUP:=autoreconf
 
@@ -21,7 +21,7 @@ define Package/ip_blockd
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=IP Block Daemon
-	DEPENDS:=+ipset +iptables +libubus +libubox +libuci +liblog +libip4tc +libip6tc +libipset +libsqlite3
+	DEPENDS:=+ipset +iptables +libubus +libubox +libuci +libtlt-logger +libip4tc +libip6tc +libipset +libsqlite3
 	MENU:=1
 	USERID:=ip_blockd:ip_blockd
 	FATTRS:=/usr/bin/ip_blockd::::cap_net_raw,cap_net_admin=ep
@@ -56,12 +56,12 @@ define Package/ip_blockd/install
 
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/ip_blockd.conf $(1)/etc/config/ip_blockd
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ip_blockd $(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/ip_blockd.init $(1)/etc/init.d/ip_blockd
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/ip_blockd.init $(1)/etc/init.d/ip_blockd
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ip_blockd.json $(1)/usr/share/acl.d/ip_blockd.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ip_blockd.permtab $(1)/etc/permtab.d/ip_blockd
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ip_blockd.sysupgrade $(1)/lib/upgrade/keep.d/ip_blockd
 
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/migrations/7.11/99_ip_blockd_fix $(1)/etc/uci-defaults/7.11/99_ip_blockd_fix
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/migrations/7.11/99_ip_blockd_fix $(1)/etc/uci-defaults/7.11/99_ip_blockd_fix
 endef
 
 $(eval $(call BuildPackage,ip_blockd))

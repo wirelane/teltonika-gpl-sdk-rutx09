@@ -370,12 +370,12 @@ default_postinst() {
 			/etc/init.d/sysctl restart
 		fi
 
-		if grep -m1 -q -s "^$root/etc/uci-defaults/" "$filelist"; then
-			uci_apply_defaults
-		fi
-
 		if grep -m1 -q -s "^$root/etc/permtab.d/" "$filelist"; then
 			/sbin/perm -a
+		fi
+
+		if grep -m1 -q -s "^$root/etc/uci-defaults/" "$filelist"; then
+			uci_apply_defaults
 		fi
 
 		rm -fr /tmp/luci-indexcache

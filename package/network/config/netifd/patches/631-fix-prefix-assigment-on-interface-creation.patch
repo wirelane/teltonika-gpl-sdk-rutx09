@@ -1,6 +1,6 @@
 --- a/interface.c
 +++ b/interface.c
-@@ -1438,6 +1438,9 @@ interface_update(struct vlist_tree *tree
+@@ -1441,6 +1441,9 @@ interface_update(struct vlist_tree *tree
  		proto_init_interface(if_new, if_new->config);
  		interface_claim_device(if_new);
  		netifd_ubus_add_interface(if_new);

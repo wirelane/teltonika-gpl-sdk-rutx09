@@ -1,7 +1,5 @@
-Index: netifd-2024-01-04-c18cc79d/interface-ip.c
-===================================================================
---- netifd-2024-01-04-c18cc79d.orig/interface-ip.c
-+++ netifd-2024-01-04-c18cc79d/interface-ip.c
+--- a/interface-ip.c
++++ b/interface-ip.c
 @@ -154,7 +154,7 @@ static int set_ip_lo_policy(bool add, bo
  {
  	struct iprule rule = {

@@ -813,15 +813,15 @@ define Package/freeradius3-common/install
 	$(eval INST_DIR:=$$(PKG_INSTALL_DIR)$(if $(findstring m,$(CONFIG_PACKAGE_freeradius3)),/usr/local,))
 	$(INSTALL_DIR) $(1)/etc/freeradius3
 	chmod 771 $(1)/etc/freeradius3
-	$(CP) $(PKG_INSTALL_DIR)/etc/freeradius3/dictionary $(1)/etc/freeradius3/ ; \
+	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/freeradius3/dictionary $(1)/etc/freeradius3/ ; \
 	$(INSTALL_DIR) $(1)/usr/lib/freeradius3
 	$(CP) $(INST_DIR)/usr/lib/freeradius3/libfreeradius-{dhcp,eap,radius,server}.so $(1)/usr/lib/freeradius3
 	$(INSTALL_DIR) $(1)/usr/share/freeradius3
-	$(CP) $(INST_DIR)/usr/share/freeradius3/dictionary $(1)/usr/share/freeradius3/
+	$(INSTALL_DATA) $(INST_DIR)/usr/share/freeradius3/dictionary $(1)/usr/share/freeradius3/
 	$(SED) "s,^\(\$$$$INCLUDE\),#\1,g" $(1)/usr/share/freeradius3/dictionary
 	for f in $(PKG_DICTIONARIES); do \
 		$(SED) 's/#.*$$$$//' -e '/^[[:space:]]*$$$$/d' $(INST_DIR)/usr/share/freeradius3/dictionary.$$$${f}; \
-		$(CP) $(INST_DIR)/usr/share/freeradius3/dictionary.$$$${f} $(1)/usr/share/freeradius3/ ; \
+		$(INSTALL_DATA) $(INST_DIR)/usr/share/freeradius3/dictionary.$$$${f} $(1)/usr/share/freeradius3/ ; \
 		$(SED) "s,^#\(\$$$$INCLUDE dictionary\.$$$${f}\)$$$$,\1,g" $(1)/usr/share/freeradius3/dictionary ; \
 	done
 endef
@@ -833,22 +833,22 @@ define Package/freeradius3/install
 	$(INSTALL_DIR) $(1)/etc/freeradius3/sites-enabled
 	for f in clients.conf radiusd.conf proxy.conf; do \
 		$(SED) 's/#.*$$$$//' -e '/^[[:space:]]*$$$$/d' $(PKG_INSTALL_DIR)/etc/freeradius3/$$$${f}; \
-		$(CP) $(PKG_INSTALL_DIR)/etc/freeradius3/$$$${f} $(1)/etc/freeradius3/ ; \
+		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/freeradius3/$$$${f} $(1)/etc/freeradius3/ ; \
 	done
 	for f in accounting filter; do \
 		$(SED) 's/#.*$$$$//' -e '/^[[:space:]]*$$$$/d' $(PKG_INSTALL_DIR)/etc/freeradius3/policy.d/$$$${f}; \
-		$(CP) $(PKG_INSTALL_DIR)/etc/freeradius3/policy.d/$$$${f} $(1)/etc/freeradius3/policy.d/ ; \
+		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/freeradius3/policy.d/$$$${f} $(1)/etc/freeradius3/policy.d/ ; \
 	done
 	for f in default; do \
 		$(SED) 's/#.*$$$$//' -e '/^[[:space:]]*$$$$/d' $(PKG_INSTALL_DIR)/etc/freeradius3/sites-available/$$$${f} $(PKG_INSTALL_DIR)/etc/freeradius3/sites-enabled/$$$${f}; \
-		$(CP) $(PKG_INSTALL_DIR)/etc/freeradius3/sites-available/$$$${f} $(1)/etc/freeradius3/sites-available/ ; \
-		$(CP) $(PKG_INSTALL_DIR)/etc/freeradius3/sites-enabled/$$$${f} $(1)/etc/freeradius3/sites-enabled/ ; \
+		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/freeradius3/sites-available/$$$${f} $(1)/etc/freeradius3/sites-available/ ; \
+		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/etc/freeradius3/sites-enabled/$$$${f} $(1)/etc/freeradius3/sites-enabled/ ; \
 	done
 
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/radiusd $(1)/usr/sbin/
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/radiusd.init $(1)/etc/init.d/radiusd
+	$(INSTALL_BIN_USR) ./files/radiusd.init $(1)/etc/init.d/radiusd
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/radiusd.permtab $(1)/etc/permtab.d/radiusd
 	$(INSTALL_DIR) $(1)/lib/upgrade/keep.d
@@ -857,7 +857,7 @@ endef
 
 define Package/freeradius3-democerts/install
 	$(INSTALL_DIR) $(1)/etc/freeradius3/certs
-	$(CP) \
+	$(INSTALL_DATA) \
 		$(PKG_INSTALL_DIR)/etc/freeradius3/certs/ca.pem \
 		$(PKG_INSTALL_DIR)/etc/freeradius3/certs/server.pem \
 		$(1)/etc/freeradius3/certs/
@@ -881,7 +881,7 @@ define BuildPlugin
 	for f in $(strip $(call Package/$(1)/conffiles)); do \
 		$(SED) 's/#.*$$$$$$$$//' -e '/^[[:space:]]*$$$$$$$$/d' $(PKG_INSTALL_DIR)/$$$$$$$${f}; \
 		$(INSTALL_DIR) $$(1)/$$$$$$$${f%/*} ; \
-		$(CP) $(PKG_INSTALL_DIR)/$$$$$$$${f} $$(1)/$$$$$$$${f}; \
+		$(INSTALL_DATA) $(PKG_INSTALL_DIR)/$$$$$$$${f} $$(1)/$$$$$$$${f}; \
 		alt=""; \
 		case "$$$$$$$${f}" in \
 			*/mods-available/*) \
@@ -891,7 +891,7 @@ define BuildPlugin
 		esac; \
 		if [ -n "$$$$$$$${alt}" ] && [ -f "$(PKG_INSTALL_DIR)/$$$$$$$${alt}" ]; then \
 			$(INSTALL_DIR) $$(1)/$$$$$$$${alt%/*} ; \
-			$(CP) $(PKG_INSTALL_DIR)/$$$$$$$${alt} $$(1)/$$$$$$$${alt}; \
+			$(INSTALL_DATA) $(PKG_INSTALL_DIR)/$$$$$$$${alt} $$(1)/$$$$$$$${alt}; \
 		fi \
 	done
   endef

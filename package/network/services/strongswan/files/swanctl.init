@@ -644,26 +644,51 @@ config_round() {
 	esac
 }
 
+get_passthrough() {
+	local pass_net="$1" pass_net_list=""
+
+	for ip in $pass_net; do
+		append_var "$ip" pass_net_list ","
+	done
+	echo "${pass_net_list}"
+}
+
 config_passthrough() {
-	local section="$2" passthrough_ip="$1" interface="$3"
-	iter_pass="$(($iter_pass+1))"
+	local section="$2" network_name="$1" passthrough_local passthrough_remote
+	local network network6
+	config_get passthrough_local "${conf}_c" passthrough_local ""
+	config_get passthrough_remote "${conf}_c" passthrough_remote ""
 
-	if [ "$interface" = "1" ]; then
-		network_get_subnets passthrough_ip "$1" || \
-		{ network_get_subnets passthrough_ip ${1}_4 || network_get_subnets passthrough_ip ${1}_6; }
+	if [ -n "$network_name" ]; then
+		network_get_subnets network "$network_name" || network_get_subnets network "${network_name}_4 "
+		[ "$defaultroute" = "1" ] || network_get_subnets6 network6 "$network_name" || network_get_subnets6 network6 "${network_name}_6"
+		network="$(get_passthrough "$network $network6")"
+		if [ -n "$network" ]; then
+			passthrough_local="local_ts = $network"
+			passthrough_remote="remote_ts = $network"
+		fi
+	else
+		if [ -n "$passthrough_local" ] && [ -z "$passthrough_remote" ]; then
+			passthrough_remote="dynamic"
+		elif [ -n "$passthrough_remote" ] && [ -z "$passthrough_local" ]; then
+			passthrough_local="dynamic"
+		fi
+
+		[ -n "$passthrough_local" ] && passthrough_local="local_ts = $(get_passthrough "$passthrough_local")"
+		[ -n "$passthrough_remote" ] && passthrough_remote="remote_ts = $(get_passthrough "$passthrough_remote")"
 	fi
-
-	[ -z "$passthrough_ip" ] && return
+	[ -z "$passthrough_local" ] && [ -z "$passthrough_remote" ] && return
 	swanctl_xappend1 "passthrough-$section-$iter_pass {"
 	swanctl_xappend2 "children {"
 	swanctl_xappend3 "passthrough-$section-$iter_pass {"
 	swanctl_xappend4 "mode = pass"
 	swanctl_xappend4 "start_action = route"
-	swanctl_xappend4 "local_ts = $passthrough_ip"
-	swanctl_xappend4 "remote_ts = $passthrough_ip"
+	[ -n "$passthrough_local" ] && swanctl_xappend4 "$passthrough_local"
+	[ -n "$passthrough_remote" ] && swanctl_xappend4 "$passthrough_remote"
 	swanctl_xappend3 "}"
 	swanctl_xappend2 "}"
 	swanctl_xappend1 "}"
+	iter_pass="$((iter_pass+1))"
 }
 
 config_remote() {
@@ -691,7 +716,7 @@ config_remote() {
 	local remote_ca_certs
 	local pools
 	local xauth_identity
-	local forceencaps
+	local encap passthrough_local passthrough_remote
 	local uptime_conf="${IPSEC_STATE_DIR}/uptime_$conf"
 
 	config_get_bool enabled "$conf" enabled 0
@@ -742,7 +767,8 @@ config_remote() {
 	config_get_bool defaultroute "${conf}_c" defaultroute 0
 	config_get local_sourceip "${conf}_c" local_sourceip ""
 	config_get passthrough "${conf}_c" passthrough ""
-	config_get passthrough_ip "${conf}_c" passthrough_ip ""
+	config_get passthrough_local "${conf}_c" passthrough_local ""
+	config_get passthrough_remote "${conf}_c" passthrough_remote ""
 	config_get_bool encap "${conf}_c" forceencaps 0
 
 	config_list_foreach "$conf" remote_ca_certs append_var remote_ca_certs ","
@@ -809,13 +835,13 @@ config_remote() {
 
 	swanctl_xappend0 "# config for $conf"
 
-	if [ "$defaultroute" = 1 ] || [ -n "$passthrough" ] || [ -n "$passthrough_ip" ]; then
-		local iter_pass=0
+	if [ "$defaultroute" = 1 ] || [ -n "$passthrough" ] || [ -n "$passthrough_local" ] || [ -n "$passthrough_remote" ]; then
+		local iter_pass=1
 		swanctl_xappend0 "connections {"
-		[ "$defaultroute" = 1 ] && config_passthrough "lan" "${conf}_c" "1"
-		config_list_foreach "${conf}_c" passthrough config_passthrough "${conf}_c" "1"
-		config_list_foreach "${conf}_c" passthrough_ip config_passthrough "${conf}_c"
-		iter_pass=0
+		[ "$defaultroute" = 1 ] && config_passthrough "lan" "${conf}_c"
+		config_list_foreach "${conf}_c" passthrough config_passthrough "${conf}_c"
+		config_passthrough "" "${conf}_c"
+		iter_pass=1
 		swanctl_xappend0 "}"
 		swanctl_xappend0 ""
 	fi
