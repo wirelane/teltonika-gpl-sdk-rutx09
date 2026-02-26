@@ -8,7 +8,7 @@
 		},
 		"gsm.modem*": {
 			"methods": [
-				"exec"
+				"get_adc_value"
 			]
 		}
 	},

@@ -1,3 +1,29 @@
+# 2026-02-25 00.07.21.1
+
+### Improvements
+
+* Input/Output: changed how voltage is gotten from modems ADC for TRB2M family (ID: 32306)
+
+### Fix
+
+* Mobile: fixed data connection restart loop issue for RUTM51, RUTC51, RUTM31 (ID: 32341)
+* Mobile: fixed secondary modem initialization after a restart for RUTM56, RUTM52 (ID: 32486)
+* Modbus Client: fixed missing parameters preventing testing of API-created requests in WebUI for TRB1 family, TRB2M family, TRB5 family, CAP family, OTD family (ID: 31951)
+* Site manager: fixed missing config files in SDK (ID: 32839)
+
+# 2026-02-20 00.07.21.2
+
+### Improvements
+
+* Input/Output: changed how voltage is gotten from modems ADC for TRB2M family (ID: 32306)
+
+### Fix
+
+* Mobile: fixed data connection restart loop issue for RUTM51, RUTC51, RUTM31 (ID: 32341)
+* Mobile: fixed secondary modem initialization after a restart for RUTM56, RUTM52 (ID: 32486)
+* Modbus Client: fixed missing parameters preventing testing of API-created requests in WebUI for TRB1 family, TRB2M family, TRB5 family, CAP family, OTD family (ID: 31951)
+* Site manager: fixed missing config files in SDK (ID: 32839)
+
 # 2026-02-13 00.07.21
 
 ### New

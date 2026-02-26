@@ -3,6 +3,8 @@
 . /lib/functions.sh
 . /lib/functions/system.sh
 
+CONFIG_PATH="${UCI_CONFIG_DIR:-"/etc/config"}"
+
 sms_utils_cb() {
 	config_get name "$1" "action"
 	[ "$name" = "io_set" ] || [ "$name" = "iostatus" ] && {
@@ -14,7 +16,7 @@ sms_utils_cb() {
 is_ios_enabled || {
 	/etc/init.d/ioman disable
 	[ -f "/etc/init.d/ioman_scheduler" ] && /etc/init.d/ioman_scheduler disable
-	rm -f /etc/config/ioman
+	rm -f "$CONFIG_PATH/ioman"
 
 	config_load "sms_utils"
 	config_foreach sms_utils_cb "rule"

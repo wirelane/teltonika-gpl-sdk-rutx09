@@ -88,6 +88,11 @@
 				"set_tag_value"
 			]
 		},
+		"iec60870_client.rpc": {
+			"methods": [
+				"get_tag_value"
+			]
+		},
 		"modbus_client.rpc": {
 			"methods": [
 				"get_tag_value",

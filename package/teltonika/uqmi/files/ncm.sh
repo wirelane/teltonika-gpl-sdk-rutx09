@@ -177,9 +177,11 @@ proto_ncm_setup() {
 		else
 			echo "PDP CID${pdp} already activated!"
 		fi
+	fi
 
-		echo "Starting setup data call!"
-
+	echo "Starting setup data call!"
+	
+	if ubus call "$mdm_ubus_obj" get_pdp_call {\"cid\":${pdp}} 2>&1; then
 		json_load "$(ubus call "$mdm_ubus_obj" set_pdp_call "{\"mode\":\"call_once\",\"cid\":${pdp},\"urc_en\":true}")"
 		json_get_var pdp_act status
 
