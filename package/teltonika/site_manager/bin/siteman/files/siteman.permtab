@@ -9,3 +9,4 @@
 /etc/config/siteman_wireless siteman:siteman 660
 /etc/siteman siteman:siteman 770
 /etc/siteman/certs siteman:siteman 770
+/etc/sitemanc/siteman_dhcp.sh siteman:siteman 770

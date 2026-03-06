@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=site_manager
 
-PKG_SOURCE_VERSION:=7.21-1
+PKG_SOURCE_VERSION:=7.21.2.1
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -85,6 +85,7 @@ define Package/siteman/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/siteman/files/siteman_troubleshoot.sh $(1)/lib/troubleshoot/siteman.sh
 	install -m0400 $(PKG_BUILD_DIR)/siteman/files/siteman/* $(1)/etc/siteman/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/siteman/files/cert_gen.sh $(1)/etc/siteman/cert_gen.sh
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/siteman/files/siteman_dhcp.sh $(1)/etc/siteman/siteman_dhcp.sh
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/siteman/files/siteman_acl.json $(1)/usr/share/acl.d/siteman.json
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/siteman/files/siteman.upgrade $(1)/lib/upgrade/keep.d/siteman
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/siteman/files/siteman.permtab $(1)/etc/permtab.d/siteman

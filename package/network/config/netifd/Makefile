@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=netifd
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_DATE:=2025-05-23
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>

@@ -1,17 +1,23 @@
-# 2026-02-25 00.07.21.1
+# 2026-03-03 00.07.21.2
+
+### New
+
+* Mobile: added eSIM activation through proxy server (ID: 31477)
 
 ### Improvements
 
-* Input/Output: changed how voltage is gotten from modems ADC for TRB2M family (ID: 32306)
+* Site manager: added /api/site_manager/status endpoint for TAP family (ID: 32870)
+* Site manager: added access control loss warning for Router family (ID: 32870)
+* Site manager: added configurable DHCP option for client discovery (ID: 32835)
 
 ### Fix
 
-* Mobile: fixed data connection restart loop issue for RUTM51, RUTC51, RUTM31 (ID: 32341)
-* Mobile: fixed secondary modem initialization after a restart for RUTM56, RUTM52 (ID: 32486)
-* Modbus Client: fixed missing parameters preventing testing of API-created requests in WebUI for TRB1 family, TRB2M family, TRB5 family, CAP family, OTD family (ID: 31951)
-* Site manager: fixed missing config files in SDK (ID: 32839)
+* Data to Server: fixed memory leak when using IEC 60870 5 as input and using output with custom format (ID: 33129)
+* IPsec: fixed IPsec data going through WWAN after adding WWAN hardware offload for CAP family (ID: 32771)
+* Network: fixed an edge-case network hang after device reboot (ID: 33068)
+* USB: fixed rs232 flow control, device was still sending data with cts asserted for TRB2M family (ID: 29639)
 
-# 2026-02-20 00.07.21.2
+# 2026-02-25 00.07.21.1
 
 ### Improvements
 

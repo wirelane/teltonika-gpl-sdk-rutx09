@@ -508,6 +508,15 @@ static int ch343_start_wb(struct ch343 *ch343, struct ch343_wb *wb)
 	return rc;
 }
 
+static bool ch343_tx_blocked_by_cts(struct ch343 *ch343,
+				    struct tty_struct *tty)
+{
+	if (!C_CRTSCTS(tty))
+		return false;
+
+	return !(READ_ONCE(ch343->ctrlin) & CH343_CTI_C);
+}
+
 static void ch343_update_status(struct ch343 *ch343, unsigned char *data,
 				size_t len)
 {
@@ -576,6 +585,8 @@ static void ch343_update_status(struct ch343 *ch343, unsigned char *data,
 				ch343->iocount.dcd++;
 			}
 			spin_unlock_irqrestore(&ch343->read_lock, flags);
+			if (difference & CH343_CTI_C)
+				wake_up_interruptible(&ch343->sendioctl);
 			wake_up_interruptible(&ch343->wioctl);
 		} else
 			spin_unlock_irqrestore(&ch343->read_lock, flags);
@@ -1011,6 +1022,18 @@ retry:
 		wb->use = 0;
 		spin_unlock_irqrestore(&ch343->write_lock, flags);
 		return -ENODEV;
+	}
+
+	if (ch343_tx_blocked_by_cts(ch343, tty)) {
+		wb->use = 0;
+		spin_unlock_irqrestore(&ch343->write_lock, flags);
+		timeout = wait_event_interruptible_timeout(
+			ch343->sendioctl,
+			!ch343_tx_blocked_by_cts(ch343, tty),
+			msecs_to_jiffies(DEFAULT_TIMEOUT));
+		if (timeout <= 0)
+			return -ETIMEDOUT;
+		goto retry;
 	}
 
 	count = (count > ch343->writesize) ? ch343->writesize : count;

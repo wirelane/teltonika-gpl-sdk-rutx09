@@ -11,17 +11,6 @@
     "title": "Services",
     "index": 30
   },
-  "site_manager": {
-    "title": "Site Manager",
-    "index": 40,
-    "depends": {
-      "packages": {
-        "allOf": [
-          "siteman"
-        ]
-      }
-    }
-  },
   "system": {
     "title": "System",
     "index": 50

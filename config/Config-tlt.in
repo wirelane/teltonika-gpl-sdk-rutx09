@@ -2479,6 +2479,7 @@ config SITE_MANAGER_CLIENT_SUPPORT
 	maintainer "Apps/Apps1"
 	default y if AP_DEVICE
 	default n
+	imply PACKAGE_vuci-app-site-manager-client-api
 	imply PACKAGE_siteman_client
 
 endmenu

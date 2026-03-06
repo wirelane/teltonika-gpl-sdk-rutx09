@@ -3,6 +3,7 @@
 START=20
 USE_PROCD=1
 SSH_KEY=/etc/siteman/certs/id_dropbear
+SITEMAN_DHCP_SH="/etc/siteman/siteman_dhcp.sh"
 
 config_load siteman
 
@@ -55,6 +56,8 @@ start_service() {
 	config_get enabled general enabled 0
 	[ "$enabled" = "1" ] || return
 
+	"$SITEMAN_DHCP_SH" add
+
 	start_mqtt_broker
 	[ -e "$SSH_KEY" ] || {
 		dropbearkey -t ed25519 -f $SSH_KEY &>/dev/null
@@ -81,6 +84,10 @@ start_service() {
 	procd_close_instance
 }
 
+stop_service() {
+	"$SITEMAN_DHCP_SH" remove
+}
+
 add_config_update_trigger() {
 	local sec="$1"
 	local config
@@ -88,6 +95,9 @@ add_config_update_trigger() {
 	config_get config $sec config || return
 	procd_add_config_trigger "config.change" "$config" \
 			ubus call site_manager.track update "$(printf '{"config":"%s"}' $config)"
+
+	procd_add_config_trigger "config.change" "siteman" \
+			/etc/siteman/siteman_dhcp.sh update
 }
 
 add_reload_trigger() {
