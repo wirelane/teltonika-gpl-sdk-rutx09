@@ -1,6 +1,11 @@
 [
   {
     "category": "System",
+    "name": "Reset Settings",
+    "depends": []
+  },
+  {
+    "category": "System",
     "name": "Site manager",
     "depends": []
   },

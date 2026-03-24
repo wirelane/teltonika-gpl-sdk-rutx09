@@ -105,7 +105,7 @@ TOPDIR=$(realpath "$(dirname "${BASH_SOURCE[0]}")/..")
 	exit 0
 }
 
-TAG=${CI_COMMIT_TAG:-$(git describe | awk -F "-pm" '{print $1}')}
+TAG=${CI_COMMIT_TAG:-$(git describe | awk -F "-pm" '{print $1}')-$(git -C "$TOPDIR/feeds/vuci" rev-parse --short HEAD)}
 CLIENT=$(grep 'CONFIG_TLT_VERSIONING_CLIENT' .config | cut -d'=' -f2 | tr -d '"')
 HASH=$(echo -n "${CLIENT}/${TAG}/${PLATFORM}" | sha256sum | awk '{print $1}')
 FOLDER="$PACKAGES_ROOT/${HASH}"

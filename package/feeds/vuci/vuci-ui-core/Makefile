@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2026-02-27-22d9017a694
+PKG_VERSION:=2026-03-18-2ebcfeb7ac4
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 

@@ -1,3 +1,11 @@
+# 2026-03-20 00.07.21.3
+
+### Fix
+
+* Backup: fixed eSIM interface generation after uploading a backup (ID: 33762)
+* Reset Settings: fixed reset not responding (ID: 33322)
+* Wireless: fixed occasional client disconnections in busy environment for RUTX family (ID: 31817)
+
 # 2026-03-03 00.07.21.2
 
 ### New
