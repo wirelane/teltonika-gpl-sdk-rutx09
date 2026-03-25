@@ -4,7 +4,7 @@ APP_TITLE:=VuCI UI Support for VXLAN
 
 APP_DEPENDS=+vuci-app-network-devices-ui
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-vxlan-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-vxlan-ui))$(DUMP))
 	APP_APP_NAME:=vxlan
 	APP_TLT_NAME:=VXLAN
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

@@ -300,7 +300,12 @@ proto_ncm_setup() {
 			}
 
 		else
-			setup_dhcp_v4 "$ifname"
+			soc=$(jsonfilter -s "$(ubus call $mdm_ubus_obj info)" -e '@.soc')
+			use_bcast_dhcp_discover="1"
+			[ "$soc" = "asr" ] && {
+				use_bcast_dhcp_discover="0"
+			}
+			setup_dhcp_v4 "$ifname" "$use_bcast_dhcp_discover"
 		fi
 
 		json_init

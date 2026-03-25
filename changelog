@@ -1,42 +1,143 @@
-# 2026-03-20 00.07.21.3
-
-### Fix
-
-* Backup: fixed eSIM interface generation after uploading a backup (ID: 33762)
-* Reset Settings: fixed reset not responding (ID: 33322)
-* Wireless: fixed occasional client disconnections in busy environment for RUTX family (ID: 31817)
-
-# 2026-03-03 00.07.21.2
+# 2026-03-19 00.07.22
 
 ### New
 
-* Mobile: added eSIM activation through proxy server (ID: 31477)
+* Data to Server: added webui option to toggle server certificate verification (ID: 31543)
+* DMVPN: added support for DMVPN configuration on GRE tunnels with IPv6 addressing (ID: 28337)
+* Events reporting: removed web user interface support (ID: 28943)
+* I/O Juggler: removed web user interface support (ID: 28943)
+* IEC 60870-5 Client: added 101 serial connection type support (ID: 27669)
+* Integrity: added functionality to verify file system integrity (ID: 31691)
+* SMCroute: added support (ID: 31425)
+* SNMP: added SNMP V3 users additional authentication types (ID: 32177)
+* Topology: added topology support (ID: 32510)
+* WebUI: added Polish language support (ID: 28563)
 
 ### Improvements
 
-* Site manager: added /api/site_manager/status endpoint for TAP family (ID: 32870)
-* Site manager: added access control loss warning for Router family (ID: 32870)
-* Site manager: added configurable DHCP option for client discovery (ID: 32835)
+* Access Control: added SSH, telnet and WebUI session termination support (ID: 31665)
+* Auto Reply: added "Signal quality" parameter support (ID: 31931)
+* AWS IoT Core: added TPM support (ID: 31130)
+* Azure IoT Hub: added TPM support (ID: 31130)
+* Backup: improved backup to use API endpoints (ID: 15471)
+* BGP: added IPv6 support (ID: 28337)
+* BGP: moved instance naming into edit modals (ID: 31417)
+* Data to Server: added data compression (ID: 21093)
+* Data to Server: added TPM support (ID: 31130)
+* DHCP server: added new DHCPv4 error status when parent interface has no IPv4 address (ID: 28352)
+* DHCP server: added support for configuring multiple DHCP relay instances (ID: 27988)
+* Docker: added "Data directory" option (ID: 27943)
+* Dynamic routes: added mutual redirects between route status and dynamic route pages (ID: 23842)
+* Dynamic routes: improved display of OSPF routes (ID: 24177)
+* Dynamic routes: moved instance naming into edit modals for RIP (ID: 32317)
+* EoIP: added 'MTU' option (ID: 29209)
+* Event juggler: added "Signal quality" parameter support in output actions (ID: 31931)
+* Event juggler: added HTTP URL scheme appendage if it is not defined in HTTP action (ID: 25550)
+* Event juggler: added TPM support (ID: 31130)
+* Firewall: improved performance across all firewall pages (ID: 31261)
+* Hotspot: reworked hotspot service (ID: 13559)
+* I/O Scheduler: removed ordinal suffixes from "From" and "To" table columns to improve localization (ID: 31672)
+* IEC 60870-5 Client: added universal gateway support (ID: 31891)
+* IEC 60870-5 Client: improved Information Objects tab usability and editing (ID: 28109)
+* IEC 60870-5 Server: added universal gateway support (ID: 31890)
+* IPsec: added additional proposal options (ID: 20211)
+* IPsec: added automatic default route handling for route based IPsec (ID: 31341)
+* IPsec: removed duplicate proposals (ID: 22159)
+* L2TPv3: improved "Cookie" and "Peer cookie" validation (ID: 8873)
+* Ledman: updated signal strength LED algorithm to use new value (ID: 31912)
+* Mobile Utilities: added "Signal quality" parameter support in status message (ID: 31931)
+* Mobile: added a general signal quality metric, calculated from a combination of various mobile signal metrics (ID: 26455)
+* Mobile: improved DHCP lease renewal for OTD140, OTD164, RUT200, RUT204, RUT206, RUT241, RUT260, RUT901, RUT906, RUT951, TRB142, TRB236 (ID: 32513)
+* Modbus Client: added "Signal quality" parameter support in MQTT and Email actions (ID: 31931)
+* Modbus TCP over Serial Gateway: added function 43-14 (Read Device Identification) support (ID: 31695)
+* MQTT Broker Bridge: added TPM support (ID: 31130)
+* MQTT Broker: added certificate key length validation (ID: 29465)
+* MQTT Broker: added TPM support (ID: 31130)
+* MQTT Publisher: added TPM support (ID: 31130)
+* Network usage: added mutual redirects between "Connections" and "Network Usage" pages (ID: 28350)
+* OpenVPN: added 'Gateway IP address' option for bridged devices for Router family, TAP200 (ID: 22547)
+* OpenVPN: improved server configuration when using a TAP device for Router family, TAP200 (ID: 22547)
+* Port Mirroring: added support for multiple mirror source ports (ID: 31389)
+* Ports Settings: added warning of enabled 802.1X ports (ID: 29190)
+* PPTP: added client/server status information (ID: 31981)
+* Python3: reduced package size by removing the "pydoc" module (ID: 33401)
+* Python3: reduced the Python package size by removing the python-unittest module (ID: 31602)
+* RMS: updated the Connection Type field hint to reflect the current device connection frequency (ID: 31206)
+* SMPP: added TPM support (ID: 31130)
+* SNMP: added an option that makes ifIndex values persistent (ID: 31763)
+* Speed Test: implemented filters and sorting for the servers table (ID: 32175)
+* Starlink: added retrieval of location information (ID: 29682)
+* Tailscale: added memory usage limitation option (ID: 31895)
+* TR-069: added Device.Cellular object based on "TR-181 Issue 2 Amendment 20", with implementation-specific deviations (ID: 29314)
+* TR-069: added input validations in set methods for nodes with read-write permissions (ID: 24523)
+* TR-069: added TPM support (ID: 31130)
+* TR-069: added TR-143 based on "Issue 1 Amendment 1", with implementation-specific deviations (ID: 29314)
+* TR-069: improved Device.DHCPv4 object based on "TR-181 Issue 2 Amendment 20", with implementation-specific deviations (ID: 29314)
+* Traffic Logging: added FTPS support for log uploading (ID: 28914)
+* Traffic Logging: added SFTP support for log uploading (with key support) (ID: 28914)
+* Wireless: enabled "Forward mesh peer traffic" by default on new mesh network (ID: 19375)
 
 ### Fix
 
-* Data to Server: fixed memory leak when using IEC 60870 5 as input and using output with custom format (ID: 33129)
-* IPsec: fixed IPsec data going through WWAN after adding WWAN hardware offload for CAP family (ID: 32771)
-* Network: fixed an edge-case network hang after device reboot (ID: 33068)
-* USB: fixed rs232 flow control, device was still sending data with cts asserted for TRB2M family (ID: 29639)
+* BACnet: fixed BBMD interface being immediately highlighted in red (ID: 22847)
+* BGP: fixed how neighborship is displayed for BGP when VRF is used (ID: 28541)
+* Bluetooth: fixed bluetooth tables to use bulk actions (ID: 24948)
+* Call Utilities: fixed "Switch WiFi on/off" action execution (ID: 32503)
+* DHCP server: fixed DHCPv4 configuration page bug when parent interface has no IPv4 address (ID: 28352)
+* DLNA: fixed interface selection not showing WLAN interfaces that are not in any bridge (ID: 31684)
+* Email to SMS: fixed email deletion in some rare cases (ID: 31585)
+* EoIP: fixed issues with EoIP over L2TP configuration (ID: 29209)
+* Hotspot: fixed inconsistent session logout after disconnecting from wireless (ID: 23287)
+* IEC 60870-5 Client: fixed an issue where negative ASDU response results in a timeout (ID: 33008)
+* IEC 60870-5 Server: fixed flow control component placement to follow dependency order (ID: 31614)
+* IEC 60870-5 Server: fixed server network not restarting after disabling “Allow remote access” when “Cyclic transmissions” are enabled (ID: 31254)
+* IPsec: fixed display of "Enable XAUTH" switch (ID: 32170)
+* IPsec: fixed IKEv1 allowing unsupported proposals (ID: 22714)
+* IPsec: fixed incorrectly applied offloading bypass rules (ID: 28594)
+* Memory Expansion: fixed preserving system configuration when updating the firmware with USB memory expansion enabled for RUTC family (ID: 31810)
+* Mobile Utilities: fixed SMS Utilities user defaults restoration rule for RUTE family (ID: 33134)
+* Mobile: fixed DHCP lease renewal for RUT261 (ID: 32513)
+* Mobile: fixed incorrect band names when viewing hourly mobile signal data while connected to 5G-NSA for ATRM50, OTD500, OTD501, RUTC50, RUTC51, RUTM30, RUTM31, RUTM50, RUTM51, RUTM52, RUTM56, RUTX50, TRB5 family (ID: 32045)
+* Mobile: fixed incorrect bandwidth parsing on 5G SA network for CAP700 (ID: 32168)
+* Mobile: fixed possible failure when downloading eSIM profile for TRB247 (ID: 31859)
+* Mobile: fixed serving cell RSSI calculation on 5G SA networks for CAP700 (ID: 32077)
+* Modbus Client: fixed service being launched without any requests to send (ID: 31482)
+* Modem Control: fixed devices that support CSD not being able to access CSD options (ID: 31871)
+* Network: fixed MAC address override not applying after reboot for RUTX family (ID: 32079)
+* NTP: fixed the NTP server due to invalid packet headers (ID: 32659)
+* NTRIP: fixed issue where status fields were flashing stale data (ID: 31825)
+* OpenVPN: fixed learn-address routing to handle IPv4/IPv6 for Router family, TAP200 (ID: 31954)
+* OSPF: fixed firewall rule creation (ID: 23234)
+* Package Manager: fixed IPTables NAT Extras package not migrating when updating from RutOS 7.12 (ID: 32395)
+* PAM: fixed TACACS+ WebUI remote host parameter (ID: 32329)
+* SMS Utilities: fixed "Switch WiFi on/off" action execution (ID: 32503)
+* SNMP: fixed Event type Topology change Trap (ID: 22454)
+* SNMP: fixed port-based VLAN VID display (ID: 28047)
+* SNMP: fixed setting incorrect firewall rule family option (ID: 29118)
+* Topology: fixed lock functionality on touchscreen devices (ID: 28650)
+* Troubleshoot: fixed duplicate devices listed in the TCP dump configuration (ID: 29420)
+* VLAN: fixed port based VLAN being incorrectly reported as an available feature for CAP700 (ID: 32264)
+* Wireless: added an API error when multiple scans are performed at the same time (ID: 29491)
 
-# 2026-02-25 00.07.21.1
+### CVE Patches
 
-### Improvements
+* CVE-2025-11961 - 1.9 (LOW) for Router family (ID: 31775)
+* CVE-2025-12084 - 6.3 (MEDIUM) (ID: 31690)
+* CVE-2025-13836 - 9.1 (CRITICAL) (ID: 31784)
+* CVE-2025-64329 - 6.9 (MEDIUM) for RUTC family, RUTP family (ID: 31787)
 
-* Input/Output: changed how voltage is gotten from modems ADC for TRB2M family (ID: 32306)
+### Updates
 
-### Fix
-
-* Mobile: fixed data connection restart loop issue for RUTM51, RUTC51, RUTM31 (ID: 32341)
-* Mobile: fixed secondary modem initialization after a restart for RUTM56, RUTM52 (ID: 32486)
-* Modbus Client: fixed missing parameters preventing testing of API-created requests in WebUI for TRB1 family, TRB2M family, TRB5 family, CAP family, OTD family (ID: 31951)
-* Site manager: fixed missing config files in SDK (ID: 32839)
+* cURL: updated version to  8.18.0 (ID: 32120)
+* EmailRelay: updated version to  2.5.2 (ID: 31641)
+* FRR: updated version to  10.2.1 (ID: 28337)
+* glib2: updated version to  2.87.1 (ID: 32624)
+* libmodbus: updated version to  v3.1.11 (ID: 26125)
+* openssl: updated version to  3.0.19 (ID: 32396)
+* OpenVPN: updated version to  2.6.17 for Router family, TAP200 (ID: 31407)
+* ovpn-dco: updated version to  0.2.20251017 for Router family, TAP200 (ID: 31407)
+* Tailscale: updated version to  1.92.3 (ID: 31693)
+* wireless-regdb: updated version to  2026.02.04 (ID: 32399)
 
 # 2026-02-13 00.07.21
 
@@ -180,6 +281,38 @@
 * Kernel: updated version to  6.6.115 for RUTC family, RUTP family, TAP400 (ID: 29492)
 * Kernel: updated version to  6.6.119 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200, TAP400, OTD164, RUTC family, RUTP family (ID: 7140)
 * Netifd: updated version to  2025-05-23 (ID: 29536)
+
+# 2026-02-06 00.07.20.5
+
+### New
+
+* RutOS: added support for new Quectel EG060K modem for RUT260 (ID: 32416)
+
+# 2026-02-03 00.07.20.4
+
+### Fix
+
+* GPS: fixed an issue causing GNSS not to start after device restart for RUT986, RUTC40 (ID: 32174)
+* IEC 60870-5 Client: fixed IEC 60870 client unable to create new configurations (ID: 32040)
+* Mobile: fixed an issue where an incorrect USB port was used after modem attach for RUT986, RUTC40 (ID: 32174)
+
+# 2026-01-19 00.07.20.3
+
+### Fix
+
+* Data to Server: fixed IEC 60870 data sender plugin failing to load (ID: 32040)
+
+# 2026-01-06 00.07.20.2
+
+### Fix
+
+* Mobile: fixed a segmentation fault that occurred when the modem returned an unknown serving cell state for RUTM51 (ID: 31556)
+
+# 2025-12-18 00.07.20.1
+
+### Fix
+
+* Boot: fixed WAN ethernet led behaviour during boot on devices with specific hardware version for RUTX09 (ID: 31475)
 
 # 2025-12-10 00.07.20
 

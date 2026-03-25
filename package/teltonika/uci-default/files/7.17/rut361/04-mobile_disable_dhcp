@@ -6,12 +6,12 @@ disable_mobile_dhcp() {
     local section="$1"
 
     config_get modem "$section" modem
-    [ -n "$modem" ] && uci set network."$section".dhcp='0'
+    [ -n "$modem" ] && uci_set "network" "$section" "dhcp" "0"
 }
 
 config_load network
 config_foreach disable_mobile_dhcp interface
 
-uci commit network
+uci_commit network
 
 exit 0

@@ -45,7 +45,7 @@ define Package/ntpclient/install
 	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/hotplug.d/iface $(1)/etc/hotplug.d/net \
 			$(1)/etc/config $(1)/usr/sbin $(1)/usr/share/acl.d
 
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/ntpclient.hotplug $(1)/etc/hotplug.d/iface/20-ntpclient
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/ntpclient.hotplug $(1)/etc/hotplug.d/iface/20-ntpclient
 
 	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/ntpclient.init $(1)/etc/init.d/ntpclient
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/ntpclient.config $(1)/etc/config/ntpclient

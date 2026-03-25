@@ -308,7 +308,7 @@ static void
 ar40xx_set_mirror_regs(struct ar40xx_priv *priv)
 {
 	int port;
-
+	bool need_mirroring = false;
 	/* reset all mirror registers */
 	ar40xx_rmw(priv, AR40XX_REG_FWD_CTRL0,
 		   AR40XX_FWD_CTRL0_MIRROR_PORT,
@@ -321,24 +321,38 @@ ar40xx_set_mirror_regs(struct ar40xx_priv *priv)
 			   AR40XX_PORT_HOL_CTRL1_EG_MIRROR_EN, 0);
 	}
 
-	/* now enable mirroring if necessary */
-	if (priv->source_port >= AR40XX_NUM_PORTS ||
-	    priv->monitor_port >= AR40XX_NUM_PORTS ||
-	    priv->source_port == priv->monitor_port) {
-		return;
+	/* check if it is necessary to enable mirroring */
+	for (int i = 0; i < AR40XX_NUM_PORTS; i++) {
+		if (i == priv->monitor_port || !priv->port_is_mirror_source[i])
+			continue;
+		need_mirroring = true;
+		break;
 	}
+
+	if (!need_mirroring || priv->monitor_port >= AR40XX_NUM_PORTS)
+		return;
 
 	ar40xx_rmw(priv, AR40XX_REG_FWD_CTRL0,
 		   AR40XX_FWD_CTRL0_MIRROR_PORT,
 		   (priv->monitor_port << AR40XX_FWD_CTRL0_MIRROR_PORT_S));
 
-	if (priv->mirror_rx)
-		ar40xx_rmw(priv, AR40XX_REG_PORT_LOOKUP(priv->source_port), 0,
-			   AR40XX_PORT_LOOKUP_ING_MIRROR_EN);
+	if (priv->mirror_rx) {
+		for (int i = 0; i < AR40XX_NUM_PORTS; i++) {
+			if (i == priv->monitor_port || !priv->port_is_mirror_source[i])
+				continue;
+			ar40xx_rmw(priv, AR40XX_REG_PORT_LOOKUP(i), 0,
+					AR40XX_PORT_LOOKUP_ING_MIRROR_EN);
+		}
+	}
 
-	if (priv->mirror_tx)
-		ar40xx_rmw(priv, AR40XX_REG_PORT_HOL_CTRL1(priv->source_port),
-			   0, AR40XX_PORT_HOL_CTRL1_EG_MIRROR_EN);
+	if (priv->mirror_tx){
+		for (int i = 0; i < AR40XX_NUM_PORTS; i++) {
+			if (i == priv->monitor_port || !priv->port_is_mirror_source[i])
+				continue;
+			ar40xx_rmw(priv, AR40XX_REG_PORT_HOL_CTRL1(i),
+					0, AR40XX_PORT_HOL_CTRL1_EG_MIRROR_EN);
+		}
+	}
 }
 
 static int
@@ -609,9 +623,17 @@ ar40xx_sw_set_mirror_source_port(struct switch_dev *dev,
 				 struct switch_val *val)
 {
 	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
-
+	struct switch_port *ports = val->value.ports;
+	for (int i = 0; i < val->len; i++) {
+		u32 port = ports[i].id;
+		if (port >= AR40XX_NUM_PORTS)
+			return -EINVAL;
+	}
 	mutex_lock(&priv->reg_mutex);
-	priv->source_port = val->value.i;
+	for (int i = 0; i < AR40XX_NUM_PORTS; i++)
+		priv->port_is_mirror_source[i] = false;
+	for (int i = 0; i < val->len; i++)
+		priv->port_is_mirror_source[ports[i].id] = true;
 	ar40xx_set_mirror_regs(priv);
 	mutex_unlock(&priv->reg_mutex);
 
@@ -624,9 +646,12 @@ ar40xx_sw_get_mirror_source_port(struct switch_dev *dev,
 				 struct switch_val *val)
 {
 	struct ar40xx_priv *priv = swdev_to_ar40xx(dev);
-
+	val->len = 0;
 	mutex_lock(&priv->reg_mutex);
-	val->value.i = priv->source_port;
+	for (int i = 0; i < AR40XX_NUM_PORTS; i++) {
+		if (priv->port_is_mirror_source[i])
+			val->value.ports[val->len++].id = i;
+	}
 	mutex_unlock(&priv->reg_mutex);
 	return 0;
 }
@@ -1754,12 +1779,11 @@ static const struct switch_attr ar40xx_sw_attr_globals[] = {
 		.max = AR40XX_NUM_PORTS - 1
 	},
 	{
-		.type = SWITCH_TYPE_INT,
+		.type = SWITCH_TYPE_PORTS,
 		.name = "mirror_source_port",
 		.description = "Mirror source port",
 		.set = ar40xx_sw_set_mirror_source_port,
 		.get = ar40xx_sw_get_mirror_source_port,
-		.max = AR40XX_NUM_PORTS - 1
 	},
 	{
 		.type = SWITCH_TYPE_NOVAL,
@@ -2695,7 +2719,8 @@ ar40xx_sw_reset_switch(struct switch_dev *dev)
 
 	priv->mirror_rx = false;
 	priv->mirror_tx = false;
-	priv->source_port = 0;
+	for (int i = 0; i < AR40XX_NUM_PORTS; i++)
+		priv->port_is_mirror_source[i] = false;
 	priv->monitor_port = 0;
 
 	mutex_unlock(&priv->reg_mutex);

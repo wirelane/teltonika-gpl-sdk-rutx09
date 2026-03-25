@@ -27,7 +27,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/lib/lua/vuci; \
 	$(INSTALL_BIN) $$$$files_dir/usr/lib/lua/vuci/ds_update_list.lua $(1)/usr/lib/lua/vuci/ds_update_list.lua; \
 	$(CP) $$$$files_dir/usr/share/rpcd/acl.d/datasender.json $(1)/usr/share/rpcd/acl.d/datasender.json; \
-	$(foreach file,data_sender_collections data_sender_inputs data_sender_outputs data_sender_format data_sender_encoder data_sender_utils, \
+	$(foreach file,data_sender_collections data_sender_inputs data_sender_outputs data_sender_format data_sender_encoder data_sender_utils data_sender_compression, \
 	  $(call ModuleInstallLuaFile,$(file),,$(1),$$$$files_dir) \
 	)
 endef
@@ -101,7 +101,7 @@ define Package/vuci-app-data-sender-api-mod-advanced
     SUBMENU:=Applications/API
     TITLE:=Vuci Advanced Data to Server API modules
     DEPENDS:=+data-sender-mod-ftp +data-sender-mod-lua-out +data-sender-mod-smtp +data-sender-mod-socket +MOBILE_SUPPORT:data-sender-mod-sms-in +MOBILE_SUPPORT:data-sender-mod-sms-out +GPS_SUPPORT:data-sender-mod-gps +IO_SUPPORT:data-sender-mod-io
-	ifeq (m, $(CONFIG_PACKAGE_vuci-app-data-sender-api-mod-advanced))
+	ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-data-sender-api-mod-advanced))$(DUMP))
 		PKG_TLT_NAME:=Advanced Data to Server Modules
 		PKG_ROUTER:=$(TLT_PLATFORM_NAME)
 		PKG_APP_NAME:=data-sender-mod-advanced

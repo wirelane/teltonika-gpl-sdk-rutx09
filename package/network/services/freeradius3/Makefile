@@ -74,7 +74,7 @@ define Package/freeradius3
     +freeradius3-mod-mschap
   TITLE:=A flexible RADIUS server (version 3)
   USERID:=radiusd=595:radiusd=595
-  ifeq (m, $(CONFIG_PACKAGE_freeradius3))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_freeradius3))$(DUMP))
     PKG_TLT_NAME:=FreeRADIUS
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif

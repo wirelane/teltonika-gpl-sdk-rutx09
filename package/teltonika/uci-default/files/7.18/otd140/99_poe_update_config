@@ -7,14 +7,14 @@ CFG="poe"
 update_port() {
 	local sec="$1"
 	[ "$(uci_get "$CFG" "$sec" name)" = "lan2" ] && uci_set "$CFG" "$sec" "name" "_lan1"
-	uci set "$CFG"."$sec"=port
+	uci_add "$CFG" "port" "$sec"
 }
 
 update_chip() {
 	local sec="$1"
 	[ "$(uci_get "$CFG" "$sec" chan0)" = "lan2" ] && uci_set "$CFG" "$sec" "chan0" "_lan1"
 	[ "$(uci_get "$CFG" "$sec" chan1)" = "lan2" ] && uci_set "$CFG" "$sec" "chan1" "_lan1"
-	uci set "$CFG"."$sec"=chip
+	uci_add "$CFG" "chip" "$sec"
 }
 
 config_load "$CFG"

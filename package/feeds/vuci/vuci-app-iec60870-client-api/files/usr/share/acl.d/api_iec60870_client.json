@@ -1,1 +1,1 @@
-{"user":"uhttpd","access":{"iec60870_client*":{"methods":["status","test","scan"]}}}
+{"user":"uhttpd","access":{"iec60870_client*":{"methods":["status","test","scan","get_tags","get_tag_values"]}}}

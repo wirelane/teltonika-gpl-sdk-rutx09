@@ -57,7 +57,7 @@ function Template.__init__(self, name, template)
 		local sourcefile
 
 		if name then
-			sourcefile = name .. ".htm"
+			sourcefile = name
 			self.template, _, err = tparser.parse(sourcefile)
 		else
 			sourcefile = "[string]"

@@ -15,7 +15,7 @@ PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/packages
 SCAN_DEPS=modules/*.mk $(TOPDIR)/target/linux/*/modules.mk $(TOPDIR)/include/netfilter.mk
 
 PKG_LICENSE:=GPL-2.0-only
-PKG_LICENSE_FILES:=COPYING
+PKG_LICENSE_FILES:=GPL-2.0
 
 export SHELL:=/bin/sh
 .ONESHELL:

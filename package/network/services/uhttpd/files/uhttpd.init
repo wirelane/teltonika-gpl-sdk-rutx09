@@ -8,10 +8,10 @@ USE_PROCD=1
 UHTTPD_BIN="/usr/sbin/uhttpd"
 OPENSSL_BIN="/usr/bin/openssl"
 
-DEFAULT_UHTTPD_CERT="/etc/uhttpd.crt"
-DEFAULT_UHTTPD_KEY="/etc/uhttpd.key"
-DEFAULT_UHTTPD_CA_CERT="/etc/uhttpd-ca.crt"
-DEFAULT_UHTTPD_CA_KEY="/etc/uhttpd-ca.key"
+DEFAULT_UHTTPD_CERT="/etc/certificates/uhttpd.crt"
+DEFAULT_UHTTPD_KEY="/etc/certificates/uhttpd.key"
+DEFAULT_UHTTPD_CA_CERT="/etc/certificates/uhttpd-ca.crt"
+DEFAULT_UHTTPD_CA_KEY="/etc/certificates/uhttpd-ca.key"
 
 append_arg() {
 	local cfg="$1"
@@ -91,6 +91,7 @@ start_instance()
 		fi
 	}
 	append_arg "$cfg" ubus_prefix "-u"
+	append_arg "$cfg" cli_prefix "-w"
 	append_arg "$cfg" ubus_socket "-U"
 	append_bool "$cfg" ubus_cors "-X" 0
 	append_arg "$cfg" script_timeout "-t"

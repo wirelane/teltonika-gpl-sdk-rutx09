@@ -14,41 +14,39 @@ handle_io_tavl() {
 	local section="$1"
 	local type="$2"
 	local migrate_sec="$3"
-	local tavl_sec
 
 	config_get direction "$section" "direction"
 
 	[ "$type" = "$GPIO_TYPE" ] && [ -z "$direction" ] || [ "$direction" = "out" ] && return
 
-	tavl_sec=$(uci add "$GPS_CONF" "$migrate_sec")
+	uci_add "$GPS_CONF" "$migrate_sec"
 	case "$section" in
 		din1 | dio0)
-			uci_set "$GPS_CONF" "$tavl_sec" "enabled" "$send_digital_input1"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "$send_digital_input1"
 		;;
 		din2 | dio1)
-			uci_set "$GPS_CONF" "$tavl_sec" "enabled" "$send_digital_input2"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "$send_digital_input2"
 		;;
 		din3 | dio2 | iio)
-			uci_set "$GPS_CONF" "$tavl_sec" "enabled" "$send_digital_input3"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "$send_digital_input3"
 		;;
 		adc0)
-			uci_set "$GPS_CONF" "$tavl_sec" "enabled" "$send_analog_input"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "$send_analog_input"
 		;;
 		acl0)
-			uci_set "$GPS_CONF" "$tavl_sec" "enabled" "0"
-			uci_set "$GPS_CONF" "$tavl_sec" "acl" "current"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "0"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "acl" "current"
 		;;
 		*)
-			uci_set "$GPS_CONF" "$tavl_sec" "enabled" "0"
+			uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "0"
 	esac
-	uci_set "$GPS_CONF" "$tavl_sec" "type" "$type"
-	uci_set "$GPS_CONF" "$tavl_sec" "name" "$section"
+	uci_set "$GPS_CONF" "$CONFIG_SECTION" "type" "$type"
+	uci_set "$GPS_CONF" "$CONFIG_SECTION" "name" "$section"
 }
 
 convert_tavl() {
 	local section="$1"
 	local migrate_sec="$2"
-	local tavl_sec
 
 	config_get send_gsm_signal "$section" "send_gsm_signal" "0"
 	config_get send_digital_input1 "$section" "send_digital_input1" "0"
@@ -56,10 +54,10 @@ convert_tavl() {
 	config_get send_digital_input3 "$section" "send_digital_input3" "0"
 	config_get send_analog_input "$section" "send_analog_input" "0"
 
-	tavl_sec=$(uci add "$GPS_CONF" "$migrate_sec")
-	uci_set "$GPS_CONF" "$tavl_sec" "enabled" "$send_gsm_signal"
-	uci_set "$GPS_CONF" "$tavl_sec" "type" "$GSM_TYPE"
-	uci_set "$GPS_CONF" "$tavl_sec" "name" "signal"
+	uci_add "$GPS_CONF" "$migrate_sec"
+	uci_set "$GPS_CONF" "$CONFIG_SECTION" "enabled" "$send_gsm_signal"
+	uci_set "$GPS_CONF" "$CONFIG_SECTION" "type" "$GSM_TYPE"
+	uci_set "$GPS_CONF" "$CONFIG_SECTION" "name" "signal"
 
 	config_load "$IOMAN_CONF" || exit 0
 	config_foreach handle_io_tavl "$GPIO_TYPE" "$GPIO_TYPE" "$migrate_sec"
@@ -71,7 +69,6 @@ convert_tavl() {
 move_avl_rules_to_avl_config() {
 	local section="$1"
 	local section_name="$2"
-	local sec
 
 	if [ "$section" = "avl" ]; then
 		config_get enabled "$section" "enabled" "0"
@@ -123,18 +120,18 @@ move_avl_rules_to_avl_config() {
 		config_get io_type "$section" "io_type" ""
 		config_get io_name "$section" "io_name" ""
 
-		sec=$(uci add "$AVL_CONF" "avl_rule")
-		uci_set "$AVL_CONF" "$sec" "enabled" "$enabled"
-		uci_set "$AVL_CONF" "$sec" "priority" "$priority"
-		uci_set "$AVL_CONF" "$sec" "distance" "$distance"
-		uci_set "$AVL_CONF" "$sec" "collect_period" "$collect_period"
-		uci_set "$AVL_CONF" "$sec" "angle" "$angle"
-		uci_set "$AVL_CONF" "$sec" "saved_records" "$saved_records"
-		uci_set "$AVL_CONF" "$sec" "send_period" "$send_period"
-		uci_set "$AVL_CONF" "$sec" "wan_status" "$wan_status"
-		uci_set "$AVL_CONF" "$sec" "din_status" "$din_status"
-		uci_set "$AVL_CONF" "$sec" "io_type" "$io_type"
-		uci_set "$AVL_CONF" "$sec" "io_name" "$io_name"
+		uci_add "$AVL_CONF" "avl_rule"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "enabled" "$enabled"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "priority" "$priority"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "distance" "$distance"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "collect_period" "$collect_period"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "angle" "$angle"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "saved_records" "$saved_records"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "send_period" "$send_period"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "wan_status" "$wan_status"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "din_status" "$din_status"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "io_type" "$io_type"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "io_name" "$io_name"
 
 		uci_remove "$GPS_CONF" "$section"
 
@@ -143,13 +140,13 @@ move_avl_rules_to_avl_config() {
 		config_get type "$section" "type" ""
 		config_get name "$section" "name" ""
 
-		sec=$(uci add "$AVL_CONF" "tavl_rule")
-		uci_set "$AVL_CONF" "$sec" "enabled" "$enabled"
-		uci_set "$AVL_CONF" "$sec" "type" "$type"
-		uci_set "$AVL_CONF" "$sec" "name" "$name"
+		uci_add "$AVL_CONF" "tavl_rule"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "enabled" "$enabled"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "type" "$type"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "name" "$name"
 
 		if [ "$type" = "acl" ]; then
-			uci_set "$AVL_CONF" "$sec" "acl" "current"
+			uci_set "$AVL_CONF" "$CONFIG_SECTION" "acl" "current"
 		fi
 
 		uci_remove "$GPS_CONF" "$section"
@@ -163,15 +160,15 @@ move_avl_rules_to_avl_config() {
 		config_get "min" "$section" "min" ""
 		config_get "max" "$section" "max" ""
 
-		sec=$(uci add "$AVL_CONF" "input")
-		uci_set "$AVL_CONF" "$sec" "enabled" "$enabled"
-		uci_set "$AVL_CONF" "$sec" "priority" "$priority"
-		uci_set "$AVL_CONF" "$sec" "event" "$event"
-		uci_set "$AVL_CONF" "$sec" "io_type" "$io_type"
-		uci_set "$AVL_CONF" "$sec" "io_name" "$io_name"
+		uci_add "$AVL_CONF" "input"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "enabled" "$enabled"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "priority" "$priority"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "event" "$event"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "io_type" "$io_type"
+		uci_set "$AVL_CONF" "$CONFIG_SECTION" "io_name" "$io_name"
 
-		[ -n "$min" ] && uci_set "$AVL_CONF" "$sec" "min" "$min"
-		[ -n "$max" ] && uci_set "$AVL_CONF" "$sec" "max" "$max"
+		[ -n "$min" ] && uci_set "$AVL_CONF" "$CONFIG_SECTION" "min" "$min"
+		[ -n "$max" ] && uci_set "$AVL_CONF" "$CONFIG_SECTION" "max" "$max"
 
 		uci_remove "$GPS_CONF" "$section"
 	fi
@@ -211,12 +208,12 @@ add_new_nmea_rules() {
 		if uci_get "$GPS_CONF" "$sentence"; then
 			continue
 		fi
-		sec=$(uci add "$GPS_CONF" "$RULE_SEC")
-		uci_set "$GPS_CONF" "$sec" "forwarding_enabled" "0"
-		uci_set "$GPS_CONF" "$sec" "forwarding_interval" "5"
-		uci_set "$GPS_CONF" "$sec" "collecting_enabled" "0"
-		uci_set "$GPS_CONF" "$sec" "collecting_interval" "5"
-		uci_rename "$GPS_CONF" "$sec" "$sentence"
+		uci_add "$GPS_CONF" "$RULE_SEC"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "forwarding_enabled" "0"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "forwarding_interval" "5"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "collecting_enabled" "0"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "collecting_interval" "5"
+		uci_rename "$GPS_CONF" "$CONFIG_SECTION" "$sentence"
 	done
 }
 
@@ -252,11 +249,11 @@ add_acl_rule() {
 	local conf="$1"
 	local sec_type="$2"
 
-	acl_sec=$(uci add "$conf" "$sec_type")
-	uci_set "$conf" "$acl_sec" "enabled" "0"
-	uci_set "$conf" "$acl_sec" "type" "acl"
-	uci_set "$conf" "$acl_sec" "name" "acl0"
-	uci_set "$conf" "$acl_sec" "acl" "current"
+	uci_add "$conf" "$sec_type"
+	uci_set "$conf" "$CONFIG_SECTION" "enabled" "0"
+	uci_set "$conf" "$CONFIG_SECTION" "type" "acl"
+	uci_set "$conf" "$CONFIG_SECTION" "name" "acl0"
+	uci_set "$conf" "$CONFIG_SECTION" "acl" "current"
 }
 
 config_load "$GPS_CONF" || exit 0

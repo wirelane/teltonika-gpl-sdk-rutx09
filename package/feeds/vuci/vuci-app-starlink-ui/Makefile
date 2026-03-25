@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Starlink
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-starlink-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-starlink-ui))$(DUMP))
 	APP_APP_NAME:=starlink
 	APP_TLT_NAME:=Starlink
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

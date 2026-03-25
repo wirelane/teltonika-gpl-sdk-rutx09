@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rpcd
-PKG_VERSION:=2025-12-10
+PKG_VERSION:=2026-03-13
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=main.c
@@ -75,6 +75,7 @@ endef
 
 define Package/rpcd/conffiles
 /etc/config/rpcd
+/usr/local/share/integrity/
 endef
 
 TARGET_LDFLAGS += -lcrypt
@@ -146,6 +147,8 @@ define Package/rpcd/install
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths $(1)/etc/uci-defaults/7.13/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.19
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry $(1)/etc/uci-defaults/7.19/
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.22
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-defaults/7.22/99_rpcd_anonymous_migrate $(1)/etc/uci-defaults/7.22/
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/rpcd.permtab $(1)/etc/permtab.d/rpcd
 endef

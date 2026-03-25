@@ -17,9 +17,9 @@ index 0b9ae61..85873a1 100644
  public:
 -	optional() noexcept(noexcept(T())) ;
 +	optional() noexcept(noexcept(T())) {}
- 	explicit optional( const T & ) ;
+ 		///< Default constructor for no value.
+ 
  	optional( bool has_value , const T & value ) ; // not in std::optional()
- 	void clear() ; // not in std::optional()
 @@ -62,10 +62,6 @@ private:
  	bool m_has_value {false} ;
  } ;

@@ -9,7 +9,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uci
-PKG_RELEASE:=18
+PKG_RELEASE:=22
 
 PKG_SOURCE_DATE=2021-10-22
 

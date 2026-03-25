@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=tailscale
-PKG_VERSION:=1.86.2
-PKG_RELEASE:=14
+PKG_VERSION:=1.92.3
+PKG_RELEASE:=16
 
-PKG_HASH:=9b7fe9f915744ca1448efeb88d7333b7a86df375a4623941d2e41880c51c0aec
+PKG_HASH:=805b2eb3526e14c61c09b7e14ee2ad5bd17ce25ff13961342302737c138041d4
 
-PKG_SOURCE_VERSION:=1.86.2
+PKG_SOURCE_VERSION:=1.92.3
 PKG_SOURCE=tailscale-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/tailscale/tailscale/tar.gz/v$(PKG_SOURCE_VERSION)?
 
@@ -31,8 +31,21 @@ GO_PKG:=\
 	tailscale.com/cmd/tailscaled
 GO_PKG_LDFLAGS:=-s -w -X 'tailscale.com/version.longStamp=$(PKG_VERSION)-$(PKG_RELEASE) (OpenWrt)'
 GO_PKG_LDFLAGS_X:=tailscale.com/version.shortStamp=$(PKG_VERSION)
-GO_PKG_TAGS:=ts_include_cli
-
+GO_PKG_TAGS:= \
+	ts_include_cli \
+	ts_omit_aws \
+	ts_omit_webclient \
+	ts_omit_kube \
+	ts_omit_synology \
+	ts_omit_systray \
+	ts_omit_dbus \
+	ts_omit_networkmanager \
+	ts_omit_desktop_sessions \
+	ts_omit_resolved \
+	ts_omit_sdnotify \
+	ts_omit_cloud \
+	ts_omit_completion \
+	ts_omit_clientupdate
 
 include $(INCLUDE_DIR)/package.mk
 include $(TOPDIR)/package/lang/golang/golang-package.mk

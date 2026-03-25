@@ -19,7 +19,7 @@ define Package/letsencrypt
   TITLE:=Letsencrypt (ACME) script
   DEPENDS:=+openssl-util +curl
   PKGARCH:=all
-  ifeq (m, $(CONFIG_PACKAGE_letsencrypt))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_letsencrypt))$(DUMP))
     PKG_TLT_NAME:=Let's encrypt
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif

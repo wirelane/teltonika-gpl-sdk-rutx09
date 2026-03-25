@@ -6,11 +6,27 @@ STOP=55
 
 APP=/usr/sbin/smppd
 
+set_key_file_option() {
+	local tpm_handle
+	local option=$1
+	local value=$2
+
+	which tpm2_importer &> /dev/null && {
+		tpm_handle="$(/bin/tpm2_importer "$value" get_handle 2> /dev/null)" &&
+				value="handle:$tpm_handle"
+	}
+
+	procd_append_param command "--${option}" "$value"
+}
+
 option_cb() {
 	local option=$1 value=$2
 
 	case "$option" in
 		_*|enabled)
+			;;
+		tls_key)
+			set_key_file_option "$option" "$value"
 			;;
 		*)
 			procd_append_param command "--${option}" "$value"

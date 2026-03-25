@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for SSTP
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-sstp-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-sstp-ui))$(DUMP))
 	APP_APP_NAME:=sstp-client
 	APP_TLT_NAME:=SSTP
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

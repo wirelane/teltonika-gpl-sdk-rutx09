@@ -7,9 +7,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libcfg
-PKG_SOURCE_VERSION:=1.5
-PKG_SOURCE_DATE:=2026-02-11
-PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
+PKG_SOURCE_VERSION:=1.10
+PKG_SOURCE_DATE:=2026-02-12
 
 GPL_INCLUDE_HEADERS:=1
 
@@ -17,16 +16,13 @@ PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
 
-MAKE_FLAGS += \
-	FPIC="$(FPIC)" \
-	SOVERSION="$(PKG_ABI_VERSION)"
+MAKE_FLAGS += FPIC="$(FPIC)"
 
 define Package/libcfg
 	SECTION:=libs
 	CATEGORY:=Libraries
 	TITLE:=A helper library for UCI config parsing
 	DEPENDS:=+libuci +libubus +libubox
-	ABI_VERSION:=$(PKG_ABI_VERSION)
 endef
 
 
@@ -40,7 +36,7 @@ endef
 
 define Package/libcfg/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libcfg.so.$(PKG_ABI_VERSION) $(1)/usr/lib/libcfg.so.$(PKG_ABI_VERSION)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libcfg.so $(1)/usr/lib/libcfg.so
 endef
 
 $(eval $(call BuildPackage,libcfg))

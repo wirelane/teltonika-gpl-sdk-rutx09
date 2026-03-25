@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for udprelay
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-udprelay-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-udprelay-ui))$(DUMP))
 	APP_APP_NAME:=udprelay
 	APP_TLT_NAME:=UDP Broadcast Relay
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

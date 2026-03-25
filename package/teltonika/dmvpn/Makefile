@@ -18,9 +18,9 @@ define Package/dmvpn
   	CATEGORY:=Network
 	TITLE:=Dynamic multipoint VPN using NHRP GRE and IPsec
 	DEPENDS:=+kmod-gre +IPV6:kmod-gre6 +resolveip +libpthread +ip \
-		+kmod-crypto-authenc +kmod-ipsec +kmod-ipsec4 +IPV6:kmod-ipsec6 \
+		+kmod-crypto-authenc +kmod-ipsec4 +IPV6:kmod-ipsec6 \
 		+kmod-ipt-ipsec +iptables-mod-ipsec \
-		+frr-nhrp +frr
+		+frr-nhrp
 	USERID:=dmvpn:dmvpn
 endef
 

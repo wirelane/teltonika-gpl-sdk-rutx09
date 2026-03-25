@@ -13,12 +13,12 @@ add_missing_sentences() {
 		if uci_get "$GPS_CONF" "$sentence"; then
 			continue
 		fi
-		sec=$(uci add "$GPS_CONF" "$RULE_SEC")
-		uci_set "$GPS_CONF" "$sec" "forwarding_enabled" "0"
-		uci_set "$GPS_CONF" "$sec" "forwarding_interval" "5"
-		uci_set "$GPS_CONF" "$sec" "collecting_enabled" "0"
-		uci_set "$GPS_CONF" "$sec" "collecting_interval" "5"
-		uci_rename "$GPS_CONF" "$sec" "$sentence"
+		uci_add "$GPS_CONF" "$RULE_SEC"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "forwarding_enabled" "0"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "forwarding_interval" "5"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "collecting_enabled" "0"
+		uci_set "$GPS_CONF" "$CONFIG_SECTION" "collecting_interval" "5"
+		uci_rename "$GPS_CONF" "$CONFIG_SECTION" "$sentence"
 	done
 }
 

@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -e "/etc/config/frr" ] || exit 0
+[ -e "$UCI_CONFIG_DIR/frr" ] || exit 0
 
 index=0
 

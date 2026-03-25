@@ -5,7 +5,7 @@
 
 is_ios_enabled || exit 0
 
-CONFIG_FILE="/etc/config/ioman"
+CONFIG_FILE="$UCI_CONFIG_DIR/ioman"
 [ -f "$CONFIG_FILE" ] || exit 0
 
 fix_old_scheduler() {

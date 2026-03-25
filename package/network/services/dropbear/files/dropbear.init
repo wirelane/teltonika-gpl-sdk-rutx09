@@ -6,6 +6,7 @@ START=15
 STOP=50
 
 USE_PROCD=1
+INETD_PROG="/usr/bin/inetd-ubus"
 PROG=/usr/sbin/dropbear
 NAME=dropbear
 PIDCOUNT=0
@@ -108,16 +109,16 @@ append_ports()
 	local wan_access="$4"
 
 	[ "$wan_access" -eq 1 ] && [ -n "$wan_port" ] && [ "$wan_port" != "$port" ] && {
-		procd_append_param command -p "$wan_port"
+		procd_append_param command --port "$wan_port"
 	}
 
 	[ -z "$ipaddrs" ] && {
-		procd_append_param command -p "$port"
+		procd_append_param command --port "$port"
 		return
 	}
 
 	for addr in $ipaddrs; do
-		procd_append_param command -p "$addr:$port"
+		procd_append_param command --port "$addr:$port"
 	done
 }
 
@@ -172,7 +173,10 @@ dropbear_instance()
 	local banner_enabled="$(uci -q get system.banner.enabled)"
 
 	procd_open_instance
-	procd_set_param command "$PROG" -F -P "$pid_file"
+	procd_set_param command "$INETD_PROG" --syslog
+	append_ports "${ipaddrs}" "${Port}" "${wan_port}" "${_sshWanAccess}"
+
+	procd_append_param command "$PROG" -- -i -F -P "$pid_file"
 	[ "${PasswordAuth}" -eq 0 ] && procd_append_param command -s
 	[ "${GatewayPorts}" -eq 1 ] && procd_append_param command -a
 	[ "${RootPasswordAuth}" -eq 0 ] && procd_append_param command -g
@@ -196,7 +200,6 @@ dropbear_instance()
 		procd_append_param command -b "${BannerFile}"
 	fi
 
-append_ports "${ipaddrs}" "${Port}" "${wan_port}" "${_sshWanAccess}"
 	[ "${IdleTimeout}" -ne 0 ] && procd_append_param command -I "${IdleTimeout}"
 	[ "${SSHKeepAlive}" -ne 0 ] && procd_append_param command -K "${SSHKeepAlive}"
 	[ "${MaxAuthTries}" -ne 0 ] && procd_append_param command -T "${MaxAuthTries}"

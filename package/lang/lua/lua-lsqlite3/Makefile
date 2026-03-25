@@ -7,7 +7,7 @@
 
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=
+PKG_NAME:=lsqlite3
 
 PKG_VERSION:=0.9.5
 PKG_RELEASE:=1

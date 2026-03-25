@@ -4,7 +4,7 @@
 #include <libubus.h>
 #include <libubox/blobmsg.h>
 
-#define LCHILLI_UBUS_OBJECT "chilli"
+#define LCHILLI_UBUS_OBJECT "chilli.*"
 #define LCHILLI_LIST_METHOD "list"
 
 #define LCHILLI_UBUS_TIMEOUT 30
@@ -57,7 +57,6 @@ struct lchilli_list_req {
 lchilli_status lchilli_list(struct ubus_context *ubus, struct lchilli_list_req *req, struct blob_attr **msg);
 
 struct blob_attr **lchilli_get_session(struct blob_attr *session);
-
 struct blob_attr **lchilli_get_session_params(struct blob_attr *session);
 
 #define LCHILLI_SESSION_COUNT(x) blobmsg_check_array(x, BLOBMSG_TYPE_TABLE)

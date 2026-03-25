@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for DNS Over HTTPS Proxy
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-https-dns-proxy-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-https-dns-proxy-ui))$(DUMP))
 	APP_APP_NAME:=https-dns-proxy
 	APP_TLT_NAME:=HTTPS DNS Proxy
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

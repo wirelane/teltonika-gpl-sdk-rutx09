@@ -43,6 +43,7 @@
 . "$IPKG_INSTROOT/usr/share/libubox/jshn.sh"
 
 PROCD_RELOAD_DELAY=1000
+PROCD_DIR="/var/run/procd"
 _PROCD_SERVICE=
 
 procd_lock() {
@@ -500,6 +501,85 @@ _procd_set_config_changed() {
 	ubus call service event "$(json_dump)"
 }
 
+_procd_set_disable_hook() {
+	local config="$1"
+	local section="$2"
+	local option="$3"
+	local callback="$4"
+
+	[ -z "$section" ] && section="_"
+
+	mkdir -p "$PROCD_DIR"
+
+	local hook_file="${PROCD_DIR}/procd_${config}_${section}.hook"
+	cat >"$hook_file" <<EOF
+config='$config'
+section='$section'
+option='$option'
+callback='$callback'
+EOF
+}
+
+_procd_deactivate_instance() {
+	local service="$1"
+	local instance="$2"
+	local config section option callback
+	local hook_file="${PROCD_DIR}/procd_${service}_${instance}.hook"
+	local wildcard_hook="${PROCD_DIR}/procd_${service}__.hook"
+	local hook_to_source="$hook_file"
+
+	[ ! -f "$hook_to_source" ] && hook_to_source="$wildcard_hook"
+	[ -f "$hook_to_source" ] || { echo "Error: Instance '$instance' has no disable_hook defined"; return 1; }
+
+	. "$hook_to_source"
+	[ "$hook_to_source" = "$wildcard_hook" ] && section="$instance"
+
+	[ -n "$callback" ] && type "$callback" >/dev/null 2>&1 && {
+		"$callback" deactivate "$service" "$instance"
+		echo "Instance '$service.$instance' deactivated"
+		return 0
+	}
+
+	uci set "$config.$section.$option=0"
+	uci commit "$config"
+
+	_procd_kill "$service" "$instance"
+
+	echo "Instance '$service.$instance' deactivated"
+}
+
+_procd_activate_instance() {
+	local service="$1"
+	local instance="$2"
+	local config section option callback
+	local hook_file="${PROCD_DIR}/procd_${service}_${instance}.hook"
+	local wildcard_hook="${PROCD_DIR}/procd_${service}__.hook"
+	local hook_to_source="$hook_file"
+
+	[ ! -f "$hook_to_source" ] && hook_to_source="$wildcard_hook"
+	[ -f "$hook_to_source" ] || { echo "Error: No deactivation data found for $service.$instance"; return 1; }
+
+	. "$hook_to_source"
+	[ "$hook_to_source" = "$wildcard_hook" ] && section="$instance"
+
+	[ -n "$callback" ] && type "$callback" >/dev/null 2>&1 && {
+		"$callback" activate "$service" "$instance"
+		echo "Instance '$service.$instance' activated"
+		return 0
+	}
+
+	uci -q get "$config.$section" >/dev/null 2>&1 || {
+		return 1
+	}
+
+	uci set "$config.$section.$option=1"
+	uci commit "$config"
+
+	"/etc/init.d/$service" start "$instance"
+
+	echo "Instance '$service.$instance' activated"
+}
+
 procd_add_mdns_service() {
 	local service proto port
 	service=$1; shift
@@ -579,4 +659,7 @@ _procd_wrapper \
 	procd_add_validation \
 	procd_set_config_changed \
 	procd_kill \
-	procd_send_signal
+	procd_send_signal \
+	procd_set_disable_hook \
+	procd_deactivate_instance \
+	procd_activate_instance

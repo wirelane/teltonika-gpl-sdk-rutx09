@@ -5,7 +5,7 @@ APP_TITLE:=VuCI UI Support for travelmate
 
 APP_DEPENDS=+vuci-app-wireless-ui +travelmate
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-travelmate-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-travelmate-ui))$(DUMP))
 	APP_HW_INFO:=wifi
 	APP_APP_NAME:=travelmate
 	APP_TLT_NAME:=TravelMate

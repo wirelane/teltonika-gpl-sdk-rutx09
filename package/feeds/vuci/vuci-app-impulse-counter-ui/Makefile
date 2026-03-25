@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Impulse Counter
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-impulse-counter-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-impulse-counter-ui))$(DUMP))
 	APP_TLT_NAME:=Impulse Counter
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=impulse-counter

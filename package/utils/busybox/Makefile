@@ -60,7 +60,7 @@ define Package/telnet
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=Telnet server
-  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:libtlt-logger +BUSYBOX_CONFIG_PASSWD:libtlt-logger +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci
+  DEPENDS:=+BUSYBOX_CONFIG_PAM:libpam +BUSYBOX_CONFIG_NTPD:jsonfilter +libubus +libubox +BUSYBOX_CONFIG_FEATURE_IP_BLOCKD:libtlt-logger +BUSYBOX_CONFIG_PASSWD:libtlt-logger +BUSYBOX_CONFIG_FEATURE_NETIFD:libnetifd +BUSYBOX_CONFIG_FEATURE_PASSWORD_POLICY:libuci +inetd-ubus
   USERID:=telnetd:telnetd
   FATTRS:=/usr/sbin/telnetd::::cap_net_bind_service=ep
 endef
@@ -202,6 +202,8 @@ define Package/telnet/install
 	$(INSTALL_CONF_USR) ./files/telnetd.conf $(1)/etc/config/telnetd
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN_USR) ./files/telnetd $(1)/etc/init.d/telnetd
+	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DATA) ./files/telnetd_acl.json $(1)/usr/share/acl.d/telnetd.json
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/../build-telnetd/busybox $(1)/usr/sbin/telnetd

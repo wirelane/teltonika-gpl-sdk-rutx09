@@ -5,7 +5,7 @@
 		"name": "java_vm"
 	},
 	"python3": {
-		"base_dep": "libpython3-3.11 libuuid1 libbz2-1.0 python3-uuid python3-base python3-asyncio python3-cgi python3-cgitb python3-codecs python3-ctypes python3-decimal python3-distutils python3-email python3-light python3-logging python3-multiprocessing python3-ncurses python3-openssl python3-pydoc python3-sqlite3 python3-unittest python3-urllib python3-xml libncurses6 terminfo libreadline8 libdb47 libffi",
+		"base_dep": "libpython3-3.11 libuuid1 libbz2-1.0 python3-uuid python3-base python3-asyncio python3-cgi python3-cgitb python3-codecs python3-ctypes python3-decimal python3-distutils python3-email python3-light python3-logging python3-multiprocessing python3-ncurses python3-openssl python3-sqlite3 python3-urllib python3-xml libncurses6 terminfo libreadline8 libdb47 libffi",
 		"name": "python3"
 	},
 	"vuci-app-aws-ui": {
@@ -237,93 +237,105 @@
 		"name": "failover"
 	},
 	"frr-vtysh": {
-		"base_dep": "frr frr-libfrr libcap libjson-c5 libyang libpcre2 libreadline8 libncurses6 terminfo more",
+		"base_dep": "frr frr-libfrr libcap libjson-c5 libyang libpcre2 libreadline8 libncurses6 terminfo more libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
 		"name": "frr_vtysh"
 	},
-	"vuci-app-dynamic-routes-bgp-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-bgpd libcap libjson-c5 libyang libpcre2",
+	"frr-bgpd-meta": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-bgpd libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread kmod-tcpmd5sig",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-bgp-api",
+		"vuci_dep": "vuci-app-dynamic-routes-bgp-api vuci-app-dynamic-routes-bgp-ui",
 		"name": "bgp_daemon"
 	},
-	"vuci-app-dynamic-routes-eigrp-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-eigrpd libcap libjson-c5 libyang libpcre2",
+	"frr-eigrpd-meta": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-eigrpd libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api",
+		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api vuci-app-dynamic-routes-eigrp-ui",
 		"name": "eigrp_daemon"
 	},
-	"vuci-app-dynamic-routes-nhrp-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-nhrp libcap libjson-c5 libyang libpcre2 libcares",
+	"frr-nhrpd-meta": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-nhrp libcap libjson-c5 libyang libpcre2 libcares libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-nhrp-api",
+		"vuci_dep": "vuci-app-dynamic-routes-nhrp-api vuci-app-dynamic-routes-nhrp-ui",
 		"name": "nhrp_daemon"
 	},
-	"vuci-app-dynamic-routes-ospf-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-ospfd libcap libjson-c5 libyang libpcre2",
+	"frr-ospfd-meta": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-ospfd libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-ospf-api",
+		"vuci_dep": "vuci-app-dynamic-routes-ospf-api vuci-app-dynamic-routes-ospf-ui",
 		"name": "ospf_daemon"
 	},
-	"vuci-app-dynamic-routes-rip-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-ripd libcap libjson-c5 libyang libpcre2",
+	"frr-ripd-meta": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-vtysh frr-mgmtd frr-ripd libcap libjson-c5 libyang libpcre2 libprotobuf-c libreadline8 libncurses6 terminfo more",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-rip-api",
+		"vuci_dep": "vuci-app-dynamic-routes-rip-api vuci-app-dynamic-routes-rip-ui",
 		"name": "rip_daemon"
 	},
 	"frr-staticd": {
-		"base_dep": "frr frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2",
+		"base_dep": "frr frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
 		"name": "static_daemon"
 	},
-	"vuci-app-dynamic-routes-bgp5-ui": {
-		"base_dep": "frr5 frr5-zebra frr5-libfrr frr5-watchfrr frr5-bgpd",
-		"kmod_dep": "libc kmod-tcpmd5sig",
-		"vuci_dep": "vuci-app-dynamic-routes-bgp5-api",
+	"frr8-vtysh": {
+		"base_dep": "frr8 frr8-libfrr libcap libjson-c5 libyang8 libpcre2 libreadline8 libncurses6 terminfo more",
+		"kmod_dep": "libc libatomic1 libpthread",
+		"packages_dep": "librt",
+		"name": "frr_vtysh"
+	},
+	"frr8-bgpd-meta": {
+		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-bgpd libcap libjson-c5 libyang8 libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread kmod-tcpmd5sig",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-dynamic-routes-bgp-api vuci-app-dynamic-routes-bgp-ui",
 		"name": "bgp_daemon"
 	},
-	"vuci-app-dynamic-routes-eigrp5-ui": {
-		"base_dep": "frr5 frr5-zebra frr5-libfrr frr5-watchfrr frr5-eigrpd",
-		"kmod_dep": "libc",
-		"vuci_dep": "vuci-app-dynamic-routes-eigrp5-api",
+	"frr8-eigrpd-meta": {
+		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-eigrpd libcap libjson-c5 libyang8 libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api vuci-app-dynamic-routes-eigrp-ui",
 		"name": "eigrp_daemon"
 	},
-	"vuci-app-dynamic-routes-nhrp5-ui": {
-		"base_dep": "frr5 frr5-zebra frr5-libfrr libcares frr5-watchfrr frr5-nhrp",
-		"kmod_dep": "libc iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
-		"vuci_dep": "vuci-app-dynamic-routes-nhrp5-api",
-		"name": "nhrp_daemon"
-	},
-	"vuci-app-dynamic-routes-ospf5-ui": {
-		"base_dep": "frr5 frr5-zebra frr5-libfrr frr5-watchfrr frr5-ospfd",
-		"kmod_dep": "libc",
-		"vuci_dep": "vuci-app-dynamic-routes-ospf5-api",
-		"name": "ospf_daemon"
-	},
-	"vuci-app-dynamic-routes-rip5-ui": {
-		"base_dep": "frr5 frr5-zebra frr5-libfrr frr5-watchfrr frr5-ripd",
-		"kmod_dep": "libc",
-		"vuci_dep": "vuci-app-dynamic-routes-rip5-api",
-		"name": "rip_daemon"
-	},
-	"vuci-app-dmvpn-ui": {
-		"base_dep": "frr frr-nhrp frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2 dmvpn",
+	"frr8-nhrpd-meta": {
+		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-nhrp libcap libjson-c5 libyang8 libpcre2 libcares",
 		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dmvpn-api vuci-app-dynamic-routes-nhrp-ui vuci-app-dynamic-routes-nhrp-api",
+		"vuci_dep": "vuci-app-dynamic-routes-nhrp-api vuci-app-dynamic-routes-nhrp-ui",
+		"name": "nhrp_daemon"
+	},
+	"frr8-ospfd-meta": {
+		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-ospfd libcap libjson-c5 libyang8 libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-dynamic-routes-ospf-api vuci-app-dynamic-routes-ospf-ui",
+		"name": "ospf_daemon"
+	},
+	"frr8-ripd-meta": {
+		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-ripd libcap libjson-c5 libyang8 libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-dynamic-routes-rip-api vuci-app-dynamic-routes-rip-ui",
+		"name": "rip_daemon"
+	},
+	"dmvpn-meta": {
+		"base_dep": "frr frr-nhrp frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2 dmvpn libprotobuf-c",
+		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-dmvpn-api vuci-app-dmvpn-ui vuci-app-dynamic-routes-nhrp-ui vuci-app-dynamic-routes-nhrp-api",
 		"name": "dmvpn"
 	},
-	"vuci-app-dmvpn5-ui": {
-		"base_dep": "frr5 frr5-nhrp frr5-watchfrr frr5-zebra frr5-libfrr dmvpn_frr5",
-		"vuci_dep": "vuci-app-dmvpn5-api vuci-app-dynamic-routes-nhrp5-ui vuci-app-dynamic-routes-nhrp5-api",
-		"kmod_dep": "iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
+	"dmvpn_frr8-meta": {
+		"base_dep": "frr8 frr8-nhrp frr8-zebra frr8-libfrr libcap libjson-c5 libyang8 libpcre2 dmvpn_frr8",
+		"kmod_dep": "libc libatomic1 libpthread iptables-mod-hashlimit kmod-ipt-hashlimit iptables-mod-nflog kmod-ipt-nflog kmod-nfnetlink-log",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-dmvpn-api vuci-app-dmvpn-ui vuci-app-dynamic-routes-nhrp-ui vuci-app-dynamic-routes-nhrp-api",
 		"name": "dmvpn"
 	},
 	"vuci-app-udprelay-ui": {
@@ -404,6 +416,9 @@
 	},
 	"vuci-i18n-ukrainian": {
 		"name": "ukrainian_language_support"
+	},
+	"vuci-i18n-polish": {
+		"name": "polish_language_support"
 	},
 	"7zip": {
 		"kmod_dep": "libstdcpp6",
@@ -540,7 +555,7 @@
 		"name": "apn_database_webui"
 	},
 	"vuci-app-telnet-api": {
-		"base_dep": "telnet",
+		"base_dep": "telnet inetd-ubus",
 		"name": "telnet"
 	},
 	"vuci-app-vrf-ui": {
@@ -552,6 +567,10 @@
 		"name": "connchecker",
 		"base_dep": "connchecker",
 		"vuci_dep": "vuci-app-internet-api"
+	},
+	"iperf": {
+		"name": "iperf",
+		"kmod_dep": "libstdcpp6"
 	},
 	"iperf3": {
 		"name": "iperf3",
@@ -585,30 +604,34 @@
 		"base_dep": "strongswan strongswan-libtls strongswan-mod-pkcs7 strongswan-mod-curl strongswan-pki strongswan-mod-kdf",
 		"name": "scep"
 	},
-	"vuci-app-bfd-ui": {
-		"base_dep": "bfdd-frr frr-bfdd frr frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2",
+	"bfdd-frr-meta": {
+		"base_dep": "bfdd-frr frr-bfdd frr frr-zebra frr-libfrr libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"name":"bfd",
-		"vuci_dep": "vuci-app-bfd-api"
+		"vuci_dep": "vuci-app-bfd-api vuci-app-bfd-ui"
+	},
+	"bfdd-frr8-meta": {
+		"base_dep": "bfdd-frr8 frr8-bfdd frr8 frr8-zebra frr8-libfrr libcap libjson-c5 libyang8 libpcre2",
+		"kmod_dep": "libc libatomic1 libpthread",
+		"name":"bfd",
+		"vuci_dep": "vuci-app-bfd-api vuci-app-bfd-ui"
 	},
 	"letsencrypt": {
 		"base_dep": "curl",
-		"name": "letsencrypt"
+		"name": "lets_encrypt"
 	},
-	"vuci-app-events-reporting-ui": {
+	"vuci-app-events-reporting-api": {
 		"base_dep": "event-juggler",
-		"vuci_dep": "vuci-app-events-reporting-api",
 		"name": "events_reporting"
 	},
-	"vuci-app-io-juggler-ui": {
+	"vuci-app-io-juggler-api": {
 		"base_dep": "event-juggler iomand",
-		"vuci_dep": "vuci-app-io-juggler-api",
 		"name": "io_juggler"
 	},
 	"vuci-app-io-scheduler-ui": {
 		"base_dep": "io_scheduler iomand",
 		"vuci_dep": "vuci-app-io-scheduler-api",
-		"name": "io_scheduler"
+		"name": "i_o_scheduler"
 	},
 	"vuci-app-eoip-ui": {
 		"base_dep": "eoip",
@@ -666,31 +689,49 @@
 		"name": "starlink"
 	},
 	"uhttpd-mod-ubus": {
-		"name": "json_rpc_support"
+		"name": "json-rpc_support"
 	},
 	"vuci-app-iec60870-server-ui": {
 		"base_dep": "iec60870_server lib60870 libtlt_termios1.0 libcfgx libtlt_uci libmnfinfo iomand",
 		"vuci_dep": "vuci-app-iec60870-server-api",
-		"name": "iec60870_server"
+		"name": "iec_60870-5_server"
 	},
 	"kmod-ovpn-dco-v2": {
 		"kmod_dep": "kmod-crypto-aead kmod-udptunnel4 kmod-udptunnel6",
 		"name": "openvpn_dco_support"
 	},
 	"vuci-app-iec60870-client-ui": {
-		"base_dep": "iec60870_client lib60870 data-sender-mod-iec60870 libtlt_uci libcfgx",
+		"base_dep": "iec60870_client lib60870 data-sender-mod-iec60870 libtlt_uci libcfgx libtag libtlt_termios1.0",
 		"vuci_dep": "vuci-app-iec60870-client-api vuci-app-data-sender-api-mod-iec60870",
-		"name": "iec60870_client"
+		"name": "iec_60870-5_client"
 	},
 	"kmod-fs-cifs": {
 		"kmod_dep": "kmod-fs-smbfs-common kmod-crypto-md4 kmod-crypto-md5 kmod-crypto-sha256 kmod-crypto-sha512 kmod-crypto-cmac kmod-crypto-hmac kmod-crypto-arc4 kmod-crypto-aead kmod-crypto-ccm kmod-crypto-ecb kmod-crypto-des kmod-oid-registry kmod-dnsresolver kmod-asn1-decoder kmod-fs-netfs kmod-nls-ucs2-utils",
-		"name": "fs_cifs_support"
+		"name": "cifs_smbfs_filesystem_support"
 	},
-	"vuci-app-mpls-ui": {
-		"base_dep": "frr frr-zebra frr-libfrr frr-ldpd ldpd-frr libcap libjson-c5 libyang libpcre2",
+	"ldpd-frr-meta": {
+		"base_dep": "frr frr-zebra frr-libfrr frr-ldpd ldpd-frr libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread kmod-mpls",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-mpls-api",
+		"vuci_dep": "vuci-app-mpls-api vuci-app-mpls-ui",
 		"name": "mpls"
+	},
+	"ldpd-frr8-meta": {
+		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-ldpd ldpd-frr8 libcap libjson-c5 libyang8 libpcre2 libprotobuf-c",
+		"kmod_dep": "libc libatomic1 libpthread kmod-mpls",
+		"packages_dep": "librt",
+		"vuci_dep": "vuci-app-mpls-api vuci-app-mpls-ui",
+		"name": "mpls"
+	},
+	"vuci-app-smcroute-ui": {
+		"base_dep": "smcroute libcap",
+		"name":"smcroute",
+		"vuci_dep": "vuci-app-smcroute-api"
+	},
+	"stress-ng": {
+		"base_dep": "libbsd0",
+		"packages_dep": "libaio libsctp libkmod libjpeg-turbo",
+		"kmod_dep": "kmod-sctp",
+		"name": "stress-ng"
 	}
 }

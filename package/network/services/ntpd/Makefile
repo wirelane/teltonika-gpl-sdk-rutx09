@@ -125,7 +125,7 @@ define Package/ntpd/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN_USR) ./files/ntpd.init $(1)/etc/init.d/ntpd
 	$(INSTALL_DIR) $(1)/etc/hotplug.d/iface
-	$(INSTALL_BIN) ./files/ntpd.hotplug $(1)/etc/hotplug.d/iface/20-ntpd
+	$(INSTALL_BIN_USR) ./files/ntpd.hotplug $(1)/etc/hotplug.d/iface/20-ntpd
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_BIN) ./files/ntpd.config $(1)/etc/config/ntpd
 	$(INSTALL_DIR) $(1)/etc/permtab.d

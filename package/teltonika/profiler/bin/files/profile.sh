@@ -20,6 +20,11 @@ TMP_PATH="/tmp/tmp_root/"
 MAIN_PATH="$(uci_get profiles general path /etc/profiles)"
 CURRENT_PROFILE="$(uci_get profiles general profile default)"
 
+RELOAD_EVENT=1
+
+# rpcd scripts set a umask of 077 while script expects 022
+umask 022
+
 log() {
 	logger -s -t "$(basename "$0")" "$1"
 }
@@ -160,7 +165,7 @@ __add_conf_files() {
 		local destination_file="${TMP_PATH}etc/config/$cfg_name"
 		# Check if the file already exists in the destination directory
 		[ -s "$destination_file" ] && continue
-		cp "$i" "$destination_file"
+		cp -af "$i" "$destination_file"
 		sed -i "/$cfg_name/d" "/etc/profiles/${profile}.md5"
 		md5sum "$i" >>"/etc/profiles/${profile}.md5"
 	done
@@ -193,6 +198,31 @@ __rm_conf_files() {
 	done
 }
 
+__execute_uci_defaults() {
+	local profile=$1
+
+	#If version differs execute defaults
+	cmp -s "${TMP_PATH}${PROFILE_VERSION_FILE}" /etc/version && return
+
+	#When profile is from previous firmware there can
+	#be new configs that were added, need to copy them to profile
+	for file in /etc/config/*; do
+		target_file="${TMP_PATH}/etc/config/$(basename "$file")"
+		if [ ! -e "$target_file" ]; then
+			cp -af "$file" "$target_file"
+		fi
+	done
+
+	#Apply uci defaults only if profile is created on different FW version.
+	__uci_apply_defaults "$TMP_PATH"
+
+	#Update profile version
+	cp /etc/version "${TMP_PATH}${PROFILE_VERSION_FILE}"
+
+	#Update md5 hashes
+	create_md5 "/etc/profiles/${profile}.md5" "$TMP_PATH"
+}
+
 __update_tar() {
 	local cb=$1
 	local filelist=$2
@@ -203,15 +233,46 @@ __update_tar() {
 		tar xzf "$profile" -C "$TMP_PATH"
 		name=$(basename "$profile" .tar.gz)
 		$cb "$name" "$filelist"
-		[ -e "/tmp/keep_files" ] && keep=" -T /tmp/keep_files"
 
-		tar cz${keep} -f "$profile" -C "$TMP_PATH" "."
-		rm -rf "$TMP_PATH" /tmp/keep_files
+		# Re-pack profile using -T to not include directories
+		# since they would have incorrect permissions
+		if [ -s "/tmp/keep_files" ]; then
+			cat /tmp/keep_files > /tmp/tar_filelist
+			find "$TMP_PATH" -type f -o -type l | sed "s|$TMP_PATH||" >> /tmp/tar_filelist
+
+			# Remove duplicates
+			sort -u /tmp/tar_filelist > /tmp/tar_filelist.sorted
+			mv /tmp/tar_filelist.sorted /tmp/tar_filelist
+
+			tar czf "$profile" -C "$TMP_PATH" -T /tmp/tar_filelist
+		else
+			find "$TMP_PATH" -type f -o -type l | sed "s|$TMP_PATH||" | tar czf "$profile" -C "$TMP_PATH" -T -
+		fi
+
+		rm -rf "$TMP_PATH" /tmp/keep_files /tmp/tar_filelist
 	done
 }
 
 fix_configs() {
 	__update_tar __fix_conf_files "$1"
+}
+
+apply_defaults() {
+	case "$1" in
+	current)
+		# Apply only for current profile (root dir)
+		__uci_apply_defaults
+		echo '{ "status": '$?' }'
+		;;
+	all)
+		__update_tar __execute_uci_defaults
+		echo '{ "status": '$?' }'
+		;;
+	*)
+		echo '{ "status": 22, "error": "type must be '\''current'\'' or '\''all'\''"}'
+		return 1
+		;;
+	esac
 }
 
 install_pkg() {
@@ -246,14 +307,18 @@ do_save_conffiles() {
 
 create_md5() {
 	local md5_file=$1
+	local base_dir=$2
 	[ -z "$md5_file" ] && return 1
-	md5sum /etc/config/* /etc/shadow | grep -vE "profiles|rms_connect_timer" >"$md5_file"
+
+	md5sum $base_dir/etc/config/* $base_dir/etc/shadow | grep -vE "profiles|rms_connect_timer" >"$md5_file"
+	[ -z "$base_dir" ] || sed -i "s| $base_dir/| /|" "$md5_file"
 }
 
 is_legacy_profile() {
+	local apply_dir="$1"
 	#There is no correct way to indicate legacy profile, so we searching for dinosaurs here
-	[ -e "/etc/config/coovachilli" ] && [ -e "/etc/config/sms_gateway" ] &&
-		[ -e "/etc/config/data_limit" ]
+	[ -e "$apply_dir/etc/config/coovachilli" ] && [ -e "$apply_dir/etc/config/sms_gateway" ] &&
+		[ -e "$apply_dir/etc/config/data_limit" ]
 }
 
 __check_compatibility() {
@@ -286,14 +351,16 @@ __apply_defaults() {
 	done
 }
 
-uci_apply_defaults() {
+__uci_apply_defaults() {
+	local apply_dir="$1"
 	local top_dir="/tmp/uci-defaults"
+
 	mkdir -p "$top_dir"
 	cp -r /rom/etc/uci-defaults/* "$top_dir/"
 	chmod -R +x "$top_dir/"
 	[ -z "$(ls -A "$top_dir/")" ] && return 0
 
-	local old_version="$(cat "$PROFILE_VERSION_FILE")"
+	local old_version="$(cat "${apply_dir}${PROFILE_VERSION_FILE}" 2>/dev/null)"
 	local new_version="$(cat /etc/version)"
 
 	[ "$old_version" = "$new_version" ] && return 0
@@ -314,10 +381,12 @@ uci_apply_defaults() {
 	[ "$old_major" -eq 7 ] && [ "$old_minor" -ge 4 ] && rm -rf ${top_dir}/old
 
 	#for legacy rut9/rut2 migration
-	is_legacy_profile && {
-		touch /etc/config/teltonika
-		cp /rom/etc/migrate.conf/* /etc/migrate.conf/
+	is_legacy_profile "$apply_dir" && {
+		touch "$apply_dir/etc/config/teltonika"
+		cp -af /rom/etc/migrate.conf/* "$apply_dir/etc/migrate.conf/"
 	}
+
+	export UCI_CONFIG_DIR="$apply_dir/etc/config"
 
 	mkdir -p "/tmp/.uci"
 
@@ -328,10 +397,10 @@ uci_apply_defaults() {
 	done
 	__apply_defaults "$top_dir"
 
-	uci commit
+	uci_commit
 
 	rm -rf "$top_dir/"
-	rm -f /etc/migrate.conf/*
+	rm -f $apply_dir/etc/migrate.conf/*
 }
 
 call_config_event() {
@@ -339,6 +408,8 @@ call_config_event() {
 }
 
 apply_config() {
+	[ "$RELOAD_EVENT" -eq 1 ] || return 0
+
 	local md5file="${1:-/var/run/config.md5}"
 
 	[ -f "$md5file" ] && {
@@ -383,9 +454,6 @@ change_config() {
 	rm -f "$md5file"
 	apply_config "$md5file"
 
-	# rpcd scripts set a umask of 077 while script expects 022
-	umask 022
-
 	mkdir -p "$TMP_PATH"
 	tar xzf "$archive" -C "$TMP_PATH" 2>&- || {
 		log "Unable to extract '$archive'"
@@ -396,7 +464,7 @@ change_config() {
 		# Legacy profiles do not have some config files so we need to reset
 		# these files before applying profile
 		for file in $KNOWN_CLEANS; do
-			cp "/rom$file" "$file"
+			cp -af "/rom$file" "$file"
 		done
 	}
 
@@ -420,7 +488,7 @@ change_config() {
 	}
 
 	(
-		uci_apply_defaults
+		__uci_apply_defaults
 		apply_config "$md5file"
 		/bin/ubus send vuci.notify '{"event":"profile_changed"}'
 	) &
@@ -705,41 +773,169 @@ call_handle_diff() {
 	echo ']}'
 }
 
-[ -z "$1" ] && exit
-
-case "$1" in
--b)
-	call_handle_create "$2" "$3"
-	;;
--c)
-	call_handle_change "$2" "$3"
-	;;
--u)
-	call_handle_update
-	;;
--d)
-	call_handle_diff "$2"
-	;;
--r)
-	call_handle_remove "$2"
-	;;
--l)
-	call_handle_list
-	;;
--f)
-	fix_configs
-	;;
-# Used in "/lib/functions.sh"
--i)
-	install_pkg "$2"
-	;;
--p)
-	remove_pkg "$2"
-	;;
-*)
-	log "unrecognised option '$1'"
+# Print usage information
+print_usage() {
+	cat <<EOF
+Usage: $0 [OPTIONS]
+Options:
+  -b NAME      Create a new profile with NAME
+  -c NAME      Change to profile NAME
+  -u           Update current profile
+  -d NAME      Show diff for profile NAME
+  -r NAME      Remove profile NAME
+  -l           List all profiles
+  -f           Fix configs
+  -a TYPE      Apply defaults
+  -i FILE      Install package
+  -p FILE      Remove package
+  -s           Skip validation (with -b)
+  -t           Create profile from template (with -b)
+  -h           Show this help message
+EOF
 	exit 1
-	;;
-esac
+}
+
+# Initialize variables for flags
+b_flag=0
+c_flag=0
+u_flag=0
+d_flag=0
+r_flag=0
+l_flag=0
+f_flag=0
+a_flag=0
+i_flag=0
+p_flag=0
+s_flag=0
+t_flag=0
+h_flag=0
+n_flag=0
+
+b_arg=""
+c_arg=""
+d_arg=""
+r_arg=""
+a_arg=""
+i_arg=""
+p_arg=""
+
+if [ $# -eq 0 ]; then
+	print_usage
+fi
+
+while getopts "b:c:ud:r:lfa:i:p:sthn" opt; do
+	case $opt in
+		b)
+			b_flag=1
+			b_arg="$OPTARG"
+			;;
+		c)
+			c_flag=1
+			c_arg="$OPTARG"
+			;;
+		u)
+			u_flag=1
+			;;
+		d)
+			d_flag=1
+			d_arg="$OPTARG"
+			;;
+		r)
+			r_flag=1
+			r_arg="$OPTARG"
+			;;
+		l)
+			l_flag=1
+			;;
+		f)
+			f_flag=1
+			;;
+		a)
+			a_flag=1
+			a_arg="$OPTARG"
+			;;
+		i)
+			i_flag=1
+			i_arg="$OPTARG"
+			;;
+		p)
+			p_flag=1
+			p_arg="$OPTARG"
+			;;
+		s)
+			s_flag=1
+			;;
+		t)
+			t_flag=1
+			;;
+		h)
+			h_flag=1
+			;;
+		n)
+			n_flag=1
+			;;
+		\?)
+			log "Invalid option: -$OPTARG"
+			print_usage
+			;;
+		:)
+			log "Option -$OPTARG requires an argument."
+			print_usage
+			;;
+	esac
+done
+
+if [ $h_flag -eq 1 ]; then
+	print_usage
+fi
+
+if [ $n_flag -eq 1 ]; then
+	RELOAD_EVENT=0
+fi
+
+if [ $a_flag -eq 1 ]; then
+	apply_defaults "$a_arg"
+fi
+
+if [ $b_flag -eq 1 ]; then
+	option=""
+	[ $s_flag -eq 1 ] && option="-s"
+	[ $t_flag -eq 1 ] && option="-t"
+	call_handle_create "$b_arg" "$option"
+fi
+
+if [ $c_flag -eq 1 ]; then
+	option=""
+	[ $f_flag -eq 1 ] && option="-f"
+	call_handle_change "$c_arg" "$option"
+fi
+
+if [ $u_flag -eq 1 ]; then
+	call_handle_update
+fi
+
+if [ $d_flag -eq 1 ]; then
+	call_handle_diff "$d_arg"
+fi
+
+if [ $r_flag -eq 1 ]; then
+	call_handle_remove "$r_arg"
+fi
+
+if [ $l_flag -eq 1 ]; then
+	call_handle_list
+fi
+
+if [ $f_flag -eq 1 ] && [ $c_flag -eq 0 ]; then
+	fix_configs
+fi
+
+if [ $i_flag -eq 1 ]; then
+	install_pkg "$i_arg"
+fi
+
+if [ $p_flag -eq 1 ]; then
+	remove_pkg "$p_arg"
+fi
 
 exit $?

@@ -27,7 +27,7 @@ define Package/xl2tpd6
   URL:=https://github.com/ulysse31/xl2tpd6
   DEPENDS:=+libpthread +kmod-l2tp +kmod-l2tp-eth +kmod-l2tp-ip +libtlt-logger
   USERID:=xl2tpd:xl2tpd
-  ifeq (m, $(CONFIG_PACKAGE_xl2tpd6))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_xl2tpd6))$(DUMP))
     PKG_TLT_NAME:=L2TPV6 support
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif

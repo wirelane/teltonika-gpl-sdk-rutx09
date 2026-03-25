@@ -341,6 +341,25 @@ define Package/$(1)/description_detail
 endef
 endif
 
+ifndef Package/license-json
+define Package/license-json
+	find_lic_files() { \
+		for f in $(PKG_LICENSE_FILES); do \
+			for d in "$(PKG_BUILD_DIR)" "$(CURDIR)" "$(LINUX_LICENSES_DIR)"; do \
+				lic_file=$$$$(find "$$$$d" -path "*/$$$$f" -printf "%d %p\n" | sort -k1 -n | head -n1 | cut -d' ' -f2); \
+				[[ -n $$$$lic_file ]] && break; \
+			done; \
+			echo "$$$$lic_file"; \
+		done; \
+	}; \
+	jq --argjson files "$$$$(find_lic_files | jq -Rs 'split("\n") | map(select(length > 0))')" \
+		--arg name "$(PKG_NAME)" \
+		--arg license "$(subst $(space),$(comma)$(space),$(LICENSE))" \
+		'. + {$$$$name: {"license": $$$$license, "files": $$$$files}}' \
+		"$(LICENSES_JSON)" >"$(LICENSES_JSON).tmp" && mv "$(LICENSES_JSON).tmp" "$(LICENSES_JSON)"
+endef
+endif
+
 ifndef Package/geninfo
 define Package/geninfo
 	printf "%s," \
@@ -460,6 +479,9 @@ SIZE=$(TARGET_CROSS)size;\
 CROSS=$(TARGET_CROSS);\
 ARCH=$(ARCH)" > "$(TMP_DIR)/.tc"; \
 	)
+
+license-json: $(STAMP_PREPARED)
+	$(if $(and $(PKG_LICENSE),$(PKG_LICENSE_FILES)),$(if $(findstring Teltonika-,$(PKG_LICENSE)),,$(call Package/license-json)))
 
 geninfo:
 	$(if $(PKG_LICENSE),$(if $(findstring Teltonika-,$(PKG_LICENSE)),,$(call Package/geninfo)))

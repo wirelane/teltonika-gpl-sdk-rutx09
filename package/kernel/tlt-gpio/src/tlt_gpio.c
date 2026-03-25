@@ -205,9 +205,16 @@ static const char *gpio_find_node(char *node_name, const char *model, u32 mnf_hw
 		}
 
 		if (of_property_read_string(gpio_node, branch_property_name, &str_branch) == 0) {
-			if (strncmp(str_branch, branch, 1) != 0) {
-				DEBUG_MESSAGE("Branches don't match in %s\n", line_property_name);
-				continue;
+
+			if (str_branch[0] != '!') {
+				if (strncmp(str_branch, branch, 1) != 0) {
+					DEBUG_MESSAGE("Branches don't match in %s\n", line_property_name);
+					continue;
+				}
+			}
+			else if (strncmp(str_branch+1, branch, 1) == 0) {
+					DEBUG_MESSAGE("Excluded from Branch %s\n", line_property_name);
+					continue;
 			}
 		}
 

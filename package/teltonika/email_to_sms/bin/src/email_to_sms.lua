@@ -121,6 +121,7 @@ local function test_header(mbox, id)
 	return true
 end
 
+--- returns true if message was handled and should be deleted
 local function handle_message(mbox, i)
 	local id, size = mbox:list(i)
 	if not test_header(mbox, i) then
@@ -129,8 +130,7 @@ local function handle_message(mbox, i)
 
 	if size > MAX_SIZE then
 		perror(string.format("Message too big (%s bytes). Max allowed size is %d bytes", size, MAX_SIZE))
-		mbox:dele(i)
-		return
+		return true
 	end
 
 	local msg, err = mbox:message(i)
@@ -157,7 +157,7 @@ local function handle_message(mbox, i)
 	local mytext = (plaintext ~= nil) and plaintext or anytext
 	if mytext ~= nil and send_big_sms(msg:subject(), string.sub(mytext, 1, MSG_SIZE), some_mail.limit, modem_query) then
 		print('- Delete -', i)
-		mbox:dele(i)
+		return true
 	end
 end
 
@@ -202,8 +202,17 @@ local function main()
 	print('auth   :', mbox:is_auth())
 
 	local cnt, size = mbox:stat()
+	local needs_delete = {}
 	for i = cnt > MAX_MESSAGE_TO_READ and cnt - MAX_MESSAGE_TO_READ + 1 or 1, cnt do
-		handle_message(mbox, i)
+		local res = handle_message(mbox, i)
+		if res then
+			needs_delete[#needs_delete + 1] = i
+		end
+	end
+	-- some servers (like our emailrelay) shift message IDs after deletion
+	-- so we need to delete them in reverse order
+	for i = #needs_delete, 1, -1 do
+		mbox:dele(needs_delete[i])
 	end
 	mbox:quit()
 end

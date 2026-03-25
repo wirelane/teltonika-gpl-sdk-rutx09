@@ -1,1 +1,1 @@
-{"user":"uhttpd","access":{"iec60870_server":{"methods":["status"]}}}
+{"user":"uhttpd","access":{"iec60870_server":{"methods":["status"]},"rc":{"methods":["init"]}}}

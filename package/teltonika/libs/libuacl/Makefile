@@ -6,25 +6,21 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libuacl
-PKG_SOURCE_VERSION:=1.0
-PKG_SOURCE_DATE:=2025-06-10
-PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
+PKG_SOURCE_VERSION:=1.1
+PKG_SOURCE_DATE:=2025-12-10
 
 PKG_LICENSE:=Teltonika-closed
 GPL_INCLUDE_HEADERS:=1
 
 include $(INCLUDE_DIR)/package.mk
 
-MAKE_FLAGS += \
-	FPIC="$(FPIC)" \
-	SOVERSION="$(PKG_ABI_VERSION)"
+MAKE_FLAGS += FPIC="$(FPIC)"
 
 define Package/libuacl
 	SECTION:=libs
 	CATEGORY:=Libraries
 	TITLE:=RUTOS ACL library
 	DEPENDS:=+libblobmsg-json
-	ABI_VERSION:=$(PKG_ABI_VERSION)
 endef
 
 define Package/libuacl/description
@@ -41,7 +37,7 @@ endef
 
 define Package/libuacl/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libuacl.so.$(PKG_ABI_VERSION) $(1)/usr/lib/libuacl.so.$(PKG_ABI_VERSION)
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/libuacl.so $(1)/usr/lib/libuacl.so
 endef
 
 $(eval $(call BuildPackage,libuacl))

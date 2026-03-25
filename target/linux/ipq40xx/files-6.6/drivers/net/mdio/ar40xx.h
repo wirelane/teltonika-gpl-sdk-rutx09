@@ -68,7 +68,7 @@ struct ar40xx_priv {
 	/* mirror */
 	bool mirror_rx;
 	bool mirror_tx;
-	int source_port;
+	bool port_is_mirror_source[AR40XX_NUM_PORTS];
 	int monitor_port;
 };
 

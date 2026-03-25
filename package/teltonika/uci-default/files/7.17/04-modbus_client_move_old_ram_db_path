@@ -8,8 +8,8 @@ NEW_PATH="/var/run/modbus_client/modbus.db"
 config_load modbus_client
 config_get db_path main db_path
 if [ "$db_path" = "${OLD_PATH}" ] ; then
-	uci set "modbus_client.main.db_path=${NEW_PATH}"
-	uci commit
+	uci_set "modbus_client" "main" "db_path" "${NEW_PATH}"
+	uci_commit modbus_client
 fi
 
 exit 0

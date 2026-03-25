@@ -1,5 +1,7 @@
 #!/bin/sh
 
+BFD_CONFIG="/var/run/frr/bfdd.conf"
+
 xappend() {
 
 	local file="$1"
@@ -19,23 +21,21 @@ bfd_get_status() {
 bfd_profile_cb() {
 
 	local section="$1"
-	local cfg="/var/run/frr/bfd.conf"
 
 	config_get receive_interval "$section" "receive_interval"
 	config_get transmit_interval "$section" "transmit_interval"
 
-	xappend "$cfg" "profile" "$section"
+	xappend "$BFD_CONFIG" "profile" "$section"
 
-	[ -n "$receive_interval" ] && xappend "$cfg" "receive-interval" "$receive_interval"
-	[ -n "$transmit_interval" ] && xappend "$cfg" "transmit-interval" "$transmit_interval"
+	[ -n "$receive_interval" ] && xappend "$BFD_CONFIG" "receive-interval" "$receive_interval"
+	[ -n "$transmit_interval" ] && xappend "$BFD_CONFIG" "transmit-interval" "$transmit_interval"
 
-	echo "" >> "$cfg"
+	echo "" >> "$BFD_CONFIG"
 }
 
 bfd_peers_cb() {
 
 	local section="$1"
-	local cfg="/var/run/frr/bfd.conf"
 
 	config_get enabled "$section" "enabled"
 	[ "$enabled" == "1" ] || return 0
@@ -53,26 +53,23 @@ bfd_peers_cb() {
 	[ -n "$interface" ] && ip="${ip} interface ${interface}"
 	[ -n "$multihop" ] && ip="${ip} multihop local-address ${multihop}"
 
-	[ -n "$ip" ] && xappend "$cfg" "peer" "$ip"
+	[ -n "$ip" ] && xappend "$BFD_CONFIG" "peer" "$ip"
 
-	[ "$passive_mode" = "1" ] && xappend "$cfg" "passive-mode"
-	[ -n "$detect_multiplier" ] && xappend "$cfg" "detect-multiplier" "$detect_multiplier"
-	[ -n "$profile" ] && xappend "$cfg" "profile" "$profile"
-	[ -n "$receive_interval" ] && xappend "$cfg" "receive-interval" "$receive_interval"
-	[ -n "$transmit_interval" ] && xappend "$cfg" "transmit-interval" "$transmit_interval"
+	[ "$passive_mode" = "1" ] && xappend "$BFD_CONFIG" "passive-mode"
+	[ -n "$detect_multiplier" ] && xappend "$BFD_CONFIG" "detect-multiplier" "$detect_multiplier"
+	[ -n "$profile" ] && xappend "$BFD_CONFIG" "profile" "$profile"
+	[ -n "$receive_interval" ] && xappend "$BFD_CONFIG" "receive-interval" "$receive_interval"
+	[ -n "$transmit_interval" ] && xappend "$BFD_CONFIG" "transmit-interval" "$transmit_interval"
 
-	echo "" >> "$cfg"
+	echo "" >> "$BFD_CONFIG"
 }
 
 bfd_utils_parse_config() {
-
-	local cfg="/var/run/frr/bfd.conf"
-
 	config_load bfd
 
 	bfd_get_status || return 0
 
-	xappend "$cfg" "bfd"
+	xappend "$BFD_CONFIG" "bfd"
 	config_foreach bfd_profile_cb "profile"
 	config_foreach bfd_peers_cb "peer"
 }

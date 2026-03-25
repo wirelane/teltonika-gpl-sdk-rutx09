@@ -30,7 +30,7 @@ config_foreach check_wifi_id "wifi-iface"
     for sec in $dup_sec; do
         reassign_wifi_id $sec
     done
-    uci commit "wireless"
+    uci_commit "wireless"
 }
 
 exit 0

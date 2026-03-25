@@ -220,7 +220,7 @@ config MOBILE_USAGE_SUPPORT
 	maintainer "Mobile"
 	depends on MOBILE_SUPPORT
 	default y
-	imply PACKAGE_quota_limit
+	imply PACKAGE_quota-limit
 	imply PACKAGE_mdcollectd
 	imply PACKAGE_vuci-app-mobile-usage-ui
 	detail
@@ -402,12 +402,16 @@ config WIFI_SUPPORT
 	imply PACKAGE_vuci-app-wireless-ui
 	imply PACKAGE_multiple_ap if !AP_DEVICE && !USES_VENDOR_WIFI_DRIVER
 	detail
-		Modes: Access Point (AP), Mesh (802.11s)
-		Access Point: Fast transition (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, WMM
-		Encryptions: WPA-PSK, WPA2-PSK, WPA3-SAE, WPA-EAP, WPA2-EAP, WPA3-EAP, OWE
-		Ciphers: CCMP, TKIP
-		Features: WDS, MAC filter, credentials QR code generator
-	detail if ADVANCED_NETWORK
+		Modes: Access Point (AP)
+		Access Point: WMM
+		Encryptions: WPA-PSK, WPA2-PSK, WPA2-PPSK, WPA3-SAE, WPA-EAP, WPA2-EAP, WPA3-EAP, OWE
+		Ciphers: Auto, CCMP (AES), TKIP
+		Features: Credentials QR code generator
+	detail if !USES_VENDOR_WIFI_DRIVER
+		Access Point: \, Fast transition (802.11r), Radio Resource Measurement (802.11k), BSS Transition Management (802.11v), Client isolation, Hide SSID, MAC filter
+		Modes: \, Mesh (802.11s)
+		Features: \, WDS
+	detail if ADVANCED_NETWORK && !USES_VENDOR_WIFI_DRIVER
 		Modes: \, Client (STA), Multi AP
 		EAP Methods: TLS (with PKCS#12 format support), TTLS, PEAP, FAST
 		Features: \, Fast roaming
@@ -491,40 +495,44 @@ config ADVANCED_NETWORK
 		Bridging: Multiple bridges, STP, IGMP snooping (Multicast)
 	detail if PORT_LINK
 		Ports Control: View, enable, disable, auto-configuration control, transmission speed control
-	detail if FRR_SUPPORT || FRR5_SUPPORT
+	detail if FRR_SUPPORT || FRR8_SUPPORT
 		Routing: \, dynamic routing
 
 
 config FRR_SUPPORT
 	tristate "Dynamic Route Protocols"
 	label "Network"
-	maintainer "SysApp"
-	depends on !64MB_RAM && PKG_SUPPORT && ADVANCED_NETWORK
+	maintainer "Network"
+	depends on !SMALL_FLASH && PKG_SUPPORT && ADVANCED_NETWORK
 	default m if !x86_64 && (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_vuci-app-dynamic-routes-rip-ui
-	imply PACKAGE_vuci-app-dynamic-routes-ospf-ui
-	imply PACKAGE_vuci-app-dynamic-routes-eigrp-ui
-	imply PACKAGE_vuci-app-dynamic-routes-bgp-ui
-	imply PACKAGE_vuci-app-dynamic-routes-nhrp-ui
+	imply PACKAGE_frr
+	imply PACKAGE_frr-zebra
+	imply PACKAGE_frr-libfrr
+	imply PACKAGE_frr-ripd-meta
+	imply PACKAGE_frr-ospfd-meta
+	imply PACKAGE_frr-eigrpd-meta
+	imply PACKAGE_frr-bgpd-meta
+	imply PACKAGE_frr-nhrpd-meta
+	imply PACKAGE_frr-mgmtd
 	detail
 		RIP, OSPF, EIGRP, BGP, NHRP
 
-config FRR5_SUPPORT
+config FRR8_SUPPORT
 	tristate "Dynamic Route Protocols"
 	label "Network"
-	maintainer "SysApp"
-	depends on 64MB_RAM && PKG_SUPPORT && ADVANCED_NETWORK
+	maintainer "Network"
+	depends on SMALL_FLASH && PKG_SUPPORT && ADVANCED_NETWORK
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_frr5
-	imply PACKAGE_frr5-zebra
-	imply PACKAGE_frr5-libfrr
-	imply PACKAGE_vuci-app-dynamic-routes-rip5-ui
-	imply PACKAGE_vuci-app-dynamic-routes-ospf5-ui
-	imply PACKAGE_vuci-app-dynamic-routes-eigrp5-ui
-	imply PACKAGE_vuci-app-dynamic-routes-bgp5-ui
-	imply PACKAGE_vuci-app-dynamic-routes-nhrp5-ui
+	imply PACKAGE_frr8
+	imply PACKAGE_frr8-zebra
+	imply PACKAGE_frr8-libfrr
+	imply PACKAGE_frr8-ripd-meta
+	imply PACKAGE_frr8-ospfd-meta
+	imply PACKAGE_frr8-eigrpd-meta
+	imply PACKAGE_frr8-bgpd-meta
+	imply PACKAGE_frr8-nhrpd-meta
 	detail
 		RIP, OSPF, EIGRP, BGP, NHRP
 
@@ -532,12 +540,33 @@ config BFD_FRR_SUPPORT
 	tristate
 	maintainer "Network"
 	label "Network"
-	depends on PKG_SUPPORT && FRR_SUPPORT && !USES_VENDOR_WIFI_DRIVER
+	depends on !SMALL_FLASH && PKG_SUPPORT && FRR_SUPPORT && !USES_VENDOR_WIFI_DRIVER
 	default y if TEST_IMAGE
 	default m
 	detail
 		Protocol intended to detect faults in the bidirectional path between two forwarding engines
-	imply PACKAGE_vuci-app-bfd-ui
+	imply PACKAGE_bfdd-frr-meta
+
+config BFD_FRR8_SUPPORT
+	tristate
+	maintainer "Network"
+	label "Network"
+	depends on SMALL_FLASH && PKG_SUPPORT && FRR8_SUPPORT && !USES_VENDOR_WIFI_DRIVER
+	default m
+	detail
+		Protocol intended to detect faults in the bidirectional path between two forwarding engines
+	imply PACKAGE_bfdd-frr8-meta
+
+config SMCROUTE_SUPPORT
+	tristate
+	maintainer "Network"
+	label "Network"
+	depends on PKG_SUPPORT
+	default y if TEST_IMAGE
+	default m
+	detail
+		SMCRoute is a command line tool to manipulate the multicast routes of the Linux kernel.
+	imply PACKAGE_vuci-app-smcroute-ui
 
 config STARLINK_SUPPORT
 	tristate
@@ -641,7 +670,7 @@ config JOOL_SUPPORT
 
 config DOT1X_CLIENT_SUPPORT
 	tristate "802.1X Client"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Network"
 	depends on HAS_DOT1X_CLIENT
 	default m if !NAND_SUPPORT && !x86_64 && !(INDUSTRIAL_AP || AP_DEVICE || DSA_SUPPORT || GATEWAY_DEVICE) && !TEST_IMAGE
@@ -653,7 +682,7 @@ config DOT1X_CLIENT_SUPPORT
 
 config DOT1X_SERVER_SUPPORT
 	tristate "802.1X Server"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Network"
 	depends on !(INDUSTRIAL_AP || AP_DEVICE) && HAS_DOT1X_SERVER
 	default y if HAS_SINGLE_ETH_PORT || DSA_SUPPORT || x86_64 || TEST_IMAGE
@@ -752,8 +781,7 @@ config RELAYD_SUPPORT
 config NETWORK_MAP_SUPPORT
 	tristate "Topology"
 	label "Network Utilities"
-	maintainer "SysApp"
-	depends on !AP_DEVICE
+	maintainer "Network"
 	default m if SMALL_FLASH && PKG_SUPPORT
 	default y
 	imply PACKAGE_vuci-app-networkmap-ui
@@ -763,7 +791,7 @@ config NETWORK_MAP_SUPPORT
 config NETWORK_USAGE_SUPPORT
 	bool "Network Usage"
 	label "Network Utilities"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on NETWORK_MAP_SUPPORT && !SMALL_FLASH
 	default y
 	imply PACKAGE_vuci-app-network-usage-ui
@@ -837,9 +865,19 @@ config HOTSPOT_THEMES_SUPPORT
 config MPLS_SUPPORT
 	tristate "Kernel support for MPLS"
 	label "Network Utilities"
-	depends on PKG_SUPPORT && FRR_SUPPORT && ADVANCED_NETWORK && !USES_VENDOR_WIFI_DRIVER
+	depends on !SMALL_FLASH && PKG_SUPPORT && FRR_SUPPORT && ADVANCED_NETWORK && !USES_VENDOR_WIFI_DRIVER
 	default m
-	select PACKAGE_vuci-app-mpls-ui
+	select PACKAGE_ldpd-frr-meta
+	detail
+		Multiprotocol Label Switching (MPLS) is a routing technique that uses labels instead
+		of network addresses for routing decisions
+
+config MPLS8_SUPPORT
+	tristate "Kernel support for MPLS"
+	label "Network Utilities"
+	depends on SMALL_FLASH && PKG_SUPPORT && FRR8_SUPPORT && ADVANCED_NETWORK && !USES_VENDOR_WIFI_DRIVER
+	default m
+	select PACKAGE_ldpd-frr8-meta
 	detail
 		Multiprotocol Label Switching (MPLS) is a routing technique that uses labels instead
 		of network addresses for routing decisions
@@ -851,7 +889,7 @@ config MPLS_SUPPORT
 config STRONGSWAN_SUPPORT
 	bool "IPsec"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on ADVANCED_NETWORK
 	default y
 	imply PACKAGE_strongswan
@@ -868,7 +906,7 @@ config STRONGSWAN_SUPPORT
 config OPENVPN_SUPPORT
 	bool "OpenVPN"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on ADVANCED_NETWORK || (AP_DEVICE && SMALL_FLASH && !LEDMAN_LITE)
 	default y
 	imply PACKAGE_vuci-app-openvpn-ui
@@ -879,7 +917,7 @@ config OPENVPN_SUPPORT
 config OPENVPN_DCO_SUPPORT
 	tristate
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && OPENVPN_SUPPORT && !LINUX_4_14
 	default m if SMALL_FLASH
 	default y
@@ -891,7 +929,7 @@ config OPENVPN_DCO_SUPPORT
 config STUNNEL_SUPPORT
 	tristate "Stunnel"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && ADVANCED_NETWORK
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
@@ -902,7 +940,7 @@ config STUNNEL_SUPPORT
 config L2TP_SUPPORT
 	bool "L2TP"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on ADVANCED_NETWORK
 	default y
 	imply PACKAGE_vuci-app-l2tp-ui
@@ -914,7 +952,7 @@ config L2TP_SUPPORT
 config L2TPV6_SUPPORT
 	tristate
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && L2TP_SUPPORT
 	default m if SMALL_FLASH
 	default y
@@ -926,7 +964,7 @@ config L2TPV6_SUPPORT
 config L2TPv3_SUPPORT
 	tristate "L2TPv3"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	default y
 	detail
 		Tunneling protocol that can be used as an alternative protocol to Multiprotocol
@@ -935,7 +973,7 @@ config L2TPv3_SUPPORT
 config PPTP_SUPPORT
 	bool "PPTP"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on ADVANCED_NETWORK
 	default y
 	imply PACKAGE_vuci-app-pptp-ui
@@ -946,7 +984,7 @@ config PPTP_SUPPORT
 config SSTP_SUPPORT
 	tristate "SSTP Client"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && ADVANCED_NETWORK
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
@@ -957,29 +995,29 @@ config SSTP_SUPPORT
 config DMVPN_SUPPORT
 	tristate "DMVPN"
 	label "VPN"
-	maintainer "SysApp"
-	depends on !64MB_RAM && PKG_SUPPORT && GRE_SUPPORT && STRONGSWAN_SUPPORT && FRR_SUPPORT
+	maintainer "Network"
+	depends on !SMALL_FLASH && PKG_SUPPORT && GRE_SUPPORT && STRONGSWAN_SUPPORT && FRR_SUPPORT
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_vuci-app-dmvpn-ui
+	imply PACKAGE_dmvpn-meta
 	detail
 		Spoke and Hub modes, GRE, IPSec, NHRP technologies
 
-config DMVPN_FRR5_SUPPORT
-	tristate "DMVPN"
+config DMVPN_FRR8_SUPPORT
+	tristate "DMVPN_FRR8"
 	label "VPN"
-	maintainer "SysApp"
-	depends on 64MB_RAM && PKG_SUPPORT && GRE_SUPPORT && STRONGSWAN_SUPPORT && FRR5_SUPPORT
+	maintainer "Network"
+	depends on SMALL_FLASH && PKG_SUPPORT && ADVANCED_NETWORK
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
 	default y
-	imply PACKAGE_vuci-app-dmvpn5-ui
+	imply PACKAGE_dmvpn_frr8-meta
 	detail
 		Spoke and Hub modes, GRE, IPSec, NHRP technologies
 
 config GRE_SUPPORT
 	bool "GRE"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on ADVANCED_NETWORK
 	default y
 	imply PACKAGE_gre
@@ -991,7 +1029,7 @@ config GRE_SUPPORT
 config ZEROTIER_SUPPORT
 	tristate "ZeroTier"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1002,7 +1040,7 @@ config ZEROTIER_SUPPORT
 config TINC_SUPPORT
 	tristate "Tinc"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1013,7 +1051,7 @@ config TINC_SUPPORT
 config WIREGUARD_SUPPORT
 	bool "WireGuard"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on !AP_DEVICE
 	default y
 	imply PACKAGE_wireguard-tools if !HAS_DOWNSTREAM_KERNEL
@@ -1025,7 +1063,7 @@ config WIREGUARD_SUPPORT
 config TAILSCALE_SUPPORT
 	tristate "Tailscale"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on !SMALL_FLASH && !64MB_RAM && (!128MB_RAM || USB_GADGET_SUPPORT) && PKG_SUPPORT && ( !GATEWAY_DEVICE || BYPASS_OFFLOAD_FEATURE || USB_GADGET_SUPPORT )
 	default y if TEST_IMAGE
 	default m
@@ -1036,7 +1074,7 @@ config TAILSCALE_SUPPORT
 config NETBIRD_SUPPORT
 	tristate "Netbird"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && HIGH_STORAGE
 	default y if TEST_IMAGE
 	default m
@@ -1047,7 +1085,7 @@ config NETBIRD_SUPPORT
 config EOIP_SUPPORT
 	tristate "EoIP"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1058,7 +1096,7 @@ config EOIP_SUPPORT
 config OPENCONNECT_SUPPORT
 	tristate "OpenConnect"
 	label "VPN"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on !SMALL_FLASH && PKG_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1245,14 +1283,14 @@ config DLMS_SUPPORT
 	detail
 		connection types
 
-config CANBUS_SUPPORT
-	bool "CANBUS"
+config CAN_GATEWAY_SUPPORT
+	bool "CAN Gateway"
 	label "Industrial Protocols"
 	maintainer "Apps/Apps2"
 	depends on CAN_BUS_STM
 	default y
 	imply PACKAGE_can_gw
-	imply PACKAGE_vuci-app-canbus-gateway-ui
+	imply PACKAGE_vuci-app-can-gateway-ui
 	detail
 		CAN to IP gateway
 
@@ -1280,7 +1318,7 @@ config EVENTS_SUBSYSTEM
 	default m if SMALL_FLASH && PKG_SUPPORT
 	default n if CONSUMER_AP
 	default y
-	imply PACKAGE_vuci-app-events-reporting-ui
+	imply PACKAGE_vuci-app-events-reporting-api
 	imply BUSYBOX_CONFIG_PASSWD
 	detail
 		Notification sending to email
@@ -1396,6 +1434,8 @@ config DATA_SENDER_SUPPORT
 	imply PACKAGE_vuci-app-data-sender-api-mod-lua_format
 	imply PACKAGE_DATA_SENDER_SCHEDULER
 	imply PACKAGE_DATA_SENDER_BASE64
+	imply PACKAGE_data-sender-mod-gzip
+	imply PACKAGE_data-sender-mod-deflate
 	imply PACKAGE_vuci-app-data-sender-api-mod-gsm if MOBILE_SUPPORT
 	imply PACKAGE_vuci-app-data-sender-api-mod-mdcollect if MOBILE_SUPPORT
 	imply PACKAGE_vuci-app-data-sender-api-mod-bluetooth if BLUETOOTH_SUPPORT
@@ -1480,7 +1520,7 @@ config WebUI
 config API
 	tristate "API"
 	label "Monitoring & Management"
-	maintainer "Apps/Apps2"
+	maintainer "SysApp"
 	default y
 	detail
 		Interface that allows different software applications to communicate and exchange data
@@ -1488,7 +1528,7 @@ config API
 config HTTP
 	tristate "HTTP/HTTPS"
 	label "Monitoring & Management"
-	maintainer "Apps/Apps2"
+	maintainer "SysApp"
 	default y
 	detail
 		HTTP and HTTPS protocols used for communication between web browsers and devices
@@ -1561,7 +1601,7 @@ config USB_STORAGE_SUPPORT
 config APP_SAMBA
 	tristate "Network Shares"
 	label "Monitoring & Management"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && USB_STORAGE_SUPPORT
 	default y if TEST_IMAGE
 	default m
@@ -1667,7 +1707,7 @@ config IO_JUGGLER
 	depends on IO_SUPPORT
 	default m if SMALL_FLASH && PKG_SUPPORT
 	default y
-	imply PACKAGE_vuci-app-io-juggler-ui
+	imply PACKAGE_vuci-app-io-juggler-api
 
 config POWER_CONTROL_SUPPORT
 	bool "Power Control"
@@ -1791,7 +1831,7 @@ config PAM_SUPPORT
 config PORT_MIRRORING_SUPPORT
 	tristate "Port Mirroring"
 	label "System"
-	maintainer "SysApp"
+	maintainer "Network"
 	depends on PKG_SUPPORT && HAS_PORT_MIRRORING
 	default m if !NAND_SUPPORT && USES_SOFT_PORT_MIRROR && !TEST_IMAGE
 	default y
@@ -1901,8 +1941,9 @@ config MULTI_LANGUAGE_SUPPORT
 	imply PACKAGE_vuci-i18n-portuguese
 	imply PACKAGE_vuci-i18n-japanese
 	imply PACKAGE_vuci-i18n-ukrainian
+	imply PACKAGE_vuci-i18n-polish
 	detail
-		Change the WebUI language from English to German, Turkish, Spanish, Portuguese, Japanese or Ukrainian
+		Change the WebUI language from English to German, Turkish, Spanish, Portuguese, Japanese, Ukrainian or Polish
 
 config WEB_CLI_SUPPORT
 	bool "CLI"
@@ -1931,7 +1972,7 @@ config JWT_SUPPORT
 
 config PORT_EVENTS_SUPPORT
 	bool
-	maintainer "SysApp"
+	maintainer "Network"
 	label "System"
 	default y
 	imply PACKAGE_port_eventsd
@@ -1997,12 +2038,23 @@ config SCEP_SUPPORT
 
 config FRR_VTYSH_SUPPORT
 	tristate "VTYSH"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
-	depends on !64MB_RAM && PKG_SUPPORT && ADVANCED_NETWORK && FRR_SUPPORT
+	depends on !SMALL_FLASH && PKG_SUPPORT && ADVANCED_NETWORK && FRR_SUPPORT
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_frr-vtysh
+	detail
+		Command line interface for dynamic route protocols
+
+config FRR_VTYSH8_SUPPORT
+	tristate "VTYSH8"
+	maintainer "Network"
+	label "Utilities"
+	depends on SMALL_FLASH && PKG_SUPPORT && ADVANCED_NETWORK
+	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
+	default y
+	imply PACKAGE_frr8-vtysh
 	detail
 		Command line interface for dynamic route protocols
 
@@ -2019,7 +2071,7 @@ config TCP_DUMP_SUPPORT
 
 config WOL_SUPPORT
 	tristate "Wake On LAN"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT
 	default y if (NAND_SUPPORT && !NETWORKS_EXTERNAL) || TEST_IMAGE
@@ -2030,7 +2082,7 @@ config WOL_SUPPORT
 
 config SPEEDTEST_SUPPORT
 	tristate "Speedtest"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT
 	default m if (!NAND_SUPPORT || (NAND_SUPPORT && GATEWAY_DEVICE)) && !TEST_IMAGE
@@ -2041,7 +2093,7 @@ config SPEEDTEST_SUPPORT
 
 config DDNS_SUPPORT
 	tristate "Dynamic DNS"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT && ADVANCED_NETWORK
 	default m if !NAND_SUPPORT && !TEST_IMAGE
@@ -2052,7 +2104,7 @@ config DDNS_SUPPORT
 
 config WEB_FILTER_SUPPORT
 	tristate "Web Filter"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT && ADVANCED_NETWORK
 	default y if (NAND_SUPPORT && !GATEWAY_DEVICE) || TEST_IMAGE
@@ -2063,7 +2115,7 @@ config WEB_FILTER_SUPPORT
 
 config UPNP_SUPPORT
 	tristate "UPNP"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT
 	default y if TEST_IMAGE
@@ -2074,7 +2126,7 @@ config UPNP_SUPPORT
 
 config DLNA_SUPPORT
 	tristate "DLNA"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on PKG_SUPPORT && USB_STORAGE_SUPPORT
 	default y if TEST_IMAGE
@@ -2131,7 +2183,7 @@ config IMPULSE_COUNTER_SUPPORT
 
 config WIFI_SCANNER_SUPPORT
 	tristate "Wi-Fi Scanner"
-	maintainer "SysApp"
+	maintainer "Network"
 	label "Utilities"
 	depends on (WIFI_SUPPORT && !USES_VENDOR_WIFI_DRIVER) || TEST_IMAGE
 	default m if PKG_SUPPORT && !NAND_SUPPORT && !TEST_IMAGE
@@ -2210,7 +2262,7 @@ config FREERADIUS_SUPPORT
 
 config KMOD_FS_CIFS
 	tristate "CIFS Client Support"
-	maintainer "Embedded"
+	maintainer "SysApp"
 	label "Utilities"
 	depends on PKG_SUPPORT
 	default m
@@ -2225,7 +2277,7 @@ config KMOD_FS_CIFS
 config FIRMWARE_CUSTOMISATION
 	bool "Firmware Customisation"
 	label "Other"
-	maintainer "Embedded"
+	maintainer "SysApp"
 	default y
 	detail
 		Operating System: RutOS (OpenWrt based Linux OS)
@@ -2279,6 +2331,7 @@ config CORE_UI_PACKAGES
 	imply PACKAGE_vuci-app-firmware-ui
 	imply PACKAGE_vuci-app-reset-ui
 	imply PACKAGE_vuci-app-password-policy-ui
+	imply PACKAGE_vuci-app-integrity-ui
 	imply PACKAGE_vuci-app-change-password-ui if !MULTIUSERS_SUPPORT
 	imply PACKAGE_vuci-app-overview-ui if !AP_DEVICE
 	imply PACKAGE_vuci-app-overview-tap-ui if AP_DEVICE

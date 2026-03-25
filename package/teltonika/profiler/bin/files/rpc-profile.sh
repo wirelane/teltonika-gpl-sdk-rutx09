@@ -31,6 +31,7 @@ main() {
 		json_add_object "change"
 		json_add_string "name"
 		json_add_boolean "force"
+		json_add_boolean "no_reload"
 		json_close_object
 		json_add_object "update"
 		json_close_object
@@ -41,6 +42,8 @@ main() {
 		json_add_string "name"
 		json_close_object
 		json_add_object "list"
+		json_close_object
+		json_add_object "migrate"
 		json_close_object
 		json_dump
 		;;
@@ -59,16 +62,16 @@ main() {
 			fi
 			;;
 		change)
-			local input name force
+			local input name force no_reload
 			read input
 			json_load "$input"
 			json_get_var name name
 			json_get_var force force
-			if [ "$force" -eq 1 ]; then
-				run_profile_cmd -c "$name" -f
-			else
-				run_profile_cmd -c "$name"
-			fi
+			json_get_var no_reload no_reload
+			local args="-c \"$name\""
+			[ "$force" -eq 1 ] && args="$args -f"
+			[ "$no_reload" -eq 1 ] && args="$args -n"
+			eval run_profile_cmd $args
 			;;
 		update)
 			run_profile_cmd -u
@@ -89,6 +92,9 @@ main() {
 			;;
 		list)
 			run_profile_cmd -l
+			;;
+		migrate)
+			run_profile_cmd -a all
 			;;
 		esac
 		;;

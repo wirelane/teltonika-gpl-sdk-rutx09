@@ -18,7 +18,7 @@ PKG_HASH:=92e0e3bd4c02d4aeee76036b2ddd83f0c732ba4cda5cb71d583272b23587a76c
 
 PKG_MAINTAINER:=Nikos Mavrogiannopoulos <n.mavrogiannopoulos@gmail.com>
 PKG_LICENSE:=LGPL-2.1-or-later
-PKG_LICENSE_FILES:=COPYING.LIB
+PKG_LICENSE_FILES:=COPYING.LESSERv2
 PKG_CPE_ID:=cpe:/a:gnu:libtasn1
 
 #PKG_FIXUP:=autoreconf

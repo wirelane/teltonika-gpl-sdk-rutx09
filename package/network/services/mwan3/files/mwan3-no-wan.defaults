@@ -98,7 +98,7 @@ add_interface_section() {
 
 	local section="$1"
 	
-	uci -q batch <<-EOF
+	uci_batch <<-EOF
 		set mwan3.$section='interface'
 		set mwan3.$section.interval='3'
 		set mwan3.$section.enabled='0'
@@ -111,7 +111,7 @@ add_interface_section() {
 add_condition_section() {
 
 	local network="$1"
-	uci -q batch <<-EOF
+	uci_batch <<-EOF
 		add mwan3 condition
 		set mwan3.@condition[-1].interface='$network'
 		set mwan3.@condition[-1].track_method='ping'
@@ -135,7 +135,7 @@ add_member_mwan_section() {
 
 	[ -z "$metric" ] && return 1
 
-	uci -q batch <<-EOF
+	uci_batch <<-EOF
 		set mwan3.$section='member'
 		set mwan3.$section.interface='$network'
 		set mwan3.$section.metric='$metric'
@@ -148,7 +148,7 @@ add_member_balance_section() {
 	local network="$1"
 	local section="${network}_member_balance"
 
-	uci -q batch <<-EOF
+	uci_batch <<-EOF
 		set mwan3.$section='member'
 		set mwan3.$section.interface='$network'
 		set mwan3.$section.weight='1'
@@ -165,7 +165,7 @@ remove_wan_cb() {
 
 	[ "$ifname" != "wan" ] && return 1
 
-	uci -q delete mwan3."${section}"
+	uci_remove "mwan3" "$section"
 
 	return 0
 

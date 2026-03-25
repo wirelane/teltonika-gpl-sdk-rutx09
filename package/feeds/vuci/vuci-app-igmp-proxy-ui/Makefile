@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for IGMP Proxy
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-igmp-proxy-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-igmp-proxy-ui))$(DUMP))
 	APP_APP_NAME:=igmpproxy
 	APP_TLT_NAME:=IGMP Proxy
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

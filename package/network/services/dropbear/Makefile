@@ -59,7 +59,7 @@ define Package/dropbear
   CATEGORY:=Base system
   TITLE:=Small SSH2 client/server
   USERID:=dropbear:dropbear
-  DEPENDS:= +DROPBEAR_ZLIB:zlib +libubus +libubox +libtlt-logger
+  DEPENDS:= +DROPBEAR_ZLIB:zlib +libubus +libubox +libtlt-logger +inetd-ubus
   ALTERNATIVES:=
   $(if $(CONFIG_DROPBEAR_SCP),ALTERNATIVES+= \
 	  100:/usr/bin/scp:/usr/sbin/dropbear,)
@@ -122,7 +122,7 @@ DB_OPT_COMMON = \
 	DEFAULT_PATH,"$(TARGET_INIT_PATH)" \
 	DEFAULT_ROOT_PATH,"$(TARGET_INIT_PATH)" \
 	!!LOCAL_IDENT,"SSH-2.0-dropbear" \
-	INETD_MODE,0 \
+	INETD_MODE,1 \
 	DROPBEAR_CLI_NETCAT,0 \
 	DROPBEAR_DSS,0 \
 	DO_MOTD,0 \

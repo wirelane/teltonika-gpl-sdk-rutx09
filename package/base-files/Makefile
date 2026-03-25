@@ -18,7 +18,7 @@ PKG_RELEASE:=$(COMMITCOUNT)
 PKG_FILE_DEPENDS:=$(PLATFORM_DIR)/ $(GENERIC_PLATFORM_DIR)/base-files/
 PKG_BUILD_DEPENDS:=ucert/host
 PKG_LICENSE:=GPL-2.0-only
-PKG_LICENSE_FILES:=LICENSES/GPL-2.0
+PKG_LICENSE_FILES:=GPL-2.0
 
 PKG_ORIGIN_URL:=https://github.com/openwrt/openwrt/blob/openwrt-21.02/package/base-files
 
@@ -225,6 +225,13 @@ define Package/base-files/install
 		$(RM) $(1)/etc/profile.d/rwrootfs.sh \
 		$(1)/etc/init.d/memleak_watcher \
 		$(1)/sbin/memleak_watcher \
+	, \
+		# Insert a `return 0` at the start of `fwtool_json_release_version_check`
+		# so that the error "Firmware version is too old" never occurs on development builds
+		$(SED) '/^fwtool_json_release_version_check[[:space:]]*()[[:space:]]*{/a \
+			# This function has been automatically stubbed out for development builds\n\
+			return 0\n\
+		' $(1)/lib/upgrade/fwtool.sh
 	)
 
 	if [ $(CONFIG_BUILD_FACTORY_TEST_IMAGE) ]; then \

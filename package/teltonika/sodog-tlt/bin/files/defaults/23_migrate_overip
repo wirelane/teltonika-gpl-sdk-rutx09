@@ -46,6 +46,6 @@ migrate_sections() {
 
 config_load "$CONF"
 config_foreach migrate_sections
-uci commit "$CONF"
+uci_commit "$CONF"
 
 exit 0

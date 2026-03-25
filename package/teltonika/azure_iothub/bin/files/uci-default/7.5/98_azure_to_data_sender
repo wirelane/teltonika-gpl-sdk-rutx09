@@ -2,8 +2,10 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/azure_iothub" ] || return 0
-[ -f "/etc/config/data_sender" ] || return 0
+CONFIG_PATH="${UCI_CONFIG_DIR:-"/etc/config"}"
+
+[ -f "$CONFIG_PATH/azure_iothub" ] || return 0
+[ -f "$CONFIG_PATH/data_sender" ] || return 0
 
 DEV_COUNT=0
 
@@ -78,8 +80,8 @@ set_mdcollect_plugin() {
 	[ -n "$fmt_str" ] || return 0
 
 	if [ -n "$interface" ]; then
-		sim="$(uci -q get network.$interface.sim)"
-		modem="$(uci -q get network.$interface.modem)"
+		sim="$(uci_get "network" "$interface" "sim")"
+		modem="$(uci_get "network" "$interface" "modem")"
 	fi
 
 	__FORMAT_STR="${__FORMAT_STR:+$__FORMAT_STR, }%$new_sec%"
@@ -206,5 +208,5 @@ migrate_azure() {
 config_load azure_iothub
 config_foreach migrate_azure azure_iothub
 
-uci commit
+uci_commit
 /etc/init.d/data_sender reload

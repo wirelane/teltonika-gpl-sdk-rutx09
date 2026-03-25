@@ -211,6 +211,7 @@ expand_wrapper() {
 
 	[ $ret -eq 0 ] && {
 		touch $pending_reboot
+		touch /log/sme_enabled
 		log "expansion successful. pending reboot"
 	}
 
@@ -247,6 +248,7 @@ shrink() {
 
 	sync
 	touch $pending_reboot
+	rm -f /log/sme_enabled
 	log "shrinkage successful. pending reboot"
 	return 0
 }

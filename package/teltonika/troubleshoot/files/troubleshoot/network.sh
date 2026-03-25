@@ -104,6 +104,14 @@ vpns_hook() {
 		troubleshoot_init_log "Wireguard Status" "$log_file"
 		troubleshoot_add_log "$wg_show" "$log_file"
 	}
+
+	is_executable "tailscale" && {
+		troubleshoot_init_log "Tailscale Netcheck" "$log_file"
+		troubleshoot_add_log "$(tailscale netcheck --format json)" "$log_file"
+
+		troubleshoot_init_log "Tailscale Status" "$log_file"
+		troubleshoot_add_log "$(tailscale status --json)" "$log_file"
+	}
 }
 
 dynamic_routes_status_call() {

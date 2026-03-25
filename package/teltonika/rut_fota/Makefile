@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rut_fota
 
-PKG_SOURCE_VERSION:=2.24
+PKG_SOURCE_VERSION:=2.25
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -24,7 +24,7 @@ define Package/rut_fota
 	SECTION:=base
 	CATEGORY:=Base system
 	TITLE:=Firmware Over The Air Utility
-	DEPENDS:=+libuci +libmnfinfo +MOBILE_SUPPORT:libgsm +libubus +libubox +libopenssl +libblobmsg-json +libjson-c +librut_fota +liblog
+	DEPENDS:=+libuci +libmnfinfo +MOBILE_SUPPORT:libgsm +libubus +libubox +libopenssl +libblobmsg-json +libjson-c +librut_fota +libtlt-logger
 	USERID:=rut_fota:rut_fota
 endef
 

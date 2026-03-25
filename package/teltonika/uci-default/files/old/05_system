@@ -5,7 +5,7 @@
 [ -n "$(uci_get system modem disable)" ] || {
 	for m in /sys/class/gpio/modem*_power; do
 		label=$(basename "$m" | awk -F_ '{print $1}')
-		uci -q set "system.${label}=mctl"
+		uci_add "system" "mctl" "$label"
 		uci_set "system" "$label" "disable" "0"
 
 		# modem is turned on in preinit but others are not

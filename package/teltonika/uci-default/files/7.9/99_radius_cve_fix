@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -s "/etc/config/pam" ] || [ -s "/etc/config/chilli" ] || exit 0
+[ -s "$UCI_CONFIG_DIR/pam" ] || [ -s "$UCI_CONFIG_DIR/chilli" ] || exit 0
 
 . /lib/functions.sh
 
@@ -30,13 +30,13 @@ fix_chilli() {
     uci_set "chilli" "$1" "radiusrequiremessageauth" "$radiusrequiremessageauth"
 }
 
-[ -s "/etc/config/pam" ] && {
+[ -s "$UCI_CONFIG_DIR/pam" ] && {
     config_load "pam"
     config_foreach fix_pam "pam"
     uci_commit pam
 }
 
-[ -s "/etc/config/chilli" ] && {
+[ -s "$UCI_CONFIG_DIR/chilli" ] && {
     config_load "chilli"
     config_foreach fix_chilli "chilli"
     uci_commit chilli

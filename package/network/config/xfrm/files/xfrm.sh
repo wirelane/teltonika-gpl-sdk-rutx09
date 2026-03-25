@@ -11,7 +11,11 @@ proto_xfrm_setup() {
 	local cfg="$1"
 	local mode="xfrm"
 
-	local tunlink ifid mtu zone multicast
+	local tunlink ifid mtu zone multicast defaultroute
+	config_load ipsec
+	config_get gateway "$cfg" gateway
+	config_get defaultroute "${cfg}_c" defaultroute
+	local active_wan="/tmp/run/mwan3/active_wan"
 	json_get_vars tunlink ifid mtu zone multicast
 
 	[ -z "$tunlink" ] && {
@@ -25,6 +29,29 @@ proto_xfrm_setup() {
 		proto_block_restart "$cfg"
 		exit
 	}
+
+	for ip in $(resolveip -t 5 "$gateway"); do
+		case "$ip" in
+		*:*)
+			IP6=1
+			;;
+		esac
+		[ "$defaultroute" -eq 1 ] && [ "$IP6" != 1 ] || continue
+
+		if [ -f "$active_wan" ]; then
+			default_int=$(cat "$active_wan")
+			case $default_int in
+				mob*s*a*) default_int="${default_int}_4" ;;
+			esac
+			default="$(ubus call network.interface dump | jsonfilter -e '@.interface[@.interface="'"${default_int}"'"].device')"
+		fi
+		[ -z "$default" ] && default="$(ip route show default | head -n 1 | awk -F"dev " '{print $2}' | sed 's/\s.*$//')"
+		res=$(ip route show default dev $default)
+		gw="$(echo "$res" | head -n 1 | awk -F"via " '{print $2}' | sed 's/\s.*$//')"
+		metric="$(echo "$res" | awk -F"metric " '{print $2}' | sed 's/\s.*$//')"
+
+		[ -n "$gw" ] && ip route add "$ip" via "$gw" dev "$default" metric "$metric" || ip route add "$ip" dev "$default" metric "$metric"
+	done
 
 	( proto_add_host_dependency "$cfg" '' "$tunlink" )
 
@@ -53,6 +80,15 @@ proto_xfrm_setup() {
 
 proto_xfrm_teardown() {
 	local cfg="$1"
+	config_load ipsec
+	config_get gateway "$cfg" gateway
+	config_get defaultroute "${cfg}_c" defaultroute "0"
+	if [ "$defaultroute" = "1" ]; then
+		hosts=$(resolveip -t 5 "$gateway")
+		for ip in $hosts; do
+			ip route del "$ip"
+		done
+	fi
 }
 
 proto_xfrm_init_config() {

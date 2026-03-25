@@ -1,8 +1,13 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for Events Reporting
-
 APP_DEPENDS:=+event-juggler +libparam +libubus +liblua +MOBILE_SUPPORT:libgsm
+
+ifeq (m, $(CONFIG_PACKAGE_vuci-app-events-reporting-api))
+	APP_TLT_NAME:=Events reporting API
+	APP_APP_NAME:=events_reporting
+	APP_ROUTER:=$(TLT_PLATFORM_NAME)
+endif
 
 CUSTOM_INSTALL=1
 include ../api.mk

@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-12-10 08:55:54.000000000 +0000
++++ src/.gitlab-ci.yml	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,11 @@
 +stages:
 +  - check
@@ -15,7 +15,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +    - check
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/CMakeLists.txt src/CMakeLists.txt
 --- upstream/CMakeLists.txt	2021-03-11 00:17:58.000000000 +0000
-+++ src/CMakeLists.txt	2025-12-10 08:55:54.000000000 +0000
++++ src/CMakeLists.txt	2026-03-02 10:27:20.000000000 +0000
 @@ -8,7 +8,10 @@
  
  OPTION(FILE_SUPPORT "File plugin support" ON)
@@ -93,7 +93,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  )
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/exec.c src/exec.c
 --- upstream/exec.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/exec.c	2025-12-10 08:55:54.000000000 +0000
++++ src/exec.c	2026-03-02 10:27:20.000000000 +0000
 @@ -16,6 +16,7 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -117,7 +117,25 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static int
  rpc_errno_status(void)
  {
-@@ -276,11 +282,29 @@
+@@ -136,8 +142,15 @@
+ 	if (c->finish_cb)
+ 		rv = c->finish_cb(&c->blob, c->stat, c->priv);
+ 
+-	if (rv == UBUS_STATUS_OK)
+-		ubus_send_reply(c->context, &c->request, c->blob.head);
++	if (rv == UBUS_STATUS_OK) {
++		int payload_len = c->blob.head ? blob_len(c->blob.head) : 0;
++		if (payload_len > RPC_EXEC_MAX_SIZE) {
++			LOG_ERROR("Payload size %d exceeds maximum allowed %d", payload_len, RPC_EXEC_MAX_SIZE);
++			rv = UBUS_STATUS_UNKNOWN_ERROR;
++		} else {
++			ubus_send_reply(c->context, &c->request, c->blob.head);
++		}
++	}
+ 
+ 	ubus_complete_deferred_request(c->context, &c->request, rv);
+ 
+@@ -276,11 +289,29 @@
  		rpc_exec_reply(c, UBUS_STATUS_OK);
  }
  
@@ -148,7 +166,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	pid_t pid;
  
-@@ -317,7 +341,9 @@
+@@ -317,7 +348,9 @@
  
  	case 0:
  		uloop_done();
@@ -161,7 +179,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		dup2(epipe[1], 2);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/file.c src/file.c
 --- upstream/file.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/file.c	2025-12-10 08:55:54.000000000 +0000
++++ src/file.c	2026-03-02 10:27:20.000000000 +0000
 @@ -32,11 +32,13 @@
  #include <libubus.h>
  #include <libubox/blobmsg.h>
@@ -797,8 +815,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/acl.d/rpcd.json src/files/acl.d/rpcd.json
 --- upstream/files/acl.d/rpcd.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/acl.d/rpcd.json	2025-12-10 08:55:54.000000000 +0000
-@@ -0,0 +1,68 @@
++++ src/files/acl.d/rpcd.json	2026-03-02 10:27:20.000000000 +0000
+@@ -0,0 +1,71 @@
 +{
 +	"user": "rpcd",
 +	"access": {
@@ -855,6 +873,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		},
 +		"ip": {
 +			"methods": [ "*" ]
++		},
++		"integrity": {
++			"methods": [ "*" ]
 +		}
 +	},
 +	"subscribe": ["gsm.modem*"],
@@ -865,11 +886,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				 "serial", "file", "esim.modem*", "sms_limit", "boardjson", "rpc-dfota",
 +				 "modbus_client.rpc", "network.rrdns", "uci", "rc",
 +				 "dlms_client.rpc", "opcua_client.rpc", "mbus_client.rpc", "mbus_client.scan", "dnp3_client.rpc",
-+				 "speedtest", "networkmap", "iec60870_client.rpc", "ip" ]
++				 "speedtest", "networkmap", "iec60870_client.rpc", "ip", "integrity" ]
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/acl.d/session.json src/files/acl.d/session.json
 --- upstream/files/acl.d/session.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/acl.d/session.json	2025-12-10 08:55:54.000000000 +0000
++++ src/files/acl.d/session.json	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,12 @@
 +{
 +	"user": "session",
@@ -885,7 +906,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/acl.d/uci.json src/files/acl.d/uci.json
 --- upstream/files/acl.d/uci.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/acl.d/uci.json	2025-12-10 08:55:54.000000000 +0000
++++ src/files/acl.d/uci.json	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,11 @@
 +{
 +	"user": "uci",
@@ -900,7 +921,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/init.d/rpcd.init src/files/init.d/rpcd.init
 --- upstream/files/init.d/rpcd.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/init.d/rpcd.init	2025-12-10 08:55:54.000000000 +0000
++++ src/files/init.d/rpcd.init	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,29 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -933,7 +954,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/init.d/session.init src/files/init.d/session.init
 --- upstream/files/init.d/session.init	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/init.d/session.init	2025-12-10 08:55:54.000000000 +0000
++++ src/files/init.d/session.init	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,20 @@
 +#!/bin/sh /etc/rc.common
 +
@@ -956,9 +977,380 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	procd_send_signal session
 +}
 \ No newline at end of file
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/libexec/integrity src/files/libexec/integrity
+--- upstream/files/libexec/integrity	1970-01-01 00:00:00.000000000 +0000
++++ src/files/libexec/integrity	2026-03-02 10:27:20.000000000 +0000
+@@ -0,0 +1,367 @@
++#!/bin/sh
++
++. /usr/share/libubox/jshn.sh
++
++DEFAULT_DIR="/usr/local/share/integrity"
++DEFAULT_DATABASE="$DEFAULT_DIR/hash.db.gz"
++DEFAULT_PRIVATE_KEY="$DEFAULT_DIR/private.key"
++DEFAULT_PUBLIC_KEY="$DEFAULT_DIR/public.key"
++
++GENERATE_PID_FILE="/tmp/integrity_generate.pid"
++
++IGNORE_PATHS="/sys /dev /proc"
++
++response() {
++	local code="$1"
++	local msg="$2"
++
++	json_init
++	json_add_string "message" "$msg"
++	json_add_boolean "success" $([ "$code" -eq 0 ] && echo "1" || echo "0")
++	json_dump
++	exit "$code"
++}
++
++generate_private_key() {
++	local private_key="$1"
++	local bits="${2:-2048}"
++	openssl genpkey -algorithm RSA -out "$private_key" -pkeyopt rsa_keygen_bits:"$bits"
++	return $?
++}
++
++generate_public_key() {
++	local private_key="$1"
++	local public_key="$2"
++	openssl pkey -in "$private_key" -pubout -out "$public_key"
++	return $?
++}
++
++generate_signature() {
++	local private_key="$1"
++	local file_to_sign="$2"
++	local signature_output="$3"
++	openssl dgst -sha256 -sign "$private_key" -out "$signature_output" "$file_to_sign"
++	return $?
++}
++
++verify_signature() {
++	local public_key="$1"
++	local file_to_verify="$2"
++	local signature_file="$3"
++	openssl dgst -sha256 -verify "$public_key" -signature "$signature_file" "$file_to_verify"
++	return $?
++}
++
++create_keypair() {
++	local private_key="$1"
++	local public_key="$2"
++	[ -e "$private_key" ] && [ -e "$public_key" ] && return 0
++	rm -f "$private_key" "$public_key"
++	generate_private_key "$private_key"
++	[ $? -ne 0 ] && return 1
++	generate_public_key "$private_key" "$public_key"
++	return $?
++}
++
++build_find_excludes() {
++	local find_args=""
++	local first=1
++	for ignore_path in $IGNORE_PATHS; do
++		# ignore both absolute and ./ variants
++		local ipath1="$ignore_path"
++		local ipath2="./${ignore_path#/}"
++		for ipath in "$ipath1" "$ipath2"; do
++			if [ $first -eq 1 ]; then
++				find_args="-path $ipath"
++				first=0
++			else
++				find_args="$find_args -o -path $ipath"
++			fi
++		done
++	done
++
++	if [ -n "$find_args" ]; then
++		echo "( $find_args ) -prune -o"
++	else
++		echo ""
++	fi
++}
++
++generate_database() {
++	local db="$1"
++	shift
++	local find_excludes=$(build_find_excludes)
++
++	for path in "$@"; do
++		local cleaned_path="${path#./}"
++		cleaned_path="${cleaned_path#/}"
++		local root_component="/${cleaned_path%%/*}"
++		for ignore_path in $IGNORE_PATHS; do
++			if [ "$root_component" = "$ignore_path" ]; then
++				continue 2
++			fi
++		done
++
++		if [ -d "$path" ]; then
++			# Skip if this path is a subdirectory of another path in the list
++			for parent_path in "$@"; do
++				[ "$path" = "$parent_path" ] && continue
++				case "$path" in
++					"$parent_path"/*) continue 2 ;;
++				esac
++			done
++
++			local dirs=$(mktemp)
++			local files=$(mktemp)
++			local hashes=$(mktemp)
++
++			find "$path" $find_excludes -type d -print0 > "$dirs"
++
++			if [ -s "$dirs" ]; then
++				cat "$dirs" | xargs -0 ls -ldn 2>/dev/null | awk '{
++					file=""; for(i=9;i<=NF;i++) file=file (i>9?" ":"") $i
++					printf "%s||%s|%s|%s|%s\n", file, $5, $1, $3, $4
++				}' >> "$db"
++			fi
++
++			find "$path" $find_excludes -type f -print0 > "$files"
++
++			if [ -s "$files" ]; then
++				cat "$files" | xargs -0 sha256sum 2>/dev/null > "$hashes"
++
++				cat "$files" | xargs -0 ls -ln 2>/dev/null | awk '
++				NR==FNR { hash[$2]=$1; next }
++				{
++					file=""; for(i=9;i<=NF;i++) file=file (i>9?" ":"") $i
++					printf "%s|%s|%s|%s|%s|%s\n", file, hash[file], $5, $1, $3, $4
++				}' "$hashes" - >> "$db"
++			fi
++
++			rm -f "$dirs" "$files" "$hashes"
++		elif [ -f "$path" ]; then
++			local sha256=$(sha256sum "$path" 2>/dev/null | awk '{print $1}')
++			ls -ln "$path" 2>/dev/null | awk -v h="$sha256" -v f="$path" '{
++				printf "%s|%s|%s|%s|%s|%s\n", f, h, $5, $1, $3, $4
++			}' >> "$db"
++		fi
++	done
++}
++
++store_file_info() {
++	local db="$1"
++	local skip_signature="$2"
++	local allow_recreate=0
++	shift 2
++
++	local pid="$(cat "$GENERATE_PID_FILE" 2>/dev/null)"
++	if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
++		response 1 "Integrity database generation is already in progress"
++	fi
++	echo $$ > "$GENERATE_PID_FILE"
++	trap 'rm -f "$GENERATE_PID_FILE"' EXIT
++
++	[ -n "$db" ] || db="$DEFAULT_DATABASE"
++	[ "$db" = "$DEFAULT_DATABASE" ] && [ -e "$db" ] && allow_recreate=1
++
++	local no_gz_db="${db%.gz}"
++	local new_db="$no_gz_db.new"
++
++	[ $# -gt 0 ] || response 1 "No directories or files specified to scan"
++
++	for path in "$@"; do
++		[ -e "$path" ] || response 1 "Path '$path' does not exist"
++	done
++
++	[ "$allow_recreate" -eq 0 ] && { [ -e "$no_gz_db" ] || [ -e "$no_gz_db.gz" ]; } && response 1 "Provided path already exists"
++
++	[ -z "$skip_signature" ] && {
++		create_keypair "$DEFAULT_PRIVATE_KEY" "$DEFAULT_PUBLIC_KEY"
++		[ $? -ne 0 ] && response 1 "Failed to create keypair"
++	}
++
++	echo "TIME|$(date +%s)" > "$new_db"
++	echo "DIRS|$*" >> "$new_db"
++
++	generate_database "$new_db" "$@"
++
++	[ -f "$new_db" ] && {
++		mv -f "$db" "$db.old"
++		mv -f "$new_db" "$no_gz_db"
++		gzip -f "$no_gz_db"
++		db="$no_gz_db.gz"
++		chmod 644 "$db" 2>/dev/null
++	}
++
++	[ -z "$skip_signature" ] && {
++		local signature_file="${db}.sig"
++		generate_signature "$DEFAULT_PRIVATE_KEY" "$db" "$signature_file"
++		[ $? -ne 0 ] && response 1 "Failed to create database signature"
++		chmod 644 "$signature_file" 2>/dev/null
++	}
++
++	[ $? -eq 0 ] && response 0 "Database created at $db" || response 1 "Failed to create database"
++}
++
++check_file_database() {
++	local db="$1"
++
++	[ -f "$db" ] || response 1 "Database file does not exist"
++
++	local original_db="$db"
++	local tmpdb=$(mktemp)
++	[ "${db##*.}" = "gz" ] && {
++		gzip -dc "$db" > "$tmpdb" 2>/dev/null
++		[ $? -ne 0 ] && {
++			rm -rf "$tmpdb"
++			response 1 "Failed to decompress database file"
++		}
++		db="$tmpdb"
++	}
++
++	head -n2 "$db" | grep -qE '^(TIME|DIRS)\|' || {
++		rm -rf "$tmpdb"
++		response 1 "Invalid database file format"
++	}
++
++	local time=$(head -n1 "$db" | cut -d'|' -f2)
++	local dirs=$(head -n2 "$db" | tail -n1 | cut -d'|' -f2)
++	[ -n "$dirs" ] || {
++		rm -rf "$tmpdb"
++		response 1 "No directories specified in database"
++	}
++	[ -n "$time" ] || {
++		rm -rf "$tmpdb"
++		response 1 "No timestamp found in database"
++	}
++
++	local current_db=$(mktemp)
++	local results=$(mktemp)
++
++	generate_database "$current_db" $dirs
++
++	tail -n +3 "$db" | awk -F'|' '
++	NR==FNR {
++		current[$1] = $2 "|" $3 "|" $4 "|" $5 "|" $6
++		exists[$1] = 1
++		next
++	}
++	{
++		file=$1; stored=$2 "|" $3 "|" $4 "|" $5 "|" $6
++		if (!(file in exists)) {
++			print "missing|" file "|" stored
++		} else if (current[file] != stored) {
++			print "modified|" file "|" stored "|" current[file]
++		}
++		delete exists[file]
++	}
++	END {
++		for (f in exists) print "new|" f "||||||" current[f]
++	}' "$current_db" - > "$results"
++
++	local signature_valid="false"
++	local signature_file="${original_db}.sig"
++	if [ -f "$signature_file" ]; then
++		verify_signature "$DEFAULT_PUBLIC_KEY" "$original_db" "$signature_file" >/dev/null 2>&1
++		[ $? -eq 0 ] && signature_valid="true"
++	fi
++
++	local response_file="$(mktemp -u /tmp/integrity.validation.XXXXXX).json"
++
++	printf '{' > "$response_file"
++	printf '"signature_valid":%s,' "$signature_valid" >> "$response_file"
++	printf '"scanned_at":"%s",' "$(date -u -d @"$time" +%Y-%m-%dT%H:%M:%SZ)" >> "$response_file"
++
++	printf '"scanned_dirs":[' >> "$response_file"
++	for dir in $dirs; do
++		printf '"%s"' "$dir"
++		if [ "$dir" != "${dirs##* }" ]; then
++			printf ','
++		fi
++	done >> "$response_file"
++	printf '],' >> "$response_file"
++
++	awk -F'|' 'BEGIN { ORS = "" }
++	{ lines[$1, ++count[$1]] = $0 }
++	END {
++		split("missing modified new", order, " ")
++		first = 1
++		for (o in order) {
++			st = order[o]
++			if (count[st] < 1) continue
++			if (!first) printf ","
++			first = 0
++			printf "\"%s\":[", st
++
++			for (i = 1; i <= count[st]; i++) {
++				split(lines[st,i], f, "|")
++				if (i > 1) printf ","
++				printf "{\"file\":\"%s\"", f[2]
++
++				if (f[3] != "" || f[4] != "" || f[5] != "" || f[6] != "" || f[7] != "") {
++					printf ",\"expected\":{"
++					sep = ""
++					if (f[3] != "") { printf "%s\"hash\":\"%s\"", sep, f[3]; sep = "," }
++					if (f[4] != "") { printf "%s\"size\":\"%s\"", sep, f[4]; sep = "," }
++					if (f[5] != "") { printf "%s\"permissions\":\"%s\"", sep, f[5]; sep = "," }
++					if (f[6] != "") { printf "%s\"owner\":\"%s\"", sep, f[6]; sep = "," }
++					if (f[7] != "") { printf "%s\"group\":\"%s\"", sep, f[7] }
++					printf "}"
++				}
++
++				if (f[8] != "" || f[9] != "" || f[10] != "" || f[11] != "" || f[12] != "") {
++					printf ",\"found\":{"
++					sep = ""
++					if (f[8] != "") { printf "%s\"hash\":\"%s\"", sep, f[8]; sep = "," }
++					if (f[9] != "") { printf "%s\"size\":\"%s\"", sep, f[9]; sep = "," }
++					if (f[10] != "") { printf "%s\"permissions\":\"%s\"", sep, f[10]; sep = "," }
++					if (f[11] != "") { printf "%s\"owner\":\"%s\"", sep, f[11]; sep = "," }
++					if (f[12] != "") { printf "%s\"group\":\"%s\"", sep, f[12] }
++					printf "}"
++				}
++
++				printf "}"
++			}
++			printf "]"
++		}
++	}' "$results" >> "$response_file"
++
++	printf '}\n' >> "$response_file"
++
++	chmod 644 "$response_file" 2>/dev/null
++
++	printf '{"success":true,"file": "%s"}\n' "$response_file"
++
++	rm -f "$current_db" "$results" "$tmpdb"
++}
++
++main() {
++	case "$1" in
++	list)
++		json_init
++		json_add_object "create_database"
++		json_add_boolean "skip_signature"
++		json_add_string "path"
++		json_add_array "dirs"
++		json_close_array
++		json_close_object
++		json_add_object "check_database"
++		json_add_string "path"
++		json_close_object
++		json_dump
++		;;
++	call)
++		case "$2" in
++		create_database)
++			read input
++			store_file_info "$(jsonfilter -s $input -e '@.path')" "$(jsonfilter -s $input -e '@.skip_signature')" $(jsonfilter -s $input -e '@.dirs[*]')
++			;;
++		check_database)
++			read input
++			check_file_database "$(jsonfilter -s $input -e '@.path')"
++			;;
++		esac
++		;;
++	esac
++}
++
++main "$@"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/libexec/lan_info src/files/libexec/lan_info
 --- upstream/files/libexec/lan_info	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/libexec/lan_info	2025-12-10 08:55:54.000000000 +0000
++++ src/files/libexec/lan_info	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,65 @@
 +#!/bin/sh
 +
@@ -1027,7 +1419,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +main "$@"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/libexec/rpc-sys-ext src/files/libexec/rpc-sys-ext
 --- upstream/files/libexec/rpc-sys-ext	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/libexec/rpc-sys-ext	2025-12-10 08:55:54.000000000 +0000
++++ src/files/libexec/rpc-sys-ext	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,63 @@
 +#!/bin/sh
 +
@@ -1094,13 +1486,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +main "$@"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rpcd.config src/files/rpcd.config
 --- upstream/files/rpcd.config	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rpcd.config	2025-12-10 08:55:54.000000000 +0000
++++ src/files/rpcd.config	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,70 @@
 +config rpcd
 +	option socket /var/run/ubus/ubus.sock
 +	option timeout 300
 +
-+config login
++config login 'login1'
 +	option username 'admin'
 +	option group 'root'
 +
@@ -1168,7 +1560,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	list write 'core'
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rpcd.openrc src/files/rpcd.openrc
 --- upstream/files/rpcd.openrc	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rpcd.openrc	2025-12-10 08:55:54.000000000 +0000
++++ src/files/rpcd.openrc	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,12 @@
 +#!/sbin/openrc-run
 +
@@ -1184,12 +1576,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/rpcd.permtab src/files/rpcd.permtab
 --- upstream/files/rpcd.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/rpcd.permtab	2025-12-10 08:55:54.000000000 +0000
++++ src/files/rpcd.permtab	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/rpcd                        rpcd:rpcd       660       -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/superuser.json src/files/superuser.json
 --- upstream/files/superuser.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/superuser.json	2025-12-10 08:55:54.000000000 +0000
++++ src/files/superuser.json	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,20 @@
 +{
 +	"superuser": {
@@ -1213,7 +1605,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag src/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag
 --- upstream/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag	2025-12-10 08:55:54.000000000 +0000
++++ src/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,23 @@
 +#!/bin/sh
 +. /lib/functions.sh
@@ -1241,7 +1633,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.13/99_rpcd_increase_timeout src/files/uci-defaults/7.13/99_rpcd_increase_timeout
 --- upstream/files/uci-defaults/7.13/99_rpcd_increase_timeout	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.13/99_rpcd_increase_timeout	2025-12-10 08:55:54.000000000 +0000
++++ src/files/uci-defaults/7.13/99_rpcd_increase_timeout	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,10 @@
 +#!/bin/sh
 +
@@ -1255,7 +1647,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +exit 0
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths src/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths
 --- upstream/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths	2025-12-10 08:55:54.000000000 +0000
++++ src/files/uci-defaults/7.13/99_rpcd_rename_usb_tools_paths	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,29 @@
 +#!/bin/sh
 +
@@ -1288,7 +1680,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +uci_commit "rpcd"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry src/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry
 --- upstream/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry	1970-01-01 00:00:00.000000000 +0000
-+++ src/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry	2025-12-10 08:55:54.000000000 +0000
++++ src/files/uci-defaults/7.19/99_rpcd_migrate_shadow_entry	2026-03-02 10:27:20.000000000 +0000
 @@ -0,0 +1,16 @@
 +#!/bin/sh
 +
@@ -1306,19 +1698,62 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +config_foreach remove_password "superuser"
 +
 +uci_commit "$CONFIG"
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/files/uci-defaults/7.22/99_rpcd_anonymous_migrate src/files/uci-defaults/7.22/99_rpcd_anonymous_migrate
+--- upstream/files/uci-defaults/7.22/99_rpcd_anonymous_migrate	1970-01-01 00:00:00.000000000 +0000
++++ src/files/uci-defaults/7.22/99_rpcd_anonymous_migrate	2026-03-02 10:27:20.000000000 +0000
+@@ -0,0 +1,34 @@
++#!/bin/sh
++
++. /lib/functions.sh
++
++CONFIG="rpcd"
++PAM_CONFIG="pam"
++PAM_COMMIT=0
++SECTION_COUNT=1
++SECTION_PREFIX="login"
++
++rename_section() {
++	local section="$1"
++	echo "$section" | grep -q "^cfg" || return
++
++	local new_section="${SECTION_PREFIX}${SECTION_COUNT}"
++	uci_rename "$CONFIG" "$section" "$new_section"
++
++	local users="$(uci_get "$PAM_CONFIG" "$CONFIG" "users")"
++	for user in $users; do
++		if [ "$user" = "$section" ]; then
++			uci_remove_list "$PAM_CONFIG" "$CONFIG" "users" "$user"
++			uci_add_list "$PAM_CONFIG" "$CONFIG" "users" "$new_section"
++			PAM_COMMIT=1
++		fi
++	done
++
++	SECTION_COUNT=$((SECTION_COUNT + 1))
++}
++
++config_load "$CONFIG"
++config_foreach rename_section "login"
++
++uci_commit "$CONFIG"
++[ $PAM_COMMIT -eq 1 ] && uci_commit "$PAM_CONFIG"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/exec.h src/include/rpcd/exec.h
 --- upstream/include/rpcd/exec.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/exec.h	2025-12-10 08:55:54.000000000 +0000
-@@ -25,6 +25,8 @@
++++ src/include/rpcd/exec.h	2026-03-02 10:27:20.000000000 +0000
+@@ -23,8 +23,12 @@
+ #include <libubox/blobmsg.h>
+ #include <libubox/ustream.h>
  
- #define RPC_EXEC_MAX_SIZE		(4096 * 64)
+-#define RPC_EXEC_MAX_SIZE		(4096 * 64)
++#define RPC_EXEC_MAX_SIZE		(4096 * 256) // Ubus has the same message size limit
  #define RPC_EXEC_DEFAULT_TIMEOUT	(120 * 1000)
 +#define NO_USER -1
 +#define NO_GROUP -1
++
++#define LOG_ERROR(msg, ...) fprintf(stderr, "RPCD ERROR: " msg "\n", ##__VA_ARGS__)
  
  #define ustream_for_each_read_buffer(stream, ptr, len) \
  	for (ptr = ustream_get_read_buf(stream, &len);     \
-@@ -84,6 +86,6 @@
+@@ -84,6 +88,6 @@
  int rpc_exec(const char **args, rpc_exec_write_cb_t in,
               rpc_exec_read_cb_t out, rpc_exec_read_cb_t err,
               rpc_exec_done_cb_t end, void *priv, struct ubus_context *ctx,
@@ -1328,7 +1763,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/plugin.h src/include/rpcd/plugin.h
 --- upstream/include/rpcd/plugin.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/plugin.h	2025-12-10 08:55:54.000000000 +0000
++++ src/include/rpcd/plugin.h	2026-03-02 10:27:20.000000000 +0000
 @@ -21,6 +21,17 @@
  
  #define _GNU_SOURCE /* asprintf() */
@@ -1425,8 +1860,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -#endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/session.h src/include/rpcd/session.h
 --- upstream/include/rpcd/session.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/session.h	2025-12-10 08:55:54.000000000 +0000
-@@ -35,8 +35,23 @@
++++ src/include/rpcd/session.h	2026-03-02 10:27:20.000000000 +0000
+@@ -35,16 +35,33 @@
  #define RPC_DEFAULT_SESSION_ID	"00000000000000000000000000000000"
  #define RPC_SESSION_DIRECTORY	"/var/run/rpcd/sessions"
  #define RPC_SESSION_ACL_DIR		"/usr/share/rpcd/acl.d"
@@ -1451,7 +1886,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  struct rpc_session {
  	struct avl_node avl;
-@@ -45,6 +60,7 @@
+ 	char id[RPC_SID_LEN + 1];
+ 
++	time_t created_at;
  	struct uloop_timeout t;
  	struct avl_tree data;
  	struct avl_tree acls;
@@ -1459,7 +1896,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	int timeout;
  };
-@@ -66,20 +82,27 @@
+@@ -66,20 +83,27 @@
  	int sort_len;
  };
  
@@ -1497,7 +1934,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/include/rpcd/uci.h src/include/rpcd/uci.h
 --- upstream/include/rpcd/uci.h	2021-03-11 00:17:58.000000000 +0000
-+++ src/include/rpcd/uci.h	2025-12-10 08:55:54.000000000 +0000
++++ src/include/rpcd/uci.h	2026-03-02 10:27:20.000000000 +0000
 @@ -30,15 +30,14 @@
  #include <libubus.h>
  #include <uci.h>
@@ -1520,7 +1957,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #endif
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/iwinfo.c src/iwinfo.c
 --- upstream/iwinfo.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/iwinfo.c	2025-12-10 08:55:54.000000000 +0000
++++ src/iwinfo.c	2026-03-02 10:27:20.000000000 +0000
 @@ -17,6 +17,7 @@
   */
  
@@ -2129,7 +2566,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/main.c src/main.c
 --- upstream/main.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/main.c	2025-12-10 08:55:54.000000000 +0000
++++ src/main.c	2026-03-02 10:27:20.000000000 +0000
 @@ -17,6 +17,8 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -2452,7 +2889,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/plugin.c src/plugin.c
 --- upstream/plugin.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/plugin.c	2025-12-10 08:55:54.000000000 +0000
++++ src/plugin.c	2026-03-02 10:27:20.000000000 +0000
 @@ -17,8 +17,18 @@
   */
  
@@ -3145,8 +3582,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/rc.c src/rc.c
 --- upstream/rc.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/rc.c	2025-12-10 08:55:54.000000000 +0000
-@@ -6,18 +6,18 @@
++++ src/rc.c	2026-03-02 10:27:20.000000000 +0000
+@@ -6,29 +6,31 @@
   */
  
  #include <dirent.h>
@@ -3167,7 +3604,28 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #define RC_LIST_EXEC_TIMEOUT_MS			3000
  
  enum {
-@@ -122,17 +122,23 @@
+ 	RC_INIT_NAME,
+ 	RC_INIT_ACTION,
++	RC_INIT_ARGS,
+ 	__RC_INIT_MAX
+ };
+ 
+ static const struct blobmsg_policy rc_init_policy[] = {
+ 	[RC_INIT_NAME] = { "name", BLOBMSG_TYPE_STRING },
+ 	[RC_INIT_ACTION] = { "action", BLOBMSG_TYPE_STRING },
++	[RC_INIT_ARGS] = { "args", BLOBMSG_TYPE_ARRAY },
+ };
+ 
+ struct rc_list_context {
+@@ -41,6 +43,7 @@
+ 
+ 	/* Info about currently processed init.d entry */
+ 	struct {
++		// cppcheck-suppress cert-API01-C
+ 		char path[PATH_MAX];
+ 		const char *d_name;
+ 		int start;
+@@ -122,17 +125,23 @@
  				close(fd);
  		}
  
@@ -3196,7 +3654,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  		c->timeout.cb = rpc_list_exec_timeout_cb;
  		err = uloop_timeout_set(&c->timeout, RC_LIST_EXEC_TIMEOUT_MS);
-@@ -250,34 +256,17 @@
+@@ -250,34 +259,20 @@
  	return 0; /* Deferred */
  }
  
@@ -3221,25 +3679,49 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	struct blob_attr *tb[__RC_INIT_MAX];
 -	struct rc_init_context *c;
- 	char path[PATH_MAX];
+-	char path[PATH_MAX];
++	struct blob_attr *cur;
  	const char *action;
  	const char *name;
  	const char *chr;
++	char path[PATH_MAX];
  	pid_t pid;
 -	int err;
 -	int fd;
-+	int err, fd, status;
++	int err, fd, status, rem;
++	int arg_count = 0;
++	const char *args[32];
  
  	blobmsg_parse(rc_init_policy, __RC_INIT_MAX, tb, blobmsg_data(msg), blobmsg_data_len(msg));
  
-@@ -310,14 +299,9 @@
- 	    strcmp(action, "reload"))
+@@ -307,17 +302,29 @@
+ 	    strcmp(action, "stop") &&
+ 	    strcmp(action, "start") &&
+ 	    strcmp(action, "restart") &&
+-	    strcmp(action, "reload"))
++	    strcmp(action, "reload") &&
++	    strcmp(action, "activate") &&
++	    strcmp(action, "deactivate"))
  		return UBUS_STATUS_INVALID_ARGUMENT;
  
 -	c = calloc(1, sizeof(*c));
 -	if (!c)
 -		return UBUS_STATUS_UNKNOWN_ERROR;
--
++	args[arg_count++] = path;
++	args[arg_count++] = action;
++
++	if (tb[RC_INIT_ARGS]) {
++		blobmsg_for_each_attr(cur, tb[RC_INIT_ARGS], rem) {
++			if (arg_count >= 31) {
++				break;
++			}
++			if (blobmsg_type(cur) == BLOBMSG_TYPE_STRING) {
++				args[arg_count++] = blobmsg_get_string(cur);
++			}
++		}
++	}
++	args[arg_count] = NULL;
+ 
  	pid = fork();
  	switch (pid) {
  	case -1:
@@ -3247,8 +3729,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		return UBUS_STATUS_UNKNOWN_ERROR;
  	case 0:
  		/* Set stdin, stdout & stderr to /dev/null */
-@@ -335,18 +319,21 @@
- 		execl(path, path, action, NULL);
+@@ -332,21 +339,24 @@
+ 
+ 		uloop_end();
+ 
+-		execl(path, path, action, NULL);
++		execv(path, (char *const *)args);
  		exit(errno);
  	default:
 -		c->ctx = ctx;
@@ -3276,7 +3762,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	static const struct ubus_method rc_methods[] = {
  		UBUS_METHOD_NOARG("list", rc_list),
-@@ -356,12 +343,18 @@
+@@ -356,12 +366,18 @@
  	static struct ubus_object_type rc_type =
  		UBUS_OBJECT_TYPE("rc", rc_methods);
  
@@ -3304,8 +3790,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +};
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/session.c src/session.c
 --- upstream/session.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/session.c	2025-12-10 08:55:54.000000000 +0000
-@@ -22,23 +22,39 @@
++++ src/session.c	2026-03-02 10:27:20.000000000 +0000
+@@ -22,23 +22,38 @@
  #include <libubox/avl-cmp.h>
  #include <libubox/blobmsg.h>
  #include <libubox/utils.h>
@@ -3334,7 +3820,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#endif //ENABLE_PAM_SUPPORT
 +
  static struct avl_tree sessions;
- static struct blob_buf buf;
+-static struct blob_buf buf;
 +struct rpc_session_acl *rpc_session_get_acl(struct rpc_session *ses, const char *scope, const char *object);
 +void rpc_grant_endpoint_options(struct rpc_session *ses, struct blob_attr *api_attr);
 +struct rpc_session *rpc_session_thaw_single(const char *sid);
@@ -3347,7 +3833,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  enum {
  	RPC_SN_TIMEOUT,
-@@ -93,6 +109,7 @@
+@@ -93,6 +108,7 @@
  	RPC_SP_SCOPE,
  	RPC_SP_OBJECT,
  	RPC_SP_FUNCTION,
@@ -3355,7 +3841,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	__RPC_SP_MAX,
  };
  static const struct blobmsg_policy perm_policy[__RPC_SP_MAX] = {
-@@ -100,6 +117,17 @@
+@@ -100,6 +116,17 @@
  	[RPC_SP_SCOPE] = { .name = "scope", .type = BLOBMSG_TYPE_STRING },
  	[RPC_SP_OBJECT] = { .name = "object", .type = BLOBMSG_TYPE_STRING },
  	[RPC_SP_FUNCTION] = { .name = "function", .type = BLOBMSG_TYPE_STRING },
@@ -3373,9 +3859,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
  
  enum {
-@@ -120,12 +148,14 @@
+@@ -119,13 +146,17 @@
+ enum {
  	RPC_L_USERNAME,
  	RPC_L_PASSWORD,
++	RPC_L_RHOST,
  	RPC_L_TIMEOUT,
 +	RPC_L_BASIC_AUTH,
  	__RPC_L_MAX,
@@ -3386,12 +3874,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	[RPC_L_TIMEOUT]  = { .name = "timeout", .type = BLOBMSG_TYPE_INT32 },
 +	[RPC_L_USERNAME]   = { .name = "username", .type = BLOBMSG_TYPE_STRING },
 +	[RPC_L_PASSWORD]   = { .name = "password", .type = BLOBMSG_TYPE_STRING },
++	[RPC_L_RHOST]      = { .name = "rhost", .type = BLOBMSG_TYPE_STRING },
 +	[RPC_L_BASIC_AUTH] = { .name = "basic", .type = BLOBMSG_TYPE_BOOL },
 +	[RPC_L_TIMEOUT]	   = { .name = "timeout", .type = BLOBMSG_TYPE_INT32 },
  };
  
  /*
-@@ -146,6 +176,18 @@
+@@ -146,6 +177,18 @@
  		    !fnmatch((_acl)->object, (_obj), FNM_NOESCAPE) &&		\
  		    !fnmatch((_acl)->function, (_func), FNM_NOESCAPE))
  
@@ -3410,43 +3899,76 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static int
  rpc_random(char *dest)
  {
-@@ -218,15 +260,17 @@
+@@ -171,13 +214,16 @@
+ }
+ 
+ static void
+-rpc_session_dump_data(struct rpc_session *ses, struct blob_buf *b)
++rpc_session_dump_data(struct blob_buf *b, struct rpc_session *ses)
+ {
+-	struct rpc_session_data *d;
+-
++	struct rpc_session_data *d = NULL;
+ 	avl_for_each_element(&ses->data, d, avl) {
+-		blobmsg_add_field(b, blobmsg_type(d->attr), blobmsg_name(d->attr),
+-				  blobmsg_data(d->attr), blobmsg_data_len(d->attr));
++		blobmsg_add_field(b,
++			blobmsg_type(d->attr),
++			blobmsg_name(d->attr),
++			blobmsg_data(d->attr),
++			blobmsg_data_len(d->attr)
++		);
+ 	}
+ }
+ 
+@@ -218,68 +264,83 @@
  }
  
  static void
 -rpc_session_to_blob(struct rpc_session *ses, bool acls)
-+rpc_session_to_blob(struct rpc_session *ses, bool acls, bool include_id)
++rpc_session_to_blob(struct blob_buf *b, struct rpc_session *ses, bool acls, bool include_id)
  {
- 	void *c;
- 
- 	blob_buf_init(&buf, 0);
- 
--	blobmsg_add_string(&buf, "ubus_rpc_session", ses->id);
+-	void *c;
 +	if (include_id)
-+		blobmsg_add_string(&buf, "ubus_rpc_session", ses->id);
-+
- 	blobmsg_add_u32(&buf, "timeout", ses->timeout);
++		blobmsg_add_string(b, "ubus_rpc_session", ses->id);
+ 
+-	blob_buf_init(&buf, 0);
+-
+-	blobmsg_add_string(&buf, "ubus_rpc_session", ses->id);
+-	blobmsg_add_u32(&buf, "timeout", ses->timeout);
 -	blobmsg_add_u32(&buf, "expires", uloop_timeout_remaining(&ses->t) / 1000);
-+	blobmsg_add_u32(&buf, "expires", uloop_timeout_remaining64(&ses->t) / 1000);
++	blobmsg_add_u32(b, "timeout", ses->timeout);
++	blobmsg_add_u32(b, "expires", uloop_timeout_remaining64(&ses->t) / 1000);
++	blobmsg_add_u64(b, "created_at", ses->created_at);
  
  	if (acls) {
- 		c = blobmsg_open_table(&buf, "acls");
-@@ -241,9 +285,9 @@
+-		c = blobmsg_open_table(&buf, "acls");
+-		rpc_session_dump_acls(ses, &buf);
+-		blobmsg_close_table(&buf, c);
++		void *acl_table = blobmsg_open_table(b, "acls");
++		rpc_session_dump_acls(ses, b);
++		blobmsg_close_table(b, acl_table);
+ 	}
+ 
+-	c = blobmsg_open_table(&buf, "data");
+-	rpc_session_dump_data(ses, &buf);
+-	blobmsg_close_table(&buf, c);
++	void *data_table = blobmsg_open_table(b, "data");
++	rpc_session_dump_data(b, ses);
++	blobmsg_close_table(b, data_table);
+ }
  
  static void
- rpc_session_dump(struct rpc_session *ses, struct ubus_context *ctx,
+-rpc_session_dump(struct rpc_session *ses, struct ubus_context *ctx,
 -                 struct ubus_request_data *req)
-+                 struct ubus_request_data *req, bool include_id)
++rpc_touch_session(struct rpc_session *ses)
  {
 -	rpc_session_to_blob(ses, true);
-+	rpc_session_to_blob(ses, true, include_id);
++	if (ses->timeout > 0)
++		uloop_timeout_set(&ses->t, ses->timeout * 1000);
++}
  
- 	ubus_send_reply(ctx, req, buf.head);
- }
-@@ -255,31 +299,56 @@
- 		uloop_timeout_set(&ses->t, ses->timeout * 1000);
- }
- 
+-	ubus_send_reply(ctx, req, buf.head);
 +static inline void
 +rpc_session_destroy_alcs(struct avl_tree *acls, struct rpc_session_acl_scope *acl_scope) {
 +	struct rpc_session_acl *acl = NULL;
@@ -3458,10 +3980,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	avl_delete(acls, &acl_scope->avl);
 +	free(acl_scope);
-+}
-+
+ }
+ 
+-static void
+-rpc_touch_session(struct rpc_session *ses)
 +static void send_session_event(struct ubus_context *ctx, const char *event_name, const char *session_id)
-+{
+ {
+-	if (ses->timeout > 0)
+-		uloop_timeout_set(&ses->t, ses->timeout * 1000);
 +	if (!ctx || !event_name || !session_id) {
 +		return;
 +	}
@@ -3477,8 +4003,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	}
 +
 +	blob_buf_free(&b);
-+}
-+
+ }
+ 
  static void
  rpc_session_destroy(struct rpc_session *ses)
  {
@@ -3510,7 +4036,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	free(ses);
  }
  
-@@ -312,10 +381,9 @@
+@@ -307,15 +368,15 @@
+ 	avl_init(&ses->data, avl_strcmp, false, NULL);
+ 
+ 	ses->t.cb = rpc_session_timeout;
++	ses->created_at = time(NULL);
+ 
+ 	return ses;
  }
  
  static struct rpc_session *
@@ -3522,7 +4054,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	ses = rpc_session_new();
  
-@@ -327,13 +395,11 @@
+@@ -327,13 +388,11 @@
  
  	ses->timeout = timeout;
  
@@ -3538,7 +4070,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	return ses;
  }
  
-@@ -343,8 +409,11 @@
+@@ -343,8 +402,11 @@
  	struct rpc_session *ses;
  
  	ses = avl_find_element(&sessions, id, ses, avl);
@@ -3552,39 +4084,98 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	rpc_touch_session(ses);
  	return ses;
-@@ -363,9 +432,11 @@
- 	if (tb)
- 		timeout = blobmsg_get_u32(tb);
+@@ -356,17 +418,25 @@
+                   struct blob_attr *msg)
+ {
+ 	struct rpc_session *ses;
+-	struct blob_attr *tb;
++	struct blob_attr *tb[ARRAY_SIZE(new_policy)];
+ 	int timeout = RPC_DEFAULT_SESSION_TIMEOUT;
  
+-	blobmsg_parse(new_policy, __RPC_SN_MAX, &tb, blob_data(msg), blob_len(msg));
+-	if (tb)
+-		timeout = blobmsg_get_u32(tb);
+-
 -	ses = rpc_session_create(timeout);
-+	ses = rpc_session_create(timeout, true);
- 	if (ses)
+-	if (ses)
 -		rpc_session_dump(ses, ctx, req);
-+		rpc_session_dump(ses, ctx, req, true);
++	struct blob_buf buf = { 0 };
++	blob_buf_init(&buf, 0);
 +
-+	send_session_event(ctx, "session.created", ses->id);
++	blobmsg_parse(new_policy, ARRAY_SIZE(new_policy), tb, blob_data(msg), blob_len(msg));
++	if (tb[RPC_SN_TIMEOUT])
++		timeout = blobmsg_get_u32(tb[RPC_SN_TIMEOUT]);
++
++	ses = rpc_session_create(timeout, true);
++	if (ses != NULL) {
++		rpc_session_to_blob(&buf, ses, true, true);
++		ubus_send_reply(ctx, req, buf.head);
++	}
  
++	send_session_event(ctx, "session.created", ses->id);
++
++	blob_buf_free(&buf);
  	return 0;
  }
-@@ -382,7 +453,7 @@
  
- 	if (!tb) {
+@@ -375,24 +445,44 @@
+                 struct ubus_request_data *req, const char *method,
+                 struct blob_attr *msg)
+ {
+-	struct rpc_session *ses;
+-	struct blob_attr *tb;
++	int err = UBUS_STATUS_UNKNOWN_ERROR;
+ 
+-	blobmsg_parse(sid_policy, __RPC_SI_MAX, &tb, blob_data(msg), blob_len(msg));
++	struct blob_attr *tb[ARRAY_SIZE(sid_policy)];
++	blobmsg_parse(sid_policy, ARRAY_SIZE(sid_policy), tb, blob_data(msg), blob_len(msg));
++	const char *id = blobmsg_get_string(tb[RPC_SI_SID]);
+ 
+-	if (!tb) {
++	struct blob_buf buf = { 0 };
++	blob_buf_init(&buf, 0);
++
++	void *array = blobmsg_open_array(&buf, "sessions");
++	if (!id) {
++		struct rpc_session *ses = NULL;
  		avl_for_each_element(&sessions, ses, avl)
 -			rpc_session_dump(ses, ctx, req);
-+			rpc_session_dump(ses, ctx, req, true);
- 		return 0;
- 	}
+-		return 0;
+-	}
++		{
++			void *table = blobmsg_open_table(&buf, NULL);
++			rpc_session_to_blob(&buf, ses, true, true);
++			blobmsg_close_table(&buf, table);
++		}
  
-@@ -390,7 +461,7 @@
- 	if (!ses)
- 		return UBUS_STATUS_NOT_FOUND;
+-	ses = rpc_session_get(blobmsg_data(tb));
+-	if (!ses)
+-		return UBUS_STATUS_NOT_FOUND;
++	} else {
++		struct rpc_session *ses = rpc_session_get(id);
++		if (!ses) {
++			err = UBUS_STATUS_NOT_FOUND;
++			goto end;
++		}
  
 -	rpc_session_dump(ses, ctx, req);
-+	rpc_session_dump(ses, ctx, req, true);
++		void *table = blobmsg_open_table(&buf, NULL);
++		rpc_session_to_blob(&buf, ses, true, true);
++		blobmsg_close_table(&buf, table);
++	}
++	blobmsg_close_array(&buf, array);
  
- 	return 0;
+-	return 0;
++	ubus_send_reply(ctx, req, buf.head);
++
++	err = UBUS_STATUS_OK;
++end:
++	blob_buf_free(&buf);
++	return err;
  }
-@@ -441,6 +512,7 @@
+ 
+ static int
+@@ -441,6 +531,7 @@
  		&new_func, strlen(function) + 1,
  		&new_id, id_len + 1);
  
@@ -3592,7 +4183,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (!acl)
  		return UBUS_STATUS_UNKNOWN_ERROR;
  
-@@ -467,10 +539,7 @@
+@@ -467,10 +558,7 @@
  		return 0;
  
  	if (!object && !function) {
@@ -3604,7 +4195,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		return 0;
  	}
  
-@@ -505,6 +574,80 @@
+@@ -505,6 +593,80 @@
  	return 0;
  }
  
@@ -3685,7 +4276,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  static int
  rpc_handle_acl(struct ubus_context *ctx, struct ubus_object *obj,
-@@ -584,10 +727,44 @@
+@@ -584,10 +746,44 @@
  	return false;
  }
  
@@ -3730,8 +4321,11 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  {
  	struct rpc_session *ses;
  	struct blob_attr *tb[__RPC_SP_MAX];
-@@ -605,24 +782,61 @@
+@@ -603,26 +799,63 @@
+ 	if (!ses)
+ 		return UBUS_STATUS_NOT_FOUND;
  
++	struct blob_buf buf = { 0 };
  	blob_buf_init(&buf, 0);
  
 -	if (tb[RPC_SP_OBJECT] && tb[RPC_SP_FUNCTION])
@@ -3752,8 +4346,6 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	}
 -	else
 -	{
-+		ubus_send_reply(ctx, req, buf.head);
-+		return 0;
 +	} else if (tb[RPC_SP_CHECKS]) {
 +		struct blob_attr *check;
 +		int rem;
@@ -3801,10 +4393,32 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  	ubus_send_reply(ctx, req, buf.head);
 -
++	blob_buf_free(&buf);
  	return 0;
  }
  
-@@ -783,12 +997,12 @@
+@@ -696,6 +929,7 @@
+ 	if (!ses)
+ 		return UBUS_STATUS_NOT_FOUND;
+ 
++	struct blob_buf buf = { 0 };
+ 	blob_buf_init(&buf, 0);
+ 	c = blobmsg_open_table(&buf, "values");
+ 
+@@ -714,10 +948,11 @@
+ 					  blobmsg_data_len(data->attr));
+ 		}
+ 	else
+-		rpc_session_dump_data(ses, &buf);
++		rpc_session_dump_data(&buf, ses);
+ 
+ 	blobmsg_close_table(&buf, c);
+ 	ubus_send_reply(ctx, req, buf.head);
++	blob_buf_free(&buf);
+ 
+ 	return 0;
+ }
+@@ -783,12 +1018,12 @@
  	if (!ses)
  		return UBUS_STATUS_NOT_FOUND;
  
@@ -3818,7 +4432,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static bool
  rpc_login_test_password(const char *hash, const char *password)
  {
-@@ -825,20 +1039,193 @@
+@@ -825,20 +1060,195 @@
  	return (crypt_hash && !strcmp(crypt_hash, hash));
  }
  
@@ -3900,7 +4514,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 +
 +static bool
-+rpc_pam_auth(const char *username, const char *password, int *privilege)
++rpc_pam_auth(const char *username, const char *password, const char *rhost, int *privilege)
 +{
 +	struct ubus_context *ctx = ubus_connect(NULL);
 +	static struct blob_buf b = { 0 };
@@ -3916,6 +4530,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	blob_buf_init(&b, 0);
 + 	blobmsg_add_string(&b, "username", username);
 +	blobmsg_add_string(&b, "password", password);
++	if (rhost)
++		blobmsg_add_string(&b, "rhost", rhost);
 +	blobmsg_add_string(&b, "service", "rpcd");
 +	if (ubus_invoke(ctx, id, "auth", b.head, auth_cb, &data, UBUS_TIMEOUT)) {
 +		printf("RPCD session PAM auth UBUS error.\n");
@@ -3968,7 +4584,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
  static struct uci_section *
  rpc_login_test_login(struct uci_context *uci,
-                      const char *username, const char *password)
+-                     const char *username, const char *password)
++                     const char *username, const char *password, const char *rhost)
  {
  	struct uci_package *p = NULL;
 -	struct uci_section *s;
@@ -4002,7 +4619,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	const char* default_group = rpc_pam_users_type(uci, p, &pam_user_type);
 +	if (pam_user_type == PAM_ALL_USERS) {
-+		authorized = rpc_pam_auth(username, password, &privilege_lvl);
++		authorized = rpc_pam_auth(username, password, rhost, &privilege_lvl);
 +		if (authorized && privilege_lvl) {
 +			return rpc_login_group_search(uci, p, s, e, user_group, privilege_lvl);
 +		} else if (authorized && default_group) {
@@ -4016,7 +4633,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	uci_foreach_element(&p->sections, e)
  	{
  		s = uci_to_section(e);
-@@ -856,6 +1243,9 @@
+@@ -856,6 +1266,9 @@
  		if (uci_lookup_ptr(uci, &ptr, NULL, true))
  			continue;
  
@@ -4026,7 +4643,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		if (ptr.o->type != UCI_TYPE_STRING)
  			continue;
  
-@@ -864,24 +1254,41 @@
+@@ -864,24 +1277,41 @@
  
  		/* If password is NULL, we're restoring ACLs for an existing session,
  		 * in this case do not check the password again. */
@@ -4049,7 +4666,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#ifdef ENABLE_PAM_SUPPORT
 +		int auth_type = rpc_login_test_auth_type(uci, s);
 +		if (auth_type & AUTH_TYPE_PAM) {
-+			if (authorized || rpc_pam_auth(username, password, NULL)) {
++			if (authorized || rpc_pam_auth(username, password, rhost, NULL)) {
 +				ptr.option = "group";
 +				ptr.o = NULL;
  
@@ -4080,7 +4697,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  static bool
-@@ -972,7 +1379,7 @@
+@@ -972,7 +1402,7 @@
  
  				rpc_session_grant(ses, blobmsg_name(acl_scope),
  				                       blobmsg_name(acl_obj),
@@ -4089,7 +4706,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			}
  		}
  	}
-@@ -999,32 +1406,113 @@
+@@ -999,32 +1429,113 @@
  	}
  }
  
@@ -4211,7 +4828,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  			/*
  			 * Check if the current user context specifies the current
-@@ -1032,7 +1520,26 @@
+@@ -1032,7 +1543,26 @@
  			 */
  			if (!rpc_login_test_permission(login, blobmsg_name(acl_perm),
  			                                      blobmsg_name(acl_group)))
@@ -4238,7 +4855,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  			/* Iterate scope objects within the permission object */
  			blobmsg_for_each_attr(acl_scope, acl_perm, rem3) {
-@@ -1065,7 +1572,14 @@
+@@ -1065,7 +1595,14 @@
  			}
  		}
  	}
@@ -4254,7 +4871,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  out:
  	blob_buf_free(&acl);
  }
-@@ -1073,18 +1587,53 @@
+@@ -1073,18 +1610,53 @@
  static void
  rpc_login_setup_acls(struct rpc_session *ses, struct uci_section *login)
  {
@@ -4275,13 +4892,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		globfree(&gl);
  		return;
 +	}
- 
--	for (i = 0; i < gl.gl_pathc; i++)
--		rpc_login_setup_acl_file(ses, login, gl.gl_pathv[i]);
++
 +	for (int i = 0; i < gl.gl_pathc; i++) {
 +		rpc_login_setup_acl_file(ses, login, gl.gl_pathv[i], &permissions_manager);
 +	}
  
+-	for (i = 0; i < gl.gl_pathc; i++)
+-		rpc_login_setup_acl_file(ses, login, gl.gl_pathv[i]);
 +	if (!list_empty(&permissions_manager.source_permissions) || !list_empty(&permissions_manager.endpoint_permissions)) {
 +		list_for_each(pos, &permissions_manager.source_permissions) {
 +			acl_entry = list_entry(pos, struct acl_entry, list);
@@ -4296,7 +4913,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		free(acl_entry->permission);
 +		free(acl_entry);
 +	}
-+
+ 
 +	list_for_each_safe(pos, tmp, &permissions_manager.endpoint_permissions) {
 +		acl_entry = list_entry(pos, struct acl_entry, list);
 +		list_del(pos);
@@ -4312,7 +4929,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static struct rpc_session *
  rpc_reclaim_apply_session(const char *expected_username)
  {
-@@ -1110,17 +1659,47 @@
+@@ -1110,6 +1682,34 @@
  	return ses;
  }
  
@@ -4347,29 +4964,35 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static int
  rpc_handle_login(struct ubus_context *ctx, struct ubus_object *obj,
                   struct ubus_request_data *req, const char *method,
-                  struct blob_attr *msg)
- {
-+	static struct blob_buf buf = { 0 };
- 	struct uci_context *uci = NULL;
- 	struct uci_section *login;
- 	struct rpc_session *ses;
+@@ -1121,6 +1721,10 @@
  	struct blob_attr *tb[__RPC_L_MAX];
  	int timeout = RPC_DEFAULT_SESSION_TIMEOUT;
  	int rv = 0;
 +	bool basic_auth = false;
++
++	struct blob_buf reply_buf = { 0 };
++	blob_buf_init(&reply_buf, 0);
  
  	blobmsg_parse(login_policy, __RPC_L_MAX, tb, blob_data(msg), blob_len(msg));
  
-@@ -1147,6 +1726,18 @@
+@@ -1137,7 +1741,8 @@
+ 	}
+ 
+ 	login = rpc_login_test_login(uci, blobmsg_get_string(tb[RPC_L_USERNAME]),
+-	                                  blobmsg_get_string(tb[RPC_L_PASSWORD]));
++	                                  blobmsg_get_string(tb[RPC_L_PASSWORD]),
++	                                  blobmsg_get_string(tb[RPC_L_RHOST]));
+ 
+ 	if (!login) {
+ 		rv = UBUS_STATUS_PERMISSION_DENIED;
+@@ -1147,6 +1752,16 @@
  	if (tb[RPC_L_TIMEOUT])
  		timeout = blobmsg_get_u32(tb[RPC_L_TIMEOUT]);
  
 +	if (tb[RPC_L_BASIC_AUTH]) {
 +		if (!uci_basic_auth_enabled(uci)) {
-+			static struct blob_buf buf;
-+			blob_buf_init(&buf, 0);
-+			blobmsg_add_string(&buf, "error", "Basic auth is not enabled");
-+			ubus_send_reply(ctx, req, buf.head);
++			blobmsg_add_string(&reply_buf, "error", "Basic auth is not enabled");
++			ubus_send_reply(ctx, req, reply_buf.head);
 +			goto out;
 +		}
 +		timeout = 0; // Basic auth sessions do not persist
@@ -4379,7 +5002,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	/*
  	 * attempt to reclaim a pending apply session, but only accept it
  	 * if the username matches, otherwise perform a new login
-@@ -1155,17 +1746,33 @@
+@@ -1155,25 +1770,94 @@
  	ses = rpc_reclaim_apply_session(blobmsg_get_string(tb[RPC_L_USERNAME]));
  
  	if (!ses)
@@ -4404,18 +5027,29 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	rpc_session_dump(ses, ctx, req);
 +
 +	if (login->e.name) {
++		struct blob_buf buf = { 0 };
 +		blob_buf_init(&buf, 0);
++
 +		blobmsg_add_string(&buf, "group", login->e.name);
 +		struct blob_attr *group_attr = blob_data(buf.head);
 +		rpc_session_set(ses, group_attr);
++
 +		blob_buf_free(&buf);
 +	}
++
 +	send_session_event(ctx, "session.created", ses->id);
-+	rpc_session_dump(ses, ctx, req, !basic_auth);
++
++	rpc_session_to_blob(&reply_buf, ses, true, !basic_auth);
++	ubus_send_reply(ctx, req, reply_buf.head);
  
  out:
- 	if (uci)
-@@ -1174,6 +1781,50 @@
+-	if (uci)
++	if (uci) {
+ 		uci_free_context(uci);
++	}
++
++	blob_buf_free(&reply_buf);
+ 
  	return rv;
  }
  
@@ -4440,7 +5074,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			continue;
 +		}
 +
-+		login = rpc_login_test_login(uci, ses->username, NULL);
++		login = rpc_login_test_login(uci, ses->username, NULL, NULL);
 +
 +		if (!login) {
 +			continue;
@@ -4466,7 +5100,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  static bool
  rpc_validate_sid(const char *id)
-@@ -1191,33 +1842,45 @@
+@@ -1191,33 +1875,45 @@
  	return true;
  }
  
@@ -4525,7 +5159,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	struct stat s;
  	struct blob_attr head, *attr = NULL;
  
-@@ -1241,13 +1904,18 @@
+@@ -1241,13 +1937,18 @@
  
  	memcpy(attr, &head, sizeof(head));
  
@@ -4548,11 +5182,13 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	return attr;
  
  fail:
-@@ -1297,8 +1965,16 @@
+@@ -1296,9 +1997,17 @@
+ 	}
  
  	if (uci && user) {
- 		login = rpc_login_test_login(uci, user, NULL);
+-		login = rpc_login_test_login(uci, user, NULL);
 -		if (login)
++		login = rpc_login_test_login(uci, user, NULL, NULL);
 +		if (login) {
 +			free(ses->username);
 +			ses->username = strdup(user);
@@ -4566,7 +5202,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	}
  
  	avl_insert(&sessions, &ses->avl);
-@@ -1308,72 +1984,73 @@
+@@ -1308,72 +2017,72 @@
  	return true;
  }
  
@@ -4674,21 +5310,33 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	return ses;
  }
  
-+
  void rpc_session_freeze(void)
  {
 +	vlog(L_DEBUG, "Freezing sessions");
  	struct stat s;
  	struct rpc_session *ses;
  	char path[PATH_MAX];
-@@ -1387,13 +2064,14 @@
+@@ -1381,19 +2090,26 @@
+ 	if (stat(RPC_SESSION_DIRECTORY, &s))
+ 		mkdir(RPC_SESSION_DIRECTORY, 0700);
+ 
+-	avl_for_each_element(&sessions, ses, avl) {
++	struct blob_buf buf = { 0 };
++	blob_buf_init(&buf, 0);
++
++	avl_for_each_element(&sessions, ses, avl)
++	{
+ 		/* skip default session */
+ 		if (!strcmp(ses->id, RPC_DEFAULT_SESSION_ID))
  			continue;
  
  		snprintf(path, sizeof(path) - 1, RPC_SESSION_DIRECTORY "/%s", ses->id);
 -		rpc_session_to_blob(ses, false);
-+		rpc_session_to_blob(ses, false, true);
++		rpc_session_to_blob(&buf, ses, false, true);
  		rpc_blob_to_file(path, buf.head);
  	}
++
++	blob_buf_free(&buf);
  }
  
  void rpc_session_thaw(void)
@@ -4697,7 +5345,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	DIR *d;
  	char path[PATH_MAX];
  	struct dirent *e;
-@@ -1431,3 +2109,93 @@
+@@ -1431,3 +2147,93 @@
  
  	uci_free_context(uci);
  }
@@ -4793,7 +5441,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/sys.c src/sys.c
 --- upstream/sys.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/sys.c	2025-12-10 08:55:54.000000000 +0000
++++ src/sys.c	2026-03-02 10:27:20.000000000 +0000
 @@ -16,24 +16,28 @@
   * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
   */
@@ -5346,7 +5994,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  };
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/uci.c src/uci.c
 --- upstream/uci.c	2021-03-11 00:17:58.000000000 +0000
-+++ src/uci.c	2025-12-10 08:55:54.000000000 +0000
++++ src/uci.c	2026-03-02 10:27:20.000000000 +0000
 @@ -18,18 +18,20 @@
  
  #include <libgen.h>

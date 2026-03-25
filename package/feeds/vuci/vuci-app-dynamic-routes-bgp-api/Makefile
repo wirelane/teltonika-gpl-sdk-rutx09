@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support Dynamic routes bgp application
 
-APP_DEPENDS:=+frr-bgpd +frr
+APP_DEPENDS:=+SMALL_FLASH:frr8-bgpd +!SMALL_FLASH:frr-bgpd
 
 include ../api.mk
 

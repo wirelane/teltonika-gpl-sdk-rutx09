@@ -4,7 +4,7 @@
 
 PACKAGE_FILE="/etc/package_restore.txt"
 
-path="/etc/config/"
+path="${UCI_CONFIG_DIR:-"/etc/config/"}"
 modbus_config="modbus_master"
 dnp3_config="dnp3_master"
 mbus_config="mbus_master"
@@ -45,7 +45,7 @@ modbus_change_section_type() {
 	uci_set "$modbus_config" "$section" "server_id" "$server_id"
 	uci_remove "$modbus_config" "$section" "slave_id"
 
-	uci set "$modbus_config"."$section"="$new_section_type"
+	uci_add "$modbus_config" "$new_section_type" "$section"
 }
 
 modbus_config_routine() {
@@ -64,7 +64,7 @@ dnp3_change_section_type() {
 	local section_name="$1"
 	local new_section_type="$2"
 
-	uci set "$dnp3_config"."$section_name"="$new_section_type"
+	uci_add "$dnp3_config" "$new_section_type" "$section_name"
 }
 
 dnp3_change_master_id() {
@@ -96,7 +96,7 @@ rename_master_section() {
 	local section="master"
 	local new_section_type="main"
 
-	uci set "$config"."$section"="$new_section_type"
+	uci_add "$config" "$new_section_type" "$section"
 	uci_rename "$config" "$section" "$new_section_type"
 	uci_commit "$config"
 }

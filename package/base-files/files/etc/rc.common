@@ -105,6 +105,28 @@ service_running() {
 	procd_running "$service" "$instance" "$@"
 }
 
+deactivate() {
+	[ -z "$1" ] && {
+		echo "Usage: $initscript deactivate <instance_name>"
+		return 1
+	}
+
+	. /lib/functions/procd.sh
+	local service_name="$(basename "$initscript")"
+	procd_deactivate_instance "$service_name" "$1"
+}
+
+activate() {
+	[ -z "$1" ] && {
+		echo "Usage: $initscript activate <instance_name>"
+		return 1
+	}
+
+	. /lib/functions/procd.sh
+	local service_name="$(basename "$initscript")"
+	procd_activate_instance "$service_name" "$1"
+}
+
 ${INIT_TRACE:+set -x}
 
 extra_command "start" "Start the service"
@@ -121,6 +143,8 @@ extra_command "enabled" "Check if service is started on boot"
 	extra_command "running" "Check if service is running"
 	extra_command "status" "Service status"
 	extra_command "trace" "Start with syscall trace"
+	extra_command "deactivate" "Deactivate a service instance"
+	extra_command "activate" "Activate a service instance"
 
 	. $IPKG_INSTROOT/lib/functions/procd.sh
 	basescript=$(readlink "$initscript")

@@ -5,13 +5,10 @@ SITEMAN_ENABLED=$(uci -q get siteman.general.enabled)
 
 [ "$ACTION" != "ifup" ] && exit 0
 
-case "$INTERFACE" in
-	lan*)
-		;;
-	*)
-		exit 0
-		;;
-esac
+AREA_TYPE=$(uci -q get network."$INTERFACE".area_type)
+[ "$AREA_TYPE" != "lan" ] && exit 0
+
+uci -q get dhcp."$INTERFACE" >/dev/null || exit 0
 
 DHCP_OPT=$(uci -q get siteman.general.dhcp_option)
 DHCP_OPT=${DHCP_OPT:-43}

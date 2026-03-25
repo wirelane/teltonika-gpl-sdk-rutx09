@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for webfilter
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-webfilter-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-webfilter-ui))$(DUMP))
 	APP_TLT_NAME:=Web filter
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=web_filter

@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for STunnel
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-stunnel-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-stunnel-ui))$(DUMP))
 	APP_APP_NAME:=stunnel
 	APP_TLT_NAME:=Stunnel
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

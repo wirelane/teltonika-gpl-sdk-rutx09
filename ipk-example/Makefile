@@ -17,7 +17,7 @@ define Package/example_package
 	CATEGORY:=Base system
 	TITLE:=Example package
 	DEPENDS:=+busybox
-	ifeq (m, $(CONFIG_PACKAGE_example_package))
+	ifneq (,$(filter m,$(CONFIG_PACKAGE_example_package))$(DUMP))
 		PKG_TLT_NAME:=example_package
 		PKG_ROUTER:=$(TLT_PLATFORM_NAME)
 	endif

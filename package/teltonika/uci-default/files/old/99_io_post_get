@@ -13,7 +13,7 @@ config_get username post_get username
 config_get password post_get password
 uci_remove ioman post_get 2>/dev/null
 
-uci_get post_get io >/dev/null || uci -q set post_get.io=post_get
+uci_get post_get io >/dev/null || uci_add "post_get" "post_get" "io"
 uci_set post_get io enabled "$enabled" 2>/dev/null
 uci_set post_get io username "$username" 2>/dev/null
 

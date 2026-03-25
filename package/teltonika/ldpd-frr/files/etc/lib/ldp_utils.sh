@@ -1,5 +1,7 @@
 #!/bin/sh
 
+LDP_CONFIG="/var/run/frr/ldpd.conf"
+
 xappend() {
 	local file="$1"
 	shift
@@ -29,26 +31,26 @@ ldp_parse_general() {
 	local transport_address
 	local ifname
 	local section="$1"
-	local ldp_cfg="/var/run/frr/ldp.conf"
+	local LDP_CONFIG="/var/run/frr/ldpd.conf"
 
 	config_get id "$section" id
 	config_get transport_address "$section" transport_address
 	config_get ifname "$section" ifname
 
-	xappend      "$ldp_cfg" "mpls ldp"
-	xappend      "$ldp_cfg" "router-id" "$id"
-	xappend      "$ldp_cfg" "address-family ipv4"
-	xappend	     "$ldp_cfg" "discovery transport-address" "$transport_address"
-	xappend_list "$ldp_cfg" "interface" "$ifname"
+	xappend      "$LDP_CONFIG" "mpls ldp"
+	xappend      "$LDP_CONFIG" "router-id" "$id"
+	xappend      "$LDP_CONFIG" "address-family ipv4"
+	xappend	     "$LDP_CONFIG" "discovery transport-address" "$transport_address"
+	xappend_list "$LDP_CONFIG" "interface" "$ifname"
 
-	echo "" >> "$ldp_cfg"
+	echo "" >> "$LDP_CONFIG"
 
 	write_mpls_sysctl "$ifname"
 }
 
 ldp_utils_parse_config() {
 
-	local ldp_cfg="/var/run/frr/ldp.conf"
+	local LDP_CONFIG="/var/run/frr/ldpd.conf"
 
 	config_load mpls
 

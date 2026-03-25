@@ -17,11 +17,11 @@ define Package/api-core
   CATEGORY:=WebUI
   TITLE:= API core
   DEPENDS:=+rpcd +WIFI_SUPPORT:rpcd-mod-iwinfo +rpcd-mod-file +rpcd-mod-rpcsys +uhttpd \
-		+lua +libubox-lua +libubus-lua \
+		+lua +libc +libubox-lua +libubus-lua \
 		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
-		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua +lua_crypto +lua_extra_validators \
-		+libubus +luasocket +lsqlite3 +lrexlib +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci \
-		+rpcd-mod-rc +session
+		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua \
+		+libubus +luasocket +lsqlite3 +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci \
+		+rpcd-mod-rc +session +openssl-util +libopenssl +libpcre2
 endef
 
 define Package/api-core/config

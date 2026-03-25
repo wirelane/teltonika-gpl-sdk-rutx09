@@ -25,14 +25,17 @@ UCI_DISABLED=
 config_client() {
 	local sid="$1"
 	local ula_prefix ip6assign netw_ip netw_ip6 netw_mask netw_mask6
-	local common_name local_ip remote_ip private_network covered_network local_ipv6 private_network_ipv6 instance local_net topology
+	local common_name local_ip remote_ip private_network covered_network local_ipv6 private_network_ipv6 instance local_net topology dev
 
 	# get client params from /etc/config/openvpn
 	config_get common_name "$sid" common_name
 	[ -z "$common_name" ] && return
 
 	config_get instance "$sid" instance
-	[ -n "$instance" ] && topology="$(uci -q get openvpn."${instance}".topology)"
+	[ -n "$instance" ] && {
+		topology="$(uci -q get openvpn."${instance}".topology)"
+		dev="$(uci -q get openvpn."${instance}".dev)"
+	}
 
 	config_get local_ip "$sid" local_ip
 	config_get remote_ip "$sid" remote_ip
@@ -43,7 +46,7 @@ config_client() {
 	config_get private_network_ipv6 "$sid" private_network_ipv6
 
 	# generate selective config in /etc/openvpn/ccd
-	if [ "$topology" = "subnet" ]; then
+	if [ "$topology" = "subnet" ] || [ "${dev#tap}" != "$dev" ]; then
 		[ -n "$local_net" ] && {
 			eval "$(ipcalc.sh "$local_net")"
 			printf "ifconfig-push %s %s\n" "$IP" "$NETMASK" >/etc/openvpn/ccd/"$common_name"
@@ -259,7 +262,8 @@ append_other_options() {
 	local sid="$1"
 	local type="$2"
 	local nopool=""
-	local local_ip remote_ip local_ipv6 remote_ipv6 network_ip network_mask network server_ip server_netmask ifconfig_pool_start ifconfig_pool_end status auth_mode userpass
+	local bridge=0
+	local local_ip remote_ip local_ipv6 remote_ipv6 network_ip network_mask network server_ip server_netmask ifconfig_pool_start ifconfig_pool_end status auth_mode userpass dev
 
 	config_get local_ip "$sid" 'local_ip'
 	config_get remote_ip "$sid" 'remote_ip'
@@ -268,13 +272,9 @@ append_other_options() {
 	config_get network_ip "$sid" 'network_ip'
 	config_get network_mask "$sid" 'network_mask'
 	config_get network "$sid" 'network'
-	config_get server_ip "$sid" 'server_ip'
-	config_get server_netmask "$sid" 'server_netmask'
-	config_get ifconfig_pool_start "$sid" 'ifconfig_pool_start'
-	config_get ifconfig_pool_end "$sid" 'ifconfig_pool_end'
-	config_get status "$sid" 'status'
-	config_get auth_mode "$sid" 'auth_mode'
 	config_get userpass "$sid" 'userpass'
+
+	[ -n "$userpass" ] && ln -sf "$userpass" "/etc/openvpn/auth_$sid" &>/dev/null
 
 	[ -n "$local_ip" ] && [ -n "$remote_ip" ] && echo "ifconfig $local_ip $remote_ip" >> ${TMP_DIR}/openvpn-"$sid".conf
 	[ -n "$local_ipv6" ] && [ -n "$remote_ipv6" ] && echo "ifconfig-ipv6 $local_ipv6 $remote_ipv6" >> ${TMP_DIR}/openvpn-"$sid".conf
@@ -292,22 +292,47 @@ append_other_options() {
 			esac
 		done
 	}
-	if [ -n "$ifconfig_pool_start" ] && [ -n "$ifconfig_pool_end" ]; then
-		echo "ifconfig-pool $ifconfig_pool_start $ifconfig_pool_end" >> ${TMP_DIR}/openvpn-"$sid".conf
-		nopool="nopool"
-	fi
-	[ -n "$server_ip" ] && [ -n "$server_netmask" ] && echo "server $server_ip $server_netmask $nopool" >> ${TMP_DIR}/openvpn-"$sid".conf
 
-	# add addition options
-	{
-		[ "$type" = "client" ] && echo "nobind"
-		[ "$type" = "server" ] && {
-			[ -n "$(ls /etc/openvpn/ccd/)" ] && echo "learn-address /etc/openvpn/route.sh"
-			[ "$auth_mode" = "tls/pass" ] || [ "$auth_mode" = "pass" ] && echo "auth-user-pass-verify /etc/openvpn/auth-pam-fixed.sh via-file"
-			[ "$auth_mode" = "pass" ] && echo "verify-client-cert none"
+	if [ "$type" = "client" ]; then
+		echo "nobind" >> ${TMP_DIR}/openvpn-"$sid".conf
+		return
+	fi
+
+	config_get server_ip "$sid" 'server_ip'
+	config_get server_netmask "$sid" 'server_netmask'
+	config_get ifconfig_pool_start "$sid" 'ifconfig_pool_start'
+	config_get ifconfig_pool_end "$sid" 'ifconfig_pool_end'
+	config_get status "$sid" 'status'
+	config_get auth_mode "$sid" 'auth_mode'
+	config_get dev "$sid" 'dev'
+	config_get to_bridge "$sid" 'to_bridge' "none"
+	config_get server_gw "$sid" 'server_gw'
+
+	if [ "${dev#tap}" != "$dev" ] && [ "$to_bridge" != "none" ]; then
+		if [ -n "$server_gw" ] && [ -n "$ifconfig_pool_start" ] && [ -n "$ifconfig_pool_end" ]; then
+			eval "$(ipcalc.sh "$server_gw")"
+			echo "server-bridge $IP $NETMASK $ifconfig_pool_start $ifconfig_pool_end" >> ${TMP_DIR}/openvpn-"$sid".conf
+		else
+			echo "server-bridge nogw" >> ${TMP_DIR}/openvpn-"$sid".conf
+		fi
+		bridge=1
+	fi
+
+	if [ "$bridge" != 1 ]; then
+		[ -n "$ifconfig_pool_start" ] && [ -n "$ifconfig_pool_end" ] && {
+			echo "ifconfig-pool $ifconfig_pool_start $ifconfig_pool_end" >> ${TMP_DIR}/openvpn-"$sid".conf
+			nopool="nopool"
 		}
+		if [ -n "$server_ip" ] && [ -n "$server_netmask" ]; then
+			echo "server $server_ip $server_netmask $nopool" >> ${TMP_DIR}/openvpn-"$sid".conf
+		fi
+	fi
+
+	{
+		[ -n "$(ls /etc/openvpn/ccd/)" ] && echo "learn-address /etc/openvpn/route.sh"
+		[ "$auth_mode" = "tls/pass" ] || [ "$auth_mode" = "pass" ] && echo "auth-user-pass-verify /etc/openvpn/auth-pam-fixed.sh via-file"
+		[ "$auth_mode" = "pass" ] && echo "verify-client-cert none"
 	} >>${TMP_DIR}/openvpn-"$sid".conf
-	[ -n "$userpass" ] && ln -sf "$userpass" "/etc/openvpn/auth_$sid" &>/dev/null
 }
 
 openvpn_add_instance() {

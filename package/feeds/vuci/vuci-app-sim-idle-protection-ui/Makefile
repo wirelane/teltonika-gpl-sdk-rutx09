@@ -4,7 +4,7 @@ PKG_LICENSE:=Teltonika-nda-source
 
 APP_TITLE:=VuCI UI Support for SIM Idle protection
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-sim-idle-protection-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-sim-idle-protection-ui))$(DUMP))
 	APP_APP_NAME:=sim_idle_protection
 	APP_TLT_NAME:=SIM Idle Protection
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

@@ -242,7 +242,7 @@ write_config() {
 	"$CHANGED_SQM" && uci_commit sqm && CHANGED_SQM=false
 }
 
-[ ! -f /etc/config/wireless ] && exit 0
+[ ! -f $UCI_CONFIG_DIR/wireless ] && exit 0
 
 #load config, find all _device_id values
 config_load wireless

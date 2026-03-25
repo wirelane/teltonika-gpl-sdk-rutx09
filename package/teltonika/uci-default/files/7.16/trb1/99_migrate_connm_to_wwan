@@ -6,10 +6,10 @@ migrate_connm_to_wwan() {
 	local proto
 	config_get "proto" "$section" "proto"
 	[ "$proto" = "connm" ] || return
-	uci set "network.$section.proto=wwan"
+	uci_set "network" "$section" "proto" "wwan"
 }
 
 config_load network
 config_foreach migrate_connm_to_wwan interface
-uci commit network
+uci_commit network
 exit 0

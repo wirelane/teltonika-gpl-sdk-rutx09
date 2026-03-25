@@ -24,6 +24,11 @@
     "title": "PPSK Profiles",
     "index": 40,
     "view": "network/ppskProfiles/PPSKProfiles",
-    "acls": ["network/wireless/ppsk_profiles"]
+    "acls": ["network/wireless/ppsk_profiles"],
+    "depends": {
+      "board": {
+        "notAllOf": ["is_cap"]
+      }
+    }
   }
 }

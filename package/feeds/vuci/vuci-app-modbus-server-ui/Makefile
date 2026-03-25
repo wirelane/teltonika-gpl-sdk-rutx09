@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 APP_TITLE:=VuCI UI Support for Modbus TCP Server
 APP_DEPENDS:=+vuci-app-universal-gateway-api
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-modbus-server-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-modbus-server-ui))$(DUMP))
 	APP_TLT_NAME:=MODBUS Server
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=modbus_server

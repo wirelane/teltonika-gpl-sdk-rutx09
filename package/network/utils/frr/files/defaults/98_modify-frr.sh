@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/frr" ] || exit 0
+[ -f "$UCI_CONFIG_DIR/frr" ] || exit 0
 
 add_ebgp() {
 	local section="$1"
@@ -41,7 +41,7 @@ fix_bgp_maps() {
 }
 
 # migrate legacy
-[ -f "/etc/config/quagga" ] && mv "/etc/config/quagga" "/etc/config/frr"
+[ -f "$UCI_CONFIG_DIR/quagga" ] && mv "$UCI_CONFIG_DIR/quagga" "$UCI_CONFIG_DIR/frr"
 
 config_load frr
 config_foreach add_ebgp bgp_instance

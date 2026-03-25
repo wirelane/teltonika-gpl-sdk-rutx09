@@ -78,13 +78,13 @@ remove_network() {
 configs="pptpd xl2tpd"
 
 for config in $configs; do
-	[ -s "/etc/config/${config}" ] || continue
+	[ -s "$UCI_CONFIG_DIR/${config}" ] || continue
 	config_load "$config"
 	config_foreach move_config "service" "$config"
 	config_foreach remove_network "service" "$config"
 done
 
-[ -s /etc/config/network ] || exit 0
+[ -s "$UCI_CONFIG_DIR/network" ] || exit 0
 config_load "network"
 config_foreach move_network "interface"
 

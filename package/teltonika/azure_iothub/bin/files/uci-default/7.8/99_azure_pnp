@@ -2,7 +2,9 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/azure_iothub" ] || return 0
+CONFIG_PATH="${UCI_CONFIG_DIR:-"/etc/config"}"
+
+[ -f "$CONFIG_PATH/azure_iothub" ] || return 0
 
 migrade_old_sections() {
 	local sec="$1"
@@ -17,5 +19,5 @@ migrade_old_sections() {
 config_load azure_iothub
 config_foreach migrade_old_sections azure_iothub
 
-uci commit
+uci_commit
 return 0

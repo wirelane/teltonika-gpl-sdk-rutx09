@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ovpn-dco
-PKG_VERSION:=0.2.20241216
-PKG_RELEASE:=4
+PKG_VERSION:=0.2.20251017
+PKG_RELEASE:=5
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/OpenVPN/ovpn-dco/tar.gz/v$(PKG_VERSION)?
-PKG_HASH:=0b30b8973b362b80a05f278ae217f01a2a2417e16e9c68c486960275a55306cc
+PKG_HASH:=af88c9bc73b350e0cada9aa5b21c5d4b598f9a9868f0b78b2d06026183a67032
 
 PKG_MAINTAINER:=Jianhui Zhao <zhaojh329@gmail.com>
 PKG_LICENSE:=GPL-2.0-only
@@ -29,7 +29,7 @@ define KernelPackage/ovpn-dco-v2
   DEPENDS:=+kmod-crypto-aead +kmod-udptunnel4 +IPV6:kmod-udptunnel6
   FILES:=$(PKG_BUILD_DIR)/drivers/net/ovpn-dco/ovpn-dco-v2.ko
   AUTOLOAD:=$(call AutoLoad,30,ovpn-dco-v2)
-  ifeq (m, $(CONFIG_PACKAGE_kmod-ovpn-dco-v2))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_kmod-ovpn-dco-v2))$(DUMP))
     PKG_TLT_NAME:=OpenVPN DCO support
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif

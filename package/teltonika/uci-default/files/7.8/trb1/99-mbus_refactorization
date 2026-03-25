@@ -9,7 +9,7 @@ DEFAULT_GROUP_ID="0"
 find_device() {
 	local addr=$1
 	
-	list_of_devices=$(uci show mbus_client | grep $(address_type $addr)_address=\'$addr\')
+	list_of_devices=$(uci_show mbus_client | grep $(address_type $addr)_address=\'$addr\')
 	device_section=$(echo "$list_of_devices" | awk -F '.' '{print $2}')
 	echo $device_section
 }
@@ -67,7 +67,7 @@ records_routine() {
 	local section=$1
 	local prev_data_type=""
 
-	uci set "$CONFIG"."$section"="group"
+	uci_add "$CONFIG" "group" "$section"
 	change_option "$section" "fmt_before" "prefix"
 	change_option "$section" "fmt_between" "midfix"
 	change_option "$section" "fmt_after" "postfix"
@@ -75,7 +75,7 @@ records_routine() {
 	change_option "$section" "store_fail_msg" "fail_store"
 
 	## move data_type from requests to records
-	for line in $(uci show mbus_client | grep "^mbus_client\..*=request_$section$"); do
+	for line in $(uci_show mbus_client | grep "^mbus_client\..*=request_$section$"); do
 		pam=${line%%=*} # take everything before '='
 		request_id=$(echo "$pam" | awk -F '.' '{print $2}')
 		config_get data_type "$request_id" "data_type"
@@ -128,7 +128,7 @@ rename_requests_to_values() {
 	fi
 
 	local section_type="$(uci_get "$CONFIG" "$section")"
-	uci set "$CONFIG"."$section"="value_${section_type#request_}"
+	uci_add "$CONFIG" "value_${section_type#request_}" "$section"
 
 	# add some extra parameters
 	uci_set "$CONFIG" "$section" "parameter_selection" "all"
@@ -161,7 +161,7 @@ set_general_options() {
 }
 
 add_default_group() {
-	if uci -q show mbus_client.0=group > /dev/null; then
+	if uci_show "mbus_client" "0" > /dev/null; then
 		return
 	fi
 

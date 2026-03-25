@@ -641,24 +641,33 @@ static int fix_ascii_type(struct mnfinfo_entry *e, size_t len, const char *def)
 	return 0;
 }
 
+static inline int is_ascii_alnum(unsigned char c)
+{
+    return (c >= '0' && c <= '9') ||
+           (c >= 'A' && c <= 'Z');
+}
+
 static int fix_alnum_type(struct mnfinfo_entry *e, size_t len, const char *def)
 {
-	char *buf = e->data;
+    char *buf = e->data;
 
-	if (!*buf || !isalnum(*buf)) {
-		if (!def) {
-			*buf = 0;
-			return 1;
-		} else
-			snprintf(e->data, e->dt_len, "%s", def);
-		return 0;
-	}
+    if (!*buf || !is_ascii_alnum((unsigned char)*buf)) {
+        if (!def) {
+            *buf = 0;
+            return 1;
+        } else {
+            snprintf(e->data, e->dt_len, "%s", def);
+            return 0;
+        }
+    }
 
-	for (buf++; buf < (e->data + len); buf++)
-		if (!*buf || !isalnum(*buf))
-			*buf = 0;
+    for (buf++; buf < (e->data + len); buf++) {
+        if (!*buf || !is_ascii_alnum((unsigned char)*buf)) {
+            *buf = 0;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 static int fix_digit_type(struct mnfinfo_entry *e, size_t len, const char *def)

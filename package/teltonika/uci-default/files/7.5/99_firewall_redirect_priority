@@ -1,8 +1,8 @@
 #!/bin/sh
 
-[ -n "$(uci -q get "firewall.@redirect[0].priority")" ] && exit 0
-
 . /lib/functions.sh
+
+[ -n "$(uci_get "firewall" "@redirect[0]" "priority")" ] && exit 0
 
 priority_dnat="1"
 priority_snat="1"

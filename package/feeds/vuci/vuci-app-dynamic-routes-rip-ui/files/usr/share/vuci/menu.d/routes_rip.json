@@ -15,7 +15,7 @@
     "main_page": true,
     "depends": {
       "packages": {
-        "anyOf": ["frr-ripd", "frr5-ripd"]
+        "anyOf": ["frr-ripd", "frr8-ripd"]
       }
     }
   },
@@ -34,7 +34,7 @@
     "acls": ["status/routes/dynamic/rip"],
     "depends": {
       "packages": {
-        "anyOf": ["frr-ripd", "frr5-ripd"]
+        "anyOf": ["frr-ripd", "frr8-ripd"]
       }
     }
   }

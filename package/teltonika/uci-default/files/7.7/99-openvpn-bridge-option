@@ -17,7 +17,7 @@ add_bridge_option() {
 }
 
 remove_tap0() {
-    uci -q del_list network."$1".ports=tap0
+    uci_remove_list "network "$1" "ports" "tap0"
 }
 
 config_load "openvpn"

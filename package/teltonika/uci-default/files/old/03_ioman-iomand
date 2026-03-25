@@ -114,7 +114,7 @@ config_load "ioman" || exit 0
 config_foreach convert_scheduler "scheduler"
 
 has_general=$(uci_get ioman scheduler_general)
-[ -z "$has_general" ] && uci -q set "ioman.scheduler_general=scheduler_general"
+[ -z "$has_general" ] && uci_add "ioman" "scheduler_general" "scheduler_general"
 [ "$ENABLED" -eq 1 ] && uci_set "ioman" "scheduler_general" "enabled" "1"
 
 uci_commit "ioman"

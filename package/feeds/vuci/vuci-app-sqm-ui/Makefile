@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for SQM
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-sqm-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-sqm-ui))$(DUMP))
 	APP_APP_NAME:=sqm-scripts
 	APP_TLT_NAME:=SQM
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

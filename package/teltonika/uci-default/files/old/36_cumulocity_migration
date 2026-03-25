@@ -27,11 +27,11 @@ config_cb() {
         }
 }
 
-[ -f "/etc/config/$CONF" ] || return 0
-[ -f "/etc/config/$LEGACY_CONF" ] && config_load "$LEGACY_CONF" && [ "$STATUS" = 1 ] || uci_add "$CONF" "$SECTION_TYPE" "$SECTION_NAME"
+[ -f "$UCI_CONFIG_DIR/$CONF" ] || return 0
+[ -f "$UCI_CONFIG_DIR/$LEGACY_CONF" ] && config_load "$LEGACY_CONF" && [ "$STATUS" = 1 ] || uci_add "$CONF" "$SECTION_TYPE" "$SECTION_NAME"
 
 uci_commit "$CONF"
 
-[ "$STATUS" = 1 ] && rm "/etc/config/$LEGACY_CONF"
+[ "$STATUS" = 1 ] && rm "$UCI_CONFIG_DIR/$LEGACY_CONF"
 
 # config_cb() { return; }

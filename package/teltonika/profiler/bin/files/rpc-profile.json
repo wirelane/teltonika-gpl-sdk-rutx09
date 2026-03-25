@@ -2,7 +2,7 @@
   "user": "rpcd",
   "access": {
     "rpc-profile": {
-      "methods": ["create", "change", "update", "remove", "diff", "list"]
+      "methods": ["create", "change", "update", "remove", "diff", "list", "migrate"]
     }
   },
   "publish": ["rpc-profile"]

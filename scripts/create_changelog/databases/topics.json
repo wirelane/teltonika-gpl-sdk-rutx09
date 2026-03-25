@@ -1,22 +1,26 @@
 [
   {
     "category": "System",
-    "name": "Reset Settings",
+    "name": "Integrity",
     "depends": []
   },
   {
-    "category": "System",
-    "name": "Site manager",
-    "depends": []
-  },
-  {
-    "category": "Network",
-    "name": "MPLS",
+    "category": "Services",
+    "name": "I/O Scheduler",
     "depends": [
       {
         "type": "hw",
-        "name": "is_access_point",
-        "value": false
+        "name": "ios"
+      }
+    ]
+  },
+  {
+    "category": "Network",
+    "name": "SMCroute",
+    "depends": [
+      {
+        "type": "family",
+        "name": "Router"
       }
     ]
   },
@@ -734,7 +738,7 @@
     "depends": [
       {
         "type": "hw",
-        "name": "rs485"
+        "name": "serial_usb"
       }
     ]
   },
@@ -1072,7 +1076,7 @@
   },
   {
     "category": "Services",
-    "name": "CAN Bus Gateway",
+    "name": "CAN Gateway",
     "depends": [
       {
         "type": "hw",

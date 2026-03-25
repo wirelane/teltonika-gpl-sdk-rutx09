@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=pam-radius
-PKG_VERSION:=2024-09-30
+PKG_VERSION:=2026-03-13
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
@@ -23,7 +23,7 @@ define Package/pam-radius
   SECTION:=base
   CATEGORY:=Base system
   TITLE:=Radius server PAM module
-  DEPENDS:=+libpam
+  DEPENDS:=+libpam +libtlt-logger
 endef
 
 CONFIGURE_ARGS += --disable-developer

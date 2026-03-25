@@ -3,12 +3,6 @@ include $(TOPDIR)/rules.mk
 APP_TITLE:=VuCI UI Support for DMVPN
 APP_DEPENDS:=+vuci-app-dynamic-routes-nhrp-ui
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-dmvpn-ui))
-	APP_APP_NAME:=dmvpn
-	APP_TLT_NAME:= DMVPN
-	APP_ROUTER:=$(TLT_PLATFORM_NAME)
-endif
-
 include ../app.mk
 
 define Package/vuci-app-dmvpn-ui/description

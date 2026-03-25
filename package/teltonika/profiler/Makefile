@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=profiler
 
-PKG_SOURCE_VERSION:=2.18
+PKG_SOURCE_VERSION:=2.19
 
 PKG_LICENSE:=Teltonika-closed
 

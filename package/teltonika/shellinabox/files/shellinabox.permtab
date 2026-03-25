@@ -1,1 +1,2 @@
-/etc/config/cli             shellinabox:shellinabox       660       -
+/etc/config/cli             uhttpd:uhttpd                 660       -
+/usr/lib/uhttpd_cli         uhttpd:uhttpd                 755       -

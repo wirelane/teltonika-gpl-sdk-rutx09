@@ -53,6 +53,7 @@ MODEM_ID=""
 LOG_DEV=""
 
 ADD_QUECTEL_AT="" # Adds additional Quectel AT debug commands. See: QUECTEL_AT.
+ADD_EG060W_AT="" # Adds additional EG060W AT debug commands. See: EG060W_AT.
 QUECTEL_AT="\
 AT+QGMR \
 AT+QCFG=\"nwscanmodeex\" \
@@ -89,6 +90,11 @@ AT+CCID \
 AT+GSN \
 "
 
+EG060W_AT="\
+AT+ACONFIG=\"CPLOG=1\" \
+AT+QTEST=\"debug\",1 \
+"
+
 # Executes forced at command by sending it to tty port
 exec_forced_at(){
     local at="$1"
@@ -118,7 +124,7 @@ execute_at_array() {
 
 get_pre_init_set() {
     #space separated array
-    array="${ADD_QUECTEL_AT:+"AT+QCFG=\"dbgctl\",0 "} AT+CFUN=0"
+    array="${ADD_QUECTEL_AT:+"AT+QCFG=\"dbgctl\",0 "} AT+CFUN=0 ${ADD_EG060W_AT:+"$EG060W_AT"}"
 }
 
 get_post_init_set() {
@@ -257,6 +263,11 @@ set_logger(){
                 ;;
                 "FN990"* | "LE910"* | "LN920"*)
                     LOGGER_PATH="$(get_bin_path qc_trace_collector)"
+                    return
+                ;;
+                EG060W*)
+                    ADD_EG060W_AT="true"
+                    LOGGER_PATH="$(get_bin_path qlog)"
                     return
                 ;;
                 *)

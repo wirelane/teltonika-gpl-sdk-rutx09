@@ -1,5 +1,7 @@
---- a/NOFORK_NOEXEC.lst
-+++ b/NOFORK_NOEXEC.lst
+Index: busybox-1.34.1/NOFORK_NOEXEC.lst
+===================================================================
+--- busybox-1.34.1.orig/NOFORK_NOEXEC.lst
++++ busybox-1.34.1/NOFORK_NOEXEC.lst
 @@ -265,6 +265,7 @@ nl - runner
  nmeter - longterm
  nohup - noexec. spawner
@@ -8,8 +10,10 @@
  ntpd - daemon
  nuke - noexec
  od - runner
---- a/libbb/Kbuild.src
-+++ b/libbb/Kbuild.src
+Index: busybox-1.34.1/libbb/Kbuild.src
+===================================================================
+--- busybox-1.34.1.orig/libbb/Kbuild.src
++++ busybox-1.34.1/libbb/Kbuild.src
 @@ -127,6 +127,7 @@ lib-$(CONFIG_FEATURE_CHECK_NAMES) += die
  lib-$(CONFIG_NC) += udp_io.o
  lib-$(CONFIG_NETCAT) += udp_io.o
@@ -18,9 +22,11 @@
  lib-$(CONFIG_NTPD) += udp_io.o
  lib-$(CONFIG_TFTP) += udp_io.o
  lib-$(CONFIG_TFTPD) += udp_io.o
+Index: busybox-1.34.1/networking/untpd.c
+===================================================================
 --- /dev/null
-+++ b/networking/untpd.c
-@@ -0,0 +1,267 @@
++++ busybox-1.34.1/networking/untpd.c
+@@ -0,0 +1,278 @@
 +/*
 + * NTP server, based on ntpd from busybox
 + *
@@ -50,7 +56,12 @@
 +#endif
 +
 +#define KEYID_SIZE      sizeof(uint32_t)
-+
++//Acording to RFC5905, the suggested intervals are between log2(64) and log2(1024),
++//so 6 (64 seconds) is a good default value since undpd does not support dynamic adjustment.
++#define POLL_INTERVAL   6 /* seconds */
++#define DEFAULT_STRATUM 1
++//Since the unpd takes only local clock as a reference, the refid is set to "LOCL" (0x4C4F434C) by default.
++#define DEFAULT_REFID 0x4C4F434C /* "LOCL" */
 +enum {
 +	NTP_MD5_DIGESTSIZE    = 16,
 +	NTP_MSGSIZE_NOAUTH    = 48,
@@ -100,6 +111,8 @@
 +struct globals {
 +	double   cur_time;
 +	unsigned opts;
++	uint32_t refid;
++	uint8_t  poll_exp;
 +};
 +
 +#define PRESISION_EXP  -9
@@ -201,7 +214,8 @@
 +	msg.m_status = (query_status & VERSION_MASK);
 +	msg.m_status |= ((query_status & MODE_MASK) == MODE_CLIENT) ?
 +			MODE_SERVER : MODE_SYM_PAS;
-+	msg.m_stratum = 1;
++	msg.m_stratum = DEFAULT_STRATUM;
++	msg.m_ppoll = G.poll_exp;
 +	msg.m_precision_exp = PRESISION_EXP;
 +	/* this time was obtained between poll() and recv() */
 +	d_to_lfp(&msg.m_rectime, G.cur_time);
@@ -211,7 +225,7 @@
 +//simple code does not do this, fix simple code!
 +	d_to_sfp(&msg.m_rootdisp, 0);
 +	//version = (query_status & VERSION_MASK); /* ... >> VERSION_SHIFT - done below instead */
-+	msg.m_refid = 0;
++	msg.m_refid = G.refid;
 +	/* We reply from the local address packet was sent to,
 +	 * this makes to/from look swapped here: */
 +	do_sendto(fd, /*from:*/ &to->u.sa, /*to:*/ from, /*addrlen:*/ to->len,
@@ -240,6 +254,8 @@
 +	SET_PTR_TO_GLOBALS(&G);
 +
 +	G.opts = getopt32(argv, "d");
++	G.refid = htonl(DEFAULT_REFID);
++	G.poll_exp = POLL_INTERVAL;
 +	bb_signals(0
 +		| (1 << SIGTERM)
 +		| (1 << SIGINT)
@@ -288,3 +304,4 @@
 +	remove_pidfile_std_path_and_ext("untpd");
 +	kill_myself_with_sig(bb_got_signal);
 +}
++

@@ -1,8 +1,8 @@
 #!/bin/sh
 
-[ -n "$(uci -q get "firewall.@rule[0].priority")" ] && exit 0
-
 . /lib/functions.sh
+
+[ -n "$(uci_get "firewall" "@rule[0]" "priority")" ] && exit 0
 
 priority="1"
 

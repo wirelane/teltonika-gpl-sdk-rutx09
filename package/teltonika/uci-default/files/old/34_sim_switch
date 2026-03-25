@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -f "/etc/config/sim_switch" ] || return 1
+[ -f "$UCI_CONFIG_DIR/sim_switch" ] || return 1
 
 . /lib/functions.sh
 
@@ -17,7 +17,7 @@ set_option() {
 	else
 		uci_set "sim_switch" "$1" "position" "2"
 	fi
-	uci -q set "sim_switch.${1}=sim"
+	uci_add "sim_switch" "sim" "$1"
 }
 
 config_load "simcard"

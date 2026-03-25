@@ -6,8 +6,8 @@ config_load ioman
 config_get enabled scheduler_general enabled
 [ -n "$enabled" ] || exit 0
 
-[ -f /etc/config/io_scheduler ] || {
-	touch /etc/config/io_scheduler
+[ -f $UCI_CONFIG_DIR/io_scheduler ] || {
+	touch $UCI_CONFIG_DIR/io_scheduler
 }
 
 PACKAGE=io_scheduler

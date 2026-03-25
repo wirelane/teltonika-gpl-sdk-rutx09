@@ -42,7 +42,7 @@ check_config_match() {
 }
 
 config_load "$CONFIG"
-sed -i "s/system\/maintenance\/eventlog\*'/system\/maintenance\/eventlog\/all\*'/g" /etc/config/rpcd
+sed -i "s/system\/maintenance\/eventlog\*'/system\/maintenance\/eventlog\/all\*'/g" "$UCI_CONFIG_DIR/rpcd"
 config_foreach check_config_match "group"
 uci_commit "$CONFIG"
 exit 0

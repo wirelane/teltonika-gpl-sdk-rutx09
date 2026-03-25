@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for I/O Scheduler
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-io-scheduler-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-io-scheduler-ui))$(DUMP))
 	APP_TLT_NAME:=I/O Scheduler
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=io_scheduler

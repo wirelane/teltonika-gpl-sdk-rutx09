@@ -32,9 +32,9 @@ define Package/socat
 	TITLE:=A multipurpose relay (SOcket CAT)
 	URL:=http://www.dest-unreach.org/socat/
 	FATTRS:=/usr/bin/socat::::cap_net_bind_service=ep
-        ifeq (m, $(CONFIG_PACKAGE_socat))
-                PKG_TLT_NAME:=socat
-                PKG_ROUTER:=$(TLT_PLATFORM_NAME)
+	ifneq (,$(filter m,$(CONFIG_PACKAGE_socat))$(DUMP))
+		PKG_TLT_NAME:=socat
+		PKG_ROUTER:=$(TLT_PLATFORM_NAME)
 	endif
 endef
 

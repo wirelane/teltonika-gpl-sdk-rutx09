@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=stunnel
 PKG_VERSION:=5.72
-PKG_RELEASE:=4
+PKG_RELEASE:=14
 
 PKG_SOURCE_VERSION:=5.72
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -27,8 +27,7 @@ PKG_SOURCE_URL:= \
 
 PKG_HASH:=3d532941281ae353319735144e4adb9ae489a10b7e309c58a48157f08f42e949
 
-PKG_FIXUP:=autoreconf
-PKG_FIXUP:=patch-libtool
+PKG_FIXUP:=patch-libtool autoreconf
 PKG_INSTALL:=1
 
 include $(INCLUDE_DIR)/package.mk
@@ -36,7 +35,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/stunnel
   SECTION:=net
   CATEGORY:=Network
-  DEPENDS:=+libopenssl +zlib +libpthread
+  DEPENDS:=+libopenssl +zlib +libpthread +libtlt-logger
   TITLE:=SSL TCP Wrapper
   URL:=http://www.stunnel.org/
   USERID:=stunnel:stunnel
@@ -82,7 +81,7 @@ define Package/stunnel/install
 	$(INSTALL_DIR) $(1)/etc/stunnel
 	$(INSTALL_CONF) ./files/stunnel.conf $(1)/etc/stunnel/stunnel.conf
 	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_BIN) ./files/stunnel.init $(1)/etc/init.d/stunnel
+	$(INSTALL_BIN_USR) ./files/stunnel.init $(1)/etc/init.d/stunnel
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF_USR) ./files/stunnel.uci $(1)/etc/config/stunnel
 	$(INSTALL_DATA) files/stunnel.permtab $(1)/etc/permtab.d/stunnel

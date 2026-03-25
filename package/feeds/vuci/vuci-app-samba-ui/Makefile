@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Samba application
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-samba-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-samba-ui))$(DUMP))
 	APP_TLT_NAME:=Network shares
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=samba36-server

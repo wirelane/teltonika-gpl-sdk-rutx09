@@ -1,11 +1,11 @@
 #!/bin/sh
 . /lib/functions.sh
 
-config_file="/etc/config/wireless"
+config_file="$UCI_CONFIG_DIR/wireless"
 section_name="radio1"
 
 [ ! -f "$config_file" ] && exit 0
-uci get wireless."$section_name" &> /dev/null || exit 0
+uci_get wireless "$section_name" > /dev/null || exit 0
 
 config_load "wireless"
 channels=""

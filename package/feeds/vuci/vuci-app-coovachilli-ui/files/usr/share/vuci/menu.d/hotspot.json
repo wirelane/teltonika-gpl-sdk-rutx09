@@ -6,37 +6,31 @@
 		"services/hotspot/general": {
 			"title": "General",
 			"index": 10,
-			"view": "services/HotspotOverview",
+			"view": "services/HotspotGeneral",
 			"acls": [ "services/hotspot/general" ],
 			"main_page": true
-		},
-		"services/hotspot/users": {
-			"title": "Local Users",
-			"index": 20,
-			"view": "services/HotspotUsers",
-			"acls": [ "services/hotspot/users" ]
-		},
-		"services/hotspot/groups": {
-			"title": "User Groups",
-			"index": 40,
-			"view": "services/HotspotGroups",
-			"acls": [ "services/hotspot/groups" ]
 		},
 		"services/hotspot/user_management": {
 			"title": "User Management",
 			"index": 50
 		},
-			"services/hotspot/user_management/current": {
-				"title": "User sessions",
+			"services/hotspot/user_management/sessions": {
+				"title": "Sessions",
 				"index": 10,
-				"view": "services/HotspotCurrentUsers",
+				"view": "services/HotspotSessions",
 				"acls": [ "services/hotspot/user_management" ]
 			},
-			"services/hotspot/user_management/registered": {
-				"title": "Registered Users",
+			"services/hotspot/user_management/users": {
+				"title": "Users",
 				"index": 20,
-				"view": "services/HotspotRegisteredUsers",
+				"view": "services/HotspotUsers",
 				"acls": [ "services/hotspot/user_management" ]
+			},
+			"services/hotspot/user_management/groups": {
+				"title": "Groups",
+				"index": 30,
+				"view": "services/HotspotGroups",
+				"acls": [ "services/hotspot/groups" ]
 			},
 		"system/maintenance/hotspot": {
 			"title": "Hotspot Log",

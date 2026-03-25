@@ -15,6 +15,6 @@ check_make_before_break() {
 config_load ipsec
 config_foreach check_make_before_break ipsec
 
-[ "$is_set" = "0" ] && uci set ipsec.@ipsec[0].make_before_break='0'
+[ "$is_set" = "0" ] && uci_set "ipsec" "@ipsec[0]" "make_before_break" "0"
 
-uci commit ipsec
+uci_commit ipsec

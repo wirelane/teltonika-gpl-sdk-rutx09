@@ -44,6 +44,7 @@ typedef enum {
 	EVT_SINR_SIGNAL, /*!< SINR signal event */
 	EVT_RSRQ_SIGNAL, /*!< RSRQ signal event */
 	EVT_BER_SIGNAL, /*!< BER signal event */
+	EVT_QUALITY_SIGNAL, /*!< QUALITY signal event */
 
 	EVT_CMTI_VALUE, /*!< CMTI value event */
 	EVT_CUSD_VALUE, /*!< CUSD value event */

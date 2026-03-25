@@ -49,6 +49,8 @@ endef
 define Package/ulogd/conffiles
 /etc/ulogd.conf
 /etc/config/ulogd
+/usr/local/home/ulogd/.ssh/id_rsa
+/usr/local/home/ulogd/.ssh/id_rsa.pub
 endef
 
 define Package/ulogd-mod-nfacct
@@ -141,6 +143,26 @@ define Package/ulogd/install
 	$(INSTALL_DATA) ./files/99_ulogd.sh $(1)/etc/uci-defaults/7.14/99_ulogd
 	$(INSTALL_DIR) $(1)/etc/permtab.d
 	$(INSTALL_DATA) ./files/ulogd.permtab $(1)/etc/permtab.d/ulogd
+
+	$(INSTALL_DIR) $(1)/usr/libexec/rpcd $(1)/usr/share/acl.d
+	$(INSTALL_BIN) ./files/ulogd.sh $(1)/usr/libexec/rpcd/ulogd
+	$(INSTALL_DATA) ./files/rpcd_ulogd.json $(1)/usr/share/acl.d/
+endef
+
+define Package/ulogd/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ] && [ -x /etc/init.d/rpcd ]; then
+	/etc/init.d/rpcd reload
+fi
+exit 0
+endef
+
+define Package/ulogd/postrm
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ] && [ -x /etc/init.d/rpcd ]; then
+	/etc/init.d/rpcd reload
+fi
+exit 0
 endef
 
 define BuildPlugin

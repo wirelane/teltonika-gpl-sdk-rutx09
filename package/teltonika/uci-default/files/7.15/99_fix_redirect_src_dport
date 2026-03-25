@@ -26,5 +26,5 @@ fix_src_dport() {
 
 config_load firewall
 config_foreach fix_src_dport redirect
-uci commit firewall
+uci_commit firewall
 exit 0

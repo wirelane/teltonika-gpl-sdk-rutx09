@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -e /etc/config/strongswan ] || exit 0
+[ -e "$UCI_CONFIG_DIR/strongswan" ] || exit 0
 
 . /lib/functions.sh
 ENABLED="0"
@@ -135,6 +135,6 @@ config_foreach move_config "conn"
 	uci_commit "firewall"
 }
 
-rm -f /etc/config/strongswan
+rm -f "$UCI_CONFIG_DIR/strongswan"
 
 exit 0

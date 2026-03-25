@@ -192,7 +192,7 @@ static inline const char *lcfg_type_to_str(enum opt_type type)
 /* Get the offset of the structure element and set list flag.
 Calculate size of pointer element for array allocation. */
 #define LCFG_LOPT_POINTER(stype, member) \
-	.ptroff = offsetof(stype, member), .size = sizeof(*((stype *)NULL)->member), .flag = OFLAG_LIST
+	.ptroff = offsetof(stype, member), .size = sizeof(*((stype *)NULL)->member)
 /* Get the pointer to the structure element by offset */
 #define LCFG_OPT_MKPTR(dst, opt) ((void *)((char *)dst + (opt)->ptroff))
 

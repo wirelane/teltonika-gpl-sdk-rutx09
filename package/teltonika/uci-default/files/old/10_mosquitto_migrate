@@ -11,7 +11,7 @@ section_number=1
 rename() {
 	local section=$1
         local bridge_connection=$2
-        uci rename "$CONFIG.$section=$section_number"
+        uci_rename "$CONFIG" "$section" "$section_number"
         uci_set $CONFIG $section_number "connection_name" $bridge_connection
         section_number=$((section_number+1))
 }

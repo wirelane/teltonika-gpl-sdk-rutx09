@@ -8,11 +8,11 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=emailrelay
-PKG_VERSION:=2024-12-20
-PKG_RELEASE:=$(AUTORELEASE)-1
+PKG_VERSION:=2025-12-22
+PKG_RELEASE:=$(AUTORELEASE)-2
 
-PKG_SOURCE_VERSION:=2.4.1
-PKG_HASH:=cff8cf5bff19fd1721cefdbd6207da67af01d2b1b4a51d147c33f4429a79766e
+PKG_SOURCE_VERSION:=2.5.2
+PKG_HASH:=2c879069b54156ad59bec632ae43b37645095043dbb4874712b250f23fd768ab
 
 PKG_MAINTAINER:=Federico Di Marco <fededim@gmail.com>
 PKG_LICENSE:=GPL-3.0-only
@@ -20,7 +20,9 @@ PKG_LICENSE_FILES:=COPYING
 PKG_SOURCE=emailrelay-$(PKG_SOURCE_VERSION)-src.tar.gz
 PKG_SOURCE_URL:=@SF/emailrelay/$(PKG_SOURCE_VERSION)
 
-PKG_CONFIG_DEPENDS:=CONFIG_EMAILRELAY_SUPPORT_VERBOSE_DBG CONFIG_EMAILRELAY_SSL
+PKG_FIXUP:=autoreconf
+
+PKG_CONFIG_DEPENDS:=CONFIG_EMAILRELAY_SUPPORT_VERBOSE_DBG CONFIG_EMAILRELAY_SSL CONFIG_EMAILRELAY_DYNAMIC_LOGGING
 
 PKG_BUILD_FLAGS:=gc-sections lto
 
@@ -29,7 +31,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/emailrelay
 	SECTION:=mail
 	CATEGORY:=Mail
-	DEPENDS:=+EMAILRELAY_SSL:libopenssl +libstdcpp
+	DEPENDS:=+EMAILRELAY_SSL:libopenssl +libstdcpp +EMAILRELAY_DYNAMIC_LOGGING:libtlt-logger
 	TITLE:=A simple SMTP proxy and MTA
 	URL:=http://emailrelay.sourceforge.net/
 	USERID:=emailrelay:emailrelay
@@ -53,8 +55,15 @@ config EMAILRELAY_SSL
 	select PACKAGE_libopenssl
 	help
  	  Builds the package with OpenSSL support (SSMTP is supported).
-endef
 
+config EMAILRELAY_DYNAMIC_LOGGING
+	bool "Enable support for dynamic logging level changes"
+	depends on PACKAGE_emailrelay
+	default y
+	select PACKAGE_libtlt-logger
+	help
+ 	  Builds the package with dynamic logging level changes support (logging level can be changed at runtime).
+endef
 
 
 define Package/emailrelay/description
@@ -98,13 +107,19 @@ ifeq ($(CONFIG_EMAILRELAY_SUPPORT_VERBOSE_DBG),y)
 		--enable-debug=yes
 endif
 
+ifeq ($(CONFIG_EMAILRELAY_DYNAMIC_LOGGING),y)
+	CONFIGURE_ARGS += \
+		--with-dynlog=yes
+	CONFIGURE_VARS += \
+		ac_cv_search_logger_init=-ltlt_logger
+endif
+
 TARGET_CXXFLAGS += -O1
 TARGET_CXXFLAGS += -Wl,--gc-sections,--as-needed
 
 define Package/emailrelay/install
 	$(INSTALL_DIR) $(1)/usr/bin $(1)/etc/permtab.d
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay $(1)/usr/bin/
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay-filter-copy $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay-passwd $(1)/usr/bin/
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/src/main/emailrelay-submit $(1)/usr/bin/
 	$(INSTALL_DIR) $(1)/etc/config

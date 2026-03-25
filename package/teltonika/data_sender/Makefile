@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.24.1
+PKG_SOURCE_VERSION:=1.25
 
 PKG_FIXUP:=autoreconf
 
@@ -94,6 +94,8 @@ $(eval $(call RegisterPlugin,cmp,,Filter plugin for data comparison))
 $(eval $(call RegisterPlugin,stdin,,Input plugin for reading data from stdin))
 $(eval $(call RegisterPlugin,stdout,,Output plugin for writing data to stdout))
 $(eval $(call RegisterPlugin,syslog,,Input plugin for syslog data gathering))
+$(eval $(call RegisterPlugin,deflate,+zlib,Compression plugin for deflate))
+$(eval $(call RegisterPlugin,gzip,+zlib,Compression plugin for gzip))
 
 CONFIGURE_ARGS += \
 		--with-max_instances=$(CONFIG_PACKAGE_DATA_SENDER_COLLECTIONS) \
@@ -208,4 +210,6 @@ $(eval $(call BuildPlugin,cmp,filter_cmp))
 $(eval $(call BuildPlugin,stdin,input_stdin))
 $(eval $(call BuildPlugin,stdout,output_stdout))
 $(eval $(call BuildPlugin,syslog,input_syslog))
+$(eval $(call BuildPlugin,deflate,compress_deflate))
+$(eval $(call BuildPlugin,gzip,compress_gzip))
 $(eval $(call BuildPackage,data-sender))

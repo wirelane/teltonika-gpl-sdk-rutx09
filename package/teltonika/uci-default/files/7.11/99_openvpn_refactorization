@@ -180,5 +180,5 @@ fix_ovpn_conf() {
 
 config_load "openvpn"
 config_foreach fix_ovpn_conf "openvpn"
-[ -n "$(uci -q get openvpn.webui)" ] && uci_remove "openvpn" "webui"
+[ -n "$(uci_get openvpn webui)" ] && uci_remove "openvpn" "webui"
 uci_commit openvpn

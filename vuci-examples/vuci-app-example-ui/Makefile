@@ -4,7 +4,7 @@ APP_TITLE:=VuCI UI Support for Example APP
 APP_NAME:=$(notdir ${CURDIR})
 CLOSED_GPL_INSTALL:=y
 
-ifeq (m, $(CONFIG_PACKAGE_$(APP_NAME)))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_$(APP_NAME)))$(DUMP))
 	APP_TLT_NAME:=Example Application
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 endif

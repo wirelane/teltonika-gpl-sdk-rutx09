@@ -18,6 +18,8 @@ export CONF_IMAGE=
 export CONF_BACKUP_LIST=0
 export CONF_BACKUP_VALIDATE=0
 export CONF_BACKUP=
+export CONF_BACKUP_API=0
+export CONF_BACKUP_PKG_APPLY=0
 export CONF_RESTORE=
 export CONF_PASSWORD=
 export CONF_SYSUPGRADE=
@@ -37,6 +39,7 @@ while [ -n "$1" ]; do
 		-p) export SAVE_PARTITIONS=0;;
 		-k) export SAVE_INSTALLED_PKGS=1;;
 		-u) export SKIP_UNCHANGED=1;;
+		-a|--api-backup) export CONF_BACKUP_API=1;;
 		-b|--create-backup) export CONF_BACKUP="$2" NEED_IMAGE=1; shift;;
 		-r|--restore-backup) export CONF_RESTORE="$2" NEED_IMAGE=1; shift;;
 		--password) export CONF_PASSWORD="$2"; shift;;
@@ -88,6 +91,8 @@ backup-command:
 	             then exit. Does not flash an image. If file is '-',
 	             i.e. stdout, verbosity is set to 0 (i.e. quiet). If --password flag is used,
 		     file should be provided as <filename>.tar.zip
+	-a | --api-backup
+	             use API backup logic
 	-r | --restore-backup <file>
 	             restore a .tar.gz created with sysupgrade -b
 	             then exit. Does not flash an image. If file is '-',
@@ -138,16 +143,18 @@ clean_tpm() {
 exec_internal_call() {
 	local env="$1"
 
-	local ret="$(ubus -t 300 call system backup "{ \
+	local ret="$(ubus -t 900 call system backup "{ \
 		\"env\": [ \
 			\"VERBOSE=$VERBOSE\", \
 			\"SAVE_OVERLAY=$SAVE_OVERLAY\", \
 			\"SAVE_OVERLAY_PATH=$SAVE_OVERLAY_PATH\", \
 			\"SAVE_INSTALLED_PKGS=$SAVE_INSTALLED_PKGS\", \
 			\"SKIP_UNCHANGED=$SKIP_UNCHANGED\", \
+			\"CONF_BACKUP_API=$CONF_BACKUP_API\", \
 			\"CONF_BACKUP_LIST=$CONF_BACKUP_LIST\", \
 			\"CONF_BACKUP_VALIDATE=$CONF_BACKUP_VALIDATE\", \
 			\"CONF_BACKUP=$CONF_BACKUP\", \
+			\"CONF_BACKUP_PKG_APPLY=$CONF_BACKUP_PKG_APPLY\", \
 			\"CONF_RESTORE=$CONF_RESTORE\", \
 			\"CONF_PASSWORD=$CONF_PASSWORD\", \
 			\"CONF_TAR=$CONF_TAR\", \

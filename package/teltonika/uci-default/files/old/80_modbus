@@ -95,7 +95,7 @@ convert_alarm_options() {
 	local sec_name=$(uci_get "modbus_master_alarms" "$section")
 
 	[ "${sec_name:0:12}" = "serial_alarm" ] && new_name="alarm${sec_name:12}"
-	[ -n "$new_name" ] && uci -q set "modbus_master_alarms"."$section"="$new_name"
+	[ -n "$new_name" ] && uci_add "modbus_master_alarms" "$new_name" "$section"
 
 	config_get action "$section" action
 	config_get io_action "$section" io_action
@@ -118,11 +118,11 @@ convert_alarm_options() {
 	[ "$actionfrequency" = "everytrigger" ] && actionfrequency=0
 	[ "$data_type" = "0" ] && data_type="16bit_uint_hi_first"
 
-	uci -q set "modbus_master_alarms.$section.action=$action"
-	uci -q set "modbus_master_alarms.$section.io_action=$io_action"
-	uci -q set "modbus_master_alarms.$section.condition=$condition"
-	uci -q set "modbus_master_alarms.$section.actionfrequency=$actionfrequency"
-	uci -q set "modbus_master_alarms.$section.data_type=$data_type"
+	uci_set "modbus_master_alarms" "$section" "action" "$action"
+	uci_set "modbus_master_alarms" "$section" "io_action" "$io_action"
+	uci_set "modbus_master_alarms" "$section" "condition" "$condition"
+	uci_set "modbus_master_alarms" "$section" "actionfrequency" "$actionfrequency"
+	uci_set "modbus_master_alarms" "$section" "data_type" "$data_type"
 
 	[ "$action" = "2" ] && handle_modbus_alarm $section
 
@@ -138,7 +138,7 @@ convert_alarm_options() {
 	# PIN4 output (dout1/dio0)
 	[ "$output" = "pin4" ] || [ "$output" = "dout3" ] || [ "$output" = "3" ] && pin_name=$(get_ioman_pin 4)
 
-	[ -z "$pin_name" ] || uci -q set "modbus_master_alarms.$section.output=$pin_name"
+	[ -z "$pin_name" ] || uci_set "modbus_master_alarms" "$section" "output" "$pin_name"
 
 	COUNT=$(($COUNT + 1))
 	uci_rename "modbus_master_alarms" "$section" "$COUNT"
@@ -160,18 +160,18 @@ move_section_id_to_section_name() {
 		config_get section_id "$section" section_id
 		[ -z "$section_name" ] && return 1
 		uci_remove "$config_name" "$section" "section_id"
-		new_section=$(uci add "$config_name" "rtu_slave")
-		create_new_section "$section" "$new_section" "1" "rtu_device"
-		uci_rename "$config_name" "$new_section" "$section_id"
+		uci_add "$config_name" "rtu_slave"
+		create_new_section "$section" "$CONFIG_SECTION" "1" "rtu_device"
+		uci_rename "$config_name" "$CONFIG_SECTION" "$section_id"
 		uci_remove "$config_name" "$section"
 		;;
 	"rs485_slave")
 		config_get section_id "$section" section_id
 		[ -z "$section_name" ] && return 1
 		uci_remove "$config_name" "$section" "section_id"
-		new_section=$(uci add "$config_name" "rtu_slave")
-		create_new_section "$section" "$new_section" "2" "rtu_device"
-		uci_rename "$config_name" "$new_section" "$section_id"
+		uci_add "$config_name" "rtu_slave"
+		create_new_section "$section" "$CONFIG_SECTION" "2" "rtu_device"
+		uci_rename "$config_name" "$CONFIG_SECTION" "$section_id"
 		uci_remove "$config_name" "$section"
 		;;
 	*)
@@ -216,7 +216,7 @@ rename_request_section() {
 	uci_set "modbus_tcp_master" "$section" "reg_count" "$reg_count"
 
 	new_name="request${sec_name:8}"
-	uci -q set "modbus_tcp_master"."$section"="$new_name"
+	uci_add "modbus_tcp_master" "$new_name" "$section"
 	COUNT=$(($COUNT + 1))
 	uci_rename "modbus_tcp_master" "$section" "$COUNT"
 }
@@ -239,7 +239,7 @@ create_new_section() {
 	local offset=$((${#section} + ${#RSCFG} + 2))
 
 	# Whitespace escaping shenanigans
-	local oldopts="$(uci -q show $RSCFG.$section | tr "*" "\\x2a" | sed $'s/\'//g' | tr " " "!")"
+	local oldopts="$(uci_show "$RSCFG" "$section" | tr "*" "\\x2a" | sed $'s/\'//g' | tr " " "!")"
 
 	for line in $oldopts; do
 		new_line="$RSCFG.$new_section.${line:$offset}"
@@ -283,9 +283,9 @@ migrate_rs_section() {
 		;;
 	esac
 
-	local new_section_id=$(uci add "$RSCFG" "$new_section")
-	create_new_section "$section" "$new_section_id" "$DEVICE" "device"
-	uci_rename "$RSCFG" "$new_section_id" "$new_name"
+	uci_add "$RSCFG" "$new_section"
+	create_new_section "$section" "$CONFIG_SECTION" "$DEVICE" "device"
+	uci_rename "$RSCFG" "$CONFIG_SECTION" "$new_name"
 	uci_remove "$RSCFG" "$section"
 }
 
@@ -328,7 +328,7 @@ convert_schedules() {
 		i=$(($i+1))
 	done
 
-	uci delete "$RSCFG.$section.schedule"
+	uci_remove "$RSCFG" "$section" "schedule"
 
 	for hour in $hours;
 	do
@@ -351,7 +351,7 @@ convert_schedules() {
 					second=$(printf "%02d" $second)
 				fi
 
-				uci add_list "$RSCFG.$section.schedule=$hour:$minute:$second"
+				uci_add_list "$RSCFG" "$section" "schedule" "$hour:$minute:$second"
 			done
 		done
 	done
@@ -375,7 +375,7 @@ convert_flowcontrol() {
 		;;
 	esac
 
-	uci delete "$RSCFG.$section.flowctrl"
+	uci_remove "$RSCFG" "$section" "flowctrl"
 	uci_set "$RSCFG" "$section" "flowcontrol" "$flowcontrol"
 }
 
@@ -388,8 +388,8 @@ config_foreach delete_alarm_requests
 config_foreach migrate_master_settings "" "modbus_tcp_master"
 uci_commit
 
-[ -f /etc/config/modbus_tcp_master ] && [ -f /etc/config/modbus_master_alarms ] && {
-	cat /etc/config/modbus_tcp_master /etc/config/modbus_master_alarms > /etc/config/$FILENAME
+[ -f "$UCI_CONFIG_DIR/modbus_tcp_master" ] && [ -f "$UCI_CONFIG_DIR/modbus_master_alarms" ] && {
+	cat "$UCI_CONFIG_DIR/modbus_tcp_master" "$UCI_CONFIG_DIR/modbus_master_alarms" > "$UCI_CONFIG_DIR/$FILENAME"
 }
 
 config_load "$RSCFG"
@@ -401,10 +401,10 @@ config_foreach convert_schedules rtu_slave
 config_foreach convert_flowcontrol
 uci_commit
 
-[ -f /etc/config/$RSCFG ] && {
-	cat /etc/config/$RSCFG >> /etc/config/$FILENAME
+[ -f "$UCI_CONFIG_DIR/$RSCFG" ] && {
+	cat "$UCI_CONFIG_DIR/$RSCFG" >> "$UCI_CONFIG_DIR/$FILENAME"
 }
 
-rm -f /etc/config/modbus_tcp_master /etc/config/$RSCFG /etc/config/modbus_master_alarms
+rm -f "$UCI_CONFIG_DIR/modbus_tcp_master" "$UCI_CONFIG_DIR/$RSCFG" "$UCI_CONFIG_DIR/modbus_master_alarms"
 
 exit 0

@@ -14,7 +14,8 @@
       "methods": ["info"]
     }
   },
-  "publish": ["chilli"],
+  "publish": ["chilli", "chilli.*"],
   "send": ["chilli.*"],
-  "subscribe": ["hostapd.*"]
+  "subscribe": ["hostapd.*"],
+  "listen": ["ubus.object.add", "ubus.object.remove"]
 }

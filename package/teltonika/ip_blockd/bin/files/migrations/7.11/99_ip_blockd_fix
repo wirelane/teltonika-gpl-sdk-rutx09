@@ -1,11 +1,14 @@
 #!/bin/sh
+. /lib/functions.sh
 
-uci -q get ip_blockd.ip_blockd.enabled > /dev/null && exit 0
+CONFIG="ip_blockd"
 
-[ -z "$(uci -q get ip_blockd.@globals[0].enabled_time_based)" ] && \
-    uci set ip_blockd.@globals[0].enabled_time_based="1"
+uci_get "$CONFIG" "ip_blockd" "enabled" > /dev/null && exit 0
 
-uci rename ip_blockd.@globals[0]=ip_blockd
-uci commit ip_blockd
+[ -z "$(uci_get "$CONFIG" "@globals[0]" "enabled_time_based")" ] && \
+    uci_set "$CONFIG" "@globals[0]" "enabled_time_based" "1"
+
+uci_rename "$CONFIG" "@globals[0]" "ip_blockd"
+uci_commit "$CONFIG"
 
 exit 0

@@ -2,8 +2,8 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/teltonika" ] && {
-    cp /rom/etc/config/rpcd /etc/config/rpcd
+[ -f "$UCI_CONFIG_DIR/teltonika" ] && {
+    cp /rom/etc/config/rpcd "$UCI_CONFIG_DIR/rpcd"
     exit 0
 }
 

@@ -17,7 +17,7 @@ define Package/scep
 	TITLE:=Meta package for SCEP packages
 	DEPENDS:=strongswan +strongswan-libtls +strongswan-mod-pkcs7 +strongswan-mod-curl +strongswan-pki +strongswan-mod-kdf
 
-	ifeq (m, $(CONFIG_PACKAGE_scep))
+	ifneq (,$(filter m,$(CONFIG_PACKAGE_scep))$(DUMP))
 		PKG_TLT_NAME:=SCEP
 		PKG_ROUTER:=$(TLT_PLATFORM_NAME)
 	endif

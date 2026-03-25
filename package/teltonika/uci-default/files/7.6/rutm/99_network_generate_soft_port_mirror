@@ -18,14 +18,12 @@ apply_soft_port_mirror_options() {
 
 	[ "$soft_port_mirror" = "0" ] && return 0
 
-	uci -q batch <<-EOF
-		add network interface
-		rename network.@interface[-1]='ifmirror'
-		set network.@interface[-1].disabled='1'
-		set network.@interface[-1].proto='mirror'
-		set network.@interface[-1].enable_mirror_tx='0'
-		set network.@interface[-1].enable_mirror_rx='0'
-	EOF
+	uci_add "network" "interface"
+	uci_rename "network" "@interface[-1]" "ifmirror"
+	uci_set "network" "ifmirror" "disabled" "1"
+	uci_set "network" "ifmirror" "proto" "mirror"
+	uci_set "network" "ifmirror" "enable_mirror_tx" "0"
+	uci_set "network" "ifmirror" "enable_mirror_rx" "0"
 	return 0
 }
 

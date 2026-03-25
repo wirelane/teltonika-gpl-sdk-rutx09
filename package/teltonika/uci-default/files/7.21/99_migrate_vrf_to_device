@@ -14,7 +14,7 @@ migrate_vrf_to_device() {
 	config_get disabled "$section" disabled "0"
 	config_get ifname "$section" ifname
 
-	uci -q batch <<-EOF
+	uci_batch <<-EOF
 		set network.$section="interface"
 		set network.$section.proto="none"
 		set network.$section.device="$ifname"
@@ -26,7 +26,7 @@ migrate_vrf_to_device() {
 	local vrf_dev_id="vrfdev$VRF_INDEX"
 
 	while true; do
-		if ! uci -q get network.$vrf_dev_id >/dev/null; then
+		if ! uci_get "network" "$vrf_dev_id" >/dev/null; then
 			break
 		fi
 
@@ -37,7 +37,7 @@ migrate_vrf_to_device() {
 	local enabled
 	[ "$disabled" -eq 1 ] && enabled="0" || enabled="1"
 
-	uci -q batch <<-EOF
+	uci_batch <<-EOF
 		set network.$vrf_dev_id="device"
 		set network.$vrf_dev_id.type="vrf"
 		set network.$vrf_dev_id.name="$ifname"
@@ -47,7 +47,7 @@ migrate_vrf_to_device() {
 
 	for port in $link
 	do
-		uci -q add_list network."$vrf_dev_id".ports="$port"
+		uci_add_list "network" "$vrf_dev_id" "ports" "$port"
 	done
 
 }

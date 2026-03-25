@@ -371,6 +371,13 @@ proto_pptp_setup() {
 	/sbin/modprobe -qa slhc ppp_generic ppp_async ppp_mppe ip_gre gre pptp
 	sleep 1
 
+	[ -d "/var/state/pptp" ] || {
+		mkdir -p /var/state/pptp
+		chown pptpd:pptpd /var/state/pptp
+		chmod 775 /var/state/pptp
+	}
+
+	proto_set_user pptpd
 	ppp_generic_setup "$config" \
 		plugin pptp.so \
 		pptp_server $server \

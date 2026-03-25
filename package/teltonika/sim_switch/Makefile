@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=sim_switch
-PKG_VERSION:=2026-01-13
+PKG_VERSION:=2025-08-27
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=7.21

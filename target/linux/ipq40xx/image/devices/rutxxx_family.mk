@@ -81,6 +81,7 @@ define Device/TEMPLATE_teltonika_rutx09
 		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
+	HARDWARE/Mobile/Modem := Quectel EG06-E, Quectel EG06-A, Quectel EG060K-EA, Quectel EG060K-NA
 	HARDWARE/Mobile/3GPP_Release := Release 12
 	HARDWARE/Wireless/Wireless_Mode :=
 	HARDWARE/Wireless/Wi\-Fi_Users :=
@@ -125,6 +126,7 @@ define Device/TEMPLATE_teltonika_rutx11
 		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
+	HARDWARE/Mobile/Modem := Quectel EG06-E, Quectel EG06-A, Quectel EG060K-EA, Quectel EG060K-NA
 	HARDWARE/Mobile/3GPP_Release := Release 12
 	HARDWARE/Bluetooth/Bluetooth_4.0 := $(HW_BT_LE)
 	TECHNICAL/Power/Input_Voltage_Range := 9 - 50 VDC, reverse polarity protection, voltage surge/transient protection; 24 - 36 VDC for railway version of the code RUTX11 020G00
@@ -152,6 +154,7 @@ define Device/TEMPLATE_teltonika_rutx12
 		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 2 x 4G LTE Cat 6 up to 300 DL/50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
+	HARDWARE/Mobile/Modem := 2 x Quectel EG06-E, 2 x Quectel EG06-A, 2 x Quectel EG060K-EA, 2 x Quectel EG060K-NA, 2 x Meiglink SLM828G-EU
 	HARDWARE/Mobile/3GPP_Release := Release 12
 	HARDWARE/Bluetooth/Bluetooth_4.0 := $(HW_BT_LE)
 	HARDWARE/LAN/Port := 4 $(HW_ETH_LAN_PORTS)
@@ -180,6 +183,7 @@ define Device/TEMPLATE_teltonika_rutx14
 		xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 12 up to 600 DL/150 UL Mbps; 3G to to 42 DL/ 11.2 UL Mbps
+	HARDWARE/Mobile/Modem := Quectel EG12-EA
 	HARDWARE/Mobile/3GPP_Release := Release 12
 	HARDWARE/Bluetooth/Bluetooth_4.0 := $(HW_BT_LE)
 	HARDWARE/LAN/Port := 4 $(HW_ETH_LAN_PORTS)
@@ -206,6 +210,7 @@ define Device/TEMPLATE_teltonika_rutx50
 		tpm reset_button usb-port modbus dot1x-client port-mirror
 
 	HARDWARE/Mobile/Module := 5G Sub-6Ghz SA/NSA 2.1/3.3Gbps DL (4x4 MIMO), 900/600 Mbps UL (2x2); 4G LTE Cat 20 up to 2.0 Gbps DL/ 200M Mbps UL; 3G up to 42 DL/ 5.76 UL Mbps
+	HARDWARE/Mobile/Modem := Quectel RG501Q-EU, Quectel RG520N-EU, Quectel RG520N-EB
 	HARDWARE/Mobile/3GPP_Release := Release 15/16
 	HARDWARE/Mobile/3GPP_Release/Tooltip := $(HW_MOBILE_3GPP_TOOLTIP)
 	HARDWARE/System_Characteristics/RAM := $(HW_RAM_SIZE_256M) (100 MB available for userspace)
@@ -245,6 +250,7 @@ define Device/TEMPLATE_teltonika_rutxr1
 			"/usb1/1-1/1-1.3/"
 
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
+	HARDWARE/Mobile/Modem := Quectel EG06-E, Quectel EG060K-EA
 	HARDWARE/Mobile/3GPP_Release := Release 11
 	HARDWARE/LAN/Port := 4 $(HW_ETH_LAN_PORTS)
 	HARDWARE/Fibre/Port := 1 $(HW_ETH_SFP_PORT) (cannot work simultaneously with Ethernet WAN port)

@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/samba" ] || return 0
+[ -f "$UCI_CONFIG_DIR/samba" ] || return 0
 
 fix_browseable() {
         local value
@@ -12,6 +12,6 @@ fix_browseable() {
  
 config_load samba
 config_foreach fix_browseable sambashare
-uci commit samba                        
+uci_commit samba                        
                 
 exit 0

@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=iec60870_server
-PKG_VERSION:=2025-12-09
-PKG_SOURCE_VERSION:=7.21
+PKG_VERSION:=2026-03-20
+PKG_SOURCE_VERSION:=7.22.0.1
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -17,7 +17,8 @@ define Package/$(PKG_NAME)
 	CATEGORY:=Network
 	TITLE:=IEC 60870-5 Server by Teltonika
 	DEPENDS:=+libuci +libtlt_uci +libtlt-logger +lib60870 +libtlt_termios +libubus +libboardjson +libmnfinfo \
-		+MOBILE_SUPPORT:libmdcollect +MOBILE_SUPPORT:libgsm +GPS_SUPPORT:libgps +IO_SUPPORT:iomand
+		+MOBILE_SUPPORT:libmdcollect +MOBILE_SUPPORT:libgsm +GPS_SUPPORT:libgps +IO_SUPPORT:iomand +libtag \
+		+libblobmsg-json
 	USERID:=iec60870_server=652:iec60870_server=652
 	FATTRS:=/usr/bin/iec60870_server::::cap_net_bind_service=ep
 endef

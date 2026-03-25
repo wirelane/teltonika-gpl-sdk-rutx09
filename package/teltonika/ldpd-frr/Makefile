@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ldpd-frr
 PKG_VERSION:=2025-11-03
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

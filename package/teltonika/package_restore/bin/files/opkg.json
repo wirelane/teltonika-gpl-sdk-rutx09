@@ -3,7 +3,8 @@
 	"access": {
 		"system": {
 			"methods": [
-				"info"
+				"info",
+				"backup"
 			]
 		},
 		"rc": {

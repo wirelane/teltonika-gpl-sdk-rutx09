@@ -49,6 +49,7 @@ endef
 
 TARGET_LDFLAGS += -lmnl -lnetfilter_conntrack
 CMAKE_OPTIONS += $(if $(CONFIG_IPV6),,-DDISABLE_IPV6=1)
+CMAKE_OPTIONS += $(if $(CONFIG_XFRM_OFFLOAD),-DXFRM_OFFLOAD=1,)
 
 FIREWALL_CONFIG="firewall.config"
 ifeq ($(TLT_PLATFORM_TAP100), y)

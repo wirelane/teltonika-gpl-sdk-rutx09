@@ -8,5 +8,12 @@
     "index": 30,
     "view": "services/HotspotLandingpage",
     "acls": ["services/hotspot/landing"]
+  },
+  "services/hotspot/preview": {
+    "title": "Preview",
+    "index": 40,
+    "exclude_from_menu": true,
+    "view": "services/HotspotLandingpagePreview",
+    "acls": ["services/hotspot/landing"]
   }
 }

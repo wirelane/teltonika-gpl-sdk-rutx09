@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=ppp
-PKG_RELEASE:=18
+PKG_RELEASE:=19
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=cd5b0f0543cad042df126cf8ad1a238e5d13dd17
@@ -18,7 +18,7 @@ PKG_SOURCE_URL:=https://github.com/paulusmack/ppp.git
 PKG_SOURCE_DATE:=2021-01-04
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=BSD-3-Clause GPL-2.0-or-later
-PKG_LICENSE_FILES:=LICENSE.BSD LICENSE.GPL-2
+PKG_LICENSE_FILES:=BSD-3-Clause GPL-2
 PKG_CPE_ID:=cpe:/a:samba:ppp
 
 PKG_RELEASE_VERSION:=2.4.9

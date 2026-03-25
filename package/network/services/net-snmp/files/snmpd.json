@@ -73,7 +73,7 @@
 				"get"
 			]
 		},
-		"chilli": {
+		"chilli.*": {
 			"methods": [
 				"list"
 			]
@@ -86,6 +86,12 @@
 			]
 		},
 		"mbus_client.rpc": {
+			"methods": [
+				"get_tags",
+				"get_tag_value"
+			]
+		},
+		"iec60870_client.rpc": {
 			"methods": [
 				"get_tags",
 				"get_tag_value"

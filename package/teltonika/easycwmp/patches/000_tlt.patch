@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2025-11-20 08:00:05.000000000 +0000
++++ src/.gitlab-ci.yml	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -23,9 +23,43 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +  needs:
 +    - job: semgrep_errors
 \ No newline at end of file
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/bin/Makefile.am src/bin/Makefile.am
+--- upstream/bin/Makefile.am	2019-09-26 13:02:11.000000000 +0000
++++ src/bin/Makefile.am	2026-02-09 09:48:32.000000000 +0000
+@@ -55,5 +55,6 @@
+ 	$(LIBUBUS_LIBS)		\
+ 	$(MICROXML_LIBS)	\
+ 	$(LIBCURL_LIBS)		\
+-	$(LIBJSON_LIBS)
++	$(LIBJSON_LIBS) \
++	$(LIBTPM_IMPORTER_LIBS)
+ 
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/configure.ac src/configure.ac
+--- upstream/configure.ac	2019-09-26 13:02:11.000000000 +0000
++++ src/configure.ac	2026-02-09 09:48:32.000000000 +0000
+@@ -17,6 +17,19 @@
+ AC_ARG_ENABLE(devel, [AS_HELP_STRING([--enable-devel], [enable development messages])], AC_DEFINE(DEVEL),)
+ AC_ARG_ENABLE(backupdatainconfig, [AS_HELP_STRING([--enable-backupdatainconfig], [enable backup data saved in the config])], AC_DEFINE(BACKUP_DATA_IN_CONFIG),)
+ 
++# With TPM support
++AC_ARG_ENABLE(tpm-support,
++              AC_HELP_STRING([--enable-tpm-support], [Enable TPM support
++      [[default=no]] ]),
++    [enb_tpm_support="$enableval"], [enb_tpm_support="no"])
++
++if test "x$enb_tpm_support" = "xyes"; then
++  AC_DEFINE(EASYCWMP_TPM_SUPPORT, 1, [Define if you want TPM support])
++  LIBTPM_IMPORTER_LIBS='-ltpm_importer'
++  AC_SUBST([LIBTPM_IMPORTER_LIBS])
++fi
++AM_CONDITIONAL(EASYCWMP_TPM_SUPPORT, test "x$enb_tpm_support" = "xyes")
++
+ # checks for programs
+ AC_PROG_CC
+ AM_PROG_CC_C_O
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/build/Makefile src/ext/openwrt/build/Makefile
 --- upstream/ext/openwrt/build/Makefile	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/build/Makefile	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/build/Makefile	2026-02-09 09:48:32.000000000 +0000
 @@ -72,7 +72,6 @@
  
  define Package/easycwmp/conffiles
@@ -36,7 +70,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  define Package/easycwmp/install
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/config/easycwmp src/ext/openwrt/config/easycwmp
 --- upstream/ext/openwrt/config/easycwmp	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/config/easycwmp	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/config/easycwmp	2026-02-09 09:48:32.000000000 +0000
 @@ -4,7 +4,6 @@
  	option enable '0'
  	option interface eth0
@@ -55,7 +89,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	option manufacturer easycwmp
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/900-easycwmp.sh src/ext/openwrt/files/900-easycwmp.sh
 --- upstream/ext/openwrt/files/900-easycwmp.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/900-easycwmp.sh	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/files/900-easycwmp.sh	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,37 @@
 +#!/bin/sh
 +
@@ -96,8 +130,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +uci commit easycwmp
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.json src/ext/openwrt/files/easycwmp.json
 --- upstream/ext/openwrt/files/easycwmp.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/easycwmp.json	2025-11-20 08:00:05.000000000 +0000
-@@ -0,0 +1,82 @@
++++ src/ext/openwrt/files/easycwmp.json	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,97 @@
 +{
 +	"user": "easycwmp",
 +	"publish": [
@@ -127,7 +161,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				"get_firmware",
 +				"get_pin_state",
 +				"get_temperature",
-+				"get_neighbour_cells"
++				"get_neighbour_cells",
++				"get_sim_slot",
++				"set_operator_selection"
 +			]
 +		},
 +		"network.interface*": {
@@ -177,22 +213,35 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			"methods": [
 +				"get"
 +			]
++		},
++		"api": {
++			"methods": [
++				"put",
++				"get",
++				"post",
++				"delete"
++			]
++		},
++		"mobifd": {
++			"methods": [
++				"reload"
++			]
 +		}
 +	}
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.keep src/ext/openwrt/files/easycwmp.keep
 --- upstream/ext/openwrt/files/easycwmp.keep	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/easycwmp.keep	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.keep	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/easycwmp/.backup.xml
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.permtab src/ext/openwrt/files/easycwmp.permtab
 --- upstream/ext/openwrt/files/easycwmp.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/easycwmp.permtab	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.permtab	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/easycwmp easycwmp:easycwmp 660
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/init.d/easycwmpd src/ext/openwrt/init.d/easycwmpd
 --- upstream/ext/openwrt/init.d/easycwmpd	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/init.d/easycwmpd	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/init.d/easycwmpd	2026-02-09 09:48:32.000000000 +0000
 @@ -2,56 +2,32 @@
  # Copyright (C) 2012-2014 OpenWrt.org
  
@@ -270,7 +319,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  service_triggers()
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/easycwmp.sh src/ext/openwrt/scripts/easycwmp.sh
 --- upstream/ext/openwrt/scripts/easycwmp.sh	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/easycwmp.sh	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/easycwmp.sh	2026-02-09 09:48:32.000000000 +0000
 @@ -7,7 +7,7 @@
  
  . /lib/functions.sh
@@ -518,7 +567,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			/bin/sh "$apply_service_tmp_file"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/common src/ext/openwrt/scripts/functions/common/common
 --- upstream/ext/openwrt/scripts/functions/common/common	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/common	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/common	2026-02-09 09:48:32.000000000 +0000
 @@ -192,23 +192,21 @@
  	
  }
@@ -580,7 +629,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	case "$refparam" in "$inparam"*)
  		g_fault_code=0
  		return 0
-@@ -932,6 +921,7 @@
+@@ -737,6 +726,7 @@
+ 	[ "$inparam" != "$refparam" ] && return $E_INVALID_PARAMETER_NAME
+ 	[ -z "$addobj" ] && return $E_INVALID_PARAMETER_NAME
+ 	local instance=`$addobj $refparam`
++	[ -z "$instance" ] && exit $E_REQUEST_DENIED
+ 	common_set_parameter_notification "$refparam$instance." "0"
+ 	common_json_output_status "1" "$instance"
+ 	exit 0
+@@ -932,6 +922,7 @@
  	[ $1 -gt 1 ] && shift $1 || shift
  	echo ${1-0}.${2-0}.${3-0}.${4-0}
  }
@@ -590,7 +647,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	local n ip 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/device_info src/ext/openwrt/scripts/functions/common/device_info
 --- upstream/ext/openwrt/scripts/functions/common/device_info	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/device_info	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/device_info	2026-02-09 09:48:32.000000000 +0000
 @@ -14,17 +14,18 @@
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DeviceInfo"
  entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_DeviceInfo"
@@ -616,7 +673,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		common_execute_method_param "$DMROOT.DeviceInfo.UpTime" "0" "device_info_get_uptime" "" "xsd:unsignedInt"
  		common_execute_method_param "$DMROOT.DeviceInfo.DeviceLog" "0" "dmesg | tail -n1"
  		common_execute_method_obj "$DMROOT.DeviceInfo.MemoryStatus." "0"
-@@ -57,3 +58,12 @@
+@@ -50,6 +51,9 @@
+ 
+ device_info_set_provisioningcode() {
+ 	local val="$1"
++
++	[ -z "$val" ] || [ "${#val}" -gt 64 ] && return $E_INVALID_PARAMETER_VALUE
++
+ 	$UCI_SET easycwmp.@local[0].provisioning_code="$val"
+ 	return 0
+ }
+@@ -57,3 +61,12 @@
  device_info_get_uptime() {
  	awk -F '.' '{ print $1 }' /proc/uptime
  }
@@ -631,7 +698,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/ipping_launch src/ext/openwrt/scripts/functions/common/ipping_launch
 --- upstream/ext/openwrt/scripts/functions/common/ipping_launch	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/ipping_launch	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/ipping_launch	2026-02-09 09:48:32.000000000 +0000
 @@ -1,172 +1,72 @@
  #!/bin/sh
  # Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -846,7 +913,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +[ "$1" == "stop" ] && ipping_stop
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/management_server src/ext/openwrt/scripts/functions/common/management_server
 --- upstream/ext/openwrt/scripts/functions/common/management_server	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/management_server	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/management_server	2026-02-09 09:48:32.000000000 +0000
 @@ -2,6 +2,8 @@
  # Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
  # 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
@@ -856,24 +923,47 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #############################
  #   Entry point functuons   #
  #############################
-@@ -15,13 +17,13 @@
+@@ -14,14 +16,14 @@
+ 	case "$1" in ""|"$DMROOT."|"$DMROOT.ManagementServer."*)
  		common_execute_method_obj "$DMROOT.ManagementServer." "0"
  		common_execute_method_param "$DMROOT.ManagementServer.URL" "1" "$UCI_GET easycwmp.@acs[0].url" "management_server_set_url"
- 		common_execute_method_param "$DMROOT.ManagementServer.Username" "1" "$UCI_GET easycwmp.@acs[0].username" "management_server_set easycwmp.@acs[0].username"
+-		common_execute_method_param "$DMROOT.ManagementServer.Username" "1" "$UCI_GET easycwmp.@acs[0].username" "management_server_set easycwmp.@acs[0].username"
 -		common_execute_method_param "$DMROOT.ManagementServer.Password" "1" "" "management_server_set easycwmp.@acs[0].password"
 -		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformEnable" "1" "$UCI_GET easycwmp.@acs[0].periodic_enable" "management_server_set_periodic_enable" "xsd:boolean"
-+		common_execute_method_param "$DMROOT.ManagementServer.Password" "1" "$UCI_GET easycwmp.@acs[0].password" "management_server_set easycwmp.@acs[0].password"
-+		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformEnable" "1" "$UCI_GET easycwmp.@acs[0].periodic_enable" "management_server_set easycwmp.@acs[0].periodic_enable" "xsd:boolean"
- 		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformInterval" "1" "$UCI_GET easycwmp.@acs[0].periodic_interval" "management_server_set easycwmp.@acs[0].periodic_interval" "xsd:unsignedInt"
- 		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformTime" "1" "$UCI_GET easycwmp.@acs[0].periodic_time" "management_server_set easycwmp.@acs[0].periodic_time" "xsd:dateTime" 
+-		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformInterval" "1" "$UCI_GET easycwmp.@acs[0].periodic_interval" "management_server_set easycwmp.@acs[0].periodic_interval" "xsd:unsignedInt"
+-		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformTime" "1" "$UCI_GET easycwmp.@acs[0].periodic_time" "management_server_set easycwmp.@acs[0].periodic_time" "xsd:dateTime" 
++		common_execute_method_param "$DMROOT.ManagementServer.Username" "1" "$UCI_GET easycwmp.@acs[0].username" "management_server_set_string easycwmp.@acs[0].username"
++		common_execute_method_param "$DMROOT.ManagementServer.Password" "1" "$UCI_GET easycwmp.@acs[0].password" "management_server_set_string easycwmp.@acs[0].password"
++		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformEnable" "1" "$UCI_GET easycwmp.@acs[0].periodic_enable" "management_server_set_boolean easycwmp.@acs[0].periodic_enable" "xsd:boolean"
++		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformInterval" "1" "$UCI_GET easycwmp.@acs[0].periodic_interval" "management_server_set_number easycwmp.@acs[0].periodic_interval" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.ManagementServer.PeriodicInformTime" "1" "$UCI_GET easycwmp.@acs[0].periodic_time" "management_server_set_date easycwmp.@acs[0].periodic_time" "xsd:dateTime"
  		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestURL" "0" "management_server_get_connection_request_url" "" "" "1"
- 		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestUsername" "1" "$UCI_GET easycwmp.@local[0].username" "management_server_set easycwmp.@local[0].username"
+-		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestUsername" "1" "$UCI_GET easycwmp.@local[0].username" "management_server_set easycwmp.@local[0].username"
 -		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestPassword" "1" "" "management_server_set easycwmp.@local[0].password"
-+		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestPassword" "1" "$UCI_GET easycwmp.@local[0].password" "management_server_set easycwmp.@local[0].password"
++		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestUsername" "1" "$UCI_GET easycwmp.@local[0].username" "management_server_set_string easycwmp.@local[0].username"
++		common_execute_method_param "$DMROOT.ManagementServer.ConnectionRequestPassword" "1" "$UCI_GET easycwmp.@local[0].password" "management_server_set_string easycwmp.@local[0].password"
  		common_execute_method_param "$DMROOT.ManagementServer.ParameterKey" "0" "$UCI_GET easycwmp.@acs[0].parameter_key" "" "" "1"
  		return 0;
  		;;
-@@ -49,18 +51,21 @@
+@@ -35,8 +37,15 @@
+ management_server_set_url() {
+ 	local val=$1
+ 	
+-	local chk=`echo $val | grep "[a-zA-Z0-9_]://.*"`
+-	[ "$chk" = "" ] && return $E_INVALID_PARAMETER_VALUE
++	case "$val" in
++		http://*|https://*)
++			echo "$val" | grep -Eq '^https?://([a-zA-Z0-9.-]+|\[[0-9a-fA-F:]+\])(:[0-9]+)?(/.*)?$' \
++			|| return $E_INVALID_PARAMETER_VALUE
++			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE;
++			;;
++	esac
+ 
+ 	$UCI_SET easycwmp.@acs[0].url=$val
+ 	return 0
+@@ -49,18 +58,70 @@
  	return 0
  }
  
@@ -881,6 +971,55 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 -	local val=$1
 -	common_set_bool "easycwmp.@acs[0].periodic_enable" "$val" "1" "0"
 -	return 0
++management_server_set_string() {
++	local cfg=$1
++	local val=$2
++
++	[ -z "$val" ] || [ "${#val}" -gt 256 ] && return $E_INVALID_PARAMETER_VALUE
++
++	management_server_set "$cfg" "$val"
++}
++
++management_server_set_boolean() {
++	local cfg=$1
++	local val=$2
++
++	if [ "$val" = "true" ]; then
++		val=1
++	elif [ "$val" = "false" ]; then
++		val=0
++	elif [ "$val" != "0" -a "$val" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	management_server_set "$cfg" "$val"
++}
++
++management_server_set_number() {
++	local cfg=$1
++	local val=$2
++
++	case "$val" in
++		(*[^0-9]*|'') return $E_INVALID_PARAMETER_VALUE
++		;;
++	esac
++
++	[ "$val" -eq 0 ] && return $E_INVALID_PARAMETER_VALUE
++
++	management_server_set "$cfg" "$val"
++}
++
++management_server_set_date() {
++	local cfg=$1
++	local val=$2
++
++	if ! echo "$val" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$'; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	management_server_set "$cfg" "$val"
++}
++
 +get_wan_ip() {
 +	local wan_ip
 +
@@ -902,9 +1041,1796 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  		if [ -n "$ip" -a -n "$port" ]; then
  			val="http://$ip:$port/"
-diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/custom/mobile_information src/ext/openwrt/scripts/functions/custom/mobile_information
---- upstream/ext/openwrt/scripts/functions/custom/mobile_information	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/custom/mobile_information	2025-11-20 08:00:05.000000000 +0000
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh
+--- upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,68 @@
++#!/bin/sh
++
++RESULT_FILE="/var/run/easycwmp/tr143_dd_result$1"
++interface="$2"
++url="$3"
++
++print_time() {
++	local curr_sec="$1"
++	local curr_microsec="$2"
++	local time_curl="$3"
++	local key="$4"
++
++	local seconds=$(echo $time_curl | awk -F'.' '{print $1}')
++	local microseconds=$(echo $time_curl | awk -F'.' '{print $2}' | sed 's/^0*//')
++
++	seconds=$((curr_sec + seconds))
++	microseconds=$((curr_microsec + microseconds))
++	# Handle potential overflow of microseconds (more than 999999)
++	if [ $microseconds -ge 1000000 ]; then
++		microseconds=$((microseconds - 1000000))
++		seconds=$((seconds + 1)) # Increment seconds if overflow occurs
++	fi
++
++	local date_fmt=$(date -d @$seconds '+%Y-%m-%dT%H:%M:%S')
++	date_fmt="$date_fmt.$(printf "%06d" $microseconds)Z"
++
++	echo "$key $date_fmt" >>"$RESULT_FILE"
++}
++
++# Setup before initializing curl
++curr_seconds=$(adjtimex | grep "time.tv_sec" | awk '{print $2}')
++curr_microseconds=$(adjtimex | grep "time.tv_usec" | awk '{print $2}')
++total_bytes_before=$(cat /sys/class/net/${interface}/statistics/rx_bytes)
++
++# Curl
++time_res=$(curl -s \
++	   --connect-timeout 60 \
++	   -o /dev/null \
++	   -w "%{size_download}:%{time_connect}:%{time_starttransfer}:%{time_total}" \
++	   --interface "$interface" "$url")
++
++# After curl is finished
++res="$?"
++[ "$res" -ne 0 ] && {
++	if [ "$res" -eq 28 ]; then
++		echo "state Error_NoResponse" >>"$RESULT_FILE"
++	else
++		echo "state Error_TransferFailed" >>"$RESULT_FILE"
++	fi
++	return
++}
++
++total_bytes_after=$(cat /sys/class/net/${interface}/statistics/rx_bytes)
++test_bytes=$(echo "$time_res" | awk -F':' '{print $1}')
++romtime_curl=$(echo "$time_res" | awk -F':' '{print $2}')
++bomtime_curl=$(echo "$time_res" | awk -F':' '{print $3}')
++eomtime_curl=$(echo "$time_res" | awk -F':' '{print $4}')
++
++print_time "$curr_seconds" "$curr_microseconds" "$romtime_curl" "rom_time"
++print_time "$curr_seconds" "$curr_microseconds" "$bomtime_curl" "bom_time"
++print_time "$curr_seconds" "$curr_microseconds" "$eomtime_curl" "eom_time"
++
++total_bytes=$((total_bytes_after - total_bytes_before))
++
++echo "test_bytes $test_bytes" >>"$RESULT_FILE"
++echo "total_bytes $total_bytes" >>"$RESULT_FILE"
++
++echo "state Completed" >>"$RESULT_FILE"
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh
+--- upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,197 @@
++#!/bin/sh
++
++. /usr/share/libubox/jshn.sh
++
++# Get a list of params
++CONFIG_FILE="/var/run/easycwmp/tr143_download_diagnostics"
++SCRIPT="/usr/libexec/download_diagnostics.sh"
++
++cleanup() {
++	local state="$1"
++	local port="$2"
++	local dscp_id="$3"
++	local interface="$4"
++
++	rm /var/run/easycwmp/tr143_dd_result* >/dev/null 2>&1
++
++	# Remove DSCP
++	ubus call api delete '{"path":"/firewall/traffic_rules/config/'$dscp_id'"}' >/dev/null 2>&1
++
++	sed -i "s/^state .*/state $state/" "$CONFIG_FILE"
++
++	# Send '8 DIAGNOSTICS COMPLETE' message
++	ubus call tr069 inform '{"event":"8 DIAGNOSTICS COMPLETE"}'
++}
++
++compare_time() {
++	local ts1="$1"
++	local ts2="$2"
++	local earliest="$3"
++
++	# Remove 'Z' and split
++	ts1_base=$(echo "$ts1" | cut -d'.' -f1 | sed 's/T/ /')
++	ts1_micro=$(echo "$ts1" | cut -d'.' -f2 | tr -d 'Z')
++	ts2_base=$(echo "$ts2" | cut -d'.' -f1 | sed 's/T/ /')
++	ts2_micro=$(echo "$ts2" | cut -d'.' -f2 | tr -d 'Z')
++
++	# Convert base to seconds since epoch
++	ts1_sec=$(date -d "$ts1_base" +"%s")
++	ts2_sec=$(date -d "$ts2_base" +"%s")
++
++	# Compare
++	if [ "$ts1_sec" -lt "$ts2_sec" ] ||
++	   { [ "$ts1_sec" -eq "$ts2_sec" ] &&
++	   [ "$ts1_micro" -lt "$ts2_micro" ]; }; then
++		if [ "$earliest" -eq 1 ]; then
++			echo "$ts1"
++		else
++			echo "$ts2"
++		fi
++	else
++		if [ "$earliest" -eq 1 ]; then
++			echo "$ts2"
++		else
++			echo "$ts1"
++		fi
++	fi
++}
++
++# If test configuration is changed during testing, to keep 'Requested'
++# status delay test execution
++sleep 5
++
++interface=$(grep "^interface" "$CONFIG_FILE" | awk '{print $2}')
++url=$(grep "^url" "$CONFIG_FILE" | awk '{print $2}')
++dscp=$(grep "^dscp" "$CONFIG_FILE" | awk '{print $2}')
++connections=$(grep "^connections" "$CONFIG_FILE" | awk '{print $2}')
++duration=$(grep "^duration" "$CONFIG_FILE" | awk '{print $2}')
++
++# Validate URL a little bit
++[ -z "$url" ] && {
++	logger "[TR-069] DownloadDiagnostics: no URL provided"
++	sed -i "s/^state .*/state Error_InitConnectionFailed/" "$CONFIG_FILE"
++	return
++}
++
++command="/usr/sbin/easycwmp"
++[ ! -f "$command" ] && command="/usr/local$command"
++json_load "$($command get $interface.Name)"
++json_get_var iface value
++[ -z "$iface" ] && {
++	logger "[TR-069] DownloadDiagnostics: No interface $interface name found"
++	sed -i "s/^state .*/state Error_InitConnectionFailed/" "$CONFIG_FILE"
++	return
++}
++
++# if interface is mobile interface
++proto="$(uci get network.$iface.proto)"
++if [ "$proto" == "wwan" ]; then
++	json_load "$(ubus call network.interface."$iface"_4 status)" >/dev/null 2>&1
++	json_get_var iface l3_device >/dev/null 2>&1
++	[ -z "$iface" ] && {
++		json_load "$(ubus call network.interface."$iface"_6 status)" >/dev/null 2>&1
++		json_get_var iface l3_device >/dev/null 2>&1
++	}
++else
++	json_load "$(ubus call network.interface.$iface status)" >/dev/null 2>&1
++	json_get_var iface l3_device
++fi
++
++interface="$iface"
++
++# Check port and if not found set to default
++port=$(echo "$url" | sed -n 's/.*:\([0-9]*\)\(\/.*\|\)$/\1/p')
++
++[ -z "$port" ] && {
++	if echo "$url" | grep -q '^ftp://'; then
++		port=21
++	else
++		port=80
++	fi
++}
++
++# Set DSCP
++json_load "$(ubus call api post '{"path":"/firewall/traffic_rules/config","body":{"data":{"proto":["tcp"],
++"dest_port":["'$port'"],"name":"Set-TR143-DD-DSCP","dest":"*","target":"DSCP","set_dscp":"'$dscp'",
++"enabled":"1"}}}')"
++json_select http_body
++json_select data >/dev/null 2>&1
++json_get_var dscp_id id
++
++i=0
++current_duration=0
++[ ! -f "$SCRIPT" ] && SCRIPT="/usr/local$SCRIPT"
++
++# Run curl commands simultaneously
++while [ "$i" -lt "$connections" ]; do
++	"$SCRIPT" "$i" "$interface" "$url" &
++	i=$((i + 1))
++done
++
++i=0
++
++# Wait for all curl commands to end
++while [ "$i" -lt "$connections" ]; do
++	while [ ! -e "/var/run/easycwmp/tr143_dd_result$i" ] ||
++	! grep -q "state" "/var/run/easycwmp/tr143_dd_result$i"; do
++		current_duration=$((current_duration + 1))
++		[ "$duration" -gt 0 ] && [ "$current_duration" -ge "$duration" ] && {
++			for pid in $(pgrep -f download_diagnostics.sh); do
++				kill "$pid" 2>/dev/null
++			done
++			cleanup "Error_Timeout" "$port" "$dscp_id" "$interface"
++			return
++		}
++		sleep 1
++	done
++	i=$((i + 1))
++done
++
++result_file="/var/run/easycwmp/tr143_dd_result0"
++state=$(grep "^state" "$result_file" | awk '{print $2}')
++[ "$state" != "Completed" ] && {
++	cleanup "$state" "$port" "$dscp_id" "$interface"
++	return
++}
++romtime_final=$(grep "^rom_time" "$result_file" | awk '{print $2}')
++bomtime_final=$(grep "^bom_time" "$result_file" | awk '{print $2}')
++eomtime_final=$(grep "^eom_time" "$result_file" | awk '{print $2}')
++test_bytes_total=$(grep "^test_bytes" "$result_file" | awk '{print $2}')
++total_bytes_total=$(grep "^total_bytes" "$result_file" | awk '{print $2}')
++
++i=1
++
++while [ "$i" -lt "$connections" ]; do
++	result_file="/var/run/easycwmp/tr143_dd_result$i"
++
++	state=$(grep "^state" "$result_file" | awk '{print $2}')
++	[ "$state" != "Completed" ] && {
++		cleanup "$state" "$port" "$dscp_id" "$interface"
++		return
++	}
++
++	romtime=$(grep "^rom_time" "$result_file" | awk '{print $2}')
++	romtime_final=$(compare_time "$romtime_final" "$romtime" 1)
++
++	bomtime=$(grep "^bom_time" "$result_file" | awk '{print $2}')
++	bomtime_final=$(compare_time "$bomtime_final" "$bomtime" 1)
++
++	eomtime=$(grep "^eom_time" "$result_file" | awk '{print $2}')
++	eomtime_final=$(compare_time "$eomtime_final" "$eomtime" 0)
++
++	test_bytes=$(grep "^test_bytes" "$result_file" | awk '{print $2}')
++	test_bytes_total=$((test_bytes_total + test_bytes))
++
++	total_bytes=$(grep "^total_bytes" "$result_file" | awk '{print $2}')
++	total_bytes_total=$((total_bytes_total + total_bytes))
++
++	i=$((i + 1))
++done
++
++sed -i "s/^rom_time .*/rom_time $romtime_final/" "$CONFIG_FILE"
++sed -i "s/^bom_time .*/bom_time $bomtime_final/" "$CONFIG_FILE"
++sed -i "s/^eom_time .*/eom_time $eomtime_final/" "$CONFIG_FILE"
++sed -i "s/^test_bytes .*/test_bytes $test_bytes_total/" "$CONFIG_FILE"
++sed -i "s/^total_bytes .*/total_bytes $total_bytes_total/" "$CONFIG_FILE"
++
++cleanup "Completed" "$port" "$dscp_id" "$interface"
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh
+--- upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,81 @@
++#!/bin/sh
++
++RESULT_FILE="/var/run/easycwmp/tr143_ud_result$1"
++interface="$2"
++url="$3"
++file_len="$4"
++
++print_time() {
++	local curr_sec="$1"
++	local curr_microsec="$2"
++	local time_curl="$3"
++	local key="$4"
++
++	local seconds=$(echo $time_curl | awk -F'.' '{print $1}')
++	local microseconds=$(echo $time_curl | awk -F'.' '{print $2}' | sed 's/^0*//')
++
++	seconds=$((curr_sec + seconds))
++	microseconds=$((curr_microsec + microseconds))
++	# Handle potential overflow of microseconds (more than 999999)
++	if [ $microseconds -ge 1000000 ]; then
++		microseconds=$((microseconds - 1000000))
++		seconds=$((seconds + 1)) # Increment seconds if overflow occurs
++	fi
++
++	local date_fmt=$(date -d @$seconds '+%Y-%m-%dT%H:%M:%S')
++	date_fmt="$date_fmt.$(printf "%06d" $microseconds)Z"
++
++	echo "$key $date_fmt" >>"$RESULT_FILE"
++}
++
++# Setup before initializing curl
++curr_seconds=$(adjtimex | grep "time.tv_sec" | awk '{print $2}')
++curr_microseconds=$(adjtimex | grep "time.tv_usec" | awk '{print $2}')
++total_bytes_before=$(cat /sys/class/net/${interface}/statistics/rx_bytes)
++
++# Curl
++if echo "$url" | grep -q '^ftp://'; then
++	time_res=$(curl -s\
++		   --connect-timeout 60 \
++		   -o /dev/null \
++		   -w "%{size_upload}:%{time_connect}:%{time_pretransfer}:%{time_total}" \
++		   -T "/var/run/easycwmp/tr143_test_file" \
++		   --interface "$interface" "$url")
++else
++	time_res=$(curl -s\
++		   --connect-timeout 60 \
++		   -o /dev/null \
++		   -w "%{size_upload}:%{time_connect}:%{time_starttransfer}:%{time_total}" \
++		   -X PUT \
++		   -H "Content-Length: $file_len" \
++		   --data "@/var/run/easycwmp/tr143_test_file" \
++		   --interface "$interface" "$url")
++fi
++
++# After curl is finished
++res="$?"
++[ "$res" -ne 0 ] && {
++	if [ "$res" -eq 28 ]; then
++		echo "state Error_NoResponse" >>"$RESULT_FILE"
++	else
++		echo "state Error_TransferFailed" >>"$RESULT_FILE"
++	fi
++	return
++}
++
++total_bytes_after=$(cat /sys/class/net/${interface}/statistics/rx_bytes)
++test_bytes=$(echo "$time_res" | awk -F':' '{print $1}')
++romtime_curl=$(echo "$time_res" | awk -F':' '{print $2}')
++bomtime_curl=$(echo "$time_res" | awk -F':' '{print $3}')
++eomtime_curl=$(echo "$time_res" | awk -F':' '{print $4}')
++
++print_time "$curr_seconds" "$curr_microseconds" "$romtime_curl" "rom_time"
++print_time "$curr_seconds" "$curr_microseconds" "$bomtime_curl" "bom_time"
++print_time "$curr_seconds" "$curr_microseconds" "$eomtime_curl" "eom_time"
++
++total_bytes=$((total_bytes_after - total_bytes_before))
++
++echo "test_bytes $test_bytes" >>"$RESULT_FILE"
++echo "total_bytes $total_bytes" >>"$RESULT_FILE"
++
++echo "state Completed" >>"$RESULT_FILE"
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh
+--- upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,216 @@
++#!/bin/sh
++
++. /usr/share/libubox/jshn.sh
++
++# Get a list of params
++CONFIG_FILE="/var/run/easycwmp/tr143_upload_diagnostics"
++SCRIPT="/usr/libexec/upload_diagnostics.sh"
++
++cleanup() {
++	local state="$1"
++	local port="$2"
++	local dscp_id="$3"
++	local interface="$4"
++
++	# rm /var/run/easycwmp/tr143_ud_result*  >/dev/null 2>&1
++	rm /var/run/easycwmp/tr143_ud_result*
++
++	# Remove DSCP
++	ubus call api delete '{"path":"/firewall/traffic_rules/config/'$dscp_id'"}' >/dev/null 2>&1
++
++	# Remove file
++	rm /var/run/easycwmp/tr143_test_file
++
++	sed -i "s/^state .*/state $state/" "$CONFIG_FILE"
++
++	# Send '8 DIAGNOSTICS COMPLETE' message
++	ubus call tr069 inform '{"event":"8 DIAGNOSTICS COMPLETE"}' 2>/dev/null
++}
++
++compare_time() {
++	local ts1="$1"
++	local ts2="$2"
++	local earliest="$3"
++
++	# Remove 'Z' and split
++	ts1_base=$(echo "$ts1" | cut -d'.' -f1 | sed 's/T/ /')
++	ts1_micro=$(echo "$ts1" | cut -d'.' -f2 | tr -d 'Z')
++	ts2_base=$(echo "$ts2" | cut -d'.' -f1 | sed 's/T/ /')
++	ts2_micro=$(echo "$ts2" | cut -d'.' -f2 | tr -d 'Z')
++
++	# Convert base to seconds since epoch
++	ts1_sec=$(date -d "$ts1_base" +"%s")
++	ts2_sec=$(date -d "$ts2_base" +"%s")
++
++	# Compare
++	if [ "$ts1_sec" -lt "$ts2_sec" ] ||
++	   { [ "$ts1_sec" -eq "$ts2_sec" ] &&
++	   [ "$ts1_micro" -lt "$ts2_micro" ]; }; then
++		if [ "$earliest" -eq 1 ]; then
++			echo "$ts1"
++		else
++			echo "$ts2"
++		fi
++	else
++		if [ "$earliest" -eq 1 ]; then
++			echo "$ts2"
++		else
++			echo "$ts1"
++		fi
++	fi
++}
++
++# If test configuration is changed during testing, to keep 'Requested'
++# status delay test execution
++sleep 5
++
++interface=$(grep "^interface" "$CONFIG_FILE" | awk '{print $2}')
++url=$(grep "^url" "$CONFIG_FILE" | awk '{print $2}')
++dscp=$(grep "^dscp" "$CONFIG_FILE" | awk '{print $2}')
++file_len=$(grep "^file_len" "$CONFIG_FILE" | awk '{print $2}')
++connections=$(grep "^connections" "$CONFIG_FILE" | awk '{print $2}')
++duration=$(grep "^duration" "$CONFIG_FILE" | awk '{print $2}')
++
++# Validate URL a little bit
++[ -z "$url" ] && {
++	logger "[TR-069] UploadDiagnostics: no URL provided"
++	sed -i "s/^state .*/state Error_InitConnectionFailed/" "$CONFIG_FILE"
++	return
++}
++
++command="/usr/sbin/easycwmp"
++[ ! -f "$command" ] && command="/usr/local$command"
++json_load "$($command get $interface.Name)"
++json_get_var iface value
++[ -z "$iface" ] && {
++	logger "[TR-069] DownloadDiagnostics: No interface $interface name found"
++	sed -i "s/^state .*/state Error_InitConnectionFailed/" "$CONFIG_FILE"
++	return
++}
++
++# if interface is mobile interface
++proto="$(uci get network.$iface.proto)"
++if [ "$proto" == "wwan" ]; then
++	json_load "$(ubus call network.interface."$iface"_4 status)" >/dev/null 2>&1
++	json_get_var iface l3_device >/dev/null 2>&1
++	[ -z "$iface" ] && {
++		json_load "$(ubus call network.interface."$iface"_6 status)" >/dev/null 2>&1
++		json_get_var iface l3_device >/dev/null 2>&1
++	}
++else
++	json_load "$(ubus call network.interface.$iface status)" >/dev/null 2>&1
++	json_get_var iface l3_device
++fi
++
++interface="$iface"
++
++# Check port and if not found set to default
++port=$(echo "$url" | sed -n 's/.*:\([0-9]*\)\(\/.*\|\)$/\1/p')
++
++[ -z "$port" ] && {
++	if echo "$url" | grep -q '^ftp://'; then
++		port=21
++	else
++		port=80
++	fi
++}
++
++# Check if defined size of file is still available
++memory=$(df -k | grep tmp | head -n 1 | awk '{print $4}')
++memory=$((memory * 4 / 10 * 1024))
++
++[ "$file_len" -gt "$memory" ] && {
++	logger "[TR-069] UploadDiagnostics: provided file size is too large ($input > $memory)"
++	sed -i "s/^state .*/state Error_InitConnectionFailed/" "$CONFIG_FILE"
++	return 5
++}
++
++# Set DSCP
++json_load "$(ubus call api post '{"path":"/firewall/traffic_rules/config","body":{"data":{"proto":["tcp"],
++"dest_port":["'$port'"],"name":"Set-TR143-UD-DSCP","dest":"*","target":"DSCP","set_dscp":"'$dscp'",
++"enabled":"1"}}}')"
++json_select http_body
++json_select data >/dev/null 2>&1
++json_get_var dscp_id id
++
++# Create file to send
++head -c "$file_len" < /dev/zero | tr '\0' 'x' > /var/run/easycwmp/tr143_test_file
++
++i=0
++current_duration=0
++[ ! -f "$SCRIPT" ] && SCRIPT="/usr/local$SCRIPT"
++
++# Run curl commands simultaneously
++while [ "$i" -lt "$connections" ]; do
++	"$SCRIPT" "$i" "$interface" "$url" "$file_len" &
++	i=$((i + 1))
++done
++
++i=0
++
++# Wait for all curl commands to end
++while [ "$i" -lt "$connections" ]; do
++	while [ ! -e "/var/run/easycwmp/tr143_ud_result$i" ] ||
++	! grep -q "state" "/var/run/easycwmp/tr143_ud_result$i"; do
++		current_duration=$((current_duration + 1))
++		[ "$duration" -gt 0 ] && [ "$current_duration" -ge "$duration" ] && {
++			for pid in $(pgrep -f upload_diagnostics.sh); do
++				# kill "$pid" 2>/dev/null
++				kill "$pid"
++			done
++			cleanup "Error_Timeout" "$port" "$dscp_id" "$interface"
++			return
++		}
++		sleep 1
++	done
++	i=$((i + 1))
++done
++
++result_file="/var/run/easycwmp/tr143_ud_result0"
++state=$(grep "^state" "$result_file" | awk '{print $2}')
++[ "$state" != "Completed" ] && {
++	cleanup "$state" "$port" "$dscp_id" "$interface"
++	return
++}
++romtime_final=$(grep "^rom_time" "$result_file" | awk '{print $2}')
++bomtime_final=$(grep "^bom_time" "$result_file" | awk '{print $2}')
++eomtime_final=$(grep "^eom_time" "$result_file" | awk '{print $2}')
++test_bytes_total=$(grep "^test_bytes" "$result_file" | awk '{print $2}')
++total_bytes_total=$(grep "^total_bytes" "$result_file" | awk '{print $2}')
++
++i=1
++
++while [ "$i" -lt "$connections" ]; do
++	result_file="/var/run/easycwmp/tr143_ud_result$i"
++
++	state=$(grep "^state" "$result_file" | awk '{print $2}')
++	[ "$state" != "Completed" ] && {
++		cleanup "$state" "$port" "$dscp_id" "$interface"
++		return
++	}
++
++	romtime=$(grep "^rom_time" "$result_file" | awk '{print $2}')
++	romtime_final=$(compare_time "$romtime_final" "$romtime" 1)
++
++	bomtime=$(grep "^bom_time" "$result_file" | awk '{print $2}')
++	bomtime_final=$(compare_time "$bomtime_final" "$bomtime" 1)
++
++	eomtime=$(grep "^eom_time" "$result_file" | awk '{print $2}')
++	eomtime_final=$(compare_time "$eomtime_final" "$eomtime" 0)
++
++	test_bytes=$(grep "^test_bytes" "$result_file" | awk '{print $2}')
++	test_bytes_total=$((test_bytes_total + test_bytes))
++
++	total_bytes=$(grep "^total_bytes" "$result_file" | awk '{print $2}')
++	total_bytes_total=$((total_bytes_total + total_bytes))
++
++	i=$((i + 1))
++done
++
++sed -i "s/^rom_time .*/rom_time $romtime_final/" "$CONFIG_FILE"
++sed -i "s/^bom_time .*/bom_time $bomtime_final/" "$CONFIG_FILE"
++sed -i "s/^eom_time .*/eom_time $eomtime_final/" "$CONFIG_FILE"
++sed -i "s/^test_bytes .*/test_bytes $test_bytes_total/" "$CONFIG_FILE"
++sed -i "s/^total_bytes .*/total_bytes $total_bytes_total/" "$CONFIG_FILE"
++
++cleanup "Completed" "$port" "$dscp_id" "$interface"
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/gps/gps_information src/ext/openwrt/scripts/functions/gps/gps_information
+--- upstream/ext/openwrt/scripts/functions/gps/gps_information	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/gps/gps_information	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,46 @@
++#!/bin/sh
++# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
++# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.GPSInfo."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_GPSInfo"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_GPSInfo"
++
++entry_execute_method_root_GPSInfo() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.GPSInfo."*)
++                common_execute_method_obj "$DMROOT.GPSInfo." "0"
++		common_execute_method_param "$DMROOT.GPSInfo.Latitude" "0" "get_latitude" "" "" "1"
++		common_execute_method_param "$DMROOT.GPSInfo.Longitude" "0" "get_longitude" "" "" "1"
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++#######################################
++#   Data model parameters functions   #
++#######################################
++
++get_latitude()
++{
++        json_load "$(ubus call gpsd position)"
++        json_get_var received_latitude latitude
++
++        echo "$received_latitude"
++}
++
++get_longitude()
++{
++        json_load "$(ubus call gpsd position)"
++        json_get_var received_longitude longitude
++
++        echo "$received_longitude"
++}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/hotspot/hotspot src/ext/openwrt/scripts/functions/hotspot/hotspot
+--- upstream/ext/openwrt/scripts/functions/hotspot/hotspot	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/hotspot/hotspot	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,90 @@
++#!/bin/sh
++# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
++# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++. /lib/functions.sh
++
++prefix_list="$prefix_list $DMROOT.Hotspot."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Hotpsot"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_Hotpsot"
++OPTION_LIST="IPP;uamlisten AuthMode;_mode LogoutIP;uamlogoutip Network;network \
++DNS1;dns1 DNS2;dns2 UAMPort;uamport LandingPage;_landingpage"
++
++config_load chilli
++
++list_foreach(){
++	[ "$#" -ge 2 ] || return 0
++	local list=$1; shift
++	local callback=$1; shift
++
++	for element in $list
++	do
++		$callback $element $@
++	done
++}
++
++entry_execute_method_root_Hotpsot() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.Hotspot."*)
++		common_execute_method_obj "$DMROOT.Hotspot." "0"
++		common_execute_method_obj "$DMROOT.Hotspot.General." "0" "" "" "hotspot_browse_instances $1"
++
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++#$1 - section name, $2 - option, $3 - true value, $4 - false value
++Hotspot_Get_Bool() {
++	local val=`$UCI_GET chilli.$1.$2`
++
++	[ "$val" = "1" ] && echo "$3" || echo "$4"
++}
++#$1 - section name, $2 - option, $3 - true value, $4 - false value, $5 - value
++Hotspot_Set_Bool() {
++	common_set_bool "chilli.$1" "$4" "$2" "$3"
++	return $?
++}
++#$1 - section name, $2 - option
++Hotspot_Get() {
++	echo `$UCI_GET chilli.$1.$2`
++}
++#$1 - section name, $2 - option, $3 - value
++Hotspot_Set() {
++	$UCI_SET chilli.$1.$2=$3
++	return $?
++}
++
++
++hotspot_entry(){
++	name=$(echo $1 | awk 'BEGIN { FS = ";" }; {print $1}')
++	param=$(echo $1 | awk 'BEGIN { FS = ";" }; {print $2}')
++	common_execute_method_param "$DMROOT.Hotspot.General.$2.$name" "0" \
++				"Hotspot_Get $2 $param" "" "" "1"
++}
++
++sub_entry_hotpsot_general(){
++	case "$2" in ""|"$DMROOT."|"$DMROOT.Hotspot.General.$1"*)
++		common_execute_method_obj "$DMROOT.Hotspot.General.$1" "0"
++		common_execute_method_param "$DMROOT.Hotspot.General.$1.Enabled" "1" \
++				"Hotspot_Get_Bool $1 enabled enabled disabled" \
++				"Hotspot_Set_Bool $1.enabled 1 0" "xsd:boolean" "1"
++		common_execute_method_param "$DMROOT.Hotspot.General.$1.Signup" "1" \
++				"Hotspot_Get_Bool $1 registerusers enabled disabled" "" "xsd:boolean" "1"
++		list_foreach "$OPTION_LIST" hotspot_entry $1
++		return 0
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++hotspot_browse_instances(){
++	config_foreach sub_entry_hotpsot_general chilli $1
++}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/mobile/cellular src/ext/openwrt/scripts/functions/mobile/cellular
+--- upstream/ext/openwrt/scripts/functions/mobile/cellular	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/mobile/cellular	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,1061 @@
++#!/bin/sh
++# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
++# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.Cellular."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Cellular"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_Cellular"
++
++####################
++#  Device.Cellular #
++####################
++
++entry_execute_method_root_Cellular() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.Cellular."*)
++		common_execute_method_obj "$DMROOT.Cellular." "0"
++		common_execute_method_param "$DMROOT.Cellular.RoamingEnabled" "1" \
++			"get_roaming_enabled" "set_roaming_enabled" "xsd:boolean"
++		common_execute_method_param "$DMROOT.Cellular.RoamingStatus" "0" \
++			"get_roaming" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.InterfaceNumberOfEntries" "0" \
++			"echo $(ubus list gsm.modem* | wc -l)" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.Cellular.AccessPointNumberOfEntries" "0" \
++			"get_ap_noe" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.Cellular.Interface." "0" \
++			"" "" "count_cellular_iface_obj $1"
++		common_execute_method_obj "$DMROOT.Cellular.AccessPoint." "1" \
++			"add_cellular_ap" "" "count_cellular_ap_obj $1"
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_roaming_enabled_sim() {
++	local sec="$1"
++	local ret="$2"
++
++	config_get deny_roaming "$sec" deny_roaming
++	[ "$deny_roaming" = "1" ] && eval "$ret=0"
++}
++
++get_roaming_enabled() {
++	local enabled=1
++
++	config_load "simcard"
++	config_foreach get_roaming_enabled_sim sim enabled
++
++	echo "$enabled"
++}
++
++set_roaming_enabled_sim() {
++	local sec="$1"
++	local input="$2"
++	local ret="$3"
++
++	json_load "$(ubus call api put '{"path":"/sim_cards/config/'$sec'",
++		     "body":{"data":{"deny_roaming":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	[ "$success" = "0" ] && eval "$ret=7"
++}
++
++set_roaming_enabled() {
++	local input="$1"
++	local res=0
++
++	# invert input
++	if [ "$input" = "true" ]; then
++		input=0
++	elif [ "$input" = "false" ]; then
++		input=1
++	elif [ "$input" != "0" -a "$input" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	config_load "simcard"
++	config_foreach set_roaming_enabled_sim sim "$input" res
++
++	[ "$res" = "0" ] && ubus call mobifd reload >/dev/null 2>&1
++
++	return "$res"
++}
++
++get_roaming() {
++	local i=1
++	local ifaces="$(ubus list gsm.modem*)"
++
++	for iface in $ifaces; do
++		json_load "$(ubus call $iface get_net_reg_stat_all)"
++		json_get_var status status
++		[ "$status" = "Registered, home" ] || \
++		[ "$status" = "SMS only, home network" ] && {
++			echo "Home"
++			return 0
++		}
++	done
++
++	echo "Roaming"
++}
++
++get_ap_noe() {
++	local res=0
++
++	json_load "$(ubus call api get '{"path":"/interfaces/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var proto proto
++		[ "$proto" = "wwan" ] && res=$(($res + 1))
++		json_select ..
++	done
++
++	echo "$res"
++}
++
++##############################
++#  Device.Cellular.Interface #
++##############################
++
++count_cellular_iface_obj() {
++	local i=1
++	local ifaces="$(ubus list gsm.modem*)"
++
++	for iface in $ifaces; do
++		json_load "$(ubus call $iface info)"
++		json_get_var usb_id usb_id
++		sub_entry_cellular_iface "$1" "$i" "$iface" "$usb_id"
++		i=$((i + 1))
++	done
++}
++
++sub_entry_cellular_iface() {
++	local i="$2"
++	local gsm_ubus="$3"
++	local usb_id="$4"
++
++	case_param "$1" belongto "$DMROOT.Cellular.Interface.$i." && {
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i." "0"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.Status" "0" \
++			"get_iface_status $gsm_ubus $usb_id" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.Name" "0" \
++			"echo $usb_id" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.LowerLayers" "0" \
++			"" "" "xsd:string[]"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.IMEI" "0" \
++			"get_iface_value $gsm_ubus info imei" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SupportedAccessTechnologies" "0" \
++			"get_iface_supported_at $gsm_ubus" "" "xsd:string[]"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.PreferredAccessTechnology" "1" \
++			"get_iface_pref_at $gsm_ubus $usb_id" "set_iface_pref_at $gsm_ubus $usb_id" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.CurrentAccessTechnology" "0" \
++			"get_iface_curr_at $gsm_ubus" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.NetworkRequested" "1" \
++			"get_iface_network_req $gsm_ubus $usb_id" \
++			"set_iface_network_req $gsm_ubus $usb_id" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.NetworkInUse" "0" \
++			"get_iface_value $gsm_ubus get_network_info opernum" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.RSSI" "0" \
++			"get_iface_value $gsm_ubus get_signal_query rssi" "" "xsd:int"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.RSRP" "0" \
++			"get_iface_value $gsm_ubus get_signal_query rsrp" "" "xsd:int"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.RSRQ" "0" \
++			"get_iface_value $gsm_ubus get_signal_query rsrq" "" "xsd:int"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.Mode" "0" \
++			"get_iface_mode $gsm_ubus" "" "xsd:string"
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.Stats." "0"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.Stats.Reset" "1" \
++			"echo 0" "set_iface_stats_reset $gsm_ubus $usb_id" "xsd:boolean"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.Stats.BytesSent" "0" \
++			"get_iface_bytes $gsm_ubus $usb_id tx" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.Stats.BytesReceived" "0" \
++			"get_iface_bytes $gsm_ubus $usb_id rx" "" "xsd:unsignedLong"
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.SMS." "0"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.StorageNumberOfEntries" "0" \
++			"echo 1" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.MessageNumberOfEntries" "0" \
++			"get_iface_sms_message_noe $gsm_ubus $usb_id" "" "xsd:unsignedLong"
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.SMS.Storage." "0" \
++			"" "" "count_iface_sms_storage $1 $usb_id $i"
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.SMS.Incoming." "0"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Incoming.StorageRef" "0" \
++			"echo $DMROOT.Cellular.Interface.$i.SMS.Storage.1" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Incoming.CapacityLimit" "1" \
++			"get_iface_sms_incoming_limit $usb_id" \
++			"set_iface_sms_incoming_limit $usb_id" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.SMS.Message." "0" \
++			"" "" "count_iface_sms_message $1 $usb_id $i"
++		return 0
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_iface_status() {
++	local ubus="$1"
++	local usb_id="$2"
++
++	json_load "$(ubus call api get '{"path":"/modems/status/'$usb_id'"}')"
++	json_select http_body
++	json_select data
++	json_get_var status data_conn_state
++
++	[ "$status" = "Connected" ] && status="Up"
++	[ "$status" = "Disconnected" ] && status="Down"
++
++	echo "$status"
++}
++
++get_iface_value() {
++	local ubus="$1"
++	local method="$2"
++	local value="$3"
++
++	local found_value=$(ubus call $ubus $method 2>/dev/null | grep -w $value |
++			    sed 's/[^ ]* *//; s/["]//g; s/,$//g')
++
++	echo "$found_value"
++}
++
++get_iface_supported_at_res() {
++	[ -n "$1" ] || return
++
++	local ret="$3"
++	if [ "$1" = "4G" ]; then
++		eval "$ret=\"\${$ret},LTE\""
++	else
++		eval "$ret=\"\${$ret},\$1\""
++	fi
++}
++
++get_iface_supported_at() {
++	local ubus="$1"
++	local res="Auto"
++
++	json_load "$(ubus call $ubus info)"
++	json_for_each_item get_iface_supported_at_res service_mode_list res
++
++	# Add preferable services
++	[ "${res#*3G}" != "$res" ] && [ "${res#*2G}" != "$res" ] && res="${res},2G+3G"
++	[ "${res#*3G}" != "$res" ] && [ "${res#*LTE}" != "$res" ] && res="${res},3G+LTE"
++
++	echo "$res"
++}
++
++get_simcard_at() {
++	local sec="$1"
++	local usb_id="$2"
++	local sim_slot="$3"
++
++	config_get modem "$sec" modem
++	[ "$modem" != "$usb_id" ] && return
++
++	config_get position "$sec" position
++	[ "$position" = "$sim_slot" ] && {
++		config_get service "$sec" service
++		case "$service" in
++		"auto")
++			service="Auto"
++			;;
++		"2g")
++			service="2G"
++			;;
++		"3g")
++			service="3G"
++			;;
++		"3g_pref")
++			service="2G+3G"
++			;;
++		"lte")
++			service="LTE"
++			;;
++		"lte_pref")
++			service="3G+LTE"
++			;;
++		"nr5g_pref")
++			service="5G"
++			;;
++		*)
++			service="Auto"
++			;;
++		esac
++		echo "$service"
++	}
++}
++
++get_iface_pref_at() {
++	local ubus="$1"
++	local usb_id="$2"
++
++	json_load "$(ubus call $ubus get_sim_slot)"
++	json_get_var sim_slot index
++
++	config_load simcard
++	config_foreach get_simcard_at "sim" "$usb_id" "$sim_slot"
++}
++
++set_simcard_at() {
++	local sec="$1"
++	local usb_id="$2"
++	local sim_slot="$3"
++	local input="$4"
++
++	config_get modem "$sec" modem
++	[ "$modem" != "$usb_id" ] && return
++
++	config_get position "$sec" position
++	[ "$position" = "$sim_slot" ] && uci set simcard."$sec".service="$input"
++}
++
++set_iface_pref_at() {
++	local ubus="$1"
++	local usb_id="$2"
++	local input="$3"
++	local sim_slot=""
++	local times=0
++
++	case "$input" in
++		"Auto")
++			input="auto"
++			;;
++		"2G")
++			input="2g"
++			;;
++		"3G")
++			input="3g"
++			;;
++		"2G+3G")
++			input="3g_pref"
++			;;
++		"LTE")
++			input="lte"
++			;;
++		"3G+LTE")
++			input="lte_pref"
++			;;
++		"5G")
++			input="nr5g_pref"
++			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE
++			;;
++	esac
++
++	while [ -z "$sim_slot" ] && [ "$times" -lt 10 ]; do
++		json_load "$(ubus call $ubus get_sim_slot)"
++		json_get_var sim_slot index
++		times=$((times + 1))
++	done
++
++	[ "$times" -ge 10 ] && return $E_RESOURCES_EXCEEDED
++
++	config_load simcard
++	config_foreach set_simcard_at "sim" "$usb_id" "$sim_slot" "$input"
++
++	uci commit
++	ubus call mobifd reload >/dev/null 2>&1
++
++	return 0
++}
++
++get_iface_curr_at() {
++	local ubus="$1"
++
++	json_load "$(ubus call $ubus get_network_info)"
++	json_get_var net_mode net_mode
++
++	case "$net_mode" in
++		"WCDMA")
++			net_mode="3G"
++			;;
++		"4G")
++			net_mode="LTE"
++			;;
++		"NR5G"|"5G-NSA"|"5G-SA")
++			net_mode="5G"
++			;;
++		*)
++			;;
++	esac
++
++	[ -z "$net_mode" ] || [ "$net_mode" = "No service" ] && net_mode="Unknown"
++
++	echo "$net_mode"
++}
++
++get_simcard_opernum() {
++	local sec="$1"
++	local usb_id="$2"
++	local sim_slot="$3"
++
++	config_get modem "$sec" modem
++	[ "$modem" != "$usb_id" ] && return
++
++	config_get position "$sec" position
++	[ "$position" = "$sim_slot" ] && {
++		config_get opernum "$sec" opernum
++		echo "$opernum"
++	}
++}
++
++get_iface_network_req() {
++	local ubus="$1"
++	local usb_id="$2"
++
++	json_load "$(ubus call $ubus get_sim_slot)"
++	json_get_var sim_slot index
++
++	config_load simcard
++	config_foreach get_simcard_opernum "sim" "$usb_id" "$sim_slot"
++}
++
++set_simcard_opernum() {
++	local sec="$1"
++	local usb_id="$2"
++	local sim_slot="$3"
++	local operator="$4"
++	local input="$5"
++
++	config_get modem "$sec" modem
++	[ "$modem" != "$usb_id" ] && return
++
++	config_get position "$sec" position
++	[ "$position" = "$sim_slot" ] && {
++		uci set simcard."$sec".operator="$operator"
++		if [ -z "$input" ]; then
++			uci delete simcard."$sec".opernum
++		else
++			uci set simcard."$sec".opernum="$input"
++		fi
++	}
++}
++
++set_iface_network_req() {
++	local ubus="$1"
++	local usb_id="$2"
++	local input="$3"
++	local operator="manual"
++	local sim_slot=""
++	local times=0
++
++	[ "${#input}" -gt 64 ] && return $E_INVALID_PARAMETER_VALUE
++
++	[ -z "$input" ] && operator="auto"
++
++	while [ -z "$sim_slot" ] && [ "$times" -lt 10 ]; do
++		json_load "$(ubus call $ubus get_sim_slot)"
++		json_get_var sim_slot index
++		times=$((times + 1))
++	done
++
++	[ "$times" -ge 10 ] && return $E_RESOURCES_EXCEEDED
++
++	config_load simcard
++	config_foreach set_simcard_opernum "sim" "$usb_id" "$sim_slot" "$operator" "$input"
++
++	uci commit
++	ubus call mobifd reload >/dev/null 2>&1
++
++	return 0
++}
++
++set_iface_stats_reset_iface() {
++	local sec="$1"
++	local usb_id="$2"
++
++	config_get proto "$sec" proto
++	[ "$proto" != "wwan" ] && return
++
++	config_get modem "$sec" modem
++	[ "$modem" != "$usb_id" ] && return
++
++	ubus call api post '{"path":"/data_limit/actions/clear","body":{"data":{"interface":"'$sec'"}}}' \
++		>/dev/null 2>&1
++}
++
++set_iface_stats_reset() {
++	local ubus="$1"
++	local usb_id="$2"
++	local input="$3"
++
++	[ "$input" = "false" ] || [ "$input" = "0" ] && return 0
++	[ "$input" != "true" ] && [ "$input" != "1" ] && return $E_INVALID_PARAMETER_VALUE
++
++	config_load network
++	config_foreach set_iface_stats_reset_iface interface "$usb_id"
++}
++
++get_iface_mode() {
++	local ubus="$1"
++
++	json_load "$(ubus call $ubus get_network_info)"
++	json_get_var net_mode net_mode
++
++	case "$net_mode" in
++		"5G-SA")
++			echo "Standalone"
++			;;
++		"5G-NSA")
++			echo "NonStandalone"
++			;;
++		*)
++			echo "Unknown"
++			;;
++	esac
++
++	return 0
++}
++
++get_iface_bytes() {
++	local ubus="$1"
++	local usb_id="$2"
++	local key="$3"
++
++	json_load "$(ubus call mdcollect get '{"modem":"'$usb_id'"}')"
++	json_get_var value "$key"
++
++	echo "$value"
++}
++
++get_iface_sms_message_noe() {
++	local ubus="$1"
++	local usb_id="$2"
++	local res=0
++
++	json_load "$(ubus call api get '{"path":"/messages/status"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var modem_id modem_id
++		[ "$modem_id" = "$usb_id" ] && res=$((res + 1))
++		json_select ..
++	done
++
++	echo "$res"
++}
++
++get_iface_sms_incoming_limit() {
++	local usb_id="$1"
++
++	json_load "$(ubus call api get '{"path":"/messages/storage/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_vars modem_id free
++		[ "$modem_id" = "$usb_id" ] && {
++			echo "$free"
++			return 0
++		}
++		json_select ..
++	done
++}
++
++set_iface_sms_incoming_limit() {
++	local usb_id="$1"
++	local input="$2"
++
++	json_load "$(ubus call api get '{"path":"/messages/storage/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_vars modem_id id
++		[ "$modem_id" = "$usb_id" ] && break
++		json_select ..
++	done
++
++	[ -z "$id" ] && return $E_INVALID_PARAMETER_VALUE
++
++	json_load "$(ubus call api put '{"path":"/messages/storage/config/'$id'","body":
++		     {"data":{"free":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++##############################################
++#  Device.Cellular.Interface.{i}.SMS.Storage #
++##############################################
++
++count_iface_sms_storage() {
++	local usb_id="$2"
++	local i="$3"
++	local j=1
++	local storages="$(ubus call api get '{"path":"/messages/storage/status"}' | \
++			  jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $storages; do
++		IFS="$OLD_IFS"
++		[ "$(echo "$table" | jsonfilter -e '@.modem_id')" = "$usb_id" ] && {
++			sub_entry_cellular_iface_sms_storage "$1" "$j" "$i" "$usb_id" "$table"
++			j=$((j + 1))
++		}
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_cellular_iface_sms_storage() {
++	local j="$2"
++	local i="$3"
++	local usb_id="$4"
++	local table="$5"
++
++	case_param "$1" belongto "$DMROOT.Cellular.Interface.$i.SMS.Storage.$j." && {
++		local used="$(echo "$table" | jsonfilter -e '@.used')"
++		local total="$(echo "$table" | jsonfilter -e '@.total')"
++
++		local capacity=0
++		local storage="0"
++		if [ -z "$used" ] || [ -z "$total" ] || [ "$used" = "N/A" ] || [ "$total" = "N/A" ]; then
++			capacity="N/A"
++		else
++			[ "$used" -lt "$total" ] && storage="1"
++			capacity=$((total - used))
++		fi
++
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.SMS.Storage.$j." "0"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Storage.$j.Location" "1" \
++			"get_iface_sms_storage_location $usb_id $j" \
++			"set_iface_sms_storage_location $usb_id $j" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Storage.$j.Capacity" "0" \
++			"echo $total" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Storage.$j.StorageAvailable" "0" \
++			"echo $storage" "" "xsd:boolean"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Storage.$j.AvailableCapacity" "0" \
++			"echo $capacity" "" "xsd:string"
++		return 0
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_iface_sms_storage_location() {
++	local usb_id="$1"
++	local j="$2"
++	local i=1
++
++	json_load "$(ubus call api get '{"path":"/messages/storage/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var modem_id modem_id
++		[ "$modem_id" = "$usb_id" ] && {
++			[ "$i" = "$j" ] && {
++				json_get_var msg_storage msg_storage
++				echo "$msg_storage"
++				return 0
++			}
++			i=$((i + 1))
++		}
++		json_select ..
++	done
++}
++
++set_iface_sms_storage_location() {
++	local usb_id="$1"
++	local j="$2"
++	local input="$3"
++	local i=1
++
++	json_load "$(ubus call api get '{"path":"/messages/storage/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var modem_id modem_id
++		[ "$modem_id" = "$usb_id" ] && {
++			[ "$i" = "$j" ] && {
++				json_get_var id id
++				break
++			}
++			i=$((i + 1))
++		}
++		json_select ..
++	done
++
++	json_load "$(ubus call api put \
++		     '{"path":"/messages/storage/config/'$id'","body":{"data":{"msg_storage":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++##############################################
++#  Device.Cellular.Interface.{i}.SMS.Message #
++##############################################
++
++count_iface_sms_message() {
++	local usb_id="$2"
++	local i="$3"
++	local j=1
++	local messages="$(ubus call api get '{"path":"/messages/status"}' | \
++			  jsonfilter -e '@.http_body.data.*')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $messages; do
++		IFS="$OLD_IFS"
++		[ "$(echo "$table" | jsonfilter -e '@.modem_id')" = "$usb_id" ] && {
++			sub_entry_cellular_iface_sms_message "$1" "$j" "$i"
++			j=$((j + 1))
++		}
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_cellular_iface_sms_message() {
++	local j="$2"
++	local i="$3"
++
++	case_param "$1" belongto "$DMROOT.Cellular.Interface.$i.SMS.Message.$j." && {
++		common_execute_method_obj "$DMROOT.Cellular.Interface.$i.SMS.Message.$j." "0"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Message.$j.Sender" "0" \
++			"get_iface_sms_message_value sender" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Message.$j.TimeStamp" "0" \
++			"get_iface_sms_message_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Message.$j.Text" "0" \
++			"get_iface_sms_message_value message" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.Interface.$i.SMS.Message.$j.Status" "0" \
++			"get_iface_sms_message_value status" "" "xsd:string"
++		return 0
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_iface_sms_message_value() {
++	local key="$1"
++
++	echo "$table" | jsonfilter -e '@.'$key''
++}
++
++get_iface_sms_message_time() {
++	echo "$table" | jsonfilter -e '@.date' | sed 's/[[:space:]]/T/g'
++}
++
++################################
++#  Device.Cellular.AccessPoint #
++################################
++
++add_cellular_ap() {
++	local i=0
++
++	json_load_file "/etc/board.json"
++	json_select modems
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var id id
++		break
++	done
++
++	if [ "${keys##* }" = "1" ]; then
++		json_load "$(ubus call api post '{"path":"/interfaces/config","body":
++			     {"data":{"area_type":"wan","proto":"wwan","sim":"1"}}}')"
++	else
++		json_load "$(ubus call api post '{"path":"/interfaces/config","body":
++			     {"data":{"area_type":"wan","proto":"wwan","modem":"'$id'","sim":"1"}}}')"
++	fi
++	json_select http_body
++	json_get_var success success
++	[ "$success" = "0" ] && return $E_INVALID_PARAMETER_VALUE
++
++	json_load "$(ubus call api get '{"path":"/interfaces/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_vars proto id
++		[ "$proto" = "wwan" ] && i=$((i + 1))
++		json_select ..
++	done
++
++	echo "$i"
++}
++
++delete_cellular_ap() {
++	local iface="$1"
++
++	json_load "$(ubus call api delete '{"path":"/interfaces/config/'$iface'"}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++count_cellular_ap_obj() {
++	local i=1
++	local ifaces="$(ubus call api get '{"path":"/interfaces/config"}' | \
++			jsonfilter -e '@.http_body.data.*')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $ifaces; do
++		IFS="$OLD_IFS"
++		[ "$(echo "$table" | jsonfilter -e '@.proto')" = "wwan" ] && {
++			sub_entry_cellular_ap "$1" "$i" "$table"
++			i=$((i + 1))
++		}
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_cellular_ap() {
++	local i="$2"
++	local table="$3"
++
++	case_param "$1" belongto "$DMROOT.Cellular.AccessPoint.$i." && {
++		local iface="$(echo "$table" | jsonfilter -e '@.id')"
++		local enabled="$(echo "$table" | jsonfilter -e '@.enabled')"
++		local modem="$(echo "$table" | jsonfilter -e '@.modem')"
++		local pdptype="$(echo "$table" | jsonfilter -e '@.pdptype')"
++		local sim="$(echo "$table" | jsonfilter -e '@.sim')"
++
++		if [ -n "$enabled" -a "$enabled" -eq 1 ]; then
++			enabled="true"
++		else
++			enabled="false"
++		fi
++
++		case "$pdptype" in
++			"ip")
++				pdptype="4"
++				;;
++			"ipv6")
++				pdptype="6"
++				;;
++			"ipv4v6"|*)
++				pdptype="-1"
++				;;
++		esac
++
++		common_execute_method_obj "$DMROOT.Cellular.AccessPoint.$i." "1" \
++			"" "delete_cellular_ap $iface" ""
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.Enable" "1" \
++			"echo $enabled" "set_ap_enable $iface" "xsd:boolean"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.Name" "0" \
++			"echo $iface" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.APN" "1" \
++			"get_ap_apn $iface" "set_ap_apn $iface" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.Username" "1" \
++			"get_ap_username $iface" "set_ap_value $iface username" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.Password" "1" \
++			"echo " "set_ap_value $iface password" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.Interface" "1" \
++			"get_ap_interface $modem" "set_ap_interface $iface" "xsd:string"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.IPVersion" "1" \
++			"echo $pdptype" "set_ap_ipversion $iface" "xsd:int"
++		common_execute_method_param "$DMROOT.Cellular.AccessPoint.$i.SIM" "1" \
++			"echo $sim" "set_ap_sim $iface" "xsd:unsignedInt"
++		return 0
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++set_ap_enable() {
++	local iface="$1"
++	local input="$2"
++
++	if [ "$input" = "true" ]; then
++		input="1"
++	elif [ "$input" = "false" ]; then
++		input="0"
++	elif [ "$input" != "0" -a "$input" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	json_load "$(ubus call api put '{"path":"/interfaces/config/'$iface'",
++		     "body":{"data":{"enabled":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++get_ap_apn() {
++	local iface="$1"
++
++	json_load "$(ubus call api get '{"path":"/interfaces/status/'$iface'"}')"
++	json_select http_body
++	json_select data
++	json_get_var apn apn
++
++	echo "$apn"
++}
++
++set_ap_apn() {
++	local iface="$1"
++	local input="$2"
++	local key="apn"
++	local lowercase=$(echo "$input" | tr 'A-Z' 'a-z')
++
++	[ "${#input}" -gt 100 ] && return $E_INVALID_PARAMETER_VALUE
++
++	[ -z "$input" ] || [ "$lowercase" = "auto" ] && {
++		key="auto_apn"
++		input="1"
++	}
++
++	json_load "$(ubus call api put '{"path":"/interfaces/config/'$iface'",
++		     "body":{"data":{"'$key'":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++get_ap_username() {
++	local iface="$1"
++
++	config_load network
++	config_get username "$iface" username
++
++	echo "$username"
++}
++
++set_ap_value() {
++	local iface="$1"
++	local key="$2"
++	local input="$3"
++
++	[ "${#input}" -gt 256 ] && return $E_INVALID_PARAMETER_VALUE
++
++	if [ -z "$input" ]; then
++		uci delete network."$iface"."$key"
++	else
++		uci set network."$iface"."$key"="$input"
++	fi
++
++	uci commit
++	ubus call mobifd reload >/dev/null 2>&1
++}
++
++get_ap_interface() {
++	local modem="$1"
++	local i=1
++	local res=""
++
++	local command="/usr/sbin/easycwmp"
++	[ ! -f "$command" ] && command="/usr/local$command"
++
++	while res="$($command get Device.Cellular.Interface.$i.Name)" &&
++	      ! echo "$res" | grep -q 'fault_code'; do
++		json_load "$res"
++		json_get_var value value
++		[ "$value" = "$modem" ] && {
++			json_get_var parameter parameter
++			echo "${parameter%.Name}"
++			return 0
++		}
++		i=$((i + 1))
++	done
++}
++
++set_ap_interface() {
++	local iface="$1"
++	local input="$2"
++
++	local command="/usr/sbin/easycwmp"
++	[ ! -f "$command" ] && command="/usr/local$command"
++
++	json_load "$($command get $input.Name)"
++	json_get_vars fault_code value  >/dev/null 2>&1
++	[ -n "$fault_code" ] && return $E_INVALID_PARAMETER_VALUE
++
++	json_load "$(ubus call api put '{"path":"/interfaces/config/'$iface'",
++		     "body":{"data":{"modem":"'$value'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_ap_ipversion() {
++	local iface="$1"
++	local input="$2"
++
++	case "$input" in
++		"4")
++			input="ip"
++			;;
++		"6")
++			input="ipv6"
++			;;
++		"-1")
++			input="ipv4v6"
++			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE
++			;;
++	esac
++
++	json_load "$(ubus call api put '{"path":"/interfaces/config/'$iface'",
++		     "body":{"data":{"pdptype":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_ap_sim() {
++	local iface="$1"
++	local input="$2"
++
++	json_load "$(ubus call api put '{"path":"/interfaces/config/'$iface'",
++		     "body":{"data":{"sim":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/mobile/mobile_information src/ext/openwrt/scripts/functions/mobile/mobile_information
+--- upstream/ext/openwrt/scripts/functions/mobile/mobile_information	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/mobile/mobile_information	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,245 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -1151,153 +3077,9 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#######################################
 +#   Data model parameters functions   #
 +#######################################
-diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/gps/gps_information src/ext/openwrt/scripts/functions/gps/gps_information
---- upstream/ext/openwrt/scripts/functions/gps/gps_information	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/gps/gps_information	2025-11-20 08:00:05.000000000 +0000
-@@ -0,0 +1,46 @@
-+#!/bin/sh
-+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
-+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
-+
-+#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
-+#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
-+#  Default of $type = string
-+
-+#############################
-+#   Entry point functuons   #
-+#############################
-+
-+prefix_list="$prefix_list $DMROOT.GPSInfo."
-+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_GPSInfo"
-+entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_GPSInfo"
-+
-+entry_execute_method_root_GPSInfo() {
-+	case "$1" in ""|"$DMROOT."|"$DMROOT.GPSInfo."*)
-+                common_execute_method_obj "$DMROOT.GPSInfo." "0"
-+		common_execute_method_param "$DMROOT.GPSInfo.Latitude" "0" "get_latitude" "" "" "1"
-+		common_execute_method_param "$DMROOT.GPSInfo.Longitude" "0" "get_longitude" "" "" "1"
-+		return 0;
-+		;;
-+	esac
-+	return $E_INVALID_PARAMETER_NAME;
-+}
-+
-+#######################################
-+#   Data model parameters functions   #
-+#######################################
-+
-+get_latitude()
-+{
-+        json_load "$(ubus call gpsd position)"
-+        json_get_var received_latitude latitude
-+
-+        echo "$received_latitude"
-+}
-+
-+get_longitude()
-+{
-+        json_load "$(ubus call gpsd position)"
-+        json_get_var received_longitude longitude
-+
-+        echo "$received_longitude"
-+}
-diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/hotspot/hotspot src/ext/openwrt/scripts/functions/hotspot/hotspot
---- upstream/ext/openwrt/scripts/functions/hotspot/hotspot	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/hotspot/hotspot	2025-11-20 08:00:05.000000000 +0000
-@@ -0,0 +1,90 @@
-+#!/bin/sh
-+# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
-+# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
-+
-+#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
-+#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
-+#  Default of $type = string
-+
-+#############################
-+#   Entry point functuons   #
-+#############################
-+. /lib/functions.sh
-+
-+prefix_list="$prefix_list $DMROOT.Hotspot."
-+entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Hotpsot"
-+entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_Hotpsot"
-+OPTION_LIST="IPP;uamlisten AuthMode;_mode LogoutIP;uamlogoutip Network;network \
-+DNS1;dns1 DNS2;dns2 UAMPort;uamport LandingPage;_landingpage"
-+
-+config_load chilli
-+
-+list_foreach(){
-+	[ "$#" -ge 2 ] || return 0
-+	local list=$1; shift
-+	local callback=$1; shift
-+
-+	for element in $list
-+	do
-+		$callback $element $@
-+	done
-+}
-+
-+entry_execute_method_root_Hotpsot() {
-+	case "$1" in ""|"$DMROOT."|"$DMROOT.Hotspot."*)
-+		common_execute_method_obj "$DMROOT.Hotspot." "0"
-+		common_execute_method_obj "$DMROOT.Hotspot.General." "0" "" "" "hotspot_browse_instances $1"
-+
-+		return 0;
-+		;;
-+	esac
-+	return $E_INVALID_PARAMETER_NAME;
-+}
-+
-+#$1 - section name, $2 - option, $3 - true value, $4 - false value
-+Hotspot_Get_Bool() {
-+	local val=`$UCI_GET chilli.$1.$2`
-+
-+	[ "$val" = "1" ] && echo "$3" || echo "$4"
-+}
-+#$1 - section name, $2 - option, $3 - true value, $4 - false value, $5 - value
-+Hotspot_Set_Bool() {
-+	common_set_bool "chilli.$1" "$4" "$2" "$3"
-+	return $?
-+}
-+#$1 - section name, $2 - option
-+Hotspot_Get() {
-+	echo `$UCI_GET chilli.$1.$2`
-+}
-+#$1 - section name, $2 - option, $3 - value
-+Hotspot_Set() {
-+	$UCI_SET chilli.$1.$2=$3
-+	return $?
-+}
-+
-+
-+hotspot_entry(){
-+	name=$(echo $1 | awk 'BEGIN { FS = ";" }; {print $1}')
-+	param=$(echo $1 | awk 'BEGIN { FS = ";" }; {print $2}')
-+	common_execute_method_param "$DMROOT.Hotspot.General.$2.$name" "0" \
-+				"Hotspot_Get $2 $param" "" "" "1"
-+}
-+
-+sub_entry_hotpsot_general(){
-+	case "$2" in ""|"$DMROOT."|"$DMROOT.Hotspot.General.$1"*)
-+		common_execute_method_obj "$DMROOT.Hotspot.General.$1" "0"
-+		common_execute_method_param "$DMROOT.Hotspot.General.$1.Enabled" "1" \
-+				"Hotspot_Get_Bool $1 enabled enabled disabled" \
-+				"Hotspot_Set_Bool $1.enabled 1 0" "xsd:boolean" "1"
-+		common_execute_method_param "$DMROOT.Hotspot.General.$1.Signup" "1" \
-+				"Hotspot_Get_Bool $1 registerusers enabled disabled" "" "xsd:boolean" "1"
-+		list_foreach "$OPTION_LIST" hotspot_entry $1
-+		return 0
-+		;;
-+	esac
-+	return $E_INVALID_PARAMETER_NAME;
-+}
-+
-+hotspot_browse_instances(){
-+	config_foreach sub_entry_hotpsot_general chilli $1
-+}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr098/wan_device src/ext/openwrt/scripts/functions/tr098/wan_device
 --- upstream/ext/openwrt/scripts/functions/tr098/wan_device	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr098/wan_device	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr098/wan_device	2026-02-09 09:48:32.000000000 +0000
 @@ -25,7 +25,7 @@
  sub_entry_wandevice_wanconnectiondevice() {
  	local j="$2"
@@ -1364,56 +3146,1484 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	echo ${val:-1}
  }
  
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr143/tr143 src/ext/openwrt/scripts/functions/tr143/tr143
+--- upstream/ext/openwrt/scripts/functions/tr143/tr143	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr143/tr143	2026-02-09 09:48:32.000000000 +0000
+@@ -0,0 +1,391 @@
++#!/bin/sh
++# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
++# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.IP.Diagnostics.DownloadDiagnostics."
++prefix_list="$prefix_list $DMROOT.IP.Diagnostics.UploadDiagnostics."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_IPDiagnostics"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_IPDiagnostics"
++
++g_download_diagnostics_file="/var/run/easycwmp/tr143_download_diagnostics"
++g_upload_diagnostics_file="/var/run/easycwmp/tr143_upload_diagnostics"
++
++init_download_diagnostics_file() {
++	[ -e "$g_download_diagnostics_file" ] && return
++
++	echo -e "state None\n\
++interface Device.IP.Interface.2\n\
++url \n\
++dscp 0\n\
++rom_time 0000-00-00T00:00:00.000000Z\n\
++bom_time 0000-00-00T00:00:00.000000Z\n\
++eom_time 0000-00-00T00:00:00.000000Z\n\
++test_bytes 0\n\
++total_bytes 0\n\
++connections 1\n\
++duration 0"> "$g_download_diagnostics_file"
++}
++
++init_upload_diagnostics_file() {
++	[ -e "$g_upload_diagnostics_file" ] && return
++
++	echo -e "state None\n\
++interface Device.IP.Interface.2\n\
++url \n\
++dscp 0\n\
++file_len 1\n\
++rom_time 0000-00-00T00:00:00.000000Z\n\
++bom_time 0000-00-00T00:00:00.000000Z\n\
++eom_time 0000-00-00T00:00:00.000000Z\n\
++test_bytes 0\n\
++total_bytes 0\n\
++connections 1\n\
++duration 0"> "$g_upload_diagnostics_file"
++}
++
++entry_execute_method_root_IPDiagnostics() {
++	[ ! -d "/tmp/tr143" ] && {
++		mkdir /tmp/tr143
++		chown easycwmp:easycwmp /tmp/tr143
++	}
++
++	init_download_diagnostics_file
++	init_upload_diagnostics_file
++
++	case "$1" in ""|"$DMROOT."|"$DMROOT.IP."|"$DMROOT.IP.Diagnostics"*)
++		common_execute_method_obj "$DMROOT.IP.Diagnostics." "0"
++		common_execute_method_obj "$DMROOT.IP.Diagnostics.DownloadDiagnostics." "0" "" "" \
++			"sub_entry_DownloadDiagnostics $1"
++		common_execute_method_obj "$DMROOT.IP.Diagnostics.UploadDiagnostics." "0" "" "" \
++			"sub_entry_UploadDiagnostics $1"
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++sub_entry_DownloadDiagnostics() {
++	case_param "$1" belongto "$DMROOT.IP.Diagnostics.DownloadDiagnostics." && {
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.DiagnosticsState" "1" \
++			"get_download_diagnostics_value state" "set_download_diagnostics_state" "xsd:string"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.Interface" "1" \
++			"get_download_diagnostics_value interface" "set_download_diagnostics_iface" "xsd:string"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.DownloadURL" "1" \
++			"get_download_diagnostics_value url" "set_download_diagnostics_url" "xsd:string"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.DSCP" "1" \
++			"get_download_diagnostics_value dscp" "set_download_diagnostics_dscp" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.ROMTime" "0" \
++			"get_download_diagnostics_value rom_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.BOMTime" "0" \
++			"get_download_diagnostics_value bom_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.EOMTime" "0" \
++			"get_download_diagnostics_value eom_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.TestBytesReceived" "0" \
++			"get_download_diagnostics_value test_bytes" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.TotalBytesReceived" "0" \
++			"get_download_diagnostics_value total_bytes" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.DownloadTransports" "0" \
++			"echo HTTP,FTP" "" "xsd:string[]"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.NumberOfConnections" "1" \
++			"get_download_diagnostics_value connections" "set_download_diagnostics_connections" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.DownloadDiagnostics.TimeBasedTestDuration" "1" \
++			"get_download_diagnostics_value duration" "set_download_diagnostics_duration" "xsd:unsignedInt"
++		return 0
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++sub_entry_UploadDiagnostics() {
++	case_param "$1" belongto "$DMROOT.IP.Diagnostics.UploadDiagnostics." && {
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.DiagnosticsState" "1" \
++			"get_upload_diagnostics_value state" "set_upload_diagnostics_state" "xsd:string"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.Interface" "1" \
++			"get_upload_diagnostics_value interface" "set_upload_diagnostics_iface" "xsd:string"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.UploadURL" "1" \
++			"get_upload_diagnostics_value url" "set_upload_diagnostics_url" "xsd:string"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.DSCP" "1" \
++			"get_upload_diagnostics_value dscp" "set_upload_diagnostics_dscp" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.TestFileLength" "1" \
++			"get_upload_diagnostics_value file_len" "set_upload_diagnostics_file_len" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.ROMTime" "0" \
++			"get_upload_diagnostics_value rom_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.BOMTime" "0" \
++			"get_upload_diagnostics_value bom_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.EOMTime" "0" \
++			"get_upload_diagnostics_value eom_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.TestBytesSent" "0" \
++			"get_upload_diagnostics_value test_bytes" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.TotalBytesSent" "0" \
++			"get_upload_diagnostics_value total_bytes" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.UploadTransports" "0" \
++			"echo HTTP,FTP" "" "xsd:string[]"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.NumberOfConnections" "1" \
++			"get_upload_diagnostics_value connections" "set_upload_diagnostics_connections" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.UploadDiagnostics.TimeBasedTestDuration" "1" \
++			"get_upload_diagnostics_value duration" "set_upload_diagnostics_duration" "xsd:unsignedInt"
++		return 0
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++#######################################
++#   Data model parameters functions   #
++#######################################
++
++#
++# DownloadDiagnostics
++#
++
++get_download_diagnostics_value() {
++	local key="$1"
++	local value=""
++
++	value=$(grep "$key" "$g_download_diagnostics_file" | awk '{print $2}')
++
++	echo "$value"
++}
++
++set_download_diagnostics_value() {
++	local key="$1"
++	local value="$2"
++	local script="/usr/libexec/download_diagnostics_init.sh"
++
++	sed -i "s|^$key .*|$key $value|" \
++		$g_download_diagnostics_file
++
++	# Terminate test
++	local pid_list=$(pgrep -f download_diagnostics_init.sh)
++
++	for pid in $pid_list; do
++		kill "$pid" 2>/dev/null
++	done
++
++	local pid_list=$(pgrep -f download_diagnostics.sh)
++
++	for pid in $pid_list; do
++		kill "$pid" 2>/dev/null
++	done
++
++	# Terminate curl command
++	pid_list=$(pgrep -f curl)
++
++	for pid in $pid_list; do
++		kill "$pid" 2>/dev/null
++	done
++
++	local state=$(get_download_diagnostics_value state)
++	[ ! -f "$script" ] && script="/usr/local$script"
++
++	if [ "$state" == "Requested" ]; then
++		# Run Download Diagnostics test
++		"$script" &
++	else
++		[ "$key" != "state" ] && sed -i "s/^state .*/state None/" \
++						 $g_download_diagnostics_file
++	fi
++}
++
++set_download_diagnostics_state() {
++	local input="$1"
++
++	[ "$input" != "Requested" ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_download_diagnostics_value "state" "$input"
++}
++
++set_download_diagnostics_iface() {
++	local input="$1"
++	local command="/usr/sbin/easycwmp"
++
++	[ ! -f "$command" ] && command="/usr/local$command"
++
++	json_load "$($command get $input.Name)"
++	json_get_var res fault_code
++
++	[ "$res" -gt 9000 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_download_diagnostics_value "interface" "$input"
++}
++
++set_download_diagnostics_url() {
++	local input="$1"
++
++	if ! echo "$input" | grep -qE '^ftp://|^http://'; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_download_diagnostics_value "url" "$input"
++}
++
++set_download_diagnostics_dscp() {
++	local input="$1"
++
++	case "$input" in
++		0|8|10|12|14|16|18|20|22|24|26|28|30|32|34|36|38|40|46|48|56)
++			set_download_diagnostics_value "dscp" "$input"
++			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE
++			;;
++	esac
++}
++
++set_download_diagnostics_connections() {
++	local input="$1"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] ||
++	[ "$input" -lt 1 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_download_diagnostics_value "connections" "$input"
++}
++
++set_download_diagnostics_duration() {
++	local input="$1"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] ||
++	[ "$input" -lt 0 ] || [ "$input" -gt 999 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_download_diagnostics_value "duration" "$input"
++}
++
++#
++# UploadDiagnostics
++#
++
++get_upload_diagnostics_value() {
++	local key="$1"
++	local value=""
++
++	value=$(grep "$key" "$g_upload_diagnostics_file" | awk '{print $2}')
++
++	echo "$value"
++}
++
++set_upload_diagnostics_value() {
++	local key="$1"
++	local value="$2"
++	local script="/usr/libexec/upload_diagnostics_init.sh"
++
++	sed -i "s|^$key .*|$key $value|" \
++		$g_upload_diagnostics_file
++
++	# Terminate test
++	local pid_list=$(pgrep -f upload_diagnostics_init.sh)
++
++	for pid in $pid_list; do
++		kill "$pid" 2>/dev/null
++	done
++
++	local pid_list=$(pgrep -f upload_diagnostics.sh)
++
++	for pid in $pid_list; do
++		kill "$pid" 2>/dev/null
++	done
++
++	# Terminate curl command
++	pid_list=$(pgrep -f /var/run/easycwmp/tr143_test_file)
++
++	for pid in $pid_list; do
++		kill "$pid" 2>/dev/null
++	done
++
++	local state=$(get_upload_diagnostics_value state)
++	[ ! -f "$script" ] && script="/usr/local$script"
++
++	if [ "$state" == "Requested" ]; then
++		# Run Upload Diagnostics test
++		"$script" &
++	else
++		[ "$key" != "state" ] && sed -i "s/^state .*/state None/" \
++						 $g_upload_diagnostics_file
++	fi
++}
++
++set_upload_diagnostics_state() {
++	local input="$1"
++
++	[ "$input" != "Requested" ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_upload_diagnostics_value "state" "$input"
++}
++
++set_upload_diagnostics_iface() {
++	local input="$1"
++	local command="/usr/sbin/easycwmp"
++
++	[ ! -f "$command" ] && command="/usr/local$command"
++
++	json_load "$($command get $input.Name)"
++	json_get_var res fault_code
++
++	[ "$res" -gt 9000 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_upload_diagnostics_value "interface" "$input"
++}
++
++set_upload_diagnostics_url() {
++	local input="$1"
++
++	if ! echo "$input" | grep -qE '^ftp://|^http://'; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_upload_diagnostics_value "url" "$input"
++}
++
++set_upload_diagnostics_dscp() {
++	local input="$1"
++
++	case "$input" in
++		0|8|10|12|14|16|18|20|22|24|26|28|30|32|34|36|38|40|46|48|56)
++			set_upload_diagnostics_value "dscp" "$input"
++			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE
++			;;
++	esac
++}
++
++set_upload_diagnostics_file_len() {
++	local input="$1"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] || [ "${#input}" -gt 9 ] &&
++	return $E_INVALID_PARAMETER_VALUE
++
++	# Max file size is at most the size of 40% of available RAM
++	memory=$(df -k | grep tmp | head -n 1 | awk '{print $4}')
++	memory=$((memory * 4 / 10 * 1024))
++
++	[ "$input" -gt "$memory" ] && {
++		logger "[TR-069] UploadDiagnostics: provided file size is too large ($input > $memory)"
++		return $E_INVALID_PARAMETER_VALUE
++	}
++
++	set_upload_diagnostics_value "file_len" "$input"
++}
++
++set_upload_diagnostics_connections() {
++	local input="$1"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] ||
++	[ "$input" -lt 1 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_upload_diagnostics_value "connections" "$input"
++}
++
++set_upload_diagnostics_duration() {
++	local input="$1"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] ||
++	[ "$input" -lt 0 ] || [ "$input" -gt 999 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_upload_diagnostics_value "duration" "$input"
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/dhcpv4 src/ext/openwrt/scripts/functions/tr181/dhcpv4
 --- upstream/ext/openwrt/scripts/functions/tr181/dhcpv4	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/dhcpv4	2025-11-20 08:00:05.000000000 +0000
-@@ -9,6 +9,8 @@
- #   Entry point functions   #
++++ src/ext/openwrt/scripts/functions/tr181/dhcpv4	2026-02-09 09:48:32.000000000 +0000
+@@ -1,388 +1,723 @@
+ #!/bin/sh
+-# Copyright (C) 2016 MOHAMED Kallel <mohamed.kallel@yahoo.fr>
++# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
++# 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
+ 
+ #common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
+ #  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
+ #  Default of $type = string
+ 
+ #############################
+-#   Entry point functions   #
++#   Entry point functuons   #
  #############################
  
-+DHCP_UCI_SHOW="/sbin/uci -X -q ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} show"
-+
  prefix_list="$prefix_list $DMROOT.DHCPv4."
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DHCPv4"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_DHCPv4"
++
++##################
++#  Device.DHCPv4 #
++##################
  
-@@ -44,7 +46,7 @@
+ entry_execute_method_root_DHCPv4() {
+ 	case "$1" in ""|"$DMROOT."|"$DMROOT.DHCPv4."*)
+ 		common_execute_method_obj "$DMROOT.DHCPv4." "0"
+ 		common_execute_method_obj "$DMROOT.DHCPv4.Server." "0"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Enable" "1" "dhcpv4server_get_Enable" "dhcpv4server_set_Enable" "xsd:boolean"
+-		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool." "1" "add_dhcpv4server_pool" "" "dhcp_pool_browse_instances $1"
+-		return 0
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Enable" "1" \
++			"get_dhcpv4_server_enable" "set_dhcpv4_server_enable" "xsd:boolean"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.PoolNumberOfEntries" "0" \
++			"get_dhcpv4_server_pool_noe" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.StaticAddressNumberOfEntries" "0" \
++			"get_dhcpv4_server_static_addr_noe" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool." "1" \
++			"add_dhcpv4_server_pool" "" "count_dhcpv4_server_pool_obj $1"
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.StaticAddress." "1" \
++			"add_dhcpv4_server_static_addr" "" "count_dhcpv4_server_static_addr_obj $1"
++		return 0;
+ 		;;
+ 	esac
++
+ 	return $E_INVALID_PARAMETER_NAME;
  }
  
- dhcp_pool_get_max_instance() {
+-sub_entry_DHCPv4_Server_Pool() {
+-	local j="$2"
+-	local pool="$3"
+-	case_param "$1" belongto "$DMROOT.DHCPv4.Server.Pool.$j." && {
+-		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$j." "1" "" "del_dhcpv4server_pool $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.Enable" "1" "dhcpv4server_pool_get_Enable $pool" "dhcpv4server_pool_set_Enable $pool" "xsd:boolean"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.Status" "0" "dhcpv4server_pool_get_Status $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.Interface" "1" "dhcpv4server_pool_get_Interface $pool" "dhcpv4server_pool_set_Interface $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.MinAddress" "1" "dhcpv4server_pool_get_MinAddress $pool" "dhcpv4server_pool_set_MinAddress $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.MaxAddress" "1" "dhcpv4server_pool_get_MaxAddress $pool" "dhcpv4server_pool_set_MaxAddress $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.SubnetMask" "1" "dhcpv4server_pool_get_SubnetMask $pool" "dhcpv4server_pool_set_SubnetMask $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.DNSServers" "1" "dhcpv4server_pool_get_DNSServers $pool" "dhcpv4server_pool_set_DNSServers $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.IPRouters" "1" "dhcpv4server_pool_get_IPRouters $pool" "dhcpv4server_pool_set_IPRouters $pool"
+-		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$j.LeaseTime" "1" "dhcpv4server_pool_get_LeaseTime $pool" "dhcpv4server_pool_set_LeaseTime $pool" "xsd:int"
++get_dhcpv4_server_enable() {
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var enable enable_dhcpv4
++		[ "$enable" = "1" ] && {
++			echo "1"
++			return 0
++		}
++		json_select ..
++	done
++
++	echo "0"
++}
++
++set_dhcpv4_server_enable() {
++	local input="$1"
++
++	if [ "$input" = "true" ]; then
++		input=1
++	elif [ "$input" = "false" ]; then
++		input=0
++	elif [ "$input" != "1" -a "$input" != "0" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_var id id
++		ubus call api put '{"path":"/dhcp/servers/ipv4/config/'$id'",
++			"body":{"data":{"enable_dhcpv4":"'$input'"}}}' >/dev/null 2>&1
++		json_select ..
++	done
++}
++
++get_dhcpv4_server_pool_noe() {
++	local res=0
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		res=$((res + 1))
++		json_select ..
++	done
++
++	echo "$res"
++}
++
++get_dhcpv4_server_static_addr_noe() {
++	local instance=0
++
++	json_load "$(ubus call api get '{"path":"/dhcp/static_leases/ipv4/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		instance=$((instance + 1))
++	done
++
++	echo "$instance"
++}
++
++# ################################################
++# #  Device.DHCPv4.Server.Pool.{i}.StaticAddress #
++# ################################################
++
++add_dhcpv4_server_static_addr() {
++	local instance=0
++
++	json_load "$(ubus call api post '{"path":"/dhcp/static_leases/ipv4/config","body":{"data":{}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" != "1" ]; then
++		return $return $E_REQUEST_DENIED
++	fi
++
++	json_load "$(ubus call api get '{"path":"/dhcp/static_leases/ipv4/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		instance=$((instance + 1))
++	done
++
++	echo "$instance"
++}
++
++delete_dhcpv4_server_static_addr() {
++	local id="$1"
++
++	json_load "$(ubus call api delete '{"path":"/dhcp/static_leases/ipv4/config/'$id'"}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
+ 		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++count_dhcpv4_server_static_addr_obj() {
++	local i=1
++	local addresses="$(ubus call api get '{"path":"/dhcp/static_leases/ipv4/config"}' | \
++			   jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $addresses; do
++		IFS="$OLD_IFS"
++		sub_entry_dhcpv4_server_static_addr "$1" "$i" "$table"
++		i=$((i + 1))
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_dhcpv4_server_static_addr() {
++	local i="$2"
++	local table="$3"
++
++	case_param "$1" belongto "$DMROOT.DHCPv4.Server.StaticAddress.$i." && {
++		local id="$(echo "$table" | jsonfilter -e '@.id')"
++		local chaddr="$(echo "$table" | jsonfilter -e '@.mac')"
++		local yiaddr="$(echo "$table" | jsonfilter -e '@.ip')"
++
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.StaticAddress.$i." "1" \
++			"" "delete_dhcpv4_server_static_addr $id" ""
++		common_execute_method_param "$DMROOT.DHCPv4.Server.StaticAddress.$i.Chaddr" "1" \
++			"echo $chaddr" "set_dhcpv4_server_static_addr $id mac" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.StaticAddress.$i.Yiaddr" "1" \
++			"echo $yiaddr" "set_dhcpv4_server_static_addr $id ip" "xsd:string"
++		return 0;
+ 	}
+-	return $E_INVALID_PARAMETER_NAME;		
++
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++set_dhcpv4_server_static_addr() {
++	local id="$1"
++	local key="$2"
++	local input="$3"
++
++	json_load "$(ubus call api put '{"path":"/dhcp/static_leases/ipv4/config/'$id'",
++		     "body":{"data":{"'$key'":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi	
+ }
+ 
+-dhcp_pool_get_max_instance() {
 -	local max=`$UCI_SHOW -X dhcp | grep "dhcp_pool_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
-+	local max=`$DHCP_UCI_SHOW dhcp | grep "dhcp_pool_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
- 	echo ${max:-0}
+-	echo ${max:-0}
++##############################
++#  Device.DHCPv4.Server.Pool #
++##############################
++
++add_dhcpv4_server_pool() {
++	local ifaces=""
++	local res=$E_INVALID_PARAMETER_VALUE
++	local i=0
++
++	json_load "$(ubus call api get '{"path":"/interfaces/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_vars id proto
++		[ "$proto" = "static" ] && ifaces="${ifaces}${id} " 
++		json_select ..
++	done
++
++	for iface in $ifaces; do
++		json_load "$(ubus call api post '{"path":"/dhcp/servers/ipv4/config",
++			"body":{"data":{"id":"'$iface'"}}}')"
++		json_select http_body
++		json_get_var success success
++		[ "$success" = "1" ] && {
++			res=0
++			break
++		}
++	done
++
++	[ "$res" -eq $E_INVALID_PARAMETER_VALUE ] && return "$res"
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		i=$((i + 1))
++	done
++
++	echo "$i"
  }
  
-@@ -60,7 +62,7 @@
+-dhcp_pool_update_instance() {
+-	local pool="$1"
+-	local instance=`$UCI_GET $pool.dhcp_pool_instance`
+-	if [ -z "$instance" ]; then
+-		instance=`dhcp_pool_get_max_instance`
+-		$UCI_SET $pool.dhcp_pool_instance=$((++instance))
+-		$UCI_COMMIT
++delete_dhcpv4_server_pool() {
++	local iface="$1"
++
++	json_load "$(ubus call api delete '{"path":"/dhcp/servers/ipv4/config/'$iface'"}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
+ 	fi
+-	echo $instance
  }
  
- dhcp_pool_browse_instances() {
+-dhcp_pool_browse_instances() {
 -	local pool pools=`$UCI_SHOW -X dhcp | grep "dhcp\..*=dhcp" | cut -d "=" -f 1`
-+	local pool pools=`$DHCP_UCI_SHOW dhcp | grep "dhcp\..*=dhcp" | cut -d "=" -f 1`
- 	for pool in $pools; do
- 		local j=`dhcp_pool_update_instance $pool`
- 		sub_entry_DHCPv4_Server_Pool  "$1" "$j" "$pool"
-@@ -385,4 +387,3 @@
- 	$UCI_SET $1.leasetime=$leasetime"m"
- 	return 0
+-	for pool in $pools; do
+-		local j=`dhcp_pool_update_instance $pool`
+-		sub_entry_DHCPv4_Server_Pool  "$1" "$j" "$pool"
++count_dhcpv4_server_pool_obj() {
++	local i=1
++	local servers="$(ubus call api get '{"path":"/dhcp/servers/ipv4/config"}' | \
++			 jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $servers; do
++		IFS="$OLD_IFS"
++		sub_entry_dhcpv4_server_pool "$1" "$i" "$table"
++		i=$((i + 1))
++		IFS=$'\n'
+ 	done
++	IFS="$OLD_IFS"
  }
+ 
+-add_dhcpv4server_pool() {
+-	local instance=`dhcp_pool_get_max_instance`
+-	local section=`$UCI_ADD  dhcp dhcp`
+-	$UCI_SET dhcp.$section.dhcp_pool_instance=$((++instance))
+-	$UCI_COMMIT
+-	echo $instance
++sub_entry_dhcpv4_server_pool() {
++	local i="$2"
++	local table="$3"
++
++	case_param "$1" belongto "$DMROOT.DHCPv4.Server.Pool.$i." && {
++		local iface="$(echo "$table" | jsonfilter -e '@.id')"
++		local enable="$(echo "$table" | jsonfilter -e '@.enable_dhcpv4')"
++		local minaddr="$(echo "$table" | jsonfilter -e '@.start_ip')"
++		local maxaddr="$(echo "$table" | jsonfilter -e '@.end_ip')"
++		local netmask="$(echo "$table" | jsonfilter -e '@.netmask')"
++		local dnsserver="$(echo "$table" | jsonfilter -e '@.dhcp_option[*]' | grep '^6,' | sed 's/^6,//')"
++		local domainname="$(echo "$table" | jsonfilter -e '@.dhcp_option[*]' | grep '^15,' | sed 's/^15,//')"
++		local iprouters="$(echo "$table" | jsonfilter -e '@.dhcp_option[*]' | grep '^3,' | sed 's/^3,//')"
++		local winsservers="$(echo "$table" | jsonfilter -e '@.dhcp_option[*]' | grep '^44,' | sed 's/^44,//')"
++		local leasetime="$(echo "$table" | jsonfilter -e '@.leasetime')"
++
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i." "1" \
++			"" "delete_dhcpv4_server_pool $iface"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Enable" "1" \
++			"echo $enable" "set_dhcpv4_server_pool_enable $iface" "xsd:boolean"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Status" "0" \
++			"get_dhcpv4_server_pool_status $iface" "" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Interface" "0" \
++			"get_dhcpv4_server_pool_iface $iface" "" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.MinAddress" "1" \
++			"echo $minaddr" "set_dhcpv4_server_pool_string45 $iface start_ip" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.MaxAddress" "1" \
++			"echo $maxaddr" "set_dhcpv4_server_pool_string45 $iface end_ip" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.SubnetMask" "1" \
++			"echo $netmask" "set_dhcpv4_server_pool_string45 $iface netmask" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.DNSServers" "1" \
++			"echo $dnsserver" "set_dhcpv4_server_pool_option $iface 6," "xsd:string[]"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.DomainName" "1" \
++			"echo $domainname" "set_dhcpv4_server_pool_option $iface 15," "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.IPRouters" "1" \
++			"echo $iprouters" "set_dhcpv4_server_pool_option $iface 3," "xsd:string[]"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.WINSServers" "1" \
++			"echo $winsservers" "set_dhcpv4_server_pool_option $iface 44," "xsd:string[]"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.LeaseTime" "1" \
++			"echo $leasetime" "set_dhcpv4_server_pool_value $iface leasetime" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.OptionNumberOfEntries" "0" \
++			"get_dhcpv4_server_pool_option_noe $iface" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.ClientNumberOfEntries" "0" \
++			"get_dhcpv4_server_pool_client_noe $iface" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i.Option." "1" \
++			"add_dhcpv4_server_pool_option $iface" "" \
++			"count_dhcpv4_server_pool_option $1 $iface $i"
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i.Client." "0" \
++			"" "" "count_dhcpv4_server_pool_client $1 $iface $i"
++		return 0;
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
+ }
+ 
+-del_dhcpv4server_pool() {
+-	local pool="$1"
+-	$UCI_DELETE $pool
+-	$UCI_COMMIT
+-	return 0
++set_dhcpv4_server_pool_value() {
++	local iface="$1"
++	local key="$2"
++	local input="$3"
++
++	json_load "$(ubus call api put '{"path":"/dhcp/servers/ipv4/config/'$iface'",
++		     "body":{"data":{"'$key'":"'$input'"}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
+ }
+ 
+-dhcpv4server_get_Enable() {
+-	[ -f /etc/rc.d/*dnsmasq ] && echo "1" || echo "0"
++set_dhcpv4_server_pool_enable() {
++	local iface="$1"
++	local input="$2"
++
++	if [ "$input" = "true" ]; then
++		input=1
++	elif [ "$input" = "false" ]; then
++		input=0
++	elif [ "$input" != "1" -a "$input" != "0" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_dhcpv4_server_pool_value "$iface" enable_dhcpv4 "$input"
+ }
+ 
+-dhcpv4server_set_Enable() {
+-	local val=`echo "$1" | tr '[A-Z]' '[a-z]'`
+-	if [ "$val" = "1" -o "$val" = "true" ]; then
+-		/etc/init.d/dnsmasq enable
+-		/etc/init.d/dnsmasq start
++get_dhcpv4_server_pool_status() {
++	local iface="$1"
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/status"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++	for var in $keys; do
++		json_select "$var"
++		json_get_vars id running errors
++		[ "$id" = "$iface" ] && break
++		json_select ..
++	done
++
++	if [ "$running" -eq 0 ]; then
++		echo "Disabled"
+ 	else
+-		/etc/init.d/dnsmasq disable
+-		/etc/init.d/dnsmasq stop
++		if [ -n "$errors" ]; then
++			echo "Error"
++		else
++			echo "Enabled"
++		fi
+ 	fi
+-	return 0
+ }
+ 
+-dhcpv4server_pool_get_Enable() {
+-	local val=`$UCI_GET $1.ignore`
+-	[ "$val" = "1" ] && echo "0" || echo "1"
+-}
 -
+-dhcpv4server_pool_set_Enable() {
+-	local ret
+-	common_set_bool "$1.ignore" "$2" "" "1"
+-	ret=$?
+-	return $ret
+-}
+-
+-dhcpv4server_pool_get_Status() {
+-	local val=`$UCI_GET $1.ignore`
+-	[ "$val" = "1" ] && echo "Disabled" || echo "Enabled"
+-}
+-
+-dhcpv4server_pool_get_Interface() {
+-	local network=`$UCI_GET $1.interface`
+-	local instance=`$UCI_GET network.$network.ip_int_instance`
+-	[ "$instance" != "" ] && echo "$DMROOT.IP.Interface.$instance."
+-}
+-
+-dhcpv4server_pool_set_Interface() {
+-	local tmp=${2#$DMROOT.IP.Interface.}
+-	[ "$tmp" = "$2" ] && return
+-	local instance=${tmp%.}
+-	[ "$tmp" = "$instance" ] && return
+-	local network=`$UCI_SHOW -X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
+-	$UCI_SET $1.interface=$network
+-	return 0
+-}
+-
+-dhcpv4server_pool_get_MinAddress() {
+-	local ip mask res address interface
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0
+-	ip=`$UCI_GET network.$interface.ipaddr`
+-	mask=`$UCI_GET network.$interface.netmask`
+-	if [ "$ip" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		[ "$res" = "" ] && return 0
+-		json_init
+-		json_load "$res" >&2
+-		json_select "ipv4-address" >&2
+-		json_select "1" >&2
+-		json_get_var address address >&2
+-		json_get_var mask mask >&2
+-		ip=$address
+-		[ "$mask" != "" ] && mask=`cdr2mask $mask`
+-	fi
+-	[ "$ip" = "" ] && { echo "0.0.0.0"; return 0; }
+-	[ "$mask" = "" ] && mask="255.255.255.0"
+-	local min=`$UCI_GET $1.start`
+-	min=${min:-0}
+-	ip=`ipstr2int $ip`
+-	mask=`ipstr2int $mask`
+-	ip=$((ip&mask))
+-	let ip+=$min
+-	ip=`int2ipstr $ip`
+-	echo $ip
+-}
+-
+-dhcpv4server_pool_get_MaxAddress() {
+-	local ip mask res address interface
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0
+-	ip=`$UCI_GET network.$interface.ipaddr`
+-	mask=`$UCI_GET network.$interface.netmask`
+-	if [ "$ip" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		[ "$res" = "" ] && return 0
+-		json_init
+-		json_load "$res" >&2
+-		json_select "ipv4-address" >&2
+-		json_select "1" >&2
+-		json_get_var address address >&2
+-		json_get_var mask mask >&2
+-		ip=$address
+-		[ "$mask" != "" ] && mask=`cdr2mask $mask`
+-	fi
+-	[ "$ip" = "" ] && { echo "0.0.0.0"; return 0; }
+-	[ "$mask" = "" ] && mask="255.255.255.0"
+-	local min=`$UCI_GET $1.start`
+-	local max=`$UCI_GET $1.limit`
+-	min=${min:-0}
+-	max=${max:-0}
+-	ip=`ipstr2int $ip`
+-	mask=`ipstr2int $mask`
+-	ip=$((ip&mask))
+-	let ip+=$min+$max
+-	ip=`int2ipstr $ip`
+-	echo $ip
+-}
+-
+-dhcpv4server_pool_set_MinAddress() {
+-	local ip mask res address interface min omin max
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0;
+-	mask=`$UCI_GET network.$interface.netmask`
+-	if [ "$mask" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		if [ "$res" != "" ]; then
+-			json_init
+-			json_load "$res" >&2
+-			json_select "ipv4-address" >&2
+-			json_select "1" >&2
+-			json_get_var mask mask >&2
+-			[ "$mask" != "" ] && mask=`cdr2mask $mask`
+-		fi
++get_dhcpv4_server_pool_iface() {
++	local iface="$1"
++	local i=1
++	local res=""
++
++	local command="/usr/sbin/easycwmp"
++	[ ! -f "$command" ] && command="/usr/local$command"
++
++	while res="$($command get Device.IP.Interface.$i.Name)" &&
++	      ! echo "$res" | grep -q 'fault_code'; do
++		json_load "$res"
++		json_get_var value value
++		[ "$value" = "$iface" ] && {
++			json_get_var parameter parameter
++			echo "${parameter%.Name}"
++			return 0
++		}
++		i=$((i + 1))
++	done
++}
++
++set_dhcpv4_server_pool_string45() {
++	local iface="$1"
++	local key="$2"
++	local input="$3"
++
++	[ "${#input}" -gt 45 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_dhcpv4_server_pool_value "$iface" "$key" "$input"
++}
++
++set_dhcpv4_server_pool_option() {
++	local iface="$1"
++	local tag="$2"
++	local input="$3"
++	local options="["
++
++	# DNSServers, IPRouters and WINSServers length can be at most 45
++	[ "$tag" = "3," -o "$tag" = "6," -o "$tag" = "44," ] &&
++	[ "${#input}" -gt 45 ] && return $E_INVALID_PARAMETER_VALUE
++
++	# DomainName length can be at most 64
++	[ "$tag" = "15," ] && [ "${#input}" -gt 64 ] && return $E_INVALID_PARAMETER_VALUE
++
++	# DNSServers and IPRoutes lists can have up to 4 items
++	[ "$tag" = "3," -o "$tag" = "6," ] &&
++	[ "$(echo "$input" | awk -F',' '{print NF-1}')" -gt 3 ] &&
++	return $E_INVALID_PARAMETER_VALUE
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config/'$iface'"}')"
++	json_select http_body
++	json_select data
++	json_select dhcp_option >/dev/null 2>&1
++	[ "$?" -eq 0 ] && {
++		json_get_keys keys
++		for var in $keys; do
++			json_get_var value "$var"
++			! echo "$value" | grep -q "^$tag" && options="${options}\"${value}\","
++		done
++	}
++
++	if [ -n "$input" ]; then
++		options="${options}\"${tag}${input}\"]"
++	else
++		options="${options%?}]"
+ 	fi
+-	[ "$mask" = "" ] && mask="255.255.255.0"
+-	omin=`$UCI_GET $1.start`
+-	omin=${omin:-0}
+-	max=`$UCI_GET $1.limit`
+-	max=${max:-0}
+-	mask=`ipstr2int $mask`
+-	ip=`ipstr2int $2`
+-	min=$((ip&~mask))
+-	max=$((max+omin-min))
+-	$UCI_SET $1.start=$min
+-	$UCI_SET $1.limit=$max
+-	return 0
+-}
+-
+-dhcpv4server_pool_set_MaxAddress() {
+-	local ip mask res address interface min max
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0;
+-	mask=`$UCI_GET network.$interface.netmask`
+-	if [ "$mask" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		if [ "$res" != "" ]; then
+-			json_init
+-			json_load "$res" >&2
+-			json_select "ipv4-address" >&2
+-			json_select "1" >&2
+-			json_get_var mask mask >&2
+-			[ "$mask" != "" ] && mask=`cdr2mask $mask`
+-		fi
++
++	json_load "$(ubus call api put '{"path":"/dhcp/servers/ipv4/config/'$iface'",
++		     "body":{"data":{"dhcp_option":'$options'}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
+ 	fi
+-	[ "$mask" = "" ] && mask="255.255.255.0"
+-	min=`$UCI_GET $1.start`
+-	min=${min:-0}
+-	
+-	mask=`ipstr2int $mask`
+-	ip=`ipstr2int $2`
+-	max=$((ip&~mask))
+-	max=$((max-min))
+-	$UCI_SET $1.limit=$max
+-	return 0
+-}
+-
+-dhcp_get_option_byid()
+-{
+-	local pool=$1
+-	local oid=$2
+-	local option options=`$UCI_GET $1.dhcp_option`
+-	for option in $options; do
+-		[ "$oid" = "${option%%,*}" ] && { echo ${option#*,}; return 0; }
+-	done
+-}
+-
+-dhcp_set_option_byid()
+-{
+-	local pool=$1
+-	local oid=$2
+-	local val=$3
+-	local option options=`$UCI_GET $1.dhcp_option`
+-	for option in $options; do
+-		[ "$oid" = "${option%%,*}" ] && { $UCI_DEL_LIST $1.dhcp_option=$option ; break; }
+-	done
+-	$UCI_ADD_LIST $1.dhcp_option="$oid,$val"
+-	return 0
+-}
+-
+-dhcpv4server_pool_get_SubnetMask()
+-{
+-	local res
+-	local mask=`dhcp_get_option_byid "$1" 1`
+-	[ "$mask" != "" ] && { echo $mask; return 0; }
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0;
+-	mask=`$UCI_GET network.$interface.netmask`
+-	if [ "$mask" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		[ "$res" = "" ] && return 0
+-		json_init
+-		json_load "$res" >&2
+-		json_select "ipv4-address" >&2
+-		json_select "1" >&2
+-		json_get_var mask mask >&2
+-		[ "$mask" != "" ] && mask=`cdr2mask $mask`
+-	fi
+-	echo $mask
+-}
+-
+-dhcpv4server_pool_set_SubnetMask()
+-{
+-	[ "$2" = "" ] && return 0;
+-	dhcp_set_option_byid "$1" 1 "$2"
+-	return 0
+-}
+-
+-dhcpv4server_pool_get_DNSServers()
+-{
+-	local res type
+-	local dns=`dhcp_get_option_byid "$1" 6`
+-	[ "$dns" != "" ] && { echo $dns; return 0; }
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0;
+-	dns=`$UCI_GET network.$interface.dns`
+-	dns=${dns//,/ }
+-	if [ "$dns" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		[ "$res" = "" ] && return 0
+-		json_init
+-		json_load "$res" >&2
+-		json_select "dns-server" >&2
+-		local Index="1"
+-		while json_get_type type $Index && [ "$type" = string ]; do
+-			json_get_var arrvar "$((Index++))" >&2
+-			dns="$dns,$arrvar"
++}
++
++get_dhcpv4_server_pool_option_noe() {
++	local iface="$1"
++	local count=0
++
++	for option in $(uci_get dhcp $iface dhcp_option); do
++		count=$((count + 1))
++	done
++
++	echo "$count"
++}
++
++get_dhcpv4_server_pool_client_noe() {
++	local iface="$1"
++	local count=0
++
++	json_load "$(ubus call api get '{"path":"/dhcp/leases/ipv4/status"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys >/dev/null 2>&1
++	[ "$?" -eq 0 ] && {
++		for var in $keys; do
++			json_select "$var"
++			json_get_var interface interface
++			[ "$interface" = "$iface" ] && count=$((count + 1))
++			json_select ..
++		done
++	}
++
++	echo "$count"
++}
++
++#########################################
++#  Device.DHCPv4.Server.Pool.{i}.Option #
++#########################################
++
++add_dhcpv4_server_pool_option() {
++	local iface="$1"
++	local options="["
++	local i=0
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config/'$iface'"}')"
++	json_select http_body
++	json_select data
++	json_select dhcp_option >/dev/null 2>&1
++	[ "$?" -eq 0 ] && {
++		json_get_keys keys
++		for var in $keys; do
++			json_get_var value "$var"
++			options="${options}\"${value}\","
++			i=$((i + 1))
+ 		done
+-		dns=${dns#,}
++	}
++
++	options="${options}\"0,0\"]"
++	i=$((i + 1))
++
++	json_load "$(ubus call api put '{"path":"/dhcp/servers/ipv4/config/'$iface'",
++		     "body":{"data":{"dhcp_option":'$options'}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		echo "$i"
++		return 0
++	else
++		# There can be only one default format '0,0' entry - it has to be modified or
++		# deleted before adding new .Option object
++		return $E_REQUEST_DENIED
+ 	fi
+-	echo $dns
+ }
+ 
+-dhcpv4server_pool_set_DNSServers()
+-{
+-	[ "$2" = "" ] && return 0;
+-	dhcp_set_option_byid "$1" 6 "$2"
+-	return 0
+-}
+-
+-dhcpv4server_pool_get_IPRouters()
+-{
+-	local res
+-	local gw=`dhcp_get_option_byid "$1" 3`
+-	[ "$gw" != "" ] && { echo $gw; return 0; }
+-	local interface=`$UCI_GET $1.interface`
+-	[ "$interface" = "" ] && return 0;
+-	gw=`$UCI_GET network.$interface.ipaddr`
+-	if [ "$gw" = "" ]; then
+-		res=`ubus call network.interface.$interface status`
+-		[ "$res" = "" ] && return 0
+-		json_init
+-		json_load "$res" >&2
+-		json_select "ipv4-address" >&2
+-		json_select "1" >&2
+-		json_get_var gw address >&2
+-	fi
+-	echo $gw
+-}
+-
+-dhcpv4server_pool_set_IPRouters()
+-{
+-	[ "$2" = "" ] && return 0;
+-	dhcp_set_option_byid "$1" 3 "$2"
+-	return 0
+-}
+-
+-dhcpv4server_pool_get_LeaseTime()
+-{
+-	local leasetime dy hr mn
+-	leasetime=`$UCI_GET $1.leasetime`
+-	dy=${leasetime%d*}
+-	[ "$dy" = "$leasetime" ] && dy=0
+-	leasetime=${leasetime#*d}
+-	hr=${leasetime%h*}
+-	[ "$hr" = "$leasetime" ] && hr=0
+-	leasetime=${leasetime#*h}
+-	mn=${leasetime%m}
+-	[ "$mn" = "$leasetime" ] && mn=0
+-	leasetime=$((dy*24*60*60+hr*60*60+mn*60))
+-	echo $leasetime
+-}
+-
+-dhcpv4server_pool_set_LeaseTime()
+-{
+-	[ "$2" = "" ] && return 0;
+-	local leasetime=$2
+-	leasetime=$((leasetime/60))
+-	$UCI_SET $1.leasetime=$leasetime"m"
+-	return 0
++delete_dhcpv4_server_pool_option() {
++	local j="$1"
++	local iface="$2"
++	local options="["
++	local i=1
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config/'$iface'"}')"
++	json_select http_body
++	json_select data
++	json_select dhcp_option >/dev/null 2>&1
++	[ "$?" -eq 0 ] && {
++		json_get_keys keys
++		for var in $keys; do
++			json_get_var value "$var"
++			[ "$i" -ne "$j" ] && options="${options}\"${value}\","
++			i=$((i + 1))
++		done
++	}
++
++	options="${options%?}]"
++
++	json_load "$(ubus call api put '{"path":"/dhcp/servers/ipv4/config/'$iface'",
++		     "body":{"data":{"dhcp_option":'$options'}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++count_dhcpv4_server_pool_option() {
++	local iface="$2"
++	local i="$3"
++	local j=1
++
++	for option in $(uci_get dhcp $iface dhcp_option); do
++		sub_entry_dhcpv4_server_pool_option "$1" "$i" "$j" "$iface" "$option"
++		j=$((j + 1))
++	done
++}
++
++sub_entry_dhcpv4_server_pool_option() {
++	local i="$2"
++	local j="$3"
++	local iface="$4"
++	local option="$5"
++
++	case_param "$1" belongto "$DMROOT.DHCPv4.Server.Pool.$i.Option.$j." && {
++		local tag="${option%%,*}"
++		local value="${option#*,}"
++
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i.Option.$j." "1" \
++			"" "delete_dhcpv4_server_pool_option $j $iface $option" ""
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Option.$j.Tag" "1" \
++			"echo $tag" "set_dhcpv4_server_pool_option_tag $j $iface" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Option.$j.Value" "1" \
++			"echo $value" "set_dhcpv4_server_pool_option_value $j $iface" "xsd:string"
++		return 0;
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
+ }
+ 
++set_dhcpv4_server_pool_option_tag() {
++	local j="$1"
++	local iface="$2"
++	local input="$3"
++	local options="["
++	local i=1
++
++	[ -z "$input" ] || ! echo "$input" | grep -qE '^[0-9]+$' ||
++	[ "$input" -lt 1 ] || [ "$input" -gt 254 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_dhcpv4_server_pool_option_opt "$j" "$iface" "$input" 0
++}
++
++set_dhcpv4_server_pool_option_value() {
++	local j="$1"
++	local iface="$2"
++	local input="$3"
++	local options="["
++	local i=1
++
++	[ -z "$input" ] || [ "${#input}" -gt 255 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_dhcpv4_server_pool_option_opt "$j" "$iface" "$input" 1
++}
++
++set_dhcpv4_server_pool_option_opt() {
++	local j="$1"
++	local iface="$2"
++	local input="$3"
++	local enum="$4"
++	local options="["
++	local i=1
++
++	json_load "$(ubus call api get '{"path":"/dhcp/servers/ipv4/config/'$iface'"}')"
++	json_select http_body
++	json_select data
++	json_select dhcp_option >/dev/null 2>&1
++	json_get_keys keys
++	for var in $keys; do
++		json_get_var value "$var"
++		if [ "$i" -eq "$j" ]; then
++			# Checking enum, 0 - tag, 1 - value
++			if [ "$enum" -eq 0 ]; then
++				options="${options}\"${input},${value#*,}\","
++			else
++				options="${options}\"${value%%,*},${input}\","
++			fi
++		else
++			options="${options}\"${value}\","
++		fi
++		i=$((i + 1))
++	done
++
++	options="${options%?}]"
++
++	json_load "$(ubus call api put '{"path":"/dhcp/servers/ipv4/config/'$iface'",
++		     "body":{"data":{"dhcp_option":'$options'}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++#########################################
++#  Device.DHCPv4.Server.Pool.{i}.Client #
++#########################################
++
++count_dhcpv4_server_pool_client() {
++	local iface="$2"
++	local i="$3"
++	local j=1
++	local clients="$(ubus call api get '{"path":"/dhcp/leases/ipv4/status"}' | \
++			 jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $clients; do
++		IFS="$OLD_IFS"
++		[ "$(echo "$table" | jsonfilter -e '@.interface')" = "$iface" ] && {
++			sub_entry_dhcpv4_server_pool_client "$1" "$i" "$j" "$table"
++			j=$((j + 1))
++		}
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_dhcpv4_server_pool_client() {
++	local i="$2"
++	local j="$3"
++	local table="$4"
++
++	case_param "$1" belongto "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j." && {
++		local chaddr="$(echo "$table" | jsonfilter -e '@.macaddr')"
++		local ipaddress="$(echo "$table" | jsonfilter -e '@.ipaddr')"
++		local lease="$(echo "$table" | jsonfilter -e '@.expires')"
++
++		local now=$(date +%s)
++		lease=$((now + lease))
++		lease=$(date -u -d "@$lease" +"%Y-%m-%dT%H:%M:%SZ")
++
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j." "0"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.Chaddr" "0" \
++			"echo $chaddr" "" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.Active" "0" \
++			"echo 1" "" "xsd:boolean"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.IPv4AddressNumberOfEntries" "0" \
++			"echo 1" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.IPv4Address." "0"
++		common_execute_method_obj "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.IPv4Address.1." "0"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.IPv4Address.1.IPAddress" "0" \
++			"echo $ipaddress" "" "xsd:string"
++		common_execute_method_param "$DMROOT.DHCPv4.Server.Pool.$i.Client.$j.IPv4Address.1.LeaseTimeRemaining" "0" \
++			"echo $lease" "" "xsd:dateTime"
++		return 0;
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ip src/ext/openwrt/scripts/functions/tr181/ip
 --- upstream/ext/openwrt/scripts/functions/tr181/ip	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/ip	2025-11-20 08:00:05.000000000 +0000
-@@ -12,9 +12,10 @@
++++ src/ext/openwrt/scripts/functions/tr181/ip	2026-02-09 09:48:32.000000000 +0000
+@@ -12,13 +12,14 @@
  
  prefix_list="$prefix_list $DMROOT.IP."
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_IP"
 +entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_IP"
  
  entry_execute_method_root_IP() {
--	case "$1" in ""|"$DMROOT."|"$DMROOT.IP."*)
-+	case "$1" in ""|"$DMROOT."|"$DMROOT.IP."|"$DMROOT.IP.Interface."*)
+ 	case "$1" in ""|"$DMROOT."|"$DMROOT.IP."*)
  		common_execute_method_obj "$DMROOT.IP." "0"
  		common_execute_method_obj "$DMROOT.IP.Interface." "1" "add_ip_iface" "" "ip_device_browse_instances $1"
  		common_execute_method_obj "$DMROOT.IP.Diagnostics." "0"
+-		common_execute_method_obj "$DMROOT.IP.Diagnostics.IPPing." "0" "" "" "entry_execute_method_root_IPPingDiagnostics"
++		common_execute_method_obj "$DMROOT.IP.Diagnostics.IPPing." "0" "" "" "entry_execute_method_root_IPPingDiagnostics $1"
+ 		return 0
+ 		;;
+ 	esac
 @@ -30,8 +31,8 @@
  	local ip_int="$3"
  	case_param "$1" belongto "$DMROOT.IP.Interface.$j." && {
@@ -1487,7 +4697,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
  ip_get_iface_name() {
  	local interface=`echo $1 |cut -d "." -f 2`
-@@ -154,40 +148,28 @@
+@@ -154,40 +148,42 @@
  }
  
  ipv4address_iface_get_ip_adress() {
@@ -1519,8 +4729,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  ipv4address_iface_set_ip_adress() {
- 	$UCI_SET $1.ipaddr="$2"
+-	$UCI_SET $1.ipaddr="$2"
 -	$UCI_SET $1.proto="static"
++	local conf="$1"
++	local input="$2"
++
++	echo "$input" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$' || return $E_INVALID_PARAMETER_VALUE
++
++	OLD_IFS="$IFS"
++	IFS=.
++	for octet in $input; do
++		[ "$octet" -ge 0 ] 2>/dev/null &&
++		[ "$octet" -le 255 ] 2>/dev/null ||
++		return $E_INVALID_PARAMETER_VALUE
++	done
++	IFS="$OLD_IFS"
++
++	$UCI_SET $conf.ipaddr="$input"
 +	ubus call service event "{ \"type\": \"config.change\", \"data\": { \"package\": \"network\"}}" &> /dev/null
 +
  	return 0
@@ -1540,7 +4765,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  get_net_mask() {
-@@ -195,19 +177,21 @@
+@@ -195,19 +191,21 @@
  	local mask=""
  	local res
  	res=`ubus call network.interface.$name status`
@@ -1574,7 +4799,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  #######################################
-@@ -267,3 +251,22 @@
+@@ -267,3 +265,22 @@
  get_tx_discard_stats() {
  	echo ${tx_dropped:-0}
  }
@@ -1597,9 +4822,52 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +	$UCI_COMMIT
 +	return 0
 +}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ipping_diagnostic src/ext/openwrt/scripts/functions/tr181/ipping_diagnostic
+--- upstream/ext/openwrt/scripts/functions/tr181/ipping_diagnostic	2019-09-26 13:02:11.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/ipping_diagnostic	2026-02-09 09:48:32.000000000 +0000
+@@ -11,8 +11,9 @@
+ 
+ entry_execute_method_root_IPPingDiagnostics() {
+ 	case_param "$1" belongto "$DMROOT.IP.Diagnostics.IPPing." && {
++		common_execute_method_obj "$DMROOT.IP.Diagnostics.IPPing." "0"
+ 		common_execute_method_param "$DMROOT.IP.Diagnostics.IPPing.DiagnosticsState" "1" "ipping_get easycwmp.@local[0].DiagnosticsState None" "ipping_set_diagnostic_state"
+-		common_execute_method_param "$DMROOT.IP.Diagnostics.IPPing.Host" "1" "ipping_get easycwmp.@local[0].Host" "ipping_set easycwmp.@local[0].Host"
++		common_execute_method_param "$DMROOT.IP.Diagnostics.IPPing.Host" "1" "ipping_get easycwmp.@local[0].Host" "ipping_set_host easycwmp.@local[0].Host"
+ 		common_execute_method_param "$DMROOT.IP.Diagnostics.IPPing.NumberOfRepetitions" "1" "ipping_get easycwmp.@local[0].NumberOfRepetitions 3" "ipping_set_number easycwmp.@local[0].NumberOfRepetitions" "xsd:unsignedInt"
+ 		common_execute_method_param "$DMROOT.IP.Diagnostics.IPPing.Timeout" "1" "ipping_get easycwmp.@local[0].Timeout 1000" "ipping_set_number easycwmp.@local[0].Timeout" "xsd:unsignedInt"
+ 		common_execute_method_param "$DMROOT.IP.Diagnostics.IPPing.DataBlockSize" "1" "ipping_get easycwmp.@local[0].DataBlockSize 64" "ipping_set_number easycwmp.@local[0].DataBlockSize" "xsd:unsignedInt"
+@@ -35,12 +36,26 @@
+ 	echo ${val:-$2}
+ }
+ 
+-ipping_set() {
++ipping_set_host() {
++	local option="$1"
++	local input="$2"
++	local res=""
++
++	case "$input" in
++		http://*|https://*)
++			echo "$input" | grep -Eq '^https?://([a-zA-Z0-9.-]+|\[[0-9a-fA-F:]+\])(:[0-9]+)?(/.*)?$' \
++			|| return $E_INVALID_PARAMETER_VALUE
++			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE;
++			;;
++	esac
++
+ 	ipping_stop_diagnostic
+ 	if [ "`$UCI_GET_VARSTATE easycwmp.@local[0].DiagnosticsState`" != "Requested" ]; then
+ 		$UCI_SET_VARSTATE easycwmp.@local[0].DiagnosticsState=None
+ 	fi
+-	$UCI_SET_VARSTATE $1=$2
++	$UCI_SET_VARSTATE $option=$input
+ 	return 0
+ }
+ 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/wifi src/ext/openwrt/scripts/functions/tr181/wifi
 --- upstream/ext/openwrt/scripts/functions/tr181/wifi	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/wifi	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/wifi	2026-02-09 09:48:32.000000000 +0000
 @@ -12,6 +12,8 @@
  prefix_list="$prefix_list $DMROOT.WiFi."
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_WiFi"
@@ -1618,8 +4886,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  sub_entry_WiFi_SSID() {
-@@ -57,7 +59,7 @@
- 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "1" "wifi_ssid_get_X_IPInterface $iface" "wifi_ssid_set_X_IPInterface $iface"
+@@ -52,12 +54,12 @@
+ 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Enable" "1" "wifi_ssid_get_Enable $iface" "wifi_ssid_set_Enable $iface" "xsd:boolean"
+ 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Status" "0" "wifi_ssid_get_Status $iface"
+ 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Name" "0" "wifi_ssid_get_Name $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "1" "wifi_ssid_get_LowerLayers $iface" "wifi_ssid_set_LowerLayers $iface"
++		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "0" "wifi_ssid_get_LowerLayers $iface" ""
+ 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.SSID" "1" "wifi_ssid_get_SSID $iface" "wifi_ssid_set_SSID $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "1" "wifi_ssid_get_X_IPInterface $iface" "wifi_ssid_set_X_IPInterface $iface"
++		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "0" "wifi_ssid_get_X_IPInterface $iface" ""
  		return 0
  	}
 -	return $E_INVALID_PARAMETER_NAME;		
@@ -1675,7 +4950,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	for iface in $ifaces; do
  		local j=`wifi_iface_update_instance $iface`
  		sub_entry_WiFi_AccessPoint  "$1" "$j" "$iface"
-@@ -200,10 +202,10 @@
+@@ -200,15 +202,21 @@
  
  	phy="phy${1#*radio}"
  	freq=`iw phy $phy info | grep  "MHz.*dBm" | head -1 | awk '{print $2}'`
@@ -1688,7 +4963,18 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	fi
  	echo $channel
  }
-@@ -224,7 +226,7 @@
+ 
+ wifi_radio_set_Channel() {
++	case $2 in
++		(*[^0-9]*|'') return $E_INVALID_PARAMETER_VALUE;;
++	esac
++
++	[ "$2" -lt 1 -o "$2" -gt 255 ] && return $E_INVALID_PARAMETER_VALUE
++
+ 	$UCI_SET $1.channel=$2
+ }
+ 
+@@ -224,7 +232,7 @@
  	else
  		local channel=`wifi_radio_get_Channel $1`
  		$UCI_SET $1.channel=$channel
@@ -1697,25 +4983,89 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  }
  
  wifi_radio_get_OperatingStandards() {
-@@ -289,7 +291,7 @@
- 	[ "$tmp" = "$2" ] && return
- 	local instance=${tmp%.}
- 	[ "$tmp" = "$instance" ] && return
+@@ -233,6 +241,27 @@
+ }
+ 
+ wifi_radio_set_OperatingStandards() {
++	local band="$(wifi_radio_get_FrequencyBands $1)"
++
++	if [ "$band" = "2.4GHz" ]; then
++		case "$2" in
++			b|g|n|ax|be) ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$band" = "5GHz" ]; then
++		case "$2" in
++			a|n|ac|ax|be) ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$band" = "6GHz" ]; then
++		case "$2" in
++			ax|be) ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
+ 	$UCI_SET $1.hwmode=11$2
+ }
+ 
+@@ -284,14 +313,14 @@
+ 	[ "$instance" != "" ] && echo "$DMROOT.WiFi.Radio.$instance."
+ }
+ 
+-wifi_ssid_set_LowerLayers() {
+-	local tmp=${2#$DMROOT.WiFi.Radio.}
+-	[ "$tmp" = "$2" ] && return
+-	local instance=${tmp%.}
+-	[ "$tmp" = "$instance" ] && return
 -	local device=`$UCI_SHOW -X wireless | grep "wifi_radio_instance=$instance" | cut -d'.' -f2`
-+	local device=`$UCI_SHOW_X wireless | grep "wifi_radio_instance=$instance" | cut -d'.' -f2`
- 	$UCI_SET $1.device=$device
+-	$UCI_SET $1.device=$device
+-}
++# wifi_ssid_set_LowerLayers() {
++# 	local tmp=${2#$DMROOT.WiFi.Radio.}
++# 	[ "$tmp" = "$2" ] && return
++# 	local instance=${tmp%.}
++# 	[ "$tmp" = "$instance" ] && return
++# 	local device=`$UCI_SHOW_X wireless | grep "wifi_radio_instance=$instance" | cut -d'.' -f2`
++# 	$UCI_SET $1.device=$device
++# }
+ 
+ wifi_ssid_get_SSID() {
+ 	local ssid=`$UCI_GET $1.ssid`
+@@ -299,6 +328,7 @@
  }
  
-@@ -313,7 +315,7 @@
- 	[ "$tmp" = "$2" ] && return
- 	local instance=${tmp%.}
- 	[ "$tmp" = "$instance" ] && return
+ wifi_ssid_set_SSID() {
++	[ -z "$2" ] || [ "${#2}" -gt 64 ] && return $E_INVALID_PARAMETER_VALUE
+ 	$UCI_SET $1.ssid=$2
+ }
+ 
+@@ -308,14 +338,14 @@
+ 	[ "$instance" != "" ] && echo "$DMROOT.IP.Interface.$instance."
+ }
+ 
+-wifi_ssid_set_X_IPInterface() {
+-	local tmp=${2#$DMROOT.IP.Interface.}
+-	[ "$tmp" = "$2" ] && return
+-	local instance=${tmp%.}
+-	[ "$tmp" = "$instance" ] && return
 -	local network=`$UCI_SHOW -X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
-+	local network=`$UCI_SHOW_X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
- 	$UCI_SET $1.network=$network
- }
+-	$UCI_SET $1.network=$network
+-}
++# wifi_ssid_set_X_IPInterface() {
++# 	local tmp=${2#$DMROOT.IP.Interface.}
++# 	[ "$tmp" = "$2" ] && return
++# 	local instance=${tmp%.}
++# 	[ "$tmp" = "$instance" ] && return
++# 	local network=`$UCI_SHOW_X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
++# 	$UCI_SET $1.network=$network
++# }
  
-@@ -341,7 +343,7 @@
+ wifi_ap_get_Enable() {
+ 	local val=`$UCI_GET $1.disabled`
+@@ -341,7 +371,7 @@
  wifi_ap_get_ModeEnabled() {
  	local key
  	local encryption=`$UCI_GET $1.encryption`
@@ -1724,7 +5074,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	case "$encryption" in
  		"psk2"*)
  			echo "WPA2-Personal"
-@@ -376,7 +378,7 @@
+@@ -376,7 +406,7 @@
  	local key
  	local encryption=`wifi_ap_get_ModeEnabled $1`
  	[ "$encryption" = "$2" ] && return 0
@@ -1733,14 +5083,71 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	case "$2" in
  		"WPA2-Personal")
  			$UCI_SET $1.encryption="psk2"
-@@ -433,4 +435,3 @@
+@@ -410,6 +440,9 @@
+ 			$UCI_SET $1.encryption=
+ 			$UCI_SET $1.key=
+ 			;;
++		*)
++			return $E_INVALID_PARAMETER_VALUE
++			;;
+ 	esac
+ 	return 0
+ }
+@@ -419,18 +452,50 @@
+ }
+ 
+ wifi_ap_set_WEPKey() {
++	local encryption="$($UCI_GET $1.encryption)"
++	[ "$encryption" != "wep" ] && return $E_INVALID_PARAMETER_VALUE
++
++	case "$2" in
++		(*[!0-9a-fA-F]*) return $E_INVALID_PARAMETER_VALUE;;  # contains non-hex chars
++		("") return $E_INVALID_PARAMETER_VALUE;; # empty string
++		(*) ;; # all hex
++	esac
++
++	[ "${#2}" -ne 5 ] && [ "${#2}" -ne 13 ] && return $E_INVALID_PARAMETER_VALUE
++
+ 	$UCI_SET $1.key=1
+ 	$UCI_SET $1.key1=$2
+ 	return 0
+ }
+ 
+ wifi_ap_set_PreSharedKey() {
++	local encryption="$($UCI_GET $1.encryption)"
++	case "$encryption" in
++		psk*) ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	case "$2" in
++		(*[!0-9a-fA-F]*) return $E_INVALID_PARAMETER_VALUE;;  # contains non-hex chars
++		("") return $E_INVALID_PARAMETER_VALUE;; # empty string
++		(*) ;; # all hex
++	esac
++
++	[ -z "$2" ] || [ "${#2}" -gt 32 ] && return $E_INVALID_PARAMETER_VALUE
++
+ 	$UCI_SET $1.key=$2
+ 	return 0
+ }
+ 
+ wifi_ap_set_KeyPassphrase() {
++	local encryption="$($UCI_GET $1.encryption)"
++	case "$encryption" in
++		psk*) ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	[ -z "$2" ] || [ "${#2}" -lt 8 ] || [ "${#2}" -gt 63 ] && return $E_INVALID_PARAMETER_VALUE
++
  	$UCI_SET $1.key=$2
  	return 0
  }
 -
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_hosts src/ext/openwrt/scripts/unused/device_hosts
 --- upstream/ext/openwrt/scripts/unused/device_hosts	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_hosts	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_hosts	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,205 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -1949,7 +5356,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_hosts() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_ip src/ext/openwrt/scripts/unused/device_ip
 --- upstream/ext/openwrt/scripts/unused/device_ip	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_ip	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_ip	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,139 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2092,7 +5499,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_routing src/ext/openwrt/scripts/unused/device_routing
 --- upstream/ext/openwrt/scripts/unused/device_routing	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_routing	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_routing	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,368 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2464,7 +5871,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_routing() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_users src/ext/openwrt/scripts/unused/device_users
 --- upstream/ext/openwrt/scripts/unused/device_users	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_users	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_users	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,142 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2610,7 +6017,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_users() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/misc src/ext/openwrt/scripts/unused/misc
 --- upstream/ext/openwrt/scripts/unused/misc	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/misc	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/misc	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,42 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2656,7 +6063,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_misc() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/owsip_voice_service src/ext/openwrt/scripts/unused/owsip_voice_service
 --- upstream/ext/openwrt/scripts/unused/owsip_voice_service	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/owsip_voice_service	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/owsip_voice_service	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,262 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -2922,15 +6329,25 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/x_easycwmp_org src/ext/openwrt/scripts/unused/x_easycwmp_org
 --- upstream/ext/openwrt/scripts/unused/x_easycwmp_org	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/x_easycwmp_org	2025-11-20 08:00:05.000000000 +0000
++++ src/ext/openwrt/scripts/unused/x_easycwmp_org	2026-02-09 09:48:32.000000000 +0000
 @@ -0,0 +1,3 @@
 +#!/bin/sh
 +# Copyright (C) 2011 Luka Perkov <freecwmp@lukaperkov.net>
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.c src/src/config.c
 --- upstream/src/config.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/config.c	2025-11-20 08:00:05.000000000 +0000
-@@ -121,11 +121,6 @@
++++ src/src/config.c	2026-02-09 09:48:32.000000000 +0000
+@@ -15,6 +15,9 @@
+ #include <unistd.h>
+ #include <microxml.h> 
+ #include <time.h>
++#ifdef EASYCWMP_TPM_SUPPORT
++#include <libtpm_importer.h>
++#endif
+ #include "cwmp.h"
+ #include "backup.h" 
+ #include "config.h"
+@@ -121,11 +124,6 @@
  				return -1;
  			}
  
@@ -2942,7 +6359,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			return 0;
  		}
  	}
-@@ -139,6 +134,7 @@
+@@ -139,6 +137,7 @@
  		FREE(config->acs->username);
  		FREE(config->acs->password);
  		FREE(config->acs->ssl_cert);
@@ -2950,7 +6367,15 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		FREE(config->acs->ssl_cacert);
  	}
  }
-@@ -200,7 +196,7 @@
+@@ -148,6 +147,7 @@
+ 	struct uci_section *s;
+ 	struct uci_element *e;
+ 	struct tm tm;
++	const char *tmp = NULL;
+ 
+ 	uci_foreach_element(&uci_easycwmp->sections, e) {
+ 		s = uci_to_section(e);
+@@ -200,7 +200,7 @@
  				}
  
  				if (!strcmp((uci_to_option(e))->e.name, "periodic_time")) {
@@ -2959,19 +6384,30 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  					config->acs->periodic_time = mktime(&tm);
  					DD("easycwmp.@acs[0].periodic_time=%s\n", uci_to_option(e)->v.string);
  					continue;
-@@ -217,6 +213,11 @@
+@@ -217,6 +217,22 @@
  					DD("easycwmp.@acs[0].ssl_cert=%s\n", config->acs->ssl_cert);
  					continue;
  				}
 +				if (!strcmp((uci_to_option(e))->e.name, "ssl_key")) {
-+					config->acs->ssl_key = strdup(uci_to_option(e)->v.string);
++					const char *key = uci_to_option(e)->v.string;
++#ifdef EASYCWMP_TPM_SUPPORT
++					config->acs->ssl_key = ltpmi_get_handle(key);
++					if (config->acs->ssl_key) {
++						config->acs->ssl_key_tpm = true;
++					} else
++#endif
++					{
++						config->acs->ssl_key = strdup(key);
++					}
++
 +					DD("easycwmp.@acs[0].ssl_key=%s\n", config->acs->ssl_key);
++
 +					continue;
 +				}
  				if (!strcmp((uci_to_option(e))->e.name, "ssl_cacert")) {
  					config->acs->ssl_cacert = strdup(uci_to_option(e)->v.string);
  					DD("easycwmp.@acs[0].ssl_cacert=%s\n", config->acs->ssl_cacert);
-@@ -224,7 +225,7 @@
+@@ -224,7 +240,7 @@
  				}
  
  				if (!strcmp((uci_to_option(e))->e.name, "ssl_verify")) {
@@ -2982,18 +6418,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  						config->acs->ssl_verify = false;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.h src/src/config.h
 --- upstream/src/config.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/config.h	2025-11-20 08:00:05.000000000 +0000
-@@ -40,6 +40,7 @@
++++ src/src/config.h	2026-02-09 09:48:32.000000000 +0000
+@@ -40,8 +40,12 @@
  	int  periodic_interval;
  	time_t periodic_time;
  	char *ssl_cert;
 +	char *ssl_key;
  	char *ssl_cacert;
  	bool ssl_verify;
++#ifdef EASYCWMP_TPM_SUPPORT
++	bool ssl_key_tpm;
++#endif
  };
+ 
+ struct local {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.c src/src/cwmp.c
 --- upstream/src/cwmp.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/cwmp.c	2025-11-20 08:00:05.000000000 +0000
++++ src/src/cwmp.c	2026-02-09 09:48:32.000000000 +0000
 @@ -70,7 +70,7 @@
  	uloop_timeout_cancel(&periodic_inform_timer);
  	if (config->acs->periodic_enable && config->acs->periodic_interval) {
@@ -3005,7 +6446,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		else {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.h src/src/cwmp.h
 --- upstream/src/cwmp.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/cwmp.h	2025-11-20 08:00:05.000000000 +0000
++++ src/src/cwmp.h	2026-02-09 09:48:32.000000000 +0000
 @@ -142,7 +142,7 @@
  };
  
@@ -3017,7 +6458,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static void cwmp_do_inform(struct uloop_timeout *timeout);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/easycwmp.c src/src/easycwmp.c
 --- upstream/src/easycwmp.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/easycwmp.c	2025-11-20 08:00:05.000000000 +0000
++++ src/src/easycwmp.c	2026-02-09 09:48:32.000000000 +0000
 @@ -271,21 +271,10 @@
  				exit(EXIT_FAILURE);
  		}
@@ -3066,7 +6507,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	free(cwmp);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/external.c src/src/external.c
 --- upstream/src/external.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/external.c	2025-11-20 08:00:05.000000000 +0000
++++ src/src/external.c	2026-02-09 09:48:32.000000000 +0000
 @@ -185,6 +185,8 @@
  
  int external_init()
@@ -3090,7 +6531,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		argv[i++] = NULL;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/external.h src/src/external.h
 --- upstream/src/external.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/external.h	2025-11-20 08:00:05.000000000 +0000
++++ src/src/external.h	2026-02-09 09:48:32.000000000 +0000
 @@ -14,7 +14,6 @@
  #define _EASYCWMP_EXTERNAL_H__
  #include <libubox/list.h>
@@ -3101,7 +6542,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #define EXTERNAL_PROMPT "easycwmp>"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/http.c src/src/http.c
 --- upstream/src/http.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/http.c	2025-11-20 08:00:05.000000000 +0000
++++ src/src/http.c	2026-02-09 09:48:32.000000000 +0000
 @@ -51,6 +51,8 @@
  	DD("url: %s\n", http_c.url);
  	if (config->acs->ssl_cert)
@@ -3111,8 +6552,17 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (config->acs->ssl_cacert)
  		DD("ssl_cacert: %s\n", config->acs->ssl_cacert);
  	if (!config->acs->ssl_verify)
-@@ -72,6 +74,8 @@
+@@ -70,8 +72,17 @@
+ # endif /* DEVEL */
+ 	curl_easy_setopt(curl, CURLOPT_COOKIEFILE, fc_cookies);
  	curl_easy_setopt(curl, CURLOPT_COOKIEJAR, fc_cookies);
++#ifdef EASYCWMP_TPM_SUPPORT
++	if (config->acs->ssl_key_tpm) {
++		DD("Using TPM for SSL client authentication\n");
++		curl_easy_setopt(curl, CURLOPT_SSLKEYTYPE, "PROV");
++		curl_easy_setopt(curl, CURLOPT_SSLENGINE, "tpm2");
++	}
++#endif /* EASYCWMP_TPM_SUPPORT */
  	if (config->acs->ssl_cert)
  		curl_easy_setopt(curl, CURLOPT_SSLCERT, config->acs->ssl_cert);
 +	if (config->acs->ssl_key)
@@ -3122,7 +6572,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (!config->acs->ssl_verify)
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/http.h src/src/http.h
 --- upstream/src/http.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/http.h	2025-11-20 08:00:05.000000000 +0000
++++ src/src/http.h	2026-02-09 09:48:32.000000000 +0000
 @@ -18,7 +18,7 @@
  #include <libubox/uloop.h>
  #include <curl/curl.h>

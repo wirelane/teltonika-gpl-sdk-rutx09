@@ -21,7 +21,7 @@ config_cb() {
         }
 }
 
-[ -f "/etc/config/${CONF}" ] || return 0
+[ -f "$UCI_CONFIG_DIR/${CONF}" ] || return 0
 
 config_load "$CONF"
 uci_commit "$CONF"

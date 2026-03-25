@@ -42,6 +42,6 @@
  	config_get proto "$sid" proto
 -	active="$(cat /tmp/run/mwan3/active_wan)"
 +	active="$(cat /tmp/run/mwan3/active_wan 2>/dev/null)"
- 	if [ "$MWAN3_STARTUP" != "init" ] && [ "$disabled" != "1" ] && { [ "$proto" = "l2tp" ] || [ "$proto" = "wireguard" ]; } && [ "$IFNAME" != "$sid" ]; then
+ 	if [ "$MWAN3_STARTUP" != "init" ] && [ "$disabled" != "1" ] && { [ "$proto" = "l2tp" ] || [ "$proto" = "wireguard" ] || [ "$proto" = "xfrm" ]; } && [ "$IFNAME" != "$sid" ]; then
  		case "$ACTION" in
  			ifup|connected)

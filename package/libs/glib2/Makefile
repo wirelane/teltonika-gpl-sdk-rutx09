@@ -8,14 +8,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=glib2
-PKG_VERSION:=2.80.5
-PKG_RELEASE:=4
+PKG_VERSION:=2.87.1
+PKG_RELEASE:=5
 
-PKG_SOURCE_VERSION:=2.80.5
+PKG_SOURCE_VERSION:=2.87.1
 PKG_SOURCE:=glib-$(PKG_SOURCE_VERSION).tar.xz
-PKG_SOURCE_URL:=@GNOME/glib/$(basename $(PKG_SOURCE_VERSION))
+PKG_SOURCE_URL:=https://download.gnome.org/sources/glib/$(basename $(PKG_SOURCE_VERSION))/
 
-PKG_HASH:=9f23a9de803c695bbfde7e37d6626b18b9a83869689dd79019bf3ae66c3e6771
+PKG_HASH:=fc2ce0f948ee163f8adc5bdde2f38612b8a3f270022aa1b0d087cb9f1f0ac5c2
 
 PKG_MAINTAINER:=Peter Wagner <tripolar@gmx.at>
 PKG_LICENSE:=LGPL-2.1-or-later

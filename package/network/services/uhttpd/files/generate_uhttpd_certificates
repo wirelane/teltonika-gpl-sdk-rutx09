@@ -6,10 +6,10 @@ CONFIG="uhttpd"
 UHTTPD_BIN="/usr/sbin/uhttpd"
 OPENSSL_BIN="/usr/bin/openssl"
 
-DEFAULT_UHTTPD_CERT="/etc/uhttpd.crt"
-DEFAULT_UHTTPD_KEY="/etc/uhttpd.key"
-DEFAULT_UHTTPD_CA_CERT="/etc/uhttpd-ca.crt"
-DEFAULT_UHTTPD_CA_KEY="/etc/uhttpd-ca.key"
+DEFAULT_UHTTPD_CERT="/etc/certificates/uhttpd.crt"
+DEFAULT_UHTTPD_KEY="/etc/certificates/uhttpd.key"
+DEFAULT_UHTTPD_CA_CERT="/etc/certificates/uhttpd-ca.crt"
+DEFAULT_UHTTPD_CA_KEY="/etc/certificates/uhttpd-ca.key"
 
 TMP_CERT="/tmp/uhttpd.crt.new"
 TMP_KEY="/tmp/uhttpd.key.new"
@@ -27,6 +27,7 @@ register_certificate_in_config() {
 	local days="$3"
 	local key_type="$4"
 	local ec_curve="$5"
+	local tpm="$6"
 
 	[ -e "/etc/config/certificates" ] || return 0
 
@@ -86,6 +87,7 @@ register_certificate_in_config() {
 		uci_set "$CFG" "$sec_key" fullname "$(basename "$key")"
 		uci_set "$CFG" "$sec_key" path "$key"
 		uci_add_list "$CFG" "$sec_key" services 'uhttpd:main'
+		[ "$tpm" = "1" ] && uci_set "$CFG" "$sec_key" tpm2 "$tpm"
 	fi
 
 	uci_commit "$CFG"
@@ -124,6 +126,7 @@ generate_keys() {
 	config_get commonname "defaults" commonname "OpenWrt"
 	config_get key_type   "defaults" key_type   "rsa"
 	config_get ec_curve   "defaults" ec_curve   "P-256"
+	config_get use_tpm    "main"     use_tpm    "0"
 
 	local KEY_OPTS="rsa:$bits"
 	local UNIQUEID=$(dd if=/dev/urandom bs=1 count=4 2>/dev/null | hexdump -e '1/1 "%02x"')
@@ -141,6 +144,8 @@ generate_keys() {
 			-newkey $KEY_OPTS -keyout "$crt_ca_key" -out "$crt_ca_cert" -days $days &>/dev/null
 	fi
 
+	[ "$use_tpm" = "1" ] && /bin/tpm2_importer "$key" delete 2>/dev/null
+
 	local crt_key="$TMP_KEY"
 	local crt_final="$TMP_CERT"
 
@@ -154,7 +159,10 @@ generate_keys() {
 	cat "$crt_final" > "$crt"
 	[ "$crt_ca_cert" = "$DEFAULT_UHTTPD_CA_CERT" ] || cat "$crt_ca_cert" > "$DEFAULT_UHTTPD_CA_CERT"
 	[ "$crt_ca_key" = "$DEFAULT_UHTTPD_CA_KEY" ] || cat "$crt_ca_key" > "$DEFAULT_UHTTPD_CA_KEY"
-	register_certificate_in_config "$crt" "$key" "$days" "$key_type" "$ec_curve"
+
+	[ "$use_tpm" = "1" ] && ! /bin/tpm2_importer "$key" import && use_tpm="0"
+
+	register_certificate_in_config "$crt" "$key" "$days" "$key_type" "$ec_curve" "$use_tpm"
 	chown uhttpd:uhttpd "$crt" "$key"
 	chown uhttpd:uhttpd "${DEFAULT_UHTTPD_CA_CERT}" "${DEFAULT_UHTTPD_CA_KEY}"
 }

@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=easycwmp
-PKG_VERSION:=2026-02-11
+PKG_VERSION:=2026-03-13
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.8.3
@@ -31,9 +31,10 @@ define Package/easycwmp
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=CWMP client (using libcurl)
-  DEPENDS:=+libubus +libuci +libubox +libmicroxml +libjson-c +libcurl +curl
+  DEPENDS:=+libubus +libuci +libubox +libmicroxml +libjson-c +libcurl +curl \
+	+TPM_SUPPORT:libtpm2_importer
   USERID:=easycwmp=521:easycwmp=521
-  USER_GROUPS:=easycwmp:network gsm chilli dnsmasq
+  USER_GROUPS:=easycwmp:network gsm chilli dnsmasq simcard
 endef
 
 define Package/easycwmp/description
@@ -54,7 +55,10 @@ TARGET_LDFLAGS += \
 CONFIGURE_ARGS += \
 	--with-uci-include-path=$(STAGING_DIR)/usr/include \
 	--with-libubox-include-path=$(STAGING_DIR)/usr/include \
-	--with-libubus-include-path=$(STAGING_DIR)/usr/include
+	--with-libubus-include-path=$(STAGING_DIR)/usr/include \
+	$(if $(CONFIG_TPM_SUPPORT),--enable-tpm-support)
+
+
 
 ifeq ($(CONFIG_EASYCWMP_DEBUG),y)
 CONFIGURE_ARGS += \
@@ -95,10 +99,15 @@ define Package/easycwmp/install
 ifeq ($(EASYCWMP_BACKUP_DATA_FILE),y)
 	$(INSTALL_DIR) $(1)/etc/easycwmp
 endif
-ifeq ($(CONFIG_EASYCWMP_SCRIPTS_FULL),y)
+	$(INSTALL_DIR) $(1)/usr/libexec/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/diagnostics/* $(1)/usr/libexec/
 	$(INSTALL_DIR) $(1)/usr/share/easycwmp/functions/
+	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/tr143/* $(1)/usr/share/easycwmp/functions/
+ifeq ($(CONFIG_EASYCWMP_SCRIPTS_FULL),y)
 	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/common/* $(1)/usr/share/easycwmp/functions/
-	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/custom/* $(1)/usr/share/easycwmp/functions/
+ifeq ($(CONFIG_MOBILE_SUPPORT),y)
+	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/mobile/* $(1)/usr/share/easycwmp/functions/
+endif
 ifeq ($(CONFIG_EASYCWMP_SCRIPT_GPS), y)
 	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/gps/* $(1)/usr/share/easycwmp/functions/
 endif

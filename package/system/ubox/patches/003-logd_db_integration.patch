@@ -1,5 +1,7 @@
+Index: ubox-2020-10-25-9ef88681/log/logdb.h
+===================================================================
 --- /dev/null
-+++ b/log/logdb.h
++++ ubox-2020-10-25-9ef88681/log/logdb.h
 @@ -0,0 +1,36 @@
 +#ifndef LOGDB_H
 +#define LOGDB_H
@@ -37,9 +39,11 @@
 +	ACTION_SELECT
 +};
 +#endif
+Index: ubox-2020-10-25-9ef88681/log/logdb.c
+===================================================================
 --- /dev/null
-+++ b/log/logdb.c
-@@ -0,0 +1,533 @@
++++ ubox-2020-10-25-9ef88681/log/logdb.c
+@@ -0,0 +1,552 @@
 +#define _GNU_SOURCE
 +
 +#include <stdio.h>
@@ -49,7 +53,7 @@
 +#include <syslog.h>
 +#include <sys/stat.h>
 +#include <errno.h>
-+#include <fcntl.h> 
++#include <fcntl.h>
 +#include <libubox/uloop.h>
 +
 +#include "logdb.h"
@@ -165,10 +169,21 @@
 +	int error = 0;
 +	const char *tail;
 +	int output;
++	int in_txn = 0;
++
++	// Start transaction for write queries
++	if (strncasecmp(query, "insert", 6) == 0 ||
++	strncasecmp(query, "update", 6) == 0 ||
++	strncasecmp(query, "delete", 6) == 0 ||
++	strncasecmp(query, "replace", 7) == 0) {
++		sqlite3_exec(conn, "BEGIN TRANSACTION;", NULL, NULL, NULL);
++		in_txn = 1;
++	}
 +
 +	error = sqlite3_prepare_v2(conn, query, -1, &res, &tail);
 +	if (error != SQLITE_OK) {
 +		syslog(LOG_CRIT, "sqlite3 query error: %s\n", sqlite3_errmsg(conn));
++		if (in_txn) sqlite3_exec(conn, "ROLLBACK;", NULL, NULL, NULL);
 +
 +		if (error == SQLITE_CORRUPT) {
 +			syslog(LOG_CRIT, "sqlite3 database is corrupted\n");
@@ -176,13 +191,16 @@
 +			unlink(DB);
 +			init_db();
 +		}
-+
 +		return;
 +	}
 +	output = sqlite3_step(res);
 +
-+	if (output != SQLITE_DONE && output != SQLITE_ROW)
++	if (output != SQLITE_DONE && output != SQLITE_ROW) {
 +		syslog(LOG_CRIT, "Eventlog error, code: %d\n", output);
++		if (in_txn) sqlite3_exec(conn, "ROLLBACK;", NULL, NULL, NULL);
++	} else if (in_txn) {
++		sqlite3_exec(conn, "COMMIT;", NULL, NULL, NULL);
++	}
 +
 +	sqlite3_finalize(res);
 +}
@@ -199,36 +217,35 @@
 +
 +static int check_db_size(char *db_name)
 +{
-+        char buffer[256];
-+        sqlite3_stmt *res;
-+        int error = 0;
-+        const char *tail;
-+        int size = 0;
-+        int output;
++	char buffer[256];
++	sqlite3_stmt *res;
++	int error = 0;
++	const char *tail;
++	int size = 0;
++	int output;
 +
-+        sprintf(buffer, "SELECT Count(*) FROM %s", db_name);
-+        error = sqlite3_prepare_v2(conn, buffer, -1, &res, &tail);
-+        if (error != SQLITE_OK) {
-+                syslog(LOG_ERR, "sqlite3 query error: %s\n", sqlite3_errmsg(conn));
++	sprintf(buffer, "SELECT Count(*) FROM %s", db_name);
++	error = sqlite3_prepare_v2(conn, buffer, -1, &res, &tail);
++	if (error != SQLITE_OK) {
++		syslog(LOG_ERR, "sqlite3 query error: %s\n", sqlite3_errmsg(conn));
 +		return SQLITE_ERROR;
-+        }
++	}
 +
-+        output = sqlite3_step(res);
-+        if (output == SQLITE_ROW)
-+                size = strtol((const char *) sqlite3_column_text(res, 0), NULL, 10);
-+
-+        else if (output == SQLITE_CORRUPT) {
-+                syslog(LOG_CRIT, "Eventlog DB Corrupted\n");
-+                rename(DB, DB_CORRUPTED);
++	output = sqlite3_step(res);
++	if (output == SQLITE_ROW)
++		size = strtol((const char *) sqlite3_column_text(res, 0), NULL, 10);
++	else if (output == SQLITE_CORRUPT) {
++		syslog(LOG_CRIT, "Eventlog DB Corrupted\n");
++		rename(DB, DB_CORRUPTED);
 +		return SQLITE_ERROR;
-+        } else {
-+                syslog(LOG_ERR, "Eventlog DB error, code: %d\n", output);
-+                rename(DB, DB_CORRUPTED);
++	} else {
++		syslog(LOG_ERR, "Eventlog DB error, code: %d\n", output);
++		rename(DB, DB_CORRUPTED);
 +		return SQLITE_ERROR;
-+        }
++	}
 +
-+        sqlite3_finalize(res);
-+        return size;
++	sqlite3_finalize(res);
++	return size;
 +}
 +
 +static int delete_from_db(char *db_name, int size)
@@ -240,6 +257,7 @@
 +	int max_id = 0;
 +	int output;
 +
++	int in_txn = 0;
 +	sprintf(buffer, "SELECT MAX(ID) FROM %s", db_name);
 +	error = sqlite3_prepare_v2(conn, buffer, -1, &res, &tail);
 +	if (error != SQLITE_OK) {
@@ -250,12 +268,17 @@
 +	output = sqlite3_step(res);
 +	if (output == SQLITE_ROW) {
 +		max_id = strtol((const char *) sqlite3_column_text(res, 0), NULL, 10);
-+
 +		sqlite3_finalize(res);
++
++		// Start transaction for delete
++		sqlite3_exec(conn, "BEGIN TRANSACTION;", NULL, NULL, NULL);
++		in_txn = 1;
 +		sprintf(buffer, "DELETE FROM %s WHERE ID <= %i", db_name, max_id - size + 50);
 +		execute_query(buffer);
++		if (in_txn) sqlite3_exec(conn, "COMMIT;", NULL, NULL, NULL);
 +	} else {
 +		syslog(LOG_ERR, "Eventlog error, code: %d", output);
++		sqlite3_finalize(res);
 +		return SQLITE_ERROR;
 +	}
 +

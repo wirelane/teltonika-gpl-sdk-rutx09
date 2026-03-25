@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=pptpd
 PKG_VERSION:=1.4.0
-PKG_RELEASE:=16
+PKG_RELEASE:=17
 
 PKG_SOURCE_VERSION:=1.4.0
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
@@ -72,6 +72,8 @@ define Package/pptpd/install
 	$(INSTALL_CONF_USR) /dev/null $(1)/etc/config/pptpd
 	$(INSTALL_DIR) $(1)/etc/ppp/ip-up.d/
 	$(INSTALL_BIN) ./files/pptp-up $(1)/etc/ppp/ip-up.d/
+	$(INSTALL_DIR) $(1)/etc/ppp/ip-down.d/
+	$(INSTALL_BIN) ./files/pptp-down $(1)/etc/ppp/ip-down.d/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.15
 	$(INSTALL_DATA) ./files/defaults/99_pptp_device_name $(1)/etc/uci-defaults/7.15/99_pptp_device_name
 	$(INSTALL_DIR) $(1)/etc/permtab.d
@@ -80,6 +82,8 @@ define Package/pptpd/install
 	$(INSTALL_DATA) ./files/defaults/7.20/99_pptp_fix_description $(1)/etc/uci-defaults/7.20/99_pptp_fix_description
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_DATA) ./files/pptpd_acl.json $(1)/usr/share/acl.d/pptpd_acl.json
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.22
+	$(INSTALL_DATA) ./files/defaults/7.22/99_pptp_remove_option $(1)/etc/uci-defaults/7.22/99_pptp_remove_option
 endef
 
 $(eval $(call BuildPackage,pptpd))

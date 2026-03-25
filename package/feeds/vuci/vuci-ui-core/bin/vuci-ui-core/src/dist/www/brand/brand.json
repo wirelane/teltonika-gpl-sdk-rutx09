@@ -20,6 +20,7 @@
   "privacyPolicyURL": "https://teltonika-iot-group.com/policies-certificates/privacy-policy",
   "sentryDSN": "https://example@example.com",
   "subscribeURL": "https://teltonika-networks.com/subscribe",
+  "apiDocumentation": "https://developers.teltonika-networks.com",
   "footer": {
     "start": ["Teltonika Networks"],
     "end": [

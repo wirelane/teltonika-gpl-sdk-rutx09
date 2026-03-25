@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Hotspot 2.0
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-hotspot2-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-hotspot2-ui))$(DUMP))
 	APP_TLT_NAME:=Hotspot 2.0
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=hotspot2

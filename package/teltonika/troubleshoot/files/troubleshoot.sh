@@ -44,7 +44,7 @@ rms_mqtt.rms_mqtt.key_file
 "
 DIR_LIST="/etc/config /etc/crontabs /etc/dropbear /etc/firewall.user /etc/group /etc/hosts \
 /etc/inittab /etc/passwd /etc/profile /etc/rc.local /etc/shells /etc/sysctl.conf \
-/etc/uhttpd.crt /etc/uhttpd.key /etc/board.json"
+/etc/certificates/uhttpd.crt /etc/certificates/uhttpd.key /etc/board.json"
 
 IGNORE_DIR_LIST="troubleshoot luci-indexcache luci-indexcache luci-modulecache firmware.img sshfs"
 

@@ -7,7 +7,7 @@ ifneq ($(or $(CONFIG_USB_SUPPORT_EXTERNAL),$(CONFIG_SERIAL_SUPPORT)),)
 	APP_DEPENDS+=vuci-app-modbus-serial-ui
 endif
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-modbus-client-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-modbus-client-ui))$(DUMP))
 	APP_TLT_NAME:=MODBUS Client
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=modbus_client

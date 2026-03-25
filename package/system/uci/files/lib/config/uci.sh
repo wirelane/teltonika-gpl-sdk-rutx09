@@ -97,14 +97,25 @@ uci_get_state() {
 	uci_get "$1" "$2" "$3" "$4" "/var/state"
 }
 
+uci_show() {
+	local PACKAGE="$1"
+	local CONFIG="$2"
+	local OPTION="$3"
+	local STATE="$4"
+	local DELIMITER="$5"
+
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} ${STATE:+-P $STATE} ${DELIMITER:+-d $DELIMITER} -q show "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
+}
+
 uci_get() {
 	local PACKAGE="$1"
 	local CONFIG="$2"
 	local OPTION="$3"
 	local DEFAULT="$4"
 	local STATE="$5"
+	local DELIMITER="$6"
 
-	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} ${STATE:+-P $STATE} -q get "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} ${STATE:+-P $STATE} ${DELIMITER:+-d $DELIMITER} -q get "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
 	RET="$?"
 	[ "$RET" -ne 0 ] && [ -n "$DEFAULT" ] && echo "$DEFAULT"
 	return "$RET"
@@ -169,6 +180,12 @@ uci_revert() {
 	local OPTION="$3"
 
 	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} revert "$PACKAGE${CONFIG:+.$CONFIG}${OPTION:+.$OPTION}"
+}
+
+uci_batch() {
+	/sbin/uci ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} -q batch
+	RET="$?"
+	return "$RET"
 }
 
 uci_commit() {

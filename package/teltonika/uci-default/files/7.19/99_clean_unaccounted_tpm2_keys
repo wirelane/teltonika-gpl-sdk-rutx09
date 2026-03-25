@@ -14,7 +14,7 @@ process_cert() {
 	local path
 	config_get path "$sid" path ""
 	[ -e "$path" ] || {
-		uci delete "certificates.$sid" 
+		uci_remove "certificates" "$sid"
 		return 0
 	}
 	handle=$(tpm2_importer "$path" get_handle) || return 0
@@ -22,7 +22,7 @@ process_cert() {
 }
 
 config_foreach process_cert certificate
-uci commit certificates
+uci_commit certificates
 
 for fhandle in /etc/certificates/tpm2/**/handle ; do
 	[ -f "$fhandle" ] || continue

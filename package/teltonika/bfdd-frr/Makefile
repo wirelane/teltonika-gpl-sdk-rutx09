@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=bfdd-frr
 PKG_VERSION:=2024-10-10
-PKG_RELEASE:=3
+PKG_RELEASE:=4
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -12,7 +12,7 @@ define Package/bfdd-frr
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Configuration template for frr-bfdd service
-	DEPENDS:=+frr-bfdd
+	DEPENDS:=+!SMALL_FLASH:frr-bfdd +SMALL_FLASH:frr8-bfdd
 	USERID:=bfd:frr
 endef
 

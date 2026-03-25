@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=pam-tacacs
-PKG_VERSION:=2024-09-30
+PKG_VERSION:=2026-03-13
 PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
@@ -30,7 +30,7 @@ define Package/libtacacs
   SECTION:=lib
   CATEGORY:=Base system
   TITLE:=TACACS+ PAM module
-  DEPENDS:=+libpam +libopenssl
+  DEPENDS:=+libpam +libopenssl +libtlt-logger
   PROVIDES:=libtacacs
 endef
 

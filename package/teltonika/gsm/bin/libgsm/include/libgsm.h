@@ -34,6 +34,7 @@ typedef enum {
 	LGSM_INFO_NAME,
 	LGSM_INFO_MODEL,
 	LGSM_INFO_MANUF,
+	LGSM_INFO_SOC,
 	LGSM_INFO_PROD_NUM,
 	LGSM_INFO_DRIVER,
 	LGSM_INFO_USB_ID,
@@ -64,6 +65,7 @@ typedef enum {
 	LGSM_INFO_FEATURE_DHCP_FILTER,
 	LGSM_INFO_FEATURE_VERIZON_DISABLE_5G_SA,
 	LGSM_INFO_FEATURE_COPS_2_APN_CHANGE,
+	LGSM_INFO_FEATURE_DISABLED_SIM_RECOVERY,
 	LGSM_INFO_HW_STATS,
 	LGSM_INFO_FEATURE_CSD,
 	LGSM_INFO_FEATURE_FRAMED_ROUTING,
@@ -120,6 +122,7 @@ typedef enum {
 	LGSM_CACHE_SIM_PUK1,
 	LGSM_CACHE_TEMPERATURE,
 	LGSM_CACHE_RSSI,
+	LGSM_CACHE_SIGNAL_QUALITY,
 	LGSM_CACHE_ESIM_PROFILE_ID,
 	LGSM_CACHE_GNSS_STATE,
 	LGSM_CACHE_MAX,
@@ -1268,6 +1271,7 @@ typedef struct {
 	char imei[16];
 	char imsi[16];
 	uint32_t rssi_value;
+	uint32_t signal_quality_value;
 	uint32_t baudrate;
 	uint32_t simcount;
 	uint32_t ubus_obj_id;
@@ -1294,6 +1298,7 @@ typedef struct {
 	bool auto_5g_mode;
 	bool red_cap;
 	bool no_ussd;
+	bool disabled_sim_recovery;
 	uint32_t default_ims;
 	lgsm_net_info_t net_info;
 	lgsm_op_slc_mode_t op_slc;

@@ -2,12 +2,6 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support Dynamic routes ospf application
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-dynamic-routes-ospf-ui))
-	APP_APP_NAME:=frr-ospfd
-	APP_TLT_NAME:= OSPF daemon
-	APP_ROUTER:=$(TLT_PLATFORM_NAME)
-endif
-
 include ../app.mk
 
 define Package/vuci-app-dynamic-routes-ospf-ui/description

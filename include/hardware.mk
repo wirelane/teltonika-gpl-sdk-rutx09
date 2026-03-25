@@ -27,7 +27,7 @@ HW_INTERFACE_IO_4PIN_IN_OUT:=1 x Digital Input, 1 x Digital Output on 4-pin powe
 HW_INTERFACE_IO_16PIN:=3 x Configurable digital I/O in 16-pin terminal block
 HW_INTERFACE_RESET_BTN:=Reboot/Reset
 HW_INTERFACE_POWER_BTN:=Power
-HW_INTERFACE_WPS_BTN:=WPS
+HW_INTERFACE_LED_BTN:=LED
 HW_INTERFACE_SIM_HOLDER:=x SIM slot (Mini SIM - 2FF), 1.8 V/3 V, external SIM holder
 HW_INTERFACE_SIM_HOLDERS:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, external SIM holders
 HW_INTERFACE_SIM_TRAY:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, double stacked SIM tray
@@ -53,6 +53,7 @@ HW_OUTPUT_DO_50V:=x Digital Output, Open collector output, max output 50 V, 300 
 
 # usb
 HW_USB_2_DATA_RATE:=USB 2.0
+HW_USB_3_DATA_RATE:=USB 3.0
 HW_USB_APPLICATIONS:=Samba share, USB-to-serial
 HW_USB_EXTERNAL_DEV:=Possibility to connect external HDD, flash drive, printer, USB-serial adapter
 HW_USB_STORAGE_FORMATS:=FAT, FAT32, exFAT, NTFS (read-only), ext2, ext3, ext4
@@ -118,6 +119,7 @@ HW_WIFI_4:=IEEE 802.11b/g/n (Wi-Fi 4)
 HW_WIFI_5:=802.11b/g/n/ac Wave 2 (WiFi 5)
 HW_WIFI_50_USERS:=Up to 50 simultaneous connections
 HW_WIFI_100_USERS:=Up to 100 simultaneous connections
+HW_WIFI_128_USERS:=Up to 128 simultaneous connections
 HW_WIFI_150_USERS:=Up to 150 simultaneous connections
 HW_WIFI_512_USERS:=Up to 512 simultaneous connections
 

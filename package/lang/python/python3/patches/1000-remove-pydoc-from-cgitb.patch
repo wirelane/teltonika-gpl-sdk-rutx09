@@ -1,0 +1,238 @@
+Index: Python-3.11.7/Lib/cgitb.py
+===================================================================
+--- Python-3.11.7.orig/Lib/cgitb.py
++++ Python-3.11.7/Lib/cgitb.py
+@@ -25,7 +25,6 @@ import inspect
+ import keyword
+ import linecache
+ import os
+-import pydoc
+ import sys
+ import tempfile
+ import time
+@@ -33,9 +32,123 @@ import tokenize
+ import traceback
+ import warnings
+ from html import escape as html_escape
++from reprlib import Repr
++import re
+ 
+ warnings._deprecated(__name__, remove=(3, 13))
+ 
++def replace(text, *pairs):
++    """Do a series of global replacements on a string."""
++    while pairs:
++        text = pairs[1].join(text.split(pairs[0]))
++        pairs = pairs[2:]
++    return text
++
++def cram(text, maxlen):
++    """Omit part of a string if needed to make it fit in a maximum length."""
++    if len(text) > maxlen:
++        pre = max(0, (maxlen-3)//2)
++        post = max(0, maxlen-3-pre)
++        return text[:pre] + '...' + text[len(text)-post:]
++    return text
++
++_re_stripid = re.compile(r' at 0x[0-9a-f]{6,16}(>+)$', re.IGNORECASE)
++def stripid(text):
++    """Remove the hexadecimal id from a Python object representation."""
++    # The behaviour of %p is implementation-dependent in terms of case.
++    return _re_stripid.sub(r'\1', text)
++
++class HTMLRepr(Repr):
++    """Class for safely making an HTML representation of a Python object."""
++    def __init__(self):
++        Repr.__init__(self)
++        self.maxlist = self.maxtuple = 20
++        self.maxdict = 10
++        self.maxstring = self.maxother = 100
++
++    def escape(self, text):
++        return replace(text, '&', '&amp;', '<', '&lt;', '>', '&gt;')
++
++    def repr(self, object):
++        return Repr.repr(self, object)
++
++    def repr1(self, x, level):
++        if hasattr(type(x), '__name__'):
++            methodname = 'repr_' + '_'.join(type(x).__name__.split())
++            if hasattr(self, methodname):
++                return getattr(self, methodname)(x, level)
++        return self.escape(cram(stripid(repr(x)), self.maxother))
++
++    def repr_string(self, x, level):
++        test = cram(x, self.maxstring)
++        testrepr = repr(test)
++        if '\\' in test and '\\' not in replace(testrepr, r'\\', ''):
++            # Backslashes are only literal in the string and are never
++            # needed to make any special characters, so show a raw string.
++            return 'r' + testrepr[0] + self.escape(test) + testrepr[0]
++        return re.sub(r'((\\[\\abfnrtv\'"]|\\[0-9]..|\\x..|\\u....)+)',
++                      r'<span class="repr">\1</span>',
++                      self.escape(testrepr))
++
++    repr_str = repr_string
++
++    def repr_instance(self, x, level):
++        try:
++            return self.escape(cram(stripid(repr(x)), self.maxstring))
++        except:
++            return self.escape('<%s instance>' % x.__class__.__name__)
++
++    repr_unicode = repr_string
++
++class HTMLDoc():
++    _repr_instance = HTMLRepr()
++    repr = _repr_instance.repr
++    escape = _repr_instance.escape
++
++    def preformat(self, text):
++        """Format literal preformatted text."""
++        text = self.escape(text.expandtabs())
++        return replace(text, '\n\n', '\n \n', '\n\n', '\n \n',
++                             ' ', '&nbsp;', '\n', '<br>\n')
++
++class TextRepr(Repr):
++    def __init__(self):
++        Repr.__init__(self)
++        self.maxlist = self.maxtuple = 20
++        self.maxdict = 10
++        self.maxstring = self.maxother = 100
++
++    def repr1(self, x, level):
++        if hasattr(type(x), '__name__'):
++            methodname = 'repr_' + '_'.join(type(x).__name__.split())
++            if hasattr(self, methodname):
++                return getattr(self, methodname)(x, level)
++        return cram(stripid(repr(x)), self.maxother)
++
++    def repr_string(self, x, level):
++        test = cram(x, self.maxstring)
++        testrepr = repr(test)
++        if '\\' in test and '\\' not in replace(testrepr, r'\\', ''):
++            # Backslashes are only literal in the string and are never
++            # needed to make any special characters, so show a raw string.
++            return 'r' + testrepr[0] + test + testrepr[0]
++        return testrepr
++
++    repr_str = repr_string
++
++    def repr_instance(self, x, level):
++        try:
++            return cram(stripid(repr(x)), self.maxstring)
++        except:
++            return '<%s instance>' % x.__class__.__name__
++
++class TextDoc():
++    _repr_instance = TextRepr()
++    repr = _repr_instance.repr
++
++html_int = HTMLDoc()
++__text = TextDoc()
++
+ 
+ def reset():
+     """Return a string that resets the CGI and browser to a known state."""
+@@ -129,16 +242,16 @@ function calls leading up to the error,
+     for frame, file, lnum, func, lines, index in records:
+         if file:
+             file = os.path.abspath(file)
+-            link = '<a href="file://%s">%s</a>' % (file, pydoc.html.escape(file))
++            link = '<a href="file://%s">%s</a>' % (file, html_int.escape(file))
+         else:
+             file = link = '?'
+         args, varargs, varkw, locals = inspect.getargvalues(frame)
+         call = ''
+         if func != '?':
+-            call = 'in ' + strong(pydoc.html.escape(func))
++            call = 'in ' + strong(html_int.escape(func))
+             if func != "<module>":
+                 call += inspect.formatargvalues(args, varargs, varkw, locals,
+-                    formatvalue=lambda value: '=' + pydoc.html.repr(value))
++                    formatvalue=lambda value: '=' + html_int.repr(value))
+ 
+         highlight = {}
+         def reader(lnum=[lnum]):
+@@ -154,10 +267,10 @@ function calls leading up to the error,
+             for line in lines:
+                 num = small('&nbsp;' * (5-len(str(i))) + str(i)) + '&nbsp;'
+                 if i in highlight:
+-                    line = '<tt>=&gt;%s%s</tt>' % (num, pydoc.html.preformat(line))
++                    line = '<tt>=&gt;%s%s</tt>' % (num, html_int.preformat(line))
+                     rows.append('<tr><td bgcolor="#ffccee">%s</td></tr>' % line)
+                 else:
+-                    line = '<tt>&nbsp;&nbsp;%s%s</tt>' % (num, pydoc.html.preformat(line))
++                    line = '<tt>&nbsp;&nbsp;%s%s</tt>' % (num, html_int.preformat(line))
+                     rows.append('<tr><td>%s</td></tr>' % grey(line))
+                 i += 1
+ 
+@@ -172,7 +285,7 @@ function calls leading up to the error,
+                     name = strong(name)
+                 else:
+                     name = where + strong(name.split('.')[-1])
+-                dump.append('%s&nbsp;= %s' % (name, pydoc.html.repr(value)))
++                dump.append('%s&nbsp;= %s' % (name, html_int.repr(value)))
+             else:
+                 dump.append(name + ' <em>undefined</em>')
+ 
+@@ -181,11 +294,11 @@ function calls leading up to the error,
+ <table width="100%%" cellspacing=0 cellpadding=0 border=0>
+ %s</table>''' % '\n'.join(rows))
+ 
+-    exception = ['<p>%s: %s' % (strong(pydoc.html.escape(str(etype))),
+-                                pydoc.html.escape(str(evalue)))]
++    exception = ['<p>%s: %s' % (strong(html_int.escape(str(etype))),
++                                html_int.escape(str(evalue)))]
+     for name in dir(evalue):
+         if name[:1] == '_': continue
+-        value = pydoc.html.repr(getattr(evalue, name))
++        value = html_int.repr(getattr(evalue, name))
+         exception.append('\n<br>%s%s&nbsp;=\n%s' % (indent, name, value))
+ 
+     return head + ''.join(frames) + ''.join(exception) + '''
+@@ -197,7 +310,7 @@ function calls leading up to the error,
+ 
+ %s
+ -->
+-''' % pydoc.html.escape(
++''' % html_int.escape(
+           ''.join(traceback.format_exception(etype, evalue, etb)))
+ 
+ def text(einfo, context=5):
+@@ -222,7 +335,7 @@ function calls leading up to the error,
+             call = 'in ' + func
+             if func != "<module>":
+                 call += inspect.formatargvalues(args, varargs, varkw, locals,
+-                    formatvalue=lambda value: '=' + pydoc.text.repr(value))
++                    formatvalue=lambda value: '=' + __text.repr(value))
+ 
+         highlight = {}
+         def reader(lnum=[lnum]):
+@@ -246,7 +359,7 @@ function calls leading up to the error,
+             if value is not __UNDEF__:
+                 if where == 'global': name = 'global ' + name
+                 elif where != 'local': name = where + name.split('.')[-1]
+-                dump.append('%s = %s' % (name, pydoc.text.repr(value)))
++                dump.append('%s = %s' % (name, __text.repr(value)))
+             else:
+                 dump.append(name + ' undefined')
+ 
+@@ -255,7 +368,7 @@ function calls leading up to the error,
+ 
+     exception = ['%s: %s' % (str(etype), str(evalue))]
+     for name in dir(evalue):
+-        value = pydoc.text.repr(getattr(evalue, name))
++        value = __text.repr(getattr(evalue, name))
+         exception.append('\n%s%s = %s' % (" "*4, name, value))
+ 
+     return head + ''.join(frames) + ''.join(exception) + '''
+@@ -295,7 +408,7 @@ class Hook:
+ 
+         if self.display:
+             if plain:
+-                doc = pydoc.html.escape(doc)
++                doc = html_int.escape(doc)
+                 self.file.write('<pre>' + doc + '</pre>\n')
+             else:
+                 self.file.write(doc + '\n')

@@ -13,16 +13,14 @@ config_load "sms_utils"
 config_foreach find_action "rule" "userdefaults"
 
 [ -z "$action_userdefaults" ] && {
-	uci -q batch <<-EOF
-        add sms_utils rule
-        set sms_utils.@rule[-1].action='userdefaults'
-		set sms_utils.@rule[-1].enabled='1'
-		set sms_utils.@rule[-1].smstext='userdefaults'
-		set sms_utils.@rule[-1].authorization='password'
-		set sms_utils.@rule[-1].allowed_phone='all'
-		set sms_utils.@rule[-1].to_other_phone='0'
-        commit sms_utils
-EOF
+	uci_add "sms_utils" "rule"
+	uci_set "sms_utils" "$CONFIG_SECTION" "action" "userdefaults"
+	uci_set "sms_utils" "$CONFIG_SECTION" "enabled" "1"
+	uci_set "sms_utils" "$CONFIG_SECTION" "smstext" "userdefaults"
+	uci_set "sms_utils" "$CONFIG_SECTION" "authorization" "password"
+	uci_set "sms_utils" "$CONFIG_SECTION" "allowed_phone" "all"
+	uci_set "sms_utils" "$CONFIG_SECTION" "to_other_phone" "0"
+	uci_commit sms_utils
 }
 
 exit 0

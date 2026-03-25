@@ -12,11 +12,6 @@ CONFIG=${TMP_DIR}/xl2tpd.conf
 SERVER=
 BIND_STOP=
 
-service_triggers()
-{
-	procd_add_reload_trigger "xl2tpd" "network"
-}
-
 append_options() {
 	local arg="$1"
 	[ -n "$arg" ] && echo "$arg" | sed -e 's/^[ \t]*//' >> ${TMP_DIR}/options.${2}
@@ -71,7 +66,7 @@ setup_config() {
 		echo "ms-dns $localip" >> ${TMP_DIR}/options.${section}
 	}
 
-    [ "$auth_chap" = "1" ] && {
+	[ "$auth_chap" = "1" ] && {
 		echo "require chap = yes" >> "$CONFIG"
 		echo "require-chap" >> "${TMP_DIR}/options.${section}"
 	} || {
@@ -97,6 +92,7 @@ setup_config() {
 	[ -n "$auth" ] && echo "* * $auth" >> ${TMP_DIR}/xl2tp-secrets
 	[ -n "$port" ] && sed -i "s/^port *= *[0-9]\+/port = ${port}/" "$CONFIG"
 	config_foreach setup_login login "$section"
+	chmod 600 ${TMP_DIR}/xl2tp-chap-secrets
 }
 
 setup_login() {
@@ -176,6 +172,11 @@ stop_service() {
 }
 
 reload_service() {
-        stop
-        start
+	stop
+	start
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger "xl2tpd"
 }

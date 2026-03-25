@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Coova Chilli
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-coovachilli-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-coovachilli-ui))$(DUMP))
 	APP_TLT_NAME:=Hotspot
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=coova-chilli

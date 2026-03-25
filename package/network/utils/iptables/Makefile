@@ -10,7 +10,7 @@ include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=iptables
 PKG_VERSION:=1.8.7
-PKG_RELEASE:=4
+PKG_RELEASE:=5
 
 PKG_SOURCE_VERSION:=1.8.7
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.bz2
@@ -612,6 +612,10 @@ define Package/iptables/install
 	$(CP) $(PKG_INSTALL_DIR)/usr/sbin/iptables{,-restore,-save} $(1)/usr/sbin/
 	$(eval DEST_DIR:=$$(1)$(if $(findstring m,$(CONFIG_PACKAGE_iptables)),,/usr/local))
 	$(INSTALL_DIR) $(DEST_DIR)/usr/lib/iptables
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.13
+	$(INSTALL_DATA) ./files/99_restore_nat_extras $(1)/etc/uci-defaults/7.13/99_restore_nat_extras
+
 endef
 
 define Package/iptables-nft/install

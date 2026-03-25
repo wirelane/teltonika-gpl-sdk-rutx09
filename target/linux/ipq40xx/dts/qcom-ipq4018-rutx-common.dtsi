@@ -15,6 +15,21 @@
 		reg = <0x80000000 0x10000000>;
 	};
 
+	reserved-memory {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		ranges;
+
+		/* 64 KiB reserved for ramoops/pstore */
+		ramoops_reserved: ramoops@87d00000 {
+			compatible = "ramoops";
+			reg = <0x87d00000 0x10000>;
+			record-size = <0x2000>;
+			console-size = <0x3800>;
+			pmsg-size = <0x800>;
+		};
+	};
+
 	chosen {
 		bootargs = "console=ttyMSM0,115200";
 	};
@@ -181,7 +196,7 @@
 		};
 
 		serial {
-			reg = <&config 0x30 0xa>;
+			reg = <&config 0x30 0x10>;
 			type = "alnum";
 			default = "0000000000";
 			log;

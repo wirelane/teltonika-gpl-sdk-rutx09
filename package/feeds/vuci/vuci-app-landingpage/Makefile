@@ -30,10 +30,17 @@ endef
 define Package/vuci-app-landingpage/postinst
 #!/bin/sh
 
-[ -z "$${IPKG_INSTROOT}" ] && {
-	http_dis=$$(uci -q get uhttpd.hotspot.disabled)
-	#We need to start http instance if HS service was enabled before
-	[ "$$http_dis" = "1" ] || /etc/init.d/uhttpd reload
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+http_dis=$$(uci -q get uhttpd.hotspot.disabled)
+#We need to start http instance if HS service was enabled before
+[ "$$http_dis" = "1" ] || /etc/init.d/uhttpd reload
+
+[[ -d "/rom/etc/chilli/hotspotlogin" ]] || {
+	mkdir -p /etc/chilli/hotspotlogin/backup/template
+	cp -af /etc/chilli/hotspotlogin/template /etc/chilli/hotspotlogin/backup/
+	chown -R chilli:chilli /etc/chilli/hotspotlogin/backup/template
+	chmod 0774 /etc/chilli/hotspotlogin/backup/template
 }
 
 exit 0
@@ -42,15 +49,17 @@ endef
 define Package/vuci-app-landingpage/postrm
 #!/bin/sh
 
-[ -z "$${IPKG_INSTROOT}" ] && {
-	http_dis=$$(uci -q get uhttpd.hotspot.disabled)
-	[ "$$http_dis" = "0" ] && {
-		uci -q set uhttpd.hotspot.disabled=1
-		uci -q commit uhttpd
-		
-		/etc/init.d/uhttpd reload
-	}
+[ -z "$${IPKG_INSTROOT}" ] || exit 0
+
+http_dis=$$(uci -q get uhttpd.hotspot.disabled)
+[ "$$http_dis" = "0" ] && {
+	uci -q set uhttpd.hotspot.disabled=1
+	uci -q commit uhttpd
+	
+	/etc/init.d/uhttpd reload
 }
+
+[[ -d "/etc/chilli/hotspotlogin/backup/template" ]] && rm -rf /etc/chilli/hotspotlogin/backup/template
 
 exit 0
 endef

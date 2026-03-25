@@ -101,7 +101,7 @@ ifdef CONFIG_MIPS64_ABI
   endif
 endif
 
-DEFAULT_SUBDIR_TARGETS:=clean download download_upstream prepare compile update refresh prereq dist distcheck configure check check-depends develop stage unstage ucompile uclean gpl-install toolchain-dump geninfo upload upload-git
+DEFAULT_SUBDIR_TARGETS:=clean download download_upstream prepare compile update refresh prereq dist distcheck configure check check-depends develop stage unstage ucompile uclean gpl-install toolchain-dump license-json geninfo upload upload-git
 
 define DefaultTargets
 $(foreach t,$(DEFAULT_SUBDIR_TARGETS) $(1),
@@ -159,6 +159,8 @@ PKG_INFO_DIR := $(STAGING_DIR)/pkginfo
 GPL_NAME:=rutos-$(BOARD)-$(shell echo $(CONFIG_TLT_VERSIONING_PREFIX) | tr A-Z a-z)-sdk
 GPL_BUILD_DIR:=$(BUILD_DIR)/$(GPL_NAME)
 GENINFO_FILE:=$(BIN_DIR)/rutos-$(CONFIG_TARGET_BOARD)-$(call device_shortname)-package-geninfo.csv
+LICENSES_JSON:=$(BIN_DIR)/package-licenses.json
+LINUX_LICENSES_DIR:=$(if $(wildcard $(BUILD_DIR)),$(shell find $(BUILD_DIR) -path '*/linux-$(BOARD)$(if $(SUBTARGET),_$(SUBTARGET))/linux-*/LICENSES' -type d))
 
 BUILD_DIR_HOST:=$(if $(IS_PACKAGE_BUILD),$(BUILD_DIR_BASE)/hostpkg,$(BUILD_DIR_BASE)/host)
 STAGING_DIR_HOST?=$(TOPDIR)/staging_dir/host

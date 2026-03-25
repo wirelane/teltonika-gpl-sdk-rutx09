@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for NAT64 (Jool)
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-jool-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-jool-ui))$(DUMP))
 	APP_APP_NAME:=jool
 	APP_TLT_NAME:=Jool
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

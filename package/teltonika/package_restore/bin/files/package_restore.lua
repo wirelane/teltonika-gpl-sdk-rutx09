@@ -118,6 +118,7 @@ if #backup_pkgs > 0 then
 	util.exec("rm -rf %s 2> /dev/null" % BACKUP_PACKAGES)
 	opkg._trigger_pkg_event()
 	opkg._restart_services()
+	opkg._trigger_backup()
 end
 
 --------------- MAIN PACKAGE INSTALL -----------------------
@@ -234,6 +235,8 @@ for i = 1, MAX_RETRIES do -- retry pkg install 3 times in case pkg install fails
 		end)()
 	end
 end
+
+opkg._trigger_backup()
 
 --------------- 3RD PARTY PACKAGE INSTALL -----------------------
 local uci = require "vuci.uci".cursor()

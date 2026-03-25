@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/tinc" ] || exit 0
+[ -f "$UCI_CONFIG_DIR/tinc" ] || exit 0
 
 config_cb() {
 	local type="$1"

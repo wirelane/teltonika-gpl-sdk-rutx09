@@ -79,7 +79,7 @@ move_server() {
 }
 
 
-echo -ne > /etc/config/snmptrap
+echo -ne > "$UCI_CONFIG_DIR/snmptrap"
 
 config_foreach move_server "trap2sink"
 config_foreach move_trap "trap"

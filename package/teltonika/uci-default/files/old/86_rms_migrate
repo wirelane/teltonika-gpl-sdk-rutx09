@@ -2,14 +2,14 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/rms_connect_mqtt" ] && {
-  cat /etc/config/rms_connect_mqtt >> /etc/config/rms_mqtt
-  rm /etc/config/rms_connect_mqtt
+[ -f "$UCI_CONFIG_DIR/rms_connect_mqtt" ] && {
+  cat "$UCI_CONFIG_DIR/rms_connect_mqtt" >> "$UCI_CONFIG_DIR/rms_mqtt"
+  rm "$UCI_CONFIG_DIR/rms_connect_mqtt"
 }
 
-[ -f "/etc/config/rms_connect_timer" ] && {
-  cat /etc/config/rms_connect_timer >> /etc/config/rms_mqtt
-  rm /etc/config/rms_connect_timer
+[ -f "$UCI_CONFIG_DIR/rms_connect_timer" ] && {
+  cat "$UCI_CONFIG_DIR/rms_connect_timer" >> "$UCI_CONFIG_DIR/rms_mqtt"
+  rm "$UCI_CONFIG_DIR/rms_connect_timer"
 }
 
 config_load rms_mqtt

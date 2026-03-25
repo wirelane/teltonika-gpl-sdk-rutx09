@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for SSHFS
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-sshfs-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-sshfs-ui))$(DUMP))
 	APP_APP_NAME:=sshfs
 	APP_TLT_NAME:=SSHFS
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

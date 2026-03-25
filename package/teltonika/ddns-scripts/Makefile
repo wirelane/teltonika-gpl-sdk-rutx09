@@ -8,8 +8,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ddns-scripts
-PKG_VERSION:=2026-02-02
-PKG_RELEASE:=8
+PKG_VERSION:=2026-03-16
+PKG_RELEASE:=1
 
 
 GPL_INCLUDE_SRC:=1
@@ -178,9 +178,9 @@ define Package/ddns-scripts/install
 	$(INSTALL_DIR)	$(1)/etc/uci-defaults
 	$(INSTALL_BIN)	$(PKG_BUILD_DIR)/files/ddns.defaults $(1)/etc/uci-defaults/
 	$(INSTALL_DIR)  $(1)/etc/hotplug.d/iface
-	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/ddns.hotplug $(1)/etc/hotplug.d/iface/95-ddns
+	$(INSTALL_CONF)  $(PKG_BUILD_DIR)/files/ddns.hotplug $(1)/etc/hotplug.d/iface/95-ddns
 	$(INSTALL_DIR)  $(1)/etc/init.d
-	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/ddns.init $(1)/etc/init.d/ddns
+	$(INSTALL_BIN_USR)  $(PKG_BUILD_DIR)/files/ddns.init $(1)/etc/init.d/ddns
 	$(INSTALL_DIR)  $(1)/etc/config
 	$(INSTALL_CONF) $(PKG_BUILD_DIR)/files/ddns.config $(1)/etc/config/ddns
 
@@ -189,7 +189,7 @@ define Package/ddns-scripts/install
 
 	$(INSTALL_DIR)  $(1)/usr/lib/ddns
 	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/dynamic_dns_*.sh $(1)/usr/lib/ddns
-	$(INSTALL_BIN)  $(PKG_BUILD_DIR)/files/ddns.permtab $(1)/etc/permtab.d/ddns
+	$(INSTALL_DATA)  $(PKG_BUILD_DIR)/files/ddns.permtab $(1)/etc/permtab.d/ddns
 endef
 define Package/ddns-scripts/postinst
 	#!/bin/sh

@@ -41,7 +41,7 @@ setup_dhcp() {
 	uci_set "firewall" "$DHCP_SECTION" "src" "wan"
 	uci_set "firewall" "$DHCP_SECTION" "proto" "udp"
 
-	uci reorder firewall."$DHCP_SECTION"="$DMZ_SECTION"
+	uci_reorder "firewall" "$DHCP_SECTION" "$DMZ_SECTION"
 }
 
 fix_dhcp() {

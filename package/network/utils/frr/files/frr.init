@@ -11,16 +11,19 @@ package_dirs="/usr/lib/opkg/info/ /usr/local/lib/opkg/info/"
 daemons_installed="$(find ${package_dirs} -name "frr-*d.list" 2>/dev/null | sed 's#.*/frr-##' | sed 's/d\.list *$//' | tr '\n' ' ')"
 [ -e "/etc/config/nhrp" ] && daemons_installed="${daemons_installed} nhrp"
 BASE_DIR="/var/run/frr"
-CONFIG_FILE_BGP="$BASE_DIR/bgp.conf"
-CONFIG_FILE_RIP="$BASE_DIR/rip.conf"
-CONFIG_FILE_OSPF="$BASE_DIR/ospf.conf"
-CONFIG_FILE_EIGRP="$BASE_DIR/eigrp.conf"
-CONFIG_FILE_NHRP="$BASE_DIR/nhrp.conf"
-CONFIG_FILE_LDP="$BASE_DIR/ldp.conf"
-CONFIG_FILE_STATIC="$BASE_DIR/static.conf"
-CONFIG_FILE_BFD="$BASE_DIR/bfd.conf"
+FRR_BASE_DIR="/etc/frr"
+CONFIG_FILE_BGP="$BASE_DIR/bgpd.conf"
+CONFIG_FILE_RIP="$BASE_DIR/ripd.conf"
+CONFIG_FILE_OSPF="$BASE_DIR/ospfd.conf"
+CONFIG_FILE_EIGRP="$BASE_DIR/eigrpd.conf"
+CONFIG_FILE_NHRP="$BASE_DIR/nhrpd.conf"
+CONFIG_FILE_LDP="$BASE_DIR/ldpd.conf"
+CONFIG_FILE_STATIC="$BASE_DIR/staticd.conf"
+CONFIG_FILE_BFD="$BASE_DIR/bfdd.conf"
 
 mkdir -p "$BASE_DIR"
+chown zebra:frr "$BASE_DIR"
+chmod 770 "$BASE_DIR"
 
 #################################################
 #               Global functions                #
@@ -118,31 +121,42 @@ daemons_check_enabled() {
 }
 
 daemons_launch() {
-	# Checks daemons_enabled variable and if not empty launches Zebra and Staticd
+	# Checks daemons_enabled variable and if not empty launches Zebra
 	# Loops through daemons_enabled variable and launches enabled daemons one by one
-	local daemon group="frr"
+	local daemon group="frr" vty_listen="127.0.0.1"
 	if [ -n "$daemons_enabled" ]; then
 		zebra_loc="/usr/sbin/zebra"
 		[ -x "$zebra_loc" ] || zebra_loc="/usr/local$zebra_loc"
 		procd_open_instance zebra
-		procd_set_param command "$zebra_loc" -u "zebra" -g "$group"
+		procd_set_param command "$zebra_loc" -A "$vty_listen" -u "zebra" -g "$group"
 		procd_set_param respawn
 		procd_close_instance
 
-		for daemon in $daemons_enabled
-		do
+		for daemon in $daemons_enabled; do
+			vty_listen="127.0.0.1"
+			if [ "$daemon" = "rip" ]; then
+				local mgmtd_loc="/usr/sbin/mgmtd"
+				[ -x "$mgmtd_loc" ] || mgmtd_loc="/usr/local$mgmtd_loc"
+				procd_open_instance mgmtd
+				procd_set_param command "$mgmtd_loc" -A "$vty_listen" -u "mgmt" -g "$group"
+				procd_set_param respawn
+				procd_close_instance
+			fi
 			local daemon_loc="/usr/sbin/${daemon}d"
 			[ -x "$daemon_loc" ] || daemon_loc="/usr/local$daemon_loc"
-			local command="procd_set_param command ${daemon_loc} -u $daemon -g $group"
 			config_load "$daemon"
+			config_get enabled_vty "${daemon}" "enabled_vty" "0"
+			[ "$enabled_vty" = "1" ] && vty_listen="0.0.0.0"
+			local command="procd_set_param command ${daemon_loc} -A $vty_listen -u $daemon -g $group"
 			config_get CUSTOM_CONFIG_FILE "${daemon}" "${daemon}d_custom_conf"
 			procd_open_instance "${daemon}d"
 			if [ -z "$CUSTOM_CONFIG_FILE" ]; then
 				${daemon}_parse_config
-				eval "$command -f ${BASE_DIR}/${daemon}.conf"
+				ln -s "${BASE_DIR}/${daemon}d.conf" "${FRR_BASE_DIR}/${daemon}d.conf"
 			else
-				eval "$command -f $CUSTOM_CONFIG_FILE"
+				ln -s "$CUSTOM_CONFIG_FILE" "${FRR_BASE_DIR}/${daemon}d.conf"
 			fi
+			eval "$command"
 			procd_set_param respawn
 			procd_close_instance
 		done
@@ -188,13 +202,13 @@ enable_debug() {
 	local debug_list
 
 	for daemon in $debug_enabled; do
-		xappend "${BASE_DIR}/${daemon}.conf" "log syslog"
+		xappend "${BASE_DIR}/${daemon}d.conf" "log syslog"
 		eval "debug_list=\$$daemon"
 		local IFS="+"
 		for debug in $debug_list; do
-			xappend "${BASE_DIR}/${daemon}.conf" "debug" "$daemon" "$debug"
+			xappend "${BASE_DIR}/${daemon}d.conf" "debug" "$daemon" "$debug"
 		done
-	echo "" >> "${BASE_DIR}/${daemon}.conf"
+	echo "" >> "${BASE_DIR}/${daemon}d.conf"
 	done
 }
 
@@ -225,8 +239,18 @@ add_interface_trigger() {
 
 add_permissions() {
 	local service="$1"
-	chown "$service:frr" "$BASE_DIR/${service}.conf"
+	chown "$service:frr" "$BASE_DIR/${service}d.conf"
 }
+
+check_family() {
+	case "$1" in
+		*:* )
+			echo "ipv6" ;;
+		*.* )
+			echo "ipv4" ;;
+	esac
+}
+
 #################################################
 #                 BGP functions                 #
 #################################################
@@ -253,6 +277,7 @@ bgp_parse_instance() {
 	local section="$1" enabled deterministic_med as
 	local network redistribute id
 	local ebgp_requires_policy
+	local family="ipv4 ipv6" ip_family net
 	local label_export rd_export rt_import rt_export
 	local export_vpn import_vpn vrf
 
@@ -274,35 +299,43 @@ bgp_parse_instance() {
 	config_get_bool import_vpn      "$section" import_vpn
 
 	xappend      "$CONFIG_FILE_BGP" "router bgp" "$as" "vrf" "$vrf"
-	xappend      "$CONFIG_FILE_BGP" "address-family ipv4 unicast"
 	xappend      "$CONFIG_FILE_BGP" "bgp router-id" "$id"
 	xappend_bool "$CONFIG_FILE_BGP" "$ebgp_requires_policy" "bgp ebgp-requires-policy"
 	xappend_bool "$CONFIG_FILE_BGP" "$deterministic_med" "bgp deterministic-med"
-	xappend_list "$CONFIG_FILE_BGP" "network" "$network"
-	xappend_list "$CONFIG_FILE_BGP" "redistribute" "$redistribute"
-	if [ "$vrf" != "default" ]; then
-		xappend      "$CONFIG_FILE_BGP" "address-family ipv4 unicast"
-		xappend      "$CONFIG_FILE_BGP" "rd vpn export" "$rd_export"
-		if [ "$export_vpn" = "1" ]; then
-			xappend      "$CONFIG_FILE_BGP" "label vpn export" "$label_export"
-		fi
-		xappend      "$CONFIG_FILE_BGP" "rt vpn import" "$rt_import"
-		xappend      "$CONFIG_FILE_BGP" "rt vpn export" "$rt_export"
-		xappend_bool "$CONFIG_FILE_BGP" "$export_vpn" "export vpn"
-		xappend_bool "$CONFIG_FILE_BGP" "$import_vpn" "import vpn"
-	fi
 
-	config_foreach bgp_parse_peer bgp_peer "$section"
-	config_foreach bgp_parse_access_list bgp_access_list
+	for ip_family in $family; do
+		for net in $network; do
+			if [ "$(check_family "$net")" = "$ip_family" ]; then
+				xappend      "$CONFIG_FILE_BGP" "address-family $ip_family unicast"
+				xappend_list "$CONFIG_FILE_BGP" "network" "$net"
+				xappend_list "$CONFIG_FILE_BGP" "redistribute" "$redistribute"
+				if [ "$vrf" != "default" ]; then
+					xappend      "$CONFIG_FILE_BGP" "rd vpn export" "$rd_export"
+					if [ "$export_vpn" = "1" ]; then
+						xappend      "$CONFIG_FILE_BGP" "label vpn export" "$label_export"
+					fi
+					xappend      "$CONFIG_FILE_BGP" "rt vpn import" "$rt_import"
+					xappend      "$CONFIG_FILE_BGP" "rt vpn export" "$rt_export"
+					xappend_bool "$CONFIG_FILE_BGP" "$export_vpn" "export vpn"
+					xappend_bool "$CONFIG_FILE_BGP" "$import_vpn" "import vpn"
+				fi
+				if [ "$ip_family" = "ipv6" ]; then
+					xappend "$CONFIG_FILE_BGP" "bgp default ipv6-unicast"
+				else
+					xappend "$CONFIG_FILE_BGP" "exit-address-family"
+				fi
+			fi
+		done
+		config_foreach bgp_parse_peer bgp_peer "$section" "$ip_family"
+	done
+	config_foreach bgp_parse_access_list bgp_access_list "$ip_family"
 }
 
 bgp_parse_peer() {
-	local section="$1" main_inst="$2"
-	local enabled instance as
-	local default_originate ipaddr port
-	local ebgp_multihop description
-	local password route_reflector_client
-	local weight allow_vpn
+	local section="$1" main_inst="$2" ip_family="$3" enabled
+	local instance as default_originate ipaddr
+	local port ebgp_multihop description
+	local password route_reflector_client weight allow_vpn
 	local timer_keepalive timer_holdtime timer_connect
 
 	config_get enabled  "$section" enabled "0"
@@ -323,7 +356,8 @@ bgp_parse_peer() {
 	config_get timer_keepalive        "$section"      timer_keepalive
 	config_get timer_holdtime         "$section"      timer_holdtime
 	config_get timer_connect          "$section"      timer_connect
-	config_get allow_vpn              "$section"      allow_vpn
+	config_get_bool allow_ipv6        "$section"      allow_ipv6
+	config_get_bool allow_vpn         "$section"      allow_vpn
 
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "remote-as" "$as"
 	xappend_bool "$CONFIG_FILE_BGP" "$default_originate" "neighbor" "$ipaddr" "default-originate"
@@ -336,19 +370,22 @@ bgp_parse_peer() {
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "timers" "$timer_keepalive" "$timer_holdtime"
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "timers connect" "$timer_connect"
 	xappend_bool "$CONFIG_FILE_BGP" "$route_reflector_client" "neighbor" "$ipaddr" "route-reflector-client"
-	[ "$allow_vpn" ] && {
-		xappend      "$CONFIG_FILE_BGP" "address-family" "ipv4" "vpn"
+	xappend      "$CONFIG_FILE_BGP" "address-family" "$ip_family" "unicast"
+	[ "$allow_ipv6" = "1" ] && xappend "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "activate"
+	xappend      "$CONFIG_FILE_BGP" "exit-address-family"
+
+	[ "$allow_vpn" = "1" ] && {
+		xappend      "$CONFIG_FILE_BGP" "address-family" "$ip_family" "vpn"
 		xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "activate"
 		xappend      "$CONFIG_FILE_BGP" "exit-address-family"
 	}
-	config_foreach bgp_parse_peer_group bgp_peer_group "$ipaddr" "$as"
+	config_foreach bgp_parse_peer_group bgp_peer_group "$ipaddr" "$as" "$ip_family"
 	config_foreach bgp_parse_route_map_filters bgp_route_map_filters
 }
 
 bgp_parse_peer_group() {
 	local section="$1"
 	local enabled
-#	local instance
 	local group_as
 	local group_ipaddr
 	local next_hop_self
@@ -385,7 +422,6 @@ bgp_parse_peer_group() {
 	config_get listen_range           "$section" listen_range
 	config_get cl_config_type         "$section" cl_config_type
 
-
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$section" "peer-group"
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$section" "remote-as" "$group_as"
 	xappend_bool "$CONFIG_FILE_BGP" "$con_check" "neighbor" "$section" "disable-connected-check"
@@ -394,8 +430,10 @@ bgp_parse_peer_group() {
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$section" "soft-reconfiguration" "$soft_rec_inbound"
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$ipaddr" "peer-group" "$section"
 	xappend      "$CONFIG_FILE_BGP" "bgp listen range" "$listen_range" "peer-group" "$section"
+	xappend      "$CONFIG_FILE_BGP" "address-family" "$ip_family" "unicast"
+	[ "$allow_ipv6" = "1" ] && xappend "$CONFIG_FILE_BGP" "neighbor" "$section" "activate"
 	xappend      "$CONFIG_FILE_BGP" "neighbor" "$section" "$cl_config_type"
-
+	xappend      "$CONFIG_FILE_BGP" "exit-address-family"
 
 	if [ "$next_hop_self" = "1" ] && [ "$next_hop_self_all" = "1" ]; then
 		xappend "$CONFIG_FILE_BGP" "neighbor" "$section" "next-hop-self all"
@@ -793,6 +831,7 @@ nhrp_parse_instance(){
 	local interface
 	local redirect
 	local section="$1"
+	local family
 
 	config_get enabled "$section" enabled "0"
 	[ "$enabled" = "0" ] && return 1
@@ -801,35 +840,38 @@ nhrp_parse_instance(){
 	config_get auth           "$section" auth
 	config_get proto_address  "$section" proto_address
 	config_get nbma_address   "$section" nbma_address
-	config_get holdtime       "$section" holdtime
+	config_get holdtime       "$section" holdtime "600"
 	config_get ipsec_support  "$section" ipsec_support
 	config_get ipsec_instance "$section" ipsec_instance
 	config_get interface      "$section" interface
 	config_get redirect       "$section" redirect
+	config_get family         "$section" family "ipv4"
+
+	[ "$family" = "ipv4" ] && family="ip"
 
 	[ -n "$ipsec_instance" ] && ipsec_instance=${ipsec_instance#*-}
 	check_interface interface "$interface" "nhrp"
 	xappend      "$CONFIG_FILE_NHRP" "interface" "$interface"
-	xappend      "$CONFIG_FILE_NHRP" "ip nhrp cisco-authentification" "$auth"
-	xappend      "$CONFIG_FILE_NHRP" "ip nhrp network-id" "$network_id"
+	xappend      "$CONFIG_FILE_NHRP" "$family nhrp authentication" "$auth"
+	xappend      "$CONFIG_FILE_NHRP" "$family nhrp network-id" "$network_id"
 
-	[ -n "$multicast_nflog_group" ] && xappend "$CONFIG_FILE_NHRP" "ip nhrp map multicast dynamic"
+	[ -n "$multicast_nflog_group" ] && xappend "$CONFIG_FILE_NHRP" "$family nhrp map multicast dynamic"
 
 	if [ "$redirect" = "1" ]; then
-		xappend      "$CONFIG_FILE_NHRP" "ip nhrp nhs dynamic nbma" "$nbma_address"
+		xappend      "$CONFIG_FILE_NHRP" "$family nhrp nhs dynamic nbma" "$nbma_address"
 	else
-		xappend      "$CONFIG_FILE_NHRP" "ip nhrp nhs" "$proto_address" "nbma" "$nbma_address"
+		xappend      "$CONFIG_FILE_NHRP" "$family nhrp nhs" "$proto_address" "nbma" "$nbma_address"
 	fi
 
-	xappend_bool "$CONFIG_FILE_NHRP" "$redirect" "ip nhrp redirect"
-	xappend      "$CONFIG_FILE_NHRP" "ip nhrp registration no-unique"
-	xappend      "$CONFIG_FILE_NHRP" "ip nhrp shortcut"
-	xappend      "$CONFIG_FILE_NHRP" "ip nhrp holdtime" "$holdtime"
+	xappend_bool "$CONFIG_FILE_NHRP" "$redirect" "$family nhrp redirect"
+	xappend      "$CONFIG_FILE_NHRP" "$family nhrp registration no-unique"
+	xappend      "$CONFIG_FILE_NHRP" "$family nhrp shortcut"
+	xappend      "$CONFIG_FILE_NHRP" "$family nhrp holdtime" "$holdtime"
 	[ "$ipsec_support" = "1" ] && \
 	xappend      "$CONFIG_FILE_NHRP" "tunnel protection vici profile" "$ipsec_instance"
 
-	config_foreach nhrp_parse_nhs "${section}_nhs"
-	config_foreach nhrp_parse_map "${section}_map"
+	config_foreach nhrp_parse_nhs "${section}_nhs" "$family"
+	config_foreach nhrp_parse_map "${section}_map" "$family"
 }
 
 nhrp_parse_map() {
@@ -838,6 +880,7 @@ nhrp_parse_map() {
 	local ip_addr
 	local nbma
 	local section="$1"
+	local family="$2"
 
 	config_get enabled "$section" enabled "0"
 	[ "$enabled" = "0" ] && return 1
@@ -845,7 +888,7 @@ nhrp_parse_map() {
 	config_get ip_addr "$section" ip_addr
 	config_get nbma "$section" nbma
 
-	xappend "$CONFIG_FILE_NHRP" "ip nhrp map" "$ip_addr" "$nbma"
+	xappend "$CONFIG_FILE_NHRP" "$family nhrp map" "$ip_addr" "$nbma"
 }
 
 nhrp_parse_nhs() {
@@ -854,6 +897,7 @@ nhrp_parse_nhs() {
 	local nhs_address
 	local nbma_address
 	local section="$1"
+	local family="$2"
 
 	config_get enabled "$section" enabled "0"
 	[ "$enabled" = "0" ] && return 1
@@ -861,7 +905,7 @@ nhrp_parse_nhs() {
 	config_get nhs_address "$section" nhs_address
 	config_get nbma_address "$section" nbma_address
 
-	xappend "$CONFIG_FILE_NHRP" "ip nhrp nhs" "$nhs_address" "nbma" "$nbma_address"
+	xappend "$CONFIG_FILE_NHRP" "$family nhrp nhs" "$nhs_address" "nbma" "$nbma_address"
 }
 
 #################################################
@@ -889,7 +933,7 @@ bfd_parse_config() {
 
 	bfd_get_status() { return 1; }
 
-	. /etc/frr/bfd_utils.sh
+	. "${FRR_BASE_DIR}/bfd_utils.sh"
 
 	bfd_get_status && enable_vty "$CONFIG_FILE_BFD" "bfd"
 	bfd_utils_parse_config
@@ -941,6 +985,11 @@ frr_start() {
 start_service()
 {
 	frr_start
+}
+
+stop_service()
+{
+	find "${FRR_BASE_DIR}" -type l -exec rm -f {} +
 }
 
 reload_service()

@@ -595,6 +595,7 @@ uci_apply_defaults() {
 	[ "$old_major" -eq 7 ] && [ "$old_minor" -ge 4 ] && rm -rf ${top_dir}/old
 
 	mkdir -p "/tmp/.uci"
+	[ -z "$UCI_CONFIG_DIR" ] && export UCI_CONFIG_DIR="/etc/config"
 
 	find "$top_dir" -maxdepth 1 -type d | sort -V | while read -r dir; do
 		[ "$dir" == "$top_dir" ] && continue

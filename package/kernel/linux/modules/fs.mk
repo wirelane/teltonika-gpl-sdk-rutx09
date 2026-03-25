@@ -137,7 +137,7 @@ define KernelPackage/fs-cifs
     +kmod-oid-registry \
     +kmod-dnsresolver \
     +kmod-asn1-decoder
-  ifeq (m, $(CONFIG_PACKAGE_kmod-fs-cifs))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_kmod-fs-cifs))$(DUMP))
     PKG_TLT_NAME:=CIFS/SMBFS filesystem support
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif

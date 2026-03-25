@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=reboot_utils
-PKG_VERSION:=2026-01-22
+PKG_VERSION:=2026-03-13
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=3.13.1

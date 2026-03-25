@@ -1893,7 +1893,7 @@ config BUSYBOX_DEFAULT_FEATURE_VOLUMEID_XFS
 	default n
 config BUSYBOX_DEFAULT_ADJTIMEX
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_BBCONFIG
 	bool
 	default n

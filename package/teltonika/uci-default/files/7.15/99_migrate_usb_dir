@@ -10,7 +10,7 @@ migrate_mountpoints() {
     local section_type="$2"
     local option="$3"
 
-    [ -f "/etc/config/$config" ] || return 0
+    [ -f "$UCI_CONFIG_DIR/$config" ] || return 0
 
     CONFIG="$config"
     config_load "$config"

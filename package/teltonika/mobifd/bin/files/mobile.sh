@@ -528,13 +528,14 @@ setup_static_v4() {
 
 setup_dhcp_v4() {
 	local dev="$1"
+	local use_mobile_flag="${2:-1}"
 	echo "Setting up $dev V4 DCHP"
 	json_init
 	json_add_string name "${interface}_4"
 	json_add_string ifname "$dev"
 	json_add_string proto "dhcp"
 	json_add_string script "/lib/netifd/dhcp_mobile.script"
-	json_add_boolean ismobile "1"
+	json_add_boolean ismobile "$use_mobile_flag"
 	[ -n "$ip4table" ] && json_add_string ip4table "$ip4table"
 	proto_add_dynamic_defaults
 	ubus call network add_dynamic "$(json_dump)"

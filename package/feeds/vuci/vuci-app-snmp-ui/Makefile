@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for SNMP application
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-snmp-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-snmp-ui))$(DUMP))
 	APP_TLT_NAME:=SNMP
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=snmp

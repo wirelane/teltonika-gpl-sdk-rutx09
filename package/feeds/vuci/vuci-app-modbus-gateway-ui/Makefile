@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Modbus Gateway
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-modbus-gateway-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-modbus-gateway-ui))$(DUMP))
 	APP_TLT_NAME:=MQTT Modbus gateway
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=mqtt-modbus-gateway

@@ -1,11 +1,6 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for BFD
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-bfd-ui))
-	APP_APP_NAME:=bfdd-frr
-	APP_TLT_NAME:=BFD
-	APP_ROUTER:=$(TLT_PLATFORM_NAME)
-endif
 
 include ../app.mk
 

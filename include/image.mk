@@ -398,6 +398,7 @@ $(KDIR)/root.%: kernel_prepare
 
 DEVICE_HARDWARE_VARS = \
   HARDWARE/Mobile/Module \
+  HARDWARE/Mobile/Modem \
   HARDWARE/Mobile/3GPP_Release \
   HARDWARE/Mobile/3GPP_Release/Tooltip \
   HARDWARE/Mobile/eSIM \

@@ -3,7 +3,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=site_manager
 
-PKG_SOURCE_VERSION:=7.21.2.1
+PKG_SOURCE_VERSION:=7.22
 
 PKG_LICENSE:=Teltonika-closed
 
@@ -124,4 +124,3 @@ endef
 $(eval $(call BuildPackage,libtdp))
 $(eval $(call BuildPackage,siteman))
 $(eval $(call BuildPackage,siteman_client))
-

@@ -1,12 +1,12 @@
 #!/bin/sh
 
+. /lib/functions.sh
+
 NETWORK_CFG="network"
 MIRROR_CFG="port_mirroring"
 SECTION="ifmirror"
 
-[ "$(uci -q get "$NETWORK_CFG"."$SECTION")" != "interface" ] && exit 0
-
-. /lib/functions.sh
+[ "$(uci_get "$NETWORK_CFG" "$SECTION")" != "interface" ] && exit 0
 
 config_load "$NETWORK_CFG"
 

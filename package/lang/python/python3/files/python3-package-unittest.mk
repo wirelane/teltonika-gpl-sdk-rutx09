@@ -19,4 +19,6 @@ endef
 
 $(eval $(call Py3BasePackage,python3-unittest, \
 	/usr/lib/python$(PYTHON3_VERSION)/unittest \
+  , \
+	DO_NOT_ADD_TO_PACKAGE_DEPENDS \
 ))

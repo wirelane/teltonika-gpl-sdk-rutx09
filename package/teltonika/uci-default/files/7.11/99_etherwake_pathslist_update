@@ -4,6 +4,6 @@
 
 CONF="etherwake"
 
-[ -f "/etc/config/${CONF}" ] || return 0
+[ -f "$UCI_CONFIG_DIR/${CONF}" ] || return 0
 uci_set "$CONF" "setup" "pathes" "/usr/bin/etherwake /usr/bin/ether-wake /usr/local/usr/bin/etherwake /usr/local/usr/bin/ether-wake"
 uci_commit "$CONF"

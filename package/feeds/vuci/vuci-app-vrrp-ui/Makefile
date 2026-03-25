@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for VRRP
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-vrrp-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-vrrp-ui))$(DUMP))
 	APP_APP_NAME:=vrrpd
 	APP_TLT_NAME:=VRRP
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

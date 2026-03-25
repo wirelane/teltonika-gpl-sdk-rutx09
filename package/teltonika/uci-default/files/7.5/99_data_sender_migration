@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -f "/etc/config/modbus_data_sender" ] || return 0
+[ -f "$UCI_CONFIG_DIR/modbus_data_sender" ] || return 0
 
 PLUGIN_SECTION=
 
@@ -188,12 +188,10 @@ set_bluetooth_plugin() {
 	config_get device_filtering "$sec" device_filtering
 	config_get json_string "$sec" json_string
 
-	uci -q batch <<-EOF
-		set data_sender.$new_sec=input
-		set data_sender.$new_sec.plugin='bluetooth'
-		set data_sender.$new_sec.name='$new_sec'
-		set data_sender.$new_sec.bl_object='$format_non_array'
-EOF
+	uci_add "data_sender" "input" "$new_sec"
+	uci_set "data_sender" "$new_sec" "plugin" "bluetooth"
+	uci_set "data_sender" "$new_sec" "name" "$new_sec"
+	uci_set "data_sender" "$new_sec" "bl_object" "$format_non_array"
 
 	set_segment_count "$sec" "$new_sec" bl_segments
 	set_filter "$device_filtering" "$new_sec" bl_filter
@@ -569,9 +567,9 @@ migrate_sender() {
 config_load modbus_data_sender
 config_foreach migrate_sender data_sender
 
-uci -q commit data_sender
-rm -f /etc/config/modbus_data_sender
+uci_commit data_sender
+rm -f "$UCI_CONFIG_DIR/modbus_data_sender"
 
-uci commit
+uci_commit
 
 exit 0

@@ -7,19 +7,18 @@
 
 include $(TOPDIR)/rules.mk
 PKG_NAME:=frr
-PKG_VERSION:=8.4.2
-PKG_RELEASE:=20
-PKG_SOURCE_DATE:=2023-02-17
+PKG_VERSION:=10.2.1
+PKG_RELEASE:=5
+PKG_SOURCE_DATE:=2025-01-29
 
-
-PKG_SOURCE_VERSION:=8.4.2
-PKG_SOURCE_VERSION:=410d78b7a4f2c8b4d4c3736c6d6cdb710287ca80
+PKG_SOURCE_VERSION:=10.2.1
+PKG_SOURCE_VERSION:=05f9d44340755e5ca612e4852b710f4037254e7b
 PKG_SOURCE:=frr-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_FILE=$(PKG_SOURCE)
 PKG_SOURCE_URL:=https://codeload.github.com/FRRouting/frr/tar.gz/$(PKG_SOURCE_VERSION)?
 PKG_LICENSE_FILES:=COPYING COPYING-LGPLv2.1
 
-PKG_HASH:=1334b050ea3d4144efeb7bdfe9c6976ebc91744810c5d8a7381a53fac2877ea9
+PKG_HASH:=8873e1f638fc4457a30227181e3fd26414795e63dbb11911c2e669876589f228
 PKG_MAINTAINER:=Lucian Cristian <lucian.cristian@gmail.com>
 
 HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/$(PKG_NAME)-$(PKG_SOURCE_VERSION)
@@ -41,6 +40,7 @@ PKG_DAEMON_AVAILABLE:= \
 	pathd \
 	pbrd \
 	pimd \
+	pim6d \
 	ripd \
 	ripngd \
 	staticd \
@@ -63,7 +63,7 @@ PKG_BUILD_PARALLEL:=1
 PKG_BUILD_FLAGS:=lto
 PKG_INSTALL:=1
 
-PKG_BUILD_DEPENDS:=frr/host
+PKG_BUILD_DEPENDS:=frr/host protobuf-c/host
 HOST_BUILD_DEPENDS:=elfutils/host
 
 include $(INCLUDE_DIR)/package.mk
@@ -100,7 +100,7 @@ endef
 define Package/frr-libfrr
   $(call Package/frr/Default)
   TITLE:=zebra library
-  DEPENDS+=+librt +libatomic +libcap +libjson-c +libyang +FRR_OPENSSL:libopenssl +FRR_SNMP:libnetsnmp
+  DEPENDS+=+librt +libatomic +libcap +libjson-c +libyang +FRR_OPENSSL:libopenssl +FRR_SNMP:libnetsnmp +libprotobuf-c
   CONFLICTS:=quagga-libzebra
 endef
 
@@ -109,10 +109,18 @@ define Package/frr-vtysh
   DEPENDS+=+frr-libfrr +libreadline +libncurses +more
   TITLE:=integrated shell for frr routing software
   CONFLICTS:=quagga-vtysh
-  ifeq (m, $(CONFIG_PACKAGE_frr-vtysh))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_frr-vtysh))$(DUMP))
     PKG_TLT_NAME:=FRR VTYSH
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif
+endef
+
+define Package/frr-mgmtd
+  $(call Package/frr/Default)
+  DEPENDS+=+frr-libfrr
+  TITLE:=FRR Management Daemon
+  FATTRS:=/usr/sbin/mgmtd::::cap_net_bind_service,cap_net_raw,cap_sys_admin+p
+  USERID:=mgmt:frr
 endef
 
 define Package/frr-watchfrr
@@ -225,6 +233,7 @@ define BuildDaemon
 		USERID:=bgp:frr
 	endif
 	ifeq ($(1),ripd)
+		DEPENDS+=+frr-mgmtd
 		FATTRS:=/usr/sbin/ripd::::cap_net_bind_service,cap_net_raw,cap_sys_admin+p
 		USERID:=rip:frr
 	endif
@@ -283,12 +292,11 @@ HOST_CONFIGURE_ARGS+= \
 
 define Host/Install
 	$(INSTALL_DIR) $(STAGING_DIR_HOSTPKG)/bin
-	$(INSTALL_BIN) $(HOST_BUILD_DIR)/lib/clippy $(STAGING_DIR_HOSTPKG)/bin/clippy
-	$(INSTALL_BIN) files/clippy.sh $(STAGING_DIR_HOSTPKG)/bin/clippy.sh
+	$(INSTALL_BIN) $(HOST_BUILD_DIR)/lib/clippy $(STAGING_DIR_HOSTPKG)/bin/
 endef
 
 CONFIGURE_ARGS+= \
-	--with-clippy=$(STAGING_DIR_HOSTPKG)/bin/clippy.sh \
+	--with-clippy=$(STAGING_DIR_HOSTPKG)/bin/clippy \
 	--prefix=/usr \
 	--enable-shared \
 	--disable-static \
@@ -313,14 +321,17 @@ define Package/frr/install
 	$(INSTALL_DIR) $(1)/usr/sbin $(1)/etc/frr $(1)/etc/permtab.d $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/frr.init $(1)/etc/init.d/frr
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.5 $(1)/etc/uci-defaults/7.7
-	$(CP) ./files/defaults/97_frr_indexing $(1)/etc/uci-defaults/7.5/97_frr_indexing
-	$(CP) ./files/defaults/98_modify-frr.sh $(1)/etc/uci-defaults/7.5/98_modify-frr.sh
-	$(CP) ./files/defaults/99_migrate-frr.sh $(1)/etc/uci-defaults/7.5/99_migrate-frr.sh
-	$(CP) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.7/99-migrate-main_instance.sh
+	$(INSTALL_DATA) ./files/defaults/97_frr_indexing $(1)/etc/uci-defaults/7.5/97_frr_indexing
+	$(INSTALL_DATA) ./files/defaults/98_modify-frr.sh $(1)/etc/uci-defaults/7.5/98_modify-frr.sh
+	$(INSTALL_DATA) ./files/defaults/99_migrate-frr.sh $(1)/etc/uci-defaults/7.5/99_migrate-frr.sh
+	$(INSTALL_DATA) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.7/99-migrate-main_instance.sh
 
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
-	$(CP) ./files/defaults/99_fix_frr_broken_uci_default $(1)/etc/uci-defaults/7.18/99-recover-broken-config
-	$(CP) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.18/99-migrate-main_instance.sh
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18 $(1)/etc/uci-defaults/7.22
+	$(INSTALL_DATA) ./files/defaults/99_fix_frr_broken_uci_default $(1)/etc/uci-defaults/7.18/99-recover-broken-config
+	$(INSTALL_DATA) ./files/defaults/7.7/99-migrate-main_instance.sh $(1)/etc/uci-defaults/7.18/99-migrate-main_instance.sh
+	$(INSTALL_DATA) ./files/defaults/7.22/99-migrate-bgp-name-option.sh $(1)/etc/uci-defaults/7.22/99-migrate-bgp-name-option.sh
+	$(INSTALL_DATA) ./files/defaults/7.22/99-migrate-rip-name-option.sh $(1)/etc/uci-defaults/7.22/99-migrate-rip-name-option.sh
+
 endef
 
 define Package/frr-watchfrr/install
@@ -357,6 +368,12 @@ define Package/frr-vtysh/install
 	$(INSTALL_CONF) ./files/vtysh.conf $(1)/etc/frr/
 endef
 
+define Package/frr-mgmtd/install
+	$(INSTALL_DIR) $(1)/usr/sbin $(1)/usr/lib
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/mgmtd $(1)/usr/sbin/
+	$(CP) $(PKG_INSTALL_DIR)/usr/lib/libmgmt_be_nb.so* $(1)/usr/lib/
+endef
+
 define generate_post_template
 define Package/frr-$(1)/postinst
 	/etc/init.d/frr reload > /dev/null 2>&1
@@ -376,6 +393,7 @@ $(eval $(call BuildPackage,frr-pythontools))
 $(eval $(call BuildPackage,frr-watchfrr))
 $(eval $(call BuildPackage,frr-zebra))
 $(eval $(call BuildPackage,frr-vtysh))
+$(eval $(call BuildPackage,frr-mgmtd))
 $(eval $(call BuildDaemon,babeld,))
 $(eval $(call BuildDaemon,bfdd,))
 $(eval $(call BuildDaemon,bgpd,))
@@ -389,6 +407,7 @@ $(eval $(call BuildDaemon,ospf6d,@IPV6))
 $(eval $(call BuildDaemon,pathd,))
 $(eval $(call BuildDaemon,pbrd,))
 $(eval $(call BuildDaemon,pimd,))
+$(eval $(call BuildDaemon,pim6d,))
 $(eval $(call BuildDaemon,ripd,))
 $(eval $(call BuildDaemon,ripngd,@IPV6))
 $(eval $(call BuildDaemon,staticd,))

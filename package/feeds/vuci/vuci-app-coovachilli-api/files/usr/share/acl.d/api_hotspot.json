@@ -1,1 +1,1 @@
-{"user":"uhttpd","access":{"chilli":{"methods":["list","logout"]}}}
+{"user":"uhttpd","access":{"chilli.*":{"methods":["list","logout"]}}}

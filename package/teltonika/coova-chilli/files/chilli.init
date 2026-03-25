@@ -70,13 +70,14 @@ config_cb() {
 }
 
 set_dyn_limits() {
-	local section=$1 group=$2 type=$3
+	local section="$1" cfg="$2" group="$3" type="$4"
 
 	config_get name "${section}" name
 	{
 		[ -z "$group" ] || [ "$group" != "$name" ] || [ -z "$type" ]
 	} && return 0
 
+	config_get expiration "${section}" defexpirationtime 0
 	config_get timeout "${section}" defsessiontimeout 0
 	config_get idle "${section}" defidletimeout 0
 	config_get dw_max "${section}" downloadlimit 0
@@ -84,7 +85,6 @@ set_dyn_limits() {
 	config_get warning "${section}" warning 0
 	config_get dw_bwidth "${section}" downloadbandwidth 0
 	config_get upl_bwidth "${section}" uploadbandwidth 0
-	config_get expiration "${section}" expiration 0
 	config_get period "${section}" period "3"
 	option=$(get_option "$period")
 	config_get start "${section}" "$option" "1"
@@ -98,6 +98,10 @@ set_dyn_limits() {
 	set_conf "${type}warning" "$warning"
 	set_conf "${type}limitperiod" "$period"
 	set_conf "${type}limitstart" "$start"
+
+	# By default uses global expiration time if specified
+	local global_expiration=$(eval "echo \$chilli_dynexpirationtime_$cfg")
+	[ -z "$global_expiration" ] && set_conf "${type}expirationtime" "$expiration"
 }
 
 set_chilli() {
@@ -235,6 +239,10 @@ set_chilli() {
 	_trial_users_group)
 		eval "chilli_trial_group_$CONFIG_SECTION=$value"
 		;;
+	dynexpirationtime)
+		eval "chilli_dynexpirationtime_$CONFIG_SECTION=$value"
+		set_conf "dynexpirationtime" "$value"
+		;;
 	_https)
 		[ "$2" = "1" ] && set_conf_bool "redirssl" 1
 		;;
@@ -278,7 +286,7 @@ set_chilli() {
 		chown root:chilli "$2"
 		set_conf "$1" "$2"
 		;;
-	_* | uamdomain_* | conup | condown | uamlisten | net | macup | macdown | enabled | conrestart) ;;
+	_* | uamdomain_* | conup | condown | uamlisten | net | macup | macdown | enabled | conrestart | name | theme) ;;
 
 	*)
 		set_conf "$@"
@@ -501,6 +509,30 @@ copy_db_file() {
 	chmod +x "$stop_script_path"
 }
 
+deactivate_chilli() {
+	local action="$1"
+	local service="$2"
+	local instance="$3"
+	case "$action" in
+		deactivate)
+			uci set chilli."$instance".enabled=0
+			uci set uhttpd.hotspot.disabled=1
+			uci commit chilli
+			uci commit uhttpd
+			_procd_kill chilli "$instance"
+			/etc/init.d/uhttpd reload &
+			;;
+		activate)
+			uci set chilli."$instance".enabled=1
+			uci set uhttpd.hotspot.disabled=0
+			uci commit chilli
+			uci commit uhttpd
+			/etc/init.d/chilli reload &
+			/etc/init.d/uhttpd reload &
+			;;
+	esac
+}
+
 start_chilli() {
 	local cfg="$1" dhcpif=$2
 	local start_chilli=$(eval "echo \$start_chilli_$cfg")
@@ -542,10 +574,11 @@ start_chilli() {
 	add_con_script "macdown" "$cfg"
 
 	set_conf "conrestart" "${FLASH_DIR}/conrestart.sh"
+	set_conf "instance" "$cfg"
 
 	config_get uamdomainfile "$cfg" "uamdomainfile"
-	[ -n "$chilli_group" ] && config_foreach set_dyn_limits group "$chilli_group" "dyn"
-	[ -n "$trial_group" ] && config_foreach set_dyn_limits group "$trial_group" "trial"
+	[ -n "$chilli_group" ] && config_foreach set_dyn_limits group "$cfg" "$chilli_group" "dyn"
+	[ -n "$trial_group" ] && config_foreach set_dyn_limits group "$cfg" "$trial_group" "trial"
 
 	macaddr=$(cat /sys/class/net/"${ifname}"/address)
 	pid_file="${WORKING_DIR}/run_chilli_${cfg}.pid"
@@ -567,6 +600,9 @@ start_chilli() {
 	procd_set_param stdout 1
 	procd_set_param stderr 1
 	procd_set_param user chilli
+
+	procd_set_disable_hook "chilli" "$cfg" "" deactivate_chilli
+
 	procd_close_instance
 }
 

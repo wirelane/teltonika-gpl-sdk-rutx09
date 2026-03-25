@@ -62,4 +62,4 @@ config_load "$CONF"
 config_foreach migrate_ip_filters
 uci_commit "$CONF_FW"
 
-rm /etc/config/"$CONF"
+rm "$UCI_CONFIG_DIR/$CONF"

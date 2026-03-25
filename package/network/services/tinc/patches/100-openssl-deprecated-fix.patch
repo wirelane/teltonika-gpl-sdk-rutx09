@@ -241,7 +241,7 @@ Index: tinc-1.0.36/src/protocol_auth.c
  		return false;
  	}
 +#else
-+	size_t outlen;
++	size_t outlen = EVP_PKEY_size(c->pkey);
 +	EVP_PKEY_CTX *pctx = EVP_PKEY_CTX_new(c->pkey, NULL);
 +	if (pctx == NULL) {
 +		return false;

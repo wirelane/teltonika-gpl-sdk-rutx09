@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 APP_TITLE:=VuCI UI Support for Speed Test
 
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-speed-test-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-speed-test-ui))$(DUMP))
 	APP_TLT_NAME:=Speedtest
 	APP_APP_NAME:=speedtest
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)

@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for MQTT
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-mqtt-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-mqtt-ui))$(DUMP))
 	APP_TLT_NAME:=MQTT
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=mqtt_pub

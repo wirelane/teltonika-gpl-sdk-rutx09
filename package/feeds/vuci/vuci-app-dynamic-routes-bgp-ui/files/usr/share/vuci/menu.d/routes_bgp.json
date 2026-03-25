@@ -15,7 +15,7 @@
     "main_page": true,
     "depends": {
       "packages": {
-        "anyOf": ["frr-bgpd", "frr5-bgpd"]
+        "anyOf": ["frr-bgpd", "frr8-bgpd"]
       }
     }
   },
@@ -35,7 +35,7 @@
     "files": ["/etc/config/bgp"],
     "depends": {
       "packages": {
-        "anyOf": ["frr-bgpd", "frr5-bgpd"]
+        "anyOf": ["frr-bgpd", "frr8-bgpd"]
       }
     }
   }

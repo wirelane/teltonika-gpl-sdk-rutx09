@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-[ -e "/etc/config/frr" ] || exit 0
+[ -e "$UCI_CONFIG_DIR/frr" ] || exit 0
 
 clean_bgp=0
 clean_rip=0
@@ -11,8 +11,8 @@ clean_eigrp=0
 clean_nhrp=0
 
 clean_svc() {
-	eval "[ \"\$clean_$1\" = 0 ]" && [ -f "/etc/config/$1" ] || return
-	rm "/etc/config/$1"
+	eval "[ \"\$clean_$1\" = 0 ]" && [ -f "$UCI_CONFIG_DIR/$1" ] || return
+	rm "$UCI_CONFIG_DIR/$1"
 	eval "clean_$1=1"
 }
 
@@ -79,21 +79,21 @@ migrate_config(){
 
 	case "$4" in
 		config)
-			echo "" >> "/etc/config/$3"
+			echo "" >> "$UCI_CONFIG_DIR/$3"
 			if [ "${value#*cfg}" != "$value" ]; then
-				echo "config $option" >> "/etc/config/$3"
+				echo "config $option" >> "$UCI_CONFIG_DIR/$3"
 			else
-				echo "config $option '$value'" >> "/etc/config/$3"
+				echo "config $option '$value'" >> "$UCI_CONFIG_DIR/$3"
 			fi
 			;;
 		option)
-			echo -e "\toption $option '$value'" >> "/etc/config/$3"
+			echo -e "\toption $option '$value'" >> "$UCI_CONFIG_DIR/$3"
 			;;
 		list)
-			echo -e "\tlist $option '$value'" >> "/etc/config/$3"
+			echo -e "\tlist $option '$value'" >> "$UCI_CONFIG_DIR/$3"
 			;;
 	esac
 }
 
 config_load frr
-rm /etc/config/frr
+rm "$UCI_CONFIG_DIR/frr"

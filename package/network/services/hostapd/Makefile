@@ -393,7 +393,7 @@ define Package/wpa-cli
   DEPENDS:=@$(subst $(space),||,$(foreach pkg,$(SUPPLICANT_PROVIDERS),PACKAGE_$(pkg)))
   TITLE:=WPA Supplicant command line control utility
   VARIANT:=*
-  ifeq (m, $(CONFIG_PACKAGE_wpa-cli))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_wpa-cli))$(DUMP))
     PKG_TLT_NAME:=WPA CLI
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
   endif

@@ -11,6 +11,9 @@
         },
         "gsm.modem*": {
             "methods": [ "info" ]
+        },
+        "port_events": {
+            "methods": [ "set_topo_ev" ]
         }
     }
 }

@@ -12,7 +12,7 @@ build_files()
 	app_name="${app_name##*/}"
 
 	type_name="${file_path##*/src/views/}"
-	app_type="${type_name%%/*}"
+	app_type="${type_name%/*}"
 	env_file=".env.plugin${app_name}"
 	touch $env_file
 	echo "VITE_PLUGIN_ENTRY=${file_path}" >> $env_file

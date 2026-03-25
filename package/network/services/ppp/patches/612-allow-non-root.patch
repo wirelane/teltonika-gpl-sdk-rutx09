@@ -2,7 +2,7 @@ Index: ppp-2.4.9.git-2021-01-04/pppd/main.c
 ===================================================================
 --- ppp-2.4.9.git-2021-01-04.orig/pppd/main.c
 +++ ppp-2.4.9.git-2021-01-04/pppd/main.c
-@@ -364,15 +364,6 @@ main(int argc, char *argv[])
+@@ -365,15 +365,6 @@ main(int argc, char *argv[])
      if (debug)
  	setlogmask(LOG_UPTO(LOG_DEBUG));
  
@@ -49,3 +49,16 @@ Index: ppp-2.4.9.git-2021-01-04/pppd/pathnames.h
  
  #define _PATH_USEROPT	 ".ppprc"
  #define	_PATH_PSEUDONYM	 ".ppp_pseudonym"
+Index: ppp-2.4.9.git-2021-01-04/pppd/plugins/pptp/pptp_callmgr.h
+===================================================================
+--- ppp-2.4.9.git-2021-01-04.orig/pppd/plugins/pptp/pptp_callmgr.h
++++ ppp-2.4.9.git-2021-01-04/pppd/plugins/pptp/pptp_callmgr.h
+@@ -5,7 +5,7 @@
+  * $Id: pptp_callmgr.h,v 1.3 2003/02/17 00:22:17 quozl Exp $
+  */
+ 
+-#define PPTP_SOCKET_PREFIX "/var/run/pptp/"
++#define PPTP_SOCKET_PREFIX "/var/run/pptpd/"
+ 
+ int callmgr_main(struct in_addr inetaddr,
+ 		char phonenr[],

@@ -16,12 +16,12 @@ check_if_hdop_exists() {
 config_load $CONFIG || exit 0
 config_foreach check_if_hdop_exists "$tavl_rule_sec"
 
-sec=$(uci add "$CONFIG" "$tavl_rule_sec")
+sec=$(uci_add "$CONFIG" "$tavl_rule_sec")
 
 uci_set "$CONFIG" "$sec" "type" "GPS"
 uci_set "$CONFIG" "$sec" "name" "HDOP"
 uci_set "$CONFIG" "$sec" "enabled" "0"
 
-uci commit
+uci_commit
 
 exit 0

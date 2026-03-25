@@ -4,8 +4,8 @@
 . /lib/functions.sh
 
 APP_NAME="ftp_upload.sh"
-CONFIG_GET="uci -q get ulogd.ftp"
 WORK_DIR="/var/run/ulogd"
+KEY_PATH="/usr/local/home/ulogd/.ssh/id_rsa"
 LOG_FILE="${WORK_DIR}/ftp_log"
 LOGGER="logger -t $APP_NAME -s"
 CLIENT=$(which ftpput)
@@ -22,6 +22,8 @@ config_get delay ftp delay 6
 config_get extra_name_info ftp extra_name_info
 config_get custom_string ftp custom_string
 config_get remote_file_path ftp remote_file_path
+config_get protocol ftp protocol "ftp"
+config_get key_auth ftp key_auth
 
 config_get sname ftp sname
 [ -z "$sname" ] && config_get sname emu1 file "/var/run/ulogd/ulogd_wifi.log"
@@ -67,12 +69,25 @@ archive_file "$sname" "$DEST_NAME"
 
 [ -n "$remote_file_path" ] && DEST_NAME="${remote_file_path}${DEST_NAME}"
 
-COMMAND="ftpput ${username:+-u $username} ${password:+-p $password} ${port:+-P $port} \
-			${debug:+ -v} ${host:+$host} ${DEST_NAME:+$DEST_NAME} ${DEST_FILE:+$DEST_FILE}"
-
 for i in 1 2 3 4 5
 do
-	$COMMAND &> $LOG_FILE
+	case "$protocol" in
+		sftp)
+			[ -n "$password" ] && export DROPBEAR_PASSWORD="$password"
+			scp $([ "$key_auth" = "1" ] && echo "-i $KEY_PATH") ${port:+-P "$port"} ${debug:+-v} \
+				-o StrictHostKeyChecking=no \
+				"$DEST_FILE" "$username@$host:$DEST_NAME" &> $LOG_FILE
+			;;
+		ftps)
+			curl ${username:+${password:+-u "$username:$password"}} \
+				${debug:+-v} --ssl-reqd --insecure --ftp-create-dirs \
+				-T "$DEST_FILE" "ftp://${host}${port:+:$port}/${DEST_NAME}" &> $LOG_FILE
+			;;
+		ftp|*)
+			ftpput ${username:+-u "$username"} ${password:+-p "$password"} ${port:+-P "$port"} \
+				${debug:+ -v} "$host" "$DEST_NAME" "$DEST_FILE" &> $LOG_FILE
+			;;
+	esac
 
 	if [ "$?" -ne "0" ]; then
 		cat "$LOG_FILE" | $LOGGER
@@ -83,4 +98,5 @@ do
 	fi
 done
 
+unset DROPBEAR_PASSWORD
 rm -rf "$DEST_FILE"

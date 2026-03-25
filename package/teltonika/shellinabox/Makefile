@@ -9,9 +9,9 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
-PKG_VERSION:=2025-03-25
-PKG_RELEASE:=4
-PKG_BUILD_DEPENDS:=zlib
+PKG_VERSION:=2026-03-13
+PKG_RELEASE:=6
+PKG_BUILD_DEPENDS:=uhttpd
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=v2.20
@@ -26,6 +26,8 @@ PKG_LICENSE_FILES:=COPYING
 PKG_FIXUP:=autoreconf
 GPL_INCLUDE_SRC:=1
 
+TARGET_CFLAGS += -DHAS_DEBUG
+
 include $(INCLUDE_DIR)/uclibc++.mk
 include $(INCLUDE_DIR)/package.mk
 
@@ -33,15 +35,14 @@ define Package/shellinabox
   SECTION:=net
   CATEGORY:=Network
   TITLE:=SSH over HTTP
-  DEPENDS:=+zlib +libopenssl +libubus
+  DEPENDS:= +libtlt-logger +libuci
   USERID:=shellinabox:shellinabox
-  FATTRS:=/usr/sbin/shellinaboxd::::cap_net_bind_service=ep
 endef
 
 define Package/shellinabox/description
 endef
 
-CONFIGURE_ARGS += --disable-pam --disable-runtime-loading
+CONFIGURE_ARGS += --disable-pam
 
 define Build/Configure
 	$(call Build/Configure/Default)
@@ -52,7 +53,6 @@ define Build/Compile
 		$(TARGET_CONFIGURE_OPTS) \
 		CFLAGS="$(TARGET_CFLAGS)" \
 		LDFLAGS="$(TARGET_LDFLAGS) -lm" \
-		BINDIR="/usr/sbin" \
 		DL_DIR="$(TOPDIR)/dl/$(PKG_NAME)-$(PKG_VERSION)-npx" \
 		all
 endef
@@ -65,18 +65,13 @@ define Package/shellinabox/conffiles
 endef
 
 define Package/shellinabox/install
-	$(INSTALL_DIR) $(1)/etc/config
-	$(INSTALL_DIR) $(1)/etc/init.d
-	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_DIR) $(1)/www/cgi-bin
-	$(INSTALL_DIR) $(1)/usr/share/acl.d
+	$(INSTALL_DIR) $(1)/etc/config $(1)/usr/lib $(1)/etc/init.d
 	$(INSTALL_CONF_USR) files/cli.conf $(1)/etc/config/cli
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/uhttpd_cli.so $(1)/usr/lib/
 	$(INSTALL_BIN_USR) files/shellinabox.init $(1)/etc/init.d/shellinabox
-	$(INSTALL_BIN) files/shellinabox.sh $(1)/www/cgi-bin/cli
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/shellinaboxd $(1)/usr/sbin/shellinaboxd
-	$(INSTALL_DATA) files/shellinabox.json $(1)/usr/share/acl.d/
-	$(INSTALL_DIR) $(1)/etc/permtab.d
-	$(INSTALL_DATA) files/shellinabox.permtab $(1)/etc/permtab.d/shellinabox
+
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.22
+	$(INSTALL_DATA) files/migrations/99_cli_update $(1)/etc/uci-defaults/7.22/99_cli_update
 endef
 
 $(eval $(call BuildPackage,shellinabox))

@@ -9,12 +9,12 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=openvpn
 
-PKG_VERSION:=2.6.14
-PKG_RELEASE:=21
+PKG_VERSION:=2.6.17
+PKG_RELEASE:=24
 
-PKG_HASH:=9eb6a6618352f9e7b771a9d38ae1631b5edfeed6d40233e243e602ddf2195e7a
+PKG_HASH:=4cc8e63f710d3001493b13d8a32cf22a214d5e4f71dd37d93831e2fd3208b370
 
-PKG_SOURCE_VERSION:=2.6.14
+PKG_SOURCE_VERSION:=2.6.17
 PKG_SOURCE=openvpn-$(PKG_SOURCE_VERSION).tar.gz
 PKG_SOURCE_URL:=\
 	https://build.openvpn.net/downloads/releases/ \
@@ -103,7 +103,8 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		$(1)/etc/permtab.d \
 		$(1)/usr/share/acl.d \
 		$(1)/etc/uci-defaults/7.18 \
-		$(1)/etc/uci-defaults/7.20
+		$(1)/etc/uci-defaults/7.20 \
+		$(1)/etc/uci-defaults/7.22
 
 	$(INSTALL_BIN) \
 		$(PKG_INSTALL_DIR)/usr/sbin/openvpn \
@@ -177,6 +178,9 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		files/uci-defaults/7.20/99_openvpn_fix_user_group \
 		$(1)/etc/uci-defaults/7.20/99_openvpn_fix_user_group
 
+	$(INSTALL_DATA) \
+		files/uci-defaults/7.22/99_openvpn_rm_option \
+		$(1)/etc/uci-defaults/7.22/99_openvpn_rm_option
 endef
 
 $(eval $(call BuildPackage,openvpn-openssl))

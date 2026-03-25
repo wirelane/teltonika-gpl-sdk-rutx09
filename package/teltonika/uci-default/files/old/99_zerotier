@@ -1,6 +1,6 @@
 #!/bin/sh
 
-[ -f "/etc/config/zerotier" ] || exit 0
+[ -f "$UCI_CONFIG_DIR/zerotier" ] || exit 0
 
 . /lib/functions.sh
 

@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Email to SMS
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-email-to-sms-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-email-to-sms-ui))$(DUMP))
 	APP_TLT_NAME:=Email to SMS
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=email_to_sms

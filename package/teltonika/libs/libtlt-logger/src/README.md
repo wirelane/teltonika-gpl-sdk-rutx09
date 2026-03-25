@@ -58,10 +58,21 @@ If the socket connection is lost, the logger switches to local logging (stdout) 
 Each log level corresponds to a single bit in a runtime bitmask.
 This allows enabling or disabling any combination of levels dynamically.
 
-Legacy numeric levels (0–7) are automatically reversed if L_SYSTEM is not used:
+### Syslog Level Mapping
 
-0 → L_DEBUG
-7 → L_EMERG
+By default, the library uses its own `log_level_type` enum (L_DEBUG, L_INFO, etc.) and converts these to syslog levels internally.
+
+If you need to pass raw syslog level values (LOG_DEBUG, LOG_INFO, etc.) directly to `_log()`, enable the `L_SYSLOG_LEVELS` flag:
+
+```c
+// Use library's log_level_type enum (default behavior)
+logger_init(L_INFO, L_TYPE_SYSLOG, "myservice");
+_log(L_INFO, "Message");  // Uses L_INFO enum
+
+// Use raw syslog levels
+logger_init(L_INFO, L_TYPE_SYSLOG | L_SYSLOG_LEVELS, "myservice");
+_log(LOG_INFO, "Message");  // Uses LOG_INFO directly (numeric value)
+```
 
 ## Initialization
 ## Function Signatures

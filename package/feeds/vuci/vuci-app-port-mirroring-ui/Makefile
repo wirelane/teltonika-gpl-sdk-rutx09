@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Port mirroring
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-port-mirroring-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-port-mirroring-ui))$(DUMP))
 	APP_TLT_NAME:=Port Mirroring
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=port_mirroring

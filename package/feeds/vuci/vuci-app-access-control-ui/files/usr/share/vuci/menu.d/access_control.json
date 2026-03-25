@@ -19,5 +19,11 @@
     "acls": ["system/admin/access_control/safety"],
     "view": "system/AccessControlSafety",
     "index": 30
+  },
+  "system/admin/access_control/sessions": {
+    "title": "Sessions",
+    "acls": ["system/admin/access_control/sessions"],
+    "view": "system/AccessControlSessions",
+    "index": 40
   }
 }

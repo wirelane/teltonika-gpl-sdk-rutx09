@@ -21,4 +21,6 @@ $(eval $(call Py3BasePackage,python3-pydoc, \
 	/usr/lib/python$(PYTHON3_VERSION)/doctest.py \
 	/usr/lib/python$(PYTHON3_VERSION)/pydoc.py \
 	/usr/lib/python$(PYTHON3_VERSION)/pydoc_data \
+	, \
+	DO_NOT_ADD_TO_PACKAGE_DEPENDS \
 ))

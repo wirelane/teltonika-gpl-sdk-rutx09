@@ -1,12 +1,14 @@
 #!/bin/ash
 
-config_file="/etc/config/wireless"
+. /lib/functions.sh
+
+config_file="$UCI_CONFIG_DIR/wireless"
 
 if [ ! -f "$config_file" ]; then
 	exit 0
 fi
 
-config_corrupted="$(uci show wireless >/dev/null 2>&1; echo $?)"
+config_corrupted="$(uci_show wireless >/dev/null 2>&1; echo $?)"
 if [ "$config_corrupted" = "0" ]; then
 	exit 0
 fi

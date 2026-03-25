@@ -152,7 +152,22 @@ EOF
 	uci set system.system.device_fw_version="$(cat /etc/version)"
 }
 
+external_memory_check() {
+	[ -e /log/sme_enabled ] || return
+
+	i=1
+	while [ $i -le 10 ]; do
+		for usb in /sys/block/sd*/sd*; do
+			[ -e "$usb" ] && return
+		done
+		echo "Waiting for external storage... ($i/10)"
+		sleep 1
+		i=$((i+1))
+	done
+}
+
 do_mount_root() {
+	external_memory_check
 	mount_root
 	boot_run_hook preinit_mount_root
 	if [ -f /overlay/user_defaults.tgz ]; then
@@ -186,6 +201,15 @@ do_mount_root() {
 		sync
 		[ -x /bin/sme.sh ] && { sme.sh --preboot || echo "- sme.sh failed with code $? -"; }
 	fi
+
+	# Handle SME flag after improper USB removal or firmware upgrade without keep settings
+	[ -x /bin/sme.sh ] && {
+		if [ "$(/bin/sme.sh -t)" = "expanded" ]; then
+			touch /log/sme_enabled
+		else
+			rm -f /log/sme_enabled
+		fi
+	}
 }
 
 [ "$INITRAMFS" = "1" ] || boot_hook_add preinit_main do_mount_root

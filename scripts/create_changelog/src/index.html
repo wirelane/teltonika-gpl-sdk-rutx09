@@ -148,10 +148,15 @@
               return `${caseId.value}-${partialBranch.value}`
             },
             async set(value) {
-              const [id, ...rest] = value.split('-')
+              // Regex should work with:
+              // RUTOS1-1234-issue-name
+              // 1234-issue-name
+              // RUTOS1-1234
+              // 1234
+              const [_, id, name = 'no-name'] = value.trim().match(/^(?:\w+-)?(\d+)-?(.*)?$/) ?? []
               if (/^\d+$/.test(id)) {
                 caseId.value = id
-                partialBranch.value = rest.join('-')
+                partialBranch.value = name
               } else {
                 if (value !== 'all') {
                   caseId.value =
@@ -796,7 +801,7 @@
           const projectName = inject('projectName')
 
           function getLink(id) {
-            return `https://git.teltonika.lt/teltonika/${projectName.value}/-/issues/${id}`
+            return `https://teltonika-networks.atlassian.net/browse/RUTOS1-${id}`
           }
           return {
             showSection: inject('showSection'),

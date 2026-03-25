@@ -2,7 +2,7 @@
 
 . /lib/functions.sh
 
-CONFIG="/etc/config/user_groups"
+CONFIG="$UCI_CONFIG_DIR/user_groups"
 
 migrate_tel_list() {
 	local tel="$1"

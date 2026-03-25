@@ -1,3 +1,5 @@
-[ -f /etc/config/hwinfo ] && rm /etc/config/hwinfo
+#!/bin/sh
+
+[ -f "$UCI_CONFIG_DIR/hwinfo" ] && rm "$UCI_CONFIG_DIR/hwinfo"
 
 exit 0

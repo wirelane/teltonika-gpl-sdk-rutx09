@@ -32,21 +32,21 @@ static const int level_to_slevel[] = {
 static inline unsigned int log_level_to_bit(log_level_type lvl)
 {
 	switch (lvl) {
-	case L_EMERG:
+	case LOG_EMERG:
 		return B_EMERG;
-	case L_ALERT:
+	case LOG_ALERT:
 		return B_ALERT;
-	case L_CRIT:
+	case LOG_CRIT:
 		return B_CRIT;
-	case L_ERROR:
+	case LOG_ERR:
 		return B_ERROR;
-	case L_WARNING:
+	case LOG_WARNING:
 		return B_WARNING;
-	case L_NOTICE:
+	case LOG_NOTICE:
 		return B_NOTICE;
-	case L_INFO:
+	case LOG_INFO:
 		return B_INFO;
-	case L_DEBUG:
+	case LOG_DEBUG:
 		return B_DEBUG;
 	default:
 		return 0;
@@ -233,10 +233,12 @@ void _log(log_level_type level, const char *fmt, ...)
 		last_state_connected = socket_connected;
 	}
 	va_list arg_list;
+	log_level_type internal_level;
+	internal_level = syslog_levels ? level : level_to_slevel[level];
 	if (min_level != L_SYSTEM && level < min_level) {
 		return;
 	} else {
-		unsigned int lvl_bit = log_level_to_bit(level);
+		unsigned int lvl_bit = log_level_to_bit(internal_level);
 		if (!(enabled_levels_mask & lvl_bit)) {
 			return;
 		}
@@ -244,12 +246,7 @@ void _log(log_level_type level, const char *fmt, ...)
 
 	if (use_syslog) {
 		va_start(arg_list, fmt);
-		if (syslog_levels) {
-			log_syslog(level, fmt, arg_list);
-		} else {
-			log_syslog(level_to_slevel[level], fmt, arg_list);
-		}
-			
+		log_syslog(internal_level, fmt, arg_list);
 		va_end(arg_list);
 	}
 

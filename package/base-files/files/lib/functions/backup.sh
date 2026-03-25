@@ -94,6 +94,12 @@ add_overlayfiles() {
 	return 0
 }
 
+if [ $CONF_BACKUP_PKG_APPLY -eq 1 ]; then
+	[ -x "/sbin/backup" ] || exit 1
+	/sbin/backup pkg_install
+	exit $?
+fi
+
 if [ $SAVE_OVERLAY = 1 ]; then
 	[ ! -d /overlay/upper/etc ] && {
 		echo "Cannot find '/overlay/upper/etc', required for '-c'" >&2
@@ -463,25 +469,65 @@ apply_backup() {
 backup_size_validation() {
 	local file="$1"
 	local password="$2"
+
+	local is_gzipped=1
+	local tar_file_path="$file"
+	local tar_prefix_command=""
+	local temp_dir_to_cleanup=""
+
 	local free_fmem=$(df -k | grep /overlay | awk '{print $4; exit}')
 
-	# Add aditional 40 KB for reserve
-	local file_size
 	if [ "${file##*.}" = "zip" ]; then
-		file_size=$(minizip -l -p "$password" "$file" | tail -1 | awk '{print ($2 / 1024) + 40}')
+		is_gzipped=0
+		local temp_dir="/tmp/validate_zip_backup"
+
+		rm -rf "$temp_dir"
+		mkdir -p "$temp_dir"
+
+		if ! minizip -x -o -s -d "$temp_dir" -p "$password" "$file" >/dev/null 2>&1; then
+			rm -rf "$temp_dir"
+			return 1
+		fi
+
+		# Find the .tar file
+		local extracted_filename=$(find "$temp_dir" -maxdepth 1 -name "*.tar" -type f | head -n 1 | xargs basename 2>/dev/null)
+		if [ -z "$extracted_filename" ]; then
+			rm -rf "$temp_dir"
+			return 1
+		fi
+
+		tar_file_path="$temp_dir/$extracted_filename"
+		temp_dir_to_cleanup="$temp_dir"
 	elif [ "${file##*.}" = "7z" ]; then
-		file_size=$(7zr l "$file" -p"$password" | tail -1 | awk '{print ($3 / 1024) + 40}')
-	else
-		file_size=$(gzip -dc < "$file" | wc -c | awk '{print ($1 / 1024) + 40 }')
+		is_gzipped=0
+		tar_prefix_command="7zr e "$file" -p"$password" -so | "
+		tar_file_path="-"
 	fi
 
-	local validation=$(echo "$file_size $free_fmem" | awk '{if ($1 < $2) print 0; else print 1}')
+	local compression_flag=""
+	[ "$is_gzipped" -eq 1 ] && compression_flag="z"
+
+	local tar_command="${tar_prefix_command}tar -t${compression_flag}vf $tar_file_path | grep -v ' tmp/'"
+
+	# Add aditional 40 KB for reserve
+	local size_output=$(eval "$tar_command" | awk '{sum += $3} END {print (sum / 1024) + 40}')
+
+	if [ -n "$temp_dir_to_cleanup" ]; then
+		rm -rf "$temp_dir_to_cleanup"
+	fi
+
+	local validation=$(echo "${size_output:-0} $free_fmem" | awk '{if ($1 < $2) print 0; else print 1}')
 	[ "$validation" -eq 0 ] || return 1
 
 	return 0
 }
 
 if [ -n "$CONF_BACKUP" ]; then
+	[ "$CONF_BACKUP_API" -eq 1 ] && [ -x "/sbin/backup" ] && {
+		/sbin/backup generate "$CONF_BACKUP" ${CONF_PASSWORD:+-p "$CONF_PASSWORD"}
+		[ -n "$USER_ID" ] && [ -n "$GROUP_ID" ] && chown "$USER_ID":"$GROUP_ID" "$CONF_BACKUP"
+		exit $?
+	}
 	ubus call rpc-profile update &>/dev/null
 	remove_section_containing_option "network" "device" "macaddr"
 	remove_option "rms_mqtt" "rms_connect_mqtt" "auth_code"
@@ -525,6 +571,30 @@ if [ -n "$CONF_RESTORE" ]; then
 
 	[ "$VERBOSE" -gt 1 ] && TAR_V="v" || TAR_V=""
 
+	restore_new=0
+	if [ -z "$CONF_PASSWORD" ]; then
+		tar tzf "$CONF_RESTORE" | grep -q "^tmp/configuration.json$" && restore_new=1
+	elif [ "${CONF_RESTORE##*.}" = "zip" ]; then
+		conf_tar_dirname=$(dirname "$CONF_RESTORE")
+		minizip -x -o -s -d "$conf_tar_dirname" -p "$CONF_PASSWORD" "$CONF_RESTORE" &>/dev/null
+		conf_tar_trimmed=$(echo "$CONF_RESTORE" | sed "s/\.${CONF_RESTORE##*.}$//")
+		tar tf "$conf_tar_trimmed" | grep -q "^tmp/configuration.json$" && restore_new=1
+		rm -rf "$conf_tar_trimmed"
+	elif [ "${CONF_RESTORE##*.}" = "7z" ]; then
+		7zr e "$CONF_RESTORE" -p"$CONF_PASSWORD" -so | tar tf - | grep -q "^tmp/configuration.json$" && restore_new=1
+	fi
+
+	[ "$restore_new" -eq 1 ] && [ -x "/sbin/backup" ] && {
+		[ "$CONF_BACKUP_VALIDATE" -eq 1 ] && {
+			backup_action="validate"
+			[ "$CONF_BACKUP_API" -eq 1 ] && backup_action="verify"
+			/sbin/backup "$backup_action" "$CONF_RESTORE" ${CONF_PASSWORD:+-p "$CONF_PASSWORD"}
+			exit $?
+		}
+		/sbin/backup apply "$CONF_RESTORE" ${CONF_PASSWORD:+-p "$CONF_PASSWORD"}
+		exit $?
+	}
+
 	mkdir -p /tmp/new_config_dir
 	if [ -z "$CONF_PASSWORD" ]; then
 		echo 'etc/rc.d/*' > /tmp/exclusions
@@ -534,7 +604,7 @@ if [ -n "$CONF_RESTORE" ]; then
 	else
 		conf_tar_dirname=$(dirname "$CONF_RESTORE")
 		if [ "${CONF_RESTORE##*.}" = "zip" ]; then
-			minizip -x -o -s -d "$conf_tar_dirname" -p "$CONF_PASSWORD" "$CONF_RESTORE"
+			minizip -x -o -s -d "$conf_tar_dirname" -p "$CONF_PASSWORD" "$CONF_RESTORE" &>/dev/null
 		elif [ "${CONF_RESTORE##*.}" = "7z" ]; then
 			7zr e -aoa -p"$CONF_PASSWORD" "$CONF_RESTORE" -o"$conf_tar_dirname"
 		fi

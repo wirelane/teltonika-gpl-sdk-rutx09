@@ -3,10 +3,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=pam
-PKG_VERSION:=2026-02-11
+PKG_VERSION:=2026-03-13
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=1.2
+PKG_SOURCE_VERSION:=1.4
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 PKG_LICENSE:=Teltonika-closed
@@ -18,7 +18,7 @@ RCOMPR:=:
 define Package/pam
 	SECTION:=utils
 	CATEGORY:=Base system
-	DEPENDS:=+rpcd +libubus +libubox +libpam +pam-radius +pam-tacacs +libpam-mod-deny +libpam-mod-permit +libpam-mod-umask +libpam-mod-unix
+	DEPENDS:=+rpcd +libubus +libubox +libpam +pam-radius +pam-tacacs +libpam-mod-deny +libpam-mod-permit +libpam-mod-umask +libpam-mod-unix +libtlt-logger
 	TITLE:=Teltonika PAM support
 	USERID:=pamd=524:pamd=524
 endef

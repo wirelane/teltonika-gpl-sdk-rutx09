@@ -334,11 +334,14 @@ start_service() {
 	config_foreach snmpd_trap2sink_add trap2sink
 	config_foreach snmpd_trap_add trap
 
+	config_get persist_ifindex general persist_ifindex 0
+
     procd_open_instance
 	procd_set_param command $PROG -Lf /dev/null -f -r
 	#Permit caching configuration
 	procd_append_param command -Cc $CONFIGFILE
 	procd_append_param command --noPersistentSave=1 --noPersistentLoad=1
+	[ "$persist_ifindex" -eq 1 ] && procd_append_param command --persistentIfIndex=1
 	procd_set_param file /etc/config/snmpd
 	procd_set_param respawn
 	procd_set_param user snmpd

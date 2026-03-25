@@ -36,8 +36,8 @@ create_new_section() {
 	"console" | "modem" | "ntrip" | "modbus" | "overip")
 		NEW_CONFIG="rs_${service_type}"
 		NEW_SECTION="$service_type"
-		if [ "$NEW_CONFIG" == "rs_ntrip" ] && [ ! -f  "/etc/config/rs_ntrip" ]; then
-			touch /etc/config/rs_ntrip
+		if [ "$NEW_CONFIG" == "rs_ntrip" ] && [ ! -f  "$UCI_CONFIG_DIR/rs_ntrip" ]; then
+			touch "$UCI_CONFIG_DIR/rs_ntrip"
 		fi
 		;;
 	*)

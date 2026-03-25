@@ -7,14 +7,13 @@ SECTION="rms_connect_timer_level"
 
 delete_existing_rms_connect_timer_levels() {
 	local section="$1"
-	uci delete "$CONFIG.$section"
+	uci_remove "$CONFIG" "$section"
 }
 
 add() {
-	local set_section="$(uci add "$CONFIG" "$SECTION")"
-
-	uci_set "$CONFIG" "$set_section" "repeat_time" "$1"
-	uci_set "$CONFIG" "$set_section" "whole_time" "$2"
+	uci_add "$CONFIG" "$SECTION"
+	uci_set "$CONFIG" "$CONFIG_SECTION" "repeat_time" "$1"
+	uci_set "$CONFIG" "$CONFIG_SECTION" "whole_time" "$2"
 }
 
 config_load "$CONFIG"

@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for the BFD
 
-APP_DEPENDS:=+bfdd-frr
+APP_DEPENDS:=+SMALL_FLASH:bfdd-frr8 +!SMALL_FLASH:bfdd-frr
 
 include ../api.mk
 

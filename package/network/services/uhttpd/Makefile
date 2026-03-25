@@ -41,7 +41,7 @@ endef
 
 define Package/uhttpd
   $(Package/uhttpd/default)
-  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua +libcap +libtlt-logger
+  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua +libcap +libtlt-logger +TPM_SUPPORT:libtpm2_importer +TPM_SUPPORT:openssl-util
   FATTRS:=/usr/sbin/uhttpd::::cap_net_bind_service,cap_net_admin,cap_net_raw=ep;/usr/lib/uhttpd_ubus.so:uhttpd:::;/usr/lib/uhttpd_lua.so:uhttpd:::
 endef
 
@@ -56,6 +56,16 @@ define Package/uhttpd/config
     depends on PACKAGE_uhttpd-mod-lua
     bool "Enable Integrated Lua interpreter"
 	default y
+endef
+
+define Build/InstallDev
+	$(INSTALL_DIR) $(1)/usr/include/uhttpd
+	$(INSTALL_DIR) $(1)/usr/lib
+
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/uhttpd.h $(1)/usr/include/uhttpd/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/utils.h $(1)/usr/include/uhttpd/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/plugin.h $(1)/usr/include/uhttpd/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/ubus_uhttpd.h $(1)/usr/include/uhttpd/
 endef
 
 define Package/uhttpd-mod-lua
@@ -73,7 +83,7 @@ define Package/uhttpd-mod-ubus
   $(Package/uhttpd/default)
   TITLE+= (ubus plugin)
   DEPENDS:=uhttpd +libubus +libblobmsg-json
-  ifeq (m, $(CONFIG_PACKAGE_uhttpd-mod-ubus))
+  ifneq (,$(filter m,$(CONFIG_PACKAGE_uhttpd-mod-ubus))$(DUMP))
     PKG_TLT_NAME:=JSON-RPC support
     PKG_ROUTER:=$(TLT_PLATFORM_NAME)
     PKG_APP_NAME:=json_rpc_support
@@ -102,10 +112,10 @@ endef
 
 define Package/uhttpd/conffiles
 /etc/config/uhttpd
-/etc/uhttpd.crt
-/etc/uhttpd.key
-/etc/uhttpd-ca.crt
-/etc/uhttpd-ca.key
+/etc/certificates/uhttpd.crt
+/etc/certificates/uhttpd.key
+/etc/certificates/uhttpd-ca.crt
+/etc/certificates/uhttpd-ca.key
 endef
 
 ifneq ($(CONFIG_USE_GLIBC),)
@@ -115,6 +125,7 @@ endif
 TARGET_LDFLAGS += -lcrypt -llua -lm
 
 CMAKE_OPTIONS += -DTLS_SUPPORT=on
+CMAKE_OPTIONS += $(if $(CONFIG_TPM_SUPPORT),-DUHTTPD_TPM_SUPPORT=on)
 
 # excluding x86 test target, because of test running. Excluding production target because it does not have the same security requirements
 OPTION_HTTPS_SED_SCRIPT := sed -i "/config.*main/a\\\toption redirect_https '1'" $(1)
@@ -132,8 +143,9 @@ define Package/uhttpd/install
 	$(if $(CONFIG_USE_OPENRC), \
 		$(OPENRC_INSTALL) boot uhttpd ./files/uhttpd.openrc $(1))
 
-	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18
+	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.18 $(1)/etc/uci-defaults/7.22
 	$(INSTALL_DATA) ./files/uci-defaults/7.18/99_restore_json_rpc $(1)/etc/uci-defaults/7.18/
+	$(INSTALL_DATA) ./files/uci-defaults/7.22/99_migrate_cert_location $(1)/etc/uci-defaults/7.22/
 endef
 
 define Package/uhttpd-mod-lua/install
@@ -147,7 +159,6 @@ define Package/uhttpd-mod-ubus/install
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_DATA) ./files/json_rpc.json $(1)/usr/share/acl.d/json_rpc.json
 endef
-
 
 $(eval $(call BuildPackage,uhttpd))
 $(eval $(call BuildPackage,uhttpd-mod-lua))

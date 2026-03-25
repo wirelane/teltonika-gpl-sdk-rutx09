@@ -50,7 +50,7 @@ case "$(mnf_info --name)" in
 RUTXR1*)
 	config_load "$CONF" || exit 0
 	config_foreach rename_rs232_to_rsconsole
-	uci commit
+	uci_commit
 
 	config_load "$CONF"
 	config_foreach check_if_console_section_exist
@@ -62,19 +62,19 @@ RUTXR1*)
 		enabled="0"
 	fi
 
-	new_sec=$(uci add "$CONF" "console")
-	uci_set "$CONF" "$new_sec" "enabled" "$enabled"
-	uci_set "$CONF" "$new_sec" "device" "$DEVICE"
-	uci_set "$CONF" "$new_sec" "baudrate" "115200"
-	uci_set "$CONF" "$new_sec" "databits" "8"
-	uci_set "$CONF" "$new_sec" "parity" "none"
-	uci_set "$CONF" "$new_sec" "stopbits" "1"
-	uci_set "$CONF" "$new_sec" "flowcontrol" "none"
+	uci_add "$CONF" "console"
+	uci_set "$CONF" "$CONFIG_SECTION" "enabled" "$enabled"
+	uci_set "$CONF" "$CONFIG_SECTION" "device" "$DEVICE"
+	uci_set "$CONF" "$CONFIG_SECTION" "baudrate" "115200"
+	uci_set "$CONF" "$CONFIG_SECTION" "databits" "8"
+	uci_set "$CONF" "$CONFIG_SECTION" "parity" "none"
+	uci_set "$CONF" "$CONFIG_SECTION" "stopbits" "1"
+	uci_set "$CONF" "$CONFIG_SECTION" "flowcontrol" "none"
 
 	# This will sometimes not work, if there are gaps in the numbered section names
-	uci_rename "$CONF" "$new_sec" "$(($CONSOLE_COUNT+1))"
+	uci_rename "$CONF" "$CONFIG_SECTION" "$(($CONSOLE_COUNT+1))"
 
-	uci commit
+	uci_commit
 	exit 0
 	;;
 esac

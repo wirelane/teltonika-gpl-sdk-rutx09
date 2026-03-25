@@ -44,8 +44,14 @@ pkg_postinst:${PN}() {
 
 pkg_postinst_ontarget:${PN}() {
     #!/bin/sh
-    http_dis=\$(uci -q get uhttpd.hotspot.disabled)
-    [ "\$http_dis" = "1" ] || /etc/init.d/uhttpd reload
+    http_dis=$(uci -q get uhttpd.hotspot.disabled)
+    [ "$http_dis" = "1" ] || /etc/init.d/uhttpd reload
+    [[ -d "/rom/etc/chilli/hotspotlogin" ]] || {
+        mkdir -p /etc/chilli/hotspotlogin/backup/template
+        cp -af /etc/chilli/hotspotlogin/template /etc/chilli/hotspotlogin/backup/
+        chown -R chilli:chilli /etc/chilli/hotspotlogin/backup/template
+        chmod 0774 /etc/chilli/hotspotlogin/backup/template
+    }
     exit 0
 }
 
@@ -57,5 +63,6 @@ pkg_postrm:${PN}() {
         uci -q commit uhttpd
         /etc/init.d/uhttpd reload
     fi
+    [[ -d "/etc/chilli/hotspotlogin/backup/template" ]] && rm -rf /etc/chilli/hotspotlogin/backup/template
     exit 0
 }

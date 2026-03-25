@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=vuci-ui-core
-PKG_VERSION:=2026-03-18-2ebcfeb7ac4
+PKG_VERSION:=2026-03-20-c5fd856f7b2
 PKG_RELEASE:=3
 PKG_LICENSE:=Teltonika-nda-source
 
@@ -39,9 +39,6 @@ define Package/vuci-ui-core/config
 	source "$(SOURCE)/Config.in"
 endef
 
-define Package/vuci-ui-core/conffiles
-/etc/config/widget
-endef
 # FIXME needs update, since .vue files remains in applications dir now.
 define install_closed_gpl
 	$(INSTALL_DIR) "$(GPL_BUILD_DIR)/package/feeds/vuci"
@@ -108,6 +105,7 @@ endif
 
 define Package/vuci-ui-core/install
 	$(INSTALL_DIR) $(1)/www
+	$(INSTALL_DIR) $(1)/usr/share
 	$(INSTALL_DIR) $(1)/usr/share/vuci/menu.d
 	$(CP) $(PKG_BUILD_DIR)/vuci-ui-core/src/dist/www/* $(1)/www/
 	if [ ! -z "$$$$(ls ./modem-icons/$(TLT_PLATFORM_NAME)*)" ]; then \
@@ -126,6 +124,11 @@ define Package/vuci-ui-core/install
 	)
 	$(PKG_BUILD_DIR)/menu_static.sh $(PKG_BUILD_DIR)/menu.json $(PKG_BUILD_DIR)/$(MENU_OUTPUT_DIR)
 	$(CP) $(PKG_BUILD_DIR)/menu.json $(1)/usr/share/vuci/menu.d/
+
+	$(CP) ../packages_static.sh $(PKG_BUILD_DIR)
+	$(PKG_BUILD_DIR)/packages_static.sh $(PKG_BUILD_DIR)/ipk_packages $(TOPDIR)
+	$(CP) $(PKG_BUILD_DIR)/ipk_packages $(1)/usr/share/
+
 	$(if $(CONFIG_VUCI_MINIFY_JSON),$(call JsonMin,$(1)/),true);
 
 endef

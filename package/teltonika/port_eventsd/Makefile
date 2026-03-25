@@ -33,7 +33,7 @@ define Package/port_eventsd/install
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/port_eventsd.json $(1)/usr/share/acl.d/port_eventsd.json
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/port_eventsd $(1)/usr/bin/port_eventsd
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/files/port_eventsd.init $(1)/etc/init.d/port_eventsd
+	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/port_eventsd.init $(1)/etc/init.d/port_eventsd
 endef
 
 $(eval $(call BuildPackage,port_eventsd))

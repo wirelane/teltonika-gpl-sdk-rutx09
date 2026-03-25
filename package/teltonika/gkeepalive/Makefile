@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=gkeepalive
-PKG_VERSION:=2025-11-18
+PKG_VERSION:=2026-03-16
 PKG_RELEASE:=1
 PKG_SOURCE_VERSION=1.4
 PKG_LICENSE:=Teltonika-closed
@@ -32,7 +32,7 @@ define Package/gkeepalive/install
 	$(INSTALL_DIR) $(1)/etc/init.d/ $(1)/usr/share/acl.d/
 	$(INSTALL_DIR) $(1)/usr/share/gkeepalive
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) ./files/gre_tunnel.init $(1)/etc/init.d/gre_tunnel
+	$(INSTALL_BIN_USR) ./files/gre_tunnel.init $(1)/etc/init.d/gre_tunnel
 	$(INSTALL_BIN) ./files/90-gre-keep-alive $(1)/usr/share/gkeepalive/90-gre-keep-alive
 	$(INSTALL_DATA) ./files/gkeepalive.json $(1)/usr/share/acl.d/gkeepalive.json
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/gkeepalive $(1)/usr/bin

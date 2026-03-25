@@ -4,7 +4,7 @@
  
  		if (defs->flow_offloading)
  		{
-+			#ifndef CONFIG_XFRM_OFFLOAD
++			#ifndef XFRM_OFFLOAD
 +				r = fw3_ipt_rule_new(handle);
 +				fw3_ipt_rule_comment(r, "IPsec bypass for offloading");
 +				fw3_ipt_rule_extra(r, "-m conntrack --ctstate RELATED,ESTABLISHED -m policy --dir in --pol ipsec");
@@ -21,3 +21,16 @@
  			r = fw3_ipt_rule_new(handle);
  			fw3_ipt_rule_comment(r, "Traffic offloading");
  			fw3_ipt_rule_extra(r, "-m conntrack --ctstate RELATED,ESTABLISHED");
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -23,6 +23,10 @@ ELSE()
+   ADD_DEFINITIONS(-DDISABLE_IPV6)
+ ENDIF()
+ 
++IF (XFRM_OFFLOAD)
++  ADD_DEFINITIONS(-DXFRM_OFFLOAD=1)
++ENDIF()
++
+ FIND_PATH(uci_include_dir uci.h)
+ INCLUDE_DIRECTORIES(${uci_include_dir})
+ 

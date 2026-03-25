@@ -34,7 +34,8 @@ CMAKE_OPTIONS += -Dbuild_as_dynamic=ON \
 		 -DBUILD_TESTING=OFF \
 		 -Dskip_samples=ON \
 		 -Ddont_use_uploadtoblob=ON \
-		 -DCMAKE_BUILD_TYPE="Release"
+		 -DCMAKE_BUILD_TYPE="Release" \
+		 $(if $(CONFIG_TPM_SUPPORT),-Daz_tpm_support=ON)
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR)/usr/include/

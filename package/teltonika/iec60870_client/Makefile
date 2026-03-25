@@ -9,7 +9,7 @@ PKG_NAME:=iec60870_client
 PKG_LICENSE:=Teltonika-closed
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=7.21.1
+PKG_SOURCE_VERSION:=7.22
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -17,7 +17,8 @@ define Package/iec60870_client
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=IEC 60870-5 Client by Teltonika
-	DEPENDS:=+libubus +libuci +libsqlite3 +lib60870 +libtlt_uci +libubox +libcfgx +libtlt-logger +libblobmsg-json +rpcd
+	DEPENDS:=+libubus +libuci +libsqlite3 +lib60870 +libtlt_uci +libubox +libcfgx +libtlt-logger \
+					 +libblobmsg-json +rpcd +libtlt_termios +libtag
 	USERID:=iec60870_client=651:iec60870_client=651
 endef
 

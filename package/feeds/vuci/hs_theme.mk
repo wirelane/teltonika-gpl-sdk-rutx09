@@ -27,7 +27,7 @@ define Package/$(PKG_NAME)/prerm
 		exit 255
 	fi
 	# Delete directory on delete as makefile deletes only files not directories
-	rm -rf /etc/chilli/hotspotlogin/themes/$(THEME_NAME)
+	rm -rf /etc/chilli/hotspotlogin/skins/$(THEME_NAME)
 	
 	exit 0
 endef
@@ -49,13 +49,9 @@ define Package/$(PKG_NAME)/install
 	$(CP) files/etc/chilli/hotspotlogin/* $(1)/etc/chilli/hotspotlogin/
 
 	$(INSTALL_DIR) $(1)/etc/permtab.d
-	echo "/etc/chilli/hotspotlogin/themes/$(THEME_NAME)             chilli:chilli      664      r" > $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
-	echo "/etc/chilli/hotspotlogin/cgi-bin/themes/$(THEME_NAME)	 chilli:chilli      664      r" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
-	echo "/etc/chilli/hotspotlogin/themes/$(THEME_NAME)             chilli:chilli      774      -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
-	echo "/etc/chilli/hotspotlogin/themes/$(THEME_NAME)/fonts       chilli:chilli      774      -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
-	echo "/etc/chilli/hotspotlogin/themes/$(THEME_NAME)/img         chilli:chilli      774      -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
-	echo "/etc/chilli/hotspotlogin/themes/$(THEME_NAME)/style       chilli:chilli      774	  -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
-	echo "/etc/chilli/hotspotlogin/cgi-bin/themes/$(THEME_NAME)     chilli:chilli      774      -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
+	echo "/etc/chilli/hotspotlogin/skins/$(THEME_NAME)             chilli:chilli      664      r" > $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
+	echo "/etc/chilli/hotspotlogin/skins/$(THEME_NAME)             chilli:chilli      774      -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
+	echo "/etc/chilli/hotspotlogin/skins/$(THEME_NAME)/img         chilli:chilli      774      -" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
 	echo "" >> $(1)/etc/permtab.d/hs_theme_$(THEME_NAME)
 endef
 

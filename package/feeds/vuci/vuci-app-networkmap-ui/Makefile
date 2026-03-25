@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for Networkmap
 
-ifeq (m, $(CONFIG_PACKAGE_vuci-app-networkmap-ui))
+ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-networkmap-ui))$(DUMP))
 	APP_TLT_NAME:=Topology
 	APP_ROUTER:=$(TLT_PLATFORM_NAME)
 	APP_APP_NAME:=topology

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 migrate_name() {
-	sed -i "s/${1}\*'/${2}\*'/g" /etc/config/rpcd
+	sed -i "s/${1}\*'/${2}\*'/g" "$UCI_CONFIG_DIR/rpcd"
 }
 
 migrate_name "l2tp" "l2tp_classic"
