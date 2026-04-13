@@ -342,7 +342,7 @@ else
       STRIP:=$(STAGING_DIR_HOST)/bin/sstrip $(call qstrip,$(CONFIG_SSTRIP_ARGS))
     endif
   endif
-  RSTRIP= \
+  RSTRIP_ARGS= \
     export CROSS="$(TARGET_CROSS)" \
 		$(if $(PKG_BUILD_ID),KEEP_BUILD_ID=1) \
 		$(if $(CONFIG_KERNEL_KALLSYMS),NO_RENAME=1) \
@@ -350,8 +350,9 @@ else
     NM="$(TARGET_CROSS)nm" \
     STRIP="$(STRIP)" \
     STRIP_KMOD="$(SCRIPT_DIR)/strip-kmod.sh" \
-    PATCHELF="$(STAGING_DIR_HOST)/bin/patchelf" \
-    $(SCRIPT_DIR)/rstrip.sh
+    PATCHELF="$(STAGING_DIR_HOST)/bin/patchelf"
+
+  RSTRIP=$(RSTRIP_ARGS) $(SCRIPT_DIR)/rstrip.sh
 endif
 
 RCOMPR=COMPRESSOR=upx COMPRESS_OPTIONS=--ultra-brute $(SCRIPT_DIR)/compress.sh

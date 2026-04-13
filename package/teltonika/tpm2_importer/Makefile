@@ -7,7 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=tpm2_importer
 
-PKG_SOURCE_VERSION:=7.21
+PKG_SOURCE_VERSION:=7.23
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
@@ -28,6 +28,7 @@ define Package/libtpm2_importer
 	CATEGORY:=Libraries
 	TITLE:=RUTOS TPM Importer library
 	ABI_VERSION:=$(PKG_ABI_VERSION)
+	DEPENDS:=libopenssl
 endef
 
 define Package/libtpm2_importer/description

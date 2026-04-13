@@ -6,8 +6,8 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=iec60870_server
-PKG_VERSION:=2026-03-20
-PKG_SOURCE_VERSION:=7.22.0.1
+PKG_VERSION:=2026-04-01
+PKG_SOURCE_VERSION:=7.22.3
 PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk

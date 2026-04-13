@@ -160,8 +160,11 @@ define Py3Package
 	$$(call Py3Package/$(1)/install,$$(1))
 	$$(call Py3Package/ProcessFilespec,$(1),$(PKG_INSTALL_DIR),$$(1))
 	$(FIND) $$(1) -name '*.exe' -delete
-	$$(call Python3/CompileAll,$$(1))
-	$$(call Python3/DeleteSourceFiles,$$(1))
+	$(if $(CONFIG_PYTHON3_NOT_INCLUDE_PYCS),, \
+		$$(call Python3/CompileAll,$$(1)); \
+		$$(call Python3/DeleteSourceFiles,$$(1)); \
+	)
+
 	$$(call Python3/DeleteEmptyDirs,$$(1))
 	if [ -d "$$(1)/usr/bin" ]; then \
 		$$(call Python3/FixShebang,$$(1)/usr/bin/*) ; \

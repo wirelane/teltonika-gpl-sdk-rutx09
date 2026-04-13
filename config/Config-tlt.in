@@ -2298,6 +2298,7 @@ config PYTHON_SUPPORT
 	default y if TEST_IMAGE
 	default m
 	imply PACKAGE_python3
+	imply PYTHON3_NOT_INCLUDE_PYCS if TARGET_sdxnightjar
 
 config JAVA_SUPPORT
 	tristate "JAVA"

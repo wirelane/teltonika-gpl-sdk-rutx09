@@ -1,6 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI UI Support for IEC 60870-5 Server
+APP_DEPENDS:=+vuci-app-universal-gateway-api
 
 ifneq (,$(filter m,$(CONFIG_PACKAGE_vuci-app-iec60870-server-ui))$(DUMP))
 	APP_TLT_NAME:=IEC 60870-5 Server

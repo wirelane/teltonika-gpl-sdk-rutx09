@@ -1,7 +1,7 @@
-Index: ustream-ssl-2025-10-04-5a81c108/ustream-openssl.c
+Index: ustream-ssl-2026-03-01-99f1c0db/ustream-openssl.c
 ===================================================================
---- ustream-ssl-2025-10-04-5a81c108.orig/ustream-openssl.c
-+++ ustream-ssl-2025-10-04-5a81c108/ustream-openssl.c
+--- ustream-ssl-2026-03-01-99f1c0db.orig/ustream-openssl.c
++++ ustream-ssl-2026-03-01-99f1c0db/ustream-openssl.c
 @@ -106,10 +106,16 @@
  __hidden struct ustream_ssl_ctx *
  __ustream_ssl_context_new(bool server)
@@ -132,10 +132,10 @@ Index: ustream-ssl-2025-10-04-5a81c108/ustream-openssl.c
  	free(ctx);
  }
  
-Index: ustream-ssl-2025-10-04-5a81c108/ustream-openssl.h
+Index: ustream-ssl-2026-03-01-99f1c0db/ustream-openssl.h
 ===================================================================
---- ustream-ssl-2025-10-04-5a81c108.orig/ustream-openssl.h
-+++ ustream-ssl-2025-10-04-5a81c108/ustream-openssl.h
+--- ustream-ssl-2026-03-01-99f1c0db.orig/ustream-openssl.h
++++ ustream-ssl-2026-03-01-99f1c0db/ustream-openssl.h
 @@ -25,15 +25,26 @@
  #else
  #include <openssl/ssl.h>
@@ -163,10 +163,10 @@ Index: ustream-ssl-2025-10-04-5a81c108/ustream-openssl.h
  };
  
  struct bio_ctx {
-Index: ustream-ssl-2025-10-04-5a81c108/CMakeLists.txt
+Index: ustream-ssl-2026-03-01-99f1c0db/CMakeLists.txt
 ===================================================================
---- ustream-ssl-2025-10-04-5a81c108.orig/CMakeLists.txt
-+++ ustream-ssl-2025-10-04-5a81c108/CMakeLists.txt
+--- ustream-ssl-2026-03-01-99f1c0db.orig/CMakeLists.txt
++++ ustream-ssl-2026-03-01-99f1c0db/CMakeLists.txt
 @@ -9,6 +9,18 @@ IF(CMAKE_C_COMPILER_VERSION VERSION_GREA
  ENDIF()
  ADD_DEFINITIONS(-Wno-unused-parameter -Wmissing-declarations)

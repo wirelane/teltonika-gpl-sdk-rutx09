@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=ustream-ssl
 PKG_RELEASE:=1
 
-PKG_SOURCE_DATE:=2025-10-04
+PKG_SOURCE_DATE:=2026-03-01
 CMAKE_INSTALL:=1
 
 PKG_LICENSE:=ISC
@@ -13,7 +13,7 @@ PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(PROJECT_GIT)/project/ustream-ssl.git
-PKG_SOURCE_VERSION:=5a81c108d20e24724ed847cc4be033f2a74e6635
+PKG_SOURCE_VERSION:=99f1c0db5a729f615bc5114b3b52fd8ac8083f34
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk

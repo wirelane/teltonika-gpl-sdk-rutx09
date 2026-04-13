@@ -1,3 +1,18 @@
+# 2026-04-08 00.07.22.1
+
+### Fix
+
+* Backup: fixed ability to reset user password to device default password (ID: 34133)
+* Backup: fixed custom uci-default script execution (ID: 34133)
+* IEC 60870-5 Client: fixed missing serial support validation checks (ID: 33892)
+* IEC 60870-5 Server: fixed package dependency issues and missing serial support validation checks (ID: 33892)
+* Modbus Client: fixed test requests due to missing broadcast option (ID: 34100)
+* RMS: fixed configuration permission issues that caused connection problems (ID: 32001)
+
+### Updates
+
+* ustream-ssl: updated version to  2026-03-01 (ID: 34092)
+
 # 2026-03-19 00.07.22
 
 ### New

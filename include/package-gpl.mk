@@ -236,5 +236,11 @@ gpl-install: $(GPL_BUILD_DIR)/package download_upstream download
 	, \
 		$(call Build/InstallGPL,$(PKG_GPL_BUILD_DIR)) \
 	)
+
+	# `STRIP` must be replaced with `strip -s` in order to not remove information needed for linking against library
+	# during compilation.
+	#
+	# By default RSTRIP only leaves enough information to link against libraries at runtime, but not at build time
+	$(RSTRIP_ARGS) STRIP="$(TARGET_CROSS)strip -s" $(SCRIPT_DIR)/rstrip.sh $(PKG_GPL_BUILD_DIR)
 	$(call gpl_scan_deps)
 	$(call gpl_clear_install,$(PKG_GPL_BUILD_DIR))
