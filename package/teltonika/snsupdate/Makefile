@@ -5,6 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=snsupdate
+PKG_Version:=2026-04-07
 
 PKG_SOURCE_VERSION:=1.3
 PKG_LICENSE:=Teltonika-closed

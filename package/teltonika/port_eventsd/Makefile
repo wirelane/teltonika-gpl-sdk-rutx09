@@ -7,6 +7,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=port_eventsd
 PKG_RELEASE=6
+PKG_VERSION:=2026-04-07
 
 PKG_SOURCE_VERSION:=1.16
 PKG_LICENSE:=Teltonika-closed

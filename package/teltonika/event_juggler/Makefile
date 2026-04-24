@@ -8,7 +8,7 @@ include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=event-juggler
 
-PKG_SOURCE_VERSION:=1.10
+PKG_SOURCE_VERSION:=1.11
 PKG_LICENSE:=Teltonika-closed
 
 PKG_FIXUP:=autoreconf
@@ -23,7 +23,7 @@ define Package/event-juggler
 	USERID:=juggler=516:juggler=516
 	USER_GROUPS:=juggler:gsm profiler rms network wireless
 	DEPENDS:=+libubox +libubus +libuci +libtlt-logger +libblobmsg-json +libparam \
-			+libcfg +libcurl +liblua +libmosquitto +libtlt_smtp +libtlt_uci +libapi \
+			+libcfg +libcurl +luajit2 +libmosquitto +libtlt_smtp +libtlt_uci +libapi \
 			+libsqlite3 \
 			+PACKAGE_EVENT_JUGGLER_EVENT_GSM:liburc \
 			+PACKAGE_EVENT_JUGGLER_ACTION_MODEM:libmctl \

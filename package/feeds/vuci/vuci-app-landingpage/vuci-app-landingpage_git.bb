@@ -9,7 +9,7 @@ inherit useradd
 USERADD_PACKAGES = "${PN}"
 USERADD_PARAM:${PN} = "-u 610 -d /var/run/landingpage -r -s /bin/false landingpage"
 
-DEPENDS = "lua5.1"
+DEPENDS = "luajit"
 
 FILESEXTRAPATHS:prepend = "${THISDIR}:"
 SRC_URI = " \
@@ -20,12 +20,12 @@ SRC_URI = " \
 S = "${WORKDIR}"
 B = "${S}/src"
 
-TARGET_CFLAGS:append = " -I${STAGING_INCDIR}/lua5.1"
+TARGET_CFLAGS:append = " -I${STAGING_INCDIR}/luajit-2.1"
 
 FILES:${PN} += "${libdir}/lua"
 CONFFILES:${PN} += "/etc/config/landingpage"
 
-RDEPENDS:${PN} += "lua5.1"
+RDEPENDS:${PN} += "luajit"
 
 PACKAGE_ARCH = "${MACHINE_ARCH}"
 

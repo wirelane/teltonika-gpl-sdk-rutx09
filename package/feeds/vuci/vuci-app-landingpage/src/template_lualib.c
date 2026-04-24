@@ -202,7 +202,7 @@ static int template_L_hash(lua_State *L) {
 
 
 /* module table */
-static const luaL_reg R[] = {
+static const luaL_Reg R[] = {
 	{ "parse",				template_L_parse },
 	{ "parse_string",		template_L_parse_string },
 	{ "utf8",				template_L_utf8 },

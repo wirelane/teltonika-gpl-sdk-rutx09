@@ -1,7 +1,6 @@
-Index: net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.c
 ===================================================================
---- net-snmp-5.9.1.orig/agent/mibgroup/if-mib/data_access/interface_ioctl.c
-+++ net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.c
+--- a/agent/mibgroup/if-mib/data_access/interface_ioctl.c
++++ b/agent/mibgroup/if-mib/data_access/interface_ioctl.c
 @@ -29,6 +29,10 @@ netsnmp_feature_child_of(interface_ioctl
  #include "interface_ioctl.h"
  #include "ip-mib/data_access/ipaddress_ioctl.h"
@@ -13,7 +12,7 @@ Index: net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.c
  /**
   * ioctl wrapper
   *
-@@ -407,9 +411,33 @@ netsnmp_access_interface_ioctl_ifindex_g
+@@ -399,9 +403,33 @@ netsnmp_access_interface_ioctl_ifindex_g
  #else
      struct ifreq    ifrq;
      int rc = 0;
@@ -47,7 +46,7 @@ Index: net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.c
      rc = _ioctl_get(fd, SIOCGIFINDEX, &ifrq, name);
      if (rc < 0) {
          DEBUGMSGTL(("access:interface:ioctl",
-@@ -494,3 +522,28 @@ netsnmp_access_interface_ioctl_has_ipv4(
+@@ -486,3 +514,28 @@ netsnmp_access_interface_ioctl_has_ipv4(
  
      return 0;
  }
@@ -76,11 +75,10 @@ Index: net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.c
 +        free(g_persistent_ifaces);
 +    }
 +}
-Index: net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.h
 ===================================================================
---- net-snmp-5.9.1.orig/agent/mibgroup/if-mib/data_access/interface_ioctl.h
-+++ net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.h
-@@ -44,6 +44,12 @@ netsnmp_access_interface_ioctl_has_ipv4(
+--- a/agent/mibgroup/if-mib/data_access/interface_ioctl.h
++++ b/agent/mibgroup/if-mib/data_access/interface_ioctl.h
+@@ -51,6 +51,12 @@ netsnmp_access_interface_ioctl_has_ipv4(
                                          int if_index, u_int *flags,
                                          const struct ifconf *pifc);
  
@@ -93,10 +91,9 @@ Index: net-snmp-5.9.1/agent/mibgroup/if-mib/data_access/interface_ioctl.h
  /**---------------------------------------------------------------------*/
  
  # ifdef __cplusplus
-Index: net-snmp-5.9.1/agent/mibgroup/if-mib/ifTable/ifTable.c
 ===================================================================
---- net-snmp-5.9.1.orig/agent/mibgroup/if-mib/ifTable/ifTable.c
-+++ net-snmp-5.9.1/agent/mibgroup/if-mib/ifTable/ifTable.c
+--- a/agent/mibgroup/if-mib/ifTable/ifTable.c
++++ b/agent/mibgroup/if-mib/ifTable/ifTable.c
 @@ -31,6 +31,7 @@ netsnmp_feature_require(interface_access
  #include <net-snmp/agent/mib_modules.h>
  

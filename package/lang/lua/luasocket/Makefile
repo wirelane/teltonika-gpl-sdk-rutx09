@@ -10,7 +10,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=luasocket
 PKG_SOURCE_DATE:=2019-04-21
 PKG_RELEASE:=2
-PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host
+PKG_BUILD_DEPENDS:=VUCI_COMPILE_LUA:luajit2/host
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_VERSION:=733af884f1aa18ff469bf3c4d18810e815853211
@@ -23,6 +23,13 @@ PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
+LUAJIT_ARGS=-t raw -d
+ifeq ($(CONFIG_ARCH_64BIT),y)
+	LUAJIT_ARGS += -X
+else
+	LUAJIT_ARGS += -W
+endif
+
 define Package/luasocket/default
   SUBMENU:=Lua
   SECTION:=lang
@@ -33,14 +40,10 @@ endef
 define Package/luasocket
   $(Package/luasocket/default)
   TITLE:=LuaSocket
-  DEPENDS:=+lua
-  VARIANT:=lua-51
+  DEPENDS:=+luajit2
+  VARIANT:=luajit2
   DEFAULT_VARIANT:=1
 endef
-
-ifeq ($(BUILD_VARIANT),lua-51)
-  LUA_VERSION=5.1
-endif
 
 define Package/luasocket/default/description
   LuaSocket is the most comprehensive networking support
@@ -53,17 +56,17 @@ define Build/Configure
 endef
 
 define Build/Compile
-	$(if $(CONFIG_VUCI_MINIFY_LUA), \
+	$(if $(CONFIG_VUCI_COMPILE_LUA), \
 		$(FIND) $(PKG_BUILD_DIR)/src -type f -name '*.lua' | while read src; do \
-			if LUA_PATH="$(STAGING_DIR_HOSTPKG)/lib/lua/5.1/?.lua" luasrcdiet --noopt-binequiv --noopt-emptylines -o "$$$$src.o" "$$$$src"; \
-			then mv "$$$$src.o" "$$$$src"; fi; \
+			LUA_PATH="$(STAGING_DIR_HOSTPKG)/share/luajit-2.1/?.lua;;" $(STAGING_DIR_HOSTPKG)/bin/luajit -b $(LUAJIT_ARGS) "$$$$src" "$$$$src" ;\
 		done; \
 	)
 	$(MAKE) -C $(PKG_BUILD_DIR)/ \
 		LIBDIR="$(TARGET_LDFLAGS)" \
 		CC="$(TARGET_CC) $(TARGET_CFLAGS) $(TARGET_CPPFLAGS) $(FPIC)" \
 		LD="$(TARGET_CROSS)ld -shared" \
-		LUAV=$(LUA_VERSION) LUAINC_linux_base=$(STAGING_DIR)/usr/include \
+		LUAV=jit-2.1 \
+		LUAINC_linux_base=$(STAGING_DIR)/usr/include \
 		all
 endef
 

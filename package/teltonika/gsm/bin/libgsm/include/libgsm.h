@@ -77,6 +77,7 @@ typedef enum {
 	LGSM_INFO_BUILTIN,
 	LGSM_INFO_GPS_SATELLITE,
 	LGSM_INFO_DISABLED_NR5G_SA_MODE,
+	LGSM_INFO_FEATURE_EXT_INT_ANTENNA_SWITCH,
 	LGSM_INFO_MAX,
 } lgsm_info_t;
 
@@ -270,6 +271,8 @@ typedef enum {
 	LGSM_PDP_CTX_HDR_COMP,
 	LGSM_PDP_CTX_IP_ALLOC,
 	LGSM_PDP_CTX_REQ_TP,
+	LGSM_PDP_CTX_SST,
+	LGSM_PDP_CTX_SD,
 	LGSM_PDP_CTX_MAX,
 } lgsm_pdp_ctx_t;
 
@@ -762,6 +765,11 @@ typedef enum {
 } lgsm_sleep_mode_attrs_t;
 
 typedef enum {
+	LGSM_EXT_ANTENNA_MODE_VALUE,
+	LGSM_EXT_ANTENNA_MODE_MAX,
+} g_ext_antenna_mode_attrs_t;
+
+typedef enum {
 	LGSM_UBUS_INFO,
 	LGSM_UBUS_EXEC,
 	LGSM_UBUS_FW,
@@ -977,6 +985,10 @@ typedef enum {
 	LGSM_UBUS_GET_SLEEP_MODE,
 	LGSM_UBUS_SET_AUTOAPN_MODE,
 	LGSM_UBUS_GET_AUTOAPN_MODE,
+	LGSM_UBUS_GET_S_NSSAI,
+	LGSM_UBUS_SET_S_NSSAI,
+	LGSM_UBUS_SET_EXTERNAL_ANTENNA_MODE,
+	LGSM_UBUS_GET_EXTERNAL_ANTENNA_MODE,
 	//------
 	__LGSM_UBUS_MAX,
 } lgsm_method_t;
@@ -1078,6 +1090,8 @@ typedef struct {
 	enum pdp_hdr_comp_id hdr_comp;
 	enum pdp_ipv4_addr_alloc_id ip_alloc;
 	enum pdp_req_id req;
+	enum net_slicing_sst_id sst;
+	char sd[8];
 } lgsm_pdp_ctx_info_t;
 
 typedef struct {
@@ -1147,6 +1161,11 @@ typedef struct {
 	char **service_mode_arr;
 	uint32_t service_mode_cnt;
 } lgsm_service_mode_t;
+
+typedef struct {
+	char **s_nssai_arr;
+	uint32_t s_nssai_cnt;
+} lgsm_s_nssai_list_t;
 
 typedef struct {
 	enum msg_storage_id storage_id;
@@ -1254,7 +1273,6 @@ typedef struct {
 typedef struct {
 	lgsm_band_t band_list;
 	lgsm_service_mode_t service_mode_list;
-
 	char name[32];
 	char model[32];
 	char manuf[32];
@@ -1312,6 +1330,7 @@ typedef struct {
 	uint32_t gnss_state;
 	bool disabled_nr5g_sa_mode; // Mark webui to hide 5G management
 	bool cops_2_apn_change;
+	bool int_ext_antenna_switch;
 
 } lgsm_t;
 
@@ -1655,6 +1674,7 @@ typedef enum {
 	LGSM_LABEL_MBN_SETTINGS_OVERRIDE_CONFIG_T,
 	LGSM_LABEL_RI_BEHAVIOR_T,
 	LGSM_LABEL_SLEEP_MODE_T,
+	LGSM_LABEL_S_NSSAI_LIST_T,
 	LGSM_LABEL_ERROR,
 } lgsm_resp_label_t;
 
@@ -1742,6 +1762,7 @@ typedef union {
 	lgsm_mbn_settings_override_config_t mbn_settings_override_config;
 	lgsm_ri_behavior_t ri_behavior;
 	lgsm_sleep_mode_t sleep_mode;
+	lgsm_s_nssai_list_t s_nssai_list;
 } lgsm_resp_data;
 
 typedef struct {
@@ -2266,9 +2287,18 @@ struct blob_buf prepare_auto_tz_update(bool enabled);
  */
 struct blob_buf prepare_gnss_oper_mode(enum gnss_operation_mode_id mode);
 
+/**
+ * Convert given s_nssai params into a s_nssai string that can be used in set_s_nssai method
+ * @param[in]   buf    string buffer to store formatted s_nssai string.(should be at least 10 bytes!)
+ * @param[in]   sst    SST value.
+ * @param[in]   sd     SD value.(should be 6 char long string or NULL)
+ * if sd is NULL, only sst will be formatted.
+ */
+void format_s_nssai_string(char *buf, enum net_slicing_sst_id sst, char *sd);
+
 /******************
-*  SET HANDLERS  *
-******************/
+*  SET HANDLERS   *
+*******************/
 
 /**
  * Execute AT command
@@ -3472,6 +3502,28 @@ lgsm_err_t lgsm_set_pplmn_list(struct ubus_context *ctx, func_t *resp, uint32_t 
  */
 lgsm_err_t lgsm_set_sim_sleep_mode(struct ubus_context *ctx, bool enabled, func_t *resp, uint32_t modem_num);
 
+/**
+ * Set S-NSSAI list to MT (+C5GNSSAI)
+ * @param[ptr]  ctx   	    Ubus ctx.
+ * @param[ptr]  s_nssai_list S-NSSAI list to be set.
+ * @param[in]   s_nssai_count Number of elements in s_nssai_list array.
+ * @param[char] resp   	    Response from modem for the executed AT command.
+ * @param[in]   modem_num   Modem identification number.
+ * @return lgsm_err_t. Return function status code.
+ */
+lgsm_err_t lgsm_set_s_nssai(struct ubus_context *ctx, struct net_s_nssai *s_nssai_list, size_t s_nssai_count,
+			    func_t *resp, uint32_t modem_num);
+
+/**
+ * Set external antenna mode configuration
+ * @param[ptr]  ctx         Ubus ctx.
+ * @param[in]   enabled	    Is external antenna enabled.
+ * @param[char] resp        Response from modem for the executed command.
+ * @param[in]   modem_num   Modem identification number.
+ */
+lgsm_err_t lgsm_set_external_antenna_mode(struct ubus_context *ctx, bool enabled, func_t *resp,
+					  uint32_t modem_num);
+
 /******************
 *  GET HANDLERS  *
 ******************/
@@ -4215,6 +4267,20 @@ void handle_get_sleep_mode(struct blob_attr *info, lgsm_structed_info_t *parsed)
  * @param[ptr]   parsed    Parsed union readable information.
  */
 void handle_get_autoapn_mode_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+ * Parse S-NSSAI setting method response
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+ */
+void handle_get_s_nssai_setting_rsp(struct blob_attr *info, lgsm_structed_info_t *parsed);
+
+/**
+ * Parse external antenna mode method response *@param[ptr] info
+ * @param[ptr]   info      Blob from gsmd.
+ * @param[ptr]   parsed    Parsed union readable information.
+ */
+void handle_get_external_antenna_mode(struct blob_attr *info, lgsm_structed_info_t *parsed);
 
 /*********************
 *  STRUCT HANDLERS  *

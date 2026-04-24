@@ -236,7 +236,7 @@ end
 
 --- perform lock operation on a file and returns it for reading/writing
 ---@param lock_type "lock"|"tlock"|"ulock"|"test" lock operation, "lock" is blocking, "tlock" ir non blocking, "ulock" unlocks, "test" only tests
----@return boolean success true if file locked/unlocked succesfully
+---@return boolean success true if file locked/unlocked successfully
 ---@return table fd nixio file descriptor
 function o_utils._lock(file_path, lock_type)
 	local f = nixio.open(file_path, nixio.open_flags("rdwr", "creat"))
@@ -250,7 +250,7 @@ end
 ---File needs to be unlocked and closed after using it - fd:lock("ulock") ; fd:close().
 ---Lock is released automatically when process ends.
 ---@param blocking boolean? default = true, if false lock is not blocking
----@return boolean success true if file locked succesfully. false if file already locked
+---@return boolean success true if file locked successfully. false if file already locked
 ---@return table fd lock file descriptor. **Warning:** You have to keep a reference to this file, otherwise it gets gc'd by nixio and unlocked when it goes out of scope
 ---@nodiscard
 function o_utils.acquire_lock(blocking)

@@ -147,6 +147,10 @@ config DROPBEAR_UBUS_PAM
 	bool "Build dropbear with Linux UBUS PAM support"
 	default n
 
+config DROPBEAR_2FA
+	bool "Build dropbear with 2FA support"
+	default n
+
 config DROPBEAR_SCP
 	bool "Build dropbear with scp"
 	default y

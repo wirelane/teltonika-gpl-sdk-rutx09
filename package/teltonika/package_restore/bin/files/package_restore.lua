@@ -9,7 +9,8 @@ local OpkgPkg = require "vuci.opkg_pkg"
 local o_utils = require "vuci.opkg_utils"
 
 local PACKAGE_FILE = "/etc/package_restore.txt"
-local BACKUP_PACKAGES = "/etc/backup_packages/"
+local ETC_BACKUP_PACKAGES = "/etc/backup_packages/"
+local BACKUP_PACKAGES = "/tmp/backup_packages/"
 local FAILED_PACKAGES = "/etc/package_restore/failed_packages"
 local THIRD_PARTY_FEEDS = "/etc/opkg/openwrt/distfeeds.conf"
 local TLT_PACKAGES = "/var/opkg-lists/tlt_packages"
@@ -96,29 +97,41 @@ for i, v in ipairs(arg) do
 end
 
 -------------- BACKUP PACKAGE INSTALL -----------------------
-DBG("Starting backup package installation")
-local backup_pkgs = {}
+if fs.access(ETC_BACKUP_PACKAGES) and fs.dir(ETC_BACKUP_PACKAGES)() then -- check if backup dir is not empty
+	DBG("Starting backup package installation")
 
-for file in fs.glob(BACKUP_PACKAGES .. "*.ipk") do
-	util.exec("tar x -zf %s -C %s ./control.tar.gz" % {qt(file), BACKUP_PACKAGES})
-	util.exec("tar x -zf %s -C %s ./control" % {BACKUP_PACKAGES .. "control.tar.gz", BACKUP_PACKAGES})
-	if (fs.readfile(BACKUP_PACKAGES .. "control") or ""):find("tlt_name", nil, true) then
-		-- main pkg has tlt_name, it must be first in the list to install correctly
-		table.insert(backup_pkgs, 1, file)
-		DBG("Backup package found: %s", file)
-	else
-		table.insert(backup_pkgs, file)
-		DBG("3rd party backup package found: %s", file)
+	-- need to move backup packages to /tmp before installing, to free up flash space
+	fs.mover(ETC_BACKUP_PACKAGES, BACKUP_PACKAGES)
+	local backup_pkgs = {}
+
+	for file in fs.glob(BACKUP_PACKAGES .. "*.ipk") do
+		util.exec("tar x -zf %s -C %s ./control.tar.gz" % {qt(file), BACKUP_PACKAGES})
+		util.exec("tar x -zf %s -C %s ./control" % {BACKUP_PACKAGES .. "control.tar.gz", BACKUP_PACKAGES})
+		if (fs.readfile(BACKUP_PACKAGES .. "control") or ""):find("tlt_name", nil, true) then
+			-- main pkg has tlt_name, it must be first in the list to install correctly
+			table.insert(backup_pkgs, 1, file)
+			DBG("Backup package found: %s", file)
+		else
+			table.insert(backup_pkgs, file)
+			DBG("3rd party backup package found: %s", file)
+		end
 	end
-end
 
-if #backup_pkgs > 0 then
-	util.perror("Installing backup packages")
-	opkg_install(backup_pkgs)
-	util.exec("rm -rf %s 2> /dev/null" % BACKUP_PACKAGES)
-	opkg._trigger_pkg_event()
-	opkg._restart_services()
-	opkg._trigger_backup()
+	if #backup_pkgs > 0 then
+		util.perror("Installing backup packages")
+		if opkg_install(backup_pkgs) == 0 then
+			util.exec("rm -rf %s 2> /dev/null" % BACKUP_PACKAGES)
+		else
+			util.perror("Failed to install backup packages")
+		end
+		opkg._trigger_pkg_event()
+		opkg._restart_services()
+		opkg._trigger_backup()
+	end
+
+	-- move the dir back, and any packages left if they errored
+	fs.rmdir(ETC_BACKUP_PACKAGES)
+	fs.mover(BACKUP_PACKAGES, ETC_BACKUP_PACKAGES)
 end
 
 --------------- MAIN PACKAGE INSTALL -----------------------

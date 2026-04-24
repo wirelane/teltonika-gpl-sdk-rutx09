@@ -13,7 +13,7 @@ define Package/vuci-app-landingpage
 	CATEGORY:=WebUI
 	SUBMENU:=Applications
 	TITLE:=Hotspot landingpage core files
-	DEPENDS:=+liblua +vuci-app-coovachilli-themes-ui
+	DEPENDS:=+luajit2 +vuci-app-coovachilli-themes-ui
 endef
 
 define Package/vuci-app-landingpage/conffiles
@@ -78,6 +78,8 @@ include $(INCLUDE_DIR)/host-build.mk
 
 define Host/Configure
 endef
+
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/luajit-2.1
 
 define Host/Compile
 	$(MAKE) -C src/ clean po2lmo jsmin

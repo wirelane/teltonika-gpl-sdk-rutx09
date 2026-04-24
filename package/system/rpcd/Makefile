@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=rpcd
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-13
 PKG_MAINTAINER:=Jo-Philipp Wich <jo@mein.io>
 PKG_LICENSE:=ISC
 PKG_LICENSE_FILES:=main.c
@@ -27,8 +27,10 @@ PKG_ASLR_PIE_REGULAR:=1
 
 PKG_CONFIG_DEPENDS += \
 	CONFIG_RPCD_PAM \
+	CONFIG_RPCD_2FA \
 	CONFIG_USE_PROCD \
-	CONFIG_USE_OPENRC
+	CONFIG_USE_OPENRC \
+	CONFIG_PACKAGE_session-oauth2
 
 include $(INCLUDE_DIR)/package.mk
 include $(INCLUDE_DIR)/cmake.mk
@@ -54,6 +56,13 @@ define Package/session
   DEPENDS:=+libubox +libubus +libuci +libblobmsg-json +libtlt-logger
 endef
 
+define Package/session-oauth2
+  SECTION:=base
+  CATEGORY:=Base system
+  TITLE:=Session Oauth2 plugin
+  DEPENDS:=+session +libjson-c +libcurl +libopenssl
+endef
+
 define Package/rpcd
   $(Package/rpcd/default)
   DEPENDS+= +libuci +libblobmsg-json +libjson-c
@@ -71,6 +80,10 @@ endef
 
 define Package/session/description
   A standalone session management daemon with token and ACL support.
+endef
+
+define Package/session-oauth2/description
+  An OAuth2 plugin for the session management daemon.
 endef
 
 define Package/rpcd/conffiles
@@ -140,6 +153,16 @@ define Package/rpcd/install
 	$(if $(CONFIG_USE_OPENRC),\
 		$(OPENRC_INSTALL) boot rpcd $(PKG_BUILD_DIR)/files/rpcd.openrc $(1))
 
+	$(if $(CONFIG_PACKAGE_session-oauth2),\
+		echo -e "\nconfig sso_provider 'sso_provider1'" >> $(1)/etc/config/rpcd; \
+		echo -e "\toption name 'Google'" >> $(1)/etc/config/rpcd; \
+		echo -e "\toption icon '/etc/vuci-uploads/cbid.rpcd.sso_provider1.icongoogle_icon.svg'" >> $(1)/etc/config/rpcd; \
+		echo -e "\toption enabled '0'\n" >> $(1)/etc/config/rpcd; \
+		echo -e "\nconfig sso_provider 'sso_provider2'" >> $(1)/etc/config/rpcd; \
+		echo -e "\toption name 'Microsoft'" >> $(1)/etc/config/rpcd; \
+		echo -e "\toption icon '/etc/vuci-uploads/cbid.rpcd.sso_provider2.iconmicrosoft_icon.svg'" >> $(1)/etc/config/rpcd; \
+		echo -e "\toption enabled '0'\n" >> $(1)/etc/config/rpcd)
+
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.11
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/files/uci-defaults/7.11/99_rpcd_sesitive_info_flag $(1)/etc/uci-defaults/7.11/
 	$(INSTALL_DIR) $(1)/etc/uci-defaults/7.13
@@ -159,6 +182,27 @@ define Package/session/install
 
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/init.d/session.init $(1)/etc/init.d/session
+endef
+
+define Package/session-oauth2/install
+	$(INSTALL_DIR) $(1)/usr/lib/session
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/oauth2.so $(1)/usr/lib/session/
+endef
+
+define Package/session-oauth2/postinst
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ] && [ -x /etc/init.d/session ]; then
+	/etc/init.d/session reload
+fi
+exit 0
+endef
+
+define Package/session-oauth2/postrm
+#!/bin/sh
+if [ -z "$${IPKG_INSTROOT}" ] && [ -x /etc/init.d/session ]; then
+	/etc/init.d/session reload
+fi
+exit 0
 endef
 
 # 1: plugin name
@@ -189,11 +233,14 @@ define BuildPlugin
 endef
 
 CMAKE_OPTIONS += -DPAM_SUPPORT=$(if $(CONFIG_RPCD_PAM),"ON","OFF")
+CMAKE_OPTIONS += -D2FA_SUPPORT=$(if $(CONFIG_RPCD_2FA),"ON","OFF")
 CMAKE_OPTIONS += -DIWINFO_SUPPORT=$(if $(CONFIG_PACKAGE_libiwinfo),"ON","OFF")
 CMAKE_OPTIONS += -DUCI_SUPPORT=$(if $(CONFIG_PACKAGE_libuci),"ON","OFF")
+CMAKE_OPTIONS += -DOAUTH2_SUPPORT=$(if $(CONFIG_PACKAGE_session-oauth2),"ON","OFF")
 
 $(eval $(call BuildPackage,rpcd))
 $(eval $(call BuildPackage,session))
+$(eval $(call BuildPackage,session-oauth2))
 $(eval $(call BuildPlugin,file,,Provides ubus calls for file and directory operations.))
 $(eval $(call BuildPlugin,rpcsys,,Provides ubus calls for sysupgrade and password changing.))
 $(eval $(call BuildPlugin,iwinfo,+libiwinfo,Provides ubus calls for accessing iwinfo data.))

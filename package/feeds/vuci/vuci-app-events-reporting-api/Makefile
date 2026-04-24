@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 APP_TITLE:=VuCI API Support for Events Reporting
-APP_DEPENDS:=+event-juggler +libparam +libubus +liblua +MOBILE_SUPPORT:libgsm
+APP_DEPENDS:=+event-juggler +libparam +libubus +luajit2 +MOBILE_SUPPORT:libgsm
 
 ifeq (m, $(CONFIG_PACKAGE_vuci-app-events-reporting-api))
 	APP_TLT_NAME:=Events reporting API
@@ -14,6 +14,8 @@ include ../api.mk
 
 ifneq ($(CONFIG_GPL_INCLUDE_WEB_SOURCES), y)
 endif
+
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/luajit-2.1
 
 define Package/$(PKG_NAME)/install
 	$(call Package/$(PKG_NAME)/install/Default,$(1))

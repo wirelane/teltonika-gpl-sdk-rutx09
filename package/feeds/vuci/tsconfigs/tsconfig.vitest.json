@@ -1,18 +1,12 @@
 {
   "extends": "./tsconfig.app.json",
-  "exclude": [
-    "../node_modules",
-    "node_modules",
-    "../**/cypress",
-    "../cypress.config*",
-    "../**/*.stories.*"
-  ],
+  "exclude": [],
   "include": [
-    "../applications/**/*",
+    "../applications/**/tests/*",
     "../applications/**/__tests__/*",
-    "../vuci-ui-core/**/*",
+    "../vuci-ui-core/**/tests/*",
     "../vuci-ui-core/**/__tests__/*",
-    "../**/.{spec,test}.{js,ts}"
+    "../docs/content/**/__tests__/*"
   ],
   "compilerOptions": {
     "composite": true,

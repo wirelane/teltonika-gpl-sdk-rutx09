@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=sstp-client
 PKG_VERSION:=1.0.19
-PKG_RELEASE:=5
+PKG_RELEASE:=6
 
 PKG_HASH:=e2652365f69f5037102e78f4e115ff764a390b27bb3fd513a8a50b10a61bb613
 
@@ -59,6 +59,10 @@ define Package/sstp-client/install
 	$(INSTALL_BIN) files/fix_cert_owners $(1)/etc/uci-defaults/7.17/99_sstp_fix_cert_owners
 	$(INSTALL_DIR) $(1)/usr/share/acl.d
 	$(INSTALL_DATA) ./files/sstp_acl.json $(1)/usr/share/acl.d/sstp_acl.json
+	$(INSTALL_DIR) $(1)/etc/ppp/ip-up.d/
+	$(INSTALL_BIN) ./files/sstp-up $(1)/etc/ppp/ip-up.d/
+	$(INSTALL_DIR) $(1)/etc/ppp/ip-down.d/
+	$(INSTALL_BIN) ./files/sstp-down $(1)/etc/ppp/ip-down.d/
 endef
 
 define Package/sstp-client/postinst

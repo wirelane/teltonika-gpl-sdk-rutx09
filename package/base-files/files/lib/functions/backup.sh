@@ -94,6 +94,36 @@ add_overlayfiles() {
 	return 0
 }
 
+filter_tpm2_from_conffiles() {
+	local file="$1"
+	local tmp
+
+	[ -f "$file" ] || return 0
+	tmp="$(mktemp /tmp/sysupgrade.conffiles.XXXXXX)"
+	[ -n "$tmp" ] || return 1
+
+	awk '
+		$0 ~ /^\/etc\/certificates\/tpm2(\/|$)/ { next }
+		$0 ~ /^\/etc\/certificates\/?$/ { next }
+		{ print }
+	' "$file" > "$tmp"
+
+	if [ -d /etc/certificates ]; then
+		(
+			cd /etc/certificates || return 0
+			find . \( -path './tpm2' -o -path './tpm2/*' \) -prune -o -print | while read -r rel; do
+				case "$rel" in
+					.) continue ;;
+				esac
+				echo "/etc/certificates/${rel#./}"
+			done
+		)
+	fi >> "$tmp"
+
+	sort -u "$tmp" > "$file"
+	rm -f "$tmp"
+}
+
 if [ $CONF_BACKUP_PKG_APPLY -eq 1 ]; then
 	[ -x "/sbin/backup" ] || exit 1
 	/sbin/backup pkg_install
@@ -121,8 +151,41 @@ fi
 
 include /lib/upgrade
 
+backup_drop_tpm2_certificates_cb() {
+	local section="$1"
+	local tpm2 path
+
+	config_get tpm2 "$section" tpm2
+	config_get path "$section" path
+
+	[ "$tpm2" = "1" ] && {
+		uci -q delete certificates."$section"
+		return 0
+	}
+
+	case "$path" in
+		tpm://*) uci -q delete certificates."$section" ;;
+	esac
+}
+
+backup_cleanup() {
+	local conf_tar="$1"
+	local conf_tar_trimmed="$2"
+	local tpm2_certificates_cfg_backup="$3"
+
+	[ -n "$conf_tar_trimmed" ] && rm -f "$conf_tar_trimmed"
+	[ -n "$tpm2_certificates_cfg_backup" ] && mv -f "$tpm2_certificates_cfg_backup" /etc/config/certificates
+	echo "Failed to create the configuration backup."
+	rm -f "$conf_tar"
+	exit 1
+}
+
 do_save_conffiles() {
 	local conf_tar="$1"
+	local tpm2_certificates_cfg_backup=""
+	local exclude_tpm2_from_backup=0
+
+	[ -n "$CONF_BACKUP" ] && [ -z "$CONF_SYSUPGRADE" ] && exclude_tpm2_from_backup=1
 
 	[ "$(rootfs_type)" = "tmpfs" ] && {
 		echo "Cannot save config while running from ramdisk." >&2
@@ -213,27 +276,37 @@ do_save_conffiles() {
 			\) | sed -e 's,.*/,,;s/\.control /\t/' > ${INSTALLED_PACKAGES}
 	fi
 
+	[ "$exclude_tpm2_from_backup" -eq 1 ] && filter_tpm2_from_conffiles "$CONFFILES"
+
 	v "Saving config files..."
 	[ "$VERBOSE" -gt 1 ] && TAR_V="v" || TAR_V=""
 
+	[ "$exclude_tpm2_from_backup" -eq 1 ] && [ -f /etc/config/certificates ] && {
+		tmp_cfg="$(mktemp /tmp/certificates.sysupgrade.XXXXXX)"
+		[ -n "$tmp_cfg" ] && {
+			cp -af /etc/config/certificates "$tmp_cfg"
+			tpm2_certificates_cfg_backup="$tmp_cfg"
+			config_load certificates
+			config_foreach backup_drop_tpm2_certificates_cb certificate
+			uci -q commit certificates
+		}
+	}
+
 	if [ -z "$CONF_PASSWORD" ]; then
-		tar c${TAR_V}zf "$conf_tar" -T "$CONFFILES" 2>/dev/null
+		tar c${TAR_V}zf "$conf_tar" -T "$CONFFILES" 2>/dev/null || backup_cleanup "$conf_tar" "" "$tpm2_certificates_cfg_backup"
 	else
 		which minizip >/dev/null || {
 			echo "Could not create $conf_tar - minizip package is not installed";
+			[ -n "$tpm2_certificates_cfg_backup" ] && mv -f "$tpm2_certificates_cfg_backup" /etc/config/certificates
 			exit 1
 		}
 		local conf_tar_trimmed=$(echo "$conf_tar" | sed 's/\.zip$//')
-		tar -cf "$conf_tar_trimmed" -T "$CONFFILES" 2>/dev/null
-		minizip -s -p "$CONF_PASSWORD" "$conf_tar" "$conf_tar_trimmed" >/dev/null 2>&1
+		tar -cf "$conf_tar_trimmed" -T "$CONFFILES" 2>/dev/null || backup_cleanup "$conf_tar" "$conf_tar_trimmed" "$tpm2_certificates_cfg_backup"
+		minizip -s -p "$CONF_PASSWORD" "$conf_tar" "$conf_tar_trimmed" >/dev/null 2>&1 || backup_cleanup "$conf_tar" "$conf_tar_trimmed" "$tpm2_certificates_cfg_backup"
 		rm "$conf_tar_trimmed"
 	fi
 
-	if [ "$?" -ne 0 ]; then
-		echo "Failed to create the configuration backup."
-		rm -f "$conf_tar"
-		exit 1
-	fi
+	[ -n "$tpm2_certificates_cfg_backup" ] && mv -f "$tpm2_certificates_cfg_backup" /etc/config/certificates
 
 	[ "$UMOUNT_ETCBACKUP_DIR" -eq 1 ] && {
 		umount "$ETCBACKUP_DIR"

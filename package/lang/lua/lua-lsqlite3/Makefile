@@ -33,7 +33,7 @@ define Package/lsqlite3
   CATEGORY:=Languages
   TITLE:=Lua wrapper for the SQLite3 library
   URL:=http://lua.sqlite.org
-  DEPENDS:= +lua +libsqlite3
+  DEPENDS:= +luajit2 +libsqlite3
 endef
 
 define Package/lsqlite3/description
@@ -41,8 +41,8 @@ define Package/lsqlite3/description
 endef
 
 TARGET_CFLAGS += $(FPIC) -std=gnu99
-TARGET_CPPFLAGS += -DLUA_USE_LINUX \
-	-DLSQLITE_OMIT_PROGRESS_CALLBACK \
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/luajit-2.1
+TARGET_CPPFLAGS += -DLSQLITE_OMIT_PROGRESS_CALLBACK \
 	-DLSQLITE_OMIT_UPDATE_HOOK \
 	$(if $(CONFIG_SQLITE3_DYNAMIC_EXTENSIONS),,-DLSQLITE_OMIT_EXTENSIONS)
 TARGET_LDFLAGS += -lsqlite3 -lpthread

@@ -120,7 +120,7 @@ function opkg.handle_online_install(app_name, set_lang)
 		}
 		if ok then
 			msgs = pkg:get_pkg_msgs()
-			util.log_str("Package '%s' installed succesfully" % pkg.app_name)
+			util.log_str("Package '%s' installed successfully" % pkg.app_name)
 			pkg:_remove_pkg_from_pkg_restore()
 			opkg_multi.update_pkg_status_file({ [pkg.app_name] = { type = PKG_TYPES.INSTALLED, messages = msgs } })
 			o_utils._restart_services()
@@ -171,7 +171,7 @@ function opkg.handle_offline_install(package_dir, set_lang)
 
 		o_utils._trigger_pkg_event(pkginfo)
 		if ok then
-			util.perror("Package '%s' installed succesfully" % pkg.app_name)
+			util.perror("Package '%s' installed successfully" % pkg.app_name)
 			pkg:_remove_pkg_from_pkg_restore()
 			opkg_multi.update_pkg_status_file({ [pkg.app_name] = { type = PKG_TYPES.INSTALLED, messages = msgs } })
 			o_utils._restart_services()

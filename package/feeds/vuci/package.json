@@ -50,6 +50,7 @@
     "zoomist": "^2.2.0"
   },
   "devDependencies": {
+    "@cspell/eslint-plugin": "^9.7.0",
     "@faker-js/faker": "^8.4.1",
     "@pinia/testing": "^0.1.7",
     "@rushstack/eslint-patch": "^1.12.0",

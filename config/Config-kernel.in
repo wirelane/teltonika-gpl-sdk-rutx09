@@ -1044,7 +1044,7 @@ config KERNEL_PAGE_POOL_STATS
 
 config KERNEL_MPTCP
 	bool "Multi-Path TCP support"
-	default n
+	default y if !SMALL_FLASH
 	help
 	   Select this option to enable support for Multi-Path TCP.
 	   Increases the compressed kernel size by ~214kB (as of Linux 6.6).
@@ -1052,7 +1052,7 @@ if KERNEL_IPV6
 config KERNEL_MPTCP_IPV6
 	bool "IPv6 support for Multipath TCP"
 	depends on KERNEL_MPTCP
-	default n
+	default KERNEL_MPTCP
 endif
 
 #

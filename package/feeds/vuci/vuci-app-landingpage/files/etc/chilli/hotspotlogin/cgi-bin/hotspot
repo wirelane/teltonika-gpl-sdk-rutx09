@@ -1,4 +1,4 @@
-#!/usr/bin/lua
+#!/usr/bin/luajit
 local nixio = require "nixio"
 local util = require "vuci.util"
 local i18n = require "luci.i18n"
@@ -150,8 +150,15 @@ local function handle_css_page(page, params, theme_dir, tpl)
 	return true
 end
 
-local function handle_custom_page(page, theme_dir, mime_type)
-	local file_content = fs.readfile(theme_dir .. "/" .. page)
+local function handle_custom_page(page, paths, mime_type)
+	local file_content
+	for _, path in ipairs(util.to_table(paths)) do
+		local file_path = path .. "/" .. page
+		if fs.access(file_path) then
+			file_content = fs.readfile(file_path)
+			break
+		end
+	end
 	if not file_content then return false end
 	print("Content-Type: " .. mime_type)
 	print("Content-Length: " .. #file_content)
@@ -211,7 +218,7 @@ local function main()
 		if ret then return end
 	end
 	if PAGE and (PAGE:match("^.*%.woff$") or PAGE:match("^.*%.woff2$")) then
-		local ret = handle_custom_page(PAGE, TEMPLATE_THEME and PREFIX or (PREFIX .. "/fonts"), "application/octet-stream")
+		local ret = handle_custom_page(PAGE, {"/www/fonts", "/usr/local/www/fonts", (TEMPLATE_THEME and PREFIX or (PREFIX .. "/fonts"))}, "application/octet-stream")
 		if ret then return end
 	end
 	if PAGE and PAGE:match("^.*%.svg$") then

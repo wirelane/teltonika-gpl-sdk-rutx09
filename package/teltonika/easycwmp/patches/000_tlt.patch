@@ -1,6 +1,6 @@
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/.gitlab-ci.yml src/.gitlab-ci.yml
 --- upstream/.gitlab-ci.yml	1970-01-01 00:00:00.000000000 +0000
-+++ src/.gitlab-ci.yml	2026-02-09 09:48:32.000000000 +0000
++++ src/.gitlab-ci.yml	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,20 @@
 +include:
 +  - project: teltonika/ci-templates
@@ -25,7 +25,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 \ No newline at end of file
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/bin/Makefile.am src/bin/Makefile.am
 --- upstream/bin/Makefile.am	2019-09-26 13:02:11.000000000 +0000
-+++ src/bin/Makefile.am	2026-02-09 09:48:32.000000000 +0000
++++ src/bin/Makefile.am	2026-03-25 10:23:48.000000000 +0000
 @@ -55,5 +55,6 @@
  	$(LIBUBUS_LIBS)		\
  	$(MICROXML_LIBS)	\
@@ -36,7 +36,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/configure.ac src/configure.ac
 --- upstream/configure.ac	2019-09-26 13:02:11.000000000 +0000
-+++ src/configure.ac	2026-02-09 09:48:32.000000000 +0000
++++ src/configure.ac	2026-03-25 10:23:48.000000000 +0000
 @@ -17,6 +17,19 @@
  AC_ARG_ENABLE(devel, [AS_HELP_STRING([--enable-devel], [enable development messages])], AC_DEFINE(DEVEL),)
  AC_ARG_ENABLE(backupdatainconfig, [AS_HELP_STRING([--enable-backupdatainconfig], [enable backup data saved in the config])], AC_DEFINE(BACKUP_DATA_IN_CONFIG),)
@@ -59,7 +59,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  AM_PROG_CC_C_O
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/build/Makefile src/ext/openwrt/build/Makefile
 --- upstream/ext/openwrt/build/Makefile	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/build/Makefile	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/build/Makefile	2026-03-25 10:23:48.000000000 +0000
 @@ -72,7 +72,6 @@
  
  define Package/easycwmp/conffiles
@@ -70,7 +70,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  define Package/easycwmp/install
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/config/easycwmp src/ext/openwrt/config/easycwmp
 --- upstream/ext/openwrt/config/easycwmp	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/config/easycwmp	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/config/easycwmp	2026-03-25 10:23:48.000000000 +0000
 @@ -4,7 +4,6 @@
  	option enable '0'
  	option interface eth0
@@ -89,8 +89,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	option manufacturer easycwmp
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/900-easycwmp.sh src/ext/openwrt/files/900-easycwmp.sh
 --- upstream/ext/openwrt/files/900-easycwmp.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/900-easycwmp.sh	2026-02-09 09:48:32.000000000 +0000
-@@ -0,0 +1,37 @@
++++ src/ext/openwrt/files/900-easycwmp.sh	2026-03-25 10:23:48.000000000 +0000
+@@ -0,0 +1,38 @@
 +#!/bin/sh
 +
 +. /lib/functions.sh
@@ -122,7 +122,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +serial=$(cat /sys/mnf_info/serial 2>/dev/null)
 +set_info "serial_number" "$serial"
 +
-+set_info "oui" "001E42"
++mac="$(cat /sys/mnf_info/mac 2>/dev/null)"
++set_info "oui" "${mac:0:6}"
 +
 +wan=$(uci get network.wan.ifname 2>/dev/null)
 +set_info "interface" "$wan"
@@ -130,8 +131,8 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +uci commit easycwmp
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.json src/ext/openwrt/files/easycwmp.json
 --- upstream/ext/openwrt/files/easycwmp.json	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/easycwmp.json	2026-02-09 09:48:32.000000000 +0000
-@@ -0,0 +1,97 @@
++++ src/ext/openwrt/files/easycwmp.json	2026-03-25 10:23:48.000000000 +0000
+@@ -0,0 +1,102 @@
 +{
 +	"user": "easycwmp",
 +	"publish": [
@@ -162,8 +163,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +				"get_pin_state",
 +				"get_temperature",
 +				"get_neighbour_cells",
-+				"get_sim_slot",
-+				"set_operator_selection"
++				"get_sim_slot"
 +			]
 +		},
 +		"network.interface*": {
@@ -226,22 +226,28 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +			"methods": [
 +				"reload"
 +			]
++		},
++		"iwinfo": {
++			"methods": [
++				"assoclist",
++				"info"
++			]
 +		}
 +	}
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.keep src/ext/openwrt/files/easycwmp.keep
 --- upstream/ext/openwrt/files/easycwmp.keep	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/easycwmp.keep	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.keep	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/easycwmp/.backup.xml
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/files/easycwmp.permtab src/ext/openwrt/files/easycwmp.permtab
 --- upstream/ext/openwrt/files/easycwmp.permtab	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/files/easycwmp.permtab	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/files/easycwmp.permtab	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1 @@
 +/etc/config/easycwmp easycwmp:easycwmp 660
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/init.d/easycwmpd src/ext/openwrt/init.d/easycwmpd
 --- upstream/ext/openwrt/init.d/easycwmpd	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/init.d/easycwmpd	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/init.d/easycwmpd	2026-03-25 10:23:48.000000000 +0000
 @@ -2,56 +2,32 @@
  # Copyright (C) 2012-2014 OpenWrt.org
  
@@ -319,7 +325,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  service_triggers()
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/easycwmp.sh src/ext/openwrt/scripts/easycwmp.sh
 --- upstream/ext/openwrt/scripts/easycwmp.sh	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/easycwmp.sh	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/easycwmp.sh	2026-03-25 10:23:48.000000000 +0000
 @@ -7,7 +7,7 @@
  
  . /lib/functions.sh
@@ -567,7 +573,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			/bin/sh "$apply_service_tmp_file"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/common src/ext/openwrt/scripts/functions/common/common
 --- upstream/ext/openwrt/scripts/functions/common/common	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/common	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/common	2026-03-25 10:23:48.000000000 +0000
 @@ -192,23 +192,21 @@
  	
  }
@@ -647,7 +653,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	local n ip 
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/device_info src/ext/openwrt/scripts/functions/common/device_info
 --- upstream/ext/openwrt/scripts/functions/common/device_info	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/device_info	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/device_info	2026-03-25 10:23:48.000000000 +0000
 @@ -14,17 +14,18 @@
  entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_DeviceInfo"
  entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_DeviceInfo"
@@ -659,13 +665,12 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		common_execute_method_param "$DMROOT.DeviceInfo.SpecVersion" "0" "echo 1.0" "" "" "1"
  		common_execute_method_param "$DMROOT.DeviceInfo.ProvisioningCode" "1" "$UCI_GET easycwmp.@local[0].provisioning_code" "device_info_set_provisioningcode" "" "1"
 -		common_execute_method_param "$DMROOT.DeviceInfo.Manufacturer" "0" "$UCI_GET easycwmp.@device[0].manufacturer" "" "" "1"
--		common_execute_method_param "$DMROOT.DeviceInfo.ManufacturerOUI" "0" "$UCI_GET easycwmp.@device[0].oui" "" "" "1"
++		common_execute_method_param "$DMROOT.DeviceInfo.Manufacturer" "0" "echo Teltonika" "" "" "1"
+ 		common_execute_method_param "$DMROOT.DeviceInfo.ManufacturerOUI" "0" "$UCI_GET easycwmp.@device[0].oui" "" "" "1"
 -		common_execute_method_param "$DMROOT.DeviceInfo.ProductClass" "0" "$UCI_GET easycwmp.@device[0].product_class" "" "" "1"
 -		common_execute_method_param "$DMROOT.DeviceInfo.SerialNumber" "0" "$UCI_GET easycwmp.@device[0].serial_number" "" "" "1"
 -		common_execute_method_param "$DMROOT.DeviceInfo.HardwareVersion" "0" "$UCI_GET easycwmp.@device[0].hardware_version" "" "" "1"
 -		common_execute_method_param "$DMROOT.DeviceInfo.SoftwareVersion" "0" "$UCI_GET easycwmp.@device[0].software_version" "" "" "1"
-+		common_execute_method_param "$DMROOT.DeviceInfo.Manufacturer" "0" "echo Teltonika" "" "" "1"
-+		common_execute_method_param "$DMROOT.DeviceInfo.ManufacturerOUI" "0" "echo 001E42" "" "" "1"
 +		common_execute_method_param "$DMROOT.DeviceInfo.ProductClass" "0" "device_info_get_product_class" "" "" "1"
 +		common_execute_method_param "$DMROOT.DeviceInfo.SerialNumber" "0" "cat /sys/mnf_info/serial" "" "" "1"
 +		common_execute_method_param "$DMROOT.DeviceInfo.HardwareVersion" "0" "cat /sys/mnf_info/hwver" "" "" "1"
@@ -698,7 +703,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/ipping_launch src/ext/openwrt/scripts/functions/common/ipping_launch
 --- upstream/ext/openwrt/scripts/functions/common/ipping_launch	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/ipping_launch	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/ipping_launch	2026-03-25 10:23:48.000000000 +0000
 @@ -1,172 +1,72 @@
  #!/bin/sh
  # Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -913,7 +918,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +[ "$1" == "stop" ] && ipping_stop
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/common/management_server src/ext/openwrt/scripts/functions/common/management_server
 --- upstream/ext/openwrt/scripts/functions/common/management_server	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/common/management_server	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/common/management_server	2026-03-25 10:23:48.000000000 +0000
 @@ -2,6 +2,8 @@
  # Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
  # 	Author: MOHAMED Kallel <mohamed.kallel@pivasoftware.com>
@@ -1043,7 +1048,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  			val="http://$ip:$port/"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh
 --- upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics.sh	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,68 @@
 +#!/bin/sh
 +
@@ -1115,7 +1120,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +echo "state Completed" >>"$RESULT_FILE"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh
 --- upstream/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/download_diagnostics_init.sh	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,197 @@
 +#!/bin/sh
 +
@@ -1316,7 +1321,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +cleanup "Completed" "$port" "$dscp_id" "$interface"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh
 --- upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics.sh	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,81 @@
 +#!/bin/sh
 +
@@ -1401,7 +1406,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +echo "state Completed" >>"$RESULT_FILE"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh
 --- upstream/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/diagnostics/upload_diagnostics_init.sh	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,216 @@
 +#!/bin/sh
 +
@@ -1621,7 +1626,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +cleanup "Completed" "$port" "$dscp_id" "$interface"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/gps/gps_information src/ext/openwrt/scripts/functions/gps/gps_information
 --- upstream/ext/openwrt/scripts/functions/gps/gps_information	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/gps/gps_information	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/gps/gps_information	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,46 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -1671,7 +1676,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/hotspot/hotspot src/ext/openwrt/scripts/functions/hotspot/hotspot
 --- upstream/ext/openwrt/scripts/functions/hotspot/hotspot	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/hotspot/hotspot	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/hotspot/hotspot	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,90 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -1765,7 +1770,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/mobile/cellular src/ext/openwrt/scripts/functions/mobile/cellular
 --- upstream/ext/openwrt/scripts/functions/mobile/cellular	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/mobile/cellular	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/mobile/cellular	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,1061 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -2830,7 +2835,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/mobile/mobile_information src/ext/openwrt/scripts/functions/mobile/mobile_information
 --- upstream/ext/openwrt/scripts/functions/mobile/mobile_information	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/mobile/mobile_information	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/mobile/mobile_information	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,245 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -3079,7 +3084,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +#######################################
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr098/wan_device src/ext/openwrt/scripts/functions/tr098/wan_device
 --- upstream/ext/openwrt/scripts/functions/tr098/wan_device	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr098/wan_device	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr098/wan_device	2026-03-25 10:23:48.000000000 +0000
 @@ -25,7 +25,7 @@
  sub_entry_wandevice_wanconnectiondevice() {
  	local j="$2"
@@ -3148,7 +3153,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr143/tr143 src/ext/openwrt/scripts/functions/tr143/tr143
 --- upstream/ext/openwrt/scripts/functions/tr143/tr143	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr143/tr143	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr143/tr143	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,391 @@
 +#!/bin/sh
 +# Copyright (C) 2015 PIVA Software <www.pivasoftware.com>
@@ -3543,7 +3548,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/dhcpv4 src/ext/openwrt/scripts/functions/tr181/dhcpv4
 --- upstream/ext/openwrt/scripts/functions/tr181/dhcpv4	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/dhcpv4	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/dhcpv4	2026-03-25 10:23:48.000000000 +0000
 @@ -1,388 +1,723 @@
  #!/bin/sh
 -# Copyright (C) 2016 MOHAMED Kallel <mohamed.kallel@yahoo.fr>
@@ -4605,9 +4610,554 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 +	return $E_INVALID_PARAMETER_NAME;
 +}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ethernet src/ext/openwrt/scripts/functions/tr181/ethernet
+--- upstream/ext/openwrt/scripts/functions/tr181/ethernet	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/ethernet	2026-03-25 10:23:48.000000000 +0000
+@@ -0,0 +1,305 @@
++#!/bin/sh
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.Ethernet."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Ethernet"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_Ethernet"
++
++####################
++#  Device.Ethernet #
++####################
++
++entry_execute_method_root_Ethernet() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.Ethernet."*)
++		common_execute_method_obj "$DMROOT.Ethernet." "0"
++		common_execute_method_param "$DMROOT.Ethernet.InterfaceNumberOfEntries" "0" \
++			"get_ethernet_iface_noe" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.Ethernet.Interface." "0" \
++			"" "" "count_ethernet_iface_obj $1"
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_ethernet_iface_noe() {
++	json_load "$(ubus call api get '{"path":"/ports_settings/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++
++	keys="${keys##* }"
++	if [ -n "$keys" ]; then
++		echo "$keys"
++	else
++		echo "0"
++	fi
++}
++
++##############################
++#  Device.Ethernet.Interface #
++##############################
++
++count_ethernet_iface_obj() {
++	local i=1
++	local ifaces="$(ubus call api get '{"path":"/ports_settings/status"}' | \
++			jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $ifaces; do
++		IFS="$OLD_IFS"
++		sub_entry_ethernet_iface "$1" "$i" "$table"
++		i=$((i + 1))
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_ethernet_iface() {
++	local i="$2"
++	local table="$3"
++
++	case_param "$1" belongto "$DMROOT.Ethernet.Interface.$i." && {
++		local id="$(echo "$table" | jsonfilter -e '@.id')"
++		local config="$(ubus call api get '{"path":"/ports_settings/config/'$id'"}' | \
++				jsonfilter -e '@.http_body.data')"
++
++		local enable="$(echo "$config" | jsonfilter -e '@.enabled')"
++		local status="$(echo "$table" | jsonfilter -e '@.state')"
++		local autoneg="$(echo "$config" | jsonfilter -e '@.autoneg')"
++		local speed="$(echo "$config" | jsonfilter -e '@.speed')"
++		local mac="$(echo "$table" | jsonfilter -e '@.mac')"
++		local links="$(echo "$config" | jsonfilter -e '@.advert[*]')"
++		local bitrate="$(echo "$table" | jsonfilter -e '@.speed')"
++		local duplex="$(echo "$config" | jsonfilter -e '@.duplex')"
++		local duplex_curr="$(echo "$table" | jsonfilter -e '@.duplex')"
++
++		local links_supported="10mh 10mf 100mh 100mf"
++		local boardjson="$(cat /etc/board.json)"
++		if [ "$(echo "$boardjson" | jsonfilter -e '@.hwinfo.dsa')" = "true" ]; then
++			links_supported="$(echo "$table" | jsonfilter -e '@.link_supported[*]')"
++		else
++			[ "$(echo "$boardjson" | jsonfilter -e '@.hwinfo.gigabit_port')" = "true" ] &&
++				links_supported="${links_supported} 1000mf"
++			[ "$(echo "$boardjson" | jsonfilter -e '@.hwinfo.2_5_gigabit_port')" = "true" ] &&
++				links_supported="${links_supported} 2500mf"
++		fi
++
++		if [ "$enable" -eq 0 ]; then
++			status="Down"
++		elif [ "$status" = "down" ]; then
++			status="Dormant"
++		else
++			status="Up"
++		fi
++
++		links_supported="$(get_ethernet_iface_links "$links_supported")"
++		links="$(get_ethernet_iface_links "$links")"
++
++		[ -z "$bitrate" ] && bitrate="0"
++
++		if [ -z "$duplex" ]; then
++			duplex="Auto"
++		elif [ "$duplex" = "full" ]; then
++			duplex="Full"
++		else
++			duplex="Half"
++		fi
++
++		if [ "$duplex_curr" = "true" ]; then
++			duplex_curr="$duplex"
++		else
++			duplex_curr="Unknown"
++		fi
++
++		common_execute_method_obj "$DMROOT.Ethernet.Interface.$i." "0"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.Enable" "1" \
++			"echo $enable" "set_ethernet_iface_enable $id" "xsd:boolean"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.Status" "0" \
++			"echo $status" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.Name" "0" \
++			"echo $id" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.MaxBitRate" "1" \
++			"get_ethernet_iface_speed $autoneg '$speed'" "set_ethernet_iface_speed $id" "xsd:int"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.MACAddress" "0" \
++			"echo $mac" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.SupportedLinkModes" "0" \
++			"echo $links_supported" "" "xsd:unsignedInt[]"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.AdvertisedLinkModes" "1" \
++			"echo $links" "set_ethernet_iface_links $id" "xsd:unsignedInt[]"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.CurrentBitRate" "0" \
++			"echo $bitrate" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.DuplexMode" "1" \
++			"echo $duplex" "set_ethernet_iface_duplex $id '$speed'" "xsd:string"
++		common_execute_method_param "$DMROOT.Ethernet.Interface.$i.CurrentDuplexMode" "0" \
++			"echo $duplex_curr" "" "xsd:string"
++		return 0;
++	}
++
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++set_ethernet_iface_enable() {
++	local id="$1"
++	local input="$2"
++
++	if [ "$input" = "true" ]; then
++		input="1"
++	elif [ "$input" = "false" ]; then
++		input="0"
++	elif [ "$input" != "0" -a "$input" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	json_load "$(ubus call api put '{
++		     "path":"/ports_settings/config/'$id'",
++		     "body":{"data":{"enabled":"'$input'"}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++get_ethernet_iface_speed() {
++	local autoneg="$1"
++	local speed="$2"
++
++	[ "$autoneg" = "on" ] && speed="-1"
++
++	echo "$speed"
++}
++
++set_ethernet_iface_speed() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		-1) input="on" ;;
++		10|100) ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	if [ "$input" = "on" ]; then
++		json_load "$(ubus call api put '{
++			     "path":"/ports_settings/config/'$id'",
++			     "body":{"data":{"autoneg":"'$input'","speed":""}}
++			     }')"
++	else
++		json_load "$(ubus call api put '{
++			     "path":"/ports_settings/config/'$id'",
++			     "body":{"data":{"autoneg":"off","speed":"'$input'"}}
++			     }')"
++	fi
++
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++get_ethernet_iface_links() {
++	local links="$1"
++	local array=""
++
++	for link in $links; do
++		case "$link" in
++			10mh) array="${array}10," ;;
++			10mf) array="${array}11," ;;
++			100mh) array="${array}15," ;;
++			100mf) array="${array}16," ;;
++			1000mf) array="${array}29," ;;
++			2500mf) array="${array}103," ;;
++		esac
++	done
++
++	echo "${array%?}"
++}
++
++set_ethernet_iface_links() {
++	local id="$1"
++	local input="${2//,/ }"
++	local links="["
++
++	for link in $input; do
++		case "$link" in
++			10) links="${links}\"10mh\"," ;;
++			11) links="${links}\"10mf\"," ;;
++			15) links="${links}\"100mh\"," ;;
++			16) links="${links}\"100mf\"," ;;
++			29) links="${links}\"1000mf\"," ;;
++			103) links="${links}\"2500mf\"," ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	done
++
++	if [ -z "$input" ]; then
++		links="${links}]"
++	else
++		links="${links%?}]"
++	fi
++
++	json_load "$(ubus call api put '{
++		     "path":"/ports_settings/config/'$id'",
++		     "body":{"data":{"advert":'$links'}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_ethernet_iface_duplex() {
++	local id="$1"
++	local speed="$2"
++	local input="$3"
++
++	case "$input" in
++		Auto) input="" ;;
++		Half|Full) ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	input=$(echo "$input" | tr 'A-Z' 'a-z')
++
++	# Setting default speed 10 if it is not present and
++	# half/full duplex mode is defined
++	[ -z "$speed" ] && speed=10
++
++	if [ -z "$input" ]; then
++		json_load "$(ubus call api put '{
++			     "path":"/ports_settings/config/'$id'",
++			     "body":{"data":{"autoneg":"on","duplex":""}}
++			     }')"
++	else
++		json_load "$(ubus call api put '{
++			     "path":"/ports_settings/config/'$id'",
++			     "body":{"data":{"autoneg":"off","speed":"'$speed'","duplex":"'$input'"}}
++			     }')"
++	fi
++
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/hosts src/ext/openwrt/scripts/functions/tr181/hosts
+--- upstream/ext/openwrt/scripts/functions/tr181/hosts	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/hosts	2026-03-25 10:23:48.000000000 +0000
+@@ -0,0 +1,232 @@
++#!/bin/sh
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.Hosts."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_Hosts"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_Hosts"
++
++#################
++#  Device.Hosts #
++#################
++
++g_hosts_scan=""
++g_easycwmp_eth_ifaces=""
++g_easycwmp_ip_ifaces=""
++g_cache_limit=20
++
++entry_execute_method_root_Hosts() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.Hosts."*)
++		load_hosts_data
++
++		common_execute_method_obj "$DMROOT.Hosts." "0"
++		common_execute_method_param "$DMROOT.Hosts.HostNumberOfEntries" "0" \
++			"get_hosts_host_noe" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.Hosts.Host." "0" \
++			"" "" "count_hosts_host_obj $1"
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++# Create data cache because when ACS queries data with GetParameterValue command it calls
++# this script for each node - then 500+ nodes are retrieved in more than 40 minutes
++# TODO: improve and optimize handling of ACS queries in easycwmp itself
++load_hosts_data() {
++	local now="$(date +%s)"
++	local cache="/var/run/easycwmp/cache_hosts"
++	local cache_time="$(head -n 1 "$cache" 2>/dev/null)"
++
++	# Time how long the cache should be kept is determined by the amount of entries
++	# received from device_scan API call raised by 10
++	# 2 entries - cache is kept for 20 seconds
++	# 40 entries - cache is kept for 400 seconds
++	[ -f "$cache" ] && g_cache_limit=$(($(wc -l < "$cache") * 10))
++	if [ -f "$cache" ] && [ $((now - cache_time)) -lt "$g_cache_limit" ]; then
++		g_hosts_scan="$(tail -n +2 "$cache")"
++	else
++		g_hosts_scan="$(ubus call api post \
++		     '{"path":"/topology/actions/devices_scan","body":{"data":{"scan_type":"all"}}}' | \
++		     jsonfilter -e '@.http_body.data.devices[*]')"
++		date +%s > "$cache"
++		echo "$g_hosts_scan" >> "$cache"
++		g_cache_limit=0
++	fi
++}
++
++get_hosts_host_noe() {
++	local count=0
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $g_hosts_scan; do
++		IFS="$OLD_IFS"
++		count=$((count + 1))
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++
++	echo "$count"
++}
++
++######################
++#  Device.Hosts.Host #
++######################
++
++prepare_easycwmp_scans() {
++	local i=1
++	local res=""
++	local command="/usr/sbin/easycwmp"
++	local cache_eth="/var/run/easycwmp/cache_ethernet"
++	local cache_ip="/var/run/easycwmp/cache_ip"
++
++	[ ! -f "$command" ] && command="/usr/local$command"
++
++	if [ -f "$cache_eth" ]; then
++		g_easycwmp_eth_ifaces="$(cat "$cache_eth")"
++	else
++		g_easycwmp_eth_ifaces="$($command get Device.Ethernet.Interface. | grep .Name)"
++		echo "$g_easycwmp_eth_ifaces" >> "$cache_eth"
++	fi
++
++	if [ -f "$cache_ip" ] && [ "$g_cache_limit" -gt 0 ]; then
++		g_easycwmp_ip_ifaces="$(cat "$cache_ip")"
++	else
++		while res="$($command get Device.IP.Interface.$i.Name)" &&
++		      ! echo "$res" | grep -q 'fault_code'; do
++			g_easycwmp_ip_ifaces="${g_easycwmp_ip_ifaces}${res}
++"
++			i=$((i + 1))
++		done
++		echo "$g_easycwmp_ip_ifaces" >> "$cache_ip"
++	fi
++}
++
++count_hosts_host_obj() {
++	local i=1
++	local hosts_status_scan="$(ubus call api get '{"path":"/network_usage/metrics/total/status"}')"
++	local status_table=""
++
++	prepare_easycwmp_scans
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $g_hosts_scan; do
++		IFS="$OLD_IFS"
++		local ip="$(echo "$table" | jsonfilter -e '@.ip')"
++		local mac="$(echo "$table" | jsonfilter -e '@.mac')"
++		status_table="$(echo "$hosts_status_scan" | \
++				jsonfilter -e "@.http_body.data[@.src_ip=\"$ip\" && @.src_mac=\"$mac\"]")"
++		sub_entry_hosts_host "$1" "$i" "$table" "$ip" "$mac" "$status_table"
++		i=$((i + 1))
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_hosts_host() {
++	local i="$2"
++	local table="$3"
++	local ip="$4"
++	local mac="$5"
++	local status_table="$6"
++
++	case_param "$1" belongto "$DMROOT.Hosts.Host.$i." && {
++		local port="$(echo "$table" | jsonfilter -e '@.port' | sed 's/[[:space:]]//g')"
++		local interface="$(echo "$table" | jsonfilter -e '@.interface')"
++		local type="$(echo "$table" | jsonfilter -e '@.type')"
++		local hostname="$(echo "$table" | jsonfilter -e '@.hostname')"
++		local active="$(echo "$table" | jsonfilter -e '@.active')"
++		local tx_bytes=0
++		local rx_bytes=0
++		local tx_pkts=0
++		local rx_pkts=0
++
++		[ -n "$status_table" ] && {
++			tx_bytes="$(echo "$status_table" | jsonfilter -e '@.tx_bytes')"
++			rx_bytes="$(echo "$status_table" | jsonfilter -e '@.rx_bytes')"
++			tx_pkts="$(echo "$status_table" | jsonfilter -e '@.tx_pkts')"
++			rx_pkts="$(echo "$status_table" | jsonfilter -e '@.rx_pkts')"
++		}
++
++		if [ "$type" = "wired" ]; then
++			type="Ethernet"
++		elif [ "$type" = "wifi" ]; then
++			type="Wi-Fi"
++		else
++			type="Other"
++		fi
++
++		common_execute_method_obj "$DMROOT.Hosts.Host.$i." "0"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.PhysAddress" "0" \
++			"echo $mac" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.IPAddress" "0" \
++			"echo $ip" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.Layer1Interface" "0" \
++			"get_hosts_host_layer1iface $port" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.Layer3Interface" "0" \
++			"get_hosts_host_layer3iface $interface" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.InterfaceType" "0" \
++			"echo $type" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.HostName" "0" \
++			"echo $hostname" "" "xsd:string"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.Active" "0" \
++			"echo $active" "" "xsd:boolean"
++		common_execute_method_obj "$DMROOT.Hosts.Host.$i.WANStats." "0"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.WANStats.BytesSent" "0" \
++			"echo $tx_bytes" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.WANStats.BytesReceived" "0" \
++			"echo $rx_bytes" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.WANStats.PacketsSent" "0" \
++			"echo $tx_pkts" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.Hosts.Host.$i.WANStats.PacketsReceived" "0" \
++			"echo $rx_pkts" "" "xsd:unsignedLong"
++		return 0;
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_hosts_host_layer1iface() {
++	local port="$1"
++	local parameter=""
++	local value=""
++
++	[ "$port" = "-" ] && return 0
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for iface in $g_easycwmp_eth_ifaces; do
++		value="$(echo "$iface" | jsonfilter -e '@.value')"
++		echo "$value" | grep -qi "$port" && {
++			parameter="$(echo "$iface" | jsonfilter -e '@.parameter')"
++			echo "${parameter%.Name}"
++			return 0
++		}
++	done
++	IFS="$OLD_IFS"
++}
++
++get_hosts_host_layer3iface() {
++	local interface="$1"
++	local parameter=""
++	local value=""
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for iface in $g_easycwmp_ip_ifaces; do
++		value="$(echo "$iface" | jsonfilter -e '@.value')"
++		echo "$value" | grep -qi "$interface" && {
++			parameter="$(echo "$iface" | jsonfilter -e '@.parameter')"
++			echo "${parameter%.Name}"
++			return 0
++		}
++	done
++	IFS="$OLD_IFS"
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ip src/ext/openwrt/scripts/functions/tr181/ip
 --- upstream/ext/openwrt/scripts/functions/tr181/ip	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/ip	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/ip	2026-03-25 10:23:48.000000000 +0000
 @@ -12,13 +12,14 @@
  
  prefix_list="$prefix_list $DMROOT.IP."
@@ -4824,7 +5374,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/ipping_diagnostic src/ext/openwrt/scripts/functions/tr181/ipping_diagnostic
 --- upstream/ext/openwrt/scripts/functions/tr181/ipping_diagnostic	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/ipping_diagnostic	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/ipping_diagnostic	2026-03-25 10:23:48.000000000 +0000
 @@ -11,8 +11,9 @@
  
  entry_execute_method_root_IPPingDiagnostics() {
@@ -4865,128 +5415,1169 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	return 0
  }
  
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/nat src/ext/openwrt/scripts/functions/tr181/nat
+--- upstream/ext/openwrt/scripts/functions/tr181/nat	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/tr181/nat	2026-03-25 10:23:48.000000000 +0000
+@@ -0,0 +1,479 @@
++#!/bin/sh
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functuons   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.NAT."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_NAT"
++entry_execute_method_list_forcedinform="$entry_execute_method_list_forcedinform  entry_execute_method_root_NAT"
++
++###############
++#  Device.NAT #
++###############
++
++entry_execute_method_root_NAT() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.NAT."*)
++		common_execute_method_obj "$DMROOT.NAT." "0"
++		common_execute_method_param "$DMROOT.NAT.PortMappingNumberOfEntries" "0" \
++			"get_nat_portmap_noe" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.NAT.PortMapping." "1" \
++			"add_nat_portmap" "" "count_nat_portmap_obj $1"
++		return 0;
++		;;
++	esac
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++get_nat_portmap_noe() {
++	json_load "$(ubus call api get '{"path":"/firewall/port_forwards/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++
++	keys="${keys##* }"
++	[ -z "$keys" ] && keys=0
++
++	[ ! -f "/etc/config/upnpd" ] && {
++		echo "$keys"
++		return 0
++	}
++
++	config_load upnpd
++	config_get lease_file config upnp_lease_file
++	local count="$(grep -c ':' < $lease_file)"
++	keys=$((keys + count))
++
++	echo "$keys"
++}
++
++###########################
++#  Device.NAT.PortMapping #
++###########################
++
++add_nat_portmap() {
++	json_load "$(ubus call api post '{
++		     "path":"/firewall/port_forwards/config",
++		     "body":{"data":{}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	[ "$success" != "1" ] && return $E_INVALID_PARAMETER_VALUE
++
++	json_load "$(ubus call api get '{"path":"/firewall/port_forwards/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++
++	keys="${keys##* }"
++	if [ -n "$keys" ]; then
++		echo "$keys"
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++delete_nat_portmap() {
++	local id="$1"
++
++	json_load "$(ubus call api delete '{"path":"/firewall/port_forwards/config/'$id'"}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++count_nat_portmap_obj() {
++	local i=1
++	local forwards="$(ubus call api get '{"path":"/firewall/port_forwards/config"}' | \
++			  jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $forwards; do
++		IFS="$OLD_IFS"
++		sub_entry_nat_portmap_static "$1" "$i" "$table"
++		i=$((i + 1))
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++
++	[ ! -f "/etc/config/upnpd" ] && return 0
++
++	config_load upnpd
++	config_get lease_file config upnp_lease_file
++
++	local leases="$(cat $lease_file)"
++	local line_num=1
++	for lease in $leases; do
++		sub_entry_nat_portmap_dynamic_multinodes "$1" "$i" "$lease" "$line_num"
++		i=$((i + 1))
++		line_num=$((line_num + 1))
++	done
++
++	sub_entry_nat_portmap_dynamic_staticnodes "$1"
++}
++
++##########################################
++# Device.NAT.PortMapping Static portmaps #
++##########################################
++
++sub_entry_nat_portmap_static() {
++	local i="$2"
++	local table="$3"
++
++	case_param "$1" belongto "$DMROOT.NAT.PortMapping.$i." && {
++		local id="$(echo "$table" | jsonfilter -e '@.id')"
++		local enabled="$(echo "$table" | jsonfilter -e '@.enabled')"
++		local status="Disabled"
++		local src_ip="$(echo "$table" | jsonfilter -e '@.src_ip[0]')"
++		local src_dport="$(echo "$table" | jsonfilter -e '@.src_dport')"
++		local dest_port="$(echo "$table" | jsonfilter -e '@.dest_port')"
++		local proto="$(echo "$table" | jsonfilter -e '@.proto[0]')"
++		local dest_ip="$(echo "$table" | jsonfilter -e '@.dest_ip')"
++		local name="$(echo "$table" | jsonfilter -e '@.name')"
++
++		[ "$enabled" = "1" ] && status="Enabled"
++
++		local src_dport_start="${src_dport%-*}"
++		[ -z "$src_dport_start" ] && src_dport_start=0
++
++		local src_dport_end="${src_dport#*-}"
++		[ -z "$src_dport_end" ] || [ "$src_dport_end" = "$src_dport" ] && src_dport_end=0
++
++		dest_port="${dest_port%-*}"
++
++		if [ "$proto" = "tcp" ]; then
++			proto="TCP"
++		elif [ "$proto" = "udp" ]; then
++			proto="UDP"
++		else
++			proto="Other"
++		fi
++
++		common_execute_method_obj "$DMROOT.NAT.PortMapping.$i." "1" \
++			"" "delete_nat_portmap $id"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Enable" "1" \
++			"echo $enabled" "set_nat_portmap_static_enable $id" "xsd:boolean"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Origin" "0" \
++			"echo User" "" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Status" "0" \
++			"echo $status" "" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.LeaseDuration" "0" \
++			"echo 0" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.RemainingLeaseTime" "0" \
++			"echo 0" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.RemoteHost" "1" \
++			"echo $src_ip" "set_nat_portmap_static_remotehost $id" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.ExternalPort" "1" \
++			"echo $src_dport_start" \
++			"set_nat_portmap_static_externalport $id '$src_dport_end' '$dest_port'" \
++			"xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.ExternalPortEndRange" "1" \
++			"echo $src_dport_end" \
++			"set_nat_portmap_static_externalportend $id '$src_dport_start' '$dest_port'" \
++			"xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.InternalPort" "1" \
++			"get_nat_portmap_static_internalport $dest_port $src_dport_start" \
++			"set_nat_portmap_static_internalport $id '$src_dport_start' '$src_dport_end'" \
++			"xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Protocol" "1" \
++			"echo $proto" "set_nat_portmap_static_proto $id" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.InternalClient" "1" \
++			"echo $dest_ip" "set_nat_portmap_static_value $id dest_ip" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Description" "1" \
++			"echo $name" "set_nat_portmap_static_description $id" "xsd:string"
++		return 0;
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++set_nat_portmap_static_value() {
++	local id="$1"
++	local key="$2"
++	local input="$3"
++
++	json_load "$(ubus call api put '{
++		     "path":"/firewall/port_forwards/config/'$id'",
++		     "body":{"data":{"'$key'":"'"$input"'"}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_nat_portmap_static_enable() {
++	local id="$1"
++	local input="$2"
++
++	if [ "$input" = "true" ]; then
++		input=1
++	elif [ "$input" = "false" ]; then
++		input=0
++	elif [ "$input" != "1" -a "$input" != "0" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_nat_portmap_static_value "$id" enabled "$input"
++}
++
++set_nat_portmap_static_remotehost() {
++	local id="$1"
++	local input="[\"$2\"]"
++
++	json_load "$(ubus call api put '{
++		     "path":"/firewall/port_forwards/config/'$id'",
++		     "body":{"data":{"src_ip":'$input'}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_nat_portmap_static_two_values() {
++	local id="$1"
++	local key1="$2"
++	local input1="$3"
++	local key2="$4"
++	local input2="$5"
++
++	json_load "$(ubus call api put '{
++		     "path":"/firewall/port_forwards/config/'$id'",
++		     "body":{"data":{"'$key1'":"'$input1'","'$key2'":"'$input2'"}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_nat_portmap_static_externalport() {
++	local id="$1"
++	local dport_end="$2"
++	local dest_port="$3"
++	local input="$4"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] ||
++	[ "$input" -gt 65535 ] || [ "$input" -lt 0 ] && return $E_INVALID_PARAMETER_VALUE
++
++	[ "$input" -eq 0 ] && {
++		set_nat_portmap_static_two_values "$id" "dest_port" "$dest_port" "src_dport" ""
++		return
++	}
++
++	[ "$dport_end" -eq 0 ] && {
++		set_nat_portmap_static_two_values "$id" "dest_port" "$dest_port" "src_dport" "$input"
++		return
++	}
++
++	[ "$input" -ge "$dport_end" ] && return $E_INVALID_PARAMETER_VALUE
++
++	local diff=$((dport_end - input))
++	[ -n "$dest_port" ] && {
++		local dest_port_end=$((dest_port + diff))
++		dest_port="${dest_port}-${dest_port_end}"
++	}
++	input="${input}-${dport_end}"
++
++	set_nat_portmap_static_two_values "$id" "dest_port" "$dest_port" "src_dport" "$input"
++}
++
++set_nat_portmap_static_externalportend() {
++	local id="$1"
++	local dport_start="$2"
++	local dest_port="$3"
++	local input="$4"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] || [ "$input" -gt 65535 ] ||
++	[ "$input" -lt 0 ] || [ "$dport_start" -eq 0 ] && return $E_INVALID_PARAMETER_VALUE
++
++	[ "$input" -eq 0 ] && {
++		set_nat_portmap_static_two_values "$id" "dest_port" "$dest_port" "src_dport" "$dport_start"
++		return
++	}
++
++	[ "$input" -le "$dport_start" ] && return $E_INVALID_PARAMETER_VALUE
++
++	local diff=$((input - dport_start))
++	[ -n "$dest_port" ] && {
++		local dest_port_end=$((dest_port + diff))
++		dest_port="${dest_port}-${dest_port_end}"
++	}
++	input="${dport_start}-${input}"
++
++	set_nat_portmap_static_two_values "$id" "dest_port" "$dest_port" "src_dport" "$input"
++}
++
++get_nat_portmap_static_internalport() {
++	echo "$1"
++}
++
++set_nat_portmap_static_internalport() {
++	local id="$1"
++	local dport_start="$2"
++	local dport_end="$3"
++	local input="$4"
++
++	[ -z "$input" ] || [ "$input" != "${input##*[!0-9]*}" ] ||
++	[ "$input" -gt 65535 ] || [ "$input" -lt 0 ] && return $E_INVALID_PARAMETER_VALUE
++
++	[ "$dport_start" -ne 0 ] && [ "$dport_end" -ne 0 ] && {
++		local diff=$((dport_end - dport_start))
++		local dest_port_end=$((input + diff))
++		input="${input}-${dest_port_end}"
++	}
++
++	set_nat_portmap_static_value "$id" "dest_port" "$input"
++}
++
++set_nat_portmap_static_proto() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		TCP) input="tcp" ;;
++		UDP) input="udp" ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++	input="[\"$input\"]"
++
++	json_load "$(ubus call api put '{"path":"/firewall/port_forwards/config/'$id'",
++		     "body":{"data":{"proto":'$input'}}}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_nat_portmap_static_description() {
++	local id="$1"
++	local input="$2"
++
++	[ "${#input}" -gt 256 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_nat_portmap_static_value "$id" name "$input"
++}
++
++###########################################
++# Device.NAT.PortMapping Dynamic portmaps #
++###########################################
++
++sub_entry_nat_portmap_dynamic_staticnodes() {
++	local table="$2"
++
++	case_param "$1" belongto "$DMROOT.NAT.PortMapping.Dynamic." && {
++		local table="$(ubus call api get '{"path":"/upnp/global"}' | \
++			     jsonfilter -e '@.http_body.data')"
++		local enabled="$(echo "$table" | jsonfilter -e '@.enabled')"
++		local status="Disabled"
++
++		[ "$enabled" = "1" ] && status="Enabled"
++
++		common_execute_method_obj "$DMROOT.NAT.PortMapping.Dynamic." "0" "" ""
++		common_execute_method_param "$DMROOT.NAT.PortMapping.Dynamic.Enable" "1" \
++			"echo $enabled" "set_nat_portmap_dynamic_enable" "xsd:boolean"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.Dynamic.Status" "0" \
++			"echo $status" "" "xsd:string"
++		return 0;
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++set_nat_portmap_dynamic_enable() {
++	local input="$1"
++
++	if [ "$input" = "true" ]; then
++		input="1"
++	elif [ "$input" = "false" ]; then
++		input="0"
++	elif [ "$input" != "0" -a "$input" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	json_load "$(ubus call api put '{
++		     "path":"/upnp/global",
++		     "body":{"data":{"enabled":"'$input'"}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++delete_nat_portmap_dynamic() {
++	local id="$1"
++
++	json_load "$(ubus call api delete '{"path":"/upnp/redirects/config/'$id'"}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++sub_entry_nat_portmap_dynamic_multinodes() {
++	local i="$2"
++	local lease="$3"
++	local line_num="$4"
++
++	case_param "$1" belongto "$DMROOT.NAT.PortMapping.$i." && {
++		local duration="$(echo "$lease" | awk -F: '{print $5}')"
++		local remaining="$(echo "$lease" | awk -F: -v now="$(date +%s)" '{print $5-now}')"
++		local external_port="$(echo "$lease" | awk -F: '{print $2}')"
++		local internal_port="$(echo "$lease" | awk -F: '{print $4}')"
++		local proto="$(echo "$lease" | awk -F: '{print $1}')"
++		local internal_client="$(echo "$lease" | awk -F: '{print $3}')"
++		local desc="$(echo "$lease" | awk -F: '{print $6}')"
++
++		common_execute_method_obj "$DMROOT.NAT.PortMapping.$i." "1" \
++			"" "delete_nat_portmap_dynamic $line_num"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Origin" "0" \
++			"echo UPnP" "" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.LeaseDuration" "0" \
++			"echo $duration" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.RemainingLeaseTime" "0" \
++			"echo $remaining" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.RemoteHost" "0" \
++			"" "" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.ExternalPort" "0" \
++			"echo $external_port" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.ExternalPortEndRange" "0" \
++			"echo $external_port" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.InternalPort" "0" \
++			"echo $internal_port" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Protocol" "0" \
++			"echo $proto" "" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.InternalClient" "0" \
++			"echo $internal_client" "" "xsd:string"
++		common_execute_method_param "$DMROOT.NAT.PortMapping.$i.Description" "0" \
++			"echo $desc" "" "xsd:string"
++		return 0;
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/tr181/wifi src/ext/openwrt/scripts/functions/tr181/wifi
 --- upstream/ext/openwrt/scripts/functions/tr181/wifi	2019-09-26 13:02:11.000000000 +0000
-+++ src/ext/openwrt/scripts/functions/tr181/wifi	2026-02-09 09:48:32.000000000 +0000
-@@ -12,6 +12,8 @@
- prefix_list="$prefix_list $DMROOT.WiFi."
- entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_WiFi"
- 
++++ src/ext/openwrt/scripts/functions/tr181/wifi	1970-01-01 00:00:00.000000000 +0000
+@@ -1,436 +0,0 @@
+-#!/bin/sh
+-# Copyright (C) 2016 MOHAMED Kallel <mohamed.kallel@yahoo.fr>
+-
+-#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
+-#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
+-#  Default of $type = string
+-
+-#############################
+-#   Entry point functions   #
+-#############################
+-
+-prefix_list="$prefix_list $DMROOT.WiFi."
+-entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_WiFi"
+-
+-entry_execute_method_root_WiFi() {
+-	case "$1" in ""|"$DMROOT."|"$DMROOT.WiFi."*)
+-		common_execute_method_obj "$DMROOT.WiFi." "0"
+-		common_execute_method_obj "$DMROOT.WiFi.Radio." "0" "" "" "wifi_radio_browse_instances $1"
+-		common_execute_method_obj "$DMROOT.WiFi.SSID." "1" "add_wifi_iface" "" "wifi_ssid_browse_instances $1"
+-		common_execute_method_obj "$DMROOT.WiFi.AccessPoint." "1" "add_wifi_iface" "" "wifi_ap_browse_instances $1"
+-		return 0
+-		;;
+-	esac
+-	return $E_INVALID_PARAMETER_NAME;
+-}
+-
+-sub_entry_WiFi_Radio() {
+-	local j="$2"
+-	local radio="$3"
+-	case_param "$1" belongto "$DMROOT.WiFi.Radio.$j." && {
+-		common_execute_method_obj "$DMROOT.WiFi.Radio.$j." "0"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Enable" "1" "wifi_radio_get_Enable $radio" "wifi_radio_set_Enable $radio" "xsd:boolean"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Status" "0" "wifi_radio_get_Status $radio"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Name" "0" "wifi_radio_get_Name $radio"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.SupportedFrequencyBands" "0" "wifi_radio_get_FrequencyBands $radio"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingFrequencyBand" "0" "wifi_radio_get_FrequencyBands $radio"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.ChannelsInUse" "0" "wifi_radio_get_ChannelsInUse $radio"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Channel" "1" "wifi_radio_get_Channel $radio" "wifi_radio_set_Channel $radio" "xsd:unsignedInt"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelSupported" "0" "echo 1" "" "xsd:boolean"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelEnable" "1" "wifi_radio_get_AutoChannelEnable $radio" "wifi_radio_set_AutoChannelEnable $radio" "xsd:boolean"
+-		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingStandards" "1" "wifi_radio_get_OperatingStandards $radio" "wifi_radio_set_OperatingStandards $radio"
+-		return 0
+-	}
+-	return $E_INVALID_PARAMETER_NAME;		
+-}
+-
+-sub_entry_WiFi_SSID() {
+-	local j="$2"
+-	local iface="$3"
+-	case_param "$1" belongto "$DMROOT.WiFi.SSID.$j." && {
+-		common_execute_method_obj "$DMROOT.WiFi.SSID.$j." "1" "" "del_wifi_iface $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Enable" "1" "wifi_ssid_get_Enable $iface" "wifi_ssid_set_Enable $iface" "xsd:boolean"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Status" "0" "wifi_ssid_get_Status $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Name" "0" "wifi_ssid_get_Name $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "1" "wifi_ssid_get_LowerLayers $iface" "wifi_ssid_set_LowerLayers $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.SSID" "1" "wifi_ssid_get_SSID $iface" "wifi_ssid_set_SSID $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "1" "wifi_ssid_get_X_IPInterface $iface" "wifi_ssid_set_X_IPInterface $iface"
+-		return 0
+-	}
+-	return $E_INVALID_PARAMETER_NAME;		
+-}
+-
+-sub_entry_WiFi_AccessPoint() {
+-	local j="$2"
+-	local iface="$3"
+-	case_param "$1" belongto "$DMROOT.WiFi.AccessPoint.$j." && {
+-		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$j." "1" "" "del_wifi_iface $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Enable" "1" "wifi_ap_get_Enable $iface" "wifi_ap_set_Enable $iface" "xsd:boolean"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Status" "0" "wifi_ap_get_Status $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.SSIDReference" "0" "echo $DMROOT.WiFi.SSID.$j."
+-		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$j.Security." "0"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.ModesSupported" "0" "wifi_ap_get_ModesSupported $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.ModeEnabled" "1" "wifi_ap_get_ModeEnabled $iface" "wifi_ap_set_ModeEnabled $iface"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.WEPKey" "1" "wifi_get_secret" "wifi_ap_set_WEPKey $iface" "xsd:hexBinary­"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.PreSharedKey" "1" "wifi_get_secret" "wifi_ap_set_PreSharedKey $iface" "xsd:hexBinary­"
+-		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.KeyPassphrase" "1" "wifi_get_secret" "wifi_ap_set_KeyPassphrase $iface"
+-		return 0
+-	}
+-	return $E_INVALID_PARAMETER_NAME;		
+-}
+-
+-
+-wifi_radio_get_max_instance() {
+-	local max=`$UCI_SHOW -X wireless | grep "wifi_radio_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
+-	echo ${max:-0}
+-}
+-
+-wifi_iface_get_max_instance() {
+-	local max=`$UCI_SHOW -X wireless | grep "wifi_iface_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
+-	echo ${max:-0}
+-}
+-
+-wifi_radio_update_instance() {
+-	local radio="$1"
+-	local instance=`$UCI_GET $radio.wifi_radio_instance`
+-	if [ -z "$instance" ]; then
+-		instance=`wifi_radio_get_max_instance`
+-		$UCI_SET $radio.wifi_radio_instance=$((++instance))
+-		$UCI_COMMIT
+-	fi
+-	echo $instance
+-}
+-
+-wifi_iface_update_instance() {
+-	local iface="$1"
+-	local instance=`$UCI_GET $iface.wifi_iface_instance`
+-	if [ -z "$instance" ]; then
+-		instance=`wifi_iface_get_max_instance`
+-		$UCI_SET $iface.wifi_iface_instance=$((++instance))
+-		$UCI_COMMIT
+-	fi
+-	echo $instance
+-}
+-
+-wifi_radio_browse_instances() {
+-	local radio radios=`$UCI_SHOW -X wireless | grep "wireless\..*=wifi-device" | cut -d "=" -f 1`
+-	for radio in $radios; do
+-		local j=`wifi_radio_update_instance $radio`
+-		sub_entry_WiFi_Radio  "$1" "$j" "$radio"
+-	done
+-}
+-
+-wifi_ssid_browse_instances() {
+-	local iface ifaces=`$UCI_SHOW -X wireless | grep "wireless\..*=wifi-iface" | cut -d "=" -f 1`
+-	for iface in $ifaces; do
+-		local j=`wifi_iface_update_instance $iface`
+-		sub_entry_WiFi_SSID  "$1" "$j" "$iface"
+-	done
+-}
+-
+-wifi_ap_browse_instances() {
+-	local iface ifaces=`$UCI_SHOW -X wireless | grep "wireless\..*=wifi-iface" | cut -d "=" -f 1`
+-	for iface in $ifaces; do
+-		local j=`wifi_iface_update_instance $iface`
+-		sub_entry_WiFi_AccessPoint  "$1" "$j" "$iface"
+-	done
+-}
+-
+-add_wifi_iface() {
+-	local instance=`wifi_iface_get_max_instance`
+-	local section=`$UCI_ADD  wireless wifi-iface`
+-	$UCI_SET wireless.$section.wifi_iface_instance=$((++instance))
+-	$UCI_COMMIT
+-	echo $instance
+-}
+-
+-del_wifi_iface() {
+-	local iface="$1"
+-	$UCI_DELETE $iface
+-	$UCI_COMMIT
+-	return 0
+-}
+-
+-wifi_radio_get_Enable() {
+-	local val=`$UCI_GET $1.disabled`
+-	[ "$val" = "1" ] && echo "0" || echo "1"
+-}
+-
+-wifi_radio_set_Enable() {
+-	local ret
+-	common_set_bool "$1.disabled" "$2" "" "1"
+-	ret=$?
+-	return $ret
+-}
+-
+-wifi_radio_get_Status() {
+-	local device=${1#*.}
+-	local res up
+-
+-	res=`ubus call network.wireless status`
+-	if [ "$res" != "" ]; then
+-		json_init
+-		json_load "$res" >&2
+-		json_select "$device" >&2
+-		json_get_var up up >&2
+-	fi
+-	[ "$up" = "1" ] && echo Up || echo Down
+-}
+-
+-wifi_radio_get_Name() {
+-	echo ${1#*.}
+-}
+-
+-wifi_radio_get_FrequencyBands() {
+-	local phy="phy${1#*radio}"
+-	local freq=`iw phy $phy info | grep  "MHz.*dBm" | head -1 | awk '{print $2}'`
+-	[ "${freq#24}" = "$freq" ] && echo "5GHz" || echo "2.4GHz"
+-}
+-
+-wifi_radio_get_ChannelsInUse() {
+-	local freq="`iw phy phy0 info | grep  MHz.*dBm | awk -F'[][]' '{print $2}' |  tr '\n' ','`"
+-	echo ${freq%,}
+-}
+-
+-wifi_radio_get_Channel() {
+-	local channel phy freq
+-
+-	channel=`$UCI_GET $1.channel`
+-	[ "$channel" != "" -a "$channel" != "auto" ] && { echo $channel; return; }
+-
+-	phy="phy${1#*radio}"
+-	freq=`iw phy $phy info | grep  "MHz.*dBm" | head -1 | awk '{print $2}'`
+-	if [ "${freq#24}" != "$freq" ]; then 
+-		channel=`iw dev | grep "channel.*(24.*MHz)" | head -1 | awk '{print $2}'`
+-	else
+-		channel=`iw dev | grep "channel" | grep -v "channel.*(24.*MHz)" | head -1 | awk '{print $2}'`		
+-	fi
+-	echo $channel
+-}
+-
+-wifi_radio_set_Channel() {
+-	$UCI_SET $1.channel=$2
+-}
+-
+-wifi_radio_get_AutoChannelEnable() {
+-	local en=`$UCI_GET $1.channel`
+-	[ "$en" = "" -o "$en" = "auto" ] && echo 1 || echo 0
+-}
+-
+-wifi_radio_set_AutoChannelEnable() {
+-	local val=`echo "$2" | tr '[A-Z]' '[a-z]'`
+-	if [ "$val" = "1" -o "$val" = "true" ]; then
+-		$UCI_SET $1.channel=auto
+-	else
+-		local channel=`wifi_radio_get_Channel $1`
+-		$UCI_SET $1.channel=$channel
+-	fi	
+-}
+-
+-wifi_radio_get_OperatingStandards() {
+-	local val=`$UCI_GET $1.hwmode`
+-	echo ${val#11}
+-}
+-
+-wifi_radio_set_OperatingStandards() {
+-	$UCI_SET $1.hwmode=11$2
+-}
+-
+-wifi_ssid_get_Enable() {
+-	local val=`$UCI_GET $1.disabled`
+-	[ "$val" = "1" ] && echo "0" || echo "1"
+-}
+-
+-wifi_ssid_set_Enable() {
+-	local ret
+-	common_set_bool "$1.disabled" "$2" "" "1"
+-	ret=$?
+-	return $ret
+-}
+-
+-wifi_ssid_get_Status() {
+-	local name=`wifi_ssid_get_Name $1`
+-	[ "$name" != "" ] && echo Up || echo Down
+-}
+-
+-wifi_ssid_get_Name() {
+-	local iface=$1
+-	local res ifname section device e i=0
+-
+-	device=`$UCI_GET $1.device`
+-	[ "$device" = "" ] && return 0
+-	res=`ubus call network.wireless status`
+-	[ "$res" = "" ] && return 0
+-	json_init
+-	json_load "$res"
+-	json_select "$device"
+-	json_select "interfaces"
+-	while [ 1 ]; do
+-		let i++
+-		json_select "$i"  >&2
+-		e=$?
+-		[ "$e" != 0 ] && break
+-		json_get_var section section >&2
+-		[ "$section" != "${iface#*.}" ] && { json_select ".." >&2; continue; }
+-		json_get_var ifname ifname >&2
+-		echo $ifname
+-		break;
+-	done
+-}
+-
+-wifi_ssid_get_LowerLayers() {
+-	local device=`$UCI_GET $1.device`
+-	local instance=`$UCI_GET wireless.$device.wifi_radio_instance`
+-	[ "$instance" != "" ] && echo "$DMROOT.WiFi.Radio.$instance."
+-}
+-
+-wifi_ssid_set_LowerLayers() {
+-	local tmp=${2#$DMROOT.WiFi.Radio.}
+-	[ "$tmp" = "$2" ] && return
+-	local instance=${tmp%.}
+-	[ "$tmp" = "$instance" ] && return
+-	local device=`$UCI_SHOW -X wireless | grep "wifi_radio_instance=$instance" | cut -d'.' -f2`
+-	$UCI_SET $1.device=$device
+-}
+-
+-wifi_ssid_get_SSID() {
+-	local ssid=`$UCI_GET $1.ssid`
+-	echo $ssid
+-}
+-
+-wifi_ssid_set_SSID() {
+-	$UCI_SET $1.ssid=$2
+-}
+-
+-wifi_ssid_get_X_IPInterface() {
+-	local network=`$UCI_GET $1.network`
+-	local instance=`$UCI_GET network.$network.ip_int_instance`
+-	[ "$instance" != "" ] && echo "$DMROOT.IP.Interface.$instance."
+-}
+-
+-wifi_ssid_set_X_IPInterface() {
+-	local tmp=${2#$DMROOT.IP.Interface.}
+-	[ "$tmp" = "$2" ] && return
+-	local instance=${tmp%.}
+-	[ "$tmp" = "$instance" ] && return
+-	local network=`$UCI_SHOW -X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
+-	$UCI_SET $1.network=$network
+-}
+-
+-wifi_ap_get_Enable() {
+-	local val=`$UCI_GET $1.disabled`
+-	[ "$val" = "1" ] && echo "0" || echo "1"
+-}
+-
+-wifi_ap_set_Enable() {
+-	local ret
+-	common_set_bool "$1.disabled" "$2" "" "1"
+-	ret=$?
+-	return $ret
+-}
+-
+-wifi_ap_get_Status() {
+-	local name=`wifi_ssid_get_Name $1`
+-	[ "$name" != "" ] && echo Enabled || echo Disabled
+-}
+-
+-wifi_ap_get_ModesSupported() {
+-	echo "None,WEP-64,WEP-128,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,WPA-Enterprise,WPA2-Enterprise,WPA-WPA2-Enterprise"
+-}
+-
+-wifi_ap_get_ModeEnabled() {
+-	local key
+-	local encryption=`$UCI_GET $1.encryption`
+-	
+-	case "$encryption" in
+-		"psk2"*)
+-			echo "WPA2-Personal"
+-			;;
+-		"psk-mixed"*)
+-			echo "WPA-WPA2-Personal"
+-			;;
+-		"psk"*)
+-			echo "WPA-Personal"
+-			;;
+-		"wpa2"*)
+-			echo "WPA2-Enterprise"
+-			;;
+-		"wpa-mixed"*)
+-			echo "WPA-WPA2-Enterprise"
+-			;;
+-		"wpa"*)
+-			echo "WPA-Enterprise"
+-			;;
+-		"wep"*)
+-			key=`$UCI_GET $1.key`
+-			[ "$key" = "1" -o "$key" = "2" -o "$key" = "3" -o "$key" = "4" ] && key=`$UCI_GET $1.key$key`
+-			[ ${#key} = "26" ] && echo "WEP-128" || echo "WEP-64"
+-			;;
+-		*)
+-			echo "None"
+-			;;
+-	esac
+-}
+-
+-wifi_ap_set_ModeEnabled() {
+-	local key
+-	local encryption=`wifi_ap_get_ModeEnabled $1`
+-	[ "$encryption" = "$2" ] && return 0
+-	
+-	case "$2" in
+-		"WPA2-Personal")
+-			$UCI_SET $1.encryption="psk2"
+-			;;
+-		"WPA-WPA2-Personal")
+-			$UCI_SET $1.encryption="psk-mixed"
+-			;;
+-		"WPA-Personal")
+-			$UCI_SET $1.encryption="psk"
+-			;;
+-		"WPA2-Enterprise")
+-			$UCI_SET $1.encryption="wpa2"
+-			;;
+-		"WPA-WPA2-Enterprise")
+-			$UCI_SET $1.encryption="wpa-mixed"
+-			;;
+-		"WPA-Enterprise")
+-			$UCI_SET $1.encryption="wpa"
+-			;;
+-		"WEP-64")
+-			$UCI_SET $1.encryption=wep
+-			$UCI_SET $1.key=1
+-			$UCI_SET $1.key1="0123456789012"
+-			;;
+-		"WEP-128")
+-			$UCI_SET $1.encryption=wep
+-			$UCI_SET $1.key=1
+-			$UCI_SET $1.key1="01234567890123456789012345"
+-			;;
+-		"None")
+-			$UCI_SET $1.encryption=
+-			$UCI_SET $1.key=
+-			;;
+-	esac
+-	return 0
+-}
+-
+-wifi_get_secret() {
+-	return 0
+-}
+-
+-wifi_ap_set_WEPKey() {
+-	$UCI_SET $1.key=1
+-	$UCI_SET $1.key1=$2
+-	return 0
+-}
+-
+-wifi_ap_set_PreSharedKey() {
+-	$UCI_SET $1.key=$2
+-	return 0
+-}
+-
+-wifi_ap_set_KeyPassphrase() {
+-	$UCI_SET $1.key=$2
+-	return 0
+-}
+-
+diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/functions/wireless/wifi src/ext/openwrt/scripts/functions/wireless/wifi
+--- upstream/ext/openwrt/scripts/functions/wireless/wifi	1970-01-01 00:00:00.000000000 +0000
++++ src/ext/openwrt/scripts/functions/wireless/wifi	2026-03-25 10:23:48.000000000 +0000
+@@ -0,0 +1,1336 @@
++#!/bin/sh
++# Copyright (C) 2016 MOHAMED Kallel <mohamed.kallel@yahoo.fr>
++
++#common_execute_method_param "$parameter" "$permission" "$get_cmd" "$set_cmd" "xsd:$type" "$forcedinform"
++#  $forcedinform should be set to 1 if the parameter is included in the inform message otherwise empty
++#  Default of $type = string
++
++#############################
++#   Entry point functions   #
++#############################
++
++prefix_list="$prefix_list $DMROOT.WiFi."
++entry_execute_method_list="$entry_execute_method_list entry_execute_method_root_WiFi"
++
 +UCI_SHOW_X="/sbin/uci -qX ${UCI_CONFIG_DIR:+-c $UCI_CONFIG_DIR} show"
 +
- entry_execute_method_root_WiFi() {
- 	case "$1" in ""|"$DMROOT."|"$DMROOT.WiFi."*)
- 		common_execute_method_obj "$DMROOT.WiFi." "0"
-@@ -41,7 +43,7 @@
- 		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingStandards" "1" "wifi_radio_get_OperatingStandards $radio" "wifi_radio_set_OperatingStandards $radio"
- 		return 0
- 	}
--	return $E_INVALID_PARAMETER_NAME;		
++################
++#  Device.WiFi #
++################
++
++entry_execute_method_root_WiFi() {
++	case "$1" in ""|"$DMROOT."|"$DMROOT.WiFi."*)
++		common_execute_method_obj "$DMROOT.WiFi." "0"
++		common_execute_method_obj "$DMROOT.WiFi.Radio." "0" "" "" "wifi_radio_browse_instances $1"
++		common_execute_method_obj "$DMROOT.WiFi.SSID." "1" "add_wifi_iface" "" "wifi_ssid_browse_instances $1"
++		common_execute_method_param "$DMROOT.WiFi.AccessPointNumberOfEntries" "0" \
++			"get_wifi_ap_noe" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint." "1" \
++			"add_wifi_ap" "" "count_wifi_ap_obj $1"
++		return 0
++		;;
++	esac
 +	return $E_INVALID_PARAMETER_NAME;
- }
- 
- sub_entry_WiFi_SSID() {
-@@ -52,12 +54,12 @@
- 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Enable" "1" "wifi_ssid_get_Enable $iface" "wifi_ssid_set_Enable $iface" "xsd:boolean"
- 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Status" "0" "wifi_ssid_get_Status $iface"
- 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Name" "0" "wifi_ssid_get_Name $iface"
--		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "1" "wifi_ssid_get_LowerLayers $iface" "wifi_ssid_set_LowerLayers $iface"
++}
++
++get_wifi_ap_noe() {
++	json_load "$(ubus call api get '{"path":"/wireless/interfaces/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++
++	keys="${keys##* }"
++	if [ -n "$keys" ]; then
++		echo "$keys"
++	else
++		echo "0"
++	fi
++}
++
++sub_entry_WiFi_Radio() {
++	local j="$2"
++	local radio="$3"
++	case_param "$1" belongto "$DMROOT.WiFi.Radio.$j." && {
++		common_execute_method_obj "$DMROOT.WiFi.Radio.$j." "0"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Enable" "1" "wifi_radio_get_Enable $radio" "wifi_radio_set_Enable $radio" "xsd:boolean"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Status" "0" "wifi_radio_get_Status $radio"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Name" "0" "wifi_radio_get_Name $radio"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.SupportedFrequencyBands" "0" "wifi_radio_get_FrequencyBands $radio"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingFrequencyBand" "0" "wifi_radio_get_FrequencyBands $radio"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.ChannelsInUse" "0" "wifi_radio_get_ChannelsInUse $radio"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.Channel" "1" "wifi_radio_get_Channel $radio" "wifi_radio_set_Channel $radio" "xsd:unsignedInt"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelSupported" "0" "echo 1" "" "xsd:boolean"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.AutoChannelEnable" "1" "wifi_radio_get_AutoChannelEnable $radio" "wifi_radio_set_AutoChannelEnable $radio" "xsd:boolean"
++		common_execute_method_param  "$DMROOT.WiFi.Radio.$j.OperatingStandards" "1" "wifi_radio_get_OperatingStandards $radio" "wifi_radio_set_OperatingStandards $radio"
++		return 0
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++sub_entry_WiFi_SSID() {
++	local j="$2"
++	local iface="$3"
++	case_param "$1" belongto "$DMROOT.WiFi.SSID.$j." && {
++		common_execute_method_obj "$DMROOT.WiFi.SSID.$j." "1" "" "del_wifi_iface $iface"
++		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Enable" "1" "wifi_ssid_get_Enable $iface" "wifi_ssid_set_Enable $iface" "xsd:boolean"
++		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Status" "0" "wifi_ssid_get_Status $iface"
++		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.Name" "0" "wifi_ssid_get_Name $iface"
 +		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.LowerLayers" "0" "wifi_ssid_get_LowerLayers $iface" ""
- 		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.SSID" "1" "wifi_ssid_get_SSID $iface" "wifi_ssid_set_SSID $iface"
--		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "1" "wifi_ssid_get_X_IPInterface $iface" "wifi_ssid_set_X_IPInterface $iface"
++		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.SSID" "1" "wifi_ssid_get_SSID $iface" "wifi_ssid_set_SSID $iface"
 +		common_execute_method_param  "$DMROOT.WiFi.SSID.$j.X_IPInterface" "0" "wifi_ssid_get_X_IPInterface $iface" ""
- 		return 0
- 	}
--	return $E_INVALID_PARAMETER_NAME;		
++		return 0
++	}
 +	return $E_INVALID_PARAMETER_NAME;
- }
- 
- sub_entry_WiFi_AccessPoint() {
-@@ -76,17 +78,17 @@
- 		common_execute_method_param  "$DMROOT.WiFi.AccessPoint.$j.Security.KeyPassphrase" "1" "wifi_get_secret" "wifi_ap_set_KeyPassphrase $iface"
- 		return 0
- 	}
--	return $E_INVALID_PARAMETER_NAME;		
-+	return $E_INVALID_PARAMETER_NAME;
- }
- 
- 
- wifi_radio_get_max_instance() {
--	local max=`$UCI_SHOW -X wireless | grep "wifi_radio_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
++}
++
++wifi_radio_get_max_instance() {
 +	local max=`$UCI_SHOW_X wireless | grep "wifi_radio_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
- 	echo ${max:-0}
- }
- 
- wifi_iface_get_max_instance() {
--	local max=`$UCI_SHOW -X wireless | grep "wifi_iface_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
++	echo ${max:-0}
++}
++
++wifi_iface_get_max_instance() {
 +	local max=`$UCI_SHOW_X wireless | grep "wifi_iface_instance" | cut -d'=' -f2 | sed 's/[^0-9]*//g' | sort -nru | head -1`
- 	echo ${max:-0}
- }
- 
-@@ -113,7 +115,7 @@
- }
- 
- wifi_radio_browse_instances() {
--	local radio radios=`$UCI_SHOW -X wireless | grep "wireless\..*=wifi-device" | cut -d "=" -f 1`
++	echo ${max:-0}
++}
++
++wifi_radio_update_instance() {
++	local radio="$1"
++	local instance=`$UCI_GET $radio.wifi_radio_instance`
++	if [ -z "$instance" ]; then
++		instance=`wifi_radio_get_max_instance`
++		$UCI_SET $radio.wifi_radio_instance=$((++instance))
++		$UCI_COMMIT
++	fi
++	echo $instance
++}
++
++wifi_iface_update_instance() {
++	local iface="$1"
++	local instance=`$UCI_GET $iface.wifi_iface_instance`
++	if [ -z "$instance" ]; then
++		instance=`wifi_iface_get_max_instance`
++		$UCI_SET $iface.wifi_iface_instance=$((++instance))
++		$UCI_COMMIT
++	fi
++	echo $instance
++}
++
++wifi_radio_browse_instances() {
 +	local radio radios=`$UCI_SHOW_X wireless | grep "wireless\..*=wifi-device" | cut -d "=" -f 1`
- 	for radio in $radios; do
- 		local j=`wifi_radio_update_instance $radio`
- 		sub_entry_WiFi_Radio  "$1" "$j" "$radio"
-@@ -121,7 +123,7 @@
- }
- 
- wifi_ssid_browse_instances() {
--	local iface ifaces=`$UCI_SHOW -X wireless | grep "wireless\..*=wifi-iface" | cut -d "=" -f 1`
++	for radio in $radios; do
++		local j=`wifi_radio_update_instance $radio`
++		sub_entry_WiFi_Radio  "$1" "$j" "$radio"
++	done
++}
++
++wifi_ssid_browse_instances() {
 +	local iface ifaces=`$UCI_SHOW_X wireless | grep "wireless\..*=wifi-iface" | cut -d "=" -f 1`
- 	for iface in $ifaces; do
- 		local j=`wifi_iface_update_instance $iface`
- 		sub_entry_WiFi_SSID  "$1" "$j" "$iface"
-@@ -129,7 +131,7 @@
- }
- 
- wifi_ap_browse_instances() {
--	local iface ifaces=`$UCI_SHOW -X wireless | grep "wireless\..*=wifi-iface" | cut -d "=" -f 1`
-+	local iface ifaces=`$UCI_SHOW_X wireless | grep "wireless\..*=wifi-iface" | cut -d "=" -f 1`
- 	for iface in $ifaces; do
- 		local j=`wifi_iface_update_instance $iface`
- 		sub_entry_WiFi_AccessPoint  "$1" "$j" "$iface"
-@@ -200,15 +202,21 @@
- 
- 	phy="phy${1#*radio}"
- 	freq=`iw phy $phy info | grep  "MHz.*dBm" | head -1 | awk '{print $2}'`
--	if [ "${freq#24}" != "$freq" ]; then 
++	for iface in $ifaces; do
++		local j=`wifi_iface_update_instance $iface`
++		sub_entry_WiFi_SSID  "$1" "$j" "$iface"
++	done
++}
++
++add_wifi_iface() {
++	local instance=`wifi_iface_get_max_instance`
++	local section=`$UCI_ADD  wireless wifi-iface`
++	$UCI_SET wireless.$section.wifi_iface_instance=$((++instance))
++	$UCI_COMMIT
++	echo $instance
++}
++
++del_wifi_iface() {
++	local iface="$1"
++	$UCI_DELETE $iface
++	$UCI_COMMIT
++	return 0
++}
++
++wifi_radio_get_Enable() {
++	local val=`$UCI_GET $1.disabled`
++	[ "$val" = "1" ] && echo "0" || echo "1"
++}
++
++wifi_radio_set_Enable() {
++	local ret
++	common_set_bool "$1.disabled" "$2" "" "1"
++	ret=$?
++	return $ret
++}
++
++wifi_radio_get_Status() {
++	local device=${1#*.}
++	local res up
++
++	res=`ubus call network.wireless status`
++	if [ "$res" != "" ]; then
++		json_init
++		json_load "$res" >&2
++		json_select "$device" >&2
++		json_get_var up up >&2
++	fi
++	[ "$up" = "1" ] && echo Up || echo Down
++}
++
++wifi_radio_get_Name() {
++	echo ${1#*.}
++}
++
++wifi_radio_get_FrequencyBands() {
++	local phy="phy${1#*radio}"
++	local freq=`iw phy $phy info | grep  "MHz.*dBm" | head -1 | awk '{print $2}'`
++	[ "${freq#24}" = "$freq" ] && echo "5GHz" || echo "2.4GHz"
++}
++
++wifi_radio_get_ChannelsInUse() {
++	local freq="`iw phy phy0 info | grep  MHz.*dBm | awk -F'[][]' '{print $2}' |  tr '\n' ','`"
++	echo ${freq%,}
++}
++
++wifi_radio_get_Channel() {
++	local channel phy freq
++
++	channel=`$UCI_GET $1.channel`
++	[ "$channel" != "" -a "$channel" != "auto" ] && { echo $channel; return; }
++
++	phy="phy${1#*radio}"
++	freq=`iw phy $phy info | grep  "MHz.*dBm" | head -1 | awk '{print $2}'`
 +	if [ "${freq#24}" != "$freq" ]; then
- 		channel=`iw dev | grep "channel.*(24.*MHz)" | head -1 | awk '{print $2}'`
- 	else
--		channel=`iw dev | grep "channel" | grep -v "channel.*(24.*MHz)" | head -1 | awk '{print $2}'`		
++		channel=`iw dev | grep "channel.*(24.*MHz)" | head -1 | awk '{print $2}'`
++	else
 +		channel=`iw dev | grep "channel" | grep -v "channel.*(24.*MHz)" | head -1 | awk '{print $2}'`
- 	fi
- 	echo $channel
- }
- 
- wifi_radio_set_Channel() {
++	fi
++	echo $channel
++}
++
++wifi_radio_set_Channel() {
 +	case $2 in
 +		(*[^0-9]*|'') return $E_INVALID_PARAMETER_VALUE;;
 +	esac
 +
 +	[ "$2" -lt 1 -o "$2" -gt 255 ] && return $E_INVALID_PARAMETER_VALUE
 +
- 	$UCI_SET $1.channel=$2
- }
- 
-@@ -224,7 +232,7 @@
- 	else
- 		local channel=`wifi_radio_get_Channel $1`
- 		$UCI_SET $1.channel=$channel
--	fi	
++	$UCI_SET $1.channel=$2
++}
++
++wifi_radio_get_AutoChannelEnable() {
++	local en=`$UCI_GET $1.channel`
++	[ "$en" = "" -o "$en" = "auto" ] && echo 1 || echo 0
++}
++
++wifi_radio_set_AutoChannelEnable() {
++	local val=`echo "$2" | tr '[A-Z]' '[a-z]'`
++	if [ "$val" = "1" -o "$val" = "true" ]; then
++		$UCI_SET $1.channel=auto
++	else
++		local channel=`wifi_radio_get_Channel $1`
++		$UCI_SET $1.channel=$channel
 +	fi
- }
- 
- wifi_radio_get_OperatingStandards() {
-@@ -233,6 +241,27 @@
- }
- 
- wifi_radio_set_OperatingStandards() {
++}
++
++wifi_radio_get_OperatingStandards() {
++	local val=`$UCI_GET $1.hwmode`
++	echo ${val#11}
++}
++
++wifi_radio_set_OperatingStandards() {
 +	local band="$(wifi_radio_get_FrequencyBands $1)"
 +
 +	if [ "$band" = "2.4GHz" ]; then
@@ -5008,21 +6599,57 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +		return $E_INVALID_PARAMETER_VALUE
 +	fi
 +
- 	$UCI_SET $1.hwmode=11$2
- }
- 
-@@ -284,14 +313,14 @@
- 	[ "$instance" != "" ] && echo "$DMROOT.WiFi.Radio.$instance."
- }
- 
--wifi_ssid_set_LowerLayers() {
--	local tmp=${2#$DMROOT.WiFi.Radio.}
--	[ "$tmp" = "$2" ] && return
--	local instance=${tmp%.}
--	[ "$tmp" = "$instance" ] && return
--	local device=`$UCI_SHOW -X wireless | grep "wifi_radio_instance=$instance" | cut -d'.' -f2`
--	$UCI_SET $1.device=$device
--}
++	$UCI_SET $1.hwmode=11$2
++}
++
++wifi_ssid_get_Enable() {
++	local val=`$UCI_GET $1.disabled`
++	[ "$val" = "1" ] && echo "0" || echo "1"
++}
++
++wifi_ssid_set_Enable() {
++	local ret
++	common_set_bool "$1.disabled" "$2" "" "1"
++	ret=$?
++	return $ret
++}
++
++wifi_ssid_get_Status() {
++	local name=`wifi_ssid_get_Name $1`
++	[ "$name" != "" ] && echo Up || echo Down
++}
++
++wifi_ssid_get_Name() {
++	local iface=$1
++	local res ifname section device e i=0
++
++	device=`$UCI_GET $1.device`
++	[ "$device" = "" ] && return 0
++	res=`ubus call network.wireless status`
++	[ "$res" = "" ] && return 0
++	json_init
++	json_load "$res"
++	json_select "$device"
++	json_select "interfaces"
++	while [ 1 ]; do
++		let i++
++		json_select "$i"  >&2
++		e=$?
++		[ "$e" != 0 ] && break
++		json_get_var section section >&2
++		[ "$section" != "${iface#*.}" ] && { json_select ".." >&2; continue; }
++		json_get_var ifname ifname >&2
++		echo $ifname
++		break;
++	done
++}
++
++wifi_ssid_get_LowerLayers() {
++	local device=`$UCI_GET $1.device`
++	local instance=`$UCI_GET wireless.$device.wifi_radio_instance`
++	[ "$instance" != "" ] && echo "$DMROOT.WiFi.Radio.$instance."
++}
++
 +# wifi_ssid_set_LowerLayers() {
 +# 	local tmp=${2#$DMROOT.WiFi.Radio.}
 +# 	[ "$tmp" = "$2" ] && return
@@ -5031,29 +6658,23 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +# 	local device=`$UCI_SHOW_X wireless | grep "wifi_radio_instance=$instance" | cut -d'.' -f2`
 +# 	$UCI_SET $1.device=$device
 +# }
- 
- wifi_ssid_get_SSID() {
- 	local ssid=`$UCI_GET $1.ssid`
-@@ -299,6 +328,7 @@
- }
- 
- wifi_ssid_set_SSID() {
++
++wifi_ssid_get_SSID() {
++	local ssid=`$UCI_GET $1.ssid`
++	echo $ssid
++}
++
++wifi_ssid_set_SSID() {
 +	[ -z "$2" ] || [ "${#2}" -gt 64 ] && return $E_INVALID_PARAMETER_VALUE
- 	$UCI_SET $1.ssid=$2
- }
- 
-@@ -308,14 +338,14 @@
- 	[ "$instance" != "" ] && echo "$DMROOT.IP.Interface.$instance."
- }
- 
--wifi_ssid_set_X_IPInterface() {
--	local tmp=${2#$DMROOT.IP.Interface.}
--	[ "$tmp" = "$2" ] && return
--	local instance=${tmp%.}
--	[ "$tmp" = "$instance" ] && return
--	local network=`$UCI_SHOW -X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
--	$UCI_SET $1.network=$network
--}
++	$UCI_SET $1.ssid=$2
++}
++
++wifi_ssid_get_X_IPInterface() {
++	local network=`$UCI_GET $1.network`
++	local instance=`$UCI_GET network.$network.ip_int_instance`
++	[ "$instance" != "" ] && echo "$DMROOT.IP.Interface.$instance."
++}
++
 +# wifi_ssid_set_X_IPInterface() {
 +# 	local tmp=${2#$DMROOT.IP.Interface.}
 +# 	[ "$tmp" = "$2" ] && return
@@ -5062,92 +6683,1004 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +# 	local network=`$UCI_SHOW_X network | grep "ip_int_instance=$instance" | cut -d'.' -f2`
 +# 	$UCI_SET $1.network=$network
 +# }
- 
- wifi_ap_get_Enable() {
- 	local val=`$UCI_GET $1.disabled`
-@@ -341,7 +371,7 @@
- wifi_ap_get_ModeEnabled() {
- 	local key
- 	local encryption=`$UCI_GET $1.encryption`
--	
 +
- 	case "$encryption" in
- 		"psk2"*)
- 			echo "WPA2-Personal"
-@@ -376,7 +406,7 @@
- 	local key
- 	local encryption=`wifi_ap_get_ModeEnabled $1`
- 	[ "$encryption" = "$2" ] && return 0
--	
++############################
++#  Device.WiFi.AccessPoint #
++############################
 +
- 	case "$2" in
- 		"WPA2-Personal")
- 			$UCI_SET $1.encryption="psk2"
-@@ -410,6 +440,9 @@
- 			$UCI_SET $1.encryption=
- 			$UCI_SET $1.key=
- 			;;
-+		*)
-+			return $E_INVALID_PARAMETER_VALUE
++add_wifi_ap() {
++	json_load "$(ubus call api post '{
++		     "path":"/wireless/interfaces/config",
++		     "body":{
++			"data":{
++			    "mode":"ap",
++			    "ssid":"default"
++			}
++		     }}')"
++	json_select http_body
++	json_get_var success success
++	[ "$success" != "1" ] && return $E_INVALID_PARAMETER_VALUE
++
++	json_load "$(ubus call api get '{"path":"/wireless/interfaces/config"}')"
++	json_select http_body
++	json_select data
++	json_get_keys keys
++
++	keys="${keys##* }"
++	if [ -n "$keys" ]; then
++		echo "$keys"
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++delete_wifi_ap() {
++	local id="$1"
++
++	json_load "$(ubus call api delete '{"path":"/wireless/interfaces/config/'$id'"}')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++count_wifi_ap_obj() {
++	local i=1
++	local ifaces="$(ubus call api get '{"path":"/wireless/interfaces/config"}' | \
++			  jsonfilter -e '@.http_body.data[*]')"
++
++	OLD_IFS="$IFS"
++	IFS=$'\n'
++	for table in $ifaces; do
++		IFS="$OLD_IFS"
++		sub_entry_wifi_ap "$1" "$i" "$table"
++		i=$((i + 1))
++		IFS=$'\n'
++	done
++	IFS="$OLD_IFS"
++}
++
++sub_entry_wifi_ap() {
++	local i="$2" 
++	local table="$3"
++
++	case_param "$1" belongto "$DMROOT.WiFi.AccessPoint.$i." && {
++		local id="$(echo "$table" | jsonfilter -e '@.id')"
++		local enabled="$(echo "$table" | jsonfilter -e '@.enabled')"
++		local hidden="$(echo "$table" | jsonfilter -e '@.hidden')"
++		local wmm="$(echo "$table" | jsonfilter -e '@.wmm')"
++		local isolate="$(echo "$table" | jsonfilter -e '@.isolate')"
++		local macfilter="$(echo "$table" | jsonfilter -e '@.macfilter')"
++		local maclist="$(echo "$table" | jsonfilter -e '@.maclist[*]')"
++
++		local status="Disabled"
++		[ "$enabled" = "1" ] && status="Enabled"
++
++		if [ "$hidden" = "1" ]; then
++			hidden="0"
++		else
++			hidden="1"
++		fi
++
++		[ -z "$wmm" ] && wmm=0
++		[ -z "$isolate" ] && isolate=0
++
++		case "$macfilter" in
++			allow) macfilter="Allow" ;;
++			deny) macfilter="Deny" ;;
++			*) macfilter="Disabled" ;;
++		esac
++
++		maclist="$(echo "$maclist" | tr '\n' ',' | sed 's/,$//')"
++
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i." "1" "" "delete_wifi_ap $id"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Enable" "1" \
++			"echo $enabled" "set_wifi_ap_boolean $id enabled" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Status" "0" \
++			"echo $status" "" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.SSIDReference" "0" \
++			"echo Device.WiFi.SSID.$i" "" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.SSIDAdvertisementEnabled" "1" \
++			"echo $hidden" "set_wifi_ap_ssidadvert $id" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.WMMCapability" "0" \
++			"echo 1" "" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.UAPSDCapability" "0" \
++			"echo 1" "" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.WMMEnable" "1" \
++			"echo $wmm" "set_wifi_ap_boolean $id wmm" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.IsolationEnable" "1" \
++			"echo $isolate" "set_wifi_ap_boolean $id isolate" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.MACAddressControlEnabled" "1" \
++			"echo $macfilter" "set_wifi_ap_macaddrcontrol $id" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AllowedMACAddress" "1" \
++			"echo $maclist" "set_wifi_ap_allowedmac $id" "xsd:string[]"
++
++		# .Security
++		local device="$(echo "$table" | jsonfilter -e '@.device[0]')"
++		local encrypt_modes="$(ubus call api get '{"path":"/wireless/devices/options/'$device'"}' | \
++				       jsonfilter -e '@.http_body.data.features.encryption' | \
++				       sed 's/[[:space:]]//g')"
++		local encryption="$(echo "$table" | jsonfilter -e '@.encryption')"
++		local cipher="$(echo "$table" | jsonfilter -e '@.cipher')"
++		local wpa_group_rekey="$(echo "$table" | jsonfilter -e '@.wpa_group_rekey')"
++		local auth_server="$(echo "$table" | jsonfilter -e '@.auth_server')"
++		local auth_port="$(echo "$table" | jsonfilter -e '@.auth_port')"
++		local ieee80211w="$(echo "$table" | jsonfilter -e '@.ieee80211w')"
++
++		case "$encryption" in
++			none)
++				encryption="None"
++				ieee80211w="0"
++				;;
++			owe)
++				encryption="OWE"
++				ieee80211w="2"
++				;;
++			psk)
++				encryption="WPA-Personal"
++				[ -z "$ieee80211w" ] && ieee80211w="0"
++				;;
++			psk2)
++				encryption="WPA2-Personal"
++				[ -z "$ieee80211w" ] && ieee80211w="0"
++				;;
++			psk-mixed)
++				encryption="WPA-WPA2-Personal"
++				[ -z "$ieee80211w" ] && ieee80211w="0"
++				;;
++			sae)
++				encryption="WPA3-Personal"
++				ieee80211w="2"
++				;;
++			sae-mixed)
++				encryption="WPA3-Personal-Transition"
++				ieee80211w="2"
++				;;
++			wpa)
++				encryption="WPA-Enterprise"
++				[ -z "$ieee80211w" ] && ieee80211w="0"
++				;;
++			wpa2)
++				encryption="WPA2-Enterprise"
++				[ -z "$ieee80211w" ] && ieee80211w="0"
++				;;
++			wpa3)
++				encryption="WPA3-Enterprise"
++				ieee80211w="2"
++				;;
++			*)
++				encryption="Unknown"
++				ieee80211w="0"
++				;;
++		esac
++
++		case "$cipher" in
++			auto|tkip+ccmp) cipher="TKIP,AES" ;;
++			tkip) cipher="TKIP" ;;
++			ccmp) cipher="AES" ;;
++			*) cipher="Unknown" ;;
++		esac
++
++		case "$ieee80211w" in
++			0) ieee80211w="Disabled" ;;
++			1) ieee80211w="Optional" ;;
++			2) ieee80211w="Required" ;;
++		esac
++
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.Security." "0"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.ModesSupported" "0" \
++			"get_wifi_ap_security_modes $encrypt_modes" "" "xsd:string[]"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.ModeEnabled" "1" \
++			"echo $encryption" "set_wifi_ap_security_mode $id" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.EncryptionMode" "1" \
++			"echo $cipher" "set_wifi_ap_security_encryption $id $encryption" "xsd:string[]"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.PreSharedKey" "1" \
++			"" "set_wifi_ap_security_presharedkey $id" "xsd:hexBinary"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.KeyPassphrase" "1" \
++			"" "set_wifi_ap_security_keypass $id" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.RekeyingInterval" "1" \
++			"echo $wpa_group_rekey" "set_wifi_ap_value $id wpa_group_rekey" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.RadiusServerIPAddr" "1" \
++			"echo $auth_server" "set_wifi_ap_value $id auth_server" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.RadiusServerPort" "1" \
++			"echo $auth_port" "set_wifi_ap_value $id auth_port" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.RadiusSecret" "1" \
++			"" "set_wifi_ap_value $id auth_secret" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Security.MFPConfig" "1" \
++			"echo $ieee80211w" "set_wifi_ap_security_mfpconfig $id" "xsd:string"
++
++		# .Interworking
++		local hotspot="$(ubus call api get '{"path":"/hotspot2/config/'$id'"}' | \
++				 jsonfilter -e '@.http_body.data')"
++		local interworking="$(echo "$hotspot" | jsonfilter -e '@.interworking')"
++		local access_network_type="$(echo "$hotspot" | jsonfilter -e '@.access_network_type')"
++		local internet="$(echo "$hotspot" | jsonfilter -e '@.internet')"
++		local venue_group="$(echo "$hotspot" | jsonfilter -e '@.venue_group')"
++		local venue_type="$(echo "$hotspot" | jsonfilter -e '@.venue_type')"
++		local hessid="$(echo "$hotspot" | jsonfilter -e '@.hessid')"
++
++		case "$access_network_type" in
++			0) access_network_type="PrivateNetwork" ;;
++			1) access_network_type="PrivateNetworkWithGuestAccess" ;;
++			2) access_network_type="ChargeablePublicNetwork" ;;
++			3) access_network_type="FreePublicNetwork" ;;
++			4) access_network_type="PersonalDeviceNetwork" ;;
++			5) access_network_type="EmergencyServicesOnlyNetwork" ;;
++			14) access_network_type="TestOrExperimental" ;;
++			*) access_network_type="Wildcard" ;;
++		esac
++
++		[ -z "$internet" ] && internet="0"
++
++		case "$venue_group" in
++			1) venue_group="Assembly" ;;
++			2) venue_group="Business" ;;
++			3) venue_group="Educational" ;;
++			4) venue_group="Factory-Industrial" ;;
++			5) venue_group="Institutional" ;;
++			6) venue_group="Mercantile" ;;
++			7) venue_group="Residential" ;;
++			8) venue_group="Storage" ;;
++			9) venue_group="Utility-Miscellaneous" ;;
++			10) venue_group="Vehicular" ;;
++			11) venue_group="Outdoor" ;;
++			*) venue_group="Unspecified" ;;
++		esac
++
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.Interworking." "0"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Interworking.Enable" "1" \
++			"echo $interworking" "set_wifi_ap_interwork_boolean $id interworking" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Interworking.AccessNetworkType" "1" \
++			"echo $access_network_type" "set_wifi_ap_interwork_accessnettype $id" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Interworking.InternetAvailable" "1" \
++			"echo $internet" "set_wifi_ap_interwork_boolean $id internet" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Interworking.VenueGroup" "1" \
++			"echo $venue_group" "set_wifi_ap_interwork_venuegroup $id" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Interworking.VenueType" "1" \
++			"get_wifi_ap_interwork_venuetype $venue_group $venue_type" \
++			"set_wifi_ap_interwork_venuetype $id $venue_group" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.Interworking.HESSID" "1" \
++			"echo $hessid" "set_wifi_ap_hotspot2_value $id hessid" "xsd:string"
++
++		# .ANQP
++		local ipaddr_type_availability="$(echo "$hotspot" | \
++						  jsonfilter -e '@.ipaddr_type_availability')"
++		local roaming_consortium="$(echo "$hotspot" | jsonfilter -e '@.roaming_consortium[*]')"
++		local domain_name="$(echo "$hotspot" | jsonfilter -e '@.domain_name[*]')"
++		local network_auth_type="$(echo "$hotspot" | jsonfilter -e '@.network_auth_type')"
++
++		case "$ipaddr_type_availability" in
++			0) ipaddr_type_availability="NotAvailable" ;;
++			1) ipaddr_type_availability="PublicIPv4" ;;
++			2) ipaddr_type_availability="PortRestrictedIPv4" ;;
++			3) ipaddr_type_availability="SingleNATIPv4" ;;
++			4) ipaddr_type_availability="DoubleNATIPv4" ;;
++			5) ipaddr_type_availability="PortRestrictSingleNATIPv4" ;;
++			6) ipaddr_type_availability="PortRestrictDoubleNATIPv4" ;;
++			*) ipaddr_type_availability="Unknown" ;;
++		esac
++
++		roaming_consortium="$(echo "$roaming_consortium" | tr '\n' ',' | sed 's/,$//')"
++		domain_name="$(echo "$domain_name" | tr '\n' ',' | sed 's/,$//')"
++		network_auth_type="${network_auth_type#?}"
++
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.ANQP." "0"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.ANQP.IPv4AddressAvailability" "1" \
++			"echo $ipaddr_type_availability" "set_wifi_ap_anqp_ipv4addravailability $id" \
++			"xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.ANQP.RoamingConsortiumOIs" "1" \
++			"echo $roaming_consortium" "set_wifi_ap_hotspot2_array_value $id roaming_consortium" \
++			"xsd:string[]"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.ANQP.Domains" "1" \
++			"echo $domain_name" "set_wifi_ap_hotspot2_array_value $id domain_name" "xsd:string[]"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.ANQP.NetworkAuthTypes" "1" \
++			"echo $network_auth_type" "set_wifi_ap_anqp_networkauthtype $id" "xsd:string"
++
++		# .AssociatedDevice
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDeviceNumberOfEntries" "0" \
++			"get_wifi_ap_assocdevice_noe $id" "" "xsd:unsignedInt"
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice." "0" \
++			"" "" "count_wifi_ap_assocdevice_obj $1 $i $id"
++		return 0;
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
++
++set_wifi_ap_value() {
++	local id="$1"
++	local key="$2"
++	local value="$3"
++
++	json_load "$(ubus call api put '{
++			"path":"/wireless/interfaces/config/'$id'",
++			"body":{"data":{"'$key'":"'$value'"}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_wifi_ap_boolean() {
++	local id="$1"
++	local key="$2"
++	local input="$3"
++
++	if [ "$input" = "true" ]; then
++		input="1"
++	elif [ "$input" = "false" ]; then
++		input="0"
++	elif [ "$input" != "0" -a "$input" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_wifi_ap_value "$id" "$key" "$input"
++}
++
++set_wifi_ap_ssidadvert() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		true|1) input="0" ;;
++		false|0) input="1" ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	set_wifi_ap_value "$id" "hidden" "$input"
++}
++
++set_wifi_ap_macaddrcontrol() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		Allow) input="allow" ;;
++		Deny) input="deny" ;;
++		Disabled) input="" ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	set_wifi_ap_value "$id" "macfilter" "$input"
++}
++
++set_wifi_ap_allowedmac() {
++	local id="$1"
++	local input="$2"
++
++	input=$(echo "$input" | sed 's/,/","/g')
++	input="[\"$input\"]"
++
++	json_load "$(ubus call api put '{
++		     	"path":"/wireless/interfaces/config/'$id'",
++		     	"body":{"data":{"maclist":'$input'}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++#####################################
++#  Device.WiFi.AccessPoint.Security #
++#####################################
++
++get_wifi_ap_security_modes() {
++	local modes="$1"
++	local mode="None,WPA-Personal,WPA2-Personal,WPA-WPA2-Personal,"
++
++	[ "$(echo "$modes" | jsonfilter -e '@.ap_owe')" = "true" ] &&
++		mode="${mode}OWE,"
++	[ "$(echo "$modes" | jsonfilter -e '@.ap_sae')" = "true" ] &&
++		mode="${mode}WPA3-Personal,WPA3-Personal-Transition,"
++	[ "$(echo "$modes" | jsonfilter -e '@.ap_eap192')" = "true" ] &&
++		mode="${mode}WPA3-Enterprise,"
++	[ "$(echo "$modes" | jsonfilter -e '@.ap_eap')" = "true" ] &&
++		mode="${mode}WPA-Enterprise,WPA2-Enterprise,"
++
++	mode="${mode%,}"
++	echo "$mode"
++}
++
++set_wifi_ap_security_mode() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		None) input="none" ;;
++		OWE) input="owe" ;;
++		WPA-Personal) input="psk" ;;
++		WPA2-Personal) input="psk2" ;;
++		WPA-WPA2-Personal) input="psk-mixed" ;;
++		WPA3-Personal) input="sae" ;;
++		WPA3-Personal-Transition) input="sae-mixed" ;;
++		WPA-Enterprise) input="wpa" ;;
++		WPA2-Enterprise) input="wpa2" ;;
++		WPA3-Enterprise) input="wpa3" ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	set_wifi_ap_value "$id" "encryption" "$input"
++}
++
++set_wifi_ap_security_encryption() {
++	local id="$1"
++	local encryption="$2"
++	local input="$3"
++
++	case "$input" in
++		TKIP,AES|AES,TKIP) input="tkip+ccmp" ;;
++		TKIP) input="tkip" ;;
++		AES) input="ccmp" ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	case "$encryption" in
++		WPA3-Personal|WPA3-Personal-Transition|WPA3-Enterprise)
++			[ "$input" != "ccmp" ] && return $E_INVALID_PARAMETER_VALUE
 +			;;
- 	esac
- 	return 0
- }
-@@ -419,18 +452,50 @@
- }
- 
- wifi_ap_set_WEPKey() {
-+	local encryption="$($UCI_GET $1.encryption)"
-+	[ "$encryption" != "wep" ] && return $E_INVALID_PARAMETER_VALUE
-+
-+	case "$2" in
-+		(*[!0-9a-fA-F]*) return $E_INVALID_PARAMETER_VALUE;;  # contains non-hex chars
-+		("") return $E_INVALID_PARAMETER_VALUE;; # empty string
-+		(*) ;; # all hex
 +	esac
 +
-+	[ "${#2}" -ne 5 ] && [ "${#2}" -ne 13 ] && return $E_INVALID_PARAMETER_VALUE
++	set_wifi_ap_value "$id" "cipher" "$input"
++}
 +
- 	$UCI_SET $1.key=1
- 	$UCI_SET $1.key1=$2
- 	return 0
- }
- 
- wifi_ap_set_PreSharedKey() {
-+	local encryption="$($UCI_GET $1.encryption)"
-+	case "$encryption" in
-+		psk*) ;;
++set_wifi_ap_security_presharedkey() {
++	local id="$1"
++	local input="$2"
++
++	[ "${#input}" -ne 64 ] && return $E_INVALID_PARAMETER_VALUE
++
++	case "$input" in
++		*[!0-9A-Fa-f]*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	set_wifi_ap_value "$id" "key" "$input"
++}
++
++set_wifi_ap_security_keypass() {
++	local id="$1"
++	local input="$2"
++
++	[ "${#input}" -lt 8 ] || [ "${#input}" -gt 63 ] && return $E_INVALID_PARAMETER_VALUE
++
++	set_wifi_ap_value "$id" "key" "$input"
++}
++
++set_wifi_ap_security_mfpconfig() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		Disabled) input="0" ;;
++		Optional) input="1" ;;
++		Required) input="2" ;;
 +		*) return $E_INVALID_PARAMETER_VALUE ;;
 +	esac
 +
-+	case "$2" in
-+		(*[!0-9a-fA-F]*) return $E_INVALID_PARAMETER_VALUE;;  # contains non-hex chars
-+		("") return $E_INVALID_PARAMETER_VALUE;; # empty string
-+		(*) ;; # all hex
-+	esac
++	set_wifi_ap_value "$id" "ieee80211w" "$input"
++}
 +
-+	[ -z "$2" ] || [ "${#2}" -gt 32 ] && return $E_INVALID_PARAMETER_VALUE
++#########################################
++#  Device.WiFi.AccessPoint.Interworking #
++#########################################
 +
- 	$UCI_SET $1.key=$2
- 	return 0
- }
- 
- wifi_ap_set_KeyPassphrase() {
-+	local encryption="$($UCI_GET $1.encryption)"
-+	case "$encryption" in
-+		psk*) ;;
++set_wifi_ap_hotspot2_value() {
++	local id="$1"
++	local key="$2"
++	local value="$3"
++
++	json_load "$(ubus call api put '{
++			"path":"/hotspot2/config/'$id'",
++			"body":{"data":{"'$key'":"'$value'"}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_wifi_ap_hotspot2_array_value() {
++	local id="$1"
++	local key="$2"
++	local input="[\"$3\"]"
++
++	input="$(echo "$input" | sed 's/,/","/g')"
++
++	json_load "$(ubus call api put '{
++			"path":"/hotspot2/config/'$id'",
++			"body":{"data":{"'$key'":'$input'}}
++		     }')"
++	json_select http_body
++	json_get_var success success
++	if [ "$success" = "1" ]; then
++		return 0
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++}
++
++set_wifi_ap_interwork_boolean() {
++	local id="$1"
++	local key="$2"
++	local input="$3"
++
++	if [ "$input" = "true" ]; then
++		input="1"
++	elif [ "$input" = "false" ]; then
++		input="0"
++	elif [ "$input" != "0" -a "$input" != "1" ]; then
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_wifi_ap_hotspot2_value "$id" "$key" "$input"
++}
++
++set_wifi_ap_interwork_accessnettype() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		PrivateNetwork) input="0" ;;
++		PrivateNetworkWithGuestAccess) input="1" ;;
++		ChargeablePublicNetwork) input="2" ;;
++		FreePublicNetwork) input="3" ;;
++		PersonalDeviceNetwork) input="4" ;;
++		EmergencyServicesOnlyNetwork) input="5" ;;
++		TestOrExperimental) input="14" ;;
++		Wildcard) input="" ;;
 +		*) return $E_INVALID_PARAMETER_VALUE ;;
 +	esac
 +
-+	[ -z "$2" ] || [ "${#2}" -lt 8 ] || [ "${#2}" -gt 63 ] && return $E_INVALID_PARAMETER_VALUE
++	set_wifi_ap_hotspot2_value "$id" "access_network_type" "$input"
++}
 +
- 	$UCI_SET $1.key=$2
- 	return 0
- }
--
++set_wifi_ap_interwork_venuegroup() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		Unspecified) input="0" ;;
++		Assembly) input="1" ;;
++		Business) input="2" ;;
++		Educational) input="3" ;;
++		Factory-Industrial) input="4" ;;
++		Institutional) input="5" ;;
++		Mercantile) input="6" ;;
++		Residential) input="7" ;;
++		Storage) input="8" ;;
++		Utility-Miscellaneous) input="9" ;;
++		Vehicular) input="10" ;;
++		Outdoor) input="11" ;; 
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	set_wifi_ap_hotspot2_value "$id" "venue_group" "$input"
++}
++
++get_wifi_ap_interwork_venuetype() {
++	local venue_group="$1"
++	local venue_type="$2"
++
++	if [ "$venue_group" = "Unspecified" ]; then
++		echo "Unspecified"
++	elif [ "$venue_group" = "Assembly" ]; then
++		case "$venue_type" in
++			1) echo "Arena" ;;
++			2) echo "Stadium" ;;
++			3) echo "PassengerTerminal" ;;
++			4) echo "Amphitheater" ;;
++			5) echo "AmusementPark" ;;
++			6) echo "PlaceOfWorship" ;;
++			7) echo "ConventionCenter" ;;
++			8) echo "Library" ;;
++			9) echo "Museum" ;;
++			10) echo "Restaurant" ;;
++			11) echo "Theater" ;;
++			12) echo "Bar" ;;
++			13) echo "CoffeeShop" ;;
++			14) echo "ZooOrAquarium" ;;
++			15) echo "EmergencyCoordinationCenter" ;;
++			*) echo "UnspecifiedAssembly" ;;
++		esac
++	elif [ "$venue_group" = "Business" ]; then
++		case "$venue_type" in
++			1) echo "DoctorOrDentistOffice" ;;
++			2) echo "Bank" ;;
++			3) echo "FireStation" ;;
++			4) echo "PoliceStation" ;;
++			6) echo "PostOffice" ;;
++			7) echo "ProfessionalOffice" ;;
++			8) echo "ResearchAndDevelopmentFacility" ;;
++			9) echo "AttorneyOffice" ;;
++			*) echo "UnspecifiedBusiness" ;;
++		esac
++	elif [ "$venue_group" = "Educational" ]; then
++		case "$venue_type" in
++			1) echo "SchoolPrimary" ;;
++			2) echo "SchoolSecondary" ;;
++			3) echo "UniversityOrCollege" ;;
++			*) echo "UnspecifiedEducational" ;;
++		esac
++	elif [ "$venue_group" = "Factory-Industrial" ]; then
++		case "$venue_type" in
++			1) echo "Factory" ;;
++			*) echo "UnspecifiedFactory-Industrial" ;;
++		esac
++	elif [ "$venue_group" = "Institutional" ]; then
++		case "$venue_type" in
++			1) echo "Hospital" ;;
++			2) echo "LongTermCareFacility" ;;
++			3) echo "AlcoholAndDrugRehabilitationCenter" ;;
++			4) echo "GroupHome" ;;
++			5) echo "PrisonOrJail" ;;
++			*) echo "UnspecifiedInstitutional" ;;
++		esac
++	elif [ "$venue_group" = "Mercantile" ]; then
++		case "$venue_type" in
++			1) echo "RetailStore" ;;
++			2) echo "GroceryMarket" ;;
++			3) echo "AutomotiveServiceStation" ;;
++			4) echo "ShoppingMall" ;;
++			5) echo "GasStation" ;;
++			*) echo "UnspecifiedMercantile" ;;
++		esac
++	elif [ "$venue_group" = "Residential" ]; then
++		case "$venue_type" in
++			1) echo "PrivateResidence" ;;
++			2) echo "HotelOrMotel" ;;
++			3) echo "Dormitory" ;;
++			4) echo "BoardingHouse" ;;
++			*) echo "UnspecifiedResidential" ;;
++		esac
++	elif [ "$venue_group" = "Storage" ]; then
++		case "$venue_type" in
++			*) echo "UnspecifiedStorage" ;;
++		esac
++	elif [ "$venue_group" = "Utility-Miscellaneous" ]; then
++		case "$venue_type" in
++			*) echo "UnspecifiedUtility-Miscellaneous" ;;
++		esac
++	elif [ "$venue_group" = "Vehicular" ]; then
++		case "$venue_type" in
++			1) echo "AutomobileOrTruck" ;;
++			2) echo "Airplane" ;;
++			3) echo "Bus" ;;
++			4) echo "Ferry" ;;
++			5) echo "ShipOrBoat" ;;
++			6) echo "Train" ;;
++			7) echo "MotorBike" ;;
++			*) echo "UnspecifiedVehicular" ;;
++		esac
++	elif [ "$venue_group" = "Outdoor" ]; then
++		case "$venue_type" in
++			1) echo "MuniMeshNetwork" ;;
++			2) echo "CityPark" ;;
++			3) echo "RestArea" ;;
++			4) echo "TrafficControl" ;;
++			5) echo "BusStop" ;;
++			6) echo "Kiosk" ;;
++			*) echo "UnspecifiedOutdoor" ;;
++		esac
++	fi
++}
++
++set_wifi_ap_interwork_venuetype() {
++	local id="$1"
++	local venue_group="$2"
++	local input="$3"
++
++	if [ "$venue_group" = "Unspecified" ]; then
++		case "$input" in
++			Unspecified) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Assembly" ]; then
++		case "$input" in
++			Arena) input="1" ;;
++			Stadium) input="2" ;;
++			PassengerTerminal) input="3" ;;
++			Amphitheater) input="4" ;;
++			AmusementPark) input="5" ;;
++			PlaceOfWorship) input="6" ;;
++			ConventionCenter) input="7" ;;
++			Library) input="8" ;;
++			Museum) input="9" ;;
++			Restaurant) input="10" ;;
++			Theater) input="11" ;;
++			Bar) input="12" ;;
++			CoffeeShop) input="13" ;;
++			ZooOrAquarium) input="14" ;;
++			EmergencyCoordinationCenter) input="15" ;;
++			UnspecifiedAssembly) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Business" ]; then
++		case "$input" in
++			DoctorOrDentistOffice) input="1" ;;
++			Bank) input="2" ;;
++			FireStation) input="3" ;;
++			PoliceStation) input="4" ;;
++			PostOffice) input="6" ;;
++			ProfessionalOffice) input="7" ;;
++			ResearchAndDevelopmentFacility) input="8" ;;
++			AttorneyOffice) input="9" ;;
++			UnspecifiedBusiness) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Educational" ]; then
++		case "$input" in
++			SchoolPrimary) input="1" ;;
++			SchoolSecondary) input="2" ;;
++			UniversityOrCollege) input="3" ;;
++			UnspecifiedEducational) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Factory-Industrial" ]; then
++		case "$input" in
++			Factory) input="1" ;;
++			UnspecifiedFactory-Industrial) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Institutional" ]; then
++		case "$input" in
++			Hospital) input="1" ;;
++			LongTermCareFacility) input="2" ;;
++			AlcoholAndDrugRehabilitationCenter) input="3" ;;
++			GroupHome) input="4" ;;
++			PrisonOrJail) input="5" ;;
++			UnspecifiedInstitutional) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Mercantile" ]; then
++		case "$input" in
++			RetailStore) input="1" ;;
++			GroceryMarket) input="2" ;;
++			AutomotiveServiceStation) input="3" ;;
++			ShoppingMall) input="4" ;;
++			GasStation) input="5" ;;
++			UnspecifiedMercantile) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Residential" ]; then
++		case "$input" in
++			PrivateResidence) input="1" ;;
++			HotelOrMotel) input="2" ;;
++			Dormitory) input="3" ;;
++			BoardingHouse) input="4" ;;
++			UnspecifiedResidential) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Storage" ]; then
++		case "$input" in
++			UnspecifiedStorage) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Utility-Miscellaneous" ]; then
++		case "$input" in
++			UnspecifiedUtility-Miscellaneous) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Vehicular" ]; then
++		case "$input" in
++			AutomobileOrTruck) input="1" ;;
++			Airplane) input="2" ;;
++			Bus) input="3" ;;
++			Ferry) input="4" ;;
++			ShipOrBoat) input="5" ;;
++			Train) input="6" ;;
++			MotorBike) input="7" ;;
++			UnspecifiedVehicular) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	elif [ "$venue_group" = "Outdoor" ]; then
++		case "$input" in
++			MuniMeshNetwork) input="1" ;;
++			CityPark) input="2" ;;
++			RestArea) input="3" ;;
++			TrafficControl) input="4" ;;
++			BusStop) input="5" ;;
++			Kiosk) input="6" ;;
++			UnspecifiedOutdoor) input="0" ;;
++			*) return $E_INVALID_PARAMETER_VALUE ;;
++		esac
++	else
++		return $E_INVALID_PARAMETER_VALUE
++	fi
++
++	set_wifi_ap_hotspot2_value "$id" "venue_type" "$input"
++}
++
++#################################
++#  Device.WiFi.AccessPoint.ANQP #
++#################################
++
++set_wifi_ap_anqp_ipv4addravailability() {
++	local id="$1"
++	local input="$2"
++
++	case "$input" in
++		NotAvailable) input="0" ;;
++		PublicIPv4) input="1" ;;
++		PortRestrictedIPv4) input="2" ;;
++		SingleNATIPv4) input="3" ;;
++		DoubleNATIPv4) input="4" ;;
++		PortRestrictSingleNATIPv4) input="5" ;;
++		PortRestrictDoubleNATIPv4) input="6" ;;
++		Unknown) input="7" ;;
++		*) return $E_INVALID_PARAMETER_VALUE ;;
++	esac
++
++	set_wifi_ap_hotspot2_value "$id" "ipaddr_type_availability" "$input"
++}
++
++set_wifi_ap_anqp_networkauthtype() {
++	local id="$1"
++	local input="0${2}"
++
++	set_wifi_ap_hotspot2_value "$id" "network_auth_type" "$input"
++}
++
++#############################################
++#  Device.WiFi.AccessPoint.AssociatedDevice #
++#############################################
++
++get_wifi_ap_assocdevice_noe() {
++	local id="$1"
++
++	json_load "$(ubus call api get '{"path":"/wireless/interfaces/status/'$id'"}')"
++	json_select http_body
++	json_select data
++	json_get_var ifname ifname
++	echo "$ifname" | grep -q "wlan" && {
++		echo "1"
++		return 0
++	}
++
++	json_select ifname
++	json_get_keys keys
++	keys="${keys##* }"
++	if [ -n "$keys" ]; then
++		echo "$keys"
++	else
++		echo "0"
++	fi
++}
++
++count_wifi_ap_assocdevice_obj() {
++	local i="$2"
++	local id="$3"
++	local j=1
++
++	local ifnames="$(ubus call api get '{"path":"/wireless/interfaces/status/'$id'"}' | \
++			 jsonfilter -e '@.http_body.data.ifname[*]')"
++
++	if [ -z "$ifnames" ]; then
++		ifnames="$(ubus call api get '{"path":"/wireless/interfaces/status/'$id'"}' | \
++			   jsonfilter -e '@.http_body.data.ifname')"
++		sub_entry_wifi_ap_assocdevice "$1" "$i" "$j" "$ifnames"
++	else
++		for ifname in $ifnames; do
++			sub_entry_wifi_ap_assocdevice "$1" "$i" "$j" "$ifname"
++			j=$((j + 1))
++		done
++	fi
++}
++
++sub_entry_wifi_ap_assocdevice() {
++	local i="$2"
++	local j="$3"
++	local ifname="$4"
++
++	case_param "$1" belongto "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j." && {
++		local iwinfo="$(ubus call iwinfo assoclist '{"device":"'$ifname'"}' | \
++				jsonfilter -e '@.results[0]')"
++		local mac="$(echo "$iwinfo" | jsonfilter -e '@.mac')"
++		local frequency="$(ubus call iwinfo info '{"device":"'$ifname'"}' | \
++				   jsonfilter -e '@.frequency')"
++		local ht="$(echo "$iwinfo" | jsonfilter -e '@.rx.ht')"
++		local vht="$(echo "$iwinfo" | jsonfilter -e '@.rx.vht')"
++		local he="$(echo "$iwinfo" | jsonfilter -e '@.rx.he')"
++		local eht="$(echo "$iwinfo" | jsonfilter -e '@.rx.eht')"
++		local authorized="$(echo "$iwinfo" | jsonfilter -e '@.authorized')"
++		local rx_rate="$(echo "$iwinfo" | jsonfilter -e '@.rx.rate')"
++		local tx_rate="$(echo "$iwinfo" | jsonfilter -e '@.tx.rate')"
++		local connected_time="$(echo "$iwinfo" | jsonfilter -e '@.connected_time')"
++		local signal_avg="$(echo "$iwinfo" | jsonfilter -e '@.signal_avg')"
++		local noise="$(echo "$iwinfo" | jsonfilter -e '@.noise')"
++		local rx_mhz="$(echo "$iwinfo" | jsonfilter -e '@.rx.mhz')"
++		local tx_mhz="$(echo "$iwinfo" | jsonfilter -e '@.tx.mhz')"
++		local tx_bytes="$(echo "$iwinfo" | jsonfilter -e '@.tx.bytes')"
++		local rx_bytes="$(echo "$iwinfo" | jsonfilter -e '@.rx.bytes')"
++		local tx_packets="$(echo "$iwinfo" | jsonfilter -e '@.tx.packets')"
++		local rx_packets="$(echo "$iwinfo" | jsonfilter -e '@.rx.packets')"
++
++		local operating_standard=""
++		if [ "$ht" = "true" ]; then
++			operating_standard="n"
++		elif [ "$vht" = "true" ]; then
++			operating_standard="ac"
++		elif [ "$he" = "true" ]; then
++			operating_standard="ax"
++		elif [ "$eht" = "true" ]; then
++			operating_standard="be"
++		elif [ "$(echo "$frequency" | cut -c1)" = "2" ]; then
++			# when everything is false on 2.4GHz
++			operating_standard="g"
++		elif [ "$(echo "$frequency" | cut -c1)" = "5" ]; then
++			# when everything is false on 5GHz
++			operating_standard="a"
++		fi
++
++		[ -n "$connected_time" ] && {
++			local now=$(date +%s)
++			connected_time=$((now - connected_time))
++			connected_time=$(date -u -d "@$connected_time" +"%Y-%m-%dT%H:%M:%SZ")
++		}
++
++		local max_bw="$rx_mhz"
++		[ -z "$max_bw" ] || [ "$max_bw" -lt "$tx_mhz" ] && max_bw="$tx_mhz"
++		if [ -z "$max_bw" ]; then
++			max_bw="Unknown"
++		else
++			max_bw="${max_bw}MHz"
++		fi
++
++		[ -z "$rx_rate" ] && rx_rate="0"
++		[ -z "$tx_rate" ] && tx_rate="0"
++		[ -z "$signal_avg" ] && signal_avg="0"
++		[ -z "$noise" ] && noise="0"
++		[ -z "$tx_bytes" ] && tx_bytes="0"
++		[ -z "$rx_bytes" ] && rx_bytes="0"
++		[ -z "$tx_packets" ] && tx_packets="0"
++		[ -z "$rx_packets" ] && rx_packets="0"
++
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j." "0"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.MACAddress" "0" \
++			"echo $mac" "" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.OperatingStandard" "0" \
++			"echo $operating_standard" "" "xsd:string"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.AuthenticationState" "0" \
++			"echo $authorized" "" "xsd:boolean"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.LastDataDownlinkRate" "0" \
++			"echo $rx_rate" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.LastDataUplinkRate" "0" \
++			"echo $tx_rate" "" "xsd:unsignedInt"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.AssociationTime" "0" \
++			"echo $connected_time" "" "xsd:dateTime"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.SignalStrength" "0" \
++			"echo $signal_avg" "" "xsd:int"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Noise" "0" \
++			"echo $noise" "" "xsd:int"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.MaxSupportedBandwidth" "0" \
++			"echo $max_bw" "" "xsd:string"
++		common_execute_method_obj "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats." "0"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.BytesSent" "0" \
++			"echo $tx_bytes" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.BytesReceived" "0" \
++			"echo $rx_bytes" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.PacketsSent" "0" \
++			"echo $tx_packets" "" "xsd:unsignedLong"
++		common_execute_method_param "$DMROOT.WiFi.AccessPoint.$i.AssociatedDevice.$j.Stats.PacketsReceived" "0" \
++			"echo $rx_packets" "" "xsd:unsignedLong"
++		return 0;
++	}
++	return $E_INVALID_PARAMETER_NAME;
++}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_hosts src/ext/openwrt/scripts/unused/device_hosts
 --- upstream/ext/openwrt/scripts/unused/device_hosts	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_hosts	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_hosts	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,205 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -5356,7 +7889,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_hosts() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_ip src/ext/openwrt/scripts/unused/device_ip
 --- upstream/ext/openwrt/scripts/unused/device_ip	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_ip	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_ip	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,139 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -5499,7 +8032,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_routing src/ext/openwrt/scripts/unused/device_routing
 --- upstream/ext/openwrt/scripts/unused/device_routing	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_routing	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_routing	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,368 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -5871,7 +8404,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_routing() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/device_users src/ext/openwrt/scripts/unused/device_users
 --- upstream/ext/openwrt/scripts/unused/device_users	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/device_users	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/device_users	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,142 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -6017,7 +8550,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_device_users() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/misc src/ext/openwrt/scripts/unused/misc
 --- upstream/ext/openwrt/scripts/unused/misc	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/misc	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/misc	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,42 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -6063,7 +8596,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +delete_object_misc() { return $E_INVALID_PARAMETER_NAME; }
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/owsip_voice_service src/ext/openwrt/scripts/unused/owsip_voice_service
 --- upstream/ext/openwrt/scripts/unused/owsip_voice_service	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/owsip_voice_service	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/owsip_voice_service	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,262 @@
 +#!/bin/sh
 +# Copyright (C) 2012 Luka Perkov <freecwmp@lukaperkov.net>
@@ -6329,14 +8862,14 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
 +}
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/ext/openwrt/scripts/unused/x_easycwmp_org src/ext/openwrt/scripts/unused/x_easycwmp_org
 --- upstream/ext/openwrt/scripts/unused/x_easycwmp_org	1970-01-01 00:00:00.000000000 +0000
-+++ src/ext/openwrt/scripts/unused/x_easycwmp_org	2026-02-09 09:48:32.000000000 +0000
++++ src/ext/openwrt/scripts/unused/x_easycwmp_org	2026-03-25 10:23:48.000000000 +0000
 @@ -0,0 +1,3 @@
 +#!/bin/sh
 +# Copyright (C) 2011 Luka Perkov <freecwmp@lukaperkov.net>
 +
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.c src/src/config.c
 --- upstream/src/config.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/config.c	2026-02-09 09:48:32.000000000 +0000
++++ src/src/config.c	2026-03-25 10:23:48.000000000 +0000
 @@ -15,6 +15,9 @@
  #include <unistd.h>
  #include <microxml.h> 
@@ -6418,7 +8951,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  						config->acs->ssl_verify = false;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/config.h src/src/config.h
 --- upstream/src/config.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/config.h	2026-02-09 09:48:32.000000000 +0000
++++ src/src/config.h	2026-03-25 10:23:48.000000000 +0000
 @@ -40,8 +40,12 @@
  	int  periodic_interval;
  	time_t periodic_time;
@@ -6434,7 +8967,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  struct local {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.c src/src/cwmp.c
 --- upstream/src/cwmp.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/cwmp.c	2026-02-09 09:48:32.000000000 +0000
++++ src/src/cwmp.c	2026-03-25 10:23:48.000000000 +0000
 @@ -70,7 +70,7 @@
  	uloop_timeout_cancel(&periodic_inform_timer);
  	if (config->acs->periodic_enable && config->acs->periodic_interval) {
@@ -6446,7 +8979,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		else {
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/cwmp.h src/src/cwmp.h
 --- upstream/src/cwmp.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/cwmp.h	2026-02-09 09:48:32.000000000 +0000
++++ src/src/cwmp.h	2026-03-25 10:23:48.000000000 +0000
 @@ -142,7 +142,7 @@
  };
  
@@ -6458,7 +8991,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  static void cwmp_do_inform(struct uloop_timeout *timeout);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/easycwmp.c src/src/easycwmp.c
 --- upstream/src/easycwmp.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/easycwmp.c	2026-02-09 09:48:32.000000000 +0000
++++ src/src/easycwmp.c	2026-03-25 10:23:48.000000000 +0000
 @@ -271,21 +271,10 @@
  				exit(EXIT_FAILURE);
  		}
@@ -6507,7 +9040,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	free(cwmp);
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/external.c src/src/external.c
 --- upstream/src/external.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/external.c	2026-02-09 09:48:32.000000000 +0000
++++ src/src/external.c	2026-03-25 10:23:48.000000000 +0000
 @@ -185,6 +185,8 @@
  
  int external_init()
@@ -6531,7 +9064,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  		argv[i++] = NULL;
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/external.h src/src/external.h
 --- upstream/src/external.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/external.h	2026-02-09 09:48:32.000000000 +0000
++++ src/src/external.h	2026-03-25 10:23:48.000000000 +0000
 @@ -14,7 +14,6 @@
  #define _EASYCWMP_EXTERNAL_H__
  #include <libubox/list.h>
@@ -6542,7 +9075,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  #define EXTERNAL_PROMPT "easycwmp>"
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/http.c src/src/http.c
 --- upstream/src/http.c	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/http.c	2026-02-09 09:48:32.000000000 +0000
++++ src/src/http.c	2026-03-25 10:23:48.000000000 +0000
 @@ -51,6 +51,8 @@
  	DD("url: %s\n", http_c.url);
  	if (config->acs->ssl_cert)
@@ -6572,7 +9105,7 @@ diff --recursive --unified --new-file --no-dereference --exclude .gitver upstrea
  	if (!config->acs->ssl_verify)
 diff --recursive --unified --new-file --no-dereference --exclude .gitver upstream/src/http.h src/src/http.h
 --- upstream/src/http.h	2019-09-26 13:02:11.000000000 +0000
-+++ src/src/http.h	2026-02-09 09:48:32.000000000 +0000
++++ src/src/http.h	2026-03-25 10:23:48.000000000 +0000
 @@ -18,7 +18,7 @@
  #include <libubox/uloop.h>
  #include <curl/curl.h>

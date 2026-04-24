@@ -5,7 +5,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=libticket_mutex
-PKG_SOURCE_VERSION:=7.22
+PKG_SOURCE_VERSION:=7.23
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-closed
 

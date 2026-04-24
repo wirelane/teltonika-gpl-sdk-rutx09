@@ -12,7 +12,7 @@ ubus:x:81:dlms_client,dnp3_client,dnp3_outstation,logd,mbus_client,modbus_client
 lock:x:98:admin,dfota,dot1x_server,mctl,opkg,preboot,uhttpd
 log:x:99:dnp3_outstation,gsm,logd,mobutils,modbus_server,mqtt_modbus_gateway,rpcd,rut_fota,sms_limit,uhttpd,juggler
 users:x:100:gsm,rut_fota,sim_switch,sshfs,uhttpd,dot1x_client
-network:x:101:chilli,dot1x_client,dot1x_server,easycwmp,gsm,hostblock,ip_blockd,ipsec,iwinfo,juggler,ledman,mdcollectd,mobutils,modbus_client,modbus_server,multiple_ap,opcua_server,preboot,sim_idle_protection,sim_switch,snmpd,uci,uhttpd,wireguard,gps,xl2tpd,pptpd,avl,smcroute,siteman
+network:x:101:chilli,dot1x_client,dot1x_server,easycwmp,gsm,hostblock,ip_blockd,ipsec,iwinfo,juggler,ledman,mdcollectd,mobutils,modbus_client,modbus_server,multiple_ap,opcua_server,preboot,sim_idle_protection,sim_switch,snmpd,uci,uhttpd,wireguard,gps,xl2tpd,pptpd,avl,smcroute,siteman,sstpc
 snmptrap:x:500:mobutils,uci,uhttpd
 opcua_client:x:501:ds,mobutils,uci,uhttpd
 sim_switch:x:502:gsm,mobutils,uci,uhttpd
@@ -50,7 +50,7 @@ modbus_server:x:533:mobutils,uci,uhttpd
 rpc-ping:x:534:
 port_eventsd:x:535:
 azure:x:537:mobutils,uci,uhttpd
-speedtest:x:538:mobutils,uhttpd
+speedtest:x:538:mobutils,uci,uhttpd
 sms_limit:x:539:uci
 minidlna:x:540:mobutils,uci,uhttpd
 telnetd:x:541:mobutils,uci,uhttpd
@@ -163,4 +163,5 @@ iec60870_server:x:652:uci,uhttpd
 siteman:x:654:uci,uhttpd
 sitemanc:x:655:uci,uhttpd
 smcroute:x:656:uci,uhttpd
+totp:x:657:uci,uhttpd
 nogroup:x:65534:

@@ -134,7 +134,7 @@ function OpkgPkgMulti:_handle_pkg_install()
 	end
 	local ok, err_code, msgs = self:_pkg_online_install()
 	if ok then
-		util.log_str("Package '%s' installed succesfully" % self.app_name)
+		util.log_str("Package '%s' installed successfully" % self.app_name)
 		self.type = PKG_TYPES.INSTALLED
 		if msgs then self:add_messages(msgs) end
 	else
@@ -149,7 +149,7 @@ function OpkgPkgMulti:_handle_pkg_remove()
 	end
 	local ok, err_code, depends = self:_pkg_remove()
 	if ok then
-		util.log_str("Package '%s' removed succesfully" % self.app_name)
+		util.log_str("Package '%s' removed successfully" % self.app_name)
 		return true
 	else
 		self:add_error({ code = err_code, error = o_utils.err_str(err_code), source = depends and "depends" or nil, value = depends })
@@ -160,7 +160,7 @@ end
 function OpkgPkgMulti:_handle_pkg_upgrade()
 	local ok, err_code, msgs = self:_pkg_upgrade()
 	if ok then
-		util.perror("Package '%s' updated succesfully" % self.app_name)
+		util.perror("Package '%s' updated successfully" % self.app_name)
 		self.type = PKG_TYPES.INSTALLED
 		if msgs then self:add_messages(msgs) end
 	else

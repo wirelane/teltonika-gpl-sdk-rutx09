@@ -8,20 +8,18 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=net-snmp
-PKG_VERSION:=5.9.1
+PKG_VERSION:=5.9.5.2
 PKG_RELEASE:=$(AUTORELEASE)
 
-PKG_HASH:=eb7fd4a44de6cddbffd9a92a85ad1309e5c1054fb9d5a7dd93079c8953f48c3f
+PKG_HASH:=767407e160d02a4525079e91e40f7773
 PKG_MAINTAINER:=Stijn Tintel <stijn@linux-ipv6.be>
 PKG_LICENSE:=BSD-3-Clause-Clear
 PKG_LICENSE_FILES:=COPYING
 PKG_CPE_ID:=cpe:/a:net-snmp:net-snmp
 
 PKG_SOURCE_URL:=@SF/$(PKG_NAME)
-PKG_SOURCE_VERSION:=5.9.1
+PKG_SOURCE_VERSION:=5.9.5.2
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_SOURCE_VERSION).tar.gz
-
-PKG_FIXUP:=autoreconf
 
 include $(INCLUDE_DIR)/package.mk
 
@@ -154,7 +152,6 @@ SNMP_MIB_MODULES_INCLUDED = \
 	snmpv3/usmStats \
 	snmpv3/usmUser \
 	tunnel \
-	ucd-snmp/disk \
 	ucd-snmp/dlmod \
 	ucd-snmp/extensible \
 	ucd-snmp/loadave \
@@ -188,9 +185,9 @@ SNMP_TRANSPORTS_INCLUDED = Callback UDP Unix
 
 SNMP_TRANSPORTS_EXCLUDED = TCP TCPIPv6
 
-TARGET_CFLAGS += $(FPIC) -DHAVE_AES=1
+TARGET_CFLAGS += $(FPIC) -DHAVE_AES=1 -Wno-error=declaration-after-statement
 TARGET_CPPFLAGS += -I$(STAGING_DIR)/usr/include/libnl-tiny
-TARGET_LDFLAGS += -L$(TOOLCHAIN_DIR)/usr/lib -lubus -lubox
+TARGET_LDFLAGS += -L$(TOOLCHAIN_DIR)/usr/lib -lubus -lubox -lnl-tiny
 
 CONFIGURE_ARGS += \
 	--enable-mfd-rewrites \
@@ -224,7 +221,10 @@ CONFIGURE_ARGS += \
 
 CONFIGURE_VARS += \
 	ac_cv_header_netlink_netlink_h=yes \
-	netsnmp_cv_func_nl_connect_LIBS=-lnl-tiny \
+	netsnmp_cv_func_nl_connect_LMIBLIBS=-lnl-tiny \
+	netsnmp_cv_func_rtnl_link_alloc_cache_LMIBLIBS=no \
+	LIBNL3_CFLAGS=-I$(STAGING_DIR)/usr/include/libnl-tiny \
+	LIBNL3_LIBS=-lnl-tiny \
 
 ifeq ($(CONFIG_IPV6),y)
 SNMP_TRANSPORTS_INCLUDED+= UDPIPv6

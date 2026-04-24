@@ -203,7 +203,7 @@
 +	char buf[MSG_SIZE] = {0};
 +#endif /* CONFIG_DEBUG_FILE */
 +	int write_log = level_flags & MSG_LOGFILE;
-+	int level = ~(MSG_LOGFILE) & level_flags;
++	int level = ~MSG_LOGFILE & level_flags;
  	if (level >= wpa_debug_level) {
  #ifdef CONFIG_ANDROID_LOG
  		va_start(ap, fmt);
@@ -445,7 +445,7 @@
  	MSG_EXCESSIVE, MSG_MSGDUMP, MSG_DEBUG, MSG_INFO, MSG_WARNING, MSG_ERROR
  };
  
-+#define MSG_LOGFILE 1 << 3
++#define MSG_LOGFILE (1 << 3)
 +
  #ifdef CONFIG_NO_STDOUT_DEBUG
  

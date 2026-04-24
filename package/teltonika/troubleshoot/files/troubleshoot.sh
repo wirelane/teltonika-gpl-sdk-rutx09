@@ -81,8 +81,8 @@ secure_tmp_config() {
 secure_config() {
 	local option value
 	local lines="$(uci -c "$ROOT_DIR/etc/config" show |
-		grep -iE "(\.)(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey)(.*)=" |
-		grep -iE "((([A-Za-z0-9]|\_|\@|\[|\]|\-)*\.){2})(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey)(.*)=" |
+		grep -iE "(\.)(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey|pkcs12_decrypt)(.*)=" |
+		grep -iE "((([A-Za-z0-9]|\_|\@|\[|\]|\-)*\.){2})(.*)(pass|psw|pasw|psv|pasv|key|secret|username|id_scope|registration_id|x509certificate|x509privatekey|pkcs12_decrypt)(.*)=" |
 		grep -viE "(multiple_secrets|keyexchange|passthrough)")"
 	# local tmp_file=$(generate_random_str 64)
 
@@ -250,7 +250,7 @@ systemlog_hook() {
 	troubleshoot_add_log "$(dmesg)" "$log_file"
 
 	config_load system
-	config_get log_flash_file system "log_file" ""
+	config_get log_flash_file log "log_file" ""
 
 	troubleshoot_init_log "Logread" "$log_file"
 	if [ -n "$log_flash_file" ] && [ -f "$log_flash_file" ] ; then
@@ -296,17 +296,6 @@ servicelogs_hook() {
 			cat "$newest_log" >> "$outfile"
 		fi
 	done
-}
-
-cloud_solutions_hook() {
-	local log_file="${PACK_DIR}cloud_solutions.log"
-
-	troubleshoot_init_log "CLOUD SOLUTIONS INFO" "$log_file"
-
-	# RMS
-	troubleshoot_add_log "RMS" "$log_file"
-	rms_ubus_res=$(ubus call rms get_status 2>&1)
-	printf "%s:\n%s\n\n%s\n" "rms get_status" "$rms_ubus_res" >> "$log_file"
 }
 
 services_secure_passwords() {
@@ -450,7 +439,6 @@ troubleshoot_hook_init wifi_hook
 troubleshoot_hook_init services_hook "$1"
 troubleshoot_hook_init systemlog_hook
 troubleshoot_hook_init servicelogs_hook
-troubleshoot_hook_init cloud_solutions_hook
 troubleshoot_hook_init package_manager_hook
 troubleshoot_hook_init serial_hook
 

@@ -10,7 +10,7 @@ menu "Advanced options"
 
 config PACKAGE_DATA_SENDER_COLLECTIONS
     int "Maximum number of collections supported"
-    default 10 
+    default 20
     help
         Maximum number of collections supported
 

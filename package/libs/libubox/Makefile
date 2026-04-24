@@ -16,7 +16,7 @@ PKG_LICENSE_FILES:=uloop.h
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 
-PKG_BUILD_DEPENDS:=lua
+PKG_BUILD_DEPENDS:=luajit2
 HOST_BUILD_DEPENDS:=libjson-c/host
 HOST_BUILD_PREFIX:=$(STAGING_DIR_HOST)
 
@@ -62,7 +62,7 @@ endef
 define Package/libubox-lua
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libubox +liblua
+  DEPENDS:=+libubox +luajit2
   TITLE:=Lua binding for the OpenWrt Basic utility library
 endef
 

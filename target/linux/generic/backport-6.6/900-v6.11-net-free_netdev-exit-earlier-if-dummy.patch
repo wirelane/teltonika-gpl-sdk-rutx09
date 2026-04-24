@@ -23,7 +23,7 @@ Signed-off-by: David S. Miller <davem@davemloft.net>
 
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -11046,7 +11046,8 @@ void free_netdev(struct net_device *dev)
+@@ -11059,7 +11059,8 @@ void free_netdev(struct net_device *dev)
  	netdev_free_phy_link_topology(dev);
  
  	/*  Compatibility with error handling in drivers */

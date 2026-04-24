@@ -1,7 +1,6 @@
-Index: net-snmp-5.9.1/agent/mibgroup/mibII/system_mib.c
 ===================================================================
---- net-snmp-5.9.1.orig/agent/mibgroup/mibII/system_mib.c
-+++ net-snmp-5.9.1/agent/mibgroup/mibII/system_mib.c
+--- a/agent/mibgroup/mibII/system_mib.c
++++ b/agent/mibgroup/mibII/system_mib.c
 @@ -41,6 +41,24 @@
  #include <winerror.h>
  #endif
@@ -401,10 +400,9 @@ Index: net-snmp-5.9.1/agent/mibgroup/mibII/system_mib.c
  }
  
          /*********************
-Index: net-snmp-5.9.1/agent/mibgroup/mibII/updates.c
 ===================================================================
---- net-snmp-5.9.1.orig/agent/mibgroup/mibII/updates.c
-+++ net-snmp-5.9.1/agent/mibgroup/mibII/updates.c
+--- a/agent/mibgroup/mibII/updates.c
++++ b/agent/mibgroup/mibII/updates.c
 @@ -15,7 +15,7 @@ handle_updates(netsnmp_mib_handler *hand
      if (reqinfo->mode == MODE_SET_RESERVE1 && *set < 0)
          netsnmp_request_set_error(requests, SNMP_ERR_NOTWRITABLE);
@@ -414,10 +412,9 @@ Index: net-snmp-5.9.1/agent/mibgroup/mibII/updates.c
          snmp_store_needed(reginfo->handlerName);
      }
  #endif /* NETSNMP_NO_WRITE_SUPPORT */
-Index: net-snmp-5.9.1/agent/mibgroup/mibII/updates.h
 ===================================================================
---- net-snmp-5.9.1.orig/agent/mibgroup/mibII/updates.h
-+++ net-snmp-5.9.1/agent/mibgroup/mibII/updates.h
+--- a/agent/mibgroup/mibII/updates.h
++++ b/agent/mibgroup/mibII/updates.h
 @@ -8,6 +8,13 @@
   * netsnmp_create_handler_registration.
   */

@@ -1,17 +1,126 @@
-# 2026-04-08 00.07.22.1
+# 2026-04-21 00.07.23
+
+### New
+
+* Kernel: enabled Multipath TCP (MPTCP) support in the kernel configuration (ID: 33143)
+* Mobile: added "iot.melita.io" APN for operator "Melita" into APN database (ID: 32599)
+* Mobile: added "web.melita" APN for operator "Melita" into APN database (ID: 32599)
+* Mobile: added network slicing static configuration support for RUTC50, RUTC54, RUTM50, RUT271, RUT971, RUTM52, RUTM54, RUTM55, RUTM56, RUTM59, RUTP50, RUTP52, RUTP54, TRB500, TRB501, CAP700, OTD500, OTD501, RUTX50, ATRM50, RUT976, RUTM20, RUTM30 (ID: 13246)
+* Network: added DS-lite protocol support for Router family (ID: 31558)
+* SSH: added 2FA support (ID: 11195)
+* TR-069: added Device.Ethernet.Interface object based on "TR-181 Issue 2 Amendment 20", with implementation-specific deviations (ID: 32612)
+* TR-069: added Device.Hosts.Host object based on "TR-181 Issue 2 Amendment 20", with implementation-specific deviations (ID: 32612)
+* TR-069: added Device.NAT.PortMapping object based on "TR-181 Issue 2 Amendment 20", with implementation-specific deviations (ID: 32612)
+* WebUI: added 2FA support (ID: 11195)
+* WebUI: added dark theme (ID: 4207)
+* WebUI: added Single Sign-On support for Router family (ID: 25343)
+
+### Improvements
+
+* Access Control: removed unused Paired devices table from the Device Pairing tab for TAP family (ID: 32971)
+* API Core: replaced Lua 5.1 with LuaJIT 2.1 (ID: 14909)
+* Auto Reboot: updated abbreviated month and day names to full names for improved translation support (ID: 32824)
+* Bluetooth: improved Bluetooth scan button tooltip text for clarity (ID: 32013)
+* Data to Server: added wildcard for mqtt topics (ID: 32279)
+* DMVPN: updated "Lifetime" and "IKE lifetime" fields and validations (ID: 32171)
+* Event juggler: added "Signal quality" event (ID: 32237)
+* Firewall: improved NAT offloading validation message in API (ID: 27401)
+* I/O Status: added a switch component to the I/O Status table State column for state configuration (ID: 31847)
+* IPsec: added warning messages for insecure proposal options (ID: 33028)
+* MBus Client: improved MBus delete button tooltip text for clarity (ID: 32013)
+* Mobile: added support for external antenna switching for CAP700 (ID: 29047)
+* Mobile: improved PAP/CHAP authentication support for TRB247 (ID: 26421)
+* Modbus Client: increased connection delay limits to 10s (10000ms) (ID: 33722)
+* Modbus TCP over Serial Gateway: added configurable inter-frame timeout for serial communication (ID: 31695)
+* Network usage: improved "Total usage" data deletion funcionality (ID: 33812)
+* Realtime Traffic: improved performance when switching between time periods (ID: 27111)
+* SNMP: improved GSM signal strength trap with condition 'Less than', 'More than' and 'Range' triggers (ID: 22454)
+* SNMP: removed Events log signal strength trap - GSM signal strength trap should be used instead (ID: 22454)
+* SSTP: added connection status monitoring (ID: 6590)
+* Static Routes: added an enable switch to allow disabling routes (ID: 32484)
+* System Users: improved validation to allow usernames starting with numbers (ID: 33711)
+* TR-069: improved Device.WiFi.AccessPoint object based on "TR-181 Issue 2 Amendment 20", with implementation-specific deviations (ID: 32612)
+* TR-069: updated secure connection hint to inform that TLS works only when HTTPS is used (ID: 33304)
+* Wireless: added disconnect reason to hostapd log (ID: 32504)
+* Wireless: added the ability to kick and block clients from the Status -> Wireless -> Interfaces page (ID: 15686)
+* Wireless: changed maximum available client count to 64 per radio for CAP family (ID: 32393)
 
 ### Fix
 
-* Backup: fixed ability to reset user password to device default password (ID: 34133)
-* Backup: fixed custom uci-default script execution (ID: 34133)
-* IEC 60870-5 Client: fixed missing serial support validation checks (ID: 33892)
-* IEC 60870-5 Server: fixed package dependency issues and missing serial support validation checks (ID: 33892)
-* Modbus Client: fixed test requests due to missing broadcast option (ID: 34100)
-* RMS: fixed configuration permission issues that caused connection problems (ID: 32001)
+* Access Control: fixed "Enable" toggle in the Device pairing tab for TAP family (ID: 32971)
+* Access Control: fixed basic authentication requests leaking memory (ID: 33833)
+* BFD: fixed package re-installation after updating with keep settings (ID: 34497)
+* Bluetooth: fixed database error in the API endpoint for database entries (ID: 33016)
+* Data to Server: fixed a rare case where stale data was sent via FTP after configuration changes (ID: 32271)
+* Data to Server: fixed button positioning on smaller screens in configuration creation modal (ID: 29654)
+* Data to Server: fixed FTP upload when the selected directory doesn't exist - now it is created if the FTP server allows it (ID: 32271)
+* Data to Server: fixed incorrect date formatting in GPS input plugin (ID: 32850)
+* DLMS: fixed database error in the API endpoint for database entries (ID: 33016)
+* DNP3 Client: fixed database error in the API endpoint for database entries (ID: 33016)
+* Email to SMS: fixed process hang in some rare cases (ID: 31145)
+* GPS: fixed segmentation fault in NTP GPS service after configuration update (ID: 32602)
+* GPS: fixed the list of available NMEA sentences returned by the API for TRB256 (ID: 29309)
+* Hotspot: fixed an issue where a hotspot instance appeared to be assigned to the wrong theme (ID: 33796)
+* I/O Status: fixed digital input/output pin re-initialization bug after using pulse counter (ID: 32632)
+* I/O Status: fixed mismatched I/O pin names in the table and legend (ID: 32591)
+* IEC 60870-5 Client: fixed common address validation on the client side (ID: 32345)
+* IEC 60870-5 Client: fixed database error in the API endpoint for database entries (ID: 33016)
+* IEC 60870-5 Server: fixed IEC60870-5 Server should not restart after disabling WAN access (ID: 31254)
+* Impulse Counter: fixed Impulse Counter add button tooltip to show a hint when all available options have been selected (ID: 32013)
+* IPsec: fixed hint overlap (ID: 33930)
+* L2TP: fixed validation requirements for client and server configurations (ID: 32414)
+* MBus Client: fixed database error in the API endpoint for database entries (ID: 33016)
+* Mobile Utilities: fixed OpenVPN status SMS message (ID: 33152)
+* Mobile: fixed a rare mobile application crash case when changing APN (ID: 34184)
+* Mobile: fixed DNS address parsing during mobile network interface initialization for TRB247 (ID: 33413)
+* Modbus Client: fixed database error in the API endpoint for database entries (ID: 33016)
+* Modbus Client: fixed modbus client request configuration actions overflowing (ID: 33547)
+* Modbus Client: fixed Modbus test button tooltips to display hints when testing (ID: 32013)
+* MPLS: fixed package re-installation after updating with keep settings (ID: 34497)
+* Network: fixed an issue where wireless mesh devices were lost after changing the Management VLAN for TAP family (ID: 32309)
+* Network: fixed an issue with wireless interface VLAN migration when changing the Management VLAN for TAP family (ID: 32309)
+* Network: fixed firewall zone select not showing VPN networks in LAN and WAN pages for Router family (ID: 29540)
+* Network: fixed interface deletion when page is not fully loaded for Router family (ID: 29496)
+* Network: fixed protocol validation for LAN interfaces in API (ID: 28921)
+* NTP Client: fixed unnecessary service restart when network interface changes state (ID: 32691)
+* OPC UA Client: fixed database error in the API endpoint for database entries (ID: 33016)
+* OPC UA Server: fixed error status not displaying messages (ID: 33158)
+* OpenConnect: fixed hint overlap (ID: 33930)
+* OpenVPN: fixed hint overlap (ID: 33930)
+* Package Manager: fixed the installation of backup archive packages in cases of low free flash space (ID: 33220)
+* Ports Settings: fixed being able to choose different link duplex mode when hardware doesn't allow (ID: 31370)
+* QOS: fixed an issue where settings were not correctly applied after saving (ID: 33417)
+* QOS: fixed connectivity issues when QoS is enabled (ID: 32514)
+* Realtime Traffic: fixed multiple plot rendering bugs related to daylight saving transitions (ID: 27111)
+* SMS Utilities: fixed minor API bugs (ID: 33204)
+* SNMP: fixed minor webui validation bug (ID: 33298)
+* TR-069: fixed OUI setting now it's dynamically set (ID: 25701)
+* Wireless: fixed DFS state handling after CAC end for RUTM family, RUTP family, RUTC family, OTD164, ATRM family (ID: 32686)
+* Wireless: fixed driver deadlock on wireless interface deinit with high client count for CAP family (ID: 32393)
+* Wireless: fixed hostapd "no buffer space available" error with multiple SSIDs (ID: 25102)
+* Wireless: fixed possible wifi firmware crash on wireless interface deinit for CAP family (ID: 32393)
+* Wireless: fixed SSID deletion when page is not fully loaded (ID: 29496)
+
+### CVE Patches
+
+* CVE-2025-13837 - 2.1 (LOW) (ID: 33713)
+* CVE-2025-61099 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61100 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61101 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61102 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61103 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61104 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61105 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61106 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2025-61107 - 7.5 (HIGH) for Router family (ID: 29133)
+* CVE-2026-30874 - 1.8 (LOW) (ID: 33794)
 
 ### Updates
 
-* ustream-ssl: updated version to  2026-03-01 (ID: 34092)
+* cURL: updated version to  8.19.0 (ID: 33468)
+* Kernel: updated version to  5.15.200 for TRB2M family, RUT14X family, OTD140, OTD144, RUT2M family, RUT9M family, RUT30X family, RUT36X family, TAP100, DAP family, RUTE family (ID: 7140)
+* Kernel: updated version to  6.6.126 for ATRM family, OTD500, OTD501, RUTX family, RUTM family, TAP200, TAP400, OTD164, RUTC family, RUTP family (ID: 7140)
+* Net-SNMP: updated version to  5.9.5.2 for Router family (ID: 32840)
 
 # 2026-03-19 00.07.22
 
@@ -153,6 +262,53 @@
 * ovpn-dco: updated version to  0.2.20251017 for Router family, TAP200 (ID: 31407)
 * Tailscale: updated version to  1.92.3 (ID: 31693)
 * wireless-regdb: updated version to  2026.02.04 (ID: 32399)
+
+# 2026-03-20 00.07.21.3
+
+### Fix
+
+* Backup: fixed eSIM interface generation after uploading a backup (ID: 33762)
+* Reset Settings: fixed reset not responding (ID: 33322)
+* Wireless: fixed occasional client disconnections in busy environment for RUTX family (ID: 31817)
+
+# 2026-03-03 00.07.21.2
+
+### New
+
+* Mobile: added eSIM activation through proxy server (ID: 31477)
+
+### Improvements
+
+* Site manager: added /api/site_manager/status endpoint for TAP family (ID: 32870)
+* Site manager: added access control loss warning for Router family (ID: 32870)
+* Site manager: added configurable DHCP option for client discovery (ID: 32835)
+
+### Fix
+
+* Data to Server: fixed memory leak when using IEC 60870 5 as input and using output with custom format (ID: 33129)
+* IPsec: fixed IPsec data going through WWAN after adding WWAN hardware offload for CAP family (ID: 32771)
+* Network: fixed an edge-case network hang after device reboot (ID: 33068)
+* USB: fixed rs232 flow control, device was still sending data with cts asserted for TRB2M family (ID: 29639)
+
+# 2026-02-25 00.07.21.1
+
+### Improvements
+
+* Input/Output: changed how voltage is gotten from modems ADC for TRB2M family (ID: 32306)
+
+### Fix
+
+* Kernel: fixed certain devices failing to boot for TRB2M family, TAP100, RUTE family, RUT9M family, RUT36X family, RUT30X family, RUT2M family, RUT14X family, OTD144, OTD140, DAP family (ID: 33007)
+* Mobile: fixed data connection restart loop issue for RUTM51, RUTC51, RUTM31 (ID: 32341)
+* Mobile: fixed secondary modem initialization after a restart for RUTM56, RUTM52 (ID: 32486)
+* Modbus Client: fixed missing parameters preventing testing of API-created requests in WebUI for TRB1 family, TRB2M family, TRB5 family, CAP family, OTD family (ID: 31951)
+* Site manager: fixed missing config files in SDK (ID: 32839)
+
+# 2026-02-18 00.07.20.6
+
+### Fix
+
+* Mobile: fixed secondary modem initialization after a restart for RUTM56, RUTM52 (ID: 32764)
 
 # 2026-02-13 00.07.21
 

@@ -33,7 +33,6 @@ HW_INTERFACE_SIM_HOLDERS:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, external SIM 
 HW_INTERFACE_SIM_TRAY:=x SIM slots (Mini SIM - 2FF), 1.8 V/3 V, double stacked SIM tray
 HW_INTERFACE_SIM_TRAY_NANO:=x SIM card (Nano SIM – 4FF), 1.8 V/3 V, SIM tray
 HW_INTERFACE_USB:=x USB A port for external devices
-HW_INTERFACE_RS232_DB9:=x DB9 socket
 HW_INTERFACE_RS232_4PIN:=4-pin in 16-pin terminal block (TX, RX, RTS, CTS)
 HW_INTERFACE_RS232_6PIN:=x 6-pin industrial socket
 HW_INTERFACE_RS485_4PIN:=4-pin in 16-pin terminal block (D+, D-, R+, R-)
@@ -54,19 +53,16 @@ HW_OUTPUT_DO_50V:=x Digital Output, Open collector output, max output 50 V, 300 
 # usb
 HW_USB_2_DATA_RATE:=USB 2.0
 HW_USB_3_DATA_RATE:=USB 3.0
-HW_USB_APPLICATIONS:=Samba share, USB-to-serial
 HW_USB_EXTERNAL_DEV:=Possibility to connect external HDD, flash drive, printer, USB-serial adapter
 HW_USB_STORAGE_FORMATS:=FAT, FAT32, exFAT, NTFS (read-only), ext2, ext3, ext4
 
 # SD card
 HW_SD_PHYSICAL_SIZE:=Micro SD
-HW_SD_APLICATIONS:=Samba share, Storage Memory Expansion, DLNA
 HW_SD_CAPACITY:=Up to 2 TB
 HW_SD_STORAGE_FORMATS:=FAT32, NTFS, ext2, ext3, ext4
 
 #serial
-HW_SERIAL_RS232:=DB9 connector, RS232 (with RTS, CTS flow control)
-HW_SERIAL_RS232_FLOW:=6-pin connector, RS232 (no flow control). 300 to 230400 baud rate
+HW_SERIAL_RS232_FLOW:=6-pin connector, RS232 (rts/cts xon/xoff). 300 to 230400 baud rate
 HW_SERIAL_RS485_HALF:=RS485 Half Duplex (2 wires). 300-2000000 baud rate
 HW_SERIAL_RS485:=RS485 Full Duplex (4 wires) and Half Duplex (2 wires). 300-115200 baud rate
 
@@ -126,8 +122,8 @@ HW_WIFI_512_USERS:=Up to 512 simultaneous connections
 # power coonector
 HW_POWER_CONNECTOR_RJ45:=RJ45 Socket
 HW_POWER_CONNECTOR_16PIN:=2-pin in 16-pin industrial terminal block
-HW_POWER_CONNECTOR_2PIN:=2-pin industrial DC power socket
-HW_POWER_CONNECTOR_4PIN:=4-pin industrial DC power socket
+HW_POWER_CONNECTOR_2PIN:=2-pin industrial DC power connector
+HW_POWER_CONNECTOR_4PIN:=4-pin industrial DC power connector
 HW_POWER_CONNECTOR_3PIN:=3-pos plugable terminal block
 
 # power voltage range

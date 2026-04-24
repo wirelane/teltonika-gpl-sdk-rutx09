@@ -28,7 +28,7 @@ define Package/libtpm2_importer
 	CATEGORY:=Libraries
 	TITLE:=RUTOS TPM Importer library
 	ABI_VERSION:=$(PKG_ABI_VERSION)
-	DEPENDS:=libopenssl
+	DEPENDS:=+libopenssl
 endef
 
 define Package/libtpm2_importer/description

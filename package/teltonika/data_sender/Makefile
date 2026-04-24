@@ -4,7 +4,7 @@ include $(INCLUDE_DIR)/download.mk
 PKG_NAME:=data-sender
 PKG_RELEASE=1
 
-PKG_SOURCE_VERSION:=1.25
+PKG_SOURCE_VERSION:=1.26.1
 
 PKG_FIXUP:=autoreconf
 
@@ -24,7 +24,7 @@ endef
 define Package/data-sender
   $(call Package/data-sender/Default)
   DEPENDS:=+libuci +libtlt-logger +libubox +libblobmsg-json +libubus +libjson-c \
-  		+TPM_SUPPORT:libtpm2_importer $(DS_DEPS)
+	+TPM_SUPPORT:libtpm2_importer $(DS_DEPS) +libparam
   TITLE:=Data sender daemon by Teltonika
   MENU:=1
   USERID:=ds=530:ds=530
@@ -79,17 +79,17 @@ $(eval $(call RegisterPlugin,sms-out,+libgsm,Output plugin for sending data over
 $(eval $(call RegisterPlugin,smtp,+libcurl +libuci +@LIBCURL_SMTP,Output plugin for sending data over SMTP))
 $(eval $(call RegisterPlugin,nflog,+libnetfilter-log +libxtables,Input plugin for NFLOG))
 $(eval $(call RegisterPlugin,eventlog,,Input plugin for events log))
-$(eval $(call RegisterPlugin,lua-in,+liblua,Input plugin for custom scripts))
-$(eval $(call RegisterPlugin,lua-out,+liblua,Output plugin for custom scripts))
+$(eval $(call RegisterPlugin,lua-in,+luajit2,Input plugin for custom scripts))
+$(eval $(call RegisterPlugin,lua-out,+luajit2,Output plugin for custom scripts))
 $(eval $(call RegisterPlugin,ftp,+libcurl,Output plugin for sending data over FTP))
 $(eval $(call RegisterPlugin,base,,Base input plugin))
-$(eval $(call RegisterPlugin,lua_format,+liblua,Output plugin for custom formating))
+$(eval $(call RegisterPlugin,lua_format,+luajit2,Output plugin for custom formating))
 $(eval $(call RegisterPlugin,telegram,+libcurl +libopenssl,Output plugin for sending data over Telegram))
 $(eval $(call RegisterPlugin,ubus,,Output plugin for sending data over UBUS))
 $(eval $(call RegisterPlugin,file,,Output plugin for writing data to a file))
 $(eval $(call RegisterPlugin,dlms,+libsqlite3,Input plugin for M-Bus data gathering))
 $(eval $(call RegisterPlugin,mqtt-in,+libmosquitto,Input plugin for subscribing MQTT data))
-$(eval $(call RegisterPlugin,lua_filter,+liblua,Filter plugin for LUA scripts))
+$(eval $(call RegisterPlugin,lua_filter,+luajit2,Filter plugin for LUA scripts))
 $(eval $(call RegisterPlugin,cmp,,Filter plugin for data comparison))
 $(eval $(call RegisterPlugin,stdin,,Input plugin for reading data from stdin))
 $(eval $(call RegisterPlugin,stdout,,Output plugin for writing data to stdout))

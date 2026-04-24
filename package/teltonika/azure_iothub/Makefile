@@ -2,10 +2,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=azure_iothub
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-08
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=3.9
+PKG_SOURCE_VERSION:=3.10
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -17,7 +17,7 @@ define Package/azure_iothub
 	SECTION:=base
 	CATEGORY:=Base system
 	DEPENDS:=+libc +libuci +libubus +libblobmsg-json +libtlt-logger \
-		 +libubox +libazure-iot-sdk-c +libmnfinfo +liblua +libtlt_uci \
+		 +libubox +libazure-iot-sdk-c +libmnfinfo +luajit2 +libtlt_uci \
 		 +libapi +TPM_SUPPORT:libtpm2_importer
 	TITLE:=Azure IoT Hub client
 	USERID:=azure=537:azure=537
@@ -33,6 +33,7 @@ define Package/azure_iothub/conffiles
 endef
 
 TARGET_CFLAGS += $(if $(CONFIG_TPM_SUPPORT),-DAZ_TPM_SUPPORT)
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/luajit-2.1
 
 define Build/InstallDev
 	$(INSTALL_DIR) $(STAGING_DIR)/usr/include/

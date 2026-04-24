@@ -31,7 +31,7 @@ setup_config() {
 	config_get auth_chap "$1" auth_chap "1"
 	config_get auth_pap "$1" auth_pap "0"
 	config_get auth_mschap2 "$1" auth_mschap2 "1"
-	config_get chap "$section" chap
+	config_get chap "$section" chap "0"
 	config_get auth "$section" auth
 	config_get port "$section" port
 

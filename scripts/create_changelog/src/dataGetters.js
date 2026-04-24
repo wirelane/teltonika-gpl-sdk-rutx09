@@ -158,7 +158,8 @@ module.exports = {
       { type: 'hw', name: 'is_gateway', value: false },
       { type: 'hw', name: 'is_gateway' },
       { type: 'hw', name: 'xfrm-offload' },
-      { type: 'hw', name: 'xfrm-offload', value: false }
+      { type: 'hw', name: 'xfrm-offload', value: false },
+      { type: 'hw', name: 'hw_nat' },
     ]
   },
   /** @return {Record<string, string>} */

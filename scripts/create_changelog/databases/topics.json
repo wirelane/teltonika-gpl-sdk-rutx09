@@ -1,5 +1,16 @@
 [
   {
+    "category": "Network",
+    "name": "MPLS",
+    "depends": [
+      {
+        "type": "hw",
+        "name": "is_access_point",
+        "value": false
+      }
+    ]
+  },
+  {
     "category": "System",
     "name": "Integrity",
     "depends": []
@@ -738,7 +749,7 @@
     "depends": [
       {
         "type": "hw",
-        "name": "serial_usb"
+        "name": "rs485"
       }
     ]
   },

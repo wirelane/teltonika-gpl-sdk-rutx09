@@ -6,10 +6,10 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=cmStreamApp
-PKG_VERSION:=2026-02-11
+PKG_VERSION:=2026-04-08
 PKG_RELEASE:=1
 
-PKG_SOURCE_VERSION:=2.10
+PKG_SOURCE_VERSION:=2.11
 PKG_SOURCE_SUBDIR:=$(PKG_NAME)-$(PKG_SOURCE_VERSION)-$(PKG_VERSION)
 PKG_SOURCE:=$(PKG_SOURCE_SUBDIR).tar.gz
 
@@ -17,12 +17,14 @@ PKG_LICENSE:=Teltonika-closed
 
 include $(INCLUDE_DIR)/package.mk
 
+TARGET_CFLAGS += -I$(STAGING_DIR)/usr/include/luajit-2.1
+
 define Package/cmStreamApp
 	SECTION:=net
 	CATEGORY:=Network
 	TITLE:=Cumulocity - Cloud of Things stream application.
 	DEPENDS:=+libmosquitto +libtlt-logger +libtlt_uci +libuci \
-		 +libmnfinfo +libubus +libubox +libcurl +MOBILE_SUPPORT:libgsm +liblua
+		 +libmnfinfo +libubus +libubox +libcurl +MOBILE_SUPPORT:libgsm +luajit2
 	USERID:=iot=503:iot=503
 endef
 

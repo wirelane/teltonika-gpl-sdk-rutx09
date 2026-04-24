@@ -1,0 +1,83 @@
+From: Andrius Burtilius <andrius.burtilius@teltonika.lt>
+Date: Tue, 17 Feb 2026 08:22:08 +0200
+Subject: [PATCH] mac80211: add workaround to act on radar_enabled changes in chanctx channel change emulation path
+
+DFS state handling is broken for non-chanctx wireless drivers after commit
+0a44dfc070749514b804ccac0b1fd38718f7daa1. Add workaround to act on
+radar_enabled changes, call drv_config with IEEE80211_CONF_CHANGE_CHANNEL flag.
+This should be probably fixed in mt76 drivers
+
+Signed-off-by: Andrius Burtilius <andrius.burtilius@teltonika.lt>
+---
+
+ net/mac80211/main.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 40080dacd84..83f7e6f4b38 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -230,7 +230,7 @@
+ 
+ /* for scanning, offchannel and chanctx emulation only */
+ static int _ieee80211_hw_conf_chan(struct ieee80211_local *local,
+-				   struct ieee80211_chanctx_conf *ctx)
++				   struct ieee80211_chanctx_conf *ctx, u32 ctx_changed)
+ {
+ 	u32 changed;
+ 
+@@ -238,6 +238,8 @@
+ 		return 0;
+ 
+ 	changed = ieee80211_calc_hw_conf_chan(local, ctx);
++	if (ctx_changed & IEEE80211_CHANCTX_CHANGE_RADAR)
++		changed |= IEEE80211_CONF_CHANGE_CHANNEL;
+ 	if (!changed)
+ 		return 0;
+ 
+@@ -252,7 +254,7 @@
+ 				       struct ieee80211_chanctx,
+ 				       list);
+ 
+-	return _ieee80211_hw_conf_chan(local, ctx ? &ctx->conf : NULL);
++	return _ieee80211_hw_conf_chan(local, ctx ? &ctx->conf : NULL, 0);
+ }
+ 
+ void ieee80211_hw_conf_init(struct ieee80211_local *local)
+@@ -285,7 +287,7 @@
+ 
+ 	local->hw.conf.radar_enabled = ctx->radar_enabled;
+ 
+-	return _ieee80211_hw_conf_chan(local, ctx);
++	return _ieee80211_hw_conf_chan(local, ctx, 0);
+ }
+ EXPORT_SYMBOL(ieee80211_emulate_add_chanctx);
+ 
+@@ -296,7 +298,7 @@
+ 
+ 	local->hw.conf.radar_enabled = false;
+ 
+-	_ieee80211_hw_conf_chan(local, NULL);
++	_ieee80211_hw_conf_chan(local, NULL, 0);
+ }
+ EXPORT_SYMBOL(ieee80211_emulate_remove_chanctx);
+ 
+@@ -308,7 +310,7 @@
+ 
+ 	local->hw.conf.radar_enabled = ctx->radar_enabled;
+ 
+-	_ieee80211_hw_conf_chan(local, ctx);
++	_ieee80211_hw_conf_chan(local, ctx, changed);
+ }
+ EXPORT_SYMBOL(ieee80211_emulate_change_chanctx);
+ 
+@@ -323,7 +325,7 @@
+ 		return -EINVAL;
+ 
+ 	local->hw.conf.radar_enabled = vifs[0].new_ctx->radar_enabled;
+-	_ieee80211_hw_conf_chan(local, vifs[0].new_ctx);
++	_ieee80211_hw_conf_chan(local, vifs[0].new_ctx, 0);
+ 
+ 	return 0;
+ }
+

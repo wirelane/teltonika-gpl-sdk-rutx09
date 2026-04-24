@@ -7,7 +7,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=api-core
 PKG_RELEASE:=1
 PKG_LICENSE:=Teltonika-nda-source
-PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host
+PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host VUCI_COMPILE_LUA:luajit2/host
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk
@@ -17,8 +17,8 @@ define Package/api-core
   CATEGORY:=WebUI
   TITLE:= API core
   DEPENDS:=+rpcd +WIFI_SUPPORT:rpcd-mod-iwinfo +rpcd-mod-file +rpcd-mod-rpcsys +uhttpd \
-		+lua +libc +libubox-lua +libubus-lua \
-		+libuci-lua +liblua +luci-lib-jsonc +luci-lib-nixio \
+		+luajit2 +libc +libubox-lua +libubus-lua \
+		+libuci-lua +luci-lib-jsonc +luci-lib-nixio \
 		+luci-lib-ip +rpcd-mod-rrdns +uhttpd-mod-lua \
 		+libubus +luasocket +lsqlite3 +rpcd-mod-mnfinfo +luasec +rpcd-mod-uci \
 		+rpcd-mod-rc +session +openssl-util +libopenssl +libpcre2
@@ -70,7 +70,8 @@ define install_closed_gpl
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/status \
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/system \
 		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/api/network \
-		$(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d 
+		$(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d  \
+		$(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/vuci/certificates \
 
 	$(CP) $(GPL_FILES_DIR)/etc/config/vuci $(PKG_GPL_BUILD_DIR)/files/etc/config
 	$(CP) $(GPL_FILES_DIR)/bin/trigger_vuci_routes_reload $(PKG_GPL_BUILD_DIR)/files/bin
@@ -93,6 +94,7 @@ define install_closed_gpl
 	$(CP) $(GPL_FILES_DIR)/www/cgi-bin/api_dispatcher.lua $(PKG_GPL_BUILD_DIR)/files/www/cgi-bin
 	$(CP) $(GPL_FILES_DIR)/lib/upgrade/keep.d/legacy $(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d
 	$(CP) $(GPL_FILES_DIR)/lib/upgrade/keep.d/vuci.sysupgrade $(PKG_GPL_BUILD_DIR)/files/lib/upgrade/keep.d
+	$(CP) $(GPL_FILES_DIR)/usr/lib/lua/vuci/certificates/* $(PKG_GPL_BUILD_DIR)/files/usr/lib/lua/vuci/certificates
 
 	$(CP) $(PKG_BUILD_DIR)/vuci.so $(1)
 endef
@@ -109,6 +111,7 @@ define Package/api-core/install
 				$(1)/lib/config.d \
 				$(1)/usr/sbin \
 				$(1)/usr/lib/lua/ubus \
+				$(1)/usr/lib/lua/vuci/certificates \
 				$(1)/usr/lib/lua/vuci/network \
 				$(1)/usr/lib/lua/api/core \
 				$(1)/usr/lib/lua/api/system \
@@ -141,7 +144,8 @@ define Package/api-core/install
 	$(INSTALL_DATA) -D "$$$$files_dir"/usr/share/acl.d/api_modem_lib_acl.json $(1)/usr/share/acl.d/api_modem_lib_acl.json ; \
 	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/api/network/* $(1)/usr/lib/lua/api/network ; \
 	$(INSTALL_DATA) -D "$$$$files_dir"/lib/upgrade/keep.d/legacy $(1)/lib/upgrade/keep.d/legacy ; \
-	$(INSTALL_DATA) -D "$$$$files_dir"/lib/upgrade/keep.d/vuci.sysupgrade $(1)/lib/upgrade/keep.d/vuci
+	$(INSTALL_DATA) -D "$$$$files_dir"/lib/upgrade/keep.d/vuci.sysupgrade $(1)/lib/upgrade/keep.d/vuci ; \
+	$(INSTALL_BIN) -D "$$$$files_dir"/usr/lib/lua/vuci/certificates/* $(1)/usr/lib/lua/vuci/certificates
 
 	$(INSTALL_DATA) $(PKG_BUILD_DIR)/vuci.so $(1)/usr/lib/lua
 	$(INSTALL_DIR) $(1)/usr/share/acl.d/

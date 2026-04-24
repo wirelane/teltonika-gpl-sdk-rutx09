@@ -17,7 +17,7 @@ define Package/$(PKG_NAME)
 	SUBMENU:=Landing page themes
 	TITLE:=$(THEME_TITLE)
 	DEPENDS:=+vuci-app-landingpage
-	APP_HW_INFO:=ethernet/wifi
+	PKG_HW_INFO:=ethernet/wifi
 endef
 
 define Package/$(PKG_NAME)/prerm

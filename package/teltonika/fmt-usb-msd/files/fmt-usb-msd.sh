@@ -132,7 +132,12 @@ samba_in_use() {
 	for s in $dirs; do
 		s=${s#\'}
 		s=${s%\'}
-		[ "$(readlink -f $s)" = "$MOUNT" ] && return 0
+		resolved=$(readlink -f "$s")
+		case "$MOUNT" in
+			"$resolved"/*|"$resolved")
+				return 0
+			;;
+		esac
 	done
 
 	return 1

@@ -29,7 +29,7 @@
  #include <linux/pse-pd/pse.h>
  #include <linux/property.h>
  #include <linux/rtnetlink.h>
-@@ -1494,6 +1495,10 @@ int phy_attach_direct(struct net_device
+@@ -1520,6 +1521,10 @@ int phy_attach_direct(struct net_device
  
  		if (phydev->sfp_bus_attached)
  			dev->sfp_bus = phydev->sfp_bus;
@@ -40,14 +40,14 @@
  	}
  
  	/* Some Ethernet drivers try to connect to a PHY device before
-@@ -1924,6 +1929,7 @@ void phy_detach(struct phy_device *phyde
+@@ -1950,6 +1955,7 @@ void phy_detach(struct phy_device *phyde
  	if (dev) {
  		phydev->attached_dev->phydev = NULL;
  		phydev->attached_dev = NULL;
 +		phy_link_topo_del_phy(dev, phydev);
  	}
- 	phydev->phylink = NULL;
  
+ 	phydev->phy_link_change = NULL;
 --- /dev/null
 +++ b/drivers/net/phy/phy_link_topology.c
 @@ -0,0 +1,106 @@
@@ -322,7 +322,7 @@
  
  #include "dev.h"
  #include "net-sysfs.h"
-@@ -10008,6 +10009,17 @@ sync_lower:
+@@ -10021,6 +10022,17 @@ sync_lower:
  	return err < 0 ? 0 : 1;
  }
  
@@ -340,7 +340,7 @@
  /**
   *	netdev_update_features - recalculate device features
   *	@dev: the device to check
-@@ -11031,6 +11043,8 @@ void free_netdev(struct net_device *dev)
+@@ -11044,6 +11056,8 @@ void free_netdev(struct net_device *dev)
  	free_percpu(dev->xdp_bulkq);
  	dev->xdp_bulkq = NULL;
  

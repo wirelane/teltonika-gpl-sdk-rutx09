@@ -35,8 +35,10 @@ RUN apt update && apt upgrade -y \
 	flex \
 	fuse \
 	g++ \
+	g++-multilib \
 	gawk \
 	gcc \
+	gcc-multilib \
 	gengetopt \
 	gettext \
 	git \

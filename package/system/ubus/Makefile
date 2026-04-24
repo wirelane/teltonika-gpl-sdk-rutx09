@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=ubus
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_SOURCE_DATE:=2025-10-19
 PKG_ABI_VERSION:=$(call abi_version_str,$(PKG_SOURCE_DATE))
@@ -51,7 +51,7 @@ endef
 define Package/libubus-lua
   SECTION:=libs
   CATEGORY:=Libraries
-  DEPENDS:=+libubus +liblua
+  DEPENDS:=+libubus +luajit2
   TITLE:=Lua binding for the OpenWrt RPC client
 endef
 

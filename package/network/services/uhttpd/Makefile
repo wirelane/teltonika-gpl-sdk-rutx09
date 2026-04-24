@@ -8,7 +8,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=uhttpd
-PKG_RELEASE:=16
+PKG_RELEASE:=17
 
 PKG_SOURCE_VERSION=15346de8d3ba422002496526ee24c62a3601ab8c
 PKG_SOURCE_DATE:=2021-03-21
@@ -41,7 +41,7 @@ endef
 
 define Package/uhttpd
   $(Package/uhttpd/default)
-  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +liblua +libcap +libtlt-logger +TPM_SUPPORT:libtpm2_importer +TPM_SUPPORT:openssl-util
+  DEPENDS:=+libubox +libblobmsg-json +libjson-script +libjson-c +libubus +luajit2 +libcap +libtlt-logger +TPM_SUPPORT:libtpm2_importer +TPM_SUPPORT:openssl-util
   FATTRS:=/usr/sbin/uhttpd::::cap_net_bind_service,cap_net_admin,cap_net_raw=ep;/usr/lib/uhttpd_ubus.so:uhttpd:::;/usr/lib/uhttpd_lua.so:uhttpd:::
 endef
 
@@ -71,7 +71,7 @@ endef
 define Package/uhttpd-mod-lua
   $(Package/uhttpd/default)
   TITLE+= (Lua plugin)
-  DEPENDS:=uhttpd +liblua
+  DEPENDS:=uhttpd +luajit2
 endef
 
 define Package/uhttpd-mod-lua/description
@@ -112,17 +112,13 @@ endef
 
 define Package/uhttpd/conffiles
 /etc/config/uhttpd
-/etc/certificates/uhttpd.crt
-/etc/certificates/uhttpd.key
-/etc/certificates/uhttpd-ca.crt
-/etc/certificates/uhttpd-ca.key
 endef
 
 ifneq ($(CONFIG_USE_GLIBC),)
   TARGET_CFLAGS += -D_DEFAULT_SOURCE
 endif
 
-TARGET_LDFLAGS += -lcrypt -llua -lm
+TARGET_LDFLAGS += -lcrypt -lluajit-5.1 -lm
 
 CMAKE_OPTIONS += -DTLS_SUPPORT=on
 CMAKE_OPTIONS += $(if $(CONFIG_TPM_SUPPORT),-DUHTTPD_TPM_SUPPORT=on)

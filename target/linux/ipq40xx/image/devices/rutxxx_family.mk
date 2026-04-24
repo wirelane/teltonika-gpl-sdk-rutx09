@@ -1,8 +1,8 @@
 include $(INCLUDE_DIR)/hardware.mk
 
 define Device/teltonika_rutx_common
-	HARDWARE/Wireless/Wireless_Mode := $(HW_WIFI_5)
-	HARDWARE/Wireless/Wi\-Fi_Users := $(HW_WIFI_150_USERS)
+	HARDWARE/WiFi/Wireless_Mode := $(HW_WIFI_5)
+	HARDWARE/WiFi/Wi\-Fi_Users := $(HW_WIFI_150_USERS)
 	HARDWARE/WAN/Port := 1 $(HW_ETH_WAN_PORT)
 	HARDWARE/WAN/Speed := $(HW_ETH_SPEED_1000)
 	HARDWARE/WAN/Standard := $(HW_ETH_LAN_2_STANDARD)
@@ -61,8 +61,8 @@ define Device/TEMPLATE_teltonika_rutx08
 	DEVICE_FEATURES := usb ethernet ios nat_offloading \
 		multi_tag port_link gigabit_port xfrm-offload tpm reset_button usb-port modbus dot1x-client port-mirror
 
-	HARDWARE/Wireless/Wireless_Mode :=
-	HARDWARE/Wireless/Wi\-Fi_Users :=
+	HARDWARE/WiFi/Wireless_Mode :=
+	HARDWARE/WiFi/Wi\-Fi_Users :=
 	TECHNICAL/Power/Power_Consumption := 6 W Max
 	TECHNICAL/Physical_Interfaces/Status_Leds := 8 x LAN status LEDs, 1 x Power LED
 	TECHNICAL/Physical_Specification/Weight := 345 g
@@ -83,8 +83,8 @@ define Device/TEMPLATE_teltonika_rutx09
 	HARDWARE/Mobile/Module := 4G LTE Cat 6 up to 300 DL/ 50 UL Mbps; 3G up to 42 DL/ 5.76 UL Mbps
 	HARDWARE/Mobile/Modem := Quectel EG06-E, Quectel EG06-A, Quectel EG060K-EA, Quectel EG060K-NA
 	HARDWARE/Mobile/3GPP_Release := Release 12
-	HARDWARE/Wireless/Wireless_Mode :=
-	HARDWARE/Wireless/Wi\-Fi_Users :=
+	HARDWARE/WiFi/Wireless_Mode :=
+	HARDWARE/WiFi/Wi\-Fi_Users :=
 	TECHNICAL/Power/Power_Consumption := 9 W Max
 	TECHNICAL/Physical_Interfaces/Status_Leds := 3 x WAN type, 2 x Mobile connection type, 5 x Mobile connection strength, 8 x LAN status, 3 x WAN status, 1x Power
 	TECHNICAL/Physical_Interfaces/SIM := 2 $(HW_INTERFACE_SIM_HOLDERS)

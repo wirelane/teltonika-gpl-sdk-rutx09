@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/download.mk
 RCOMPR:=EXCLUDE_PATTERN="chilli_script\|chilli_response" $(RCOMPR)
 
 PKG_NAME:=coova-chilli
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-07
 PKG_MAINTAINER:=Jaehoon You <teslamint@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
 PKG_LICENSE_FILES:=COPYING

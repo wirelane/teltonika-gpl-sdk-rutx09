@@ -244,7 +244,7 @@ proto_pppoe_setup() {
 		${padi_timeout:+pppoe-padi-timeout $padi_timeout} \
 		"nic-$iface"
 
-        [ -n "$tag" ] && [ -n "$priority" ] && ip link set $iface type vlan egress $tag:$priority
+		[ -n "$tag" ] && [ -n "$priority" ] && ip link set $iface type vlan egress $tag:$priority
 }
 
 proto_pppoe_teardown() {
@@ -470,6 +470,9 @@ proto_sstp_setup() {
 	}
 
 	proto_set_user sstpc
+	local status_dir="/var/state/sstp"
+	mkdir -p "$status_dir"
+	chown sstpc:sstpc "$status_dir"
 	proto_run_command "$config" sstpc \
 	${ca:+--ca-cert $ca} \
 	--cert-warn \

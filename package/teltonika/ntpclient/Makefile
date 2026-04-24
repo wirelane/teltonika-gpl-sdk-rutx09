@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=ntpclient
-PKG_VERSION:=2026-02-11
+PKG_VERSION:=2026-04-08
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=2015_365
@@ -42,10 +42,7 @@ endef
 MAKE_FLAGS += all
 
 define Package/ntpclient/install
-	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/hotplug.d/iface $(1)/etc/hotplug.d/net \
-			$(1)/etc/config $(1)/usr/sbin $(1)/usr/share/acl.d
-
-	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/ntpclient.hotplug $(1)/etc/hotplug.d/iface/20-ntpclient
+	$(INSTALL_DIR) $(1)/etc/init.d $(1)/etc/config $(1)/usr/sbin $(1)/usr/share/acl.d
 
 	$(INSTALL_BIN_USR) $(PKG_BUILD_DIR)/files/ntpclient.init $(1)/etc/init.d/ntpclient
 	$(INSTALL_CONF_USR) $(PKG_BUILD_DIR)/files/ntpclient.config $(1)/etc/config/ntpclient

@@ -48,12 +48,6 @@
   "network/mobile/sim_switch/:id": {
     "view": "network/MobileSimSwitch"
   },
-  "network/mobile/sim_idle_protection": {
-    "title": "SIM Idle Protection"
-  },
-  "network/mobile/sim_idle_protection/:id": {
-    "title": "SIM Idle Protection"
-  },
   "network/mobile/operators": {
     "title": "Network Selection",
     "index": 70

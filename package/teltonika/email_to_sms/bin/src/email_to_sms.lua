@@ -14,8 +14,10 @@ local function get_cfg(opt)
 	return uci:get("email_to_sms", "pop3", opt)
 end
 
+local nixio = require "nixio"
+local pid = nixio.getpid()
 local function perror(msg)
-	util.exec("logger -p daemon.err -t email_to_sms %s" % util.shellquote(tostring(msg)))
+	util.exec("logger -p daemon.err -t email_to_sms["..pid.."] %s" % util.shellquote(tostring(msg)))
 end
 
 local function get_modem_query(modem)
@@ -124,6 +126,10 @@ end
 --- returns true if message was handled and should be deleted
 local function handle_message(mbox, i)
 	local id, size = mbox:list(i)
+	if not id then
+		perror("Failed to get message list")
+		return
+	end
 	if not test_header(mbox, i) then
 		return
 	end
@@ -204,6 +210,10 @@ local function main()
 	local cnt, size = mbox:stat()
 	local needs_delete = {}
 	for i = cnt > MAX_MESSAGE_TO_READ and cnt - MAX_MESSAGE_TO_READ + 1 or 1, cnt do
+		if not mbox:is_open() then
+			perror("Connection lost, aborting message processing")
+			return
+		end
 		local res = handle_message(mbox, i)
 		if res then
 			needs_delete[#needs_delete + 1] = i

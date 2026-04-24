@@ -66,21 +66,24 @@ function import_key() {
 	local hash
 	local key_path="$1"
 	hash="$(get_hash "$key_path")"
-	local working_dir="${TPM2_IMPORTER_DATA_DIR}/${hash}"
+	working_dir="${TPM2_IMPORTER_DATA_DIR}/${hash}"
 	mkdir -p "$working_dir"
 	chmod 0770 "$working_dir"
 	local key_algo
 
-	key_algo="$(get_key_algo "$key_path")" || { rc=$?; echo "$key_algo"; return $rc; }
+	trap 'rm -r "$working_dir"' EXIT
 
+	key_algo="$(get_key_algo "$key_path")" || { 
+		rc=$?
+		echo "$key_algo"
+		return $rc
+	}
 
 	tpm2_import -C $TPM_MANAGER_PRIMARY_KEY_HANDLE -G "$key_algo" -i "$key_path" -r "$working_dir/key.priv" -u "$working_dir/key.pub" > /dev/null 2>&1 || {
-		rm -r "$working_dir"
 		echo "failed to import key."
 		return $CODE_IMPORT_FAILED
 	}
 	tpm2_load -C $TPM_MANAGER_PRIMARY_KEY_HANDLE -u "$working_dir/key.pub" -r "$working_dir/key.priv" -c "$working_dir/imported.ctx" > /dev/null 2>&1 || {
-		rm -r "$working_dir"
 		echo "failed to load key."
 		return $CODE_IMPORT_FAILED
 	}
@@ -88,7 +91,6 @@ function import_key() {
 	slot="$(find_available_persistent_slot)" || { rc=$?; echo "$slot"; return $rc; }
 
 	tpm2_evictcontrol -C o -c "$working_dir/imported.ctx" "$slot" > /dev/null 2>&1 || {
-		rm -r "$working_dir"
 		echo "failed to evict key."
 		return $CODE_NO_SPACE
 	}
@@ -96,6 +98,7 @@ function import_key() {
 	echo "$slot" > "$working_dir/handle"
 	printf "# DON'T PANIC\n# This file is a placeholder and is mostly harmless\n# The key is securely stored in the TPM2 at %s\n" "$slot" > "$key_path" # destroy old key, keeping just the file path for certificate manager
 	echo "$slot"
+	trap - EXIT
 	return 0
 }
 

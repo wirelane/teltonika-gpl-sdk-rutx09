@@ -17,7 +17,6 @@ start_service() {
 	procd_set_param file /etc/config/bacnet_router
 	procd_set_param command "$APP"
 	procd_set_param user bac_router
-	procd_set_param homedir 1
 	procd_set_param respawn ${respawn_threshold:-0} ${respawn_timeout:-6} ${respawn_retry:-0}
 	procd_close_instance
 }

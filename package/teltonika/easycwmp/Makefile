@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=easycwmp
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-08
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.8.3
@@ -34,7 +34,7 @@ define Package/easycwmp
   DEPENDS:=+libubus +libuci +libubox +libmicroxml +libjson-c +libcurl +curl \
 	+TPM_SUPPORT:libtpm2_importer
   USERID:=easycwmp=521:easycwmp=521
-  USER_GROUPS:=easycwmp:network gsm chilli dnsmasq simcard
+  USER_GROUPS:=easycwmp:network gsm chilli dnsmasq simcard upnpd
 endef
 
 define Package/easycwmp/description
@@ -113,6 +113,9 @@ ifeq ($(CONFIG_EASYCWMP_SCRIPT_GPS), y)
 endif
 ifeq ($(CONFIG_EASYCWMP_SCRIPT_HOTSPOT), y)
 	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/hotspot/* $(1)/usr/share/easycwmp/functions/
+endif
+ifeq ($(CONFIG_WIFI_SUPPORT),y)
+	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/wireless/* $(1)/usr/share/easycwmp/functions/
 endif
 ifeq ($(CONFIG_EASYCWMP_DATA_MODEL_TR181),y)
 	$(CP) $(PKG_BUILD_DIR)/ext/openwrt/scripts/functions/tr181/* $(1)/usr/share/easycwmp/functions/

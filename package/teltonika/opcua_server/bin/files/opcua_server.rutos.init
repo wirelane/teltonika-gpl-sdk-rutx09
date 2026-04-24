@@ -23,7 +23,6 @@ start_service() {
 	procd_set_param command "$APP"
 	procd_set_param respawn "${respawn_threshold:-0}" "${respawn_timeout:-60}" "${respawn_retry:-0}"
 	procd_set_param user opcua_server
-	procd_set_param homedir 1
 	procd_close_instance
 }
 

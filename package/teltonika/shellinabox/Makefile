@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=shellinabox
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-07
 PKG_RELEASE:=6
 PKG_BUILD_DEPENDS:=uhttpd
 

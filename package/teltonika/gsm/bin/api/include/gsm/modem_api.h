@@ -51,6 +51,7 @@ typedef enum {
 	EVT_QIND_VALUE, /*!< QIND value event */
 	EVT_CREG_VALUE, /*!< CREG state event */
 	EVT_CGREG_VALUE, /*!< CGREG state event */
+	EVT_CEREG_VALUE, /*!< CGREG state event */
 	EVT_C5GREG_VALUE, /*!< C5GREG state event */
 
 	EVT_NEW_MDM, /*!< New modem event */
@@ -618,6 +619,27 @@ from a non-3GPP access network */
 	PDP_REQ_UNKNOWN, /*<! Unknown request type */
 
 	__PDP_REQ_MAX,
+};
+
+/**
+ * Enumeration of Network Slicing SST types
+ */
+enum net_slicing_sst_id {
+	NET_SLICING_SST_NONE, /*<! No network slicing */
+	NET_SLICING_SST_EMBB, /*<! Enhanced Mobile Broadband (eMBB) 01 */
+	NET_SLICING_SST_URLLC, /*<! Ultra-Reliable Low Latency Communications (URLLC) 02 */
+	NET_SLICING_SST_MIOT, /*<! Massive Machine Type Communications (mIoT) 03 */
+	NET_SLICING_SST_UNKNOWN, /*<! Unknown network slicing type */
+	__NET_SLICING_SST_MAX,
+};
+
+/**
+ * Structure to hold S-NSSAI information
+ * This is a common structure used in multiple AT commands
+ */
+struct net_s_nssai {
+	enum net_slicing_sst_id sst;
+	char sd[8];
 };
 
 /**
@@ -1392,6 +1414,15 @@ is in progress. */
 	QABFOTA_STATE_UNKNOWN, /*!< Unknown error occured */
 
 	__QABFOTA_STATE_MAX,
+};
+
+/**
+ * Enumeration of external antenna usage modes
+ */
+enum ext_antenna_mode {
+    EXT_ANTENNA_DISABLED,
+    EXT_ANTENNA_ENABLED,
+    EXT_ANTENNA_MISMATCH
 };
 
 /**
@@ -2552,4 +2583,33 @@ enum esm_cause_id mm5g_cause_enum(int code);
  */
 const char *evt_reject_string(evt_type_t type);
 
+/**
+ * Convert network slicing SST id string to enum.
+ * @param[in]	*arg	Network slicing SST id string argument value.
+ * @return enum net_slicing_sst_id. Enumeration of network slicing SST id value.
+ */
+enum net_slicing_sst_id net_slicing_sst_id_enum(const char *arg);
+
+/**
+ * Convert network slicing SST id enum to string.
+ * @param[in]   id  Network slicing SST id enumeration value.
+ * @return const char *. String of network slicing SST id value.
+ */
+const char *net_slicing_sst_id_str(enum net_slicing_sst_id id);
+
+/**
+ * Convert ESM cause enum to string.
+ * @param[in]   input   Input string containing S-NSSAI in format "SST[,SD]".
+ * @param[out]  s_nssai Pointer to struct net_s_nssai to store parsed values.
+ * @return int.   0 on success, -1 on failure.
+ */
+int parse_s_nssai(char *input, struct net_s_nssai *s_nssai);
+
+/**
+ * Format S-NSSAI struct into string.
+ * @param[out]  buffer  Output buffer to store formatted S-NSSAI string. * Must be at least 16 bytes.
+ * @param[in]   s_nssai Pointer to struct net_s_nssai containing values to format.
+ * @return int.   0 on success, -1 on failure.
+ */
+int format_s_nssai(char *buffer, struct net_s_nssai *s_nssai);
 #endif // GSM_MODEM_API

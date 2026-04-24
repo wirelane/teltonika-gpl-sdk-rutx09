@@ -551,6 +551,35 @@ EOF
 
 	print <<EOF;
 
+config TLT_DEVICE_WLAN_BSSID_LIMIT
+	int
+EOF
+	foreach my $target (@target) {
+		my $profiles = $target->{profiles};
+		foreach my $profile (@$profiles) {
+			next unless $profile->{included_devices};
+			my $maxbssids = 0;
+			my @indevs = ();
+			foreach my $indev (split /\s+/, $profile->{included_devices}) {
+				push(@indevs, "DEVICE_$indev");
+			}
+			foreach my $devtarget (@target) {
+				my $devprofiles = $devtarget->{profiles};
+				foreach my $devprofile (@$devprofiles) {
+					next unless grep (/^$devprofile->{id}$/, @indevs);
+					my $nbssids = 0;
+					foreach my $wlan (split /,/, $devprofile->{wlan_bssid_limit}) {
+						$nbssids += ($wlan =~ /^\s*\S+\s+(\d+)\s*$/)? $1: 0;
+					}
+					$maxbssids = ($nbssids > $maxbssids)? $nbssids: $maxbssids;
+				}
+			}
+			print "\tdefault $maxbssids if (TARGET_$target->{conf}_$profile->{id} || TARGET_DEVICE_$target->{conf}_$profile->{id})\n";
+		}
+	}
+
+	print <<EOF;
+
 config INCLUDED_DEVICES
 	string
 EOF

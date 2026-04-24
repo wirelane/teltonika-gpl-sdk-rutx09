@@ -12,6 +12,8 @@ PKG_LICENSE:=MIT
 
 include $(INCLUDE_DIR)/package.mk
 
+# PKG_TLT_NAME and PKG_ROUTER are needed for the package to show up in the Package manager.
+# Only the main package should have these - dependencies should not, otherwise they will show up in the Package manager as well.
 define Package/example_package
 	SECTION:=base
 	CATEGORY:=Base system

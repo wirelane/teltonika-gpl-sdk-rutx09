@@ -92,6 +92,54 @@ fi
 PKI="/usr/bin/pki"
 [ -x "$PKI" ] || PKI="/usr/local$PKI"
 
+ENROLLMENT_COMPLETE=0
+PREEXISTING_FILES=""
+
+mark_preexisting()
+{
+	for f in "$HOSTCERT" "$HOSTKEY" "$ROOTCA" "$SUBCA" "$RACERT" "$SUBRA" "$CERTREQ"
+	do
+		[ -z "$f" ] && continue
+		[ -f "$CERTDIR/$f" ] && PREEXISTING_FILES="$PREEXISTING_FILES $f"
+	done
+	log "Pre-existing files (will not be deleted on failure):$PREEXISTING_FILES"
+}
+
+is_preexisting()
+{
+	for pf in $PREEXISTING_FILES; do
+		[ "$pf" = "$1" ] && return 0
+	done
+	return 1
+}
+
+cleanup_on_exit()
+{
+	exit_code=$?
+	[ "$ENROLLMENT_COMPLETE" -eq 0 ] && [ -n "$CERTDIR" ] && {
+		log "Cleaning up temporary files in '$CERTDIR' after failed enrollment"
+		for f in "$HOSTCERT" "$HOSTKEY" "$ROOTCA" "$SUBCA" "$RACERT" "$SUBRA" "$CERTREQ"
+		do
+			[ -z "$f" ] && continue
+			is_preexisting "$f" && {
+				log "Preserving pre-existing file: $f"
+				continue
+			}
+			[ -f "$CERTDIR/$f" ] && {
+				rm -f "$CERTDIR/$f"
+				log "Removed temp file: $f"
+			}
+			[ -d "$CERTDIR/new" ] && [ -f "$CERTDIR/new/$f" ] && {
+				rm -f "$CERTDIR/new/$f"
+				log "Removed temp file: new/$f"
+			}
+		done
+	}
+	exit $exit_code
+}
+
+trap cleanup_on_exit EXIT
+
 ##############################################################################
 # Define some local functions
 #
@@ -117,12 +165,12 @@ function gen_cert_request()
 		"$SAN" "$ADD_SANS" \
 		--profile $PROFILE --outform pem > "$1/$CERTREQ" || status=$?
 
-	if [ $status -ne 0 ] || [ ! -s "$1" ]
+	if [ $status -ne 0 ] || [ ! -s "$1/$CERTREQ" ]
 	then
 		log "Error: generation of PKCS#10 certificate request failed"
 		exit 1
 	fi
-	chmod 660 $1
+	chmod 660 "$1/$CERTREQ"
 	log "generated PKCS#10 certificate request"
 }
 
@@ -289,6 +337,19 @@ mkdir -p "$CERTDIR"/new "$CERTDIR"/old
 cd "$CERTDIR"
 log "changed into the '$CERTDIR' directory"
 
+mark_preexisting
+log "Cleaning up stale temp files for CN: $HOSTCERT, $HOSTKEY, $ROOTCA, $SUBCA, $RACERT, $SUBRA, $CERTREQ"
+for f in "$HOSTCERT" "$HOSTKEY" "$ROOTCA" "$SUBCA" "$RACERT" "$SUBRA" "$CERTREQ"; do
+	[ -e "new/$f" ] && {
+		log "Removing stale temp file: new/$f"
+		rm -f "new/$f"
+	}
+	[ -e "old/$f" ] && {
+		log "Removing stale temp file: old/$f"
+		rm -f "old/$f"
+	}
+done
+
 #############################################################################
 # Fetch the CA certificates with the selected enrollment protocol if possible
 #
@@ -317,16 +378,18 @@ then
 		}
 	}' -)
 
-	if [ "$DAYS" -ge "$MIN_DAYS" ]
+	if [ "$DAYS" -ge "$MIN_DAYS" ] &&  [ $FORCE -ne 1 ]
 	then
 		log "Ok: validity of '""$HOSTCERT""' is $DAYS days," \
 		"more than the minimum of $MIN_DAYS days"
 		if [ $(expr $DAYS % $CA_CHECK_INTERVAL) -eq 0 ]
 		then
-			check_ca_certs && exit 0
+			check_ca_certs && ENROLLMENT_COMPLETE=1 && exit 0
 			# update CA certificates if any of them changed
+			ENROLLMENT_COMPLETE=1
 			install_certs
 		fi
+		ENROLLMENT_COMPLETE=1
 		exit 0
 	fi
 	log "Warning: validity of '$HOSTCERT' is only $DAYS days," \
@@ -368,25 +431,35 @@ then
 	if [ $status -ne 0 ] || [ ! -s "$HOSTCERT" ]
 	then
 		log "Error: re-enrollment via $PROTOCOL failed"
+		# Do not delete or move any existing (old/current) certificates or keys on failure
+		rm -f "new/$HOSTKEY" "new/$HOSTCERT" "new/$CERTREQ"
 		exit 1
 	fi
 	log "Ok: successfully re-enrolled '$HOSTCERT' via $PROTOCOL"
 
 ##############################################################################
-# Replace old key and certificate
+# Replace old key and certificate ONLY if new files exist
 #
-	mv "$HOSTKEY" "$HOSTCERT" old
-	mv "new/$HOSTKEY" "new/$HOSTCERT" .
-	if [ "$PROTOCOL" = "EST" ]
-	then
-		mv "$CERTREQ" old
-		mv "new/$CERTREQ" .
-	fi
-	log "replaced old '""$HOSTKEY""' and '""$HOSTCERT""'"
+	[ -s "new/$HOSTKEY" ] && [ -s "new/$HOSTCERT" ] && {
+		log "Moving old key and cert to backup, replacing with new ones."
+		mv "$HOSTKEY" old/ 2>/dev/null || log "Warning: could not move $HOSTKEY to old/"
+		mv "$HOSTCERT" old/ 2>/dev/null || log "Warning: could not move $HOSTCERT to old/"
+		mv "new/$HOSTKEY" .
+		mv "new/$HOSTCERT" .
+		[ "$PROTOCOL" = "EST" ] && [ -s "new/$CERTREQ" ] && {
+			mv "$CERTREQ" old/ 2>/dev/null || log "Warning: could not move $CERTREQ to old/"
+			mv "new/$CERTREQ" .
+		}
+		log "replaced old '""$HOSTKEY""' and '""$HOSTCERT""'"
+	} || {
+		log "Error: New key or certificate missing after successful reenrollment. Old files not touched."
+		exit 1
+	}
 
 ##############################################################################
 # Install keys and certificates
 #
+	ENROLLMENT_COMPLETE=1
 	install_certs
 	exit 0
 else
@@ -431,15 +504,16 @@ else
 	if [ $status -ne 0 ] || [ ! -s "$HOSTCERT" ]
 	then
 		log "Error: enrollment via $PROTOCOL failed"
-		rm "$HOSTKEY" "new/$HOSTKEY"
+		rm "new/$HOSTKEY"
 		exit 1
 	fi
-	log "Ok: successfully enrolled '""$HOSTCERT""' via $PROTOCOL"
-
+	chmod 660 "$HOSTCERT"
+	log "Ok: successfully enrolled '$HOSTCERT' via $PROTOCOL"
 
 ##############################################################################
 # Install keys and certificates
 #
+	ENROLLMENT_COMPLETE=1
 	install_certs
 	exit 0
 fi

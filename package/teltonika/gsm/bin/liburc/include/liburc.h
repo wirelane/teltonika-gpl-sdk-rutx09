@@ -50,6 +50,13 @@ typedef enum {
 } urc_net_state_t;
 
 typedef enum {
+	NET_STATE_C5GREG_VALUE,
+	NET_STATE_C5GREG_MODEM_ID,
+	NET_STATE_C5GREG_S_NSSAI,
+	__NET_STATE_C5GREG_MAX,
+} urc_net_state_c5greg_t;
+
+typedef enum {
 	QIND_PERCENT_VALUE,
 	QIND_ERROR_VALUE,
 	QIND_STATE_VALUE,
@@ -158,10 +165,20 @@ struct pin_state_t {
 	const char *modem_id;
 };
 
+//ensure same memory layout for both net_state_t and net_state_c5greg_t
+#pragma pack(push, 1)
 struct net_state_t {
 	enum net_reg_stat_id state;
 	const char *modem_id;
 };
+
+struct net_state_c5greg_t {
+	enum net_reg_stat_id state;
+	const char *modem_id;
+	char s_nssai_list[16][10]; // assuming max 16 s_nssai, each max length 10
+	size_t s_nssai_count;
+};
+#pragma pack(pop)
 
 struct net_data_state_t {
 	enum net_data_stat_id state;

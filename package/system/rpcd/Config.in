@@ -6,6 +6,10 @@ config RPCD_PAM
 	bool "Enable PAM support"
 	default n
 
+config RPCD_2FA
+	bool "Enable 2FA support"
+	default n
+
 comment "Plugins"
 
 endif

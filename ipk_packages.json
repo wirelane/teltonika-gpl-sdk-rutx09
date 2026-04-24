@@ -15,12 +15,12 @@
 	},
 	"vuci-app-azure-iothub-ui": {
 		"vuci_dep": "vuci-app-azure-iothub-api vuci-app-data-sender-api-mod-azure",
-		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo liblua libtlt_uci libuuid1 libapi",
+		"base_dep": "libazure-iot-sdk-c azure_iothub libmnfinfo luajit2 libtlt_uci libuuid1 libapi",
 		"name": "azure_iot_hub"
 	},
 	"vuci-app-cumulocity-ui": {
 		"vuci_dep": "vuci-app-cumulocity-api",
-		"base_dep": "cmStreamApp liblua libtlt_uci libcurl",
+		"base_dep": "cmStreamApp luajit2 libtlt_uci libcurl",
 		"name": "cumulocity_-_cloud_of_things"
 	},
 	"vuci-app-https-dns-proxy-ui": {
@@ -253,7 +253,7 @@
 		"base_dep": "frr frr-zebra frr-libfrr frr-eigrpd libcap libjson-c5 libyang libpcre2 libprotobuf-c",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api vuci-app-dynamic-routes-eigrp-ui",
+		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api vuci-app-dynamic-routes-eigrp-ui vuci-app-vpn-utils-api",
 		"name": "eigrp_daemon"
 	},
 	"frr-nhrpd-meta": {
@@ -300,7 +300,7 @@
 		"base_dep": "frr8 frr8-zebra frr8-libfrr frr8-eigrpd libcap libjson-c5 libyang8 libpcre2",
 		"kmod_dep": "libc libatomic1 libpthread",
 		"packages_dep": "librt",
-		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api vuci-app-dynamic-routes-eigrp-ui",
+		"vuci_dep": "vuci-app-dynamic-routes-eigrp-api vuci-app-dynamic-routes-eigrp-ui vuci-app-vpn-utils-api",
 		"name": "eigrp_daemon"
 	},
 	"frr8-nhrpd-meta": {
@@ -733,5 +733,15 @@
 		"packages_dep": "libaio libsctp libkmod libjpeg-turbo",
 		"kmod_dep": "kmod-sctp",
 		"name": "stress-ng"
+	},
+	"ds-lite": {
+		"base_dep": "resolveip",
+		"kmod_dep": "kmod-ip6-tunnel",
+		"name": "ds-lite"
+	},
+	"vuci-app-sso-ui": {
+		"base_dep": "session-oauth2 libjson-c libcurl libopenssl",
+		"name":"sso",
+		"vuci_dep": "vuci-app-sso-api"
 	}
 }

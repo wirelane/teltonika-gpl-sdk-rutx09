@@ -5,7 +5,7 @@ APP_CATEGORY?=VuCI
 PKG_NAME?=$(APP_NAME)
 PKG_RELEASE?=1
 PKG_LICENSE?=Teltonika-nda-source
-PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host
+PKG_BUILD_DEPENDS:=VUCI_MINIFY_LUA:luasrcdiet/host VUCI_COMPILE_LUA:luajit2/host
 
 include $(INCLUDE_DIR)/package.mk
 include ../utils.mk

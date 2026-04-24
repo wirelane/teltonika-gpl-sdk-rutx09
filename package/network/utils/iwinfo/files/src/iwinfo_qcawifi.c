@@ -356,7 +356,7 @@ static int qcawifi_get_txpower(const char *ifname, int *buf)
 static int qcawifi_get_bitrate(const char *ifname, int *buf)
 {
 	unsigned int mode, len, rate, rate_count;
-	uint8_t tmp[24*1024];
+	uint8_t tmp[64*1024];
 	uint8_t *cp;
 	struct iwreq wrq;
 	struct ieee80211req_sta_info *si;
@@ -369,7 +369,7 @@ static int qcawifi_get_bitrate(const char *ifname, int *buf)
 	/* Calculate bitrate average from associated stations */
 	rate = rate_count = 0;
 
-	if ((len = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, 24*1024)) > 0) {
+	if ((len = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, sizeof(tmp))) > 0) {
 		cp = tmp;
 
 		while (len >= sizeof(struct ieee80211req_sta_info)) {
@@ -396,7 +396,7 @@ static int qcawifi_get_bitrate(const char *ifname, int *buf)
 static int qcawifi_get_signal(const char *ifname, int *buf)
 {
 	unsigned int mode, len, signal, signal_count;
-	uint8_t tmp[24*1024];
+	uint8_t tmp[64*1024];
 	uint8_t *cp;
 	struct iwreq wrq;
 	struct ieee80211req_sta_info *si;
@@ -408,7 +408,7 @@ static int qcawifi_get_signal(const char *ifname, int *buf)
 
 	signal = signal_count = 0;
 
-	if ((len = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, 24*1024)) > 0) {
+	if ((len = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, sizeof(tmp))) > 0) {
 		cp = tmp;
 
 		while (len >= sizeof(struct ieee80211req_sta_info)) {
@@ -438,7 +438,7 @@ static int qcawifi_get_noise(const char *ifname, int *buf)
 static int qcawifi_get_quality(const char *ifname, int *buf)
 {
 	unsigned int mode, len, quality, quality_count;
-	uint8_t tmp[24*1024];
+	uint8_t tmp[64*1024] = { 0 };
 	uint8_t *cp;
 	struct iwreq wrq;
 	struct ieee80211req_sta_info *si;
@@ -450,7 +450,7 @@ static int qcawifi_get_quality(const char *ifname, int *buf)
 
 	quality = quality_count = 0;
 
-	if ((len = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, 24*1024)) > 0) {
+	if ((len = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, sizeof(tmp))) > 0) {
 		cp = tmp;
 
 		while (len >= sizeof(struct ieee80211req_sta_info)) {
@@ -496,7 +496,7 @@ static int qcawifi_get_assoclist(const char *ifname, char *buf, int *len)
 {
 	int bl, tl, noise;
 	uint8_t *cp;
-	uint8_t tmp[24*1024];
+	uint8_t tmp[64*1024];
 	struct ieee80211req_sta_info *si;
 	struct iwinfo_assoclist_entry entry;
 
@@ -505,7 +505,7 @@ static int qcawifi_get_assoclist(const char *ifname, char *buf, int *len)
 	if (!qcawifi_isvap(ifname, NULL)) 
 		return -1;
 
-	if ((tl = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, 24*1024)) > 1) {
+	if ((tl = get80211priv(ifname, IEEE80211_IOCTL_STA_INFO, tmp, sizeof(tmp))) > 1) {
 		cp = tmp;
 		bl = 0;
 

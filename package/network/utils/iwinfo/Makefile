@@ -44,7 +44,7 @@ define Package/libiwinfo-lua
   SECTION:=lang
   CATEGORY:=Languages
   TITLE:=libiwinfo Lua binding
-  DEPENDS:=+libiwinfo +liblua
+  DEPENDS:=+libiwinfo +luajit2
 endef
 
 define Package/libiwinfo-lua/description
@@ -76,6 +76,7 @@ endef
 
 TARGET_CFLAGS += \
 	-I$(STAGING_DIR)/usr/include/libnl-tiny \
+	-I$(STAGING_DIR)/usr/include/luajit-2.1 \
 	-I$(STAGING_DIR)/usr/include \
 	-D_GNU_SOURCE
 

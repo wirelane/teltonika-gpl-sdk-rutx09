@@ -553,7 +553,7 @@ as adding/removing interfaces.
 @@ -339,6 +343,13 @@ void _wpa_printf(int level_flags, const
  #endif /* CONFIG_DEBUG_FILE */
  	int write_log = level_flags & MSG_LOGFILE;
- 	int level = ~(MSG_LOGFILE) & level_flags;
+ 	int level = ~MSG_LOGFILE & level_flags;
 +
 +	if (wpa_printf_hook) {
 +		va_start(ap, fmt);

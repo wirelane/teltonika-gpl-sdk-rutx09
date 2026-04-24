@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=inetd-ubus
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-07
 PKG_SOURCE_VERSION:=7.22
 PKG_LICENSE:=Teltonika-closed
 

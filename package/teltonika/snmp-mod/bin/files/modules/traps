@@ -41,9 +41,19 @@ traps_mib_group_pwr0='powerVoltageNotification,
 
 traps_mib_gsm='
 signalChangeNotification NOTIFICATION-TYPE
+	OBJECTS		{ signalChangeTriggerDescr }
 	STATUS		current
 	DESCRIPTION	"Signal strength trap"
 	::= { mobileNotifications 1 }
+
+mobileNotificationObjects OBJECT IDENTIFIER ::= { mobileNotifications 3 }
+
+signalChangeTriggerDescr OBJECT-TYPE
+	SYNTAX		DisplayString (SIZE (0..255))
+	MAX-ACCESS	accessible-for-notify
+	STATUS		current
+	DESCRIPTION	"Signal strength trap trigger description"
+	::= { mobileNotificationObjects 1 }
 
 networkTypeNotification NOTIFICATION-TYPE
 	STATUS		current

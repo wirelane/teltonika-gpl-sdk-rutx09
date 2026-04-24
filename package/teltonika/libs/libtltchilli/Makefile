@@ -6,7 +6,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/download.mk
 
 PKG_NAME:=libtltchilli
-PKG_VERSION:=2026-03-13
+PKG_VERSION:=2026-04-07
 PKG_RELEASE:=1
 
 PKG_SOURCE_VERSION:=1.3

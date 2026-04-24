@@ -12,6 +12,8 @@ PACKAGE_FILE="/etc/package_restore.txt"
 	sed -i "s/frr-bfdd/frr8-bfdd/g" "$PACKAGE_FILE"
 	sed -i "s/frr-vtysh/frr8-vtysh/g" "$PACKAGE_FILE"
 	sed -i "s/dmvpn /dmvpn_frr8 /g" "$PACKAGE_FILE"
+	sed -i "s/bfdd-frr /bfdd-frr8 /g" "$PACKAGE_FILE"
+	sed -i "s/mpls /mpls8 /g" "$PACKAGE_FILE"
 }
 
 exit 0
