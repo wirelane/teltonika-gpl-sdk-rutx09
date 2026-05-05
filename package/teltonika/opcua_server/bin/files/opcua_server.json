@@ -46,6 +46,11 @@
 				"get_service_provider"
 			]
 		},
+		"wan_info": {
+			"methods": [
+				"get"
+			]
+		},
 		"network.interface": {
 			"methods": [
 				"dump"

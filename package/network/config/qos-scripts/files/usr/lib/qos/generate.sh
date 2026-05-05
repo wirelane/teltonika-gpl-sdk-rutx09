@@ -7,6 +7,8 @@
 	insmod="insmod"
 }
 
+QOS_STATE_DIR="/var/run/qos"
+
 add_insmod() {
 	eval "export isset=\${insmod_$1}"
 	case "$isset" in
@@ -230,6 +232,27 @@ get_mobile_device() {
 
 }
 
+get_ifbdev() {
+	local iface="$1"
+	local state_file="$QOS_STATE_DIR/$iface.ifbdev"
+
+	[ -f "$state_file" ] && {
+		cat "$state_file"
+		return 0
+	}
+
+	local idx=0
+	while [ -f "$QOS_STATE_DIR/ifb$idx.lock" ]; do
+		idx=$((idx + 1))
+	done
+
+	mkdir -p "$QOS_STATE_DIR"
+	echo "$idx" > "$state_file"
+	echo "$iface" > "$QOS_STATE_DIR/ifb$idx.lock"
+
+	echo "$idx"
+}
+
 qos_parse_config() {
 	config_get TYPE "$1" TYPE
 	case "$TYPE" in
@@ -244,7 +267,7 @@ qos_parse_config() {
 				}
 
 				config_get classgroup "$1" classgroup
-				config_set "$1" ifbdev "$C"
+				config_set "$1" ifbdev "$(get_ifbdev "$1")"
 				C=$(($C+1))
 				append INTERFACES "$1"
 				config_set "$classgroup" enabled 1

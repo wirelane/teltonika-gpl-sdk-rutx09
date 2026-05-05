@@ -1,3 +1,10 @@
+# 2026-04-28 00.07.23.1
+
+### Fix
+
+* Mobile: fixed data connection issue with operators whose MNC is "00" for OTD140, OTD164, RUT206, RUT241, RUT361, RUT951, RUT956, RUTM09, RUTM11, RUTX09, RUTX11, RUTX12, RUTXR1, TRB1 family, TRB246, TRB256 (ID: 34506)
+* QOS: fixed incorrect QoS being applied to interfaces after changing interface metric (ID: 34575)
+
 # 2026-04-21 00.07.23
 
 ### New
