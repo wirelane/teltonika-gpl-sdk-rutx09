@@ -678,16 +678,12 @@ config_passthrough() {
 		[ -n "$passthrough_remote" ] && passthrough_remote="remote_ts = $(get_passthrough "$passthrough_remote")"
 	fi
 	[ -z "$passthrough_local" ] && [ -z "$passthrough_remote" ] && return
-	swanctl_xappend1 "passthrough-$section-$iter_pass {"
-	swanctl_xappend2 "children {"
 	swanctl_xappend3 "passthrough-$section-$iter_pass {"
 	swanctl_xappend4 "mode = pass"
 	swanctl_xappend4 "start_action = route"
 	[ -n "$passthrough_local" ] && swanctl_xappend4 "$passthrough_local"
 	[ -n "$passthrough_remote" ] && swanctl_xappend4 "$passthrough_remote"
 	swanctl_xappend3 "}"
-	swanctl_xappend2 "}"
-	swanctl_xappend1 "}"
 	iter_pass="$((iter_pass+1))"
 }
 
@@ -835,17 +831,6 @@ config_remote() {
 
 	swanctl_xappend0 "# config for $conf"
 
-	if [ "$defaultroute" = 1 ] || [ -n "$passthrough" ] || [ -n "$passthrough_local" ] || [ -n "$passthrough_remote" ]; then
-		local iter_pass=1
-		swanctl_xappend0 "connections {"
-		[ "$defaultroute" = 1 ] && config_passthrough "lan" "${conf}_c"
-		config_list_foreach "${conf}_c" passthrough config_passthrough "${conf}_c"
-		config_passthrough "" "${conf}_c"
-		iter_pass=1
-		swanctl_xappend0 "}"
-		swanctl_xappend0 ""
-	fi
-
 	if [ $comp_mode = 1 ]; then
 		config_child "${conf}_c" "default_section"
 		swanctl_xappend0 ""
@@ -878,8 +863,12 @@ config_remote() {
 		xauth)
 			config_round "local" "psk"
 			config_round "remote" "psk"
-			config_round "local" "xauth"
-			config_round "remote" "xauth"
+			case "$remote_gateway" in
+			"%any"|"0.0.0.0"|"0.0.0.0/0"|"::"|"::/0")
+				config_round "remote" "xauth" ;;
+			*)
+				config_round "local" "xauth" ;;
+			esac
 			;;
 		eap-mschapv2)
 			config_round "remote" "eap-mschapv2"
@@ -903,10 +892,22 @@ config_remote() {
 		config_get rightprotoport "${conf}_c" rightprotoport ""
 		swanctl_xappend2 "children {"
 		split_sa "${conf}_c" "$local_subnet" "$remote_subnet" "$leftprotoport" "$rightprotoport"
+		if [ "$defaultroute" = 1 ] || [ -n "$passthrough" ] || [ -n "$passthrough_local" ] || [ -n "$passthrough_remote" ]; then
+			local iter_pass=1
+			[ "$defaultroute" = 1 ] && config_passthrough "lan" "${conf}_c"
+			config_list_foreach "${conf}_c" passthrough config_passthrough "${conf}_c"
+			config_passthrough "" "${conf}_c"
+		fi
 		swanctl_xappend2 "}"
 	else
 		swanctl_xappend2 "children {"
 		config_child "${conf}_c"
+		if [ "$defaultroute" = 1 ] || [ -n "$passthrough" ] || [ -n "$passthrough_local" ] || [ -n "$passthrough_remote" ]; then
+			local iter_pass=1
+			[ "$defaultroute" = 1 ] && config_passthrough "lan" "${conf}_c"
+			config_list_foreach "${conf}_c" passthrough config_passthrough "${conf}_c"
+			config_passthrough "" "${conf}_c"
+		fi
 		swanctl_xappend2 "}"
 	fi
 
