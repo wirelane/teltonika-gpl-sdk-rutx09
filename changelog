@@ -1,3 +1,20 @@
+# 2026-05-12 00.07.22.3
+
+### Fix
+
+* Backup: fixed saving of crontabs (ID: 36069)
+
+### CVE Patches
+
+* CVE-2026-31431 - 7.8 (HIGH) (ID: 35143)
+* CVE-2026-43284 - 7.8 (HIGH) (ID: 36193)
+
+# 2026-04-16 00.07.22.2
+
+### Fix
+
+* RutOS: fixed leds not working properly for devices with specific hardware version for OTD144 (ID: 34448)
+
 # 2026-04-08 00.07.22.1
 
 ### Fix

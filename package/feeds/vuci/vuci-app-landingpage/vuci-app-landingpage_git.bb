@@ -36,10 +36,8 @@ do_install() {
     cp -a --no-preserve=ownership "${S}/files/." "${D}/"
 
     chmod 0755 "${D}${sysconfdir}/chilli/hotspotlogin/cgi-bin/hotspot"
-}
 
-pkg_postinst:${PN}() {
-    chown landingpage:landingpage "$D${sysconfdir}/config/landingpage"
+    chown landingpage:landingpage "${D}${sysconfdir}/config/landingpage"
 }
 
 pkg_postinst_ontarget:${PN}() {
