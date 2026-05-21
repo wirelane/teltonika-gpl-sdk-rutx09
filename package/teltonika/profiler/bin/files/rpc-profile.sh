@@ -68,10 +68,10 @@ main() {
 			json_get_var name name
 			json_get_var force force
 			json_get_var no_reload no_reload
-			local args="-c \"$name\""
-			[ "$force" -eq 1 ] && args="$args -f"
-			[ "$no_reload" -eq 1 ] && args="$args -n"
-			eval run_profile_cmd $args
+			set -- -c "$name"
+			[ "$force" -eq 1 ] && set -- "$@" -f
+			[ "$no_reload" -eq 1 ] && set -- "$@" -n
+			run_profile_cmd "$@"
 			;;
 		update)
 			run_profile_cmd -u

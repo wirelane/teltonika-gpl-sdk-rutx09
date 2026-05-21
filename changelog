@@ -1,4 +1,20 @@
+# 2026-05-19 00.07.23.3
+
+### Fix
+
+* Mobile: fixed missing MBN definitions for some cellular operators for RUT281, RUT286, RUTC40, RUT981, RUT986 (ID: 36383)
+* Network: fixed validation error when changing interface devices and enabling WAN to LAN at the same time (ID: 36200)
+
+### CVE Patches
+
+* CVE-2026-8914 - 8.5 (HIGH) (ID: 36693)
+
 # 2026-05-08 00.07.23.2
+
+### Fix
+
+* IPsec: fixed xauth not working in certain conditions (ID: 33829)
+* Network: fixed interface and DHCP desynchronization after interface name change for Router family (ID: 35189)
 
 ### CVE Patches
 
