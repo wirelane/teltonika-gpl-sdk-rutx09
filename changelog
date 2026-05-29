@@ -1,3 +1,18 @@
+# 2026-05-27 00.07.23.4
+
+### Fix
+
+* Wireless: fixed wireless scan when switched to DFS channel for RUTM family, OTD164, TAP200, ATRM family (ID: 31593)
+
+### CVE Patches
+
+* CVE-2026-2291 - 7.3 (HIGH) for Router family (ID: 36902)
+* CVE-2026-4890 - 7.5 (HIGH) for Router family (ID: 36902)
+* CVE-2026-4891 - 5.3 (MEDIUM) for Router family (ID: 36902)
+* CVE-2026-4892 - 8.4 (HIGH) for Router family (ID: 36902)
+* CVE-2026-4893 - 5.3 (MEDIUM) for Router family (ID: 36902)
+* CVE-2026-5172 - 7.3 (HIGH) for Router family (ID: 36902)
+
 # 2026-05-19 00.07.23.3
 
 ### Fix
