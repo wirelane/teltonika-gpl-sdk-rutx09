@@ -13,6 +13,9 @@ TLT_GIT := git@$(TLT_HOST):teltonika
 CI_PROJECT_ID ?= 352
 TLT_PACKAGE_API := https://$(TLT_HOST)/api/v4/projects/$(CI_PROJECT_ID)/packages/generic
 
+CACHE_SERVER_HOST ?= 10.65.2.6
+export CACHE_SERVER_HOST
+
 ifdef PKG_SOURCE_VERSION
   ifndef PKG_VERSION
     PKG_VERSION := $(if $(PKG_SOURCE_DATE),$(PKG_SOURCE_DATE)-)$(call version_abbrev,$(PKG_SOURCE_VERSION))

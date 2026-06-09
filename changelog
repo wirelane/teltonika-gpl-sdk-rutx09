@@ -1,3 +1,10 @@
+# 2026-06-01 00.07.23.5
+
+### Fix
+
+* Backup: fixed backup generation for child endpoints (ID: 37036)
+* Mobile: fixed application segmentation fault with low signal reconnect enabled (ID: 37051)
+
 # 2026-05-27 00.07.23.4
 
 ### Fix

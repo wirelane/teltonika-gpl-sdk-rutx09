@@ -110,7 +110,7 @@ endef
 
 
 OPKG_TARGET_UPPER:=$(shell echo $(CONFIG_TLT_VERSIONING_PREFIX) | tr '[:lower:]' '[:upper:]')$(if $(CONFIG_TEST_IMAGE),-TEST)
-#								grep for '_R_' (release prefix) in FW version
+OPKG_ENVIRONMENT_TYPE:=--$(if $(findstring $(OPKG_TARGET_UPPER)_R_,$(TLT_VERSION)),production,demo)
 
 $(eval $(call BuildPackage,opkg))
 $(eval $(call HostBuild))
