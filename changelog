@@ -1,3 +1,9 @@
+# 2026-06-05 00.07.22.4
+
+### Improvements
+
+* Backup: restored backup generation to backup without API (ID: 37196)
+
 # 2026-05-12 00.07.22.3
 
 ### Fix
